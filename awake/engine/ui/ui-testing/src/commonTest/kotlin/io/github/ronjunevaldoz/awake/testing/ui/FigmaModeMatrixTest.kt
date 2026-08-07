@@ -24,9 +24,9 @@ class FigmaModeMatrixTest {
                         UiSemanticIssue(
                             kind = UiSemanticIssueKind.MismatchedToken,
                             nodeId = "test-node",
-                            message = "contrast issue"
-                        )
-                    )
+                            message = "contrast issue",
+                        ),
+                    ),
                 )
             } else {
                 UiSemanticReport(emptyList())

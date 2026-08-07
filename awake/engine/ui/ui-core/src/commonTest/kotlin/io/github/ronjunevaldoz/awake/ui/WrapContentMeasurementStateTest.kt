@@ -1,16 +1,18 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 /**
  * Regression test for the real bug report: a `verticalScroll` column wrapping a WrapContent
@@ -47,9 +49,13 @@ class WrapContentMeasurementStateTest {
         var slotShort: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
-            modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax)) {
+            modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax),
+        ) {
             slotShort = surface(
-                id = "content", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent), content = content)
+                id = "content",
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent),
+                content = content,
+            )
         }
         ui.endFrame()
 
@@ -64,9 +70,13 @@ class WrapContentMeasurementStateTest {
         var slotLong: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
-            modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax)) {
+            modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax),
+        ) {
             slotLong = surface(
-                id = "content", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent), content = content)
+                id = "content",
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent),
+                content = content,
+            )
         }
         ui.endFrame()
 
@@ -74,7 +84,7 @@ class WrapContentMeasurementStateTest {
             (slotLong?.height ?: 0f) > (slotShort?.height ?: 0f) * 5f,
             "WrapContent surface must size against the real 'long' page content (20 rows) " +
                 "once state changes, not the default 'short' page (1 row) the trial " +
-                "measurement pass fell back to -- short=${slotShort?.height} long=${slotLong?.height}"
+                "measurement pass fell back to -- short=${slotShort?.height} long=${slotLong?.height}",
         )
     }
 
@@ -88,7 +98,7 @@ class WrapContentMeasurementStateTest {
 
     private fun measureAfterNavigation(
         stateKey: String,
-        wrap: io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiBounds) -> Unit) -> UiBounds
+        wrap: io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiBounds) -> Unit) -> UiBounds,
     ): Pair<Float, Float> {
         val content = statefulRows(stateKey)
         val ui = UiContext()
@@ -96,7 +106,8 @@ class WrapContentMeasurementStateTest {
         var slotShort: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
-            modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax)) {
+            modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax),
+        ) {
             slotShort = wrap(this, content)
         }
         ui.endFrame()
@@ -107,7 +118,8 @@ class WrapContentMeasurementStateTest {
         var slotLong: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
-            modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax)) {
+            modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(Dimension.FillMax),
+        ) {
             slotLong = wrap(this, content)
         }
         ui.endFrame()
@@ -126,7 +138,7 @@ class WrapContentMeasurementStateTest {
         }
         assertTrue(
             long > short * 5f,
-            "double-nested WrapContent (surface -> column) must size against real state -- short=$short long=$long"
+            "double-nested WrapContent (surface -> column) must size against real state -- short=$short long=$long",
         )
     }
 
@@ -141,7 +153,7 @@ class WrapContentMeasurementStateTest {
         }
         assertTrue(
             long > short * 5f,
-            "double-nested WrapContent (column -> surface) must size against real state -- short=$short long=$long"
+            "double-nested WrapContent (column -> surface) must size against real state -- short=$short long=$long",
         )
     }
 }

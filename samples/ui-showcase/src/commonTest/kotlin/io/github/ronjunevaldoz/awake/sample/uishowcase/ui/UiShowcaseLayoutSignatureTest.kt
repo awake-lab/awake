@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreview
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
 import io.github.ronjunevaldoz.awake.testing.ui.describeLayout
 import io.github.ronjunevaldoz.awake.testing.ui.layoutSignature
 import kotlin.test.Test
@@ -28,7 +26,7 @@ class UiShowcaseLayoutSignatureTest {
         assertEquals(
             expectedShowcaseLayoutSignatures.size,
             actual.size,
-            "Preview page count changed. Refresh the expected matrix:\n${actual.toExpectedSignatureMatrix()}"
+            "Preview page count changed. Refresh the expected matrix:\n${actual.toExpectedSignatureMatrix()}",
         )
         expectedShowcaseLayoutSignatures.forEach { (id, expectedSignature) ->
             val entry = requireNotNull(UiShowcasePreviewEntries.find { previewMetadataFor(it).id == id }) { "Missing preview $id" }
@@ -77,5 +75,5 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-shimmer" to 0x8a0f1cda327975f7uL,
     "ui-showcase-collapsible" to 0xd30342b336d8d62auL,
     "ui-showcase-collapsible-open" to 0x5391468f2f853542uL,
-    "ui-showcase-field-demo" to 0x8a0f1cda327975f7uL
+    "ui-showcase-field-demo" to 0x8a0f1cda327975f7uL,
 )

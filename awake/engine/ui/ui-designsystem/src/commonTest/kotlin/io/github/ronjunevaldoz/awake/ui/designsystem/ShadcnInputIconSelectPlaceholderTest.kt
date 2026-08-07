@@ -7,11 +7,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnI
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -34,7 +33,7 @@ class ShadcnInputIconSelectPlaceholderTest {
                 id = "search",
                 value = "hello",
                 modifier = Modifier.width(240f.dp).height(40f.dp),
-                leadingIcon = { text("S", modifier = Modifier.width(12f.dp)) }
+                leadingIcon = { text("S", modifier = Modifier.width(12f.dp)) },
             )
 
         val semantics = ui.finishFrame().semantics
@@ -44,7 +43,7 @@ class ShadcnInputIconSelectPlaceholderTest {
         val valueBounds = value.contentBounds!!
         assertTrue(
             valueBounds.x >= iconBounds.x + iconBounds.width,
-            "typed text must start after the leading icon slot, not underneath it"
+            "typed text must start after the leading icon slot, not underneath it",
         )
     }
 
@@ -61,7 +60,7 @@ class ShadcnInputIconSelectPlaceholderTest {
                 id = "password",
                 value = real,
                 modifier = Modifier.width(240f.dp).height(40f.dp),
-                visualTransformation = { "*".repeat(it.length) }
+                visualTransformation = { "*".repeat(it.length) },
             )
 
         // `value`/return value carry the real typed text untouched.
@@ -87,7 +86,7 @@ class ShadcnInputIconSelectPlaceholderTest {
                 options = listOf("Apple", "Banana"),
                 selectedIndex = null,
                 modifier = Modifier.width(200f.dp),
-                placeholder = "Choose a fruit"
+                placeholder = "Choose a fruit",
             )
 
         val semantics = ui.finishFrame().semantics

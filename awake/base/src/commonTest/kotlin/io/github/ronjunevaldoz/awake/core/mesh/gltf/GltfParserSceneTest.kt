@@ -105,7 +105,7 @@ class GltfParserSceneTest {
             "scenes": [ { "nodes": [0] } ],
             "scene": 0
             """.trimIndent(),
-            triangleBinBytes()
+            triangleBinBytes(),
         )
 
         val scene = GltfParser.parseScene(glb)
@@ -127,14 +127,14 @@ class GltfParserSceneTest {
             1f, 0f, 0f, 0f,
             0f, 1f, 0f, 0f,
             0f, 0f, 1f, 0f,
-            5f, 6f, 7f, 1f
+            5f, 6f, 7f, 1f,
         )
         val glb = buildGlb(
             """
             "nodes": [ { "mesh": 0, "matrix": [${matrix.joinToString(",")}] } ],
             "scenes": [ { "nodes": [0] } ]
             """.trimIndent(),
-            triangleBinBytes()
+            triangleBinBytes(),
         )
 
         val scene = GltfParser.parseScene(glb)
@@ -151,7 +151,7 @@ class GltfParserSceneTest {
             ],
             "scenes": [ { "nodes": [0] } ]
             """.trimIndent(),
-            triangleBinBytes()
+            triangleBinBytes(),
         )
 
         val scene = GltfParser.parseScene(glb)
@@ -161,7 +161,7 @@ class GltfParserSceneTest {
             2f, 0f, 0f, 0f,
             0f, 2f, 0f, 0f,
             0f, 0f, 2f, 0f,
-            1f, 2f, 3f, 1f
+            1f, 2f, 3f, 1f,
         )
         assertEquals(expected, scene.meshes.single().primitives.single().localTransform.data.toList())
     }
@@ -178,7 +178,7 @@ class GltfParserSceneTest {
             ],
             "scenes": [ { "nodes": [0] } ]
             """.trimIndent(),
-            triangleBinBytes()
+            triangleBinBytes(),
         )
 
         val scene = GltfParser.parseScene(glb)
@@ -194,6 +194,6 @@ class GltfParserSceneTest {
         1f, 0f, 0f, 0f,
         0f, 1f, 0f, 0f,
         0f, 0f, 1f, 0f,
-        0f, 0f, 0f, 1f
+        0f, 0f, 0f, 1f,
     )
 }

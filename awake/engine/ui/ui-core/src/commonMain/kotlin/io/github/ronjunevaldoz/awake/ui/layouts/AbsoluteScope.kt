@@ -1,8 +1,10 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /**
  * Manual placement at an exact x/y, ignoring whatever width/height a widget requests as a
@@ -16,8 +18,9 @@ class AbsoluteScope internal constructor(
     override val testTag: String? = null,
     override val hasBoundedFillWidth: Boolean = false,
     override val hasBoundedFillHeight: Boolean = false,
-    emitToOverlay: Boolean = false
-) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
+    emitToOverlay: Boolean = false,
+) : AbstractUiScope(context, emitToOverlay),
+    FillAwareScope {
     override val fillWidth: Float? = null
     override val fillHeight: Float? = null
 
@@ -32,6 +35,6 @@ class AbsoluteScope internal constructor(
             x,
             y,
             width.resolve { 0f },
-            height.resolve { 0f }
+            height.resolve { 0f },
         ).also(context::recordMeasuredSlot)
 }

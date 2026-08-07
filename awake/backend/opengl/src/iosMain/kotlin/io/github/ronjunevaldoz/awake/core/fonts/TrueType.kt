@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.core.fonts
 
 import io.github.ronjunevaldoz.awake.core.rendering.Texture
 
-
 class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
     override val texture: Texture
 
@@ -23,6 +22,4 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
     }
 }
 
-actual fun createTrueType(path: String, size: Float): TrueType {
-    return NativeTrueType(path, size)
-}
+actual fun createTrueType(path: String, size: Float): TrueType = NativeTrueType(path, size)

@@ -24,7 +24,7 @@ import web.html.HTMLCanvasElement
  */
 fun launchWebGpuGame(
     canvasId: String = "awake-canvas",
-    applicationFactory: () -> WebGpuGameApplication
+    applicationFactory: () -> WebGpuGameApplication,
 ) {
     val canvas = document.getElementById(ElementId(canvasId)) as? HTMLCanvasElement
         ?: error("No canvas found with id '$canvasId'.")
@@ -33,21 +33,21 @@ fun launchWebGpuGame(
 
 fun launchWebGpuGame(
     canvas: HTMLCanvasElement,
-    applicationFactory: () -> WebGpuGameApplication
+    applicationFactory: () -> WebGpuGameApplication,
 ) {
     syncUiDensityFromWindow()
     val resolvedApplication = applicationFactory()
     val input = resolvedApplication.input
-    
+
     bindWindowPointerInput(input)
     bindWindowKeyboardInput(input)
     bindWindowTextInput(input)
-    
+
     val initialSize = currentCanvasSize()
     syncCanvasSize(canvas, initialSize.first, initialSize.second)
     var wgpuContext: WGPUContext? = null
     var application: WebGpuGameApplication? = resolvedApplication
-    
+
     window.addEventListener("resize") {
         val (width, height) = currentCanvasSize()
         syncCanvasSize(canvas, width, height)
@@ -59,7 +59,7 @@ fun launchWebGpuGame(
         val canvasContext = canvasContextRenderer(
             htmlCanvas = canvas,
             width = initialSize.first,
-            height = initialSize.second
+            height = initialSize.second,
         )
         val resolvedContext = canvasContext.wgpuContext
         wgpuContext = resolvedContext
@@ -96,7 +96,7 @@ val DefaultDomGameplayKeys: Map<String, io.github.ronjunevaldoz.awake.core.input
     "f2" to io.github.ronjunevaldoz.awake.core.input.Key.F2,
     "f3" to io.github.ronjunevaldoz.awake.core.input.Key.F3,
     "f4" to io.github.ronjunevaldoz.awake.core.input.Key.F4,
-    "f5" to io.github.ronjunevaldoz.awake.core.input.Key.F5
+    "f5" to io.github.ronjunevaldoz.awake.core.input.Key.F5,
 )
 
 /** `MouseEvent.button` value for the right mouse button. */
@@ -107,7 +107,7 @@ fun bindWindowPointerInput(input: Input) {
         val density = currentWindowDensity()
         return Pair(
             (event.offsetX * density).toFloat(),
-            (event.offsetY * density).toFloat()
+            (event.offsetY * density).toFloat(),
         )
     }
 
@@ -163,11 +163,9 @@ private fun normalizeWheelDelta(delta: Double, deltaMode: Int): Float = when (de
 
 fun bindWindowKeyboardInput(
     input: Input,
-    keys: Map<String, io.github.ronjunevaldoz.awake.core.input.Key> = DefaultDomGameplayKeys
+    keys: Map<String, io.github.ronjunevaldoz.awake.core.input.Key> = DefaultDomGameplayKeys,
 ) {
-    fun resolveKey(event: KeyboardEvent): io.github.ronjunevaldoz.awake.core.input.Key? {
-        return keys[event.key.lowercase()]
-    }
+    fun resolveKey(event: KeyboardEvent): io.github.ronjunevaldoz.awake.core.input.Key? = keys[event.key.lowercase()]
 
     window.addEventListener("keydown") { event ->
         val key = resolveKey(event as KeyboardEvent) ?: return@addEventListener
@@ -193,7 +191,7 @@ private val DomEditKeys: Map<String, io.github.ronjunevaldoz.awake.core.input.Te
     "ArrowUp" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowUp,
     "ArrowDown" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowDown,
     "Home" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Home,
-    "End" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.End
+    "End" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.End,
 )
 
 /** Feeds Awake's shared text-input API ([Input.pushTypedText]/[Input.pushEditAction]) from DOM
@@ -236,7 +234,6 @@ private fun currentWindowDensity(): Double {
     return if (scale.isFinite() && scale > 0.0) scale else 1.0
 }
 
-
 private fun syncUiDensityFromWindow() {
     UiDensity.scale = currentWindowDensity().toFloat()
 }
@@ -262,7 +259,7 @@ private fun configureSurface(wgpuContext: WGPUContext) {
             device = wgpuContext.device,
             format = wgpuContext.renderingContext.textureFormat,
             usage = GPUTextureUsage.RenderAttachment or GPUTextureUsage.CopySrc,
-            alphaMode = CompositeAlphaMode.Opaque
-        )
+            alphaMode = CompositeAlphaMode.Opaque,
+        ),
     )
 }

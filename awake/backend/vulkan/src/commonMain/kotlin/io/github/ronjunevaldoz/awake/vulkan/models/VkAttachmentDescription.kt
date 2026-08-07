@@ -22,5 +22,3 @@ data class VkAttachmentDescription(
 )
 
 typealias VkAttachmentDescriptionFlags = VkFlags
-
-

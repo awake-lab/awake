@@ -18,5 +18,5 @@ data class UiMeasuredContent(
      * tell a real "occupied" claim (a fixed/intrinsic-size sibling) apart from a FillMax sibling's
      * trial size, which is an artifact of the trial measuring against the container's full size
      * before any weighted sibling has claimed its share -- see that function's doc comment. */
-    val fillsMainAxis: List<Boolean> = emptyList()
+    val fillsMainAxis: List<Boolean> = emptyList(),
 )

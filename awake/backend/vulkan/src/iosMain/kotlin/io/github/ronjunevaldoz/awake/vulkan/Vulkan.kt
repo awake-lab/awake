@@ -2,82 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan
 
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorSpaceKHR
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkPresentModeKHR
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkSurfaceTransformFlagBitsKHR
-import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentDescription
-import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
-import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
-import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
-import io.github.ronjunevaldoz.awake.vulkan.models.VkExtensionProperties
-import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
-import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent3D
-import io.github.ronjunevaldoz.awake.vulkan.models.VkLayerProperties
-import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
-import io.github.ronjunevaldoz.awake.vulkan.models.VkQueueFamilyProperties
-import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
-import io.github.ronjunevaldoz.awake.vulkan.models.VkSubpassDependency
-import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceCapabilitiesKHR
-import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceFormatKHR
-import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkAndroidSurfaceCreateInfoKHR
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferBeginInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandPoolCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDeviceCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFenceCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFramebufferCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.VkStencilOpState
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkDynamicState
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkGraphicsPipelineCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendAttachmentState
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputAttributeDescription
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBindingDescription
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageViewCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkInstanceCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkPresentInfoKHR
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSemaphoreCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkShaderModuleCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSwapchainCreateInfoKHR
-import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkDebugUtilsMessageSeverityFlagBitsEXT
-import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.PFN_vkDebugUtilsMessengerCallbackEXT
-import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCallbackDataEXT
-import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCreateInfoEXT
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayoutCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkPhysicalDeviceType
-import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceFeatures
-import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceLimits
-import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceProperties
-import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceSparseProperties
-import kotlinx.cinterop.COpaquePointer
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.CPointerVar
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.NativePlacement
-import kotlinx.cinterop.StableRef
-import kotlinx.cinterop.asStableRef
-import kotlinx.cinterop.pointed
-import kotlinx.cinterop.staticCFunction
-import kotlinx.cinterop.UIntVar
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.allocArrayOf
-import kotlinx.cinterop.cstr
-import kotlinx.cinterop.get
-import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.set
-import kotlinx.cinterop.ptr
-import kotlinx.cinterop.toCPointer
-import kotlinx.cinterop.toKString
-import kotlinx.cinterop.value
 import cnames.structs.VkCommandBuffer_T
 import cnames.structs.VkCommandPool_T
 import cnames.structs.VkDescriptorSetLayout_T
@@ -88,28 +12,109 @@ import cnames.structs.VkImage_T
 import cnames.structs.VkInstance_T
 import cnames.structs.VkPhysicalDevice_T
 import cnames.structs.VkPipelineCache_T
-import cnames.structs.VkQueue_T
 import cnames.structs.VkPipelineLayout_T
 import cnames.structs.VkPipeline_T
+import cnames.structs.VkQueue_T
 import cnames.structs.VkRenderPass_T
 import cnames.structs.VkSemaphore_T
 import cnames.structs.VkShaderModule_T
 import cnames.structs.VkSurfaceKHR_T
 import cnames.structs.VkSwapchainKHR_T
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorSpaceKHR
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkPhysicalDeviceType
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkPresentModeKHR
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkSurfaceTransformFlagBitsKHR
+import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkDebugUtilsMessageSeverityFlagBitsEXT
+import io.github.ronjunevaldoz.awake.vulkan.models.VkAttachmentReference
+import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
+import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
+import io.github.ronjunevaldoz.awake.vulkan.models.VkExtensionProperties
+import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
+import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent3D
+import io.github.ronjunevaldoz.awake.vulkan.models.VkLayerProperties
+import io.github.ronjunevaldoz.awake.vulkan.models.VkQueueFamilyProperties
+import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
+import io.github.ronjunevaldoz.awake.vulkan.models.VkStencilOpState
+import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceCapabilitiesKHR
+import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceFormatKHR
+import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkAndroidSurfaceCreateInfoKHR
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandBufferBeginInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkCommandPoolCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDeviceCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFenceCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFramebufferCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkGraphicsPipelineCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageViewCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkInstanceCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkPresentInfoKHR
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSemaphoreCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkShaderModuleCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSwapchainCreateInfoKHR
+import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.PFN_vkDebugUtilsMessengerCallbackEXT
+import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCallbackDataEXT
+import io.github.ronjunevaldoz.awake.vulkan.models.info.debug.VkDebugUtilsMessengerCreateInfoEXT
+import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineLayoutCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceFeatures
+import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceLimits
+import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceProperties
+import io.github.ronjunevaldoz.awake.vulkan.models.physicaldevice.VkPhysicalDeviceSparseProperties
+import kotlinx.cinterop.COpaquePointer
+import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.CPointerVar
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.NativePlacement
+import kotlinx.cinterop.StableRef
+import kotlinx.cinterop.UIntVar
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.allocArray
+import kotlinx.cinterop.allocArrayOf
+import kotlinx.cinterop.asStableRef
+import kotlinx.cinterop.cstr
+import kotlinx.cinterop.get
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.pointed
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.set
+import kotlinx.cinterop.staticCFunction
+import kotlinx.cinterop.toCPointer
+import kotlinx.cinterop.toKString
+import kotlinx.cinterop.value
 import platform.MoltenVK.VK_STRUCTURE_TYPE_APPLICATION_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
 import platform.MoltenVK.VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_FENCE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
 import platform.MoltenVK.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
+import platform.MoltenVK.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_SUBMIT_INFO
@@ -117,6 +122,8 @@ import platform.MoltenVK.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
 import platform.MoltenVK.VK_SUCCESS
 import platform.MoltenVK.VkCommandBufferVar
 import platform.MoltenVK.VkCommandPoolVar
+import platform.MoltenVK.VkDebugUtilsMessengerEXTVar
+import platform.MoltenVK.VkDeviceVar
 import platform.MoltenVK.VkFenceVar
 import platform.MoltenVK.VkFramebufferVar
 import platform.MoltenVK.VkImageViewVar
@@ -124,14 +131,83 @@ import platform.MoltenVK.VkInstanceVar
 import platform.MoltenVK.VkPipelineCacheVar
 import platform.MoltenVK.VkPipelineLayoutVar
 import platform.MoltenVK.VkQueueVar
+import platform.MoltenVK.VkRenderPassVar
 import platform.MoltenVK.VkSemaphoreVar
 import platform.MoltenVK.VkShaderModuleVar
 import platform.MoltenVK.VkSwapchainKHRVar
+import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
+import platform.MoltenVK.VkAttachmentDescription as NativeVkAttachmentDescription
+import platform.MoltenVK.VkAttachmentReference as NativeVkAttachmentReference
+import platform.MoltenVK.VkClearValue as NativeVkClearValue
+import platform.MoltenVK.VkCommandBufferAllocateInfo as NativeVkCommandBufferAllocateInfo
+import platform.MoltenVK.VkCommandBufferBeginInfo as NativeVkCommandBufferBeginInfo
+import platform.MoltenVK.VkCommandPoolCreateInfo as NativeVkCommandPoolCreateInfo
+import platform.MoltenVK.VkDebugUtilsMessengerCallbackDataEXT as NativeVkDebugUtilsMessengerCallbackDataEXT
+import platform.MoltenVK.VkDebugUtilsMessengerCreateInfoEXT as NativeVkDebugUtilsMessengerCreateInfoEXT
+import platform.MoltenVK.VkDeviceCreateInfo as NativeVkDeviceCreateInfo
+import platform.MoltenVK.VkDeviceQueueCreateInfo as NativeVkDeviceQueueCreateInfo
+import platform.MoltenVK.VkExtensionProperties as NativeVkExtensionProperties
+import platform.MoltenVK.VkFenceCreateInfo as NativeVkFenceCreateInfo
+import platform.MoltenVK.VkFramebufferCreateInfo as NativeVkFramebufferCreateInfo
+import platform.MoltenVK.VkGraphicsPipelineCreateInfo as NativeVkGraphicsPipelineCreateInfo
+import platform.MoltenVK.VkImageViewCreateInfo as NativeVkImageViewCreateInfo
+import platform.MoltenVK.VkInstanceCreateInfo as NativeVkInstanceCreateInfo
+import platform.MoltenVK.VkLayerProperties as NativeVkLayerProperties
+import platform.MoltenVK.VkPhysicalDeviceFeatures as NativeVkPhysicalDeviceFeatures
+import platform.MoltenVK.VkPhysicalDeviceProperties as NativeVkPhysicalDeviceProperties
+import platform.MoltenVK.VkPipelineCacheCreateInfo as NativeVkPipelineCacheCreateInfo
+import platform.MoltenVK.VkPipelineColorBlendAttachmentState as NativeVkPipelineColorBlendAttachmentState
+import platform.MoltenVK.VkPipelineColorBlendStateCreateInfo as NativeVkPipelineColorBlendStateCreateInfo
+import platform.MoltenVK.VkPipelineDepthStencilStateCreateInfo as NativeVkPipelineDepthStencilStateCreateInfo
+import platform.MoltenVK.VkPipelineDynamicStateCreateInfo as NativeVkPipelineDynamicStateCreateInfo
+import platform.MoltenVK.VkPipelineInputAssemblyStateCreateInfo as NativeVkPipelineInputAssemblyStateCreateInfo
+import platform.MoltenVK.VkPipelineLayoutCreateInfo as NativeVkPipelineLayoutCreateInfo
+import platform.MoltenVK.VkPipelineMultisampleStateCreateInfo as NativeVkPipelineMultisampleStateCreateInfo
+import platform.MoltenVK.VkPipelineRasterizationStateCreateInfo as NativeVkPipelineRasterizationStateCreateInfo
+import platform.MoltenVK.VkPipelineShaderStageCreateInfo as NativeVkPipelineShaderStageCreateInfo
+import platform.MoltenVK.VkPipelineTessellationStateCreateInfo as NativeVkPipelineTessellationStateCreateInfo
+import platform.MoltenVK.VkPipelineVertexInputStateCreateInfo as NativeVkPipelineVertexInputStateCreateInfo
+import platform.MoltenVK.VkPipelineViewportStateCreateInfo as NativeVkPipelineViewportStateCreateInfo
+import platform.MoltenVK.VkPresentInfoKHR as NativeVkPresentInfoKHR
+import platform.MoltenVK.VkQueueFamilyProperties as NativeVkQueueFamilyProperties
+import platform.MoltenVK.VkRect2D as NativeVkRect2D
+import platform.MoltenVK.VkRenderPassBeginInfo as NativeVkRenderPassBeginInfo
+import platform.MoltenVK.VkRenderPassCreateInfo as NativeVkRenderPassCreateInfo
+import platform.MoltenVK.VkSemaphoreCreateInfo as NativeVkSemaphoreCreateInfo
+import platform.MoltenVK.VkShaderModuleCreateInfo as NativeVkShaderModuleCreateInfo
+import platform.MoltenVK.VkStencilOpState as NativeVkStencilOpState
+import platform.MoltenVK.VkSubmitInfo as NativeVkSubmitInfo
+import platform.MoltenVK.VkSubpassDependency as NativeVkSubpassDependency
+import platform.MoltenVK.VkSubpassDescription as NativeVkSubpassDescription
+import platform.MoltenVK.VkSurfaceCapabilitiesKHR as NativeVkSurfaceCapabilitiesKHR
+import platform.MoltenVK.VkSurfaceFormatKHR as NativeVkSurfaceFormatKHR
+import platform.MoltenVK.VkSwapchainCreateInfoKHR as NativeVkSwapchainCreateInfoKHR
+import platform.MoltenVK.VkVertexInputAttributeDescription as NativeVkVertexInputAttributeDescription
+import platform.MoltenVK.VkVertexInputBindingDescription as NativeVkVertexInputBindingDescription
+import platform.MoltenVK.VkViewport as NativeVkViewport
+import platform.MoltenVK.vkAcquireNextImageKHR as nativeVkAcquireNextImageKHR
+import platform.MoltenVK.vkAllocateCommandBuffers as nativeVkAllocateCommandBuffers
 import platform.MoltenVK.vkBeginCommandBuffer as nativeVkBeginCommandBuffer
+import platform.MoltenVK.vkCmdBeginRenderPass as nativeVkCmdBeginRenderPass
 import platform.MoltenVK.vkCmdBindPipeline as nativeVkCmdBindPipeline
 import platform.MoltenVK.vkCmdDraw as nativeVkCmdDraw
 import platform.MoltenVK.vkCmdEndRenderPass as nativeVkCmdEndRenderPass
+import platform.MoltenVK.vkCmdSetScissor as nativeVkCmdSetScissor
+import platform.MoltenVK.vkCmdSetViewport as nativeVkCmdSetViewport
+import platform.MoltenVK.vkCreateCommandPool as nativeVkCreateCommandPool
+import platform.MoltenVK.vkCreateDebugUtilsMessengerEXT as nativeVkCreateDebugUtilsMessengerEXT
+import platform.MoltenVK.vkCreateDevice as nativeVkCreateDevice
+import platform.MoltenVK.vkCreateFence as nativeVkCreateFence
+import platform.MoltenVK.vkCreateFramebuffer as nativeVkCreateFramebuffer
+import platform.MoltenVK.vkCreateGraphicsPipelines as nativeVkCreateGraphicsPipelines
+import platform.MoltenVK.vkCreateImageView as nativeVkCreateImageView
 import platform.MoltenVK.vkCreateInstance as nativeVkCreateInstance
+import platform.MoltenVK.vkCreatePipelineCache as nativeVkCreatePipelineCache
+import platform.MoltenVK.vkCreatePipelineLayout as nativeVkCreatePipelineLayout
+import platform.MoltenVK.vkCreateRenderPass as nativeVkCreateRenderPass
+import platform.MoltenVK.vkCreateSemaphore as nativeVkCreateSemaphore
+import platform.MoltenVK.vkCreateShaderModule as nativeVkCreateShaderModule
+import platform.MoltenVK.vkCreateSwapchainKHR as nativeVkCreateSwapchainKHR
 import platform.MoltenVK.vkDestroyCommandPool as nativeVkDestroyCommandPool
 import platform.MoltenVK.vkDestroyDebugUtilsMessengerEXT as nativeVkDestroyDebugUtilsMessengerEXT
 import platform.MoltenVK.vkDestroyDevice as nativeVkDestroyDevice
@@ -156,100 +232,16 @@ import platform.MoltenVK.vkGetDeviceQueue as nativeVkGetDeviceQueue
 import platform.MoltenVK.vkGetPhysicalDeviceFeatures as nativeVkGetPhysicalDeviceFeatures
 import platform.MoltenVK.vkGetPhysicalDeviceProperties as nativeVkGetPhysicalDeviceProperties
 import platform.MoltenVK.vkGetPhysicalDeviceQueueFamilyProperties as nativeVkGetPhysicalDeviceQueueFamilyProperties
-import platform.MoltenVK.vkGetSwapchainImagesKHR as nativeVkGetSwapchainImagesKHR
-import platform.MoltenVK.vkCreateSemaphore as nativeVkCreateSemaphore
-import platform.MoltenVK.vkCreateFence as nativeVkCreateFence
-import platform.MoltenVK.vkCreateCommandPool as nativeVkCreateCommandPool
-import platform.MoltenVK.vkAllocateCommandBuffers as nativeVkAllocateCommandBuffers
-import platform.MoltenVK.vkCreateImageView as nativeVkCreateImageView
-import platform.MoltenVK.vkCreateShaderModule as nativeVkCreateShaderModule
-import platform.MoltenVK.vkCreatePipelineCache as nativeVkCreatePipelineCache
-import platform.MoltenVK.vkCreatePipelineLayout as nativeVkCreatePipelineLayout
-import platform.MoltenVK.vkCreateFramebuffer as nativeVkCreateFramebuffer
-import platform.MoltenVK.vkCmdSetViewport as nativeVkCmdSetViewport
-import platform.MoltenVK.vkCmdSetScissor as nativeVkCmdSetScissor
-import platform.MoltenVK.vkWaitForFences as nativeVkWaitForFences
-import platform.MoltenVK.vkResetFences as nativeVkResetFences
-import platform.MoltenVK.vkAcquireNextImageKHR as nativeVkAcquireNextImageKHR
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceCapabilitiesKHR as nativeVkGetPhysicalDeviceSurfaceCapabilitiesKHR
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceFormatsKHR as nativeVkGetPhysicalDeviceSurfaceFormatsKHR
 import platform.MoltenVK.vkGetPhysicalDeviceSurfacePresentModesKHR as nativeVkGetPhysicalDeviceSurfacePresentModesKHR
-import platform.MoltenVK.vkQueueSubmit as nativeVkQueueSubmit
-import platform.MoltenVK.vkQueuePresentKHR as nativeVkQueuePresentKHR
-import platform.MoltenVK.vkCmdBeginRenderPass as nativeVkCmdBeginRenderPass
-import platform.MoltenVK.vkCreateSwapchainKHR as nativeVkCreateSwapchainKHR
-import platform.MoltenVK.vkCreateDevice as nativeVkCreateDevice
-import platform.MoltenVK.vkCreateRenderPass as nativeVkCreateRenderPass
-import platform.MoltenVK.vkCreateGraphicsPipelines as nativeVkCreateGraphicsPipelines
-import platform.MoltenVK.vkCreateDebugUtilsMessengerEXT as nativeVkCreateDebugUtilsMessengerEXT
 import platform.MoltenVK.vkGetPhysicalDeviceSurfaceSupportKHR as nativeVkGetPhysicalDeviceSurfaceSupportKHR
+import platform.MoltenVK.vkGetSwapchainImagesKHR as nativeVkGetSwapchainImagesKHR
+import platform.MoltenVK.vkQueuePresentKHR as nativeVkQueuePresentKHR
+import platform.MoltenVK.vkQueueSubmit as nativeVkQueueSubmit
 import platform.MoltenVK.vkResetCommandBuffer as nativeVkResetCommandBuffer
-import platform.MoltenVK.VkApplicationInfo as NativeVkApplicationInfo
-import platform.MoltenVK.VkCommandBufferAllocateInfo as NativeVkCommandBufferAllocateInfo
-import platform.MoltenVK.VkCommandBufferBeginInfo as NativeVkCommandBufferBeginInfo
-import platform.MoltenVK.VkCommandPoolCreateInfo as NativeVkCommandPoolCreateInfo
-import platform.MoltenVK.VkExtensionProperties as NativeVkExtensionProperties
-import platform.MoltenVK.VkFenceCreateInfo as NativeVkFenceCreateInfo
-import platform.MoltenVK.VkFramebufferCreateInfo as NativeVkFramebufferCreateInfo
-import platform.MoltenVK.VkImageViewCreateInfo as NativeVkImageViewCreateInfo
-import platform.MoltenVK.VkPipelineLayoutCreateInfo as NativeVkPipelineLayoutCreateInfo
-import platform.MoltenVK.VkInstanceCreateInfo as NativeVkInstanceCreateInfo
-import platform.MoltenVK.VkLayerProperties as NativeVkLayerProperties
-import platform.MoltenVK.VkPhysicalDeviceFeatures as NativeVkPhysicalDeviceFeatures
-import platform.MoltenVK.VkPhysicalDeviceProperties as NativeVkPhysicalDeviceProperties
-import platform.MoltenVK.VkPipelineCacheCreateInfo as NativeVkPipelineCacheCreateInfo
-import platform.MoltenVK.VkQueueFamilyProperties as NativeVkQueueFamilyProperties
-import platform.MoltenVK.VkSemaphoreCreateInfo as NativeVkSemaphoreCreateInfo
-import platform.MoltenVK.VkShaderModuleCreateInfo as NativeVkShaderModuleCreateInfo
-import platform.MoltenVK.VkSubmitInfo as NativeVkSubmitInfo
-import platform.MoltenVK.VkPresentInfoKHR as NativeVkPresentInfoKHR
-import platform.MoltenVK.VkRenderPassBeginInfo as NativeVkRenderPassBeginInfo
-import platform.MoltenVK.VkClearValue as NativeVkClearValue
-import platform.MoltenVK.VkSwapchainCreateInfoKHR as NativeVkSwapchainCreateInfoKHR
-import platform.MoltenVK.VkDeviceCreateInfo as NativeVkDeviceCreateInfo
-import platform.MoltenVK.VkDeviceQueueCreateInfo as NativeVkDeviceQueueCreateInfo
-import platform.MoltenVK.VkDeviceVar
-import platform.MoltenVK.VkAttachmentDescription as NativeVkAttachmentDescription
-import platform.MoltenVK.VkAttachmentReference as NativeVkAttachmentReference
-import platform.MoltenVK.VkSubpassDescription as NativeVkSubpassDescription
-import platform.MoltenVK.VkSubpassDependency as NativeVkSubpassDependency
-import platform.MoltenVK.VkRenderPassCreateInfo as NativeVkRenderPassCreateInfo
-import platform.MoltenVK.VkRenderPassVar
-import platform.MoltenVK.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
-import platform.MoltenVK.VkGraphicsPipelineCreateInfo as NativeVkGraphicsPipelineCreateInfo
-import platform.MoltenVK.VkPipelineShaderStageCreateInfo as NativeVkPipelineShaderStageCreateInfo
-import platform.MoltenVK.VkPipelineVertexInputStateCreateInfo as NativeVkPipelineVertexInputStateCreateInfo
-import platform.MoltenVK.VkVertexInputBindingDescription as NativeVkVertexInputBindingDescription
-import platform.MoltenVK.VkVertexInputAttributeDescription as NativeVkVertexInputAttributeDescription
-import platform.MoltenVK.VkPipelineInputAssemblyStateCreateInfo as NativeVkPipelineInputAssemblyStateCreateInfo
-import platform.MoltenVK.VkPipelineTessellationStateCreateInfo as NativeVkPipelineTessellationStateCreateInfo
-import platform.MoltenVK.VkPipelineViewportStateCreateInfo as NativeVkPipelineViewportStateCreateInfo
-import platform.MoltenVK.VkPipelineRasterizationStateCreateInfo as NativeVkPipelineRasterizationStateCreateInfo
-import platform.MoltenVK.VkPipelineMultisampleStateCreateInfo as NativeVkPipelineMultisampleStateCreateInfo
-import platform.MoltenVK.VkPipelineDepthStencilStateCreateInfo as NativeVkPipelineDepthStencilStateCreateInfo
-import platform.MoltenVK.VkPipelineColorBlendStateCreateInfo as NativeVkPipelineColorBlendStateCreateInfo
-import platform.MoltenVK.VkPipelineColorBlendAttachmentState as NativeVkPipelineColorBlendAttachmentState
-import platform.MoltenVK.VkPipelineDynamicStateCreateInfo as NativeVkPipelineDynamicStateCreateInfo
-import platform.MoltenVK.VkStencilOpState as NativeVkStencilOpState
-import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
-import platform.MoltenVK.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
-import platform.MoltenVK.VkDebugUtilsMessengerCreateInfoEXT as NativeVkDebugUtilsMessengerCreateInfoEXT
-import platform.MoltenVK.VkDebugUtilsMessengerCallbackDataEXT as NativeVkDebugUtilsMessengerCallbackDataEXT
-import platform.MoltenVK.VkDebugUtilsMessengerEXTVar
-import platform.MoltenVK.VkViewport as NativeVkViewport
-import platform.MoltenVK.VkRect2D as NativeVkRect2D
-import platform.MoltenVK.VkSurfaceCapabilitiesKHR as NativeVkSurfaceCapabilitiesKHR
-import platform.MoltenVK.VkSurfaceFormatKHR as NativeVkSurfaceFormatKHR
+import platform.MoltenVK.vkResetFences as nativeVkResetFences
+import platform.MoltenVK.vkWaitForFences as nativeVkWaitForFences
 
 // One field per VkPhysicalDeviceFeatures member (55 VkBool32 flags, no nesting) -- shared by
 // vkGetPhysicalDeviceFeatures (native -> Kotlin) below.
@@ -309,7 +301,7 @@ private fun NativeVkPhysicalDeviceFeatures.toKotlinModel(): VkPhysicalDeviceFeat
     sparseResidency16Samples = sparseResidency16Samples != 0u,
     sparseResidencyAliased = sparseResidencyAliased != 0u,
     variableMultisampleRate = variableMultisampleRate != 0u,
-    inheritedQueries = inheritedQueries != 0u
+    inheritedQueries = inheritedQueries != 0u,
 )
 
 // Reverse of NativeVkPhysicalDeviceFeatures.toKotlinModel() above -- used by vkCreateDevice's
@@ -482,7 +474,7 @@ private fun platform.MoltenVK.VkPhysicalDeviceLimits.toKotlinModel(): VkPhysical
     standardSampleLocations = standardSampleLocations != 0u,
     optimalBufferCopyOffsetAlignment = optimalBufferCopyOffsetAlignment.toLong(),
     optimalBufferCopyRowPitchAlignment = optimalBufferCopyRowPitchAlignment.toLong(),
-    nonCoherentAtomSize = nonCoherentAtomSize.toLong()
+    nonCoherentAtomSize = nonCoherentAtomSize.toLong(),
 )
 
 // Used by vkCreateGraphicsPipelines for VkPipelineDepthStencilStateCreateInfo's front/back.
@@ -504,13 +496,13 @@ private fun platform.MoltenVK.VkPhysicalDeviceSparseProperties.toKotlinModel(): 
         residencyStandard2DMultisampleBlockShape = residencyStandard2DMultisampleBlockShape != 0u,
         residencyStandard3DBlockShape = residencyStandard3DBlockShape != 0u,
         residencyAlignedMipSize = residencyAlignedMipSize != 0u,
-        residencyNonResidentStrict = residencyNonResidentStrict != 0u
+        residencyNonResidentStrict = residencyNonResidentStrict != 0u,
     )
 
 // Shared by vkCreateRenderPass's pInputAttachments/pColorAttachments/pResolveAttachments.
 @OptIn(ExperimentalForeignApi::class)
 private fun Array<VkAttachmentReference>.toNativeAttachmentRefArray(
-    scope: NativePlacement
+    scope: NativePlacement,
 ): CPointer<NativeVkAttachmentReference> = scope.allocArray(size) { index ->
     attachment = this@toNativeAttachmentRefArray[index].attachment.toUInt()
     layout = this@toNativeAttachmentRefArray[index].layout.value.toUInt()
@@ -529,13 +521,14 @@ private val debugMessengerTrampoline = staticCFunction {
         severity: UInt,
         types: UInt,
         pCallbackData: CPointer<NativeVkDebugUtilsMessengerCallbackDataEXT>?,
-        pUserData: COpaquePointer? ->
+        pUserData: COpaquePointer?,
+    ->
     val callback = pUserData!!.asStableRef<PFN_vkDebugUtilsMessengerCallbackEXT>().get()
     val native = pCallbackData!!.pointed
     val kotlinCallbackData = VkDebugUtilsMessengerCallbackDataEXT(
         pMessageIdName = native.pMessageIdName?.toKString(),
         messageIdNumber = native.messageIdNumber,
-        pMessage = native.pMessage?.toKString() ?: ""
+        pMessage = native.pMessage?.toKString() ?: "",
     )
     val severityBits = VkDebugUtilsMessageSeverityFlagBitsEXT.entries.first { it.value.toUInt() == severity }
     val handled = callback(severityBits, types.toInt(), kotlinCallbackData, null)
@@ -603,7 +596,7 @@ actual object Vulkan {
                 layerName = native.layerName.toKString(),
                 specVersion = native.specVersion.toInt(),
                 implementationVersion = native.implementationVersion.toInt(),
-                description = native.description.toKString()
+                description = native.description.toKString(),
             )
         }
     }
@@ -620,14 +613,14 @@ actual object Vulkan {
                 val native = nativeArray[i]
                 VkExtensionProperties(
                     extensionName = native.extensionName.toKString(),
-                    specVersion = native.specVersion.toInt()
+                    specVersion = native.specVersion.toInt(),
                 )
             }
         }
 
     actual fun vkEnumerateDeviceExtensionProperties(
         physicalDevice: Long,
-        layerName: String?
+        layerName: String?,
     ): Array<VkExtensionProperties> = memScoped {
         val nativePhysicalDevice = physicalDevice.toCPointer<VkPhysicalDevice_T>()
         val countVar = alloc<UIntVar>()
@@ -640,7 +633,7 @@ actual object Vulkan {
             val native = nativeArray[i]
             VkExtensionProperties(
                 extensionName = native.extensionName.toKString(),
-                specVersion = native.specVersion.toInt()
+                specVersion = native.specVersion.toInt(),
             )
         }
     }
@@ -667,7 +660,7 @@ actual object Vulkan {
             deviceName = CharArray(VK_MAX_PHYSICAL_DEVICE_NAME_SIZE) { i -> native.deviceName[i].toInt().toChar() },
             pipelineCacheUUID = ByteArray(VK_UUID_SIZE) { i -> native.pipelineCacheUUID[i].toByte() },
             limits = native.limits.toKotlinModel(),
-            sparseProperties = native.sparseProperties.toKotlinModel()
+            sparseProperties = native.sparseProperties.toKotlinModel(),
         )
     }
 
@@ -678,7 +671,7 @@ actual object Vulkan {
     }
 
     actual fun vkGetPhysicalDeviceQueueFamilyProperties(
-        physicalDevice: Long
+        physicalDevice: Long,
     ): Array<VkQueueFamilyProperties> = memScoped {
         val nativePhysicalDevice = physicalDevice.toCPointer<VkPhysicalDevice_T>()
         val countVar = alloc<UIntVar>()
@@ -695,7 +688,7 @@ actual object Vulkan {
                 timestampValidBits = native.timestampValidBits,
                 minImageTransferGranularity = native.minImageTransferGranularity.let {
                     VkExtent3D(width = it.width.toInt(), height = it.height.toInt(), depth = it.depth.toInt())
-                }
+                },
             )
         }
     }
@@ -763,14 +756,14 @@ actual object Vulkan {
     actual fun vkGetPhysicalDeviceSurfaceSupportKHR(
         physicalDevice: Long,
         queueFamilyIndex: Int,
-        surface: Long
+        surface: Long,
     ): Boolean = memScoped {
         val supportedVar = alloc<UIntVar>()
         nativeVkGetPhysicalDeviceSurfaceSupportKHR(
             physicalDevice.toCPointer(),
             queueFamilyIndex.toUInt(),
             surface.toCPointer<VkSurfaceKHR_T>(),
-            supportedVar.ptr
+            supportedVar.ptr,
         )
         supportedVar.value != 0u
     }
@@ -781,28 +774,28 @@ actual object Vulkan {
 
     actual fun vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
         physicalDevice: Long,
-        surface: Long
+        surface: Long,
     ): VkSurfaceCapabilitiesKHR = memScoped {
         val nativeCaps = alloc<NativeVkSurfaceCapabilitiesKHR>()
         nativeVkGetPhysicalDeviceSurfaceCapabilitiesKHR(
             physicalDevice.toCPointer(),
             surface.toCPointer<VkSurfaceKHR_T>(),
-            nativeCaps.ptr
+            nativeCaps.ptr,
         )
         VkSurfaceCapabilitiesKHR(
             minImageCount = nativeCaps.minImageCount.toInt(),
             maxImageCount = nativeCaps.maxImageCount.toInt(),
             currentExtent = VkExtent2D(
                 width = nativeCaps.currentExtent.width.toInt(),
-                height = nativeCaps.currentExtent.height.toInt()
+                height = nativeCaps.currentExtent.height.toInt(),
             ),
             minImageExtent = VkExtent2D(
                 width = nativeCaps.minImageExtent.width.toInt(),
-                height = nativeCaps.minImageExtent.height.toInt()
+                height = nativeCaps.minImageExtent.height.toInt(),
             ),
             maxImageExtent = VkExtent2D(
                 width = nativeCaps.maxImageExtent.width.toInt(),
-                height = nativeCaps.maxImageExtent.height.toInt()
+                height = nativeCaps.maxImageExtent.height.toInt(),
             ),
             maxImageArrayLayers = nativeCaps.maxImageArrayLayers.toInt(),
             supportedTransforms = nativeCaps.supportedTransforms.toInt(),
@@ -810,13 +803,13 @@ actual object Vulkan {
                 it.value.toUInt() == nativeCaps.currentTransform
             },
             supportedCompositeAlpha = nativeCaps.supportedCompositeAlpha.toInt(),
-            supportedUsageFlags = nativeCaps.supportedUsageFlags.toInt()
+            supportedUsageFlags = nativeCaps.supportedUsageFlags.toInt(),
         )
     }
 
     actual fun vkGetPhysicalDeviceSurfaceFormatsKHR(
         physicalDevice: Long,
-        surface: Long
+        surface: Long,
     ): Array<VkSurfaceFormatKHR> = memScoped {
         val nativePhysicalDevice = physicalDevice.toCPointer<VkPhysicalDevice_T>()
         val nativeSurface = surface.toCPointer<VkSurfaceKHR_T>()
@@ -830,14 +823,14 @@ actual object Vulkan {
             val native = nativeArray[i]
             VkSurfaceFormatKHR(
                 format = VkFormat.entries.first { it.value.toUInt() == native.format },
-                colorSpace = VkColorSpaceKHR.entries.first { it.value.toUInt() == native.colorSpace }
+                colorSpace = VkColorSpaceKHR.entries.first { it.value.toUInt() == native.colorSpace },
             )
         }
     }
 
     actual fun vkGetPhysicalDeviceSurfacePresentModesKHR(
         physicalDevice: Long,
-        surface: Long
+        surface: Long,
     ): Array<VkPresentModeKHR> = memScoped {
         val nativePhysicalDevice = physicalDevice.toCPointer<VkPhysicalDevice_T>()
         val nativeSurface = surface.toCPointer<VkSurfaceKHR_T>()
@@ -995,7 +988,7 @@ actual object Vulkan {
     actual fun vkCreateGraphicsPipelines(
         device: Long,
         pipelineCache: Long,
-        createInfos: Array<VkGraphicsPipelineCreateInfo>
+        createInfos: Array<VkGraphicsPipelineCreateInfo>,
     ): LongArray = memScoped {
         val nativeCreateInfos = allocArray<NativeVkGraphicsPipelineCreateInfo>(createInfos.size) { index ->
             val info = createInfos[index]
@@ -1184,7 +1177,7 @@ actual object Vulkan {
             createInfos.size.toUInt(),
             nativeCreateInfos,
             null,
-            pipelinesArray
+            pipelinesArray,
         )
         check(result == VK_SUCCESS) { "vkCreateGraphicsPipelines failed: $result" }
         LongArray(createInfos.size) { i -> pipelinesArray[i]!!.rawValue.toLong() }
@@ -1341,12 +1334,12 @@ actual object Vulkan {
     actual fun vkCmdBindPipeline(
         commandBuffer: Long,
         pipelineBindPoint: VkPipelineBindPoint,
-        graphicsPipeline: Long
+        graphicsPipeline: Long,
     ) {
         nativeVkCmdBindPipeline(
             commandBuffer.toCPointer(),
             pipelineBindPoint.value.toUInt(),
-            graphicsPipeline.toCPointer<VkPipeline_T>()
+            graphicsPipeline.toCPointer<VkPipeline_T>(),
         )
     }
 
@@ -1383,21 +1376,21 @@ actual object Vulkan {
         vertexCount: Int,
         instanceCount: Int,
         firstVertex: Int,
-        firstInstance: Int
+        firstInstance: Int,
     ) {
         nativeVkCmdDraw(
             commandBuffer.toCPointer(),
             vertexCount.toUInt(),
             instanceCount.toUInt(),
             firstVertex.toUInt(),
-            firstInstance.toUInt()
+            firstInstance.toUInt(),
         )
     }
 
     actual fun vkCmdBeginRenderPass(
         commandBuffer: Long,
         renderPassBeginInfo: VkRenderPassBeginInfo,
-        contents: VkSubpassContents
+        contents: VkSubpassContents,
     ) = memScoped {
         val nativeBeginInfo = alloc<NativeVkRenderPassBeginInfo>().apply {
             sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
@@ -1430,7 +1423,7 @@ actual object Vulkan {
                             stencil = value.stencil.toUInt()
                         }
                         else -> error(
-                            "vkCmdBeginRenderPass: unsupported VkClearValue variant on iOS: $value"
+                            "vkCmdBeginRenderPass: unsupported VkClearValue variant on iOS: $value",
                         )
                     }
                 }
@@ -1489,7 +1482,7 @@ actual object Vulkan {
             fences.size.toUInt(),
             nativeFences,
             if (waitAll) 1u else 0u,
-            timeout.toULong()
+            timeout.toULong(),
         )
         Unit
     }
@@ -1507,7 +1500,7 @@ actual object Vulkan {
         swapchain: Long,
         timeout: Long,
         semaphore: Long,
-        fence: Long
+        fence: Long,
     ): Int = memScoped {
         val imageIndexVar = alloc<UIntVar>()
         nativeVkAcquireNextImageKHR(
@@ -1516,7 +1509,7 @@ actual object Vulkan {
             timeout.toULong(),
             semaphore.toCPointer<VkSemaphore_T>(),
             fence.toCPointer<VkFence_T>(),
-            imageIndexVar.ptr
+            imageIndexVar.ptr,
         )
         imageIndexVar.value.toInt()
     }
@@ -1553,7 +1546,7 @@ actual object Vulkan {
             queue.toCPointer<VkQueue_T>(),
             pSubmits.size.toUInt(),
             nativeSubmits,
-            fence.toCPointer<VkFence_T>()
+            fence.toCPointer<VkFence_T>(),
         )
         check(result == VK_SUCCESS) { "vkQueueSubmit failed: $result" }
         Unit
@@ -1585,7 +1578,7 @@ actual object Vulkan {
 
     actual fun vkCreateDebugUtilsMessengerEXT(
         instance: Long,
-        createInfo: VkDebugUtilsMessengerCreateInfoEXT
+        createInfo: VkDebugUtilsMessengerCreateInfoEXT,
     ): Long = memScoped {
         val callbackRef = StableRef.create(createInfo.pfnUserCallback)
         val nativeCreateInfo = alloc<NativeVkDebugUtilsMessengerCreateInfoEXT>().apply {
@@ -1602,7 +1595,7 @@ actual object Vulkan {
             instance.toCPointer(),
             nativeCreateInfo.ptr,
             null,
-            messengerVar.ptr
+            messengerVar.ptr,
         )
         check(result == VK_SUCCESS) {
             callbackRef.dispose()
@@ -1617,7 +1610,7 @@ actual object Vulkan {
         nativeVkDestroyDebugUtilsMessengerEXT(
             instance.toCPointer(),
             debugUtilsMessenger.toCPointer<cnames.structs.VkDebugUtilsMessengerEXT_T>(),
-            null
+            null,
         )
         debugMessengerCallbacks.remove(debugUtilsMessenger)?.dispose()
     }

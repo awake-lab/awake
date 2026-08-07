@@ -3,12 +3,9 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
-import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
-import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.testing.comparePixels
@@ -29,6 +26,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 
 /**
  * Guards against a repeat of a real, previously-shipped regression: [rotatingCubeGeometry]'s 24
@@ -108,7 +108,7 @@ class RotatingCubePixelBaselineTest {
         orbitDegrees: Float,
         pitchDegrees: Float,
         zoom: Float,
-        elevation: Float
+        elevation: Float,
     ): CoreCamera {
         val orbitRad = orbitDegrees * DEGREES_TO_RADIANS
         val pitchRad = pitchDegrees * DEGREES_TO_RADIANS
@@ -116,14 +116,14 @@ class RotatingCubePixelBaselineTest {
         val eye = Vec3(
             target.x + zoom * cp * sin(orbitRad),
             elevation + zoom * sin(pitchRad),
-            target.z + zoom * cp * cos(orbitRad)
+            target.z + zoom * cp * cos(orbitRad),
         )
         return CoreCamera(
             eye = eye,
             center = target,
             fovYRadians = 45f * DEGREES_TO_RADIANS,
             near = 0.1f,
-            far = 100f
+            far = 100f,
         )
     }
 
@@ -174,14 +174,14 @@ class RotatingCubePixelBaselineTest {
             // pipeline creation with VK_ERROR_INITIALIZATION_FAILED (no entry point named
             // "main" in the module) -- confirmed the hard way getting this test running.
             vertexEntryPoint = "vertexMain",
-            fragmentEntryPoint = "fragmentMain"
+            fragmentEntryPoint = "fragmentMain",
         )
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
             runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
         val transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(
@@ -197,7 +197,7 @@ class RotatingCubePixelBaselineTest {
             runBlocking {
                 loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
             },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
 
         var mesh: RenderMesh? = null
@@ -212,7 +212,10 @@ class RotatingCubePixelBaselineTest {
                 // ManualTimeController (rather than skipping straight to "rotateY(angle)")
                 // documents intent: this is the demo's own real time/spin driver, deliberately
                 // parked at a reproducible frame, not a hand-picked rotation this test invented.
-                val timeController = ManualTimeController().apply { autoPlay = false; hours = case.hours }
+                val timeController = ManualTimeController().apply {
+                    autoPlay = false
+                    hours = case.hours
+                }
                 val spinRadians = timeController.hours * HOURS_TO_DEGREES * DEGREES_TO_RADIANS
                 // Mirrors RotatingCubeDemo.cubeModelMatrix()/CUBE_REST_HEIGHT exactly (both
                 // private to that object, so re-stated here rather than imported) -- rests the
@@ -225,7 +228,7 @@ class RotatingCubePixelBaselineTest {
                     orbitDegrees = TEST_ORBIT_DEG,
                     pitchDegrees = TEST_PITCH_DEG,
                     zoom = TEST_ZOOM,
-                    elevation = CUBE_REST_HEIGHT
+                    elevation = CUBE_REST_HEIGHT,
                 )
 
                 renderer.renderToTexture(target, camera, listOf(DrawCall(createdMesh, createdMaterial, cubeModel)))
@@ -251,7 +254,7 @@ class RotatingCubePixelBaselineTest {
                                 "${result.diffPixelCount} pixels differ (max channel diff ${result.maxChannelDiff}). " +
                                 "Compare ${actualPngFile.absolutePath} against ${baselinePngFile.absolutePath}. " +
                                 "Re-record ${case.baselineResourcePath} if this divergence is an intentional " +
-                                "rendering change."
+                                "rendering change.",
                         )
                     }
                 }
@@ -283,8 +286,8 @@ class RotatingCubePixelBaselineTest {
             CubeFrameCase(
                 hours = 12.5f,
                 baselineResourcePath = "baselines/rotating-cube-headless-corner-angle.rgba",
-                failureDirName = "RotatingCubePixelBaselineTest-CornerAngle"
-            )
+                failureDirName = "RotatingCubePixelBaselineTest-CornerAngle",
+            ),
         )
 
         // Same constants RotatingCubeDemo/ManualTimeController use, re-stated here since

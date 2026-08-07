@@ -28,7 +28,7 @@ interface FloatBuf : Buffer {
     fun put(data: FloatArray)
 }
 
-expect fun createByteBuffer(data: ByteArray) : ByteBuf
-expect fun createShortBuffer(data: ShortArray) : ShortBuf
-expect fun createIntBuffer(data: IntArray) : IntBuf
-expect fun createFloatBuffer(data: FloatArray) : FloatBuf
+expect fun createByteBuffer(data: ByteArray): ByteBuf
+expect fun createShortBuffer(data: ShortArray): ShortBuf
+expect fun createIntBuffer(data: IntArray): IntBuf
+expect fun createFloatBuffer(data: FloatArray): FloatBuf

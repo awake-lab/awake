@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMen
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.box
@@ -24,7 +25,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 /** shadcn-compose's own library default is dark = true; every other Awake sample (ui-showcase)
  * explicitly opts into light instead of inheriting that default. The per-frame ambient theme
@@ -40,7 +40,7 @@ private val PlaygroundTheme = shadcnTheme(dark = false)
 internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
     state: Scene3DPlaygroundState,
     viewportWidth: Float,
-    viewportHeight: Float
+    viewportHeight: Float,
 ) {
     val runtime = this
     uiContext.pushTheme(PlaygroundTheme)
@@ -49,11 +49,11 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
             id = "scene3d-playground-shell",
             horizontalArrangement = Arrangement.spacedBy(0f.dp),
             modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
-                .padding(8.dp)
+                .padding(8.dp),
         ) {
             shadcnSidebar(
                 id = "scene3d-demo-menu",
-                modifier = Modifier.width(200f.dp).height(Dimension.FillMax)
+                modifier = Modifier.width(200f.dp).height(Dimension.FillMax),
             ) {
                 shadcnSidebarMenu {
                     Scene3DDemos.forEach { demo ->
@@ -61,7 +61,7 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
                             id = "scene3d-menu-${demo.id}",
                             label = demo.title,
                             active = state.activeDemoId == demo.id,
-                            onClick = { state.activeDemoId = demo.id }
+                            onClick = { state.activeDemoId = demo.id },
                         )
                     }
                 }
@@ -77,7 +77,7 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
             box(modifier = Modifier.weight(1f).height(Dimension.FillMax)) {
                 column(
                     id = "scene3d-viewport",
-                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
+                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
                 ) {
                     activeDemo.renderViewport(runtime, this)
                 }
@@ -86,7 +86,7 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
                     label = "${stats.frameTimeMs}ms  ${stats.fps.toInt()} fps",
                     modifier = Modifier.offset(8f.dp, 8f.dp),
                     color = Color(0.3f, 1f, 0.4f, 1f),
-                    textStyle = null
+                    textStyle = null,
                 )
             }
 
@@ -96,7 +96,7 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
                 verticalArrangement = Arrangement.spacedBy(16f.dp),
                 modifier = Modifier.width(220f.dp).height(Dimension.FillMax)
                     .padding(8.dp)
-                    .verticalScroll(controlsScroll)
+                    .verticalScroll(controlsScroll),
             ) {
                 activeDemo.renderControls(runtime, this)
             }

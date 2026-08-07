@@ -17,7 +17,7 @@ class VkSubpassDescription(
     val pResolveAttachments: Array<VkAttachmentReference>? = null,
     val pDepthStencilAttachment: Array<VkAttachmentReference>? = null,
     @field:VkArray(sizeAlias = "preserveAttachmentCount")
-    val pPreserveAttachments: IntArray? = null
+    val pPreserveAttachments: IntArray? = null,
 )
 
 typealias VkSubpassDescriptionFlags = VkFlags

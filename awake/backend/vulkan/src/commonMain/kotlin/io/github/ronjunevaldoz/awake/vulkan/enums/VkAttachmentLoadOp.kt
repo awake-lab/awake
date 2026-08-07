@@ -7,5 +7,5 @@ enum class VkAttachmentLoadOp(val value: Int) {
     CLEAR(1),
     DONT_CARE(2),
     NONE_EXT(1000400000),
-    MAX_ENUM(0x7FFFFFFF)
+    MAX_ENUM(0x7FFFFFFF),
 }

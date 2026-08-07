@@ -3,18 +3,17 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.headless.input.select
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.select
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 class UiPopupTest {
 
@@ -28,7 +27,7 @@ class UiPopupTest {
             anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f),
             expanded = true,
             width = Dimension.Fixed(120f.px),
-            height = Dimension.Fixed(64f.px)
+            height = Dimension.Fixed(64f.px),
         ) { }
 
         val popupSlot = assertNotNull(result.slot)
@@ -47,7 +46,7 @@ class UiPopupTest {
             anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f),
             expanded = true,
             width = Dimension.Fixed(120f.px),
-            height = Dimension.Fixed(64f.px)
+            height = Dimension.Fixed(64f.px),
         ) {
             claimSlot(120f.toDimension(), 32f.toDimension())
         }
@@ -71,7 +70,7 @@ class UiPopupTest {
             expanded = true,
             width = Dimension.Fixed(120f.px),
             height = Dimension.Fixed(64f.px),
-            fadeDurationMs = 200f
+            fadeDurationMs = 200f,
         ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
         ui.endFrame()
 
@@ -82,7 +81,7 @@ class UiPopupTest {
             expanded = false,
             width = Dimension.Fixed(120f.px),
             height = Dimension.Fixed(64f.px),
-            fadeDurationMs = 200f
+            fadeDurationMs = 200f,
         ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
         ui.endFrame()
 
@@ -103,12 +102,13 @@ class UiPopupTest {
             expanded = true,
             width = Dimension.Fixed(120f.px),
             height = Dimension.Fixed(64f.px),
-            fadeDurationMs = 100f
+            fadeDurationMs = 100f,
         ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
         ui.endFrame()
 
         var lastResult: UiPopupResult? = null
-        repeat(20) { // 20 frames * 1/60s ~= 333ms, well past a 100ms fade.
+        repeat(20) {
+            // 20 frames * 1/60s ~= 333ms, well past a 100ms fade.
             ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
             lastResult = scope.popup(
                 id = "settle-popup",
@@ -116,7 +116,7 @@ class UiPopupTest {
                 expanded = false,
                 width = Dimension.Fixed(120f.px),
                 height = Dimension.Fixed(64f.px),
-                fadeDurationMs = 100f
+                fadeDurationMs = 100f,
             ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
             ui.endFrame()
         }

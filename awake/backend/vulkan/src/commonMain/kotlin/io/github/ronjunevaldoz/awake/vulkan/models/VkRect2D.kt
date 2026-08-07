@@ -4,5 +4,5 @@ package io.github.ronjunevaldoz.awake.vulkan.models
 
 data class VkRect2D(
     val offset: VkOffset2D = VkOffset2D(),
-    val extent: VkExtent2D = VkExtent2D()
+    val extent: VkExtent2D = VkExtent2D(),
 )

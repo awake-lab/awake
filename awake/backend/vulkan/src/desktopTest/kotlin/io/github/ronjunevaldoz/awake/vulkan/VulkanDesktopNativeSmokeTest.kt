@@ -34,7 +34,7 @@ class VulkanDesktopNativeSmokeTest {
     fun vkCreateInstance_returnsRealHandle() {
         val appInfo = VkApplicationInfo(
             pApplicationName = "Awake Desktop Smoke Test",
-            pEngineName = "Awake Vulkan - Engine"
+            pEngineName = "Awake Vulkan - Engine",
         )
         // MoltenVK conforms to the Vulkan Portability spec: vkCreateInstance requires both
         // VK_KHR_portability_enumeration and VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
@@ -45,7 +45,7 @@ class VulkanDesktopNativeSmokeTest {
         val createInfo = VkInstanceCreateInfo(
             flags = if (isMac) 0x00000001 else 0, // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
             pApplicationInfo = arrayOf(appInfo),
-            ppEnabledExtensionNames = if (isMac) arrayOf("VK_KHR_portability_enumeration") else emptyArray()
+            ppEnabledExtensionNames = if (isMac) arrayOf("VK_KHR_portability_enumeration") else emptyArray(),
         )
         val instance = Vulkan.vkCreateInstance(createInfo)
         assertNotEquals(0L, instance, "vkCreateInstance returned a null handle")

@@ -17,7 +17,7 @@ data class Color(val r: Float = 0f, val g: Float = 0f, val b: Float = 0f, val a:
         r = (r * multiplier).coerceAtMost(1f),
         g = (g * multiplier).coerceAtMost(1f),
         b = (b * multiplier).coerceAtMost(1f),
-        a = a
+        a = a,
     )
 
     fun isTransparent(): Boolean = a <= 0f
@@ -26,7 +26,7 @@ data class Color(val r: Float = 0f, val g: Float = 0f, val b: Float = 0f, val a:
         r = r + (other.r - r) * fraction.coerceIn(0f, 1f),
         g = g + (other.g - g) * fraction.coerceIn(0f, 1f),
         b = b + (other.b - b) * fraction.coerceIn(0f, 1f),
-        a = a + (other.a - a) * fraction.coerceIn(0f, 1f)
+        a = a + (other.a - a) * fraction.coerceIn(0f, 1f),
     )
 
     fun toFloatArray(): FloatArray = floatArrayOf(r, g, b, a)
@@ -40,7 +40,7 @@ data class Color(val r: Float = 0f, val g: Float = 0f, val b: Float = 0f, val a:
             r = channels.getOrElse(0) { 0f },
             g = channels.getOrElse(1) { 0f },
             b = channels.getOrElse(2) { 0f },
-            a = channels.getOrElse(3) { 1f }
+            a = channels.getOrElse(3) { 1f },
         )
 
         /**

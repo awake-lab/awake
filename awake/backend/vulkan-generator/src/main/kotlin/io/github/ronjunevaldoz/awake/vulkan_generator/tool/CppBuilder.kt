@@ -9,7 +9,7 @@ fun cppClass(
     fileDescription: String,
     namespace: String? = null,
     disableClass: Boolean = false,
-    block: CppClassBuilder.() -> Unit
+    block: CppClassBuilder.() -> Unit,
 ): Pair<String, String> {
     val builder = CppClassBuilder(className, fileDescription, namespace, disableClass)
     builder.block()

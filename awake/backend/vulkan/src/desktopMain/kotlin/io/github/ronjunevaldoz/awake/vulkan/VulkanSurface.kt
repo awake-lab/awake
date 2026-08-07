@@ -12,7 +12,7 @@ actual fun surfaceFramebufferExtent(window: Any): VkExtent2D? {
     val handle = window as Long
     return VkExtent2D(
         width = VulkanWindow.glfwGetFramebufferWidth(handle),
-        height = VulkanWindow.glfwGetFramebufferHeight(handle)
+        height = VulkanWindow.glfwGetFramebufferHeight(handle),
     )
 }
 

@@ -15,7 +15,7 @@ class VertexFormatTest {
         assertEquals(listOf(0, 12, 24), format.entries.map { it.offsetBytes })
         assertEquals(
             listOf(VertexSemantic.Position, VertexSemantic.Color, VertexSemantic.Uv),
-            format.entries.map { it.attribute.semantic }
+            format.entries.map { it.attribute.semantic },
         )
     }
 
@@ -26,8 +26,8 @@ class VertexFormatTest {
                 VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
                 VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
                 VertexAttribute(VertexSemantic.JointIndices, VertexAttributeFormat.UInt4, location = 2),
-                VertexAttribute(VertexSemantic.JointWeights, VertexAttributeFormat.Float4, location = 3)
-            )
+                VertexAttribute(VertexSemantic.JointWeights, VertexAttributeFormat.Float4, location = 3),
+            ),
         )
 
         assertEquals(listOf(0, 12, 24, 40), format.entries.map { it.offsetBytes })

@@ -38,7 +38,7 @@ class VertexBufferObject(val data: VertexBufferData) : BufferObject {
             AwakeContext.gl.bufferData(
                 OpenGL.BufferType.Array,
                 buffer,
-                OpenGL.DrawType.Static
+                OpenGL.DrawType.Static,
             )
             AwakeContext.gl.vertexAttribPointer(
                 index,
@@ -46,7 +46,7 @@ class VertexBufferObject(val data: VertexBufferData) : BufferObject {
                 CommonGL.GL_FLOAT,
                 false,
                 0,
-                offset
+                offset,
             )
         }
     }

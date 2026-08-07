@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnS
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -34,7 +33,7 @@ class ShadcnSelectGenericTest {
                 options = Fruit.entries,
                 onValueChange = { picked = it },
                 label = { it.name },
-                modifier = Modifier.width(200f.dp)
+                modifier = Modifier.width(200f.dp),
             )
         }
 

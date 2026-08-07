@@ -22,10 +22,11 @@ interface Poolable {
  */
 @PublishedApi
 internal class ComponentPool<T : Any>(
-    private val factory: () -> T
+    private val factory: () -> T,
 ) {
     @PublishedApi
     internal var items = arrayOfNulls<Any?>(DEFAULT_CAPACITY)
+
     @PublishedApi
     internal var size = 0
 

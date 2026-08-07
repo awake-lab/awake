@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.style.StyleState
 fun UiScope.resolveStyle(
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,
-    state: StyleState = MutableStyleState()
+    state: StyleState = MutableStyleState(),
 ): ResolvedStyle = (defaults then style).resolve(state, context.currentTextStyle)
 
 fun UiScope.recordSemantic(
@@ -36,7 +36,7 @@ fun UiScope.recordSemantic(
     borderToken: String? = null,
     borderRadius: Float? = null,
     shadowToken: String? = null,
-    textStyleToken: String? = null
+    textStyleToken: String? = null,
 ) {
     context.recordSemanticInternal(
         UiSemanticNode(
@@ -57,7 +57,7 @@ fun UiScope.recordSemantic(
             borderToken = borderToken,
             borderRadius = borderRadius,
             shadowToken = shadowToken,
-            textStyleToken = textStyleToken
-        )
+            textStyleToken = textStyleToken,
+        ),
     )
 }

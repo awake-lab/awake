@@ -59,7 +59,7 @@ class LineRenderPipeline(
     private val swapchainManager: SwapchainManager,
     private val renderPass: Long,
     shaders: ShaderPair,
-    private val framesInFlight: Int = 1
+    private val framesInFlight: Int = 1,
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -74,7 +74,7 @@ class LineRenderPipeline(
         val descriptorPool: Long,
         val descriptorSet: Long,
         val mvpBuffer: Long,
-        val mvpBufferMemory: Long
+        val mvpBufferMemory: Long,
     )
 
     init {
@@ -91,10 +91,10 @@ class LineRenderPipeline(
                 VkDescriptorSetLayoutBinding(
                     binding = 0,
                     descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    stageFlags = VkShaderStageFlagBits.VERTEX.value
-                )
-            )
-        )
+                    stageFlags = VkShaderStageFlagBits.VERTEX.value,
+                ),
+            ),
+        ),
     )
 
     private fun createMvpUniformBuffer(): Pair<Long, Long> {
@@ -102,19 +102,19 @@ class LineRenderPipeline(
             device,
             VkBufferCreateInfo(
                 size = MVP_UNIFORM_BYTES.toLong(),
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
-            )
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            ),
         )
         val requirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, buffer)
         val memoryTypeIndex = VulkanBuffers.findMemoryType(
             graphicsDevice.physicalDevice,
             requirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         )
         val memory = VulkanBuffers.vkAllocateMemory(
             device,
-            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex)
+            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex),
         )
         VulkanBuffers.vkBindBufferMemory(device, buffer, memory, 0)
         return buffer to memory
@@ -127,9 +127,9 @@ class LineRenderPipeline(
             VkDescriptorPoolCreateInfo(
                 maxSets = 1,
                 pPoolSizes = arrayOf(
-                    VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount = 1)
-                )
-            )
+                    VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount = 1),
+                ),
+            ),
         )
         val descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(device, descriptorPool, descriptorSetLayout)
         VulkanDescriptors.vkUpdateDescriptorSetBuffer(
@@ -137,7 +137,7 @@ class LineRenderPipeline(
             descriptorSet,
             0,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            VkDescriptorBufferInfo(buffer = mvpBuffer, range = MVP_UNIFORM_BYTES.toLong())
+            VkDescriptorBufferInfo(buffer = mvpBuffer, range = MVP_UNIFORM_BYTES.toLong()),
         )
         return UniformSlot(descriptorPool, descriptorSet, mvpBuffer, mvpBufferMemory)
     }
@@ -169,13 +169,13 @@ class LineRenderPipeline(
             VkPipelineShaderStageCreateInfo(
                 stage = VkShaderStageFlagBits.FRAGMENT,
                 module = fragShaderModule,
-                pName = "main"
+                pName = "main",
             ),
             VkPipelineShaderStageCreateInfo(
                 stage = VkShaderStageFlagBits.VERTEX,
                 module = vertShaderModule,
-                pName = "main"
-            )
+                pName = "main",
+            ),
         )
 
         val vertexInputInfo = arrayOf(
@@ -184,33 +184,33 @@ class LineRenderPipeline(
                     VkVertexInputBindingDescription(
                         binding = 0,
                         stride = LineMesh.FLOATS_PER_VERTEX * Float.SIZE_BYTES,
-                        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX
-                    )
+                        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX,
+                    ),
                 ),
                 pVertexAttributeDescriptions = arrayOf(
                     VkVertexInputAttributeDescription(
                         location = 0,
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
-                        offset = 0
+                        offset = 0,
                     ),
                     VkVertexInputAttributeDescription(
                         location = 1,
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
-                        offset = 3 * Float.SIZE_BYTES
-                    )
-                )
-            )
+                        offset = 3 * Float.SIZE_BYTES,
+                    ),
+                ),
+            ),
         )
 
         val dynamicInfo = arrayOf(
             VkPipelineDynamicStateCreateInfo(
                 pDynamicStates = arrayOf(
                     VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT,
-                    VkDynamicState.VK_DYNAMIC_STATE_SCISSOR
-                )
-            )
+                    VkDynamicState.VK_DYNAMIC_STATE_SCISSOR,
+                ),
+            ),
         )
 
         val viewportInfo = arrayOf(
@@ -218,11 +218,11 @@ class LineRenderPipeline(
                 pViewports = arrayOf(
                     VkViewport(
                         width = swapchainManager.extent.width.toFloat(),
-                        height = swapchainManager.extent.height.toFloat()
-                    )
+                        height = swapchainManager.extent.height.toFloat(),
+                    ),
                 ),
-                pScissors = arrayOf(VkRect2D(offset = VkOffset2D(), extent = swapchainManager.extent))
-            )
+                pScissors = arrayOf(VkRect2D(offset = VkOffset2D(), extent = swapchainManager.extent)),
+            ),
         )
 
         val depthStencil = arrayOf(VkPipelineDepthStencilStateCreateInfo())
@@ -231,15 +231,15 @@ class LineRenderPipeline(
         val inputAssemblyInfo = arrayOf(
             VkPipelineInputAssemblyStateCreateInfo(
                 topology = VkPrimitiveTopology.VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-                primitiveRestartEnable = false
-            )
+                primitiveRestartEnable = false,
+            ),
         )
 
         val rasterizationInfo = arrayOf(
             VkPipelineRasterizationStateCreateInfo(
                 cullMode = VkCullModeFlagBits.VK_CULL_MODE_NONE.value,
-                lineWidth = 1f
-            )
+                lineWidth = 1f,
+            ),
         )
 
         val blendAttachment = VkPipelineColorBlendAttachmentState(blendEnable = false)
@@ -247,7 +247,7 @@ class LineRenderPipeline(
 
         pipelineLayout = Vulkan.vkCreatePipelineLayout(
             device,
-            VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout))
+            VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout)),
         )
 
         val createInfos = arrayOf(
@@ -265,8 +265,8 @@ class LineRenderPipeline(
                 renderPass = renderPass,
                 subpass = 0,
                 basePipelineHandle = 0,
-                basePipelineIndex = -1
-            )
+                basePipelineIndex = -1,
+            ),
         )
         pipelineCache = Vulkan.vkCreatePipelineCache(device, VkPipelineCacheCreateInfo())
         graphicsPipeline = Vulkan.vkCreateGraphicsPipelines(device, pipelineCache, createInfos)
@@ -282,7 +282,7 @@ class LineRenderPipeline(
         Vulkan.vkCmdBindPipeline(
             commandBuffer,
             VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS,
-            graphicsPipeline[0]
+            graphicsPipeline[0],
         )
         VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, slot.descriptorSet)
     }

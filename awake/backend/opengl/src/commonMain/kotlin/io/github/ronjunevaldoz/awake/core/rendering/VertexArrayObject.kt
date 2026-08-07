@@ -4,7 +4,9 @@ package io.github.ronjunevaldoz.awake.core.rendering
 
 import io.github.ronjunevaldoz.awake.core.AwakeContext
 
-class VertexArrayObject : VertexArrayData, BufferObject {
+class VertexArrayObject :
+    VertexArrayData,
+    BufferObject {
     override var id: Int = -1
     override val indexBuffer: ElementBufferObject = ElementBufferObject()
     override val vertexBuffer: LinkedHashSet<VertexBufferObject> = LinkedHashSet()

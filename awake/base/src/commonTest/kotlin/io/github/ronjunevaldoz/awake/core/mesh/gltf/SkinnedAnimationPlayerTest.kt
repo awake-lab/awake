@@ -20,7 +20,7 @@ class SkinnedAnimationPlayerTest {
         meshes = emptyList(),
         skins = emptyList(),
         animations = emptyList(),
-        rootNodes = listOf(0)
+        rootNodes = listOf(0),
     )
 
     private fun identitySkin(): LoadedSkin = LoadedSkin(joints = listOf(0, 1), inverseBindMatrices = listOf(Mat4(), Mat4()))
@@ -62,10 +62,10 @@ class SkinnedAnimationPlayerTest {
                     sampler = LoadedAnimationSampler(
                         times = floatArrayOf(0f, 1f),
                         values = floatArrayOf(0f, 0f, 0f, 1f, 0f, 0.70710677f, 0f, 0.70710677f),
-                        componentsPerKeyframe = 4
-                    )
-                )
-            )
+                        componentsPerKeyframe = 4,
+                    ),
+                ),
+            ),
         )
 
         player.sample(animation, timeSeconds = 0f)
@@ -89,10 +89,10 @@ class SkinnedAnimationPlayerTest {
                     sampler = LoadedAnimationSampler(
                         times = floatArrayOf(0f, 0.5f, 2.5f),
                         values = FloatArray(9),
-                        componentsPerKeyframe = 3
-                    )
-                )
-            )
+                        componentsPerKeyframe = 3,
+                    ),
+                ),
+            ),
         )
 
         assertEquals(2.5f, player.duration(animation))

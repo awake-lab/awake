@@ -1,22 +1,5 @@
-/*
- * Awake
- * Awake.awake-ecs.commonMain
- *
- * Copyright (c) ronjunevaldoz 2023.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ecs
 
 import kotlin.reflect.KClass
@@ -30,6 +13,7 @@ import kotlin.reflect.KClass
  */
 class World {
     @PublishedApi internal val entities = EntityArena()
+
     @PublishedApi internal val components = ComponentRegistry()
     private val collector = QueryCollector(entities, components)
     private val familyRegistry = FamilyRegistry(this, collector)
@@ -48,7 +32,7 @@ class World {
 
         familyRegistry.removeEntity(entity)
         components.removeEntity(entity, entities.signature(entity.id))
-        
+
         val destroyed = entities.destroy(entity)
         if (destroyed) {
             queryCache.markAllQueriesDirty()
@@ -56,13 +40,9 @@ class World {
         return destroyed
     }
 
-    fun isAlive(entity: Entity): Boolean {
-        return entities.isAlive(entity)
-    }
+    fun isAlive(entity: Entity): Boolean = entities.isAlive(entity)
 
-    inline fun <reified T : Any> add(entity: Entity): T {
-        return add(entity, T::class)
-    }
+    inline fun <reified T : Any> add(entity: Entity): T = add(entity, T::class)
 
     fun <T : Any> add(entity: Entity, type: KClass<T>): T {
         val instance = components.pool(type).obtain() as T
@@ -75,9 +55,7 @@ class World {
         return addInternal(entity, typeId, T::class, component)
     }
 
-    fun <T : Any> add(entity: Entity, type: KClass<T>, component: T): T? {
-        return addInternal(entity, components.typeId(type), type, component)
-    }
+    fun <T : Any> add(entity: Entity, type: KClass<T>, component: T): T? = addInternal(entity, components.typeId(type), type, component)
 
     @PublishedApi
     internal fun <T : Any> addInternal(entity: Entity, typeId: ComponentTypeId, type: KClass<T>, component: T): T? {
@@ -149,13 +127,9 @@ class World {
     }
 
     @PublishedApi
-    internal fun hasInternal(entity: Entity, typeId: ComponentTypeId): Boolean {
-        return entities.has(entity, typeId)
-    }
+    internal fun hasInternal(entity: Entity, typeId: ComponentTypeId): Boolean = entities.has(entity, typeId)
 
-    fun query(vararg types: KClass<out Any>): List<Entity> {
-        return queryCache.query(types.toSet())
-    }
+    fun query(vararg types: KClass<out Any>): List<Entity> = queryCache.query(types.toSet())
 
     fun <A : Any> queryEach(type: KClass<A>, block: (Entity, A) -> Unit) {
         familyRegistry.familyCache(type).forEach(block)
@@ -165,18 +139,14 @@ class World {
         queryEach(A::class, block)
     }
 
-    fun <A : Any> family(type: KClass<A>): Family1<A> {
-        return Family1(familyRegistry.familyCache(type))
-    }
+    fun <A : Any> family(type: KClass<A>): Family1<A> = Family1(familyRegistry.familyCache(type))
 
-    inline fun <reified A : Any> family(): Family1<A> {
-        return family(A::class)
-    }
+    inline fun <reified A : Any> family(): Family1<A> = family(A::class)
 
     fun <A : Any, B : Any> queryEach(
         typeA: KClass<A>,
         typeB: KClass<B>,
-        block: (Entity, A, B) -> Unit
+        block: (Entity, A, B) -> Unit,
     ) {
         familyRegistry.familyCache(typeA, typeB).forEach(block)
     }
@@ -185,22 +155,16 @@ class World {
         queryEach(A::class, B::class, block)
     }
 
-    fun <A : Any, B : Any> family(typeA: KClass<A>, typeB: KClass<B>): Family2<A, B> {
-        return Family2(familyRegistry.familyCache(typeA, typeB))
-    }
+    fun <A : Any, B : Any> family(typeA: KClass<A>, typeB: KClass<B>): Family2<A, B> = Family2(familyRegistry.familyCache(typeA, typeB))
 
-    inline fun <reified A : Any, reified B : Any> family(): Family2<A, B> {
-        return family(A::class, B::class)
-    }
+    inline fun <reified A : Any, reified B : Any> family(): Family2<A, B> = family(A::class, B::class)
 
     fun family(configure: FamilySpecBuilder.() -> Unit): Family {
         val spec = FamilySpecBuilder().apply(configure).build()
         return Family(familyRegistry.familySpecCache(spec))
     }
 
-    inline fun <reified T : Any> query(): List<Entity> {
-        return query(T::class)
-    }
+    inline fun <reified T : Any> query(): List<Entity> = query(T::class)
 
     fun registerPool(type: KClass<out Any>, factory: () -> Any) {
         @Suppress("UNCHECKED_CAST")
@@ -218,41 +182,27 @@ class World {
         queryCache.clear()
     }
 
-    fun componentCount(type: KClass<out Any>): Int {
-        return components.componentCount(type)
-    }
+    fun componentCount(type: KClass<out Any>): Int = components.componentCount(type)
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> store(type: KClass<T>): ComponentStore<T> {
-        return components.store(typeId(type), type)
-    }
+    fun <T : Any> store(type: KClass<T>): ComponentStore<T> = components.store(typeId(type), type)
 
     @PublishedApi
-    internal fun <T : Any> store(typeId: ComponentTypeId, type: KClass<T>): ComponentStore<T> {
-        return components.store(typeId, type)
-    }
+    internal fun <T : Any> store(typeId: ComponentTypeId, type: KClass<T>): ComponentStore<T> = components.store(typeId, type)
 
     @PublishedApi
     @Suppress("UNCHECKED_CAST")
-    internal fun <T : Any> storeOrNull(typeId: ComponentTypeId): ComponentStore<T>? {
-        return components.storeOrNull(typeId)
-    }
+    internal fun <T : Any> storeOrNull(typeId: ComponentTypeId): ComponentStore<T>? = components.storeOrNull(typeId)
 
-    internal fun collectQuery(types: Set<KClass<out Any>>): List<Entity> {
-        return collector.collect(types)
-    }
+    internal fun collectQuery(types: Set<KClass<out Any>>): List<Entity> = collector.collect(types)
 
-    internal fun getSignature(id: Int): Long {
-        return entities.signature(id)
-    }
+    internal fun getSignature(id: Int): Long = entities.signature(id)
 
     private fun requireAlive(entity: Entity) {
         require(entities.isAlive(entity)) { "Entity is not alive: $entity" }
     }
 
-    fun typeId(type: KClass<out Any>): ComponentTypeId {
-        return components.typeId(type)
-    }
+    fun typeId(type: KClass<out Any>): ComponentTypeId = components.typeId(type)
 
     // --- Helpers for EcsOptimizationTest.kt that expects overloads taking ComponentTypeId
 
@@ -262,19 +212,11 @@ class World {
         return instance as T
     }
 
-    inline fun <reified T : Any> add(entity: Entity, typeId: ComponentTypeId, component: T): T? {
-        return addInternal(entity, typeId, T::class, component)
-    }
+    inline fun <reified T : Any> add(entity: Entity, typeId: ComponentTypeId, component: T): T? = addInternal(entity, typeId, T::class, component)
 
-    inline fun <reified T : Any> get(entity: Entity, typeId: ComponentTypeId): T? {
-        return getInternal<T>(entity, typeId)
-    }
+    inline fun <reified T : Any> get(entity: Entity, typeId: ComponentTypeId): T? = getInternal<T>(entity, typeId)
 
-    inline fun <reified T : Any> remove(entity: Entity, typeId: ComponentTypeId): T? {
-        return removeInternal(entity, typeId, T::class)
-    }
+    inline fun <reified T : Any> remove(entity: Entity, typeId: ComponentTypeId): T? = removeInternal(entity, typeId, T::class)
 
-    fun has(entity: Entity, typeId: ComponentTypeId): Boolean {
-        return hasInternal(entity, typeId)
-    }
+    fun has(entity: Entity, typeId: ComponentTypeId): Boolean = hasInternal(entity, typeId)
 }

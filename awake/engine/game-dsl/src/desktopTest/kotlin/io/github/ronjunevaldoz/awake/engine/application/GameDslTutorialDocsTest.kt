@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.application
 
-import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -52,7 +52,7 @@ class GameDslTutorialDocsTest {
                     size(1600, 900)
                     backend.vulkan()
                 }
-            """
+            """,
         )
     }
 
@@ -106,7 +106,7 @@ class GameDslTutorialDocsTest {
                     size(960, 540)
                     backend.webGpu()
                 }
-            """
+            """,
         )
     }
 
@@ -151,7 +151,7 @@ class GameDslTutorialDocsTest {
                 }
 
                 val game = definition.createGame()
-            """
+            """,
         )
     }
 }

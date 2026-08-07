@@ -7,22 +7,20 @@ import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
 import io.github.ronjunevaldoz.awake.engine.application.frame
 import io.github.ronjunevaldoz.awake.engine.application.gameUi
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 private object TestDummyRenderer : io.github.ronjunevaldoz.awake.render.renderer.Renderer {
     override val clipSpace: ClipSpace = ClipSpace.WebGpu
@@ -57,6 +55,7 @@ private val testInput = io.github.ronjunevaldoz.awake.core.input.Input()
 
 private fun unusedGameServices() = object : GameServiceLookup {
     override fun <T : Any> service(type: kotlin.reflect.KClass<T>): T? = null
+
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = when (type) {
         io.github.ronjunevaldoz.awake.render.renderer.Renderer::class -> TestDummyRenderer as T
@@ -81,15 +80,19 @@ class CanvasResponsiveLayoutTest {
                         widthClass = constraints.widthSizeClass
                         panelSlot = surface(
                             id = "overlay-panel",
-                            modifier = (Modifier
-                                .align(UiAlignment.BottomEnd)
-                                .padding(start = 0f.dp, top = 0f.dp, end = 16f.dp, bottom = 12f.dp)).width(120f.toDimension()).height(
-                                    Dimension.WrapContent)) {
+                            modifier = (
+                                Modifier
+                                    .align(UiAlignment.BottomEnd)
+                                    .padding(start = 0f.dp, top = 0f.dp, end = 16f.dp, bottom = 12f.dp)
+                                ).width(120f.toDimension()).height(
+                                Dimension.WrapContent,
+                            ),
+                        ) {
                             text("Status")
                         }
                     }
                 }
-            }
+            },
         )
         runtime.ready(TestDummyRenderer)
         runtime.render(0.016f, 360f, 240f)
@@ -112,9 +115,12 @@ class CanvasResponsiveLayoutTest {
                         widthClass = constraints.widthSizeClass
                         columnSlot = column(
                             id = "stacked-column",
-                            modifier = (Modifier
-                                .align(UiAlignment.TopStart)
-                                .padding(20f.dp)).width(320f.toDimension()).height(Dimension.WrapContent)) {
+                            modifier = (
+                                Modifier
+                                    .align(UiAlignment.TopStart)
+                                    .padding(20f.dp)
+                                ).width(320f.toDimension()).height(Dimension.WrapContent),
+                        ) {
                             surface(id = "one", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
                                 text("One")
                             }
@@ -124,7 +130,7 @@ class CanvasResponsiveLayoutTest {
                         }
                     }
                 }
-            }
+            },
         )
         runtime.ready(TestDummyRenderer)
         runtime.render(0.016f, 900f, 600f)
@@ -152,7 +158,7 @@ class CanvasResponsiveLayoutTest {
                             maxWidthPx = constraints.maxWidthPx
                         }
                     }
-                }
+                },
             )
             runtime.ready(TestDummyRenderer)
             runtime.render(0.016f, 900f, 600f)

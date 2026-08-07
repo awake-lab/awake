@@ -38,7 +38,7 @@ internal fun writeGlyphVertex(
     u: Float,
     v: Float,
     color: Color,
-    transform: UiPrimitiveTransform? = null
+    transform: UiPrimitiveTransform? = null,
 ) {
     out[offset] = x
     out[offset + 1] = y
@@ -77,7 +77,7 @@ internal fun writeRoundedQuadVertex(
     radius: Float,
     smoothing: Float = 0.0f,
     color: Color,
-    transform: UiPrimitiveTransform? = null
+    transform: UiPrimitiveTransform? = null,
 ) {
     out[offset] = x
     out[offset + 1] = y

@@ -26,8 +26,8 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
             listOf(
                 VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
                 VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 1),
-                VertexAttribute(VertexSemantic.Uv, VertexAttributeFormat.Float2, location = 2)
-            )
+                VertexAttribute(VertexSemantic.Uv, VertexAttributeFormat.Float2, location = 2),
+            ),
         )
 
         /** Position vec3 @ 0, normal vec3 @ 12, color vec3 @ 24, stride 36 -- for a shader that
@@ -41,8 +41,8 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
             listOf(
                 VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
                 VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
-                VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2)
-            )
+                VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2),
+            ),
         )
 
         /** [PositionNormalColor] plus joint indices (uint4 @ 36) and joint weights (vec4 @ 52),
@@ -55,8 +55,8 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
                 VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
                 VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2),
                 VertexAttribute(VertexSemantic.JointIndices, VertexAttributeFormat.UInt4, location = 3),
-                VertexAttribute(VertexSemantic.JointWeights, VertexAttributeFormat.Float4, location = 4)
-            )
+                VertexAttribute(VertexSemantic.JointWeights, VertexAttributeFormat.Float4, location = 4),
+            ),
         )
 
         /** [PositionNormalColor] plus a uv vec2 @ 36, stride 44 -- for a mesh whose material has
@@ -68,8 +68,8 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
                 VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
                 VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
                 VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2),
-                VertexAttribute(VertexSemantic.Uv, VertexAttributeFormat.Float2, location = 3)
-            )
+                VertexAttribute(VertexSemantic.Uv, VertexAttributeFormat.Float2, location = 3),
+            ),
         )
     }
 }

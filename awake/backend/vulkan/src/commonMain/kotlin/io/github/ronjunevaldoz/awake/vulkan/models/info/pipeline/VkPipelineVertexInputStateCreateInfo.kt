@@ -11,14 +11,14 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkVertexInputRate
 data class VkVertexInputBindingDescription(
     val binding: Int,
     val stride: Int,
-    val inputRate: VkVertexInputRate
+    val inputRate: VkVertexInputRate,
 )
 
 data class VkVertexInputAttributeDescription(
     val location: Int,
     val binding: Int,
     val format: VkFormat,
-    val offset: Int
+    val offset: Int,
 )
 
 class VkPipelineVertexInputStateCreateInfo(
@@ -30,6 +30,5 @@ class VkPipelineVertexInputStateCreateInfo(
     @VkArray(sizeAlias = "vertexAttributeDescriptionCount")
     val pVertexAttributeDescriptions: Array<VkVertexInputAttributeDescription>? = null,
 )
-
 
 typealias VkPipelineVertexInputStateCreateFlags = VkFlags

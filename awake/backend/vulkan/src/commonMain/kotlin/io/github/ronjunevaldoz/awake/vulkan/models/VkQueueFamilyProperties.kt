@@ -11,5 +11,5 @@ data class VkQueueFamilyProperties @JvmOverloads constructor(
     val queueFlags: VkQueueFlags = 0,
     val queueCount: UInt = 0u,
     val timestampValidBits: UInt = 0u,
-    val minImageTransferGranularity: VkExtent3D = VkExtent3D()
+    val minImageTransferGranularity: VkExtent3D = VkExtent3D(),
 )

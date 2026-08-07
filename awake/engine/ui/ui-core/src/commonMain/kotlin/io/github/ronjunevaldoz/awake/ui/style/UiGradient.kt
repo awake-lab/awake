@@ -8,21 +8,21 @@ data class UiLinearGradient(
     val topLeft: Color,
     val topRight: Color,
     val bottomRight: Color,
-    val bottomLeft: Color
+    val bottomLeft: Color,
 ) {
     companion object {
         fun vertical(top: Color, bottom: Color): UiLinearGradient = UiLinearGradient(
             topLeft = top,
             topRight = top,
             bottomRight = bottom,
-            bottomLeft = bottom
+            bottomLeft = bottom,
         )
 
         fun horizontal(start: Color, end: Color): UiLinearGradient = UiLinearGradient(
             topLeft = start,
             topRight = end,
             bottomRight = end,
-            bottomLeft = start
+            bottomLeft = start,
         )
     }
 }

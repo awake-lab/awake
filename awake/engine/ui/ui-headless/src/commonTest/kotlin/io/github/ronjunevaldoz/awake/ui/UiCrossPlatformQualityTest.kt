@@ -10,13 +10,12 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.headless.button
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.headless.button
 import kotlin.test.Test
 
 class UiCrossPlatformQualityTest {
@@ -55,7 +54,7 @@ class UiCrossPlatformQualityTest {
             label = "button",
             metrics = metrics,
             allowedBounds = UiBounds(20f, 20f, 180f, 44f),
-            tolerancePx = 1f
+            tolerancePx = 1f,
         ).requireClean()
     }
 
@@ -68,7 +67,7 @@ class UiCrossPlatformQualityTest {
         frameHeight: Float,
         buttonWidth: Float,
         buttonHeight: Float,
-        theme: UiTheme = shadcnTheme(dark = true)
+        theme: UiTheme = shadcnTheme(dark = true),
     ) = UiContext().let { context ->
         context.beginFrame(frameWidth, frameHeight, testSnapshot())
         context.pushFont(font)

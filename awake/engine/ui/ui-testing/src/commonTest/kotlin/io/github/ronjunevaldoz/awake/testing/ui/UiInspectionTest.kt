@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -26,11 +26,11 @@ class UiInspectionTest {
                     v0 = 0f,
                     u1 = 1f,
                     v1 = 1f,
-                    color = Color.White
-                )
+                    color = Color.White,
+                ),
             ),
             frame = UiBounds(0f, 0f, 80f, 40f),
-            font = null
+            font = null,
         )
 
         assertFalse(report.isClean)
@@ -42,17 +42,17 @@ class UiInspectionTest {
         val report = inspectUiFrame(
             primitives = listOf(
                 UiDrawPrimitive.ClipPop(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 80f, 40f)),
-                UiDrawPrimitive.ClipPush(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(8f, 8f, 24f, 24f))
+                UiDrawPrimitive.ClipPush(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(8f, 8f, 24f, 24f)),
             ),
-            frame = UiBounds(0f, 0f, 80f, 40f)
+            frame = UiBounds(0f, 0f, 80f, 40f),
         )
 
         assertEquals(
             listOf(
                 UiInspectionIssueKind.ClipStackUnderflow,
-                UiInspectionIssueKind.ClipStackUnbalanced
+                UiInspectionIssueKind.ClipStackUnbalanced,
             ),
-            report.issues.map { it.kind }
+            report.issues.map { it.kind },
         )
     }
 
@@ -71,12 +71,12 @@ class UiInspectionTest {
                     v0 = 0f,
                     u1 = 0.25f,
                     v1 = 1f,
-                    color = Color.White
+                    color = Color.White,
                 ),
-                UiDrawPrimitive.ClipPop(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 80f, 40f))
+                UiDrawPrimitive.ClipPop(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 80f, 40f)),
             ),
             frame = UiBounds(0f, 0f, 80f, 40f),
-            font = font
+            font = font,
         )
 
         assertTrue(report.isClean, report.summary())
@@ -89,8 +89,8 @@ class UiInspectionTest {
             bounds = listOf(
                 UiBounds(0f, 0f, 80f, 40f),
                 UiBounds(60f, 20f, 80f, 40f),
-                UiBounds(180f, 20f, 40f, 40f)
-            )
+                UiBounds(180f, 20f, 40f, 40f),
+            ),
         )
 
         assertFalse(report.isClean)

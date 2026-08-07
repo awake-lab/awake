@@ -165,7 +165,7 @@ object GltfParser {
                 matrix = explicitMatrix,
                 children = node.children,
                 mesh = node.mesh,
-                skin = node.skin
+                skin = node.skin,
             )
         }
         val meshes = document.meshes.map { meshDef ->
@@ -214,7 +214,7 @@ object GltfParser {
             LoadedAnimationChannel(
                 targetNode = targetNode,
                 targetPath = channel.target.path,
-                sampler = LoadedAnimationSampler(times, values, componentsPerKeyframe)
+                sampler = LoadedAnimationSampler(times, values, componentsPerKeyframe),
             )
         }
         return LoadedAnimation(channels)
@@ -256,7 +256,7 @@ object GltfParser {
         val uri = buffer.uri
             ?: error(
                 "glTF buffer has no uri -- external .bin buffers are not supported by " +
-                    "this parser (only base64 data URIs)."
+                    "this parser (only base64 data URIs).",
             )
         return decodeBase64DataUri(uri)
     }
@@ -297,7 +297,7 @@ object GltfParser {
         return Mat4.fromTrs(
             translation = Vec3(t[0], t[1], t[2]),
             rotation = Quat(r[0], r[1], r[2], r[3]),
-            scale = Vec3(s[0], s[1], s[2])
+            scale = Vec3(s[0], s[1], s[2]),
         )
     }
 
@@ -305,10 +305,8 @@ object GltfParser {
      * not [Mat4]'s own `times` operator; see [Mat4.multiplyColumnMajor]'s doc comment. */
     private fun multiply(a: Mat4, b: Mat4): Mat4 = Mat4.multiplyColumnMajor(a, b)
 
-    private fun accessorAt(document: GltfDocument, index: Int): GltfAccessor {
-        return document.accessors.getOrElse(index) {
-            error("glTF accessor index $index is out of range (${document.accessors.size} accessors).")
-        }
+    private fun accessorAt(document: GltfDocument, index: Int): GltfAccessor = document.accessors.getOrElse(index) {
+        error("glTF accessor index $index is out of range (${document.accessors.size} accessors).")
     }
 
     private fun bufferViewFor(document: GltfDocument, accessor: GltfAccessor, accessorIndex: Int): GltfBufferView {
@@ -319,31 +317,27 @@ object GltfParser {
         }
     }
 
-    private fun componentSize(componentType: Int): Int {
-        return when (componentType) {
-            COMPONENT_TYPE_UNSIGNED_BYTE -> 1
-            COMPONENT_TYPE_UNSIGNED_SHORT -> 2
-            COMPONENT_TYPE_UNSIGNED_INT, COMPONENT_TYPE_FLOAT -> BYTES_PER_FLOAT
-            else -> error("Unsupported glTF accessor componentType: $componentType")
-        }
+    private fun componentSize(componentType: Int): Int = when (componentType) {
+        COMPONENT_TYPE_UNSIGNED_BYTE -> 1
+        COMPONENT_TYPE_UNSIGNED_SHORT -> 2
+        COMPONENT_TYPE_UNSIGNED_INT, COMPONENT_TYPE_FLOAT -> BYTES_PER_FLOAT
+        else -> error("Unsupported glTF accessor componentType: $componentType")
     }
 
-    private fun typeComponentCount(type: String): Int {
-        return when (type) {
-            "SCALAR" -> 1
-            "VEC2" -> 2
-            "VEC3" -> 3
-            "VEC4" -> 4
-            "MAT4" -> 16
-            else -> error("Unsupported glTF accessor type: $type")
-        }
+    private fun typeComponentCount(type: String): Int = when (type) {
+        "SCALAR" -> 1
+        "VEC2" -> 2
+        "VEC3" -> 3
+        "VEC4" -> 4
+        "MAT4" -> 16
+        else -> error("Unsupported glTF accessor type: $type")
     }
 
     private fun readFloatAccessor(
         document: GltfDocument,
         buffers: List<ByteArray>,
         accessorIndex: Int,
-        componentsPerElement: Int
+        componentsPerElement: Int,
     ): FloatArray {
         val accessor = accessorAt(document, accessorIndex)
         require(accessor.componentType == COMPONENT_TYPE_FLOAT) {
@@ -373,7 +367,7 @@ object GltfParser {
     private fun readIndexAccessor(
         document: GltfDocument,
         buffers: List<ByteArray>,
-        accessorIndex: Int
+        accessorIndex: Int,
     ): IntArray {
         val accessor = accessorAt(document, accessorIndex)
         require(typeComponentCount(accessor.type) == 1) {
@@ -402,7 +396,7 @@ object GltfParser {
     private fun readJointAccessor(
         document: GltfDocument,
         buffers: List<ByteArray>,
-        accessorIndex: Int
+        accessorIndex: Int,
     ): IntArray {
         val accessor = accessorAt(document, accessorIndex)
         require(typeComponentCount(accessor.type) == 4) {
@@ -427,18 +421,12 @@ object GltfParser {
         }
     }
 
-    private fun readFloatLe(bytes: ByteArray, offset: Int): Float {
-        return Float.fromBits(readUIntLe(bytes, offset))
-    }
+    private fun readFloatLe(bytes: ByteArray, offset: Int): Float = Float.fromBits(readUIntLe(bytes, offset))
 
-    private fun readUShortLe(bytes: ByteArray, offset: Int): Int {
-        return (bytes[offset].toInt() and 0xFF) or ((bytes[offset + 1].toInt() and 0xFF) shl 8)
-    }
+    private fun readUShortLe(bytes: ByteArray, offset: Int): Int = (bytes[offset].toInt() and 0xFF) or ((bytes[offset + 1].toInt() and 0xFF) shl 8)
 
-    private fun readUIntLe(bytes: ByteArray, offset: Int): Int {
-        return (bytes[offset].toInt() and 0xFF) or
-            ((bytes[offset + 1].toInt() and 0xFF) shl 8) or
-            ((bytes[offset + 2].toInt() and 0xFF) shl 16) or
-            ((bytes[offset + 3].toInt() and 0xFF) shl 24)
-    }
+    private fun readUIntLe(bytes: ByteArray, offset: Int): Int = (bytes[offset].toInt() and 0xFF) or
+        ((bytes[offset + 1].toInt() and 0xFF) shl 8) or
+        ((bytes[offset + 2].toInt() and 0xFF) shl 16) or
+        ((bytes[offset + 3].toInt() and 0xFF) shl 24)
 }

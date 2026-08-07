@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
-import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
@@ -24,6 +23,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /**
  * A user-reported "the cube moves up and down" regression could not be reproduced from screen
@@ -65,7 +65,7 @@ class RotatingCubeContinuousSpinStabilityTest {
         orbitDegrees: Float,
         pitchDegrees: Float,
         zoom: Float,
-        elevation: Float
+        elevation: Float,
     ): CoreCamera {
         val orbitRad = orbitDegrees * (PI / 180.0).toFloat()
         val pitchRad = pitchDegrees * (PI / 180.0).toFloat()
@@ -73,14 +73,14 @@ class RotatingCubeContinuousSpinStabilityTest {
         val eye = Vec3(
             target.x + zoom * cp * sin(orbitRad),
             elevation + zoom * sin(pitchRad),
-            target.z + zoom * cp * cos(orbitRad)
+            target.z + zoom * cp * cos(orbitRad),
         )
         return CoreCamera(
             eye = eye,
             center = target,
             fovYRadians = 45f * (PI / 180.0).toFloat(),
             near = 0.1f,
-            far = 100f
+            far = 100f,
         )
     }
 
@@ -98,14 +98,14 @@ class RotatingCubeContinuousSpinStabilityTest {
             runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
             VertexFormat.PositionNormalColor,
             vertexEntryPoint = "vertexMain",
-            fragmentEntryPoint = "fragmentMain"
+            fragmentEntryPoint = "fragmentMain",
         )
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
             runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
         val transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(
@@ -121,7 +121,7 @@ class RotatingCubeContinuousSpinStabilityTest {
             runBlocking {
                 loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
             },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
 
         var mesh: io.github.ronjunevaldoz.awake.render.mesh.Mesh? = null
@@ -160,13 +160,13 @@ class RotatingCubeContinuousSpinStabilityTest {
                     orbitDegrees = 0f,
                     pitchDegrees = 0f,
                     zoom = 15f,
-                    elevation = 2.2f
+                    elevation = 2.2f,
                 )
 
                 renderer.renderToTexture(
                     target,
                     camera,
-                    listOf(DrawCall(createdMesh, createdMaterial, cubeModel))
+                    listOf(DrawCall(createdMesh, createdMaterial, cubeModel)),
                 )
                 val pixels = runBlocking { renderer.readPixels(target) }
 
@@ -180,7 +180,7 @@ class RotatingCubeContinuousSpinStabilityTest {
                 ) {
                     driftedFrames.add(
                         "frame $frameIndex (hours=${timeController.hours}): top=$topRow (expected $firstTopRow), " +
-                            "bottom=$bottomRow (expected $firstBottomRow)"
+                            "bottom=$bottomRow (expected $firstBottomRow)",
                     )
                 }
             }
@@ -190,7 +190,7 @@ class RotatingCubeContinuousSpinStabilityTest {
                 driftedFrames,
                 "Cube's top/bottom pixel row drifted by more than $ANTI_ALIASING_TOLERANCE_PX px during " +
                     "continuous auto-spin -- a real vertical movement, not just anti-aliasing noise, on " +
-                    "${driftedFrames.size}/$FRAME_COUNT frames. First few: " + driftedFrames.take(5).joinToString("; ")
+                    "${driftedFrames.size}/$FRAME_COUNT frames. First few: " + driftedFrames.take(5).joinToString("; "),
             )
         } finally {
             mesh?.destroy()

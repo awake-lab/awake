@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
@@ -11,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.frameBounds
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -26,8 +29,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-
 
 private val DetachedPopupAnchor = UiBounds(-1f, -1f, 0f, 0f)
 private val DefaultDialogScrimColor = Color.Black.withAlpha(0.48f)
@@ -42,7 +43,7 @@ fun UiScope.shadcnDialog(
     closeIcon: (BoxScope.() -> Unit)? = null,
     header: (ColumnScope.(slot: UiBounds) -> Unit)? = null,
     actions: (RowScope.(slot: UiBounds) -> Unit)? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiPopupResult {
     if (!expanded) return UiPopupResult(slot = null, dismissed = false)
 
@@ -53,15 +54,15 @@ fun UiScope.shadcnDialog(
         context.createAbsolute(
             x = frameBounds.x,
             y = frameBounds.y,
-            overlayOnly = true
+            overlayOnly = true,
         ).emit(
             UiDrawPrimitive.Quad(
                 frameBounds.x,
                 frameBounds.y,
                 frameBounds.width,
                 frameBounds.height,
-                properties.scrimColor ?: DefaultDialogScrimColor
-            )
+                properties.scrimColor ?: DefaultDialogScrimColor,
+            ),
         )
     }
 
@@ -74,8 +75,8 @@ fun UiScope.shadcnDialog(
         verticalArrangement = Arrangement.spacedBy(0f.dp),
         positionProvider = UiPopupDefaults.centered(),
         properties = properties.popupProperties.copy(
-            dismissOnClickOutside = properties.dismissOnClickOutside && properties.popupProperties.dismissOnClickOutside
-        )
+            dismissOnClickOutside = properties.dismissOnClickOutside && properties.popupProperties.dismissOnClickOutside,
+        ),
     ) { _ ->
         surface(
             id = id,
@@ -83,19 +84,19 @@ fun UiScope.shadcnDialog(
                 .width(width)
                 .height(height)
                 .styleable(theme.components.surface then Style { shape(UiShape.md) } then properties.surfaceStyle),
-            clipContent = true
+            clipContent = true,
         ) { slot ->
             val boundsSlot = slot
             if (showCloseButton) {
                 row(
                     modifier = Modifier.width(Dimension.FillMax),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.End,
                 ) {
                     shadcnButton(
                         id = "$id.close",
                         modifier = Modifier.width(24f.dp).height(24f.dp),
                         variant = ShadcnButtonVariant.Ghost,
-                        size = ShadcnButtonSize.Xs
+                        size = ShadcnButtonSize.Xs,
                     ) {
                         if (closeIcon != null) closeIcon() else text("x")
                     }.let { clicked -> if (clicked) closeClicked = true }
@@ -106,7 +107,7 @@ fun UiScope.shadcnDialog(
             if (actions != null) {
                 row(
                     modifier = Modifier.width(Dimension.FillMax).height(36f.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) { actionSlot ->
                     actions(actionSlot)
                 }

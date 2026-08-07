@@ -10,7 +10,8 @@ enum class VkComponentSwizzle(val value: Int) {
     VK_COMPONENT_SWIZZLE_G(4),
     VK_COMPONENT_SWIZZLE_B(5),
     VK_COMPONENT_SWIZZLE_A(6),
-    VK_COMPONENT_SWIZZLE_MAX_ENUM(0x7FFFFFFF);
+    VK_COMPONENT_SWIZZLE_MAX_ENUM(0x7FFFFFFF),
+    ;
 
     companion object {
         // Helper function to convert integer value to VkComponentSwizzle

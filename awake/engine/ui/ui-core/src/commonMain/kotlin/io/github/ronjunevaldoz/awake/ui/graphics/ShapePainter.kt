@@ -7,10 +7,10 @@ import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.UiStroke
-import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx
 
@@ -23,9 +23,8 @@ private fun UiBounds.pixelSnapped(): UiBounds = UiBounds(
     pixelPerfectPixel(x),
     pixelPerfectPixel(y),
     pixelPerfectPixel(width).coerceAtLeast(1f),
-    pixelPerfectPixel(height).coerceAtLeast(1f)
+    pixelPerfectPixel(height).coerceAtLeast(1f),
 )
-
 
 fun UiScope.emitPrimitive(primitive: UiDrawPrimitive, overlay: Boolean) {
     if (overlay) emitOverlay(primitive) else emit(primitive)
@@ -56,7 +55,7 @@ private fun UiScope.emitFillShape(
     radiusPx: Float,
     shapeSpec: UiShapeSpec?,
     overlay: Boolean = emitsToOverlay,
-    tokenId: String? = null
+    tokenId: String? = null,
 ) {
     if (color.isTransparent()) return
     val pathShape = pathOnlyShape(slot, shapeSpec)
@@ -84,7 +83,7 @@ fun UiScope.emitFillAndBorder(
     shapeSpec: UiShapeSpec? = null,
     overlay: Boolean = emitsToOverlay,
     fillTokenId: String? = null,
-    borderTokenId: String? = null
+    borderTokenId: String? = null,
 ) {
     val hasFill = !fillColor.isTransparent()
     val borderPx = borderWidth.toPx()
@@ -92,12 +91,17 @@ fun UiScope.emitFillAndBorder(
     if (pathShape != null) {
         val path = pathShape.toPath(slot)
         if (hasFill) emitPrimitive(UiDrawPrimitive.FilledPath(path, fillColor, tokenId = fillTokenId), overlay)
-        if (borderPx > 0f) emitPrimitive(
-            UiDrawPrimitive.StrokedPath(
-                path,
-                UiStroke(borderWidth), borderColor, tokenId = borderTokenId
-            ), overlay
-        )
+        if (borderPx > 0f) {
+            emitPrimitive(
+                UiDrawPrimitive.StrokedPath(
+                    path,
+                    UiStroke(borderWidth),
+                    borderColor,
+                    tokenId = borderTokenId,
+                ),
+                overlay,
+            )
+        }
         return
     }
 
@@ -117,8 +121,11 @@ fun UiScope.emitFillAndBorder(
             emitPrimitive(
                 UiDrawPrimitive.StrokedPath(
                     ringShape.toPath(slot),
-                    UiStroke(borderWidth), borderColor, tokenId = borderTokenId
-                ), overlay
+                    UiStroke(borderWidth),
+                    borderColor,
+                    tokenId = borderTokenId,
+                ),
+                overlay,
             )
             return
         }
@@ -131,15 +138,16 @@ fun UiScope.emitFillAndBorder(
                 snapped.height,
                 borderColor,
                 resolvedRadius,
-                tokenId = borderTokenId
-            ), overlay
+                tokenId = borderTokenId,
+            ),
+            overlay,
         )
         val innerRadius = (resolvedRadius - borderPx).coerceAtLeast(0f)
         val innerSnapped = UiBounds(
             slot.x + borderPx,
             slot.y + borderPx,
             slot.width - 2 * borderPx,
-            slot.height - 2 * borderPx
+            slot.height - 2 * borderPx,
         ).pixelSnapped()
         emitPrimitive(
             UiDrawPrimitive.RoundedQuad(
@@ -149,9 +157,9 @@ fun UiScope.emitFillAndBorder(
                 innerSnapped.height,
                 fillColor,
                 innerRadius,
-                tokenId = fillTokenId
+                tokenId = fillTokenId,
             ),
-            overlay
+            overlay,
         )
         return
     }
@@ -163,7 +171,7 @@ fun UiScope.emitInsetAccent(
     slot: UiBounds,
     inset: Float,
     radiusPx: Float,
-    shapeSpec: UiShapeSpec? = null
+    shapeSpec: UiShapeSpec? = null,
 ) {
     val x = slot.x + inset
     val y = slot.y + inset
@@ -173,7 +181,7 @@ fun UiScope.emitInsetAccent(
         slot = UiBounds(x, y, w, h),
         color = context.currentTheme.colors.primary,
         radiusPx = (radiusPx - inset).coerceAtLeast(0f),
-        shapeSpec = shapeSpec
+        shapeSpec = shapeSpec,
     )
 }
 
@@ -182,7 +190,7 @@ fun UiScope.emitInsetAccent(
  * drawing a horizontal line (not a checkmark) when its ToggleableState is Indeterminate. */
 fun UiScope.emitInsetDash(
     slot: UiBounds,
-    inset: Float
+    inset: Float,
 ) {
     val innerW = slot.width - inset * 2
     val innerH = slot.height - inset * 2
@@ -192,10 +200,10 @@ fun UiScope.emitInsetDash(
             slot.x + inset,
             slot.y + inset + (innerH - thickness) / 2f,
             innerW,
-            thickness
+            thickness,
         ),
         color = context.currentTheme.colors.primary,
         radiusPx = thickness / 2f,
-        shapeSpec = null
+        shapeSpec = null,
     )
 }

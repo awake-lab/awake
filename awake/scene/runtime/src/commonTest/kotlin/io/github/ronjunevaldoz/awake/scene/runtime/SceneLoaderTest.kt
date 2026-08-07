@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
 import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import kotlinx.coroutines.test.runTest
@@ -12,6 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
 
 class SceneLoaderTest {
     @Test
@@ -24,16 +24,16 @@ class SceneLoaderTest {
                     transform = SceneTransform(
                         position = SceneVec3(1f, 2f, 3f),
                         rotation = SceneVec3(4f, 5f, 6f),
-                        scale = SceneVec3(7f, 8f, 9f)
+                        scale = SceneVec3(7f, 8f, 9f),
                     ),
                     children = listOf(
                         SceneNode(
                             name = "child",
-                            meshRenderer = SceneMeshRenderer(mesh = "cube", material = "mat")
-                        )
-                    )
-                )
-            )
+                            meshRenderer = SceneMeshRenderer(mesh = "cube", material = "mat"),
+                        ),
+                    ),
+                ),
+            ),
         )
 
         val encoded = SceneLoader.encode(document)
@@ -50,7 +50,7 @@ class SceneLoaderTest {
                 SceneNode(
                     name = "camera",
                     camera = SceneCamera(fovYDegrees = 45f),
-                    transform = SceneTransform(position = SceneVec3(0f, 0f, 5f))
+                    transform = SceneTransform(position = SceneVec3(0f, 0f, 5f)),
                 ),
                 SceneNode(
                     name = "parent",
@@ -59,11 +59,11 @@ class SceneLoaderTest {
                         SceneNode(
                             name = "child",
                             transform = SceneTransform(position = SceneVec3(0f, 2f, 0f)),
-                            meshRenderer = SceneMeshRenderer(mesh = "cube", material = "mat")
-                        )
-                    )
-                )
-            )
+                            meshRenderer = SceneMeshRenderer(mesh = "cube", material = "mat"),
+                        ),
+                    ),
+                ),
+            ),
         )
 
         val instance = document.instantiate(world = World())

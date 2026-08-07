@@ -6,7 +6,7 @@ data class RgbaSample(
     val r: Int,
     val g: Int,
     val b: Int,
-    val a: Int
+    val a: Int,
 )
 
 data class PixelProbeSummary(
@@ -16,7 +16,7 @@ data class PixelProbeSummary(
     val topLeft: RgbaSample,
     val topRight: RgbaSample,
     val bottomLeft: RgbaSample,
-    val bottomRight: RgbaSample
+    val bottomRight: RgbaSample,
 )
 
 fun summarizePixels(pixels: ByteArray, width: Int, height: Int): PixelProbeSummary {
@@ -31,7 +31,7 @@ fun summarizePixels(pixels: ByteArray, width: Int, height: Int): PixelProbeSumma
         topLeft = sampleRgba(pixels, width, height, 0, 0),
         topRight = sampleRgba(pixels, width, height, width - 1, 0),
         bottomLeft = sampleRgba(pixels, width, height, 0, height - 1),
-        bottomRight = sampleRgba(pixels, width, height, width - 1, height - 1)
+        bottomRight = sampleRgba(pixels, width, height, width - 1, height - 1),
     )
 }
 
@@ -40,7 +40,7 @@ private fun sampleRgba(
     width: Int,
     height: Int,
     x: Int,
-    y: Int
+    y: Int,
 ): RgbaSample {
     val clampedX = x.coerceIn(0, width - 1)
     val clampedY = y.coerceIn(0, height - 1)
@@ -49,6 +49,6 @@ private fun sampleRgba(
         r = pixels[offset].toInt() and 0xFF,
         g = pixels[offset + 1].toInt() and 0xFF,
         b = pixels[offset + 2].toInt() and 0xFF,
-        a = pixels[offset + 3].toInt() and 0xFF
+        a = pixels[offset + 3].toInt() and 0xFF,
     )
 }

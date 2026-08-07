@@ -11,7 +11,8 @@ enum class VertexAttributeFormat(val componentCount: Int, val bytesPerComponent:
 
     /** glTF's `JOINTS_0` is `ubyte4`/`ushort4`; this widens either to 4 bytes/component at
      * import time so there's one integer vertex format to map per backend instead of two. */
-    UInt4(4, 4);
+    UInt4(4, 4),
+    ;
 
     val byteSize: Int get() = componentCount * bytesPerComponent
 }
@@ -30,5 +31,5 @@ enum class VertexSemantic { Position, Normal, Uv, Color, JointIndices, JointWeig
 data class VertexAttribute(
     val semantic: VertexSemantic,
     val format: VertexAttributeFormat,
-    val location: Int
+    val location: Int,
 )

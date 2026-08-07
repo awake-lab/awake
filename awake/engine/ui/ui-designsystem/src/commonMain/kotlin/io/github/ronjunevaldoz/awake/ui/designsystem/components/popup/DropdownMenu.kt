@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
@@ -9,26 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.layouts.spacer
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.align
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.modifier.styleable
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
-import io.github.ronjunevaldoz.awake.ui.popup
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.rememberScrollState
-import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.textStyle
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
@@ -37,7 +19,27 @@ import io.github.ronjunevaldoz.awake.ui.headless.input.text.layoutBitmapText
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.spacer
+import io.github.ronjunevaldoz.awake.ui.layouts.surface
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.align
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.styleable
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.popup
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.textStyle
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.toPx
 
 fun UiScope.shadcnDropdownMenu(
     id: String,
@@ -51,7 +53,7 @@ fun UiScope.shadcnDropdownMenu(
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
     properties: UiPopupProperties = UiPopupProperties(),
     style: Style = Style.Empty,
-    itemStyle: Style = Style.Empty
+    itemStyle: Style = Style.Empty,
 ): UiDropdownMenuResult {
     val theme = context.currentTheme
     // Wired the same way every other scrollable surface in this module wires it (see
@@ -70,7 +72,7 @@ fun UiScope.shadcnDropdownMenu(
         height = height,
         verticalArrangement = Arrangement.spacedBy(0f.dp),
         positionProvider = positionProvider,
-        properties = properties
+        properties = properties,
     ) { popupSlot ->
         surface(
             id = "$id.menu",
@@ -79,9 +81,11 @@ fun UiScope.shadcnDropdownMenu(
                 .width(Dimension.Fixed(popupSlot.width.px))
                 .height(height)
                 .let { if (scrollState != null) it.verticalScroll(scrollState) else it }
-                .styleable(theme.components.surface then style then Style {
-                    shape(UiShape.sm)
-                }),
+                .styleable(
+                    theme.components.surface then style then Style {
+                        shape(UiShape.sm)
+                    },
+                ),
             clipContent = true,
         ) {
             // shadcn spec: menu panel has p-1 (4dp) top and bottom padding
@@ -93,7 +97,7 @@ fun UiScope.shadcnDropdownMenu(
                         spacer(Modifier.height(4f.dp))
                         separator(
                             thickness = 1f.dp,
-                            color = theme.colors.border.withAlpha(0.72f)
+                            color = theme.colors.border.withAlpha(0.72f),
                         )
                         spacer(Modifier.height(4f.dp))
                     }
@@ -119,7 +123,7 @@ fun UiScope.shadcnDropdownMenu(
                             width = this.width,
                             baseHeight = itemHeight,
                             style = itemStyle then menuItemStyle,
-                            selected = currentActionIndex == selectedIndex
+                            selected = currentActionIndex == selectedIndex,
                         )
                         if (clicked && entry.enabled) {
                             picked = currentActionIndex
@@ -134,11 +138,9 @@ fun UiScope.shadcnDropdownMenu(
     return UiDropdownMenuResult(
         slot = popupResult.slot,
         selectedIndex = picked,
-        dismissed = popupResult.dismissed
+        dismissed = popupResult.dismissed,
     )
 }
-
-
 
 private fun ColumnScope.dropdownMenuItem(
     id: String,
@@ -146,13 +148,13 @@ private fun ColumnScope.dropdownMenuItem(
     width: Float,
     baseHeight: Float,
     style: Style,
-    selected: Boolean
+    selected: Boolean,
 ): Boolean {
     val resolvedFont = font
     val labelSize = theme.typography.label
     val resolvedTextStyle = textStyle then TextStyle(size = labelSize)
     val glyphPx = pixelPerfectPixel(labelSize.toPx().coerceAtLeast(1f)).coerceAtLeast(1f)
-    
+
     val trailingWidth = item.trailingLabel?.let { label ->
         resolvedFont.measureTextWidth(label, glyphPx) + 8f
     } ?: 0f
@@ -172,10 +174,10 @@ private fun ColumnScope.dropdownMenuItem(
             wrap = UiTextWrap.Word,
             overflow = UiTextOverflow.Ellipsis,
             maxLines = 2,
-            advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
+            advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) },
         )
     }
-    
+
     val supportingHeight = supportingLayout?.blockHeight(glyphPx, lineGap) ?: 0f
     val computedHeight = if (supportingLayout == null) {
         baseHeight
@@ -188,7 +190,7 @@ private fun ColumnScope.dropdownMenuItem(
         id = id,
         modifier = Modifier.width(width.px).height(computedHeight.px),
         style = style,
-        variant = if (selected) UiButtonVariant.Filled else UiButtonVariant.Ghost
+        variant = if (selected) UiButtonVariant.Filled else UiButtonVariant.Ghost,
     ) { contentSlot ->
         val textColor = when {
             !item.enabled -> theme.colors.mutedForeground
@@ -222,7 +224,7 @@ private fun ColumnScope.dropdownMenuItem(
                 color = textColor,
                 font = resolvedFont,
                 overflow = UiTextOverflow.Ellipsis,
-                textStyle = resolvedTextStyle
+                textStyle = resolvedTextStyle,
             )
 
             // --- 1b. Leading icon (optional) ---
@@ -230,14 +232,23 @@ private fun ColumnScope.dropdownMenuItem(
             // is 0, so labelStart/bodyWidth above collapse back to the original 12dp/24f math).
             item.icon?.let { iconContent ->
                 val iconBounds = UiBounds(
-                    contentSlot.x + 12f, contentSlot.y, glyphPx, contentSlot.height
+                    contentSlot.x + 12f,
+                    contentSlot.y,
+                    glyphPx,
+                    contentSlot.height,
                 )
                 childBox(iconBounds, contentAlignment = UiAlignment.Center).iconContent()
             }
 
             // --- 2. Trailing Shortcut ---
             item.trailingLabel?.let { label ->
-                val trailingColor = if (!item.enabled) theme.colors.mutedForeground else if (selected) theme.colors.accentForeground.withAlpha(0.82f) else theme.colors.mutedForeground
+                val trailingColor = if (!item.enabled) {
+                    theme.colors.mutedForeground
+                } else if (selected) {
+                    theme.colors.accentForeground.withAlpha(0.82f)
+                } else {
+                    theme.colors.mutedForeground
+                }
                 text(
                     label = label,
                     // No overflow/wrap here on purpose: either one makes text()'s own sizing
@@ -249,7 +260,7 @@ private fun ColumnScope.dropdownMenuItem(
                     modifier = Modifier.align(trailingAlignment).padding(start = 0f.dp, top = verticalPadding, end = 8f.dp, bottom = 0f.dp),
                     color = trailingColor,
                     font = resolvedFont,
-                    textStyle = resolvedTextStyle
+                    textStyle = resolvedTextStyle,
                 )
             }
 
@@ -272,7 +283,7 @@ private fun ColumnScope.dropdownMenuItem(
                     overflow = UiTextOverflow.Ellipsis,
                     maxLines = 2,
                     semanticId = "$id.supporting",
-                    textStyle = resolvedTextStyle
+                    textStyle = resolvedTextStyle,
                 )
             }
         }
@@ -283,7 +294,7 @@ private fun ColumnScope.dropdownMenuItem(
 data class UiDropdownMenuResult(
     val slot: UiBounds?,
     val selectedIndex: Int?,
-    val dismissed: Boolean
+    val dismissed: Boolean,
 )
 
 data class UiDropdownMenuItem(
@@ -292,7 +303,7 @@ data class UiDropdownMenuItem(
     val enabled: Boolean = true,
     val shadcnSupportingText: String? = null,
     val trailingLabel: String? = null,
-    val icon: (BoxScope.() -> Unit)? = null
+    val icon: (BoxScope.() -> Unit)? = null,
 ) : UiDropdownMenuEntry
 
 sealed interface UiDropdownMenuEntry

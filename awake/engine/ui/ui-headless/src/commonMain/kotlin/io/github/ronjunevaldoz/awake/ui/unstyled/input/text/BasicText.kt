@@ -7,28 +7,28 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.shimmerBand
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.util.LruCache
 
 /** Draws [label] as a row of glyph quads. */
 enum class UiTextWrap {
     None,
-    Word
+    Word,
 }
 
 enum class UiTextOverflow {
     Visible,
     Clip,
-    Ellipsis
+    Ellipsis,
 }
 
 internal fun UiScope.renderTextBlock(
@@ -48,8 +48,8 @@ internal fun UiScope.renderTextBlock(
     textStyleToken: String? = null,
     backgroundToken: String? = null,
     foregroundToken: String? = null,
-    borderToken: String? = null
-) : UiBounds {
+    borderToken: String? = null,
+): UiBounds {
     val glyphPx = resolveGlyphPx(font, textStyle)
     val layout = cachedLayoutBitmapText(
         label = label,
@@ -58,7 +58,7 @@ internal fun UiScope.renderTextBlock(
         wrap = wrap,
         overflow = overflow,
         maxLines = maxLines,
-        font = font
+        font = font,
     )
     val lineGap = glyphPx * 0.25f
     val blockMetrics = measureTextBlock(layout, font, glyphPx, lineGap)
@@ -68,7 +68,7 @@ internal fun UiScope.renderTextBlock(
         lineWidths = layout.lineWidths,
         blockHeight = blockMetrics.heightPx,
         verticallyCentered = verticallyCentered,
-        centered = centered
+        centered = centered,
     )
     val clippedBounds = if (shouldClip) contentBounds.intersect(slot) else contentBounds
 
@@ -87,7 +87,7 @@ internal fun UiScope.renderTextBlock(
         textStyleToken = textStyleToken,
         backgroundToken = backgroundToken,
         foregroundToken = foregroundToken,
-        borderToken = borderToken
+        borderToken = borderToken,
     )
 
     fun emitLinesInternal(drawColor: Color, shimmerGradient: UiLinearGradient? = null, shimmerX: Float? = null, shimmerWidth: Float? = null) {
@@ -107,9 +107,9 @@ internal fun UiScope.renderTextBlock(
                     val glyphY = penY + glyph.offsetYEm * glyphPx
                     val glyphW = glyph.widthEm * glyphPx
                     val glyphH = glyph.heightEm * glyphPx
-                    
+
                     var finalColor = drawColor
-                    
+
                     if (shimmerGradient != null && shimmerX != null && shimmerWidth != null) {
                         val glyphCenterX = glyphX + glyphW / 2f
                         val relX = (glyphCenterX - shimmerX) / shimmerWidth
@@ -117,7 +117,7 @@ internal fun UiScope.renderTextBlock(
                             penX += advance
                             continue
                         }
-                        
+
                         // 3-point horizontal sweep: Transparent -> Accent (topRight) -> Transparent
                         val peak = 0.5f
                         val highlight = if (relX < peak) {
@@ -139,8 +139,8 @@ internal fun UiScope.renderTextBlock(
                             glyph.u1,
                             glyph.v1,
                             finalColor,
-                            tokenId = textStyleToken
-                        )
+                            tokenId = textStyleToken,
+                        ),
                     )
                 }
                 penX += advance
@@ -171,7 +171,7 @@ internal fun UiScope.renderTextBlock(
                 topLeft = Color.Transparent,
                 topRight = highlightColor,
                 bottomRight = Color.Transparent,
-                bottomLeft = Color.Transparent
+                bottomLeft = Color.Transparent,
             )
 
             emitLinesInternal(textColor, gradient, band.x, band.width)
@@ -194,7 +194,7 @@ private fun resolveTextContentBounds(
     lineWidths: List<Float>,
     blockHeight: Float,
     verticallyCentered: Boolean,
-    centered: Boolean
+    centered: Boolean,
 ): UiBounds {
     val top = if (verticallyCentered) {
         slot.y + (slot.height - blockHeight) / 2f
@@ -220,7 +220,7 @@ private fun resolveTextContentBounds(
         x = left,
         y = top,
         width = (right - left).coerceAtLeast(0f),
-        height = blockHeight.coerceAtLeast(0f)
+        height = blockHeight.coerceAtLeast(0f),
     )
 }
 
@@ -244,7 +244,7 @@ private data class TextLayoutCacheKey(
     val wrap: UiTextWrap,
     val overflow: UiTextOverflow,
     val maxLines: Int,
-    val font: UiFont
+    val font: UiFont,
 )
 
 private val textLayoutCache = LruCache<TextLayoutCacheKey, UiBitmapTextLayout>(maxSize = 256)
@@ -267,7 +267,7 @@ private fun cachedLayoutBitmapText(
     wrap: UiTextWrap,
     overflow: UiTextOverflow,
     maxLines: Int,
-    font: UiFont
+    font: UiFont,
 ): UiBitmapTextLayout {
     val key = TextLayoutCacheKey(label, glyphPx, maxWidthPx, wrap, overflow, maxLines, font)
     if (textLayoutCache.containsKey(key)) textLayoutCacheHits++ else textLayoutCacheMisses++
@@ -279,7 +279,7 @@ private fun cachedLayoutBitmapText(
             wrap = wrap,
             overflow = overflow,
             maxLines = maxLines,
-            advanceOf = { char -> font.advanceFor(char, glyphPx) }
+            advanceOf = { char -> font.advanceFor(char, glyphPx) },
         )
     }
 }
@@ -287,7 +287,7 @@ private fun cachedLayoutBitmapText(
 data class UiBitmapTextLayout(
     val lines: List<String>,
     val lineWidths: List<Float>,
-    val truncated: Boolean
+    val truncated: Boolean,
 ) {
     fun blockHeight(glyphPx: Float, lineGap: Float): Float {
         if (lines.isEmpty()) {
@@ -299,14 +299,14 @@ data class UiBitmapTextLayout(
 
 private data class UiMeasuredTextBlock(
     val topPx: Float,
-    val heightPx: Float
+    val heightPx: Float,
 )
 
 private fun measureTextBlock(
     layout: UiBitmapTextLayout,
     font: UiFont,
     glyphPx: Float,
-    lineGap: Float
+    lineGap: Float,
 ): UiMeasuredTextBlock {
     if (layout.lines.isEmpty()) {
         return UiMeasuredTextBlock(topPx = 0f, heightPx = 0f)
@@ -324,7 +324,7 @@ private fun measureTextBlock(
     }
     return UiMeasuredTextBlock(
         topPx = blockTopPx,
-        heightPx = blockBottomPx - blockTopPx
+        heightPx = blockBottomPx - blockTopPx,
     )
 }
 
@@ -345,7 +345,7 @@ fun layoutBitmapText(
     overflow: UiTextOverflow,
     maxLines: Int,
     trim: Boolean = true,
-    advanceOf: (Char) -> Float = { glyphPx }
+    advanceOf: (Char) -> Float = { glyphPx },
 ): UiBitmapTextLayout {
     val normalizedMaxLines = maxLines.coerceAtLeast(1)
     val safeMaxWidthPx = if (glyphPx <= 0f || maxWidthPx <= 0f) {
@@ -382,7 +382,13 @@ fun layoutBitmapText(
             val fitIndex = fitPrefixByWidth(remaining, safeMaxWidthPx, advanceOf).coerceAtLeast(1)
             val splitIndex = remaining.substring(0, fitIndex).lastIndexOf(' ').takeIf { it > 0 } ?: fitIndex
             val line = if (trim) remaining.substring(0, splitIndex).trimEnd() else remaining.substring(0, splitIndex)
-            val safeLine = if (line.isEmpty() && trim) remaining.substring(0, fitIndex).trimEnd() else if (line.isEmpty()) remaining.substring(0, fitIndex) else line
+            val safeLine = if (line.isEmpty() && trim) {
+                remaining.substring(0, fitIndex).trimEnd()
+            } else if (line.isEmpty()) {
+                remaining.substring(0, fitIndex)
+            } else {
+                line
+            }
             result += safeLine
             remaining = if (trim) remaining.substring(splitIndex).trimStart() else remaining.substring(splitIndex)
         }
@@ -409,7 +415,7 @@ fun layoutBitmapText(
     return UiBitmapTextLayout(
         lines = finalLines,
         lineWidths = finalLines.map { line -> measureLineWidth(line, advanceOf) },
-        truncated = truncated
+        truncated = truncated,
     )
 }
 
@@ -417,7 +423,7 @@ private fun truncateLine(
     line: String,
     maxWidthPx: Float,
     overflow: UiTextOverflow,
-    advanceOf: (Char) -> Float
+    advanceOf: (Char) -> Float,
 ): String {
     if (maxWidthPx.isInfinite() || measureLineWidth(line, advanceOf) <= maxWidthPx) {
         return line

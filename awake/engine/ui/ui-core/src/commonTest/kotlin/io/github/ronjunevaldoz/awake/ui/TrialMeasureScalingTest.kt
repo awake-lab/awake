@@ -58,13 +58,13 @@ class TrialMeasureScalingTest {
             ratio4to6 < 30.0,
             "depth 4->6 trial-count ratio was $ratio4to6, expected close to 2^4=16 (base-2 " +
                 "per-level growth); a ratio near 3^4=81 would mean the requiresMeasuredDistribution() " +
-                "trial-skip regressed"
+                "trial-skip regressed",
         )
         assertTrue(
             ratio6to8 < 30.0,
             "depth 6->8 trial-count ratio was $ratio6to8, expected close to 2^4=16 (base-2 " +
                 "per-level growth); a ratio near 3^4=81 would mean the requiresMeasuredDistribution() " +
-                "trial-skip regressed"
+                "trial-skip regressed",
         )
     }
 
@@ -75,7 +75,7 @@ class TrialMeasureScalingTest {
         UiMeasureTrialStats.enabled = true
         try {
             ui.createColumn(x = 0f, y = 0f, width = 1000f).column(
-                modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
             ) {
                 buildSpaceBetweenWeightedChain(depth)
             }
@@ -94,11 +94,11 @@ class TrialMeasureScalingTest {
         }
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
         ) {
             column(
                 verticalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.weight(1f).height(Dimension.FillMax)
+                modifier = Modifier.weight(1f).height(Dimension.FillMax),
             ) {
                 buildSpaceBetweenWeightedChain(depth - 1)
             }

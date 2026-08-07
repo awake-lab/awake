@@ -47,20 +47,20 @@ internal fun Renderer.createDepthResources() {
                 height = swapchainManager.extent.height,
                 format = Renderer.DEPTH_FORMAT,
                 usage = VkImageUsageFlagBits2.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-            )
+            ),
         )
         val requirements = VulkanImages.vkGetImageMemoryRequirements(device, depthImage)
         val memoryTypeIndex = VulkanBuffers.findMemoryType(
             physicalDevice,
             requirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         )
         val depthImageMemory = VulkanBuffers.vkAllocateMemory(
             device,
             VkMemoryAllocateInfo(
                 allocationSize = requirements.size,
-                memoryTypeIndex = memoryTypeIndex
-            )
+                memoryTypeIndex = memoryTypeIndex,
+            ),
         )
         VulkanImages.vkBindImageMemory(device, depthImage, depthImageMemory, 0)
         val depthImageView = Vulkan.vkCreateImageView(
@@ -74,9 +74,9 @@ internal fun Renderer.createDepthResources() {
                     baseMipLevel = 0,
                     levelCount = 1,
                     baseArrayLayer = 0,
-                    layerCount = 1
-                )
-            )
+                    layerCount = 1,
+                ),
+            ),
         )
         images += depthImage
         memories += depthImageMemory
@@ -96,7 +96,7 @@ internal fun Renderer.createFramebuffers() {
             pAttachments = arrayOf(imageView, depthImageViews[index]),
             width = swapchainManager.extent.width,
             height = swapchainManager.extent.height,
-            layers = 1
+            layers = 1,
         )
         Vulkan.vkCreateFramebuffer(device, frameBufferInfo)
     }.toList()
@@ -114,8 +114,8 @@ internal fun Renderer.createPresentTransitionResources() {
                     format = swapchainManager.imageFormat,
                     loadOp = VkAttachmentLoadOp.LOAD,
                     initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                    finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-                )
+                    finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                ),
             ),
             pSubpasses = arrayOf(
                 VkSubpassDescription(
@@ -123,10 +123,10 @@ internal fun Renderer.createPresentTransitionResources() {
                     pColorAttachments = arrayOf(
                         VkAttachmentReference(
                             attachment = 0,
-                            layout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-                        )
-                    )
-                )
+                            layout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                        ),
+                    ),
+                ),
             ),
             pDependencies = arrayOf(
                 VkSubpassDependency(
@@ -139,10 +139,10 @@ internal fun Renderer.createPresentTransitionResources() {
                     srcAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value,
                     dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value,
                     dstAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.value or
-                        VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value
-                )
-            )
-        )
+                        VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value,
+                ),
+            ),
+        ),
     )
     presentTransitionFramebuffers = buildPresentTransitionFramebuffers()
 }
@@ -155,8 +155,8 @@ internal fun Renderer.buildPresentTransitionFramebuffers(): List<Long> = swapcha
             pAttachments = arrayOf(imageView),
             width = swapchainManager.extent.width,
             height = swapchainManager.extent.height,
-            layers = 1
-        )
+            layers = 1,
+        ),
     )
 }.toList()
 
@@ -164,7 +164,7 @@ internal fun Renderer.createCommandBuffers(commandPool: Long, maxFramesInFlight:
     val allocInfo = VkCommandBufferAllocateInfo(
         commandPool = commandPool,
         level = VkCommandBufferLevel.VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        commandBufferCount = 1
+        commandBufferCount = 1,
     )
     for (i in 0 until maxFramesInFlight) {
         commandBuffers[i] = Vulkan.vkAllocateCommandBuffers(device, allocInfo)
@@ -219,14 +219,14 @@ internal fun Renderer.recreateSwapChain() {
     }
     uiGlyphRenderPipeline?.writeScreenSize(
         swapchainManager.extent.width.toFloat(),
-        swapchainManager.extent.height.toFloat()
+        swapchainManager.extent.height.toFloat(),
     )
     uiTextureRenderPipeline?.writeScreenSize(
         swapchainManager.extent.width.toFloat(),
-        swapchainManager.extent.height.toFloat()
+        swapchainManager.extent.height.toFloat(),
     )
     uiRoundedQuadRenderPipeline?.writeScreenSize(
         swapchainManager.extent.width.toFloat(),
-        swapchainManager.extent.height.toFloat()
+        swapchainManager.extent.height.toFloat(),
     )
 }

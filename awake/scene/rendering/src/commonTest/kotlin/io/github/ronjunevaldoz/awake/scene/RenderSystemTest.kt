@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.scene
 
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
-import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.material.Material
@@ -24,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /** [RenderSystem] doesn't shade anything itself -- it just resolves the scene's [Light] entity
  * (or [DEFAULT_SCENE_LIGHT] when there isn't one) into the backend-neutral [SceneLight]
@@ -57,7 +57,7 @@ class RenderSystemTest {
         val cameraEntity = world.create()
         world.add(
             cameraEntity,
-            Camera(CoreCamera(eye = Vec3(0f, 0f, 5f), center = Vec3(0f, 0f, 0f), fovYRadians = 1f, near = 0.1f, far = 100f))
+            Camera(CoreCamera(eye = Vec3(0f, 0f, 5f), center = Vec3(0f, 0f, 0f), fovYRadians = 1f, near = 0.1f, far = 100f)),
         )
         return world
     }
@@ -78,7 +78,7 @@ class RenderSystemTest {
         val lightEntity = world.create()
         world.add(
             lightEntity,
-            Light(color = Vec3(1f, 0.5f, 0.25f), intensity = 2f, direction = Vec3(1f, 0f, 0f))
+            Light(color = Vec3(1f, 0.5f, 0.25f), intensity = 2f, direction = Vec3(1f, 0f, 0f)),
         )
         val renderer = RecordingRenderer()
 

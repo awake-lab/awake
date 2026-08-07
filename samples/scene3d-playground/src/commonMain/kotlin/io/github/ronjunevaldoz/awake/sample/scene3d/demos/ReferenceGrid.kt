@@ -29,7 +29,7 @@ private val REFERENCE_LINES: List<LineSegment> =
         listOf(
             LineSegment(Vec3(0f, AXIS_LIFT, 0f), Vec3(AXIS_LENGTH, AXIS_LIFT, 0f), AXIS_COLOR_X),
             LineSegment(Vec3(0f, AXIS_LIFT, 0f), Vec3(0f, AXIS_LENGTH, 0f), AXIS_COLOR_Y),
-            LineSegment(Vec3(0f, AXIS_LIFT, 0f), Vec3(0f, AXIS_LIFT, AXIS_LENGTH), AXIS_COLOR_Z)
+            LineSegment(Vec3(0f, AXIS_LIFT, 0f), Vec3(0f, AXIS_LIFT, AXIS_LENGTH), AXIS_COLOR_Z),
         )
 
 /**

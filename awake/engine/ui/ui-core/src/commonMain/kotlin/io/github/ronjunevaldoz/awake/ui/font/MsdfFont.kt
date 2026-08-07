@@ -15,7 +15,7 @@ import kotlin.math.sqrt
 class MsdfFont(
     override val cellSize: Int = 12,
     atlasScale: Int = 6,
-    distanceFieldSourceRange: Float = 2f
+    distanceFieldSourceRange: Float = 2f,
 ) : UiFont {
     override val samplingMode = UiFontSamplingMode.DistanceField
     private val atlasScale = atlasScale.coerceAtLeast(2)
@@ -27,7 +27,7 @@ class MsdfFont(
     private val atlasInnerSize = (atlasCellSize - atlasInsetPx * 2).coerceAtLeast(1)
     override val atlasWidth = columns * atlasCellSize
     override val atlasHeight = atlasCellSize
-    override val distanceFieldRangePx: Float = (distanceFieldSourceRange * atlasInnerSize / GlyphAtlasSource.sourceCellSize)
+    override val distanceFieldRangePx: Float = (distanceFieldSourceRange * atlasInnerSize / GlyphAtlasSource.SOURCE_CELL_SIZE)
         .coerceAtLeast(1f)
 
     override val atlasPixelsRgba: ByteArray = ByteArray(atlasWidth * atlasHeight * 4).also { pixels ->
@@ -37,8 +37,8 @@ class MsdfFont(
             val cellX = charIndex * atlasCellSize
             for (row in 0 until atlasCellSize) {
                 for (col in 0 until atlasCellSize) {
-                    val sampleX = ((col - atlasInsetPx) + 0.5f) / atlasInnerSize * GlyphAtlasSource.sourceCellSize
-                    val sampleY = ((row - atlasInsetPx) + 0.5f) / atlasInnerSize * GlyphAtlasSource.sourceCellSize
+                    val sampleX = ((col - atlasInsetPx) + 0.5f) / atlasInnerSize * GlyphAtlasSource.SOURCE_CELL_SIZE
+                    val sampleY = ((row - atlasInsetPx) + 0.5f) / atlasInnerSize * GlyphAtlasSource.SOURCE_CELL_SIZE
                     val sourceCol = sampleX.toInt()
                     val sourceRow = sampleY.toInt()
                     val inside = GlyphAtlasSource.isFilled(rows, sourceCol, sourceRow)
@@ -75,8 +75,8 @@ class MsdfFont(
 
     private fun buildBoundaries(rows: IntArray): List<Segment> {
         val segments = ArrayList<Segment>()
-        repeat(GlyphAtlasSource.sourceCellSize) { y ->
-            repeat(GlyphAtlasSource.sourceCellSize) { x ->
+        repeat(GlyphAtlasSource.SOURCE_CELL_SIZE) { y ->
+            repeat(GlyphAtlasSource.SOURCE_CELL_SIZE) { x ->
                 if (!GlyphAtlasSource.isFilled(rows, x, y)) return@repeat
                 if (!GlyphAtlasSource.isFilled(rows, x - 1, y)) segments += Segment(x.toFloat(), y.toFloat(), x.toFloat(), y + 1f)
                 if (!GlyphAtlasSource.isFilled(rows, x + 1, y)) segments += Segment(x + 1f, y.toFloat(), x + 1f, y + 1f)

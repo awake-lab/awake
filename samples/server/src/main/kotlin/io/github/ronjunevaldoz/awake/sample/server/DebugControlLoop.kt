@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.server
 
+import kotlinx.coroutines.CompletableDeferred
 import java.net.BindException
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlinx.coroutines.CompletableDeferred
 
 const val AWAKE_DEBUG_CONTROL_PORT = 42770
 
@@ -21,7 +21,7 @@ interface DebugTransport<TCommand, TSnapshot> {
 
 class DebugServiceLoop<TCommand, TSnapshot>(
     private val transport: DebugTransport<TCommand, TSnapshot>,
-    private val service: DebugService<TCommand, TSnapshot>
+    private val service: DebugService<TCommand, TSnapshot>,
 ) {
     fun start() {
         transport.start()
@@ -43,22 +43,20 @@ fun <TCommand, TSnapshot> webSocketDebugLoop(
     port: Int = AWAKE_DEBUG_CONTROL_PORT,
     parseCommand: (String) -> TCommand?,
     encodeResponse: (TSnapshot) -> String,
-    service: DebugService<TCommand, TSnapshot>
-): DebugServiceLoop<TCommand, TSnapshot> {
-    return DebugServiceLoop(
-        transport = WebSocketDebugTransport(
-            port = port,
-            parseCommand = parseCommand,
-            encodeResponse = encodeResponse
-        ),
-        service = service
-    )
-}
+    service: DebugService<TCommand, TSnapshot>,
+): DebugServiceLoop<TCommand, TSnapshot> = DebugServiceLoop(
+    transport = WebSocketDebugTransport(
+        port = port,
+        parseCommand = parseCommand,
+        encodeResponse = encodeResponse,
+    ),
+    service = service,
+)
 
 fun <TCommand, TSnapshot> withOptionalDebugLoop(
     enabled: Boolean,
     createLoop: () -> DebugServiceLoop<TCommand, TSnapshot>,
-    run: (beforeFrame: () -> Unit, afterLoop: () -> Unit) -> Unit
+    run: (beforeFrame: () -> Unit, afterLoop: () -> Unit) -> Unit,
 ) {
     var loop = if (enabled) createLoop() else null
     var stopped = false

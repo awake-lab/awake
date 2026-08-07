@@ -2,35 +2,35 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** [shadcnSectionTitle] with Shadcn tokens. */
 fun ColumnScope.shadcnSectionTitle(
     title: String,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): UiBounds = shadcnSectionTitle(
     title = title,
     modifier = modifier,
@@ -40,14 +40,14 @@ fun ColumnScope.shadcnSectionTitle(
             foreground(shadcnTheme.colors.foreground)
         }
         textSize(shadcnTheme.typography.title)
-    } then style
+    } then style,
 )
 
 /** Larger headline text using Shadcn tokens. */
 fun ColumnScope.shadcnHeadline(
     label: String,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): UiBounds = text(
     label = label,
     modifier = modifier,
@@ -57,7 +57,7 @@ fun ColumnScope.shadcnHeadline(
             foreground(shadcnTheme.colors.foreground)
         }
         textSize(shadcnTheme.typography.headline)
-    } then style
+    } then style,
 )
 
 /**Standard body text using Shadcn tokens. */
@@ -65,7 +65,7 @@ fun ColumnScope.shadcnBodyText(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    maxLines: Int = Int.MAX_VALUE
+    maxLines: Int = Int.MAX_VALUE,
 ): UiBounds = text(
     label = label,
     modifier = modifier,
@@ -76,7 +76,7 @@ fun ColumnScope.shadcnBodyText(
         }
         textSize(shadcnTheme.typography.body)
     } then style,
-    maxLines = maxLines
+    maxLines = maxLines,
 )
 
 /** Muted caption/supporting text using Shadcn tokens. */
@@ -84,7 +84,7 @@ fun ColumnScope.shadcnSupportingText(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    maxLines: Int = Int.MAX_VALUE
+    maxLines: Int = Int.MAX_VALUE,
 ): UiBounds = shadcnSupportingText(
     label = label,
     modifier = modifier,
@@ -95,7 +95,7 @@ fun ColumnScope.shadcnSupportingText(
         }
         textSize(shadcnTheme.typography.caption)
     } then style,
-    maxLines = maxLines
+    maxLines = maxLines,
 )
 
 /** Generic shadcn text component with support for muted state and shimmer modifier. */
@@ -105,7 +105,7 @@ fun UiScope.shadcnText(
     style: Style = Style.Empty,
     muted: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
-    overflow: UiTextOverflow = UiTextOverflow.Visible
+    overflow: UiTextOverflow = UiTextOverflow.Visible,
 ): UiBounds = text(
     label = label,
     modifier = modifier,
@@ -119,7 +119,7 @@ fun UiScope.shadcnText(
         textSize(shadcnTheme.typography.body)
     } then style,
     maxLines = maxLines,
-    overflow = overflow
+    overflow = overflow,
 )
 
 /** Real shadcn's `Label` -- a purely presentational field label. Compose has no HTML `for`
@@ -129,7 +129,7 @@ fun UiScope.shadcnLabel(
     text: String,
     modifier: UiModifier = Modifier,
     required: Boolean = false,
-    disabled: Boolean = false
+    disabled: Boolean = false,
 ): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
     // Pin both dimensions from a synchronous glyph measurement instead of leaning on row()'s
@@ -150,7 +150,7 @@ fun UiScope.shadcnLabel(
     val resolvedWidth = modifier.widthDimension ?: Dimension.Fixed(labelWidthPx.px)
     return row(
         modifier = modifier.width(resolvedWidth).height(glyphPx.px),
-        horizontalArrangement = Arrangement.spacedBy(0f.dp)
+        horizontalArrangement = Arrangement.spacedBy(0f.dp),
     ) {
         shadcnText(text, muted = disabled, style = Style { textSize(shadcnTheme.typography.label) })
         if (required) {
@@ -159,7 +159,7 @@ fun UiScope.shadcnLabel(
                 style = Style {
                     foreground(shadcnTheme.colors.destructive)
                     textSize(shadcnTheme.typography.label)
-                }
+                },
             )
         }
     }
@@ -168,7 +168,7 @@ fun UiScope.shadcnLabel(
 /** Common section header layout (title + optional description). */
 fun ColumnScope.shadcnSectionHeader(
     title: ColumnScope.() -> Unit,
-    description: (ColumnScope.() -> Unit)? = null
+    description: (ColumnScope.() -> Unit)? = null,
 ) {
     title()
     description?.invoke(this)
@@ -178,10 +178,10 @@ fun ColumnScope.shadcnSectionHeader(
 fun ColumnScope.shadcnSectionHeader(
     title: String,
     description: String? = null,
-    modifier: UiModifier = Modifier
+    modifier: UiModifier = Modifier,
 ): Unit = shadcnSectionHeader(
     title = { shadcnSectionTitle(title, modifier = modifier) },
     description = description?.takeIf { it.isNotBlank() }?.let { text ->
         { shadcnSupportingText(text) }
-    }
+    },
 )

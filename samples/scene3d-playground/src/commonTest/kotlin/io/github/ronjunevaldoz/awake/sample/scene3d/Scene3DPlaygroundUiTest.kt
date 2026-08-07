@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.scene3d
 
-import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.engine.application.game
 import io.github.ronjunevaldoz.awake.engine.application.module
 import io.github.ronjunevaldoz.awake.render.material.Material
@@ -39,7 +39,7 @@ class Scene3DPlaygroundUiTest {
 
         assertTrue(
             renderer.lastUiPrimitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(),
-            "playground shell must render text (menu labels, viewport content, control labels)"
+            "playground shell must render text (menu labels, viewport content, control labels)",
         )
     }
 

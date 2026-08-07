@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.vulkan
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
@@ -18,7 +19,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import java.io.File
@@ -74,14 +74,14 @@ class ShadcnCollapsibleScrolledCollapseFrameCaptureTest {
             sidebarScroll = ui.rememberScrollState("scrolled-capture-sidebar-scroll")
             ui.createBox(x = 0f, y = 0f, width = 480f, height = 800f).shadcnSidebar(
                 id = "scrolled-capture-sidebar",
-                modifier = Modifier.verticalScroll(sidebarScroll).width(280f.dp).height(Dimension.FillMax)
+                modifier = Modifier.verticalScroll(sidebarScroll).width(280f.dp).height(Dimension.FillMax),
             ) {
                 categories.forEach { (title, pageCount) ->
                     shadcnCollapsible(
                         id = "scrolled-capture-category-$title",
                         title = title,
                         expanded = expandedByCategory.getValue(title),
-                        onExpandedChange = { expandedByCategory[title] = it }
+                        onExpandedChange = { expandedByCategory[title] = it },
                     ) {
                         shadcnSidebarGroup {
                             shadcnSidebarMenu {
@@ -89,7 +89,7 @@ class ShadcnCollapsibleScrolledCollapseFrameCaptureTest {
                                     shadcnSidebarMenuItem(
                                         id = "scrolled-capture-page-$title-$index",
                                         label = "$title Page $index",
-                                        active = false
+                                        active = false,
                                     )
                                 }
                             }
@@ -116,7 +116,7 @@ class ShadcnCollapsibleScrolledCollapseFrameCaptureTest {
 
             println(
                 "Pre-collapse: offsetY=${sidebarScroll.offsetY} maxOffsetY=${sidebarScroll.maxOffsetY} " +
-                    "contentHeight=${sidebarScroll.contentHeight} viewportHeight=${sidebarScroll.viewportHeight}"
+                    "contentHeight=${sidebarScroll.contentHeight} viewportHeight=${sidebarScroll.viewportHeight}",
             )
 
             // Collapse "Getting Started", the topmost category -- well above the current scroll
@@ -131,7 +131,7 @@ class ShadcnCollapsibleScrolledCollapseFrameCaptureTest {
                 val delta = offsetY - previousOffsetY
                 println(
                     "frame=$index offsetY=$offsetY maxOffsetY=${sidebarScroll.maxOffsetY} " +
-                        "contentHeight=${sidebarScroll.contentHeight} deltaOffsetY=$delta"
+                        "contentHeight=${sidebarScroll.contentHeight} deltaOffsetY=$delta",
                 )
                 previousOffsetY = offsetY
             }
@@ -141,7 +141,7 @@ class ShadcnCollapsibleScrolledCollapseFrameCaptureTest {
             "Real rendered scrolled-collapse sequence written to " +
                 "${File(outputDir, "frame-000.png").absolutePath.substringBeforeLast(File.separator)} " +
                 "($FRAME_COUNT frames) -- inspect for a visible jump/snap between consecutive frames, " +
-                "and the printed offsetY/maxOffsetY/contentHeight log above for the exact numbers."
+                "and the printed offsetY/maxOffsetY/contentHeight log above for the exact numbers.",
         )
     }
 

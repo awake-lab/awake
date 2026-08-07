@@ -17,7 +17,7 @@ class UiShowcasePreviewValidationTest {
             validateAwakeUiPreview(
                 metadata = metadata,
                 frame = frame,
-                config = configFor(metadata.id)
+                config = configFor(metadata.id),
             ).requireClean()
         }
     }
@@ -35,13 +35,13 @@ private fun configFor(previewId: String): AwakeUiPreviewValidationConfig =
                         "showcase-style-preset",
                         "showcase-base-color",
                         "showcase-accent",
-                        "showcase-theme-mode"
-                    )
-                )
-            )
+                        "showcase-theme-mode",
+                    ),
+                ),
+            ),
         )
         else -> AwakeUiPreviewValidationConfig(
             minContentPaddingPx = 4f,
-            paddingAllowIds = setOf("ui-showcase-preview-$previewId")
+            paddingAllowIds = setOf("ui-showcase-preview-$previewId"),
         )
     }

@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless.input.toggle
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
@@ -5,6 +7,12 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.interact
+import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
+import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
@@ -14,12 +22,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.interact
-import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
-import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
 
 /** Result of a [toggle]/[toggleSlot] press: the toggle's new checked state, alongside its slot. */
 private inline fun UiScope.toggleInternal(
@@ -31,12 +33,12 @@ private inline fun UiScope.toggleInternal(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     onCheckedChange: (Boolean) -> Unit = {},
     semanticLabel: String? = null,
-    drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit
+    drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): Boolean {
     val theme = context.currentTheme
     val interaction = interact(
         id = id,
-        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp))
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
     )
 
     val newChecked = if (interaction.clicked && enabled) !checked else checked
@@ -63,7 +65,7 @@ private inline fun UiScope.toggleInternal(
             }
         },
         selected = newChecked,
-        disabled = !enabled
+        disabled = !enabled,
     )
     paintSurface(slot = interaction.slot, resolved = surface.resolved)
 
@@ -75,7 +77,7 @@ private inline fun UiScope.toggleInternal(
         label = semanticLabel,
         bounds = interaction.slot,
         contentBounds = surface.contentSlot,
-        selected = newChecked
+        selected = newChecked,
     )
 
     return newChecked
@@ -93,7 +95,7 @@ fun UiScope.toggle(
     style: Style = Style.Empty,
     enabled: Boolean = true,
     variant: UiButtonVariant = UiButtonVariant.Filled,
-    onCheckedChange: (Boolean) -> Unit = {}
+    onCheckedChange: (Boolean) -> Unit = {},
 ): Boolean = toggleInternal(
     id = id,
     checked = checked,
@@ -102,7 +104,7 @@ fun UiScope.toggle(
     enabled = enabled,
     variant = variant,
     onCheckedChange = onCheckedChange,
-    semanticLabel = label
+    semanticLabel = label,
 ) { contentSlot, resolved ->
     if (label != null) {
         text(
@@ -114,7 +116,7 @@ fun UiScope.toggle(
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,
             textStyle = resolved.textStyle,
-            semanticId = "$id.label"
+            semanticId = "$id.label",
         )
     }
 }
@@ -132,7 +134,7 @@ fun UiScope.toggleSlot(
     enabled: Boolean = true,
     variant: UiButtonVariant = UiButtonVariant.Filled,
     onCheckedChange: (Boolean) -> Unit = {},
-    content: AbsoluteScope.(slot: UiBounds) -> Unit
+    content: AbsoluteScope.(slot: UiBounds) -> Unit,
 ): Boolean = toggleInternal(
     id = id,
     checked = checked,
@@ -140,5 +142,5 @@ fun UiScope.toggleSlot(
     style = style,
     enabled = enabled,
     variant = variant,
-    onCheckedChange = onCheckedChange
+    onCheckedChange = onCheckedChange,
 ) { contentSlot, _ -> content(contentSlot) }

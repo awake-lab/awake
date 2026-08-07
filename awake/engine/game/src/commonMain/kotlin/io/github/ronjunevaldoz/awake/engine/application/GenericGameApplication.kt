@@ -19,7 +19,7 @@ abstract class GenericGameApplication(
     protected val vertexShaderResourcePath: String,
     protected val fragmentShaderResourcePath: String,
     protected val vertexFormat: VertexFormat,
-    protected val game: Game
+    protected val game: Game,
 ) : Application {
 
     /** The session's input accumulator. Guaranteed to exist since [game] is an [AwakeGame]. */
@@ -108,6 +108,6 @@ abstract class GenericGameApplication(
      * since the swapchain/canvas can resize. */
     protected data class BackendResources(
         val renderer: Renderer,
-        val viewportSize: () -> Pair<Float, Float>
+        val viewportSize: () -> Pair<Float, Float>,
     )
 }

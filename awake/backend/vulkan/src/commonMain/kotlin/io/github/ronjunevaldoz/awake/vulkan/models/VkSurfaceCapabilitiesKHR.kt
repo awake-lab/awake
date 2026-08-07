@@ -20,5 +20,5 @@ data class VkSurfaceCapabilitiesKHR @JvmOverloads constructor(
     val supportedTransforms: VkSurfaceTransformFlagsKHR = 0,
     val currentTransform: VkSurfaceTransformFlagBitsKHR = VkSurfaceTransformFlagBitsKHR.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
     val supportedCompositeAlpha: VkCompositeAlphaFlagsKHR = 0,
-    val supportedUsageFlags: VkImageUsageFlags = 0
+    val supportedUsageFlags: VkImageUsageFlags = 0,
 )

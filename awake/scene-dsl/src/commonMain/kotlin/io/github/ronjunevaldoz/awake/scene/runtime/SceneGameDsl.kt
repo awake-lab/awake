@@ -22,7 +22,7 @@ fun GameSpecDsl.ecs(spec: SceneGameSpec) {
 
 fun GameSpecDsl.scene(
     name: String? = null,
-    block: SceneGameDsl.() -> Unit
+    block: SceneGameDsl.() -> Unit,
 ) {
     install(
         sceneGame {
@@ -30,7 +30,7 @@ fun GameSpecDsl.scene(
                 this.name(name)
             }
             block()
-        }
+        },
     )
 }
 
@@ -38,9 +38,7 @@ fun GameSpecDsl.scene(spec: SceneGameSpec) {
     install(spec)
 }
 
-fun sceneGame(block: SceneGameDsl.() -> Unit): SceneGameSpec {
-    return SceneGameDsl().apply(block).build()
-}
+fun sceneGame(block: SceneGameDsl.() -> Unit): SceneGameSpec = SceneGameDsl().apply(block).build()
 
 /**
  * Marked with [AwakeSceneDsl] so the enclosing `GameSpecDsl` receiver is hidden inside this
@@ -97,7 +95,7 @@ class SceneGameDsl internal constructor() {
     fun entity(
         name: String? = null,
         modifier: EntityModifier = Modifier(),
-        block: SceneBuilder.() -> Unit = {}
+        block: SceneBuilder.() -> Unit = {},
     ) {
         // Since we want to preserve the population block, we append to it.
         val previous = scenePopulationBlock
@@ -122,24 +120,18 @@ class SceneGameDsl internal constructor() {
     fun <T : System> system(
         name: String,
         phase: SceneSystemPhase,
-        factory: SceneGameRuntime.() -> T
-    ): SceneSystemHandle<T> {
-        return systemsDsl.system(name, phase, factory)
-    }
+        factory: SceneGameRuntime.() -> T,
+    ): SceneSystemHandle<T> = systemsDsl.system(name, phase, factory)
 
     fun <T : System> fixedSystem(
         name: String,
-        factory: SceneGameRuntime.() -> T
-    ): SceneSystemHandle<T> {
-        return systemsDsl.fixedSystem(name, factory)
-    }
+        factory: SceneGameRuntime.() -> T,
+    ): SceneSystemHandle<T> = systemsDsl.fixedSystem(name, factory)
 
     fun <T : System> frameSystem(
         name: String,
-        factory: SceneGameRuntime.() -> T
-    ): SceneSystemHandle<T> {
-        return systemsDsl.frameSystem(name, factory)
-    }
+        factory: SceneGameRuntime.() -> T,
+    ): SceneSystemHandle<T> = systemsDsl.frameSystem(name, factory)
 
     fun systems(block: SceneSystemsDsl.() -> Unit) {
         systemsDsl.apply(block)
@@ -184,7 +176,7 @@ class SceneGameDsl internal constructor() {
             overlayBlock = overlayBlock,
             onReadyBlock = { onReadyBlocks.forEach { it(this) } },
             onDisposeBlock = { onDisposeBlocks.forEach { it(this) } },
-            serviceRegistrations = serviceRegistrations.toList()
+            serviceRegistrations = serviceRegistrations.toList(),
         )
     }
 }
@@ -195,25 +187,25 @@ class SceneSystemsDsl internal constructor() {
     fun <T : System> system(
         name: String,
         phase: SceneSystemPhase,
-        factory: SceneGameRuntime.() -> T
+        factory: SceneGameRuntime.() -> T,
     ): SceneSystemHandle<T> {
         val handle = SceneSystemHandle<T>(name)
         registrations += SceneSystemRegistration(
             handle = handle,
             phase = phase,
-            factory = { factory() }
+            factory = { factory() },
         )
         return handle
     }
 
     fun <T : System> fixedSystem(
         name: String,
-        factory: SceneGameRuntime.() -> T
+        factory: SceneGameRuntime.() -> T,
     ): SceneSystemHandle<T> = system(name, SceneSystemPhase.Fixed, factory)
 
     fun <T : System> frameSystem(
         name: String,
-        factory: SceneGameRuntime.() -> T
+        factory: SceneGameRuntime.() -> T,
     ): SceneSystemHandle<T> = system(name, SceneSystemPhase.Frame, factory)
 
     internal fun build(): List<SceneSystemRegistration> = registrations.toList()

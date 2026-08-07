@@ -13,5 +13,5 @@ class VkDeviceQueueCreateInfo(
     var queueFamilyIndex: Int = 0,
     var queueCount: Int = 0,
     @field:VkArray
-    var pQueuePriorities: FloatArray = floatArrayOf(1f)
+    var pQueuePriorities: FloatArray = floatArrayOf(1f),
 )

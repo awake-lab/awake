@@ -19,7 +19,7 @@ class OpticalCenteringTest {
             id = "title",
             role = UiSemanticRole.Text,
             bounds = UiBounds(x = 0f, y = 0f, width = 100f, height = 12f),
-            label = "CENTERED"
+            label = "CENTERED",
         )
 
         val report = inspectOpticalCentering(listOf(centeredNode), font, tolerancePx = 5f)
@@ -33,7 +33,7 @@ class OpticalCenteringTest {
             id = "off-center",
             role = UiSemanticRole.Text,
             bounds = UiBounds(x = 0f, y = 50f, width = 100f, height = 30f),
-            label = "OFF"
+            label = "OFF",
         )
 
         val report = inspectOpticalCentering(listOf(shiftedNode), font, tolerancePx = 1f)

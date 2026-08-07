@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMen
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -17,7 +18,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 private val ContextMenuItems = listOf(
     UiDropdownMenuItem(label = "Back", trailingLabel = "Alt+Left"),
@@ -25,7 +25,7 @@ private val ContextMenuItems = listOf(
     UiDropdownMenuItem(label = "Reload", trailingLabel = "Cmd+R"),
     UiDropdownMenuSeparator,
     UiDropdownMenuItem(label = "Inspect Element", trailingLabel = "Cmd+Opt+I"),
-    UiDropdownMenuItem(label = "Delete Item", destructive = true)
+    UiDropdownMenuItem(label = "Delete Item", destructive = true),
 )
 
 internal fun ColumnScope.drawShadcnContextMenuDemoPreview() {
@@ -40,7 +40,7 @@ internal fun ColumnScope.drawShadcnContextMenuDemoPreview() {
         id = "showcase-ctx-menu-demo",
         expanded = contextMenuState.expanded,
         onExpandedChange = { if (it) contextMenuState.open() else contextMenuState.close() },
-        items = ContextMenuItems
+        items = ContextMenuItems,
     ) {
         shadcnCard("ctx-card", modifier = Modifier.fillMaxWidth().height(100f.dp)) {
             text("Right click anywhere inside this card area to open Context Menu", verticallyCentered = true)

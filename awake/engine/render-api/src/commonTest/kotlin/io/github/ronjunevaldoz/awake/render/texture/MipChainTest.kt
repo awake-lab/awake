@@ -19,7 +19,7 @@ class MipChainTest {
     fun boxFilterAveragesFourSourceTexelsIntoOne() {
         val data = byteArrayOf(
             0, 0, 0, -1, (-1).toByte(), (-1).toByte(), (-1).toByte(), -1,
-            (-1).toByte(), (-1).toByte(), (-1).toByte(), -1, 0, 0, 0, -1
+            (-1).toByte(), (-1).toByte(), (-1).toByte(), -1, 0, 0, 0, -1,
         )
         val base = TextureAsset(data, width = 2, height = 2)
         val chain = base.mipChain()

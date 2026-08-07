@@ -5,15 +5,11 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
-import io.github.ronjunevaldoz.awake.core.math.Mat4
-import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
-import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
-import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
@@ -54,6 +50,9 @@ import io.github.ronjunevaldoz.awake.vulkan.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiRoundedQuadRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiTextureRenderPipeline
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
+import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
 
 /**
  * Phase 2 (renderer abstraction): the `Renderer.draw(camera, List<DrawCall>)` entry point --
@@ -124,7 +123,7 @@ class Renderer(
      * 8-float light block it always did -- zero behavior change for every caller that doesn't
      * opt in. */
     internal val shadowMap: ShadowMap? = null,
-    internal val shadowRenderPipeline: ShadowRenderPipeline? = null
+    internal val shadowRenderPipeline: ShadowRenderPipeline? = null,
 ) : RenderRenderer {
     override val clipSpace: ClipSpace = ClipSpace.Vulkan
 
@@ -260,7 +259,7 @@ class Renderer(
     internal data class TexturedPrimitiveRun(
         val material: Any,
         val vertices: FloatArray,
-        val indices: IntArray
+        val indices: IntArray,
     )
 
     /** This frame's runs, in paint order -- staged by `drawUi`, consumed by
@@ -280,7 +279,7 @@ class Renderer(
                 graphicsDevice,
                 MAX_UI_QUADS,
                 DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX,
-                maxFramesInFlight
+                maxFramesInFlight,
             )
         }
         return uiRoundedQuadMeshPool[index]
@@ -292,7 +291,7 @@ class Renderer(
                 graphicsDevice,
                 MAX_UI_QUADS,
                 DynamicMesh.GLYPH_FLOATS_PER_VERTEX,
-                maxFramesInFlight
+                maxFramesInFlight,
             )
         }
         return uiGlyphMeshPool[index]
@@ -304,7 +303,7 @@ class Renderer(
                 graphicsDevice,
                 MAX_UI_QUADS,
                 DynamicMesh.GLYPH_FLOATS_PER_VERTEX,
-                maxFramesInFlight
+                maxFramesInFlight,
             )
         }
         return uiTextureMeshPool[index]
@@ -338,7 +337,7 @@ class Renderer(
     override fun createMaterial(
         texture: TextureAsset?,
         renderTarget: RenderTarget?,
-        uniformFloatCount: Int
+        uniformFloatCount: Int,
     ): RenderMaterial {
         require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
         val material = Material(graphicsDevice, uniformFloatCount, shadowMap)
@@ -352,7 +351,7 @@ class Renderer(
                 transferContext::runOneTimeCommands,
                 effectiveTexture.data,
                 effectiveTexture.width,
-                effectiveTexture.height
+                effectiveTexture.height,
             )
             createdTextures += textureInstance
             material.createResources(textureInstance)
@@ -371,7 +370,7 @@ class Renderer(
             renderPipeline.renderPass,
             width,
             height,
-            swapchainManager.imageFormat.value
+            swapchainManager.imageFormat.value,
         )
         createdRenderTargets += target
         return target
@@ -390,7 +389,7 @@ class Renderer(
             frameIndex = commandBuffers.size,
             viewProjection = viewProjection,
             drawCalls = drawCalls,
-            light = DEFAULT_SCENE_LIGHT
+            light = DEFAULT_SCENE_LIGHT,
         )
 
         runOffscreenCommands { commandBuffer ->
@@ -398,7 +397,7 @@ class Renderer(
                 renderPass = renderPipeline.renderPass,
                 framebuffer = offscreen.framebuffer,
                 renderArea = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height)),
-                pClearValues = arrayOf(clearColorValue, clearDepthValue)
+                pClearValues = arrayOf(clearColorValue, clearDepthValue),
             )
             Vulkan.vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
             renderPipeline.bind(commandBuffer)
@@ -422,18 +421,18 @@ class Renderer(
         val byteSize = (offscreen.width * offscreen.height * 4).toLong()
         val stagingBuffer = VulkanBuffers.vkCreateBuffer(
             device,
-            VkBufferCreateInfo(size = byteSize, usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+            VkBufferCreateInfo(size = byteSize, usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT),
         )
         val stagingRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, stagingBuffer)
         val stagingMemoryTypeIndex = VulkanBuffers.findMemoryType(
             physicalDevice,
             stagingRequirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         )
         val stagingMemory = VulkanBuffers.vkAllocateMemory(
             device,
-            VkMemoryAllocateInfo(allocationSize = stagingRequirements.size, memoryTypeIndex = stagingMemoryTypeIndex)
+            VkMemoryAllocateInfo(allocationSize = stagingRequirements.size, memoryTypeIndex = stagingMemoryTypeIndex),
         )
         VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)
 
@@ -444,19 +443,19 @@ class Renderer(
                     commandBuffer,
                     offscreen.colorImage,
                     VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                    VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
+                    VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                 )
                 VulkanImages.vkCmdCopyImageToBuffer(
                     commandBuffer,
                     offscreen.colorImage,
                     stagingBuffer,
-                    VkBufferImageCopy(imageWidth = offscreen.width, imageHeight = offscreen.height)
+                    VkBufferImageCopy(imageWidth = offscreen.width, imageHeight = offscreen.height),
                 )
                 VulkanImages.vkTransitionImageLayout(
                     commandBuffer,
                     offscreen.colorImage,
                     VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                    VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                 )
             }
             pixels = VulkanBuffers.readBufferMemoryBytes(device, stagingMemory, 0, byteSize.toInt())

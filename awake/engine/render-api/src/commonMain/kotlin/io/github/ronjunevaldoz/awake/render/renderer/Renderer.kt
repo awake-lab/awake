@@ -5,9 +5,9 @@ package io.github.ronjunevaldoz.awake.render.renderer
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
-import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -22,7 +22,7 @@ private const val DEFAULT_LIGHT_DIRECTION_Z = 0.4f
  * with no `Light` entity renders identically to before this parameter was added. */
 val DEFAULT_SCENE_LIGHT = SceneLight(
     direction = Vec3(DEFAULT_LIGHT_DIRECTION_X, DEFAULT_LIGHT_DIRECTION_Y, DEFAULT_LIGHT_DIRECTION_Z),
-    color = Vec3(1f, 1f, 1f)
+    color = Vec3(1f, 1f, 1f),
 )
 
 /**
@@ -97,7 +97,7 @@ interface Renderer {
     fun createMaterial(
         texture: TextureAsset? = null,
         renderTarget: RenderTarget? = null,
-        uniformFloatCount: Int = 24
+        uniformFloatCount: Int = 24,
     ): Material
 
     /** Creates an offscreen [width]x[height] color+depth render destination, on demand -- see

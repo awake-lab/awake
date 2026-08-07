@@ -40,8 +40,12 @@ internal class UiContextStacks {
     val currentAlpha: Float get() = alphaStack.last()
     val currentTransform: UiPrimitiveTransform? get() = transformStack.last()
 
-    fun pushTheme(theme: UiTheme) { themeStack.add(theme) }
-    fun popTheme() { if (themeStack.size > 1) themeStack.removeAt(themeStack.size - 1) }
+    fun pushTheme(theme: UiTheme) {
+        themeStack.add(theme)
+    }
+    fun popTheme() {
+        if (themeStack.size > 1) themeStack.removeAt(themeStack.size - 1)
+    }
 
     fun pushTextStyle(style: TextStyle, tokenId: String? = null) {
         textStyleStack.add(textStyleStack.last() then style)
@@ -55,8 +59,12 @@ internal class UiContextStacks {
         }
     }
 
-    fun pushFont(font: UiFont) { fontStack.add(font) }
-    fun popFont() { if (fontStack.size > 1) fontStack.removeAt(fontStack.size - 1) }
+    fun pushFont(font: UiFont) {
+        fontStack.add(font)
+    }
+    fun popFont() {
+        if (fontStack.size > 1) fontStack.removeAt(fontStack.size - 1)
+    }
 
     fun pushShapeSpec(spec: UiShapeSpec?) {
         shapeStack.add(spec)
@@ -66,11 +74,19 @@ internal class UiContextStacks {
         if (shapeStack.size > 1) shapeStack.removeAt(shapeStack.size - 1)
     }
 
-    fun pushAlpha(alpha: Float) { alphaStack.add((currentAlpha * alpha).coerceIn(0f, 1f)) }
-    fun popAlpha() { if (alphaStack.size > 1) alphaStack.removeAt(alphaStack.size - 1) }
+    fun pushAlpha(alpha: Float) {
+        alphaStack.add((currentAlpha * alpha).coerceIn(0f, 1f))
+    }
+    fun popAlpha() {
+        if (alphaStack.size > 1) alphaStack.removeAt(alphaStack.size - 1)
+    }
 
-    fun pushTransform(transform: UiPrimitiveTransform) { transformStack.add(transform) }
-    fun popTransform() { if (transformStack.size > 1) transformStack.removeAt(transformStack.size - 1) }
+    fun pushTransform(transform: UiPrimitiveTransform) {
+        transformStack.add(transform)
+    }
+    fun popTransform() {
+        if (transformStack.size > 1) transformStack.removeAt(transformStack.size - 1)
+    }
 
     /**
      * Resets all four stacks back to a single base entry carrying [theme]/[textStyle]/[font] --
@@ -84,11 +100,17 @@ internal class UiContextStacks {
      * merging onto a fresh `Default` base is behavior-identical -- see `TextStyle.then`).
      */
     fun resetForTrial(theme: UiTheme, textStyle: TextStyle, font: UiFont) {
-        themeStack.clear(); themeStack.add(theme)
-        textStyleStack.clear(); textStyleStack.add(textStyle)
-        fontStack.clear(); fontStack.add(font)
-        shapeStack.clear(); shapeStack.add(null)
-        alphaStack.clear(); alphaStack.add(1f)
-        transformStack.clear(); transformStack.add(null)
+        themeStack.clear()
+        themeStack.add(theme)
+        textStyleStack.clear()
+        textStyleStack.add(textStyle)
+        fontStack.clear()
+        fontStack.add(font)
+        shapeStack.clear()
+        shapeStack.add(null)
+        alphaStack.clear()
+        alphaStack.add(1f)
+        transformStack.clear()
+        transformStack.add(null)
     }
 }

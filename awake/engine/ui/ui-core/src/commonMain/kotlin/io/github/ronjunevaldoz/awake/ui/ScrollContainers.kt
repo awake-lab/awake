@@ -2,19 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.scope.debugScopeLabel
 import io.github.ronjunevaldoz.awake.ui.scope.fillHeightOrNull
@@ -31,7 +30,7 @@ data class UiScrollPanelResult(
     val contentWidth: Float,
     val contentHeight: Float,
     val verticalThumb: UiScrollThumb?,
-    val horizontalThumb: UiScrollThumb?
+    val horizontalThumb: UiScrollThumb?,
 )
 
 /**
@@ -44,7 +43,7 @@ fun UiScope.scrollPanel(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     verticalArrangement: Arrangement = defaultArrangement(),
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiScrollPanelResult {
     val state = requireNotNull(modifier.scrollState) { "scrollPanel requires a scrollState on the modifier" }
     val config = modifier.scrollConfig
@@ -62,7 +61,10 @@ fun UiScope.scrollPanel(
         // themed card (border + card background), a real bug -- a bare scroll container should
         // stay invisible by default, exactly like a bare non-scroll column, and only paint
         // when the caller's own [style] asks for it.
-        defaults = Style { shape(UiShape.md); borderWidth(UiShape.none) }
+        defaults = Style {
+            shape(UiShape.md)
+            borderWidth(UiShape.none)
+        },
     )
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
@@ -88,11 +90,15 @@ fun UiScope.scrollPanel(
             "height" -> fillHeightOrNull()
             else -> null
         }
-        return if (isBounded && value != null) value else error(
-            "Scrollable container '$containerLabel' requested $axis=FillMax under unbounded parent ${debugScopeLabel()}. " +
-                "FillMax scroll viewports require a bounded parent $axis. " +
-                "A WrapContent ancestor usually means the parent chain never established one."
-        )
+        return if (isBounded && value != null) {
+            value
+        } else {
+            error(
+                "Scrollable container '$containerLabel' requested $axis=FillMax under unbounded parent ${debugScopeLabel()}. " +
+                    "FillMax scroll viewports require a bounded parent $axis. " +
+                    "A WrapContent ancestor usually means the parent chain never established one.",
+            )
+        }
     }
 
     fun availableOuterWidth(): Float = when (requestedWidth) {
@@ -109,7 +115,7 @@ fun UiScope.scrollPanel(
     val measured = measureColumnContent(
         width = maxInnerWidth,
         gap = gap,
-        content = content
+        content = content,
     )
 
     val containerHeight = when (requestedHeight) {
@@ -150,7 +156,7 @@ fun UiScope.scrollPanel(
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
         borderColor = resolved.borderColor ?: currentTheme.colors.border,
-        shapeSpec = resolved.shapeSpec
+        shapeSpec = resolved.shapeSpec,
     )
 
     val innerSlot = slot.inset(resolved.contentPadding)
@@ -160,21 +166,21 @@ fun UiScope.scrollPanel(
         x = innerSlot.x,
         y = innerSlot.y,
         width = innerSlot.width,
-        height = innerSlot.height
+        height = innerSlot.height,
     )
     recordSemantic(
         role = UiSemanticRole.ScrollPanel,
         id = id,
         bounds = slot,
         contentBounds = viewport,
-        clippedBounds = viewport
+        clippedBounds = viewport,
     )
 
     state.update(
         viewportWidth = viewport.width,
         viewportHeight = viewport.height,
         contentWidth = measured.width,
-        contentHeight = measured.height
+        contentHeight = measured.height,
     )
 
     if (hitTest(slot)) {
@@ -198,7 +204,7 @@ fun UiScope.scrollPanel(
             viewport.x - state.offsetX,
             viewport.y - state.offsetY,
             viewport.width,
-            viewport.height
+            viewport.height,
         ),
         verticalArrangement = verticalArrangement,
         modifier = UiModifier(testTag = containerLabel),
@@ -226,7 +232,7 @@ fun UiScope.scrollPanel(
             x = innerSlot.x + innerSlot.width - scrollbarWidthPx - scrollbarEdgeInsetPx,
             y = innerSlot.y,
             width = scrollbarWidthPx,
-            height = viewport.height
+            height = viewport.height,
         )
         verticalScrollThumb(vTrackSlot, state)?.also { thumb ->
             val custom = config.verticalScrollbar
@@ -238,11 +244,13 @@ fun UiScope.scrollPanel(
                     fillColor = currentTheme.colors.border,
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
-                    borderColor = Color.Transparent
+                    borderColor = Color.Transparent,
                 )
             }
         }
-    } else null
+    } else {
+        null
+    }
 
     // Horizontal Scrollbar -- same overlay-thumb-only treatment as vertical, above.
     val hThumb = if (horizontalNeeded && config.horizontalVisibility != UiScrollbarVisibility.Never) {
@@ -250,7 +258,7 @@ fun UiScope.scrollPanel(
             x = innerSlot.x,
             y = innerSlot.y + innerSlot.height - scrollbarWidthPx - scrollbarEdgeInsetPx,
             width = viewport.width,
-            height = scrollbarWidthPx
+            height = scrollbarWidthPx,
         )
         horizontalScrollThumb(hTrackSlot, state)?.also { thumb ->
             val custom = config.horizontalScrollbar
@@ -262,11 +270,13 @@ fun UiScope.scrollPanel(
                     fillColor = currentTheme.colors.border,
                     radiusPx = scrollbarWidthPx / 2f,
                     borderWidth = UiShape.none,
-                    borderColor = Color.Transparent
+                    borderColor = Color.Transparent,
                 )
             }
         }
-    } else null
+    } else {
+        null
+    }
 
     return UiScrollPanelResult(
         slot = slot,
@@ -274,6 +284,6 @@ fun UiScope.scrollPanel(
         contentWidth = measured.width,
         contentHeight = measured.height,
         verticalThumb = vThumb,
-        horizontalThumb = hThumb
+        horizontalThumb = hThumb,
     )
 }

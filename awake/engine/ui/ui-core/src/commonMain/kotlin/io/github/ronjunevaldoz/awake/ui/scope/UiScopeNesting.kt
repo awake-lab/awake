@@ -2,16 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 /**
  * Nested-scope factories that inherit the receiver's overlay behavior automatically.
@@ -22,7 +22,7 @@ fun UiScope.childColumn(
     modifier: UiModifier = Modifier,
     hasBoundedFillWidth: Boolean = true,
     hasBoundedFillHeight: Boolean = true,
-    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
 ): ColumnScope = context.createColumn(
     slot = slot,
     insets = modifier.insets,
@@ -31,7 +31,7 @@ fun UiScope.childColumn(
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,
     overlayOnly = emitsToOverlay,
-    horizontalAlignment = horizontalAlignment
+    horizontalAlignment = horizontalAlignment,
 )
 
 fun UiScope.childRow(
@@ -40,7 +40,7 @@ fun UiScope.childRow(
     modifier: UiModifier = Modifier,
     hasBoundedFillWidth: Boolean = true,
     hasBoundedFillHeight: Boolean = true,
-    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
+    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
 ): RowScope = context.createRow(
     slot = slot,
     insets = modifier.insets,
@@ -49,17 +49,17 @@ fun UiScope.childRow(
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,
     overlayOnly = emitsToOverlay,
-    verticalAlignment = verticalAlignment
+    verticalAlignment = verticalAlignment,
 )
 
 fun UiScope.childAbsolute(
     slot: UiBounds,
-    modifier: UiModifier = Modifier
+    modifier: UiModifier = Modifier,
 ): AbsoluteScope = context.createAbsolute(
     slot = slot,
     insets = modifier.insets,
     testTag = modifier.testTag,
-    overlayOnly = emitsToOverlay
+    overlayOnly = emitsToOverlay,
 )
 
 fun UiScope.childBox(
@@ -67,7 +67,7 @@ fun UiScope.childBox(
     modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     hasBoundedFillWidth: Boolean = true,
-    hasBoundedFillHeight: Boolean = true
+    hasBoundedFillHeight: Boolean = true,
 ): BoxScope = context.createBox(
     slot = slot,
     insets = modifier.insets,
@@ -75,5 +75,5 @@ fun UiScope.childBox(
     testTag = modifier.testTag,
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,
-    overlayOnly = emitsToOverlay
+    overlayOnly = emitsToOverlay,
 )

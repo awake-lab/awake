@@ -11,7 +11,7 @@ data class UiTypography(
     val body: Sp = 16.sp,
     val title: Sp = 20.sp,
     val headline: Sp = 24.sp,
-    val display: Sp = 30.sp
+    val display: Sp = 30.sp,
 ) {
     companion object {
         val Default = UiTypography()

@@ -3,34 +3,34 @@
 package io.github.ronjunevaldoz.awake.ui.headless.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
 import io.github.ronjunevaldoz.awake.ui.clearFocusIfMatches
-import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
-import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
+import io.github.ronjunevaldoz.awake.ui.graphics.clip
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.headless.interact
 import io.github.ronjunevaldoz.awake.ui.inputState
 import io.github.ronjunevaldoz.awake.ui.isFocused
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.pointerDownEdge
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.requestFocus
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.headless.interact
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 private const val TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS = 1f
 private const val TEXT_FIELD_CARET_WIDTH_PX = 1.5f
@@ -47,14 +47,14 @@ fun UiScope.textarea(
     style: Style = Style.Empty,
     enabled: Boolean = true,
     isError: Boolean = false,
-    minLines: Int = 3
+    minLines: Int = 3,
 ): String {
     // Determine height based on minLines
     val resolvedDefaults = theme.components.textField
     val resolved = resolveStyle(
         style = style,
         defaults = resolvedDefaults,
-        state = MutableStyleState(disabled = !enabled)
+        state = MutableStyleState(disabled = !enabled),
     )
     val fontHeight = resolveGlyphPx(font, resolved.textStyle)
     val padding = resolved.contentPadding
@@ -65,7 +65,7 @@ fun UiScope.textarea(
 
     val interaction = interact(
         id = id,
-        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(minHeight.px))
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(minHeight.px)),
     )
 
     val focused = enabled && isFocused(id)
@@ -78,24 +78,30 @@ fun UiScope.textarea(
     val styleState = MutableStyleState(
         hovered = interaction.hovered || modifier.forceHover == true,
         focused = focused,
-        disabled = !enabled
+        disabled = !enabled,
     )
     val resolvedWithInteraction = resolveStyle(
         style = style,
         defaults = resolvedDefaults,
-        state = styleState
+        state = styleState,
     )
 
     val borderColor =
-        if (isError) theme.colors.destructive else (resolvedWithInteraction.borderColor
-            ?: theme.colors.border)
+        if (isError) {
+            theme.colors.destructive
+        } else {
+            (
+                resolvedWithInteraction.borderColor
+                    ?: theme.colors.border
+                )
+        }
     emitFillAndBorder(
         slot = interaction.slot,
         fillColor = resolvedWithInteraction.background ?: theme.colors.background,
         radiusPx = resolvedWithInteraction.shape.toPx(),
         borderWidth = if (focused || isError) 1.5f.dp else resolvedWithInteraction.borderWidth,
         borderColor = borderColor,
-        shapeSpec = resolvedWithInteraction.shapeSpec
+        shapeSpec = resolvedWithInteraction.shapeSpec,
     )
 
     val resolvedFont = font
@@ -113,7 +119,7 @@ fun UiScope.textarea(
         overflow = UiTextOverflow.Clip,
         maxLines = Int.MAX_VALUE,
         trim = false,
-        advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
+        advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) },
     )
 
     // Read last frame's applied scroll offset before this frame's click hit-testing -- a click
@@ -134,7 +140,7 @@ fun UiScope.textarea(
                     lineGap,
                     lastDrawSlot,
                     inputState.pointerX,
-                    inputState.pointerY
+                    inputState.pointerY,
                 )
             } else {
                 null
@@ -163,11 +169,12 @@ fun UiScope.textarea(
                     glyphPx,
                     lineGap,
                     cursor,
-                    -1
+                    -1,
                 )
 
-                UiTextEditAction.ArrowDown -> cursor =
-                    moveCursorVertical(previousLayout, nextValue, resolvedFont, glyphPx, lineGap, cursor, 1)
+                UiTextEditAction.ArrowDown ->
+                    cursor =
+                        moveCursorVertical(previousLayout, nextValue, resolvedFont, glyphPx, lineGap, cursor, 1)
 
                 UiTextEditAction.Home -> cursor = cursorForLineStart(previousLayout, nextValue, cursor)
                 UiTextEditAction.End -> cursor = cursorForLineEnd(previousLayout, nextValue, cursor)
@@ -197,7 +204,7 @@ fun UiScope.textarea(
             overflow = UiTextOverflow.Clip,
             maxLines = Int.MAX_VALUE,
             trim = false,
-            advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
+            advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) },
         )
     }
 
@@ -231,14 +238,20 @@ fun UiScope.textarea(
                 label = displayed,
                 slot = drawSlot,
                 font = resolvedFont,
-                color = if (showingPlaceholder) theme.colors.mutedForeground else (resolvedWithInteraction.foreground
-                    ?: theme.colors.foreground),
+                color = if (showingPlaceholder) {
+                    theme.colors.mutedForeground
+                } else {
+                    (
+                        resolvedWithInteraction.foreground
+                            ?: theme.colors.foreground
+                        )
+                },
                 verticallyCentered = false,
                 overflow = UiTextOverflow.Clip,
                 wrap = UiTextWrap.Word,
                 textStyle = resolvedWithInteraction.textStyle,
                 semanticId = "$id.value",
-                maxLines = Int.MAX_VALUE
+                maxLines = Int.MAX_VALUE,
             )
         }
         if (focused) {
@@ -253,19 +266,19 @@ fun UiScope.textarea(
                     glyphPx,
                     lineGap,
                     drawSlot,
-                    cursor
+                    cursor,
                 )
                 emitFillAndBorder(
                     slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
                         caretPos.first,
                         caretPos.second,
                         TEXT_FIELD_CARET_WIDTH_PX,
-                        glyphPx
+                        glyphPx,
                     ),
                     fillColor = resolvedWithInteraction.foreground ?: theme.colors.foreground,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
-                    borderColor = Color.Transparent
+                    borderColor = Color.Transparent,
                 )
             }
         }
@@ -278,7 +291,7 @@ fun UiScope.textarea(
         bounds = interaction.slot,
         contentBounds = contentSlot,
         selected = focused,
-        lineCount = currentLayout.lines.size
+        lineCount = currentLayout.lines.size,
     )
     return nextValue
 }
@@ -293,9 +306,9 @@ private fun UiScope.caretBlinkElapsedSeconds(id: String): Float {
 private fun cursorToLineAndCol(
     layout: UiBitmapTextLayout,
     value: String,
-    cursor: Int
+    cursor: Int,
 ): Pair<Int, Int> {
-    // layout.lines contains the visual lines. 
+    // layout.lines contains the visual lines.
     // Since trim = false, layoutBitmapText splits by \n first, then by width.
     // Each \n in the original string creates a new line in layout.lines.
     // If a line was split due to wrapping, no \n was consumed.
@@ -323,7 +336,7 @@ private fun cursorPositionPx(
     glyphPx: Float,
     lineGap: Float,
     contentSlot: UiBounds,
-    cursor: Int
+    cursor: Int,
 ): Pair<Float, Float> {
     val (lineIdx, colIdx) = cursorToLineAndCol(layout, value, cursor)
     val line = layout.lines.getOrNull(lineIdx) ?: ""
@@ -343,7 +356,7 @@ private fun indexForPointerXY(
     lineGap: Float,
     contentSlot: UiBounds,
     pointerX: Float,
-    pointerY: Float
+    pointerY: Float,
 ): Int {
     val lineIdx = ((pointerY - contentSlot.y) / (glyphPx + lineGap)).toInt()
         .coerceIn(0, layout.lines.lastIndex.coerceAtLeast(0))
@@ -378,7 +391,7 @@ private fun moveCursorVertical(
     glyphPx: Float,
     lineGap: Float,
     cursor: Int,
-    direction: Int
+    direction: Int,
 ): Int {
     val (lineIdx, colIdx) = cursorToLineAndCol(layout, value, cursor)
     val targetLineIdx = (lineIdx + direction).coerceIn(0, layout.lines.lastIndex.coerceAtLeast(0))

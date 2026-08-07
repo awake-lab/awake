@@ -4,9 +4,7 @@ package io.github.ronjunevaldoz.awake.ecs
 
 import kotlin.reflect.KClass
 
-internal actual fun <T : Any> newComponentArray(type: KClass<T>, capacity: Int): Array<Any?> {
-    return java.lang.reflect.Array.newInstance(type.java, capacity) as Array<Any?>
-}
+internal actual fun <T : Any> newComponentArray(type: KClass<T>, capacity: Int): Array<Any?> = java.lang.reflect.Array.newInstance(type.java, capacity) as Array<Any?>
 
 internal actual fun <T : Any> createComponentInstance(type: KClass<T>): T {
     @Suppress("UNCHECKED_CAST")

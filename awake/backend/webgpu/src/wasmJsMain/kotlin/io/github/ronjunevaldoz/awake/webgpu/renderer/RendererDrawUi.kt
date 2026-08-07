@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.renderer
 
-import io.github.ronjunevaldoz.awake.core.colors.Color as AwakeColor
 import io.github.ronjunevaldoz.awake.ui.UiColoredTriangleMesh
 import io.github.ronjunevaldoz.awake.ui.UiColoredVertex
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -25,6 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
+import io.github.ronjunevaldoz.awake.core.colors.Color as AwakeColor
 
 /** UI primitive staging -- `performDrawUi` walks a frame's [UiDrawPrimitive] list once,
  * coalescing adjacent same-type entries into runs (see [Renderer.UiRun]'s doc comment) and
@@ -35,7 +35,7 @@ import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
 
 private enum class ClipKind {
     Rect,
-    Path
+    Path,
 }
 
 /** Stages this frame's UI overlay content -- rewrites [Renderer.uiRuns]' pooled meshes but
@@ -96,12 +96,15 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                                 UiPoint(quad.x, quad.y),
                                 UiPoint(quad.x + quad.w, quad.y),
                                 UiPoint(quad.x + quad.w, quad.y + quad.h),
-                                UiPoint(quad.x, quad.y + quad.h)
+                                UiPoint(quad.x, quad.y + quad.h),
                             ),
-                            indices = intArrayOf(0, 1, 2, 2, 3, 0)
+                            indices = intArrayOf(0, 1, 2, 2, 3, 0),
                         )
-                        val clipped = if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) raw
-                        else exactClip(raw, activePathClips)
+                        val clipped = if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) {
+                            raw
+                        } else {
+                            exactClip(raw, activePathClips)
+                        }
                         clipped to quad.color
                     }
                     quadRunCount = stageChunkedColoredTriangleMeshes(runs, quadRunCount, tessellated, "quad")
@@ -129,12 +132,15 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                                 UiColoredVertex(UiPoint(quad.x, quad.y), quad.gradient.topLeft),
                                 UiColoredVertex(UiPoint(quad.x + quad.w, quad.y), quad.gradient.topRight),
                                 UiColoredVertex(UiPoint(quad.x + quad.w, quad.y + quad.h), quad.gradient.bottomRight),
-                                UiColoredVertex(UiPoint(quad.x, quad.y + quad.h), quad.gradient.bottomLeft)
+                                UiColoredVertex(UiPoint(quad.x, quad.y + quad.h), quad.gradient.bottomLeft),
                             ),
-                            indices = intArrayOf(0, 1, 2, 2, 3, 0)
+                            indices = intArrayOf(0, 1, 2, 2, 3, 0),
                         )
-                        if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) raw
-                        else exactClipColored(raw, activePathClips)
+                        if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) {
+                            raw
+                        } else {
+                            exactClipColored(raw, activePathClips)
+                        }
                     }
                     quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "gradient-quad")
                 } else {
@@ -166,8 +172,11 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                         val triangleMesh = UiShapeSpec.RoundedRectangle(quad.radius.px)
                             .toPath(UiBounds(quad.x, quad.y, quad.w, quad.h))
                             .tessellateFillAa(quad.color)
-                        if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) triangleMesh
-                        else exactClipColored(triangleMesh, activePathClips)
+                        if (canSkipExactClip(safeInteriorRect, quad.x, quad.y, quad.w, quad.h)) {
+                            triangleMesh
+                        } else {
+                            exactClipColored(triangleMesh, activePathClips)
+                        }
                     }
                     quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "rounded-quad-clipped")
                 } else {
@@ -191,8 +200,11 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 val tessellated = pathSlice.map { primitive ->
                     val bounds = primitive.path.bounds()
                     val triangleMesh = primitive.path.tessellateFillAa(primitive.color)
-                    if (canSkipExactClip(safeInteriorRect, bounds.x, bounds.y, bounds.width, bounds.height)) triangleMesh
-                    else exactClipColored(triangleMesh, activePathClips)
+                    if (canSkipExactClip(safeInteriorRect, bounds.x, bounds.y, bounds.width, bounds.height)) {
+                        triangleMesh
+                    } else {
+                        exactClipColored(triangleMesh, activePathClips)
+                    }
                 }
                 quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "filled-path")
             }
@@ -228,8 +240,11 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                     // polygon clip entirely (see canSkipExactClip).
                     val clipped = glyphSlice.map { glyph ->
                         val raw = texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1)
-                        val mesh = if (canSkipExactClip(safeInteriorRect, glyph.x, glyph.y, glyph.w, glyph.h)) raw
-                        else exactClip(raw, activePathClips)
+                        val mesh = if (canSkipExactClip(safeInteriorRect, glyph.x, glyph.y, glyph.w, glyph.h)) {
+                            raw
+                        } else {
+                            exactClip(raw, activePathClips)
+                        }
                         mesh to glyph.color
                     }
                     val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
@@ -283,7 +298,7 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                     activePathClips += it.path
                     val parentSafeInteriorRect = safeInteriorRectStack.lastOrNull() ?: UNBOUNDED_SAFE_INTERIOR_RECT
                     safeInteriorRectStack.addLast(
-                        it.safeInteriorRect?.let { own -> parentSafeInteriorRect?.intersect(own) }
+                        it.safeInteriorRect?.let { own -> parentSafeInteriorRect?.intersect(own) },
                     )
                     runs += Renderer.UiRun.ClipRun(it.boundsRect)
                 }
@@ -327,7 +342,7 @@ private fun canSkipExactClip(safeInteriorRect: UiBounds?, x: Float, y: Float, w:
  * `drawUi` body, unchanged vertex/index layout. */
 private fun stageQuadRun(
     mesh: DynamicMesh,
-    quads: List<UiDrawPrimitive.Quad>
+    quads: List<UiDrawPrimitive.Quad>,
 ) {
     require(quads.size <= Renderer.MAX_UI_QUADS) {
         "UI quad run size (${quads.size}) exceeds Renderer's DynamicMesh capacity (${Renderer.MAX_UI_QUADS})."
@@ -358,7 +373,7 @@ private fun stageQuadRun(
 
 private fun stageGradientQuadRun(
     mesh: DynamicMesh,
-    quads: List<UiDrawPrimitive.GradientQuad>
+    quads: List<UiDrawPrimitive.GradientQuad>,
 ) {
     require(quads.size <= Renderer.MAX_UI_QUADS) {
         "UI gradient quad run size (${quads.size}) exceeds Renderer's DynamicMesh capacity (${Renderer.MAX_UI_QUADS})."
@@ -394,7 +409,7 @@ private fun stageGradientQuadRun(
 private fun tessellateStrokedPath(
     primitive: UiDrawPrimitive.StrokedPath,
     activePathClips: List<UiPath>,
-    safeInteriorRect: UiBounds?
+    safeInteriorRect: UiBounds?,
 ): Pair<UiTriangleMesh, AwakeColor> {
     // Stroke geometry extends up to a full stroke-width beyond the raw path's own point
     // bounds (perpendicular offset on each side, plus square-cap extension along the
@@ -406,11 +421,14 @@ private fun tessellateStrokedPath(
         rawBounds.x - strokeMargin,
         rawBounds.y - strokeMargin,
         rawBounds.width + 2f * strokeMargin,
-        rawBounds.height + 2f * strokeMargin
+        rawBounds.height + 2f * strokeMargin,
     )
     val triangleMesh = primitive.path.tessellateStroke(primitive.stroke)
-    val clipped = if (canSkipExactClip(safeInteriorRect, paintedBounds.x, paintedBounds.y, paintedBounds.width, paintedBounds.height)) triangleMesh
-    else exactClip(triangleMesh, activePathClips)
+    val clipped = if (canSkipExactClip(safeInteriorRect, paintedBounds.x, paintedBounds.y, paintedBounds.width, paintedBounds.height)) {
+        triangleMesh
+    } else {
+        exactClip(triangleMesh, activePathClips)
+    }
     return clipped to primitive.color
 }
 
@@ -423,7 +441,7 @@ private fun Renderer.stageChunkedColoredTriangleMeshes(
     runs: MutableList<Renderer.UiRun>,
     quadRunCount: Int,
     geometries: List<Pair<UiTriangleMesh, AwakeColor>>,
-    label: String
+    label: String,
 ): Int {
     val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
     val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
@@ -461,7 +479,7 @@ private fun Renderer.stageChunkedColoredVertexTriangleMeshes(
     runs: MutableList<Renderer.UiRun>,
     quadRunCount: Int,
     meshes: List<UiColoredTriangleMesh>,
-    label: String
+    label: String,
 ): Int {
     val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
     val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
@@ -534,7 +552,7 @@ private fun stageRoundedQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.R
 private fun stageColoredTriangleMeshes(
     mesh: DynamicMesh,
     geometries: List<Pair<UiTriangleMesh, AwakeColor>>,
-    label: String
+    label: String,
 ) {
     val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
     val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
@@ -584,7 +602,7 @@ private fun exactClipColored(mesh: UiColoredTriangleMesh, activePathClips: List<
 private fun stageColoredVertexTriangleMeshes(
     mesh: DynamicMesh,
     meshes: List<UiColoredTriangleMesh>,
-    label: String
+    label: String,
 ) {
     val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
     val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
@@ -623,18 +641,21 @@ private fun stageGlyphRun(
     mesh: DynamicMesh,
     glyphs: List<UiDrawPrimitive.Glyph>,
     activePathClips: List<UiPath> = emptyList(),
-    safeInteriorRect: UiBounds? = null
+    safeInteriorRect: UiBounds? = null,
 ) {
     if (canExactClip(activePathClips)) {
         stageTexturedTriangleMeshes(
             mesh,
             glyphs.map { glyph ->
                 val raw = texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1)
-                val clipped = if (canSkipExactClip(safeInteriorRect, glyph.x, glyph.y, glyph.w, glyph.h)) raw
-                else exactClip(raw, activePathClips)
+                val clipped = if (canSkipExactClip(safeInteriorRect, glyph.x, glyph.y, glyph.w, glyph.h)) {
+                    raw
+                } else {
+                    exactClip(raw, activePathClips)
+                }
                 clipped to glyph.color
             },
-            "glyph"
+            "glyph",
         )
         return
     }
@@ -668,12 +689,15 @@ private fun stageGlyphRun(
 private fun stageTextureRun(
     textures: List<UiDrawPrimitive.Texture>,
     activePathClips: List<UiPath>,
-    safeInteriorRect: UiBounds? = null
+    safeInteriorRect: UiBounds? = null,
 ): List<Renderer.TexturedPrimitiveRun> =
     textures.map { primitive ->
         val raw = texturedQuadMesh(primitive.x, primitive.y, primitive.w, primitive.h)
-        val clipped = if (canSkipExactClip(safeInteriorRect, primitive.x, primitive.y, primitive.w, primitive.h)) raw
-        else exactClip(raw, activePathClips)
+        val clipped = if (canSkipExactClip(safeInteriorRect, primitive.x, primitive.y, primitive.w, primitive.h)) {
+            raw
+        } else {
+            exactClip(raw, activePathClips)
+        }
         val (vertices, indices) = texturedGeometryBuffers(clipped, Renderer.WHITE_RGBA, primitive.transform)
         Renderer.TexturedPrimitiveRun(primitive.material, vertices, indices)
     }
@@ -681,7 +705,7 @@ private fun stageTextureRun(
 private fun stageTexturedTriangleMeshes(
     mesh: DynamicMesh,
     geometries: List<Pair<UiTexturedTriangleMesh, AwakeColor>>,
-    label: String
+    label: String,
 ) {
     val maxVertices = Renderer.MAX_UI_QUADS * DynamicMesh.VERTICES_PER_QUAD
     val maxIndices = Renderer.MAX_UI_QUADS * DynamicMesh.INDICES_PER_QUAD
@@ -722,21 +746,21 @@ private fun texturedQuadMesh(
     u0: Float = 0f,
     v0: Float = 0f,
     u1: Float = 1f,
-    v1: Float = 1f
+    v1: Float = 1f,
 ): UiTexturedTriangleMesh = UiTexturedTriangleMesh(
     vertices = listOf(
         UiTexturedVertex(UiPoint(x, y), u0, v0),
         UiTexturedVertex(UiPoint(x + w, y), u1, v0),
         UiTexturedVertex(UiPoint(x + w, y + h), u1, v1),
-        UiTexturedVertex(UiPoint(x, y + h), u0, v1)
+        UiTexturedVertex(UiPoint(x, y + h), u0, v1),
     ),
-    indices = intArrayOf(0, 1, 2, 2, 3, 0)
+    indices = intArrayOf(0, 1, 2, 2, 3, 0),
 )
 
 private fun texturedGeometryBuffers(
     mesh: UiTexturedTriangleMesh,
     color: AwakeColor,
-    transform: io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform? = null
+    transform: io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform? = null,
 ): Pair<FloatArray, IntArray> {
     val vertices = FloatArray(mesh.vertices.size * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)
     var offset = 0

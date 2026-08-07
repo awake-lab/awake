@@ -36,7 +36,7 @@ class ShadcnInputOTPFidelityTest {
             id = "otp",
             value = "123",
             length = 4,
-            modifier = Modifier.width(300f.dp)
+            modifier = Modifier.width(300f.dp),
         )
         val frameOutput = ui.finishFrame()
 
@@ -49,15 +49,15 @@ class ShadcnInputOTPFidelityTest {
                 AwakeUiPreviewDimensionRule(nodeId = "otp.slot.0", exactWidth = slotWidth.dp.toPx(), exactHeight = slotHeight.dp.toPx()),
                 AwakeUiPreviewDimensionRule(nodeId = "otp.slot.1", exactWidth = slotWidth.dp.toPx(), exactHeight = slotHeight.dp.toPx()),
                 AwakeUiPreviewDimensionRule(nodeId = "otp.slot.2", exactWidth = slotWidth.dp.toPx(), exactHeight = slotHeight.dp.toPx()),
-                AwakeUiPreviewDimensionRule(nodeId = "otp.slot.3", exactWidth = slotWidth.dp.toPx(), exactHeight = slotHeight.dp.toPx())
+                AwakeUiPreviewDimensionRule(nodeId = "otp.slot.3", exactWidth = slotWidth.dp.toPx(), exactHeight = slotHeight.dp.toPx()),
             ),
             exactSpacingRules = listOf(
                 AwakeUiPreviewExactSpacingRule(
                     label = "OTP Slots",
                     nodeIds = setOf("otp.slot.0", "otp.slot.1", "otp.slot.2", "otp.slot.3"),
-                    exactGapPx = slotSpacing.dp.toPx()
-                )
-            )
+                    exactGapPx = slotSpacing.dp.toPx(),
+                ),
+            ),
         )
 
         validateAwakeUiPreview(
@@ -67,15 +67,15 @@ class ShadcnInputOTPFidelityTest {
                 group = "Input",
                 summary = "OTP slots fidelity check",
                 width = 400,
-                height = 100
+                height = 100,
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ui.currentTheme.colors.background,
                 font = ui.currentFont,
-                semantics = frameOutput.semantics
+                semantics = frameOutput.semantics,
             ),
-            config = config
+            config = config,
         ).requireClean()
     }
 }

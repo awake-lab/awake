@@ -89,7 +89,7 @@ class GraphicsDevice {
         val appInfo = VkApplicationInfo(
             pApplicationName = "Awake Vulkan - Application",
             pEngineName = "Awake Vulkan - Engine",
-            apiVersion = Version(1, 3, 0).vkVersion
+            apiVersion = Version(1, 3, 0).vkVersion,
         )
         val layerProperties = getAppLayerProps()
         val layerExtProps = layerProperties.map { layer ->
@@ -118,7 +118,7 @@ class GraphicsDevice {
             flags = instanceFlags,
             pApplicationInfo = arrayOf(appInfo),
             ppEnabledLayerNames = layerProperties.toTypedArray(),
-            ppEnabledExtensionNames = extProperties.toTypedArray()
+            ppEnabledExtensionNames = extProperties.toTypedArray(),
         )
         instance = Vulkan.vkCreateInstance(createInfo)
     }
@@ -133,14 +133,14 @@ class GraphicsDevice {
                     severity,
                     messageType,
                     callbackData,
-                    userData
+                    userData,
                 )
                 if (severity.isValidationError()) {
                     validationErrors += callbackData.pMessage
                 }
                 false
             },
-            pUserData = null
+            pUserData = null,
         )
         debugUtilsMessenger = Vulkan.vkCreateDebugUtilsMessengerEXT(instance, createInfo)
     }
@@ -170,13 +170,13 @@ class GraphicsDevice {
         // to avoid duplicate queue family index use set
         val uniqueQueueFamilies = setOf(
             indices.graphicsFamily!!,
-            indices.presentFamily!!
+            indices.presentFamily!!,
         )
         val queueInfos = uniqueQueueFamilies.map { uniqueQueueFamilyIndex ->
             VkDeviceQueueCreateInfo(
                 queueFamilyIndex = uniqueQueueFamilyIndex,
                 queueCount = 1,
-                pQueuePriorities = floatArrayOf(1.0f)
+                pQueuePriorities = floatArrayOf(1.0f),
             )
         }
 
@@ -212,7 +212,7 @@ class GraphicsDevice {
         val deviceInfo = VkDeviceCreateInfo(
             pQueueCreateInfos = queueInfos.toTypedArray(),
             pEnabledFeatures = arrayOf(features),
-            ppEnabledExtensionNames = requiredDeviceExtensions.toTypedArray()
+            ppEnabledExtensionNames = requiredDeviceExtensions.toTypedArray(),
         )
         device = Vulkan.vkCreateDevice(physicalDevice, deviceInfo)
 
@@ -229,7 +229,7 @@ class GraphicsDevice {
         if (failOnValidationError && validationErrors.isNotEmpty()) {
             error(
                 "Vulkan validation errors were reported:\n" +
-                    validationErrors.joinToString(separator = "\n\n")
+                    validationErrors.joinToString(separator = "\n\n"),
             )
         }
     }

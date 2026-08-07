@@ -12,9 +12,9 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -35,7 +35,7 @@ class ShadcnSidebarFidelityTest {
         ui.beginFrame(400f, 600f, testSnapshot(x = -100f, y = -100f, down = false))
         ui.createAbsolute(slot = ui.frameBounds()).shadcnSidebar(
             id = "sidebar",
-            modifier = Modifier.width(sidebarWidth.dp)
+            modifier = Modifier.width(sidebarWidth.dp),
         ) {
             text("Sidebar content")
         }
@@ -45,16 +45,16 @@ class ShadcnSidebarFidelityTest {
             dimensionRules = listOf(
                 io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewDimensionRule(
                     nodeId = "sidebar",
-                    exactWidth = sidebarWidth
-                )
+                    exactWidth = sidebarWidth,
+                ),
             ),
             tokenRules = listOf(
                 AwakeUiPreviewTokenRule(
                     nodeId = "sidebar",
                     expectedBackgroundToken = "sidebar",
-                    expectedBorderToken = "sidebar-border"
-                )
-            )
+                    expectedBorderToken = "sidebar-border",
+                ),
+            ),
         )
 
         val report = validateAwakeUiPreview(
@@ -64,15 +64,15 @@ class ShadcnSidebarFidelityTest {
                 group = "Sidebar",
                 summary = "Sidebar background/border fidelity check",
                 width = 400,
-                height = 600
+                height = 600,
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ui.currentTheme.colors.background,
                 font = ui.currentFont,
-                semantics = frameOutput.semantics
+                semantics = frameOutput.semantics,
             ),
-            config = config
+            config = config,
         )
         if (!report.isClean) {
             println("REPORT: ${report.summary()}")

@@ -6,19 +6,19 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingText
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layouts.spacer
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
+import io.github.ronjunevaldoz.awake.ui.layouts.spacer
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
 
 /**
  * [shadcnAlertDialog] primary Slot API: the caller composes their own action row freely (any
@@ -37,7 +37,7 @@ fun UiScope.shadcnAlertDialog(
     properties: UiDialogProperties = UiDialogProperties(),
     style: Style = Style.Empty,
     actions: RowScope.() -> Unit,
-    body: ColumnScope.() -> Unit
+    body: ColumnScope.() -> Unit,
 ): UiPopupResult = shadcnDialog(
     id = id,
     expanded = expanded,
@@ -47,7 +47,7 @@ fun UiScope.shadcnAlertDialog(
     header = {
         text(title, style = Style { textSize(theme.typography.title) }, wrap = UiTextWrap.Word)
     },
-    actions = { actions() }
+    actions = { actions() },
 ) {
     body()
 }
@@ -67,7 +67,7 @@ fun UiScope.shadcnAlertDialog(
     dismissStyle: Style = Style.Empty,
     properties: UiDialogProperties = UiDialogProperties(),
     style: Style = Style.Empty,
-    body: ColumnScope.() -> Unit
+    body: ColumnScope.() -> Unit,
 ): UiAlertDialogResult {
     var action: UiAlertDialogAction? = null
     val popup = shadcnAlertDialog(
@@ -87,7 +87,7 @@ fun UiScope.shadcnAlertDialog(
                         modifier = Modifier.width(88f.dp),
                         variant = dismissVariant,
                         size = ShadcnButtonSize.Sm,
-                        style = dismissStyle
+                        style = dismissStyle,
                     )
                 ) {
                     action = UiAlertDialogAction.Dismiss
@@ -101,12 +101,12 @@ fun UiScope.shadcnAlertDialog(
                     modifier = Modifier.width(88f.dp),
                     variant = confirmVariant,
                     size = ShadcnButtonSize.Sm,
-                    style = confirmStyle
+                    style = confirmStyle,
                 )
             ) {
                 action = UiAlertDialogAction.Confirm
             }
-        }
+        },
     ) {
         body()
     }
@@ -127,7 +127,7 @@ fun UiScope.shadcnAlertDialog(
     confirmStyle: Style = Style.Empty,
     dismissStyle: Style = Style.Empty,
     properties: UiDialogProperties = UiDialogProperties(),
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): UiAlertDialogResult = shadcnAlertDialog(
     id = id,
     expanded = expanded,
@@ -140,17 +140,17 @@ fun UiScope.shadcnAlertDialog(
     confirmStyle = confirmStyle,
     dismissStyle = dismissStyle,
     properties = properties,
-    style = style
+    style = style,
 ) {
     shadcnSupportingText(message)
 }
 
 data class UiAlertDialogResult(
     val popup: UiPopupResult,
-    val action: UiAlertDialogAction?
+    val action: UiAlertDialogAction?,
 )
 
 enum class UiAlertDialogAction {
     Confirm,
-    Dismiss
+    Dismiss,
 }

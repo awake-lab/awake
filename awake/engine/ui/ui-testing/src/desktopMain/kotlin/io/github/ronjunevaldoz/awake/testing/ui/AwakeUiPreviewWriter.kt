@@ -26,7 +26,7 @@ fun renderAnnotatedUiPreviews(entry: AwakeUiPreviewEntry): List<AwakeUiPreviewSc
         summary = annotation.summary,
         width = annotation.width,
         height = annotation.height,
-        reportScale = annotation.reportScale
+        reportScale = annotation.reportScale,
     )
     return entry.renderSamples(metadata).map { sample ->
         AwakeUiPreviewScene(
@@ -37,12 +37,12 @@ fun renderAnnotatedUiPreviews(entry: AwakeUiPreviewEntry): List<AwakeUiPreviewSc
                 summary = sample.summary,
                 width = sample.width,
                 height = sample.height,
-                reportScale = sample.reportScale
+                reportScale = sample.reportScale,
             ),
             primitives = sample.frame.primitives,
             background = sample.frame.background,
             font = sample.frame.font,
-            semantics = sample.frame.semantics
+            semantics = sample.frame.semantics,
         )
     }
 }
@@ -54,7 +54,7 @@ fun saveAwakeUiPreview(scene: AwakeUiPreviewScene) {
         width = rasterWidth,
         height = rasterHeight,
         background = scene.background,
-        font = scene.font
+        font = scene.font,
     )
     val image = BufferedImage(rasterWidth, rasterHeight, BufferedImage.TYPE_INT_ARGB)
     var offset = 0
@@ -87,7 +87,7 @@ fun saveAwakeUiPreview(scene: AwakeUiPreviewScene) {
             escapedSummary,
             scene.metadata.width.toString(),
             scene.metadata.height.toString(),
-            scene.metadata.reportScale.toString()
+            scene.metadata.reportScale.toString(),
         ).joinToString("\t")
         val entries = linkedMapOf<String, String>()
         if (manifest.exists()) {

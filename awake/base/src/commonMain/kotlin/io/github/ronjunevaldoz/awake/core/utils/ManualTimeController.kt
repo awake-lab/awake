@@ -15,7 +15,7 @@ package io.github.ronjunevaldoz.awake.core.utils
  * `hours * (360f / HOURS_PER_CYCLE)` for a full-turn rotation).
  */
 class ManualTimeController(
-    private val hoursPerSecond: Float = DEFAULT_HOURS_PER_SECOND
+    private val hoursPerSecond: Float = DEFAULT_HOURS_PER_SECOND,
 ) {
     var autoPlay: Boolean = true
 

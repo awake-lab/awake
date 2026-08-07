@@ -4,5 +4,5 @@ package io.github.ronjunevaldoz.awake.vulkan.enums
 
 enum class VkSharingMode(val value: Int) {
     VK_SHARING_MODE_EXCLUSIVE(0),
-    VK_SHARING_MODE_CONCURRENT(1)
+    VK_SHARING_MODE_CONCURRENT(1),
 }

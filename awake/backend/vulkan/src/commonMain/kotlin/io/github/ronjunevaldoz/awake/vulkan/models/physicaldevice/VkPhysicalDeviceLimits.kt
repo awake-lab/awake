@@ -122,5 +122,5 @@ class VkPhysicalDeviceLimits @JvmOverloads constructor(
     val standardSampleLocations: VkBool32 = false,
     val optimalBufferCopyOffsetAlignment: VkDeviceSize = 0,
     val optimalBufferCopyRowPitchAlignment: VkDeviceSize = 0,
-    val nonCoherentAtomSize: VkDeviceSize = 0
+    val nonCoherentAtomSize: VkDeviceSize = 0,
 )

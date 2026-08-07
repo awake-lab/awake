@@ -3,10 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layouts.resolveAgainst
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 
 /** [resolveRootSlot] backs the root layout entry points in `layouts/RootLayouts.kt`
  * (`UiContext.column`/`row`/`box`/`absolute`) -- resolves a [UiModifier]'s requested
@@ -14,7 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 internal fun UiContext.resolveRootSlot(
     modifier: UiModifier,
     defaultWidth: Dimension = Dimension.FillMax,
-    defaultHeight: Dimension = Dimension.FillMax
+    defaultHeight: Dimension = Dimension.FillMax,
 ): UiBounds {
     val frame = frameBounds()
     val requestedWidth = modifier.widthDimension ?: defaultWidth
@@ -27,6 +27,6 @@ internal fun UiContext.resolveRootSlot(
         alignment = modifier.alignment ?: UiAlignment.TopStart,
         insets = modifier.insets,
         offsetX = modifier.offsetX.toPx(),
-        offsetY = modifier.offsetY.toPx()
+        offsetY = modifier.offsetY.toPx(),
     )
 }

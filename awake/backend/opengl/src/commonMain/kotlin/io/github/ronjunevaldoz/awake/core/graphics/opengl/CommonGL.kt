@@ -1,5 +1,7 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
+@file:Suppress("ktlint:standard:property-naming")
+
 package io.github.ronjunevaldoz.awake.core.graphics.opengl
 
 object CommonGL {

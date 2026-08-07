@@ -13,5 +13,5 @@ class VkDebugUtilsLabelEXT @JvmOverloads constructor(
     val pNext: Any? = null,
     val pLabelName: String? = null,
     @VkConstArray(arraySize = "4")
-    val color: FloatArray = FloatArray(4)
+    val color: FloatArray = FloatArray(4),
 )

@@ -19,7 +19,7 @@ class VkPipelineMultisampleStateCreateInfo(
     @VkPointer
     var pSampleMask: VkSampleMask = 0, // Optional
     var alphaToCoverageEnable: VkBool32 = false, // Optional
-    var alphaToOneEnable: VkBool32 = false // Optional
+    var alphaToOneEnable: VkBool32 = false, // Optional
 )
 
 typealias VkPipelineMultisampleStateCreateFlags = VkFlags

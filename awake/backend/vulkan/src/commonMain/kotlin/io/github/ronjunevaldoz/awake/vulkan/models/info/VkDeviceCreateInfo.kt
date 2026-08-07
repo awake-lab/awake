@@ -18,6 +18,6 @@ class VkDeviceCreateInfo(
     @field:VkArray(sizeAlias = "enabledExtensionCount")
     val ppEnabledExtensionNames: Array<String>? = null,
     @field:VkArray
-    val pEnabledFeatures: Array<VkPhysicalDeviceFeatures> = emptyArray()
+    val pEnabledFeatures: Array<VkPhysicalDeviceFeatures> = emptyArray(),
 )
 typealias VkDeviceCreateFlags = VkFlags

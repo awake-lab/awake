@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan.gen
 
+import cnames.structs.VkDescriptorPool_T
+import cnames.structs.VkDescriptorSetLayout_T
+import cnames.structs.VkDescriptorSet_T
+import cnames.structs.VkPipelineLayout_T
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorBufferInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorImageInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorPoolCreateInfo
@@ -14,10 +18,6 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toCPointer
 import kotlinx.cinterop.value
-import cnames.structs.VkDescriptorPool_T
-import cnames.structs.VkDescriptorSetLayout_T
-import cnames.structs.VkDescriptorSet_T
-import cnames.structs.VkPipelineLayout_T
 import platform.MoltenVK.VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO
 import platform.MoltenVK.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO
@@ -26,13 +26,6 @@ import platform.MoltenVK.VK_SUCCESS
 import platform.MoltenVK.VkDescriptorPoolVar
 import platform.MoltenVK.VkDescriptorSetLayoutVar
 import platform.MoltenVK.VkDescriptorSetVar
-import platform.MoltenVK.vkAllocateDescriptorSets as nativeVkAllocateDescriptorSets
-import platform.MoltenVK.vkCmdBindDescriptorSets as nativeVkCmdBindDescriptorSets
-import platform.MoltenVK.vkCreateDescriptorPool as nativeVkCreateDescriptorPool
-import platform.MoltenVK.vkCreateDescriptorSetLayout as nativeVkCreateDescriptorSetLayout
-import platform.MoltenVK.vkDestroyDescriptorPool as nativeVkDestroyDescriptorPool
-import platform.MoltenVK.vkDestroyDescriptorSetLayout as nativeVkDestroyDescriptorSetLayout
-import platform.MoltenVK.vkUpdateDescriptorSets as nativeVkUpdateDescriptorSets
 import platform.MoltenVK.VkDescriptorBufferInfo as NativeVkDescriptorBufferInfo
 import platform.MoltenVK.VkDescriptorImageInfo as NativeVkDescriptorImageInfo
 import platform.MoltenVK.VkDescriptorPoolCreateInfo as NativeVkDescriptorPoolCreateInfo
@@ -41,13 +34,20 @@ import platform.MoltenVK.VkDescriptorSetAllocateInfo as NativeVkDescriptorSetAll
 import platform.MoltenVK.VkDescriptorSetLayoutBinding as NativeVkDescriptorSetLayoutBinding
 import platform.MoltenVK.VkDescriptorSetLayoutCreateInfo as NativeVkDescriptorSetLayoutCreateInfo
 import platform.MoltenVK.VkWriteDescriptorSet as NativeVkWriteDescriptorSet
+import platform.MoltenVK.vkAllocateDescriptorSets as nativeVkAllocateDescriptorSets
+import platform.MoltenVK.vkCmdBindDescriptorSets as nativeVkCmdBindDescriptorSets
+import platform.MoltenVK.vkCreateDescriptorPool as nativeVkCreateDescriptorPool
+import platform.MoltenVK.vkCreateDescriptorSetLayout as nativeVkCreateDescriptorSetLayout
+import platform.MoltenVK.vkDestroyDescriptorPool as nativeVkDestroyDescriptorPool
+import platform.MoltenVK.vkDestroyDescriptorSetLayout as nativeVkDestroyDescriptorSetLayout
+import platform.MoltenVK.vkUpdateDescriptorSets as nativeVkUpdateDescriptorSets
 
 // Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md.
 @OptIn(ExperimentalForeignApi::class)
 actual object VulkanDescriptors {
     actual fun vkCreateDescriptorSetLayout(
         device: Long,
-        createInfo: VkDescriptorSetLayoutCreateInfo
+        createInfo: VkDescriptorSetLayoutCreateInfo,
     ): Long = memScoped {
         val bindings = createInfo.pBindings
         val nativeCreateInfo = alloc<NativeVkDescriptorSetLayoutCreateInfo>().apply {
@@ -122,7 +122,7 @@ actual object VulkanDescriptors {
         dstSet: Long,
         dstBinding: Int,
         descriptorType: Int,
-        bufferInfo: VkDescriptorBufferInfo
+        bufferInfo: VkDescriptorBufferInfo,
     ) = memScoped {
         val nativeBufferInfo = alloc<NativeVkDescriptorBufferInfo>().apply {
             buffer = bufferInfo.buffer.toCPointer()
@@ -149,7 +149,7 @@ actual object VulkanDescriptors {
         dstSet: Long,
         dstBinding: Int,
         descriptorType: Int,
-        imageInfo: VkDescriptorImageInfo
+        imageInfo: VkDescriptorImageInfo,
     ) = memScoped {
         val nativeImageInfo = alloc<NativeVkDescriptorImageInfo>().apply {
             sampler = imageInfo.sampler.toCPointer()
@@ -175,7 +175,7 @@ actual object VulkanDescriptors {
         commandBuffer: Long,
         pipelineLayout: Long,
         firstSet: Int,
-        descriptorSet: Long
+        descriptorSet: Long,
     ) = memScoped {
         val nativeDescriptorSet = descriptorSet.toCPointer<VkDescriptorSet_T>()
         val sets = allocArray<CPointerVar<VkDescriptorSet_T>>(1) { _: Int -> value = nativeDescriptorSet }
@@ -187,7 +187,7 @@ actual object VulkanDescriptors {
             1u,
             sets,
             0u,
-            null
+            null,
         )
     }
 }

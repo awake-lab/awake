@@ -4,10 +4,10 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.textLayoutCacheStats
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.textLayoutCacheStats
 import kotlin.math.roundToInt
 
 /** Root-level full-viewport box for a [SceneGameRuntime] overlay -- same shape as
@@ -20,17 +20,17 @@ fun SceneGameRuntime.frame(
     viewportWidth: Float,
     viewportHeight: Float,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
-    block: BoxScope.(constraints: UiBoxConstraints) -> Unit
+    block: BoxScope.(constraints: UiBoxConstraints) -> Unit,
 ) {
     val rootSlot = UiBounds(0f, 0f, viewportWidth, viewportHeight)
     uiContext.createBox(
         slot = rootSlot,
-        contentAlignment = contentAlignment
+        contentAlignment = contentAlignment,
     ).block(
         UiBoxConstraints(
             maxWidthPx = viewportWidth,
-            maxHeightPx = viewportHeight
-        )
+            maxHeightPx = viewportHeight,
+        ),
     )
 }
 
@@ -41,7 +41,7 @@ data class SceneFrameStats(
     val fps: Float,
     val trialPasses: Int,
     val textCacheHits: Int,
-    val textCacheMisses: Int
+    val textCacheMisses: Int,
 ) {
     val textCacheTotal: Int get() = textCacheHits + textCacheMisses
     val textCacheHitRatePercent: Int get() = if (textCacheTotal > 0) (textCacheHits * 100 / textCacheTotal) else 0
@@ -54,7 +54,7 @@ fun SceneGameRuntime.frameStats(): SceneFrameStats {
         fps = fps,
         trialPasses = UiMeasureTrialStats.trialCount,
         textCacheHits = cacheHits,
-        textCacheMisses = cacheMisses
+        textCacheMisses = cacheMisses,
     )
 }
 

@@ -3,14 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import kotlin.test.Test
 
 /** THROWAWAY probe -- not meant to stay in the suite; just prints real measured numbers. */
@@ -26,7 +26,7 @@ class TypographyPaddingProbeTest {
         val nodes = ui.semanticNodes()
         val node = nodes.first { it.label == "Hello" }
         println("=== fontSize=14dp (via style{textSize}) ===")
-        println("claimed slot bounds (returned) = ${claimed}")
+        println("claimed slot bounds (returned) = $claimed")
         println("semantic node.bounds (slot passed to renderTextBlock, post content-padding inset) = ${node.bounds}")
         println("semantic node.contentBounds (real glyph ink bbox) = ${node.contentBounds}")
         println("semantic node.clippedBounds = ${node.clippedBounds}")
@@ -60,7 +60,7 @@ class TypographyPaddingProbeTest {
                 "fontSize=${size}sp (via style{textSize}) -> node.bounds.height=${node.bounds.height} " +
                     "contentBounds.height=${node.contentBounds?.height} " +
                     "ratio(claimed/fontSize)=${node.bounds.height / size} " +
-                    "ratio(ink/fontSize)=${(node.contentBounds?.height ?: -1f) / size}"
+                    "ratio(ink/fontSize)=${(node.contentBounds?.height ?: -1f) / size}",
             )
         }
     }
@@ -75,7 +75,7 @@ class TypographyPaddingProbeTest {
             "Fixed height row text",
             modifier = Modifier.height(Dimension.Fixed(36f.dp)),
             style = Style { textSize(14f.sp) },
-            verticallyCentered = true
+            verticallyCentered = true,
         )
         ui.endFrame()
         println("=== fixed height(36dp) container ===")

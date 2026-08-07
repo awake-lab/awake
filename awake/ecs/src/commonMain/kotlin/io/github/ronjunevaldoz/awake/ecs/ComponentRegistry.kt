@@ -1,22 +1,5 @@
-/*
- * Awake
- * Awake.awake-ecs.commonMain
- *
- * Copyright (c) Ron June Valdoz
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ecs
 
 import kotlin.reflect.KClass
@@ -86,11 +69,9 @@ internal class ComponentRegistry {
     }
 
     @PublishedApi
-    internal fun pool(type: KClass<out Any>): ComponentPool<Any> {
-        return componentPools.getOrPut(type) {
-            ComponentPool {
-                createComponentInstance(type)
-            }
+    internal fun pool(type: KClass<out Any>): ComponentPool<Any> = componentPools.getOrPut(type) {
+        ComponentPool {
+            createComponentInstance(type)
         }
     }
 
@@ -100,25 +81,21 @@ internal class ComponentRegistry {
         return if (id < componentPoolsById.size) componentPoolsById[id] else null
     }
 
-    fun <T : Any> typeId(type: KClass<T>): ComponentTypeId {
-        return typeIds.getOrPut(type) {
-            require(typeIds.size < MAX_COMPONENT_TYPES) {
-                "Awake ECS currently supports up to $MAX_COMPONENT_TYPES component types per World."
-            }
-            val id = typeIds.size
-            ensurePoolCapacity(id)
-            componentPools[type]?.let { pool ->
-                componentPoolsById[id] = pool
-            }
-            val typeId = ComponentTypeId(id)
-            typeIdsByKey[componentTypeKeyOf(type)] = typeId
-            typeId
+    fun <T : Any> typeId(type: KClass<T>): ComponentTypeId = typeIds.getOrPut(type) {
+        require(typeIds.size < MAX_COMPONENT_TYPES) {
+            "Awake ECS currently supports up to $MAX_COMPONENT_TYPES component types per World."
         }
+        val id = typeIds.size
+        ensurePoolCapacity(id)
+        componentPools[type]?.let { pool ->
+            componentPoolsById[id] = pool
+        }
+        val typeId = ComponentTypeId(id)
+        typeIdsByKey[componentTypeKeyOf(type)] = typeId
+        typeId
     }
 
-    fun typeIdOrNull(type: KClass<out Any>): ComponentTypeId? {
-        return typeIds[type]
-    }
+    fun typeIdOrNull(type: KClass<out Any>): ComponentTypeId? = typeIds[type]
 
     /** Fast path for [World]'s reified `add`/`remove`/`get`/`has` sugar -- resolves (or
      * registers) a type id from [key] (see [componentTypeKey]) instead of a `KClass`, so the
@@ -134,9 +111,7 @@ internal class ComponentRegistry {
     /** Same lookup as [typeIdOrNull], but keyed by [componentTypeKey]'s token -- doesn't register
      * a new type on a miss, matching [typeIdOrNull]'s "unknown type means null, not a fresh id"
      * contract for `get`/`has`. */
-    fun typeIdForKeyOrNull(key: Any): ComponentTypeId? {
-        return typeIdsByKey[key]
-    }
+    fun typeIdForKeyOrNull(key: Any): ComponentTypeId? = typeIdsByKey[key]
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> store(typeId: ComponentTypeId, type: KClass<T>): ComponentStore<T> {
@@ -163,9 +138,7 @@ internal class ComponentRegistry {
      * already exist), this lazily creates the store via [type] if it's missing, since the reified
      * sugar has to work correctly on a brand-new component type's very first `add` with no prior
      * setup. [type] is only invoked on that first-ever miss. */
-    fun <T : Any> storeForKey(typeId: ComponentTypeId, type: () -> KClass<T>): ComponentStore<T> {
-        return storeOrNull(typeId) ?: store(typeId, type())
-    }
+    fun <T : Any> storeForKey(typeId: ComponentTypeId, type: () -> KClass<T>): ComponentStore<T> = storeOrNull(typeId) ?: store(typeId, type())
 
     fun removeEntity(entity: Entity, signature: Long) {
         if (signature == 0L) {

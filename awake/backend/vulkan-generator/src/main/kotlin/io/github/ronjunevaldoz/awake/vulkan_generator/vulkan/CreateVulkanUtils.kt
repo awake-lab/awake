@@ -20,7 +20,7 @@ fun createVulkanUtils(clazz: Class<*>) {
             className = clazz.simpleName + "Utils",
             fileDescription = "Vulkan utils for ${clazz.simpleName}",
             namespace = "awake",
-            disableClass = true
+            disableClass = true,
         ) {
             import("<jni.h>")
             import("<vulkan/vulkan.h>")
@@ -31,9 +31,13 @@ fun createVulkanUtils(clazz: Class<*>) {
 
             methods.filterNot { it.name.contains("Default", true) }.forEach { method ->
                 val returnType =
-                    if (method.returnType == Void.TYPE) "void" else method.returnType.toJavaType(
-                        true
-                    ).value
+                    if (method.returnType == Void.TYPE) {
+                        "void"
+                    } else {
+                        method.returnType.toJavaType(
+                            true,
+                        ).value
+                    }
                 val params = method.parameters.map { param ->
                     Pair(param.name, param.type.toJavaType(true).value)
                 }
@@ -42,12 +46,16 @@ fun createVulkanUtils(clazz: Class<*>) {
                     1,
                     returnType,
                     method.name.removePrefix("vk").replaceFirstChar { it.lowercase() },
-                    if (!method.name.startsWith("vkDestroy")) listOf(
-                        Pair(
-                            "env",
-                            "JNIEnv*"
-                        )
-                    ) + params else params
+                    if (!method.name.startsWith("vkDestroy")) {
+                        listOf(
+                            Pair(
+                                "env",
+                                "JNIEnv*",
+                            ),
+                        ) + params
+                    } else {
+                        params
+                    },
                 ) {
                     body(2) {
                         val vkReturnType = method.returnType.toVulkanType()
@@ -59,36 +67,36 @@ fun createVulkanUtils(clazz: Class<*>) {
                                 method,
                                 vkReturnType,
                                 vkMethodName,
-                                vkMethodParams
+                                vkMethodParams,
                             )
 
                             method.name.startsWith("vkGet") ||
-                                    method.name.startsWith("vkEnumerate")
+                                method.name.startsWith("vkEnumerate")
                             -> processVkGet(
                                 method,
                                 vkMethodName,
                                 vkMethodParams,
-                                import = { import(it) }
+                                import = { import(it) },
                             )
 
                             method.name.startsWith("vkDestroy") -> processVkDestroy(
                                 method,
                                 vkMethodName,
-                                vkMethodParams
+                                vkMethodParams,
                             )
 
                             method.name.contains("reset", true) ||
-                                    method.name.contains("wait", true) ||
-                                    method.name.startsWith("vkCmd")
+                                method.name.contains("wait", true) ||
+                                method.name.startsWith("vkCmd")
                             -> processVkCmd(
                                 vkMethodName,
-                                vkMethodParams
+                                vkMethodParams,
                             )
 
                             else -> processVkDefault(
                                 method,
                                 vkMethodName,
-                                vkMethodParams
+                                vkMethodParams,
                             )
                         }
 
@@ -125,23 +133,22 @@ fun createVulkanUtils(clazz: Class<*>) {
                     }
                 }
             }
-
         }
 
     val awakeVulkanCpp = "awake-backend-vulkan/src/main/cpp/vulkan-kotlin"
     FileWriter.writeFile(
         "$awakeVulkanCpp/includes/${clazz.simpleName + "Utils"}.h",
-        cppClassCode.first
+        cppClassCode.first,
     )
     FileWriter.writeFile(
         "$awakeVulkanCpp/${clazz.simpleName + "Utils"}.cpp",
-        cppClassCode.second
+        cppClassCode.second,
     )
 }
 
 private fun CppFunctionBodyBuilder.processParameters(
     method: Method,
-    import: (dependency: String) -> Unit
+    import: (dependency: String) -> Unit,
 ): List<String> {
     child("// process parameter??")
     val methodParams = mutableSetOf<String>()
@@ -216,7 +223,6 @@ private fun CppFunctionBodyBuilder.processParameters(
                     child("$accessor(env, ${param.name}).fromObject(info);")
                 }
             } else {
-
                 methodParams.add("vk${param.name}")
                 child("// default??")
                 child("${param.type.toVulkanType()} vk${param.name} = ${param.name};")
@@ -237,7 +243,7 @@ private fun CppFunctionBodyBuilder.processVkCreate(
     method: Method,
     returnTypeVulkan: String,
     methodName: String,
-    methodParams: String
+    methodParams: String,
 ) {
     child("// process create??")
     val params = if (methodParams.isNotEmpty()) "$methodParams, " else ""
@@ -284,7 +290,7 @@ private fun CppFunctionBodyBuilder.processVkCreate(
 private fun CppFunctionBodyBuilder.processVkAllocate(
     method: Method,
     methodName: String,
-    methodParams: String
+    methodParams: String,
 ) {
     child("// process allocate??")
     val handleReturnType = method.getDeclaredAnnotation(VkReturnType::class.java)
@@ -293,33 +299,33 @@ private fun CppFunctionBodyBuilder.processVkAllocate(
     } else {
         child("${method.returnType.toVulkanType()} handle;")
     }
-    child("${methodName}(${methodParams}, &handle);")
+    child("$methodName($methodParams, &handle);")
 }
 
 private fun CppFunctionBodyBuilder.processVkDestroy(
     method: Method,
     methodName: String,
-    methodParams: String
+    methodParams: String,
 ) {
     child("// process destroy??")
     if (method.isAnnotationPresent(VkSingleton::class.java)) {
         child("auto pfn$methodName = (PFN_$methodName) vkGetInstanceProcAddr (instance, \"$methodName\");")
-        child("pfn${methodName}(${methodParams}, nullptr);")
+        child("pfn$methodName($methodParams, nullptr);")
     } else {
-        child("${methodName}(${methodParams}, nullptr);")
+        child("$methodName($methodParams, nullptr);")
     }
 }
 
 private fun CppFunctionBodyBuilder.processVkCmd(methodName: String, methodParams: String) {
     child("// process cmd??")
-    child("${methodName}(${methodParams});")
+    child("$methodName($methodParams);")
 }
 
 private fun CppFunctionBodyBuilder.processVkGet(
     method: Method,
     methodName: String,
     methodParams: String,
-    import: (dependency: String) -> Unit
+    import: (dependency: String) -> Unit,
 ) {
     child("// process get??")
     val returnType = method.returnType
@@ -329,9 +335,9 @@ private fun CppFunctionBodyBuilder.processVkGet(
     if (returnType.isArray) {
         child("uint32_t count;")
         if (emptyParams) {
-            child("${methodName}(&count, nullptr);")
+            child("$methodName(&count, nullptr);")
         } else {
-            child("${methodName}(${methodParams}, &count, nullptr);")
+            child("$methodName($methodParams, &count, nullptr);")
         }
         if (method.isAnnotationPresent(VkReturnType::class.java)) {
             val handleReturnType = method.getDeclaredAnnotation(VkReturnType::class.java)
@@ -341,9 +347,9 @@ private fun CppFunctionBodyBuilder.processVkGet(
         }
 
         if (emptyParams) {
-            child("${methodName}(&count, vkArray.data());")
+            child("$methodName(&count, vkArray.data());")
         } else {
-            child("${methodName}(${methodParams}, &count, vkArray.data());")
+            child("$methodName($methodParams, &count, vkArray.data());")
         }
         // add dependency
         val clazzSig = returnType.componentType.name.replace(".", "/")
@@ -379,12 +385,12 @@ private fun CppFunctionBodyBuilder.processVkGet(
             child("$vulkanReturnType handle;")
         }
         if (returnType == Void.TYPE) {
-            child("${methodName}(${methodParams}, &handle);")
+            child("$methodName($methodParams, &handle);")
         } else {
             if (methodName.contains("Properties", true)) {
-                child("${methodName}(${methodParams}, &handle);")
+                child("$methodName($methodParams, &handle);")
             } else {
-                child("${methodName}(${methodParams}, &handle);")
+                child("$methodName($methodParams, &handle);")
             }
         }
     }
@@ -393,11 +399,11 @@ private fun CppFunctionBodyBuilder.processVkGet(
 private fun CppFunctionBodyBuilder.processVkDefault(
     method: Method,
     methodName: String,
-    methodParams: String
+    methodParams: String,
 ) {
     child("// process default??")
     if (method.returnType == Void.TYPE) {
-        child("VkResult result = ${methodName}(${methodParams});")
+        child("VkResult result = $methodName($methodParams);")
     } else {
         val handleReturnType = method.getDeclaredAnnotation(VkReturnType::class.java)
         if (handleReturnType != null) {
@@ -405,12 +411,9 @@ private fun CppFunctionBodyBuilder.processVkDefault(
         } else {
             child("${method.returnType.toVulkanType()} handle;")
         }
-        child("VkResult result = ${methodName}(${methodParams}, &handle);")
+        child("VkResult result = $methodName($methodParams, &handle);")
     }
     child("if(result != VK_SUCCESS){")
     child("    exception_utils::resultException(env, result, \"There was a problem executing $methodName\");")
     child("}")
 }
-
-
-

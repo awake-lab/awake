@@ -38,18 +38,18 @@ class WebGpuGameApplication(
      * exact same loaded shader source/vertex layout -- toggled on/off per frame via
      * `Renderer.wireframe`. `false` by default so a game that never uses it doesn't pay for
      * the extra pipeline object, mirroring `VulkanGameApplication`'s `wireframeSupport`. */
-    private val wireframeSupport: Boolean = false
+    private val wireframeSupport: Boolean = false,
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
     vertexFormat,
-    game
+    game,
 ) {
     constructor(
         shaderSet: GameShaderSet,
         vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
         game: Game,
-        wireframeSupport: Boolean = false
+        wireframeSupport: Boolean = false,
     ) : this(
         vertexShaderResourcePath = shaderSet.webGpu.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.webGpu.fragmentResourcePath,
@@ -57,7 +57,7 @@ class WebGpuGameApplication(
         game = game,
         vertexShaderEntryPoint = shaderSet.webGpu.vertexEntryPoint,
         fragmentShaderEntryPoint = shaderSet.webGpu.fragmentEntryPoint,
-        wireframeSupport = wireframeSupport
+        wireframeSupport = wireframeSupport,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -80,7 +80,7 @@ class WebGpuGameApplication(
             ByteArray(0),
             vertexFormat.strideBytes,
             vertexShaderEntryPoint,
-            fragmentShaderEntryPoint
+            fragmentShaderEntryPoint,
         )
         wireframeRenderPipeline = if (wireframeSupport) {
             RenderPipeline(
@@ -92,7 +92,7 @@ class WebGpuGameApplication(
                 vertexFormat.strideBytes,
                 vertexShaderEntryPoint,
                 fragmentShaderEntryPoint,
-                topology = GPUPrimitiveTopology.LineList
+                topology = GPUPrimitiveTopology.LineList,
             )
         } else {
             null
@@ -100,7 +100,7 @@ class WebGpuGameApplication(
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
-            readResourceBytes(DEBUG_LINE_SHADER_RESOURCE_PATH)
+            readResourceBytes(DEBUG_LINE_SHADER_RESOURCE_PATH),
         )
         val renderer = Renderer(
             graphicsDevice,
@@ -114,7 +114,7 @@ class WebGpuGameApplication(
             readResourceBytes(UI_ROUNDED_QUAD_SHADER_RESOURCE_PATH),
             0L,
             MAX_FRAMES_IN_FLIGHT,
-            wireframeRenderPipeline
+            wireframeRenderPipeline,
         )
 
         return BackendResources(
@@ -122,7 +122,7 @@ class WebGpuGameApplication(
             viewportSize = {
                 val renderingContext = graphicsDevice.wgpuContext.renderingContext
                 renderingContext.width.toFloat() to renderingContext.height.toFloat()
-            }
+            },
         )
     }
 

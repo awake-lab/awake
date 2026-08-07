@@ -4,9 +4,9 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.toPx
 
@@ -15,18 +15,18 @@ enum class UiInspectionIssueKind {
     PrimitiveOutsideFrame,
     GlyphMissingFont,
     ClipStackUnderflow,
-    ClipStackUnbalanced
+    ClipStackUnbalanced,
 }
 
 data class UiInspectionIssue(
     val kind: UiInspectionIssueKind,
     val primitiveIndex: Int? = null,
-    val message: String
+    val message: String,
 )
 
 data class UiInspectionReport(
     val frame: UiBounds,
-    val issues: List<UiInspectionIssue>
+    val issues: List<UiInspectionIssue>,
 ) {
     val isClean: Boolean get() = issues.isEmpty()
 
@@ -47,7 +47,7 @@ data class UiInspectionReport(
 fun inspectUiFrame(
     primitives: List<UiDrawPrimitive>,
     frame: UiBounds,
-    font: UiFont? = null
+    font: UiFont? = null,
 ): UiInspectionReport {
     val frameSlot = frame
     val issues = ArrayList<UiInspectionIssue>()
@@ -90,7 +90,7 @@ fun inspectUiFrame(
             primitive.x + primitive.offsetX - primitive.blurRadius - primitive.spread,
             primitive.y + primitive.offsetY - primitive.blurRadius - primitive.spread,
             primitive.w + (primitive.blurRadius + primitive.spread) * 2f,
-            primitive.h + (primitive.blurRadius + primitive.spread) * 2f
+            primitive.h + (primitive.blurRadius + primitive.spread) * 2f,
         )
         is UiDrawPrimitive.FilledPath -> primitive.path.bounds()
         is UiDrawPrimitive.StrokedPath -> strokedPathBounds(primitive.path, primitive.stroke.width.toPx())
@@ -106,7 +106,7 @@ fun inspectUiFrame(
                     addIssue(
                         UiInspectionIssueKind.InvalidPrimitiveBounds,
                         index,
-                        "clip rect has invalid bounds: ${primitive.rect}"
+                        "clip rect has invalid bounds: ${primitive.rect}",
                     )
                 } else {
                     clipStack.addLast(currentClip().intersect(primitive.rect))
@@ -117,7 +117,7 @@ fun inspectUiFrame(
                     addIssue(
                         UiInspectionIssueKind.InvalidPrimitiveBounds,
                         index,
-                        "clip path bounds have invalid bounds: ${primitive.boundsRect}"
+                        "clip path bounds have invalid bounds: ${primitive.boundsRect}",
                     )
                 } else {
                     clipStack.addLast(currentClip().intersect(primitive.boundsRect))
@@ -128,7 +128,7 @@ fun inspectUiFrame(
                     addIssue(
                         UiInspectionIssueKind.ClipStackUnderflow,
                         index,
-                        "clip pop has no matching push"
+                        "clip pop has no matching push",
                     )
                 } else {
                     clipStack.removeLast()
@@ -140,20 +140,20 @@ fun inspectUiFrame(
                     addIssue(
                         UiInspectionIssueKind.InvalidPrimitiveBounds,
                         index,
-                        "drawable primitive has invalid bounds: $bounds"
+                        "drawable primitive has invalid bounds: $bounds",
                     )
                 } else if (visibleOutsideFrame(bounds)) {
                     addIssue(
                         UiInspectionIssueKind.PrimitiveOutsideFrame,
                         index,
-                        "visible bounds $bounds exceed frame $frame"
+                        "visible bounds $bounds exceed frame $frame",
                     )
                 }
                 if (primitive is UiDrawPrimitive.Glyph && font == null) {
                     addIssue(
                         UiInspectionIssueKind.GlyphMissingFont,
                         index,
-                        "glyph primitives were emitted without a font atlas"
+                        "glyph primitives were emitted without a font atlas",
                     )
                 }
             }
@@ -164,7 +164,7 @@ fun inspectUiFrame(
         addIssue(
             UiInspectionIssueKind.ClipStackUnbalanced,
             null,
-            "frame ended with ${clipStack.size} unmatched clip push operations"
+            "frame ended with ${clipStack.size} unmatched clip push operations",
         )
     }
 
@@ -178,6 +178,6 @@ private fun strokedPathBounds(path: UiPath, strokeWidthPx: Float): io.github.ron
         x = bounds.x - inset,
         y = bounds.y - inset,
         width = bounds.width + inset * 2f,
-        height = bounds.height + inset * 2f
+        height = bounds.height + inset * 2f,
     )
 }

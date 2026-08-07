@@ -2,27 +2,27 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
-import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childColumn
-import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
-import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
+import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.scrollPanel
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.styleable
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.scrollPanel
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.toPx
 
 /**
  * Dispatches [column] and [surface] to one of three explicit container strategies, chosen by
@@ -49,7 +49,7 @@ internal fun UiScope.smartColumn(
     // out of this task's row()/column() scope, so cacheKey is simply unused (not incorrect) on
     // those paths.
     cacheKey: Any? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     if (modifier.scrollState != null && id != null) {
         return resolveScrollableContainer(id, modifier, style, verticalArrangement, content)
@@ -70,7 +70,7 @@ private fun UiScope.hasResolvedVisuals(
     modifier: UiModifier,
     effectiveStyle: Style,
     role: UiSemanticRole,
-    id: String?
+    id: String?,
 ): Boolean {
     // Avoid claiming a slot (which may be WrapContent) just to check hover. Use the forced
     // hover when provided, otherwise assume not hovered for this initial style resolution;
@@ -78,7 +78,7 @@ private fun UiScope.hasResolvedVisuals(
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: false,
         active = modifier.forceActive ?: (id?.let { isActive(it) } ?: false),
-        focused = modifier.forceFocus ?: (id?.let { context.isFocused(it) } ?: false)
+        focused = modifier.forceFocus ?: (id?.let { context.isFocused(it) } ?: false),
     )
     val visualDefaults = if (role == UiSemanticRole.Panel) context.currentTheme.components.surface else Style.Empty
     return (visualDefaults then effectiveStyle).resolve(styleState, context.currentTextStyle).let {
@@ -91,13 +91,13 @@ private fun UiScope.resolveScrollableContainer(
     modifier: UiModifier,
     style: Style,
     verticalArrangement: Arrangement,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = scrollPanel(
     id = id,
     modifier = modifier,
     style = style,
     verticalArrangement = verticalArrangement,
-    content = content
+    content = content,
 ).slot
 
 private fun UiScope.resolveVisualSurface(
@@ -106,7 +106,7 @@ private fun UiScope.resolveVisualSurface(
     effectiveStyle: Style,
     verticalArrangement: Arrangement,
     clipContent: Boolean,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
     val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
@@ -115,7 +115,7 @@ private fun UiScope.resolveVisualSurface(
         verticalArrangement = verticalArrangement,
         modifier = modifier.styleable(effectiveStyle).width(requestedWidth).height(requestedHeight),
         clipContent = clipContent,
-        content = content
+        content = content,
     )
 }
 
@@ -127,7 +127,7 @@ private fun UiScope.resolveMeasuredColumn(
     role: UiSemanticRole,
     horizontalAlignment: UiAlignment.Horizontal,
     cacheKey: Any? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val insets = modifier.insets
     // A weight()-tagged column's width (its host row's main axis) is never actually decided by
@@ -164,7 +164,7 @@ private fun UiScope.resolveMeasuredColumn(
             width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
             gap = verticalArrangement.baseSpacingPx(),
             insets = insets,
-            content = content
+            content = content,
         )
     } else {
         null
@@ -199,18 +199,18 @@ private fun UiScope.resolveMeasuredColumn(
         precomputedMeasured = measured,
         id = id,
         cacheKey = cacheKey,
-        content = content
+        content = content,
     )
     if (role != UiSemanticRole.None && id != null) {
         val styleState = MutableStyleState(
             hovered = modifier.forceHover ?: hitTest(rawSlot),
             active = modifier.forceActive ?: isActive(id),
-            focused = modifier.forceFocus ?: context.isFocused(id)
+            focused = modifier.forceFocus ?: context.isFocused(id),
         )
         val resolved = resolveStyle(
             style = effectiveStyle,
             defaults = if (role == UiSemanticRole.Panel) context.currentTheme.components.surface else Style.Empty,
-            state = styleState
+            state = styleState,
         )
         recordSemantic(
             role = role,
@@ -222,7 +222,7 @@ private fun UiScope.resolveMeasuredColumn(
             foregroundToken = resolved.foregroundToken,
             borderColor = resolved.borderColor,
             borderToken = resolved.borderColorToken,
-            borderRadius = resolved.shape.toPx()
+            borderRadius = resolved.shape.toPx(),
         )
     }
     return rawSlot
@@ -238,7 +238,7 @@ fun ColumnScope.column(
     // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
     // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
     cacheKey: Any? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = (this as UiScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
@@ -248,7 +248,7 @@ fun ColumnScope.column(
     clipContent = false,
     horizontalAlignment = horizontalAlignment,
     cacheKey = cacheKey,
-    content = content
+    content = content,
 )
 
 fun RowScope.column(
@@ -261,7 +261,7 @@ fun RowScope.column(
     // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
     // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
     cacheKey: Any? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = (this as UiScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
@@ -276,12 +276,12 @@ fun RowScope.column(
     // then honors over the row's real weighted share (see UiScopeMetrics.claimModifiedSlot).
     modifier.withSizeFallback(
         if (modifier.layoutWeight != null) Dimension.FillMax else Dimension.WrapContent,
-        Dimension.FillMax
+        Dimension.FillMax,
     ),
     clipContent = false,
     horizontalAlignment = horizontalAlignment,
     cacheKey = cacheKey,
-    content = content
+    content = content,
 )
 
 fun AbsoluteScope.column(
@@ -294,7 +294,7 @@ fun AbsoluteScope.column(
     // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
     // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
     cacheKey: Any? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = (this as UiScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
@@ -304,7 +304,7 @@ fun AbsoluteScope.column(
     clipContent = false,
     horizontalAlignment = horizontalAlignment,
     cacheKey = cacheKey,
-    content = content
+    content = content,
 )
 
 fun BoxScope.column(
@@ -317,7 +317,7 @@ fun BoxScope.column(
     // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
     // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
     cacheKey: Any? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = (this as UiScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
@@ -327,9 +327,8 @@ fun BoxScope.column(
     clipContent = false,
     horizontalAlignment = horizontalAlignment,
     cacheKey = cacheKey,
-    content = content
+    content = content,
 )
-
 
 fun UiScope.column(
     verticalArrangement: Arrangement = defaultArrangement(),
@@ -349,14 +348,14 @@ fun UiScope.column(
     // (UiWeightCacheConsistencyCheck) exists to catch -- to skip the trial on cache hits.
     id: String? = null,
     cacheKey: Any? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
     val slot = claimModifiedSlot(sizedModifier)
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: hitTest(slot),
         active = modifier.forceActive ?: false,
-        focused = modifier.forceFocus ?: false
+        focused = modifier.forceFocus ?: false,
     )
     val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
 
@@ -375,18 +374,19 @@ fun UiScope.column(
     // forces the plannedSlots branch below regardless of hasWeightedChild's value, so `||`
     // short-circuits the trial to the right whenever it does, skipping a full throwaway
     // execution of [content] the branch decision below never needed anyway.
-    val hasWeightedChild = effectiveArrangement.requiresMeasuredDistribution() || if (precomputedMeasured != null) {
-        precomputedMeasured.weights.any { it != null }
-    } else {
-        context.resolveHasWeightedChild(id, cacheKey) {
-            context.measureColumnContent(
-                width = slot.width,
-                gap = effectiveArrangement.baseSpacingPx(),
-                height = slot.height,
-                content = content
-            ).weights.any { it != null }
+    val hasWeightedChild = effectiveArrangement.requiresMeasuredDistribution() ||
+        if (precomputedMeasured != null) {
+            precomputedMeasured.weights.any { it != null }
+        } else {
+            context.resolveHasWeightedChild(id, cacheKey) {
+                context.measureColumnContent(
+                    width = slot.width,
+                    gap = effectiveArrangement.baseSpacingPx(),
+                    height = slot.height,
+                    content = content,
+                ).weights.any { it != null }
+            }
         }
-    }
     val scope = if (hasWeightedChild) {
         // The plannedSlots branch below positions children using real, final pixel sizes --
         // unlike the hasWeightedChild check above, this genuinely needs a trial at this column's
@@ -398,14 +398,14 @@ fun UiScope.column(
             // height already accounts for the gap before its next sibling.
             gap = effectiveArrangement.baseSpacingPx(),
             height = slot.height,
-            content = content
+            content = content,
         )
         val childHeights = resolveWeightedMainAxis(
             measuredSizes = measured.slots.map { it.height },
             weights = measured.weights,
             containerSize = slot.height,
             gap = effectiveArrangement.baseSpacingPx(),
-            fillsMainAxis = measured.fillsMainAxis
+            fillsMainAxis = measured.fillsMainAxis,
         )
         val occupiedHeight = childHeights.sum() + effectiveArrangement.baseSpacingPx() * (childHeights.size - 1).coerceAtLeast(0)
         val plan = effectiveArrangement.plan(slot.height, childHeights.size, occupiedHeight)
@@ -427,7 +427,7 @@ fun UiScope.column(
             hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
             overlayOnly = emitsToOverlay,
             plannedSlots = arrangedSlots,
-            horizontalAlignment = horizontalAlignment
+            horizontalAlignment = horizontalAlignment,
         )
     } else {
         childColumn(
@@ -436,7 +436,7 @@ fun UiScope.column(
             modifier = UiModifier(testTag = modifier.testTag),
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
             hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
-            horizontalAlignment = horizontalAlignment
+            horizontalAlignment = horizontalAlignment,
         )
     }
     // See the matching comment in UiScope.row() -- suppress recording while rendering this

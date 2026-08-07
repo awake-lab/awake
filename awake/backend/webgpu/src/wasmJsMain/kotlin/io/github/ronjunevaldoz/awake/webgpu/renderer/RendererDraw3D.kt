@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.webgpu.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
-import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
@@ -58,8 +57,14 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
 
     // vec4f (not vec3f) for both -- see triangle.wgsl's own Uniforms struct doc comment.
     val lightFloats = floatArrayOf(
-        light.direction.x, light.direction.y, light.direction.z, 0f,
-        light.color.x, light.color.y, light.color.z, 0f
+        light.direction.x,
+        light.direction.y,
+        light.direction.z,
+        0f,
+        light.color.x,
+        light.color.y,
+        light.color.z,
+        0f,
     )
 
     val encoder = device.createCommandEncoder()
@@ -72,16 +77,16 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                     view = colorView,
                     loadOp = GPULoadOp.Clear,
                     clearValue = clearColorValue,
-                    storeOp = GPUStoreOp.Store
-                )
+                    storeOp = GPUStoreOp.Store,
+                ),
             ),
             depthStencilAttachment = RenderPassDepthStencilAttachment(
                 view = requireNotNull(swapchainManager.depthTextureView),
                 depthClearValue = 1.0f,
                 depthLoadOp = GPULoadOp.Clear,
-                depthStoreOp = GPUStoreOp.Store
-            )
-        )
+                depthStoreOp = GPUStoreOp.Store,
+            ),
+        ),
     ) {
         setPipeline(pipeline)
         var drawIndex = 0
@@ -151,10 +156,10 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                     RenderPassColorAttachment(
                         view = colorView,
                         loadOp = GPULoadOp.Load,
-                        storeOp = GPUStoreOp.Store
-                    )
-                )
-            )
+                        storeOp = GPUStoreOp.Store,
+                    ),
+                ),
+            ),
         ) {
             // Walk this frame's runs (staged by drawUi(), see Renderer.UiRun's doc comment)
             // in original paint order, switching pipeline at each run boundary -- see

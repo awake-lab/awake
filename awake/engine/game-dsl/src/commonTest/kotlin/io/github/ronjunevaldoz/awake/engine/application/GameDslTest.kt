@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.application
 
-import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -113,7 +113,7 @@ class GameDslTest {
                     override fun install(into: GameSpecBuilder) {
                         into.service(String::class, "debug")
                     }
-                }
+                },
             )
         }
 
@@ -142,7 +142,7 @@ class GameDslTest {
         assertEquals("module-service", game.requireService(String::class))
         assertEquals(
             listOf("root-ready", "module-ready", "module-render", "module-dispose"),
-            events
+            events,
         )
     }
 
@@ -213,7 +213,7 @@ class GameDslTest {
                         into.render { _, _, _ -> events += "feature-render" }
                         into.dispose { events += "feature-dispose" }
                     }
-                }
+                },
             )
         }
 
@@ -228,9 +228,9 @@ class GameDslTest {
                 "root-render",
                 "feature-render",
                 "feature-dispose",
-                "root-dispose"
+                "root-dispose",
             ),
-            events
+            events,
         )
     }
 }

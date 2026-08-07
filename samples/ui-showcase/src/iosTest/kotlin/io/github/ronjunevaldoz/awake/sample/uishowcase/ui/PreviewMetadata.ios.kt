@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 
 internal actual fun previewMetadataFor(
     entry: AwakeUiPreviewEntry,
-    reportScale: Int
+    reportScale: Int,
 ): AwakeUiPreviewMetadata {
     // No reflection on iOS, return dummy metadata.
     // This is only used for validation tests in commonTest which might be skipped on iOS.
@@ -18,6 +18,6 @@ internal actual fun previewMetadataFor(
         summary = "Dummy",
         width = 1,
         height = 1,
-        reportScale = reportScale
+        reportScale = reportScale,
     )
 }

@@ -21,7 +21,7 @@ import io.ygdrasil.webgpu.TextureViewDescriptor
  */
 class SwapchainManager(
     graphicsDevice: GraphicsDevice,
-    val maxFramesInFlight: Int
+    val maxFramesInFlight: Int,
 ) {
     private val graphicsDevice = graphicsDevice
     var swapChain: Long = 0
@@ -80,8 +80,8 @@ class SwapchainManager(
             TextureDescriptor(
                 size = io.ygdrasil.webgpu.Extent3D(width = width, height = height),
                 format = GPUTextureFormat.Depth32Float,
-                usage = GPUTextureUsage.RenderAttachment
-            )
+                usage = GPUTextureUsage.RenderAttachment,
+            ),
         )
         depthTextureView = depthTextureHandle?.createView(TextureViewDescriptor())
         configuredWidth = width

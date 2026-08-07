@@ -3,12 +3,12 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.resolveRootSlot
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.resolveRootSlot
 
 /**
  * Root layout entry points from a [UiContext].
@@ -20,50 +20,49 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 fun UiContext.column(
     modifier: UiModifier = Modifier,
     verticalArrangement: Arrangement = defaultArrangement(),
-    block: ColumnScope.() -> Unit
+    block: ColumnScope.() -> Unit,
 ) {
     createColumn(
         slot = resolveRootSlot(modifier),
         verticalArrangement = verticalArrangement,
-        testTag = modifier.testTag
+        testTag = modifier.testTag,
     ).block()
 }
 
 fun UiContext.row(
     modifier: UiModifier = Modifier,
     horizontalArrangement: Arrangement = defaultArrangement(),
-    block: RowScope.() -> Unit
+    block: RowScope.() -> Unit,
 ) {
     createRow(
         slot = resolveRootSlot(modifier),
         horizontalArrangement = horizontalArrangement,
-        testTag = modifier.testTag
+        testTag = modifier.testTag,
     ).block()
 }
 
 fun UiContext.box(
     modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
-    block: BoxScope.() -> Unit
+    block: BoxScope.() -> Unit,
 ) {
     createBox(
         slot = resolveRootSlot(modifier),
         contentAlignment = contentAlignment,
-        testTag = modifier.testTag
+        testTag = modifier.testTag,
     ).block()
 }
 
 fun UiContext.absolute(
     modifier: UiModifier = Modifier,
-    block: AbsoluteScope.() -> Unit
+    block: AbsoluteScope.() -> Unit,
 ) {
     createAbsolute(
         slot = resolveRootSlot(
             modifier = modifier,
             defaultWidth = Dimension.Fixed(0.dp),
-            defaultHeight = Dimension.Fixed(0.dp)
+            defaultHeight = Dimension.Fixed(0.dp),
         ),
-        testTag = modifier.testTag
+        testTag = modifier.testTag,
     ).block()
 }
-

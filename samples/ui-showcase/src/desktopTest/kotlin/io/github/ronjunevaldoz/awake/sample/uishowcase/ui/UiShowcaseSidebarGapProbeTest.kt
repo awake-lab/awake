@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
@@ -86,7 +85,7 @@ class UiShowcaseSidebarGapProbeTest {
 
     private fun measureAfterToggle(
         pages: List<ShowcasePage>,
-        draw: ColumnScope.((ShowcasePage) -> Unit) -> Unit
+        draw: ColumnScope.((ShowcasePage) -> Unit) -> Unit,
     ) {
         val state = UiShowcaseRuntimeState()
         val theme = state.showcaseTheme()
@@ -105,7 +104,7 @@ class UiShowcaseSidebarGapProbeTest {
                 shadcnSidebar(
                     id = "probe-sidebar-toggle",
                     style = Style { shape(16f.dp) },
-                    modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.FillMax)
+                    modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.FillMax),
                 ) {
                     draw { }
                 }
@@ -138,7 +137,7 @@ class UiShowcaseSidebarGapProbeTest {
                 shadcnSidebar(
                     id = "probe-sidebar-multi",
                     style = Style { shape(16f.dp) },
-                    modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.FillMax)
+                    modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.FillMax),
                 ) {
                     draw { }
                 }
@@ -184,7 +183,7 @@ class UiShowcaseSidebarGapProbeTest {
 
     private fun measureGaps(
         pages: List<ShowcasePage>,
-        draw: ColumnScope.((ShowcasePage) -> Unit) -> Unit
+        draw: ColumnScope.((ShowcasePage) -> Unit) -> Unit,
     ): List<Float> {
         val state = UiShowcaseRuntimeState()
         val theme = state.showcaseTheme()
@@ -200,7 +199,7 @@ class UiShowcaseSidebarGapProbeTest {
                 shadcnSidebar(
                     id = "probe-sidebar",
                     style = Style { shape(16f.dp) },
-                    modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.FillMax)
+                    modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.FillMax),
                 ) {
                     draw { }
                 }
@@ -224,14 +223,14 @@ class UiShowcaseSidebarGapProbeTest {
 private fun ColumnScope.drawOldSidebarCategory(
     categoryName: String,
     pages: List<ShowcasePage>,
-    onSelect: (ShowcasePage) -> Unit
+    onSelect: (ShowcasePage) -> Unit,
 ) {
     var expanded by context.rememberStateValue("probe-sidebar-category", categoryName) { true }
     shadcnCollapsible(
         id = "probe-sidebar-category-$categoryName",
         title = categoryName,
         expanded = expanded,
-        onExpandedChange = { expanded = it }
+        onExpandedChange = { expanded = it },
     ) {
         pages.forEach { page ->
             oldSidebarPageButton(page, onSelect, startPadding = 24f.dp)
@@ -242,7 +241,7 @@ private fun ColumnScope.drawOldSidebarCategory(
 private fun ColumnScope.oldSidebarPageButton(
     page: ShowcasePage,
     onSelect: (ShowcasePage) -> Unit,
-    startPadding: io.github.ronjunevaldoz.awake.ui.Dp
+    startPadding: io.github.ronjunevaldoz.awake.ui.Dp,
 ) {
     if (
         shadcnButton(
@@ -252,7 +251,7 @@ private fun ColumnScope.oldSidebarPageButton(
             style = Style { contentPadding(start = startPadding, top = 0f.dp, end = 14f.dp, bottom = 0f.dp) },
             variant = ShadcnButtonVariant.Ghost,
             centered = false,
-            verticallyCentered = true
+            verticallyCentered = true,
         )
     ) {
         onSelect(page)
@@ -263,14 +262,14 @@ private fun ColumnScope.oldSidebarPageButton(
 private fun ColumnScope.drawNewSidebarCategory(
     categoryName: String,
     pages: List<ShowcasePage>,
-    onSelect: (ShowcasePage) -> Unit
+    onSelect: (ShowcasePage) -> Unit,
 ) {
     var expanded by context.rememberStateValue("probe-sidebar-category", categoryName) { true }
     shadcnCollapsible(
         id = "probe-sidebar-category-$categoryName",
         title = categoryName,
         expanded = expanded,
-        onExpandedChange = { expanded = it }
+        onExpandedChange = { expanded = it },
     ) {
         shadcnSidebarGroup {
             shadcnSidebarMenu {
@@ -280,7 +279,7 @@ private fun ColumnScope.drawNewSidebarCategory(
                         label = page.title,
                         active = false,
                         style = Style { contentPadding(start = 24f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp) },
-                        onClick = { onSelect(page) }
+                        onClick = { onSelect(page) },
                     )
                 }
             }

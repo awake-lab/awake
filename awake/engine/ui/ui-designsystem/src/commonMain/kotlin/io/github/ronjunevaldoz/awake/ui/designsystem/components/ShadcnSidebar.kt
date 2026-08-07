@@ -11,6 +11,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.SeparatorOrientation
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
@@ -31,9 +34,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.headless.SeparatorOrientation
-import io.github.ronjunevaldoz.awake.ui.headless.separator
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 
 /** Visual style for real shadcn's `Sidebar`: dedicated sidebar background/border tokens.
  * Content padding is 8dp (p-2 spec) matching real shadcn sidebar layout. */
@@ -63,12 +63,12 @@ fun UiScope.shadcnSidebar(
     expanded: Boolean = true,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) }
+    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) },
 )
 
 /** [shadcnSidebar] override for [ColumnScope]. */
@@ -79,12 +79,12 @@ fun ColumnScope.shadcnSidebar(
     expanded: Boolean = true,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) }
+    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) },
 )
 
 /** [shadcnSidebar] override for [RowScope]. */
@@ -95,12 +95,12 @@ fun RowScope.shadcnSidebar(
     expanded: Boolean = true,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) }
+    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) },
 )
 
 /** [shadcnSidebar] override for [BoxScope]. */
@@ -111,19 +111,19 @@ fun BoxScope.shadcnSidebar(
     expanded: Boolean = true,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) }
+    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) },
 )
 
 /** A labeled section within a [shadcnSidebar]'s body, matching real shadcn's `SidebarGroup`. */
 fun ColumnScope.shadcnSidebarGroup(
     modifier: UiModifier = Modifier,
     label: String? = null,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ) {
     column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(ShadcnSpacing.xs)) {
         if (label != null) {
@@ -136,7 +136,7 @@ fun ColumnScope.shadcnSidebarGroup(
 /** A vertical list container for [shadcnSidebarMenuItem] entries, matching real shadcn's `SidebarMenu`. */
 fun ColumnScope.shadcnSidebarMenu(
     modifier: UiModifier = Modifier,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ) {
     column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(ShadcnSpacing.xs)) {
         content()
@@ -152,7 +152,7 @@ fun ColumnScope.shadcnSidebarMenuItem(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     badge: String? = null,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ): Boolean {
     val resolvedTheme = theme.asShadcnTheme()
     return shadcnButton(
@@ -169,22 +169,22 @@ fun ColumnScope.shadcnSidebarMenuItem(
                     foreground(resolvedTheme.onSidebarAccent)
                 }
             }
-        ) then style,
+            ) then style,
         centered = false,
         verticallyCentered = true,
-        onClick = onClick
+        onClick = onClick,
     ) { slot ->
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp)),
         ) {
             shadcnText(
                 label,
                 modifier = Modifier.weight(1f),
                 muted = false,
                 maxLines = 1,
-                overflow = UiTextOverflow.Ellipsis
+                overflow = UiTextOverflow.Ellipsis,
             )
             badge?.let { shadcnBadge(it) }
         }
@@ -195,22 +195,22 @@ fun ColumnScope.shadcnSidebarMenuItem(
  * Renders a left vertical border line (`border-l border-sidebar-border`) with left padding (`pl-3.5`). */
 fun ColumnScope.shadcnSidebarMenuSub(
     modifier: UiModifier = Modifier,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ) {
     val palette = theme.asShadcnTheme().palette
     row(
-        modifier = modifier.fillMaxWidth().padding(start = 14f.dp, top = 0f.dp, end = 0f.dp, bottom = 0f.dp)
+        modifier = modifier.fillMaxWidth().padding(start = 14f.dp, top = 0f.dp, end = 0f.dp, bottom = 0f.dp),
     ) {
         separator(
             thickness = 1f.dp,
             color = palette.border.withAlpha(0.7f),
             modifier = Modifier.width(1f.dp).height(Dimension.FillMax),
-            orientation = SeparatorOrientation.Vertical
+            orientation = SeparatorOrientation.Vertical,
         )
         spacer(Modifier.width(8f.dp))
         column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2f.dp)
+            verticalArrangement = Arrangement.spacedBy(2f.dp),
         ) {
             content()
         }
@@ -223,7 +223,7 @@ fun ColumnScope.shadcnSidebarMenuSubItem(
     label: String,
     active: Boolean = false,
     modifier: UiModifier = Modifier,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ): Boolean {
     val resolvedTheme = theme.asShadcnTheme()
     return shadcnButton(
@@ -242,6 +242,6 @@ fun ColumnScope.shadcnSidebarMenuSubItem(
         },
         centered = false,
         verticallyCentered = true,
-        onClick = onClick
+        onClick = onClick,
     )
 }

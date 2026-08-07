@@ -58,5 +58,5 @@ sealed class VkClearColorValue : VkClearValue() {
 @VkUnionMember("depthStencil")
 data class VkClearDepthStencilValue(
     val depth: Float,
-    val stencil: Int
+    val stencil: Int,
 ) : VkClearValue()

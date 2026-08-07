@@ -1,12 +1,14 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.typography
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 fun UiScope.shadcnTextLines(
@@ -15,7 +17,7 @@ fun UiScope.shadcnTextLines(
     style: Style = Style.Empty,
     wrap: UiTextWrap = UiTextWrap.None,
     overflow: UiTextOverflow = if (wrap == UiTextWrap.None) UiTextOverflow.Ellipsis else UiTextOverflow.Clip,
-    maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE
+    maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
 ) {
     lines.forEach { line ->
         text(
@@ -24,7 +26,7 @@ fun UiScope.shadcnTextLines(
             style = style,
             wrap = wrap,
             overflow = overflow,
-            maxLines = maxLines
+            maxLines = maxLines,
         )
     }
 }

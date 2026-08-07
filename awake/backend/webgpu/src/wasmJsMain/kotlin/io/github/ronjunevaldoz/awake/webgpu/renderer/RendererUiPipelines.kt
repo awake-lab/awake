@@ -70,17 +70,17 @@ internal fun Renderer.ensureUniformResources(pipeline: GPURenderPipeline) {
     val buffer = device.createBuffer(
         BufferDescriptor(
             size = (UNIFORM_FLOAT_COUNT * Float.SIZE_BYTES).toULong(),
-            usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst
-        )
+            usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst,
+        ),
     )
     uniformBuffer = buffer
     uniformBindGroup = device.createBindGroup(
         BindGroupDescriptor(
             layout = pipeline.getBindGroupLayout(0u),
             entries = listOf(
-                BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = buffer))
-            )
-        )
+                BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = buffer)),
+            ),
+        ),
     )
 }
 
@@ -97,16 +97,16 @@ internal fun Renderer.ensureWireframeUniformResources(pipeline: GPURenderPipelin
     val buffer = device.createBuffer(
         BufferDescriptor(
             size = (UNIFORM_FLOAT_COUNT * Float.SIZE_BYTES).toULong(),
-            usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst
-        )
+            usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst,
+        ),
     )
     wireframeUniformBuffer = buffer
     wireframeUniformBindGroup = device.createBindGroup(
         BindGroupDescriptor(
             layout = pipeline.getBindGroupLayout(0u),
             entries = listOf(
-                BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = buffer))
-            )
-        )
+                BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = buffer)),
+            ),
+        ),
     )
 }

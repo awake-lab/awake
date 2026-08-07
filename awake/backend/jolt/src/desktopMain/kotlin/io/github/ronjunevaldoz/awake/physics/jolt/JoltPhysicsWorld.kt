@@ -63,6 +63,7 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
     private val bodyInterface: BodyInterface
     private val tempAllocator: TempAllocator = TempAllocatorMalloc()
     private val jobSystem: JobSystem
+
     // Every body this PhysicsWorld created, so syncTransforms() knows what to read back and
     // destroy() knows what to tear down -- jolt-jni's PhysicsSystem itself doesn't expose an
     // "iterate my bodies" call cheap enough to lean on instead (getBodies() copies into a
@@ -80,13 +81,21 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
             mapObjectToBroadPhaseLayer(OBJECT_LAYER_NON_MOVING, 0)
         }
         val objectVsBroadPhaseLayerFilter = ObjectVsBroadPhaseLayerFilterTable(
-            broadPhaseLayerInterface, NUM_BROADPHASE_LAYERS, objectLayerPairFilter, NUM_OBJECT_LAYERS
+            broadPhaseLayerInterface,
+            NUM_BROADPHASE_LAYERS,
+            objectLayerPairFilter,
+            NUM_OBJECT_LAYERS,
         )
 
         physicsSystem = PhysicsSystem().apply {
             init(
-                MAX_BODIES, 0, MAX_BODY_PAIRS, MAX_CONTACTS,
-                broadPhaseLayerInterface, objectVsBroadPhaseLayerFilter, objectLayerPairFilter
+                MAX_BODIES,
+                0,
+                MAX_BODY_PAIRS,
+                MAX_CONTACTS,
+                broadPhaseLayerInterface,
+                objectVsBroadPhaseLayerFilter,
+                objectLayerPairFilter,
             )
             setGravity(gravity.x, gravity.y, gravity.z)
         }
@@ -100,11 +109,13 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
         shape: PhysicsShape,
         position: Vec3,
         rotation: Vec3,
-        motionType: MotionType
+        motionType: MotionType,
     ): BodyHandle {
         val joltShape = when (shape) {
             is BoxShape -> com.github.stephengold.joltjni.BoxShape(
-                shape.halfExtents.x, shape.halfExtents.y, shape.halfExtents.z
+                shape.halfExtents.x,
+                shape.halfExtents.y,
+                shape.halfExtents.z,
             )
             is SphereShape -> com.github.stephengold.joltjni.SphereShape(shape.radius)
         }
@@ -154,7 +165,7 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
             BodyTransform(
                 handle = BodyHandle(id.toLong()),
                 position = Vec3(position.x(), position.y(), position.z()),
-                rotation = quatToEulerVec3(rotation.w, rotation.x, rotation.y, rotation.z)
+                rotation = quatToEulerVec3(rotation.w, rotation.x, rotation.y, rotation.z),
             )
         }
     }
@@ -164,7 +175,7 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
         val castVector = com.github.stephengold.joltjni.Vec3(
             normalizedDirection.x * maxDistance,
             normalizedDirection.y * maxDistance,
-            normalizedDirection.z * maxDistance
+            normalizedDirection.z * maxDistance,
         )
         val rRayCast = RRayCast(RVec3(origin.x.toDouble(), origin.y.toDouble(), origin.z.toDouble()), castVector)
         val result = RayCastResult()
@@ -175,7 +186,7 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
         val point = Vec3(
             origin.x + normalizedDirection.x * distance,
             origin.y + normalizedDirection.y * distance,
-            origin.z + normalizedDirection.z * distance
+            origin.z + normalizedDirection.z * distance,
         )
         return RaycastHit(BodyHandle(result.bodyId.toLong()), point, distance)
     }

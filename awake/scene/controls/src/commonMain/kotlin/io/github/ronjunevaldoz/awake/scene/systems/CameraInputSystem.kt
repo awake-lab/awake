@@ -23,7 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.context.blocksGameplayKeys
 class CameraInputSystem(
     private val inputProvider: () -> InputSnapshot,
     private val uiResultProvider: () -> UiInputOwnership,
-    private val modeKeys: Map<Key, CameraMode> = DEFAULT_MODE_KEYS
+    private val modeKeys: Map<Key, CameraMode> = DEFAULT_MODE_KEYS,
 ) : System {
     override fun update(world: World, delta: Float) {
         // The edges come from InputSnapshot, which recomputes them every frame regardless of
@@ -48,7 +48,7 @@ class CameraInputSystem(
             Key.F1 to CameraMode.FirstPerson,
             Key.F2 to CameraMode.ThirdPerson,
             Key.F4 to CameraMode.Cinematic,
-            Key.F5 to CameraMode.TopDown
+            Key.F5 to CameraMode.TopDown,
         )
     }
 }

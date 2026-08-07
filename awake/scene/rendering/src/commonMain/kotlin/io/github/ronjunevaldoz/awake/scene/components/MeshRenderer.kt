@@ -7,5 +7,5 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 
 data class MeshRenderer(
     val mesh: Mesh,
-    val material: Material
+    val material: Material,
 )

@@ -28,7 +28,7 @@ class GltfViewerScalePositionsTest {
         assertEquals(
             floatArrayOf(2f, 4f, 6f, 0f, 1f, 0f, 1f, 0.5f, 0.25f, 0.75f, 0.1f).toList(),
             result.toList(),
-            "position scaled by 2x, normal, color, and uv left exactly as they were"
+            "position scaled by 2x, normal, color, and uv left exactly as they were",
         )
     }
 
@@ -37,7 +37,7 @@ class GltfViewerScalePositionsTest {
         // Two vertices back to back -- confirms the stride walk doesn't drift after the first one.
         val source = floatArrayOf(
             1f, 0f, 0f, 0f, 0f, 1f, 1f, 1f, 1f, 0f, 0f,
-            0f, 1f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 1f, 1f
+            0f, 1f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 1f, 1f,
         )
 
         val result = GltfViewerDemo.scalePositions(source, 0.5f)
@@ -45,9 +45,9 @@ class GltfViewerScalePositionsTest {
         assertEquals(
             floatArrayOf(
                 0.5f, 0f, 0f, 0f, 0f, 1f, 1f, 1f, 1f, 0f, 0f,
-                0f, 0.5f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 1f, 1f
+                0f, 0.5f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 1f, 1f,
             ).toList(),
-            result.toList()
+            result.toList(),
         )
     }
 

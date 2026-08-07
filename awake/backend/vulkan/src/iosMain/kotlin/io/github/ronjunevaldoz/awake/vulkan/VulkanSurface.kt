@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan
 
+import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
+import kotlinx.cinterop.CPointed
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
-import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.CPointed
 import kotlinx.cinterop.interpretCPointer
+import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.objcPtr
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toCPointer
-import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import kotlinx.cinterop.useContents
 import kotlinx.cinterop.value
 import platform.MoltenVK.VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT

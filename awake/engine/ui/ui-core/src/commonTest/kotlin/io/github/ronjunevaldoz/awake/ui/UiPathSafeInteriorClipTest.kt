@@ -44,7 +44,7 @@ class UiPathSafeInteriorClipTest {
         assertTrue(
             exactlyClipped.points.all { it in rawPoints },
             "interior glyph's exact-clip introduced a new vertex -- safe-interior classification was wrong: " +
-                "${exactlyClipped.points}"
+                "${exactlyClipped.points}",
         )
     }
 
@@ -112,7 +112,7 @@ class UiPathSafeInteriorClipTest {
             "glyph exact-clip cost, $glyphCount glyphs in a RoundedRectangle(8dp) card " +
                 "($skippable/$glyphCount safely interior):\n" +
                 "  before (always exact-clip): ${beforeMsPerFrame.format3Decimals()}ms/frame\n" +
-                "  after  (skip when safe):    ${afterMsPerFrame.format3Decimals()}ms/frame"
+                "  after  (skip when safe):    ${afterMsPerFrame.format3Decimals()}ms/frame",
         )
 
         check(skippable > glyphCount / 2) {
@@ -124,7 +124,7 @@ class UiPathSafeInteriorClipTest {
         x = bounds.x + margin,
         y = bounds.y + margin,
         width = (bounds.width - 2f * margin).coerceAtLeast(0f),
-        height = (bounds.height - 2f * margin).coerceAtLeast(0f)
+        height = (bounds.height - 2f * margin).coerceAtLeast(0f),
     )
 
     private fun quadMesh(bounds: UiBounds): UiTriangleMesh = UiTriangleMesh(
@@ -132,9 +132,9 @@ class UiPathSafeInteriorClipTest {
             UiPoint(bounds.x, bounds.y),
             UiPoint(bounds.x + bounds.width, bounds.y),
             UiPoint(bounds.x + bounds.width, bounds.y + bounds.height),
-            UiPoint(bounds.x, bounds.y + bounds.height)
+            UiPoint(bounds.x, bounds.y + bounds.height),
         ),
-        indices = intArrayOf(0, 1, 2, 2, 3, 0)
+        indices = intArrayOf(0, 1, 2, 2, 3, 0),
     )
 }
 

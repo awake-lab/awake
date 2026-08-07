@@ -3,11 +3,9 @@
 package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
-import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
-import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
@@ -32,6 +30,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
 import kotlin.math.abs
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 
 /** The 3D frame path -- [Renderer.draw]'s whole-frame orchestration (wait/acquire -> update
  * uniforms -> record -> submit -> present), the shared per-draw-call recording loop, the
@@ -87,7 +86,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
         pWaitSemaphores = waitSemaphores,
         pWaitDstStageMask = waitStages,
         pCommandBuffers = arrayOf(commandBuffers[currentFrame]),
-        pSignalSemaphores = signalSemaphores
+        pSignalSemaphores = signalSemaphores,
     )
 
     Vulkan.vkQueueSubmit(graphicsQueue, arrayOf(submitInfo), swapchainManager.inFlightFences[currentFrame])
@@ -96,7 +95,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
         pWaitSemaphores = signalSemaphores,
         pSwapchains = arrayOf(swapchainManager.swapChain),
         pImageIndices = intArrayOf(imageIndex),
-        pResults = VkResult.values()
+        pResults = VkResult.values(),
     )
 
     try {
@@ -126,7 +125,7 @@ internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<Prepa
             commandBuffer,
             prepared.pipeline.pipelineLayout,
             prepared.frameIndex,
-            prepared.uniformSlotIndex
+            prepared.uniformSlotIndex,
         )
         prepared.drawCall.mesh.draw(commandBuffer)
         drawIndex += 1
@@ -137,7 +136,7 @@ internal fun Renderer.recordCommandBuffer(
     commandBuffer: Long,
     frameIndex: Int,
     acquiredImageIndex: Int,
-    drawCalls: List<PreparedDrawCall>
+    drawCalls: List<PreparedDrawCall>,
 ) {
     val beginInfo = VkCommandBufferBeginInfo(
         flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value,
@@ -148,14 +147,14 @@ internal fun Renderer.recordCommandBuffer(
         renderPass = renderPipeline.renderPass,
         framebuffer = framebuffers[acquiredImageIndex],
         renderArea = VkRect2D(
-            extent = swapchainManager.extent
+            extent = swapchainManager.extent,
         ),
-        pClearValues = arrayOf(clearColorValue, Renderer.clearDepthValue)
+        pClearValues = arrayOf(clearColorValue, Renderer.clearDepthValue),
     )
     Vulkan.vkCmdBeginRenderPass(
         commandBuffer,
         renderPassInfo,
-        VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE
+        VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE,
     )
 
     // Grouped by resolved pipeline (see prepareDrawCalls) instead of 3 hardcoded blocks --
@@ -178,7 +177,7 @@ internal fun Renderer.recordCommandBuffer(
     )
     Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
     val scissor = VkRect2D(
-        extent = swapchainManager.extent
+        extent = swapchainManager.extent,
     )
     Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
     recordDrawCalls(commandBuffer, groupedDrawCalls[primaryPipeline] ?: emptyList())
@@ -209,7 +208,7 @@ internal fun Renderer.recordCommandBuffer(
         val uiRenderPassInfo = VkRenderPassBeginInfo(
             renderPass = uiPipeline.renderPass,
             framebuffer = uiFramebuffers[acquiredImageIndex],
-            renderArea = VkRect2D(extent = swapchainManager.extent)
+            renderArea = VkRect2D(extent = swapchainManager.extent),
         )
         Vulkan.vkCmdBeginRenderPass(commandBuffer, uiRenderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
         Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
@@ -262,7 +261,7 @@ internal fun Renderer.recordCommandBuffer(
                     val height = run.rect.height.toInt().coerceAtLeast(0).coerceAtMost(maxY - y)
                     val scissor = VkRect2D(
                         offset = VkOffset2D(x, y),
-                        extent = VkExtent2D(width, height)
+                        extent = VkExtent2D(width, height),
                     )
                     Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
                 }
@@ -282,7 +281,7 @@ internal fun Renderer.recordCommandBuffer(
                                 frameIndex,
                                 textureSlotIndex,
                                 material.samplerHandle,
-                                material.imageViewHandle
+                                material.imageViewHandle,
                             )
                             mesh.update(frameIndex, primitive.vertices, primitive.indices)
                             mesh.bind(frameIndex, commandBuffer)
@@ -301,12 +300,12 @@ internal fun Renderer.recordCommandBuffer(
         val presentTransitionPassInfo = VkRenderPassBeginInfo(
             renderPass = presentTransitionRenderPass,
             framebuffer = presentTransitionFramebuffers[acquiredImageIndex],
-            renderArea = VkRect2D(extent = swapchainManager.extent)
+            renderArea = VkRect2D(extent = swapchainManager.extent),
         )
         Vulkan.vkCmdBeginRenderPass(
             commandBuffer,
             presentTransitionPassInfo,
-            VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE
+            VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE,
         )
         Vulkan.vkCmdEndRenderPass(commandBuffer)
     }
@@ -329,7 +328,7 @@ internal data class PreparedDrawCall(
     val pipeline: RenderPipeline,
     val material: Material,
     val frameIndex: Int,
-    val uniformSlotIndex: Int
+    val uniformSlotIndex: Int,
 )
 
 /** Resolves each [drawCalls] entry against [Renderer.pipelinesByFormat] by its
@@ -359,15 +358,21 @@ internal fun Renderer.prepareDrawCalls(
     drawCalls: List<DrawCall>,
     light: SceneLight,
     lightViewProjection: Mat4? = null,
-    materialUsage: MutableMap<RenderMaterial, Int> = mutableMapOf()
+    materialUsage: MutableMap<RenderMaterial, Int> = mutableMapOf(),
 ): List<PreparedDrawCall> {
     val prepared = ArrayList<PreparedDrawCall>(drawCalls.size)
     // `vec4f` (not `vec3f`) for both fields on the WGSL side specifically to sidestep vec3's
     // implicit 16-byte alignment padding in a uniform-buffer struct -- see triangle.wgsl's own
     // Uniforms struct doc comment. The unused 4th float of each is simply never read there.
     val lightFloats = floatArrayOf(
-        light.direction.x, light.direction.y, light.direction.z, 0f,
-        light.color.x, light.color.y, light.color.z, 0f
+        light.direction.x,
+        light.direction.y,
+        light.direction.z,
+        0f,
+        light.color.x,
+        light.color.y,
+        light.color.z,
+        0f,
     )
     var drawIndex = 0
     while (drawIndex < drawCalls.size) {
@@ -432,7 +437,7 @@ private fun Renderer.lightViewProjection(light: SceneLight): Mat4 {
         top = SHADOW_ORTHO_HALF_SIZE,
         near = SHADOW_NEAR,
         far = SHADOW_FAR,
-        clipSpace = clipSpace
+        clipSpace = clipSpace,
     )
     if (clipSpace.flipY) projection.m11 *= -1f
     return view * projection
@@ -458,7 +463,7 @@ internal fun Renderer.performShadowPass(drawCalls: List<PreparedDrawCall>) {
             renderPass = map.renderPass,
             framebuffer = map.framebuffer,
             renderArea = VkRect2D(extent = VkExtent2D(map.size, map.size)),
-            pClearValues = arrayOf(Renderer.clearDepthValue)
+            pClearValues = arrayOf(Renderer.clearDepthValue),
         )
         Vulkan.vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
         pipeline.bind(commandBuffer)
@@ -496,15 +501,15 @@ internal fun Renderer.runOffscreenCommands(block: (Long) -> Unit) {
             VkCommandBufferAllocateInfo(
                 commandPool = transferContext.commandPool.handle,
                 level = VkCommandBufferLevel.VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                commandBufferCount = 1
-            )
+                commandBufferCount = 1,
+            ),
         )
         offscreenFence = Vulkan.vkCreateFence(device, VkFenceCreateInfo())
     }
     Vulkan.vkResetCommandBuffer(offscreenCommandBuffer, 0)
     Vulkan.vkBeginCommandBuffer(
         offscreenCommandBuffer,
-        VkCommandBufferBeginInfo(flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value)
+        VkCommandBufferBeginInfo(flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value),
     )
     block(offscreenCommandBuffer)
     Vulkan.vkEndCommandBuffer(offscreenCommandBuffer)
@@ -513,7 +518,7 @@ internal fun Renderer.runOffscreenCommands(block: (Long) -> Unit) {
     Vulkan.vkQueueSubmit(
         graphicsQueue,
         arrayOf(VkSubmitInfo(pCommandBuffers = arrayOf(offscreenCommandBuffer))),
-        offscreenFence
+        offscreenFence,
     )
     Vulkan.vkWaitForFences(device, longArrayOf(offscreenFence), true, Long.MAX_VALUE)
 }
@@ -541,7 +546,7 @@ internal fun Renderer.performDrawDebugLines(lines: List<LineSegment>) {
             line.end.x,
             line.end.y,
             line.end.z,
-            line.color
+            line.color,
         )
         lineIndex += 1
     }

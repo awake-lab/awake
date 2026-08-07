@@ -3,25 +3,25 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.graphics.emitShimmerOverlay
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.emitShimmerOverlay
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.PI
 import kotlin.math.sin
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 private const val SKELETON_PULSE_PERIOD_SECONDS = 1.6f
 private const val SKELETON_PULSE_MIN_ALPHA = 0.5f
@@ -37,7 +37,7 @@ fun UiScope.skeleton(
     id: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    shimmer: Boolean = false
+    shimmer: Boolean = false,
 ) {
     val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(16f.dp)))
     val resolved = resolveStyle(style = style, defaults = theme.components.slider)
@@ -53,7 +53,7 @@ fun UiScope.skeleton(
         fillColor = baseColor.withAlpha(baseColor.a * pulse),
         radiusPx = radiusPx,
         borderWidth = UiShape.none,
-        borderColor = Color.Transparent
+        borderColor = Color.Transparent,
     )
     if (shimmer) {
         emitShimmerOverlay(id = id, slot = slot, radiusPx = radiusPx)
@@ -62,6 +62,6 @@ fun UiScope.skeleton(
     recordSemantic(
         role = UiSemanticRole.Skeleton,
         id = id,
-        bounds = slot
+        bounds = slot,
     )
 }

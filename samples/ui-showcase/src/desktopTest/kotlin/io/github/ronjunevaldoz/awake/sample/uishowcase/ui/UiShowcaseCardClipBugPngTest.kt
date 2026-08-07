@@ -60,7 +60,7 @@ class UiShowcaseCardClipBugPngTest {
                     contentPadding(16f.dp)
                     borderWidth(0f.dp)
                 },
-                modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.WrapContent)
+                modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.WrapContent),
             ) {
                 row(horizontalArrangement = Arrangement.SpaceBetween) {
                     shadcnBadge("LIVE", variant = ShadcnBadgeVariant.Primary)
@@ -69,19 +69,19 @@ class UiShowcaseCardClipBugPngTest {
                 shadcnBodyText("Showcase Preview Card")
                 row(
                     horizontalArrangement = Arrangement.spacedBy(10f.dp),
-                    modifier = Modifier.height(36f.dp)
+                    modifier = Modifier.height(36f.dp),
                 ) {
                     shadcnButton(
                         id = "clip-repro-primary",
                         label = "Inspect",
                         modifier = Modifier.width(100f.dp).height(36f.dp),
-                        variant = ShadcnButtonVariant.Primary
+                        variant = ShadcnButtonVariant.Primary,
                     )
                     shadcnButton(
                         id = "clip-repro-secondary",
                         label = "Publish",
                         modifier = Modifier.width(100f.dp).height(36f.dp),
-                        variant = ShadcnButtonVariant.Outline
+                        variant = ShadcnButtonVariant.Outline,
                     )
                 }
             }
@@ -95,12 +95,12 @@ class UiShowcaseCardClipBugPngTest {
                 summary = "Corner-radius content clip repro at the slider's max radius.",
                 width = 420,
                 height = 220,
-                reportScale = 2
+                reportScale = 2,
             ),
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
         saveAwakeUiPreview(scene)
     }

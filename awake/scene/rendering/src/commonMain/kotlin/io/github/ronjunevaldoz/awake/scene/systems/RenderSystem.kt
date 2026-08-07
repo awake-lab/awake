@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.systems
 
+import io.github.ronjunevaldoz.awake.ecs.System
+import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
-import io.github.ronjunevaldoz.awake.ecs.System
-import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.Light
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
@@ -16,7 +16,7 @@ import io.github.ronjunevaldoz.awake.scene.components.Transform
 import kotlin.collections.ArrayList
 
 class RenderSystem(
-    private val renderer: Renderer
+    private val renderer: Renderer,
 ) : System {
     private val drawCalls = ArrayList<DrawCall>()
 
@@ -35,11 +35,11 @@ class RenderSystem(
                         mesh = meshRenderer.mesh,
                         material = meshRenderer.material,
                         model = transform.worldMatrix,
-                        extraUniformFloats = pose.jointPalette
+                        extraUniformFloats = pose.jointPalette,
                     )
                 } else {
                     DrawCall(mesh = meshRenderer.mesh, material = meshRenderer.material, model = transform.worldMatrix)
-                }
+                },
             )
         }
         renderer.draw(camera.camera, drawCalls, sceneLight(world))

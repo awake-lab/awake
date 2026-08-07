@@ -62,5 +62,5 @@ data class VkPhysicalDeviceFeatures @JvmOverloads constructor(
     val sparseResidency16Samples: VkBool32 = false,
     val sparseResidencyAliased: VkBool32 = false,
     val variableMultisampleRate: VkBool32 = false,
-    val inheritedQueries: VkBool32 = false
+    val inheritedQueries: VkBool32 = false,
 )

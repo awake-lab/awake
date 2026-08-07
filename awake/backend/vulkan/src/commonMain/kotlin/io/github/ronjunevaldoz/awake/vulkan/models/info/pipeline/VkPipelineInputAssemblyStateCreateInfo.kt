@@ -12,7 +12,7 @@ data class VkPipelineInputAssemblyStateCreateInfo(
     val pNext: Any? = null,
     val flags: VkPipelineInputAssemblyStateCreateFlags = 0,
     val topology: VkPrimitiveTopology = VkPrimitiveTopology.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-    val primitiveRestartEnable: VkBool32 = false
+    val primitiveRestartEnable: VkBool32 = false,
 )
 
-typealias  VkPipelineInputAssemblyStateCreateFlags = VkFlags
+typealias VkPipelineInputAssemblyStateCreateFlags = VkFlags

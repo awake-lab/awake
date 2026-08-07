@@ -15,7 +15,7 @@ class Texture(
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     data: ByteArray,
     width: Int,
-    height: Int
+    height: Int,
 ) {
     var image: ImageHandle = ImageHandle(0)
     var imageMemory: DeviceMemoryHandle = DeviceMemoryHandle(0)

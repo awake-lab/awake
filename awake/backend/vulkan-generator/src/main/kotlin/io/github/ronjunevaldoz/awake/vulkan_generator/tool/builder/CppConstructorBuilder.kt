@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.vulkan_generator.tool.dsl.CppFunctionDSL
 class CppConstructorBuilder(
     private val explicit: Boolean = false,
     private val indent: Int = 1,
-    private val withInterface: Boolean
+    private val withInterface: Boolean,
 ) {
     private var parameters: List<Pair<String, String>> = emptyList()
     private val body = StringBuilder()

@@ -24,7 +24,7 @@ enum class UiSemanticRole {
     Panel,
     ScrollPanel,
     Skeleton,
-    Spinner
+    Spinner,
 }
 
 /**
@@ -48,5 +48,5 @@ data class UiSemanticNode(
     val borderToken: String? = null,
     val borderRadius: Float? = null,
     val shadowToken: String? = null,
-    val textStyleToken: String? = null
+    val textStyleToken: String? = null,
 )

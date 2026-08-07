@@ -13,9 +13,7 @@ value class Entity(val packed: Long) {
     val id: Int get() = packed.toInt()
     val generation: Int get() = (packed ushr GENERATION_SHIFT).toInt()
 
-    override fun toString(): String {
-        return "Entity(id=$id, generation=$generation)"
-    }
+    override fun toString(): String = "Entity(id=$id, generation=$generation)"
 
     companion object {
         private const val GENERATION_SHIFT = 32

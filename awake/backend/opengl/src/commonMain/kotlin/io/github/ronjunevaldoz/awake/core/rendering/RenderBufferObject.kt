@@ -21,13 +21,13 @@ class RenderBufferObject : BufferObject {
             CommonGL.GL_RENDERBUFFER,
             CommonGL.GL_DEPTH24_STENCIL8,
             width,
-            height
+            height,
         )
         AwakeContext.gl.framebufferRenderBuffer(
             CommonGL.GL_FRAMEBUFFER,
             CommonGL.GL_DEPTH_STENCIL_ATTACHMENT,
             CommonGL.GL_RENDERBUFFER,
-            id
+            id,
         )
     }
 
@@ -38,5 +38,4 @@ class RenderBufferObject : BufferObject {
     override fun delete() {
         AwakeContext.gl.deleteRenderBuffers(id)
     }
-
 }

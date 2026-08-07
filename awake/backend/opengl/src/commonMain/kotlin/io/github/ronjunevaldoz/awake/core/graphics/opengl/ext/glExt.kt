@@ -27,9 +27,7 @@ fun OpenGL.clearColor(hexCode: String, a: Float) {
     clearColor(color.red, color.green, color.blue, a)
 }
 
-fun String.toColor(): Color {
-    return Color(toLong(16))
-}
+fun String.toColor(): Color = Color(toLong(16))
 
 fun OpenGL.tryCompileShader(type: OpenGL.ShaderType, content: String): Int {
     val shader = createShader(type)
@@ -52,7 +50,7 @@ fun OpenGL.checkShaderCompilation(shader: Int) {
 
 fun OpenGL.tryLinkProgram(
     vertexShader: Int,
-    fragmentShader: Int
+    fragmentShader: Int,
 ): Int {
     val programId = createProgram()
     attachShader(programId, vertexShader)
@@ -77,7 +75,7 @@ fun OpenGL.checkProgramLinking(programId: Int) {
 
 fun OpenGL.tryCreateShader(
     vertex: String,
-    fragment: String
+    fragment: String,
 ): Int {
     // create  vertex shader
     val vertexShader = tryCompileShader(OpenGL.ShaderType.Vertex, vertex)

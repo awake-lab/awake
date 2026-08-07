@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -28,7 +27,7 @@ class AnimatedHeightCollapseProbeTest {
             ui.beginFrame(400f, 800f, testSnapshot())
             val slot = ui.createColumn(x = 0f, y = 0f, width = 300f).animatedHeight(
                 id = "probe",
-                expanded = expanded
+                expanded = expanded,
             ) {
                 spacer(Modifier.height(120f.dp))
             }
@@ -85,7 +84,7 @@ class AnimatedHeightCollapseProbeTest {
             ui.beginFrame(400f, 800f, testSnapshot())
             val slot = ui.createColumn(x = 0f, y = 0f, width = 300f).animatedHeight(
                 id = "shadcn-collapsible-probe",
-                expanded = expanded
+                expanded = expanded,
             ) {
                 spacer(Modifier.height(120f.dp))
             }

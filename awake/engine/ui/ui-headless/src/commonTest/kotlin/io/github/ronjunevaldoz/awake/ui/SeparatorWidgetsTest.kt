@@ -6,11 +6,11 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.headless.SeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.separator
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.style.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class SeparatorWidgetsTest {
 
@@ -21,7 +21,7 @@ class SeparatorWidgetsTest {
 
         val slot = ui.createColumn(x = 0f, y = 0f, width = 120f).separator(
             thickness = 2f.dp,
-            color = Color.White
+            color = Color.White,
         )
 
         val quad = ui.endFrame().single() as UiDrawPrimitive.Quad
@@ -42,7 +42,7 @@ class SeparatorWidgetsTest {
         val slot = ui.createColumn(x = 0f, y = 0f, width = 120f).separator(
             thickness = 2f.dp,
             color = Color.White,
-            orientation = SeparatorOrientation.Vertical
+            orientation = SeparatorOrientation.Vertical,
         )
 
         val quad = ui.endFrame().single() as UiDrawPrimitive.Quad

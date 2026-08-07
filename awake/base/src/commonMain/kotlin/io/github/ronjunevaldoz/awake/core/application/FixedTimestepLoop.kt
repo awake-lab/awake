@@ -25,7 +25,7 @@ package io.github.ronjunevaldoz.awake.core.application
  */
 class FixedTimestepLoop(
     private val fixedDelta: Float = DEFAULT_FIXED_DELTA,
-    private val maxStepsPerFrame: Int = DEFAULT_MAX_STEPS_PER_FRAME
+    private val maxStepsPerFrame: Int = DEFAULT_MAX_STEPS_PER_FRAME,
 ) {
     private var accumulator = 0f
 

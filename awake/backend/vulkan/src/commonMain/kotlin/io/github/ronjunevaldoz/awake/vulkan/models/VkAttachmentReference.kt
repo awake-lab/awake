@@ -6,5 +6,5 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageLayout
 
 data class VkAttachmentReference(
     val attachment: Int = 0,
-    val layout: VkImageLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED
+    val layout: VkImageLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
 )

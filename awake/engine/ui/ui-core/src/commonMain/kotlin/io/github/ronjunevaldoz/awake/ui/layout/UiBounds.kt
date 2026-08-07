@@ -19,6 +19,7 @@ fun UiBounds.intersect(other: UiBounds): UiBounds {
  * `RendererDrawUi.kt`'s `stage*Run` helpers): a primitive whose own bounds are contained in a
  * clip's safe-interior rect provably cannot touch that clip's rounded/cut corner region. */
 fun UiBounds.contains(other: UiBounds): Boolean =
-    other.x >= x && other.y >= y &&
+    other.x >= x &&
+        other.y >= y &&
         other.x + other.width <= x + width &&
         other.y + other.height <= y + height

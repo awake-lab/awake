@@ -41,7 +41,7 @@ class ShadcnButtonFidelityTest {
             id = "btn-fidelity",
             label = "FIDELITY",
             variant = ShadcnButtonVariant.Primary,
-            modifier = Modifier.width(btnWidth.dp).height(btnHeight.dp)
+            modifier = Modifier.width(btnWidth.dp).height(btnHeight.dp),
         )
         val frameOutput = ui.finishFrame()
 
@@ -50,15 +50,15 @@ class ShadcnButtonFidelityTest {
                 AwakeUiPreviewDimensionRule(
                     nodeId = "btn-fidelity",
                     exactHeight = btnHeight.dp.toPx(),
-                    exactWidth = btnWidth.dp.toPx()
-                )
+                    exactWidth = btnWidth.dp.toPx(),
+                ),
             ),
             tokenRules = listOf(
                 AwakeUiPreviewTokenRule(
                     nodeId = "btn-fidelity",
-                    expectedBackgroundToken = "primary"
-                )
-            )
+                    expectedBackgroundToken = "primary",
+                ),
+            ),
         )
 
         val report = validateAwakeUiPreview(
@@ -68,15 +68,15 @@ class ShadcnButtonFidelityTest {
                 group = "Button",
                 summary = "Primary fidelity check",
                 width = 240,
-                height = 100
+                height = 100,
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ui.currentTheme.colors.background,
                 font = ui.currentFont,
-                semantics = frameOutput.semantics
+                semantics = frameOutput.semantics,
             ),
-            config = config
+            config = config,
         )
         if (!report.isClean) {
             println("REPORT: ${report.summary()}")
@@ -99,7 +99,7 @@ class ShadcnButtonFidelityTest {
             id = "btn-outline",
             label = "OUTLINE",
             variant = ShadcnButtonVariant.Outline,
-            modifier = Modifier.width(btnWidth.dp).height(btnHeight.dp)
+            modifier = Modifier.width(btnWidth.dp).height(btnHeight.dp),
         )
         val frameOutput = ui.finishFrame()
 
@@ -108,9 +108,9 @@ class ShadcnButtonFidelityTest {
                 AwakeUiPreviewTokenRule(
                     nodeId = "btn-outline",
                     expectedBackgroundToken = "background",
-                    expectedBorderToken = "border"
-                )
-            )
+                    expectedBorderToken = "border",
+                ),
+            ),
         )
 
         validateAwakeUiPreview(
@@ -120,15 +120,15 @@ class ShadcnButtonFidelityTest {
                 group = "Button",
                 summary = "Outline fidelity check",
                 width = 200,
-                height = 100
+                height = 100,
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ui.currentTheme.colors.background,
                 font = ui.currentFont,
-                semantics = frameOutput.semantics
+                semantics = frameOutput.semantics,
             ),
-            config = config
+            config = config,
         ).requireClean()
     }
 }

@@ -13,5 +13,5 @@ data class VkSubpassDependency(
     val dstStageMask: VkPipelineStageFlags = 0,
     val srcAccessMask: VkAccessFlags = 0,
     val dstAccessMask: VkAccessFlags = 0,
-    val dependencyFlags: VkDependencyFlags = 0
+    val dependencyFlags: VkDependencyFlags = 0,
 )

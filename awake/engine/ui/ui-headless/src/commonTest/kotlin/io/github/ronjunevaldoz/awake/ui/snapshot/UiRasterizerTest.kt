@@ -3,13 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -30,8 +30,8 @@ class UiRasterizerTest {
                 v0 = uv.v0,
                 u1 = uv.u1,
                 v1 = uv.v1,
-                color = Color.White
-            )
+                color = Color.White,
+            ),
         ).rasterize(font.cellSize, font.cellSize, background = Color.Transparent, font = font)
 
         val alphas = pixels.filterIndexed { index, _ -> index % 4 == 3 }.map { it.toInt() and 0xFF }
@@ -53,8 +53,8 @@ class UiRasterizerTest {
                 v0 = uv.v0,
                 u1 = uv.u1,
                 v1 = uv.v1,
-                color = Color.White
-            )
+                color = Color.White,
+            ),
         ).rasterize(font.cellSize, font.cellSize, background = Color.Transparent, font = font)
 
         assertTrue(pixels.anyIndexed { index, byte -> index % 4 == 3 && (byte.toInt() and 0xFF) > 0 })
@@ -69,8 +69,8 @@ class UiRasterizerTest {
                 w = 24f,
                 h = 24f,
                 color = Color(1f, 0f, 0f, 1f),
-                radius = UiShapeSpec.RoundedRectangle(8f.dp).radius.toPx()
-            )
+                radius = UiShapeSpec.RoundedRectangle(8f.dp).radius.toPx(),
+            ),
         ).rasterize(32, 32, background = Color.Transparent)
 
         fun alphaAt(x: Int, y: Int): Int = pixels[(y * 32 + x) * 4 + 3].toInt() and 0xFF
@@ -89,7 +89,7 @@ class UiRasterizerTest {
             pixels[(y * width + x) * 4 + 3].toInt() and 0xFF
 
         val unscaled = listOf(
-            UiDrawPrimitive.Quad(x = 8f, y = 8f, w = 8f, h = 8f, color = Color(1f, 0f, 0f, 1f))
+            UiDrawPrimitive.Quad(x = 8f, y = 8f, w = 8f, h = 8f, color = Color(1f, 0f, 0f, 1f)),
         ).rasterize(32, 32, background = Color.Transparent)
 
         // 2x scale around the quad's own center (pivot = 12,12) -- doubles the footprint to
@@ -102,8 +102,8 @@ class UiRasterizerTest {
                 w = 8f,
                 h = 8f,
                 color = Color(1f, 0f, 0f, 1f),
-                transform = UiPrimitiveTransform(scaleX = 2f, scaleY = 2f, pivotX = 12f, pivotY = 12f)
-            )
+                transform = UiPrimitiveTransform(scaleX = 2f, scaleY = 2f, pivotX = 12f, pivotY = 12f),
+            ),
         ).rasterize(32, 32, background = Color.Transparent)
 
         assertEquals(0, alphaAt(unscaled, 32, 5, 5), "unscaled quad should not reach (5,5)")

@@ -1,11 +1,13 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.graphics
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.toPx
 
@@ -18,24 +20,24 @@ fun UiScope.border(
     width: Dp = 1f.dp,
     color: Color? = null,
     overlay: Boolean = false,
-    tokenId: String? = null
+    tokenId: String? = null,
 ) {
     val strokeColor = color ?: context.currentTheme.colors.border
     val w = width.toPx()
     if (w <= 0f) return
     val x = pixelPerfectPixel(slot.x)
     val y = pixelPerfectPixel(slot.y)
-    val width_ = pixelPerfectPixel(slot.width).coerceAtLeast(1f)
-    val height_ = pixelPerfectPixel(slot.height).coerceAtLeast(1f)
+    val snappedWidth = pixelPerfectPixel(slot.width).coerceAtLeast(1f)
+    val snappedHeight = pixelPerfectPixel(slot.height).coerceAtLeast(1f)
     val strokeWidth = pixelPerfectPixel(w).coerceAtLeast(1f)
-    emitPrimitive(UiDrawPrimitive.Quad(x, y, width_, strokeWidth, strokeColor, tokenId = tokenId), overlay)
+    emitPrimitive(UiDrawPrimitive.Quad(x, y, snappedWidth, strokeWidth, strokeColor, tokenId = tokenId), overlay)
     emitPrimitive(
-        UiDrawPrimitive.Quad(x, y + height_ - strokeWidth, width_, strokeWidth, strokeColor, tokenId = tokenId),
-        overlay
+        UiDrawPrimitive.Quad(x, y + snappedHeight - strokeWidth, snappedWidth, strokeWidth, strokeColor, tokenId = tokenId),
+        overlay,
     )
-    emitPrimitive(UiDrawPrimitive.Quad(x, y, strokeWidth, height_, strokeColor, tokenId = tokenId), overlay)
+    emitPrimitive(UiDrawPrimitive.Quad(x, y, strokeWidth, snappedHeight, strokeColor, tokenId = tokenId), overlay)
     emitPrimitive(
-        UiDrawPrimitive.Quad(x + width_ - strokeWidth, y, strokeWidth, height_, strokeColor, tokenId = tokenId),
-        overlay
+        UiDrawPrimitive.Quad(x + snappedWidth - strokeWidth, y, strokeWidth, snappedHeight, strokeColor, tokenId = tokenId),
+        overlay,
     )
 }

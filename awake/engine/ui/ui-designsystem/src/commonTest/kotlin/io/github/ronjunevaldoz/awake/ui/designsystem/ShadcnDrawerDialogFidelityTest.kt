@@ -14,9 +14,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDrawerPosi
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.testTag
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -42,7 +42,7 @@ class ShadcnDrawerDialogFidelityTest {
                 onDismissRequest = {},
                 position = ShadcnDrawerPosition.Bottom,
                 sizeDp = 200f.dp,
-                modifier = Modifier.testTag("drawer-panel")
+                modifier = Modifier.testTag("drawer-panel"),
             ) {
                 text("Drawer Content Body")
             }
@@ -53,9 +53,9 @@ class ShadcnDrawerDialogFidelityTest {
                     AwakeUiPreviewTokenRule(
                         nodeId = "drawer-fidelity",
                         expectedBackgroundToken = "card",
-                        expectedBorderToken = "border"
-                    )
-                )
+                        expectedBorderToken = "border",
+                    ),
+                ),
             )
 
             validateAwakeUiPreview(
@@ -65,15 +65,15 @@ class ShadcnDrawerDialogFidelityTest {
                     group = "Drawer",
                     summary = "Drawer panel fidelity check [${config.id}]",
                     width = (400 * config.scale.scale).toInt(),
-                    height = (500 * config.scale.scale).toInt()
+                    height = (500 * config.scale.scale).toInt(),
                 ),
                 frame = AwakeUiPreviewFrame(
                     primitives = frameOutput.primitives,
                     background = ui.currentTheme.colors.background,
                     font = ui.currentFont,
-                    semantics = frameOutput.semantics
+                    semantics = frameOutput.semantics,
                 ),
-                config = validationConfig
+                config = validationConfig,
             )
         }
 

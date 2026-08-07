@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.input
 
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
@@ -12,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnF
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.style.*
@@ -27,7 +27,7 @@ fun ColumnScope.shadcnFieldDropdown(
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    labelContent: UiScope.() -> Unit
+    labelContent: UiScope.() -> Unit,
 ): Int? {
     var resolved: Int? = null
     shadcnField(modifier = modifier, orientation = ShadcnFieldOrientation.Horizontal) {
@@ -37,7 +37,7 @@ fun ColumnScope.shadcnFieldDropdown(
             options = options,
             selectedIndex = selectedIndex,
             modifier = Modifier.weight(1f).height(40f.dp),
-            style = style
+            style = style,
         )
     }
     return resolved
@@ -49,7 +49,7 @@ fun ColumnScope.shadcnFieldDropdown(
     selectedIndex: Int,
     height: Dp,
     style: Style = Style.Empty,
-    labelContent: UiScope.() -> Unit
+    labelContent: UiScope.() -> Unit,
 ): Int? {
     var resolved: Int? = null
     shadcnField(modifier = Modifier.height(height), orientation = ShadcnFieldOrientation.Horizontal) {
@@ -59,7 +59,7 @@ fun ColumnScope.shadcnFieldDropdown(
             options = options,
             selectedIndex = selectedIndex,
             modifier = Modifier.weight(1f).height(height),
-            style = style
+            style = style,
         )
     }
     return resolved
@@ -71,13 +71,13 @@ fun ColumnScope.shadcnFieldDropdown(
     options: List<String>,
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): Int? = shadcnFieldDropdown(
     id = id,
     options = options,
     selectedIndex = selectedIndex,
     modifier = modifier,
-    style = style
+    style = style,
 ) {
     shadcnFieldLabel(label)
 }

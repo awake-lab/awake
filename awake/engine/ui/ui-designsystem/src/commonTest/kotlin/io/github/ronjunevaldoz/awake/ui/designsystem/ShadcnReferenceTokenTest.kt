@@ -32,7 +32,7 @@ class ShadcnReferenceTokenTest {
     // Same tolerance class as this project's existing pixel-baseline tests: float rounding
     // through OKLCH->linear-sRGB->gamma conversion accumulates a little error even for two
     // mathematically identical OKLCH triples, so an exact `==` would be too brittle.
-    private val ColorTolerance = 0.02f
+    private val colorTolerance = 0.02f
 
     @Test
     fun defaultDarkPrimaryMatchesRealShadcnOklch() {
@@ -86,11 +86,11 @@ class ShadcnReferenceTokenTest {
         assertColorClose("light ring", lightReference, shadcnTheme(dark = false).asShadcnTheme().ring, tolerance = 0.08f)
     }
 
-    private fun assertColorClose(label: String, reference: Color, actual: Color, tolerance: Float = ColorTolerance) {
+    private fun assertColorClose(label: String, reference: Color, actual: Color, tolerance: Float = colorTolerance) {
         val diff = abs(reference.r - actual.r) + abs(reference.g - actual.g) + abs(reference.b - actual.b)
         assertTrue(
             diff < tolerance,
-            "$label drifted from the real shadcn reference: reference=$reference actual=$actual diff=$diff"
+            "$label drifted from the real shadcn reference: reference=$reference actual=$actual diff=$diff",
         )
     }
 }

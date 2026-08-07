@@ -18,13 +18,9 @@ class Pixmap(val width: Int, val height: Int, val format: Format = Format.RGBA) 
         }
     }
 
-    operator fun get(index: Int): Int {
-        return pixels[index]
-    }
+    operator fun get(index: Int): Int = pixels[index]
 
-    operator fun get(x: Int, y: Int): Int {
-        return pixels[y * width + x]
-    }
+    operator fun get(x: Int, y: Int): Int = pixels[y * width + x]
 
     operator fun set(index: Int, color: Int) {
         pixels[index] = color
@@ -38,17 +34,13 @@ class Pixmap(val width: Int, val height: Int, val format: Format = Format.RGBA) 
         this[x, y] = color
     }
 
-    fun getPixel(x: Int, y: Int): Int {
-        return this[x, y]
-    }
+    fun getPixel(x: Int, y: Int): Int = this[x, y]
 
     enum class Format {
         RED,
         RGB,
-        RGBA
+        RGBA,
     }
 }
 
-fun Pixmap.toBitmap(): Bitmap {
-    return DefaultBitmap(width, height, 4, pixels)
-}
+fun Pixmap.toBitmap(): Bitmap = DefaultBitmap(width, height, 4, pixels)

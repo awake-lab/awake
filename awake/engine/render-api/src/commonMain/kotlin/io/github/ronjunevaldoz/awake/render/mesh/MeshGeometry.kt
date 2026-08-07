@@ -12,7 +12,7 @@ package io.github.ronjunevaldoz.awake.render.mesh
 data class MeshGeometry(
     val vertices: FloatArray,
     val indices: IntArray,
-    val format: VertexFormat = VertexFormat.PositionColorUv
+    val format: VertexFormat = VertexFormat.PositionColorUv,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -20,7 +20,5 @@ data class MeshGeometry(
         return vertices.contentEquals(other.vertices) && indices.contentEquals(other.indices) && format == other.format
     }
 
-    override fun hashCode(): Int {
-        return 31 * (31 * vertices.contentHashCode() + indices.contentHashCode()) + format.hashCode()
-    }
+    override fun hashCode(): Int = 31 * (31 * vertices.contentHashCode() + indices.contentHashCode()) + format.hashCode()
 }

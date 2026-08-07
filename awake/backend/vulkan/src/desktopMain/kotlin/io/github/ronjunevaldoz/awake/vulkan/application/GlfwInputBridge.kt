@@ -38,7 +38,7 @@ val DefaultGlfwGameplayKeys: Map<Int, Key> = linkedMapOf(
     GLFW_KEY_F2 to Key.F2,
     GLFW_KEY_F3 to Key.F3,
     GLFW_KEY_F4 to Key.F4,
-    GLFW_KEY_F5 to Key.F5
+    GLFW_KEY_F5 to Key.F5,
 )
 
 /**
@@ -50,7 +50,7 @@ val DefaultGlfwGameplayKeys: Map<Int, Key> = linkedMapOf(
 fun pollGlfwInput(
     window: Long,
     input: Input,
-    keys: Map<Int, Key> = DefaultGlfwGameplayKeys
+    keys: Map<Int, Key> = DefaultGlfwGameplayKeys,
 ): Unit = pollGlfwInput(glfwWindowInput(window), input, keys)
 
 /** Testable core: takes the [GlfwWindowInput] seam instead of a raw window handle, so a
@@ -58,7 +58,7 @@ fun pollGlfwInput(
 internal fun pollGlfwInput(
     reader: GlfwWindowInput,
     input: Input,
-    keys: Map<Int, Key> = DefaultGlfwGameplayKeys
+    keys: Map<Int, Key> = DefaultGlfwGameplayKeys,
 ) {
     keys.forEach { (glfwKey, key) ->
         input.setKeyDown(key, reader.isKeyDown(glfwKey))
@@ -67,7 +67,7 @@ internal fun pollGlfwInput(
     input.setPointer(
         down = reader.isMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT),
         x = reader.cursorX().toFloat() * reader.framebufferScaleX(),
-        y = reader.cursorY().toFloat() * reader.framebufferScaleY()
+        y = reader.cursorY().toFloat() * reader.framebufferScaleY(),
     )
     // Right button drives context menus (shadcnContextMenu gates on secondaryPointerDown).
     input.setSecondaryPointer(reader.isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT))

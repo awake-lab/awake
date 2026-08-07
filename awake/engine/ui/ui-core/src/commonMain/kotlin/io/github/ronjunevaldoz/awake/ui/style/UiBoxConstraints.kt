@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 enum class UiWidthSizeClass {
     Compact,
     Medium,
-    Expanded
+    Expanded,
 }
 
 /** Responsive breakpoint data for a viewport-rooted layout -- lives in `ui-core` (not
@@ -15,7 +15,7 @@ enum class UiWidthSizeClass {
 data class UiBoxConstraints(
     val maxWidthPx: Float,
     val maxHeightPx: Float,
-    val densityScale: Float = UiDensity.scale
+    val densityScale: Float = UiDensity.scale,
 ) {
     val maxWidth: Float = maxWidthPx / densityScale
     val maxHeight: Float = maxHeightPx / densityScale

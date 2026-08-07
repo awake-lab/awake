@@ -71,7 +71,7 @@ class RendererHeadlessUiGlyphBaselineTest {
                 baselineFile.writeBytes(pixels.data)
                 assertTrue(
                     false,
-                    "Recorded missing UI glyph baseline to ${baselineFile.absolutePath}. Review and rerun the test."
+                    "Recorded missing UI glyph baseline to ${baselineFile.absolutePath}. Review and rerun the test.",
                 )
             }
 
@@ -88,7 +88,7 @@ class RendererHeadlessUiGlyphBaselineTest {
                     "Headless UI glyph render diverged from baseline: ${result.diffPixelCount} pixels differ " +
                         "(max channel diff ${result.maxChannelDiff}). Compare ${actualPngFile.absolutePath} " +
                         "against ${baselinePngFile.absolutePath}. Re-record ${baselineFile.absolutePath} if this " +
-                        "is an intentional renderer change."
+                        "is an intentional renderer change.",
                 )
             }
         }
@@ -108,8 +108,8 @@ class RendererHeadlessUiGlyphBaselineTest {
                             x = 12f,
                             y = 12f + row * 38f,
                             scale = 1.5f,
-                            color = Color(0.92f, 0.95f, 1f, 1f)
-                        )
+                            color = Color(0.92f, 0.95f, 1f, 1f),
+                        ),
                     )
                 }
             }
@@ -119,7 +119,7 @@ class RendererHeadlessUiGlyphBaselineTest {
             val pixels = runBlocking { renderer.readPixels(target) }
             assertTrue(
                 pixels.data.any { it.toInt() != 0 },
-                "large headless glyph runs should render non-empty output instead of tripping the mesh capacity guard"
+                "large headless glyph runs should render non-empty output instead of tripping the mesh capacity guard",
             )
         }
     }
@@ -147,8 +147,8 @@ class RendererHeadlessUiGlyphBaselineTest {
                         scaleX = 2f,
                         scaleY = 2f,
                         pivotX = 8f,
-                        pivotY = 8f
-                    )
+                        pivotY = 8f,
+                    ),
                 )
             }
 
@@ -184,7 +184,7 @@ class RendererHeadlessUiGlyphBaselineTest {
             assertTrue(
                 scaledMaxX > unscaledMaxX,
                 "2x-scaled glyph (rightmost painted x=$scaledMaxX) should extend further right than " +
-                    "the un-scaled glyph (rightmost painted x=$unscaledMaxX)"
+                    "the un-scaled glyph (rightmost painted x=$unscaledMaxX)",
             )
         }
     }
@@ -200,7 +200,7 @@ class RendererHeadlessUiGlyphBaselineTest {
             val pixels = runBlocking { renderer.readPixels(target) }
             assertTrue(
                 pixels.data.any { it.toInt() != 0 },
-                "TrueSans (large mip chain, ~11 levels) should render non-empty output, not sample an UNDEFINED-layout mip"
+                "TrueSans (large mip chain, ~11 levels) should render non-empty output, not sample an UNDEFINED-layout mip",
             )
         }
     }
@@ -216,7 +216,7 @@ class RendererHeadlessUiGlyphBaselineTest {
         val renderPipeline: RenderPipeline,
         val lineRenderPipeline: LineRenderPipeline,
         val transferContext: TransferContext,
-        val renderer: Renderer
+        val renderer: Renderer,
     ) {
         fun destroy() {
             renderer.destroy()
@@ -265,14 +265,14 @@ class RendererHeadlessUiGlyphBaselineTest {
                 runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
                 VertexFormat.PositionColorUv,
                 vertexEntryPoint = "vertexMain",
-                fragmentEntryPoint = "fragmentMain"
+                fragmentEntryPoint = "fragmentMain",
             )
             val lineRenderPipeline = LineRenderPipeline(
                 graphicsDevice,
                 swapchainManager,
                 renderPipeline.renderPass,
                 runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
-                MAX_FRAMES_IN_FLIGHT
+                MAX_FRAMES_IN_FLIGHT,
             )
             val transferContext = TransferContext(graphicsDevice)
             val renderer = Renderer(
@@ -288,7 +288,7 @@ class RendererHeadlessUiGlyphBaselineTest {
                 runBlocking {
                     loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
                 },
-                MAX_FRAMES_IN_FLIGHT
+                MAX_FRAMES_IN_FLIGHT,
             )
 
             return HeadlessUiRendererFixture(
@@ -298,7 +298,7 @@ class RendererHeadlessUiGlyphBaselineTest {
                 renderPipeline = renderPipeline,
                 lineRenderPipeline = lineRenderPipeline,
                 transferContext = transferContext,
-                renderer = renderer
+                renderer = renderer,
             ).also { cachedFixture = it }
         }
 
@@ -325,7 +325,7 @@ class RendererHeadlessUiGlyphBaselineTest {
             x: Float,
             y: Float,
             scale: Float,
-            color: Color
+            color: Color,
         ): List<UiDrawPrimitive.Glyph> {
             val glyphSize = font.cellSize * scale
             var cursorX = x
@@ -342,8 +342,8 @@ class RendererHeadlessUiGlyphBaselineTest {
                             v0 = uv.v0,
                             u1 = uv.u1,
                             v1 = uv.v1,
-                            color = color
-                        )
+                            color = color,
+                        ),
                     )
                     cursorX += glyphSize
                 }

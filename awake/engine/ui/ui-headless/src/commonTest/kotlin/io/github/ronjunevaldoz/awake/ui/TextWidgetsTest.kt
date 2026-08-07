@@ -3,24 +3,23 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.layoutBitmapText
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.style.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class TextWidgetsTest {
 
@@ -42,14 +41,14 @@ class TextWidgetsTest {
             wrap = UiTextWrap.None,
             overflow = UiTextOverflow.Ellipsis,
             maxLines = 1,
-            advanceOf = { char -> font.advanceFor(char, 12f) }
+            advanceOf = { char -> font.advanceFor(char, 12f) },
         )
 
         scope.text(
             label = "TOOLONG",
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(10f, 20f, slotWidthPx, 12f),
             font = font,
-            overflow = UiTextOverflow.Ellipsis
+            overflow = UiTextOverflow.Ellipsis,
         )
 
         val frame = ui.endFrame()
@@ -58,7 +57,7 @@ class TextWidgetsTest {
         assertTrue(layout.lineWidths.single() <= slotWidthPx, "ellipsized text layout must measure within the slot width")
         assertTrue(
             clipPushes.isNotEmpty(),
-            "ellipsized text should clip to the slot bounds even when the final glyph quad extends past the right edge"
+            "ellipsized text should clip to the slot bounds even when the final glyph quad extends past the right edge",
         )
     }
 
@@ -70,7 +69,7 @@ class TextWidgetsTest {
             maxWidthPx = 48f,
             wrap = UiTextWrap.Word,
             overflow = UiTextOverflow.Clip,
-            maxLines = 3
+            maxLines = 3,
         )
 
         assertEquals(listOf("Awake", "widget", "system"), layout.lines)
@@ -85,7 +84,7 @@ class TextWidgetsTest {
             maxWidthPx = 48f,
             wrap = UiTextWrap.Word,
             overflow = UiTextOverflow.Ellipsis,
-            maxLines = 2
+            maxLines = 2,
         )
 
         assertEquals(listOf("Awake", "wid..."), layout.lines)
@@ -107,7 +106,7 @@ class TextWidgetsTest {
             wrap = UiTextWrap.None,
             overflow = UiTextOverflow.Visible,
             maxLines = 1,
-            advanceOf = { char -> font.advanceFor(char, 12f) }
+            advanceOf = { char -> font.advanceFor(char, 12f) },
         )
         val wide = layoutBitmapText(
             label = "WWW",
@@ -116,7 +115,7 @@ class TextWidgetsTest {
             wrap = UiTextWrap.None,
             overflow = UiTextOverflow.Visible,
             maxLines = 1,
-            advanceOf = { char -> font.advanceFor(char, 12f) }
+            advanceOf = { char -> font.advanceFor(char, 12f) },
         )
 
         assertEquals(narrow.lineWidths.single(), wide.lineWidths.single())
@@ -132,7 +131,7 @@ class TextWidgetsTest {
             label = "BUTTON",
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 20f, 160f, 40f),
             font = font,
-            centered = true
+            centered = true,
         )
 
         val glyphBounds = ui.endFrame().glyphBounds()
@@ -141,7 +140,7 @@ class TextWidgetsTest {
 
         assertTrue(
             kotlin.math.abs(glyphCenterY - slotCenterY) <= 1f,
-            "true-font text should center its visible glyph bounds inside the slot: slotCenterY=$slotCenterY glyphCenterY=$glyphCenterY bounds=$glyphBounds"
+            "true-font text should center its visible glyph bounds inside the slot: slotCenterY=$slotCenterY glyphCenterY=$glyphCenterY bounds=$glyphBounds",
         )
     }
 
@@ -154,14 +153,14 @@ class TextWidgetsTest {
         ui.createAbsolute(x = 0f, y = 0f).text(
             label = "Title",
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(16f, 24f, 120f, 20f),
-            font = font
+            font = font,
         )
 
         val glyphBounds = ui.endFrame().glyphBounds()
 
         assertTrue(
             kotlin.math.abs(glyphBounds.y - 24f) <= 1f,
-            "top-aligned text should align the visible glyph top with the slot top instead of preserving baked atlas padding: bounds=$glyphBounds"
+            "top-aligned text should align the visible glyph top with the slot top instead of preserving baked atlas padding: bounds=$glyphBounds",
         )
     }
 
@@ -178,14 +177,14 @@ class TextWidgetsTest {
             style = Style {
                 contentPadding(start = 14f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)
             },
-            centered = false
+            centered = false,
         )
 
         val glyphBounds = ui.endFrame().glyphBounds()
 
         assertTrue(
             kotlin.math.abs(glyphBounds.x - 14f) <= 1f,
-            "left-aligned button text should start from the padded content edge instead of the button center: bounds=$glyphBounds"
+            "left-aligned button text should start from the padded content edge instead of the button center: bounds=$glyphBounds",
         )
     }
 
@@ -199,7 +198,7 @@ class TextWidgetsTest {
 
         ui.column(
             modifier = Modifier.width(200f.dp),
-            verticalArrangement = Arrangement.spacedBy(8f.dp)
+            verticalArrangement = Arrangement.spacedBy(8f.dp),
         ) {
             firstSlot = text("Hover target", modifier = Modifier.width(120f.px))
             secondSlot = text("Sibling", modifier = Modifier.width(120f.px))
@@ -209,7 +208,7 @@ class TextWidgetsTest {
         assertEquals(
             (firstSlot?.y ?: 0f) + (firstSlot?.height ?: 0f) + 8f,
             secondSlot?.y,
-            "a hovered text widget must not push later siblings further down by claiming a second slot"
+            "a hovered text widget must not push later siblings further down by claiming a second slot",
         )
     }
 }
@@ -222,8 +221,8 @@ private fun List<UiDrawPrimitive>.glyphBounds(): UiBounds {
             glyphs.first().x,
             glyphs.first().y,
             glyphs.first().w,
-            glyphs.first().h
-        )
+            glyphs.first().h,
+        ),
     ) { acc, glyph ->
         acc.union(UiBounds(glyph.x, glyph.y, glyph.w, glyph.h))
     }

@@ -21,5 +21,5 @@ class VkPhysicalDeviceProperties @JvmOverloads constructor(
     @VkConstArray("VK_UUID_SIZE")
     val pipelineCacheUUID: ByteArray = ByteArray(VK_UUID_SIZE),
     val limits: VkPhysicalDeviceLimits = VkPhysicalDeviceLimits(),
-    val sparseProperties: VkPhysicalDeviceSparseProperties = VkPhysicalDeviceSparseProperties()
+    val sparseProperties: VkPhysicalDeviceSparseProperties = VkPhysicalDeviceSparseProperties(),
 )

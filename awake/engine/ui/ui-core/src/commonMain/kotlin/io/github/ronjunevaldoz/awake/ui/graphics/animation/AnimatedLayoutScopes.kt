@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.graphics.animation
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.EaseOut
 import io.github.ronjunevaldoz.awake.ui.Easing
 import io.github.ronjunevaldoz.awake.ui.animateFloatTween
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.measureColumnContent
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
 
 /**
  * Clips its content to an animated height.
@@ -25,7 +25,7 @@ fun ColumnScope.animatedHeight(
     modifier: UiModifier = Modifier,
     durationMs: Float = 250f,
     easing: Easing = EaseOut,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds? {
     // 1. Measure the content to know the target expanded height -- only on the frame this
     // collapses into an expanded state, not every frame it stays expanded (that used to run a
@@ -38,7 +38,7 @@ fun ColumnScope.animatedHeight(
         val measured = measureColumnContent(
             width = fillWidthOrNull() ?: 4096f,
             gap = gap,
-            content = content
+            content = content,
         )
         cachedHeight = measured.height
         state.set("measuredHeight", cachedHeight)

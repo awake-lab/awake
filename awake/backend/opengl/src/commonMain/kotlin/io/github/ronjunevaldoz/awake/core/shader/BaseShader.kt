@@ -13,7 +13,7 @@ abstract class BaseShader : Shader {
         val (vertString, fragString) = getShaderSources()
         program = AwakeContext.gl.tryCreateShader(
             vertex = vertString,
-            fragment = fragString
+            fragment = fragString,
         )
     }
 

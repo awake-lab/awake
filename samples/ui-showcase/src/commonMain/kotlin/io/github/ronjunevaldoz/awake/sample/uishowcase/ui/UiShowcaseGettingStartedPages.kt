@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -36,7 +37,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 
@@ -49,19 +49,19 @@ internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
         listOf(
             "Stable chrome on top, grouped navigation on the left, one detail page in the content pane.",
             "The starter sample stays a starter sample; docs and polish move here.",
-            "This is now the right home for future design-system tutorials and regression proofs."
-        )
+            "This is now the right home for future design-system tutorials and regression proofs.",
+        ),
     )
 }
 
 internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(Dimension.WrapContent)
+        modifier = Modifier.height(Dimension.WrapContent),
     ) {
         shadcnCard(
             id = "ui-showcase-reference-spec",
-            modifier = Modifier.width(Dimension.WrapContent).height(Dimension.Fixed(284f.dp))
+            modifier = Modifier.width(Dimension.WrapContent).height(Dimension.Fixed(284f.dp)),
         ) {
             shadcnSectionTitle("Official cues")
             shadcnSupportingText("The reference we keep checking against.")
@@ -70,8 +70,8 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
                 listOf(
                     "Controls feel closer to 36px than 44px.",
                     "Dropdown content is a popover, not a bare button stack.",
-                    "Cards sit close to the page background with restrained contrast."
-                )
+                    "Cards sit close to the page background with restrained contrast.",
+                ),
             )
             spacer(Modifier.height(8f.dp))
             shadcnBadge("TARGET", variant = ShadcnBadgeVariant.Outline)
@@ -79,31 +79,31 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
         shadcnCard(
             id = "ui-showcase-reference-awake",
             modifier = Modifier.width(Dimension.WrapContent)
-                .height(Dimension.Fixed(284f.dp))
+                .height(Dimension.Fixed(284f.dp)),
         ) {
             shadcnSectionTitle("Awake now")
             shadcnSupportingText("Our current implementation after the sizing and popover pass.")
             spacer(Modifier.height(8f.dp))
             shadcnSupportingText(
                 "Typography is tighter, menu surfaces are contained, and the gray slab effect is reduced.",
-                maxLines = 4
+                maxLines = 4,
             )
             spacer(Modifier.height(8f.dp))
             row(
                 horizontalArrangement = Arrangement.spacedBy(8f.dp),
-                modifier = Modifier.height(36f.dp.toDimension())
+                modifier = Modifier.height(36f.dp.toDimension()),
             ) {
                 shadcnButton(
                     "reference-primary",
                     "Primary",
                     modifier = Modifier.width(100f.dp).height(36f.dp),
-                    variant = ShadcnButtonVariant.Primary
+                    variant = ShadcnButtonVariant.Primary,
                 )
                 shadcnButton(
                     "reference-outline",
                     "Outline",
                     modifier = Modifier.width(96f.dp).height(36f.dp),
-                    variant = ShadcnButtonVariant.Outline
+                    variant = ShadcnButtonVariant.Outline,
                 )
             }
             spacer(Modifier.height(8f.dp))
@@ -118,13 +118,13 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
 
     row(
         horizontalArrangement = Arrangement.spacedBy(24f.dp),
-        modifier = Modifier.height(Dimension.WrapContent)
+        modifier = Modifier.height(Dimension.WrapContent),
     ) {
         // --- Settings Column ---
         surface(
             id = "showcase-theme-settings",
             style = theme.components.surface then Style { shape(12f.dp) },
-            modifier = Modifier.width(Dimension.Fixed(320f.dp)).height(Dimension.WrapContent)
+            modifier = Modifier.width(Dimension.Fixed(320f.dp)).height(Dimension.WrapContent),
         ) {
             shadcnSectionTitle("Theme Settings")
             shadcnSupportingText("Configure the look and feel.")
@@ -138,7 +138,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             shadcnFieldDropdown(
                 id = "showcase-style-preset",
                 options = ShowcaseStyleOptions,
-                selectedIndex = state.showcaseStylePresetIndex
+                selectedIndex = state.showcaseStylePresetIndex,
             ) {
                 shadcnFieldLabel("Style", modifier = Modifier.width(settingsLabelWidth))
             }?.let { state.showcaseStylePresetIndex = it }
@@ -146,7 +146,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             shadcnFieldDropdown(
                 id = "showcase-base-color",
                 options = ShowcaseBaseColorOptions,
-                selectedIndex = state.showcaseBaseColorIndex
+                selectedIndex = state.showcaseBaseColorIndex,
             ) {
                 shadcnFieldLabel("Base", modifier = Modifier.width(settingsLabelWidth))
             }?.let { state.showcaseBaseColorIndex = it }
@@ -154,7 +154,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             shadcnFieldDropdown(
                 id = "showcase-theme-mode",
                 options = ShowcaseThemeModeOptions,
-                selectedIndex = state.showcaseThemeModeIndex
+                selectedIndex = state.showcaseThemeModeIndex,
             ) {
                 shadcnFieldLabel("Mode", modifier = Modifier.width(settingsLabelWidth))
             }?.let { state.showcaseThemeModeIndex = it }
@@ -162,7 +162,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             shadcnFieldDropdown(
                 id = "showcase-accent",
                 options = ShowcaseAccentOptions,
-                selectedIndex = state.showcaseAccentIndex
+                selectedIndex = state.showcaseAccentIndex,
             ) {
                 shadcnFieldLabel("Accent", modifier = Modifier.width(settingsLabelWidth))
             }?.let { state.showcaseAccentIndex = it }
@@ -170,34 +170,34 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             spacer(Modifier.height(8f.dp))
             shadcnSupportingText(
                 "Mode auto-resolves to ${if (state.showcaseResolvedDarkMode()) "dark" else "light"} on this platform.",
-                maxLines = 2
+                maxLines = 2,
             )
             spacer(Modifier.height(12f.dp))
 
             shadcnFieldSwitch(
                 id = "showcase-live",
                 label = "Live animation",
-                checked = state.showcaseLiveBadge
+                checked = state.showcaseLiveBadge,
             ).let { if (it != state.showcaseLiveBadge) state.showcaseLiveBadge = it }
 
             shadcnFieldSwitch(
                 id = "showcase-danger-mode",
                 label = "Danger treatment",
-                checked = state.showcaseDangerMode
+                checked = state.showcaseDangerMode,
             ).let { if (it != state.showcaseDangerMode) state.showcaseDangerMode = it }
         }
 
         // --- Preview Column ---
         column(
             verticalArrangement = Arrangement.spacedBy(16f.dp),
-            modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.WrapContent)
+            modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.WrapContent),
         ) {
             shadcnBadge("LIVE PREVIEW", variant = ShadcnBadgeVariant.Secondary)
 
             val previewLift = animateFloat(
                 id = "showcase-preview-lift",
                 target = if (state.showcaseDangerMode) 8f else 0f,
-                responsiveness = 10f
+                responsiveness = 10f,
             )
 
             shadcnSurface(
@@ -208,11 +208,11 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                     shape(state.showcaseSurfaceRadius.dp)
                     contentPadding(16f.dp)
                     borderWidth(0f.dp) // Proves we can override variant defaults
-                }
+                },
             ) { previewSlot ->
                 var shimmerForward by rememberBooleanState(
                     "showcase-preview-shimmer-direction",
-                    initial = true
+                    initial = true,
                 )
                 val shimmerTarget = when {
                     !state.showcaseLiveBadge -> 0.15f // Static position when paused
@@ -224,7 +224,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                     target = shimmerTarget,
                     initial = 0f,
                     responsiveness = 2.0f,
-                    snapDistance = 0.01f
+                    snapDistance = 0.01f,
                 )
 
                 if (state.showcaseLiveBadge) {
@@ -236,7 +236,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 drawShowcaseGradientChrome(
                     slot = previewSlot,
                     shimmerPhase = shimmerPhase,
-                    dangerMode = state.showcaseDangerMode
+                    dangerMode = state.showcaseDangerMode,
                 )
 
                 // Height left as WrapContent (not a hardcoded 24dp guess): shadcnBadge's actual
@@ -246,7 +246,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 row(horizontalArrangement = Arrangement.SpaceBetween) {
                     shadcnBadge(
                         if (state.showcaseLiveBadge) "LIVE" else "PAUSED",
-                        variant = if (state.showcaseLiveBadge) ShadcnBadgeVariant.Primary else ShadcnBadgeVariant.Outline
+                        variant = if (state.showcaseLiveBadge) ShadcnBadgeVariant.Primary else ShadcnBadgeVariant.Outline,
                     )
                     if (state.showcaseDangerMode) {
                         shadcnBadge("DANGER", variant = ShadcnBadgeVariant.Danger)
@@ -263,21 +263,24 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                 shadcnBodyText("Showcase Preview Card")
 
                 shadcnSupportingText(
-                    if (state.showcaseDangerMode) "DANGER MODE: Thematic variant proof for destructive/alert states."
-                    else "LIVE PROOF: Animation state proof using conditional canvas shimmer."
+                    if (state.showcaseDangerMode) {
+                        "DANGER MODE: Thematic variant proof for destructive/alert states."
+                    } else {
+                        "LIVE PROOF: Animation state proof using conditional canvas shimmer."
+                    },
                 )
 
                 spacer(Modifier.height(12f.dp))
                 row(
                     horizontalArrangement = Arrangement.spacedBy(10f.dp),
-                    modifier = Modifier.height(36f.dp.toDimension())
+                    modifier = Modifier.height(36f.dp.toDimension()),
                 ) {
                     if (
                         shadcnButton(
                             id = "preview-primary-action",
                             label = "Inspect",
                             modifier = Modifier.width(100f.dp).height(36f.dp),
-                            variant = ShadcnButtonVariant.Primary
+                            variant = ShadcnButtonVariant.Primary,
                         )
                     ) {
                         state.showcasePrimaryClicks += 1
@@ -286,7 +289,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
                         id = "preview-secondary-action",
                         label = if (state.showcaseDangerMode) "Rollback" else "Publish",
                         modifier = Modifier.width(100f.dp).height(36f.dp),
-                        variant = if (state.showcaseDangerMode) ShadcnButtonVariant.Danger else ShadcnButtonVariant.Outline
+                        variant = if (state.showcaseDangerMode) ShadcnButtonVariant.Danger else ShadcnButtonVariant.Outline,
                     )
                 }
 
@@ -297,14 +300,14 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             surface(
                 id = "showcase-theme-radius-config",
                 style = theme.components.surface then Style { shape(12f.dp) },
-                modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent),
             ) {
                 state.showcaseSurfaceRadius = shadcnFieldSlider(
                     id = "showcase-radius",
                     label = "Corner Radius",
                     min = 0f,
                     max = 32f,
-                    value = state.showcaseSurfaceRadius
+                    value = state.showcaseSurfaceRadius,
                 )
             }
         }
@@ -321,7 +324,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
 
     val themeGradient = UiLinearGradient.horizontal(
         start = tokens.primary.withAlpha(0.08f),
-        end = tokens.accent.withAlpha(0.12f)
+        end = tokens.accent.withAlpha(0.12f),
     )
 
     canvas(slot) {
@@ -335,7 +338,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
             x = 0f,
             y = 0f,
             width = bounds.width,
-            height = bounds.height
+            height = bounds.height,
         ) {
             // --- 1. Header Surface (main pass, behind content) ---
             drawGradientRect(
@@ -343,7 +346,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
                 y = 0f,
                 width = bounds.width,
                 height = headerHeight,
-                gradient = themeGradient
+                gradient = themeGradient,
             )
 
             // --- 2. Shimmer Peak (main pass, behind content) ---
@@ -359,7 +362,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
                 y = 0f,
                 width = shimmerWidth / 2f,
                 height = bounds.height,
-                gradient = UiLinearGradient.horizontal(Color.Transparent, highlight)
+                gradient = UiLinearGradient.horizontal(Color.Transparent, highlight),
             )
             // Right half: Highlight -> Transparent
             drawGradientRect(
@@ -367,7 +370,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
                 y = 0f,
                 width = shimmerWidth / 2f,
                 height = bounds.height,
-                gradient = UiLinearGradient.horizontal(highlight, Color.Transparent)
+                gradient = UiLinearGradient.horizontal(highlight, Color.Transparent),
             )
         }
     }

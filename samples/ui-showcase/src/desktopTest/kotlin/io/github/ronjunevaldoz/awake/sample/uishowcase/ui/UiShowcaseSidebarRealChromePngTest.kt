@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeSt
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewScene
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
-import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
@@ -15,9 +14,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnHeadline
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -73,12 +69,12 @@ class UiShowcaseSidebarRealChromePngTest {
         ui.pushTheme(theme)
         ui.row(
             modifier = Modifier.fillMaxSize().padding(24f.dp).width(Dimension.FillMax).height(Dimension.FillMax),
-            horizontalArrangement = Arrangement.spacedBy(20f.dp)
+            horizontalArrangement = Arrangement.spacedBy(20f.dp),
         ) {
             shadcnSidebar(
                 id = "ui-showcase-sidebar",
                 style = Style { shape(16f.dp) },
-                modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.FillMax)
+                modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.FillMax),
             ) {
                 content()
             }
@@ -92,12 +88,12 @@ class UiShowcaseSidebarRealChromePngTest {
                 summary = "Throwaway real-chrome sidebar visual probe.",
                 width = 1440,
                 height = 900,
-                reportScale = 1
+                reportScale = 1,
             ),
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
         saveAwakeUiPreview(scene)
 
@@ -116,7 +112,7 @@ private fun ColumnScope.drawOldUiShowcaseSidebar(compact: Boolean) {
     shadcnBadge("SHADCN", variant = ShadcnBadgeVariant.Primary)
     shadcnHeadline("Catalog")
     shadcnSupportingText(
-        if (compact) "Choose one page at a time." else "Grouped component and pattern pages, following the shadcn-compose catalog layout."
+        if (compact) "Choose one page at a time." else "Grouped component and pattern pages, following the shadcn-compose catalog layout.",
     )
     spacer(Modifier.height(12f.dp))
     ShowcasePagesByCategory.forEach { (category, pages) ->
@@ -129,7 +125,7 @@ private fun ColumnScope.drawOldUiShowcaseSidebar(compact: Boolean) {
                 id = "ui-showcase-sidebar-category-${category.name}",
                 title = category.title,
                 expanded = expanded,
-                onExpandedChange = { expanded = it }
+                onExpandedChange = { expanded = it },
             ) {
                 pages.forEach { page ->
                     drawOldSidebarPageButton(page, selectedPage, startPadding = 24f.dp) { selectedPage = it.id }
@@ -144,7 +140,7 @@ private fun ColumnScope.drawOldSidebarPageButton(
     page: ShowcasePage,
     selectedPageId: String,
     startPadding: io.github.ronjunevaldoz.awake.ui.Dp = 14f.dp,
-    onSelect: (ShowcasePage) -> Unit
+    onSelect: (ShowcasePage) -> Unit,
 ) {
     if (
         shadcnButton(
@@ -154,7 +150,7 @@ private fun ColumnScope.drawOldSidebarPageButton(
             style = Style { contentPadding(start = startPadding, top = 0f.dp, end = 14f.dp, bottom = 0f.dp) },
             variant = if (page.id == selectedPageId) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
             centered = false,
-            verticallyCentered = true
+            verticallyCentered = true,
         )
     ) {
         onSelect(page)

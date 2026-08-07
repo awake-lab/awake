@@ -10,7 +10,6 @@ interface TrueType {
     fun dispose()
 }
 
-
 data class FontMetrics(val ascent: Int, val descent: Int, val lineGap: Int)
 
 expect fun createTrueType(path: String, size: Float): TrueType

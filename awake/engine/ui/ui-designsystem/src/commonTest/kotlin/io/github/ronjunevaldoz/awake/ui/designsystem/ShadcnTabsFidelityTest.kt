@@ -38,10 +38,10 @@ class ShadcnTabsFidelityTest {
                 id = "tabs-fidelity",
                 items = listOf(
                     ShadcnTabItem("account", "Account"),
-                    ShadcnTabItem("password", "Password")
+                    ShadcnTabItem("password", "Password"),
                 ),
                 selected = "account",
-                modifier = Modifier.testTag("tabs-fidelity")
+                modifier = Modifier.testTag("tabs-fidelity"),
             )
             val frameOutput = ui.finishFrame()
 
@@ -49,9 +49,9 @@ class ShadcnTabsFidelityTest {
                 tokenRules = listOf(
                     AwakeUiPreviewTokenRule(
                         nodeId = "tabs-fidelity.track",
-                        expectedBackgroundToken = "muted"
-                    )
-                )
+                        expectedBackgroundToken = "muted",
+                    ),
+                ),
             )
 
             validateAwakeUiPreview(
@@ -61,15 +61,15 @@ class ShadcnTabsFidelityTest {
                     group = "Tabs",
                     summary = "Tabs track fidelity check [${config.id}]",
                     width = (400 * config.scale.scale).toInt(),
-                    height = (200 * config.scale.scale).toInt()
+                    height = (200 * config.scale.scale).toInt(),
                 ),
                 frame = AwakeUiPreviewFrame(
                     primitives = frameOutput.primitives,
                     background = ui.currentTheme.colors.background,
                     font = ui.currentFont,
-                    semantics = frameOutput.semantics
+                    semantics = frameOutput.semantics,
                 ),
-                config = validationConfig
+                config = validationConfig,
             )
         }
 

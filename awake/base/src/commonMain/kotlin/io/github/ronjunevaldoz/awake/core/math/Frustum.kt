@@ -32,7 +32,7 @@ object Frustum {
             farCenter - right * farHalfWidth - up * farHalfHeight,
             farCenter + right * farHalfWidth - up * farHalfHeight,
             farCenter + right * farHalfWidth + up * farHalfHeight,
-            farCenter - right * farHalfWidth + up * farHalfHeight
+            farCenter - right * farHalfWidth + up * farHalfHeight,
         )
     }
 
@@ -45,6 +45,6 @@ object Frustum {
         // far quad
         4 to 5, 5 to 6, 6 to 7, 7 to 4,
         // connecting edges
-        0 to 4, 1 to 5, 2 to 6, 3 to 7
+        0 to 4, 1 to 5, 2 to 6, 3 to 7,
     )
 }

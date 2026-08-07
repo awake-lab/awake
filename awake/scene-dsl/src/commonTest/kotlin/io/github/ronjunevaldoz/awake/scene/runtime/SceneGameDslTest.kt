@@ -2,17 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime
 
-import io.github.ronjunevaldoz.awake.core.math.ClipSpace
-import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.math.Camera
-import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.engine.application.game
 import io.github.ronjunevaldoz.awake.engine.application.gameModule
 import io.github.ronjunevaldoz.awake.engine.application.module
-import io.github.ronjunevaldoz.awake.engine.application.ui
 import io.github.ronjunevaldoz.awake.engine.application.requireService
+import io.github.ronjunevaldoz.awake.engine.application.ui
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -23,19 +21,19 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
-import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
-import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
-import io.github.ronjunevaldoz.awake.scene.runtime.systems.cameraSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.dsl.Modifier
 import io.github.ronjunevaldoz.awake.scene.runtime.dsl.camera
 import io.github.ronjunevaldoz.awake.scene.runtime.dsl.transform
+import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
+import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.cameraSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -119,7 +117,7 @@ class SceneGameDslTest {
                     "cube",
                     recordingRenderer.createMesh(EmptyGeometry),
                     recordingRenderer.createMaterial(),
-                    Modifier().transform(sx = 2f, sy = 2f, sz = 2f)
+                    Modifier().transform(sx = 2f, sy = 2f, sz = 2f),
                 )
                 assets {
                     mesh("cube") { recordingRenderer.createMesh(EmptyGeometry) }

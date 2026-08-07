@@ -19,5 +19,5 @@ enum class VkLogicOp(val value: Int) {
     VK_LOGIC_OP_OR_INVERTED(13),
     VK_LOGIC_OP_NAND(14),
     VK_LOGIC_OP_SET(15),
-    VK_LOGIC_OP_MAX_ENUM(0x7FFFFFFF)
+    VK_LOGIC_OP_MAX_ENUM(0x7FFFFFFF),
 }

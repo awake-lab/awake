@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.childRow
-import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
@@ -16,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.onOverScrollable
 import io.github.ronjunevaldoz.awake.ui.onScrollConsumed
+import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.toPx
 
@@ -58,7 +58,7 @@ fun UiScope.lazyColumn(
     verticalArrangement: Arrangement = defaultArrangement(),
     overscan: Int = 2,
     key: (index: Int) -> Any = { it },
-    itemContent: ColumnScope.(index: Int, key: Any) -> Unit
+    itemContent: ColumnScope.(index: Int, key: Any) -> Unit,
 ): UiBounds {
     val state = requireNotNull(modifier.scrollState) {
         "lazyColumn '$id' requires a scrollState -- supply Modifier.verticalScroll(state)."
@@ -79,7 +79,7 @@ fun UiScope.lazyColumn(
         viewportWidth = slot.width,
         viewportHeight = slot.height,
         contentWidth = slot.width,
-        contentHeight = contentHeightPx
+        contentHeight = contentHeightPx,
     )
 
     recordSemantic(role = UiSemanticRole.ScrollPanel, id = id, bounds = slot)
@@ -105,12 +105,12 @@ fun UiScope.lazyColumn(
                 x = slot.x,
                 y = slot.y + index * stridePx - state.offsetY,
                 width = slot.width,
-                height = itemHeightPx
+                height = itemHeightPx,
             )
             val itemScope = childColumn(
                 slot = itemSlot,
                 verticalArrangement = verticalArrangement,
-                modifier = UiModifier(testTag = "$id.$itemKey")
+                modifier = UiModifier(testTag = "$id.$itemKey"),
             )
             itemScope.itemContent(index, itemKey)
         }
@@ -129,7 +129,7 @@ fun UiScope.lazyRow(
     horizontalArrangement: Arrangement = defaultArrangement(),
     overscan: Int = 2,
     key: (index: Int) -> Any = { it },
-    itemContent: RowScope.(index: Int, key: Any) -> Unit
+    itemContent: RowScope.(index: Int, key: Any) -> Unit,
 ): UiBounds {
     val state = requireNotNull(modifier.scrollState) {
         "lazyRow '$id' requires a scrollState -- supply Modifier.horizontalScroll(state)."
@@ -150,7 +150,7 @@ fun UiScope.lazyRow(
         viewportWidth = slot.width,
         viewportHeight = slot.height,
         contentWidth = contentWidthPx,
-        contentHeight = slot.height
+        contentHeight = slot.height,
     )
 
     recordSemantic(role = UiSemanticRole.ScrollPanel, id = id, bounds = slot)
@@ -176,12 +176,12 @@ fun UiScope.lazyRow(
                 x = slot.x + index * stridePx - state.offsetX,
                 y = slot.y,
                 width = itemWidthPx,
-                height = slot.height
+                height = slot.height,
             )
             val itemScope = childRow(
                 slot = itemSlot,
                 horizontalArrangement = horizontalArrangement,
-                modifier = UiModifier(testTag = "$id.$itemKey")
+                modifier = UiModifier(testTag = "$id.$itemKey"),
             )
             itemScope.itemContent(index, itemKey)
         }

@@ -114,7 +114,7 @@ class Vec4Test {
         "DEFECT: Vec4.times(Mat4)/Mat4.transformPosition compute M^T * v while Mat4.times " +
             "composes matrices for the M * v convention the shaders use, so (p * A) * B != " +
             "p * (A * B). Any CPU-side projection through a composed MVP is wrong today. " +
-            "Un-@Ignore once vector.kt/matrix.kt agree on one convention."
+            "Un-@Ignore once vector.kt/matrix.kt agree on one convention.",
     )
     @Test
     fun timesMat4ShouldAssociateWithMat4Times() {

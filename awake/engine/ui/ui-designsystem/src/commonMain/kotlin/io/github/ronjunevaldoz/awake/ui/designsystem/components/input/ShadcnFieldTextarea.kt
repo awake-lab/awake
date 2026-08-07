@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.input
 
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
@@ -13,13 +12,14 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** `shadcnFieldTextarea`: see the `shadcnField*` control family doc in
  * [io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSwitch] --
@@ -35,13 +35,13 @@ fun ColumnScope.shadcnFieldTextarea(
     enabled: Boolean = true,
     errorText: String? = null,
     minLines: Int = 3,
-    labelContent: UiScope.() -> Unit
+    labelContent: UiScope.() -> Unit,
 ): String {
     val resolvedDefaults = theme.components.textField
     val resolvedStyle = resolveStyle(
         style = style,
         defaults = resolvedDefaults,
-        state = MutableStyleState(disabled = !enabled)
+        state = MutableStyleState(disabled = !enabled),
     )
     val fontHeight = resolveGlyphPx(font, resolvedStyle.textStyle) ?: 0f
     val padding = resolvedStyle.contentPadding
@@ -60,7 +60,7 @@ fun ColumnScope.shadcnFieldTextarea(
             style = style,
             enabled = enabled,
             isError = errorText != null,
-            minLines = minLines
+            minLines = minLines,
         )
     }
     if (errorText != null) {
@@ -78,7 +78,7 @@ fun ColumnScope.shadcnFieldTextarea(
     style: Style = Style.Empty,
     enabled: Boolean = true,
     errorText: String? = null,
-    minLines: Int = 3
+    minLines: Int = 3,
 ): String = shadcnFieldTextarea(
     id = id,
     value = value,
@@ -87,7 +87,7 @@ fun ColumnScope.shadcnFieldTextarea(
     style = style,
     enabled = enabled,
     errorText = errorText,
-    minLines = minLines
+    minLines = minLines,
 ) {
     shadcnFieldLabel(label)
 }

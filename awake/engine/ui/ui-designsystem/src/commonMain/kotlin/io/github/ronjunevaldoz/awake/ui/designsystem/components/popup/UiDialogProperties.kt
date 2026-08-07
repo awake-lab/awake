@@ -12,5 +12,5 @@ data class UiDialogProperties(
     val showScrim: Boolean = true,
     val scrimColor: Color? = null,
     val popupProperties: UiPopupProperties = UiPopupProperties(),
-    val surfaceStyle: Style = Style.Empty
+    val surfaceStyle: Style = Style.Empty,
 )

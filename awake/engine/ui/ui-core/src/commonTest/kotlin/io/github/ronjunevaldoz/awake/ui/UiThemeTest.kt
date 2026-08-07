@@ -20,8 +20,8 @@ class UiThemeTest {
         val hovered = tokens.neutralStyle().resolve(
             MutableStyleState(
                 hovered = true,
-                active = false
-            )
+                active = false,
+            ),
         ).background!!
         val active = tokens.neutralStyle().resolve(MutableStyleState(hovered = true, active = true)).background!!
 
@@ -36,8 +36,8 @@ class UiThemeTest {
         val second = tokens.neutralStyle().resolve(
             MutableStyleState(
                 hovered = true,
-                active = false
-            )
+                active = false,
+            ),
         ).background!!
         assertEquals(first, second, "the same state must always resolve to the same color")
     }
@@ -56,20 +56,20 @@ class UiThemeTest {
         val idle = tokens.destructiveStyle().resolve(
             MutableStyleState(
                 hovered = false,
-                active = false
-            )
+                active = false,
+            ),
         ).background!!
         val hovered = tokens.destructiveStyle().resolve(
             MutableStyleState(
                 hovered = true,
-                active = false
-            )
+                active = false,
+            ),
         ).background!!
         val active = tokens.destructiveStyle().resolve(
             MutableStyleState(
                 hovered = true,
-                active = true
-            )
+                active = true,
+            ),
         ).background!!
 
         assertNotEquals(idle, hovered, "hovered destructive must differ from idle")
@@ -85,7 +85,7 @@ class UiThemeTest {
         assertEquals(UiDefaultTheme.colors.background, custom.colors.background)
         assertEquals(
             UiDefaultTheme.components.button.resolve().background!!,
-            custom.components.button.resolve().background!!
+            custom.components.button.resolve().background!!,
         )
     }
 }

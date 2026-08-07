@@ -3,25 +3,25 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.emitPrimitive
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.gradientBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.gradientRect
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 @AwakeUiDsl
 class CanvasScope internal constructor(
     private val scope: UiScope,
-    val bounds: UiBounds
+    val bounds: UiBounds,
 ) {
     val context get() = scope.context
 
@@ -30,12 +30,12 @@ class CanvasScope internal constructor(
         y: Float,
         width: Float,
         height: Float,
-        content: CanvasScope.() -> Unit
+        content: CanvasScope.() -> Unit,
     ) {
         if (width <= 0f || height <= 0f) return
         CanvasScope(
             scope = scope,
-            bounds = UiBounds(bounds.x + x, bounds.y + y, width, height)
+            bounds = UiBounds(bounds.x + x, bounds.y + y, width, height),
         ).content()
     }
 
@@ -45,7 +45,7 @@ class CanvasScope internal constructor(
         width: Float,
         height: Float,
         color: Color,
-        overlay: Boolean = false
+        overlay: Boolean = false,
     ) {
         if (width <= 0f || height <= 0f) return
         scope.emitPrimitive(
@@ -54,9 +54,9 @@ class CanvasScope internal constructor(
                 y = bounds.y + y,
                 w = width,
                 h = height,
-                color = color
+                color = color,
             ),
-            overlay = overlay
+            overlay = overlay,
         )
     }
 
@@ -66,13 +66,13 @@ class CanvasScope internal constructor(
         width: Float,
         height: Float,
         gradient: UiLinearGradient,
-        overlay: Boolean = false
+        overlay: Boolean = false,
     ) {
         if (width <= 0f || height <= 0f) return
         scope.gradientRect(
             slot = UiBounds(bounds.x + x, bounds.y + y, width, height),
             gradient = gradient,
-            overlay = overlay
+            overlay = overlay,
         )
     }
 
@@ -83,14 +83,14 @@ class CanvasScope internal constructor(
         height: Float,
         gradient: UiLinearGradient,
         borderWidth: Dp = 1f.dp,
-        overlay: Boolean = false
+        overlay: Boolean = false,
     ) {
         if (width <= 0f || height <= 0f) return
         scope.gradientBorder(
             slot = UiBounds(bounds.x + x, bounds.y + y, width, height),
             width = borderWidth,
             gradient = gradient,
-            overlay = overlay
+            overlay = overlay,
         )
     }
 
@@ -104,7 +104,7 @@ class CanvasScope internal constructor(
         borderWidth: Dp = UiShape.none,
         borderColor: Color = Color.Transparent,
         shapeSpec: UiShapeSpec? = UiShapeSpec.RoundedRectangle(radius),
-        overlay: Boolean = false
+        overlay: Boolean = false,
     ) {
         if (width <= 0f || height <= 0f) return
         scope.emitFillAndBorder(
@@ -114,7 +114,7 @@ class CanvasScope internal constructor(
             borderWidth = borderWidth,
             borderColor = borderColor,
             shapeSpec = shapeSpec,
-            overlay = overlay
+            overlay = overlay,
         )
     }
 
@@ -127,7 +127,7 @@ class CanvasScope internal constructor(
         color: Color,
         borderWidth: Dp = UiShape.none,
         borderColor: Color = Color.Transparent,
-        overlay: Boolean = false
+        overlay: Boolean = false,
     ) {
         if (width <= 0f || height <= 0f) return
         val slot = UiBounds(bounds.x + x, bounds.y + y, width, height)
@@ -142,7 +142,7 @@ class CanvasScope internal constructor(
             borderWidth = borderWidth,
             borderColor = borderColor,
             shapeSpec = shape,
-            overlay = overlay
+            overlay = overlay,
         )
     }
 
@@ -153,7 +153,7 @@ class CanvasScope internal constructor(
         color: Color,
         borderWidth: Dp = UiShape.none,
         borderColor: Color = Color.Transparent,
-        overlay: Boolean = false
+        overlay: Boolean = false,
     ) = drawShape(
         shape = UiShapeSpec.Circle,
         x = x,
@@ -163,7 +163,7 @@ class CanvasScope internal constructor(
         color = color,
         borderWidth = borderWidth,
         borderColor = borderColor,
-        overlay = overlay
+        overlay = overlay,
     )
 
     fun drawLine(
@@ -173,7 +173,7 @@ class CanvasScope internal constructor(
         endY: Float,
         color: Color,
         stroke: UiStroke = UiStroke(),
-        overlay: Boolean = false
+        overlay: Boolean = false,
     ) {
         strokePath(
             path = uiPath {
@@ -182,7 +182,7 @@ class CanvasScope internal constructor(
             },
             color = color,
             stroke = stroke,
-            overlay = overlay
+            overlay = overlay,
         )
     }
 
@@ -190,9 +190,9 @@ class CanvasScope internal constructor(
         scope.emitPrimitive(
             UiDrawPrimitive.FilledPath(
                 path = path.transform(translateX = bounds.x, translateY = bounds.y),
-                color = color
+                color = color,
             ),
-            overlay = overlay
+            overlay = overlay,
         )
     }
 
@@ -200,15 +200,15 @@ class CanvasScope internal constructor(
         path: UiPath,
         color: Color,
         stroke: UiStroke = UiStroke(),
-        overlay: Boolean = false
+        overlay: Boolean = false,
     ) {
         scope.emitPrimitive(
             UiDrawPrimitive.StrokedPath(
                 path = path.transform(translateX = bounds.x, translateY = bounds.y),
                 stroke = stroke,
-                color = color
+                color = color,
             ),
-            overlay = overlay
+            overlay = overlay,
         )
     }
 
@@ -219,7 +219,7 @@ class CanvasScope internal constructor(
         color: Color = context.currentTextStyle.color ?: context.currentTheme.colors.foreground,
         font: UiFont = context.currentFont,
         textStyle: TextStyle = context.currentTextStyle,
-        overlay: Boolean = false
+        overlay: Boolean = false,
     ) {
         if (text.isEmpty()) return
         val glyphPx = scope.resolveGlyphPx(font = font, textStyle = textStyle)
@@ -241,9 +241,9 @@ class CanvasScope internal constructor(
                         v0 = glyph.v0,
                         u1 = glyph.u1,
                         v1 = glyph.v1,
-                        color = color
+                        color = color,
                     ),
-                    overlay = overlay
+                    overlay = overlay,
                 )
             }
             cursorX += font.advanceFor(char, glyphPx)
@@ -256,7 +256,7 @@ class CanvasScope internal constructor(
         width: Float,
         height: Float,
         material: Any,
-        overlay: Boolean = false
+        overlay: Boolean = false,
     ) {
         if (width <= 0f || height <= 0f) return
         scope.emitPrimitive(
@@ -265,9 +265,9 @@ class CanvasScope internal constructor(
                 y = bounds.y + y,
                 w = width,
                 h = height,
-                material = material
+                material = material,
             ),
-            overlay = overlay
+            overlay = overlay,
         )
     }
 
@@ -276,7 +276,7 @@ class CanvasScope internal constructor(
         y: Float,
         width: Float,
         height: Float,
-        content: CanvasScope.() -> Unit
+        content: CanvasScope.() -> Unit,
     ) {
         if (width <= 0f || height <= 0f) return
         scope.clip(UiBounds(bounds.x + x, bounds.y + y, width, height)) {
@@ -296,13 +296,13 @@ class CanvasScope internal constructor(
         y: Float,
         width: Float,
         height: Float,
-        content: CanvasScope.() -> Unit
+        content: CanvasScope.() -> Unit,
     ) {
         if (width <= 0f || height <= 0f) return
         val clipRect = UiBounds(bounds.x + x, bounds.y + y, width, height)
         scope.clip(
             shape = shape,
-            rect = clipRect
+            rect = clipRect,
         ) {
             // Must match [nested]'s local-coordinate-frame translation: the clip mask is
             // anchored at [clipRect], but the old code re-based the inner CanvasScope on the
@@ -316,7 +316,7 @@ class CanvasScope internal constructor(
 
 fun UiScope.canvas(
     modifier: UiModifier = Modifier,
-    content: CanvasScope.() -> Unit
+    content: CanvasScope.() -> Unit,
 ): UiBounds {
     val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.FillMax))
     CanvasScope(this, slot).content()
@@ -325,7 +325,7 @@ fun UiScope.canvas(
 
 fun UiScope.canvas(
     slot: UiBounds,
-    content: CanvasScope.() -> Unit
+    content: CanvasScope.() -> Unit,
 ) {
     CanvasScope(this, slot).content()
 }

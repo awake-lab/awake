@@ -35,7 +35,7 @@ fun createVulkanMutator(clazz: Class<*>) {
     val awakeVulkanCpp = "awake-backend-vulkan/src/main/cpp/vulkan-kotlin"
     FileWriter.writeFile(
         "$awakeVulkanCpp/includes/${clazz.simpleName + "Mutator"}.h",
-        cppClassCode.first
+        cppClassCode.first,
     )
     FileWriter.writeFile("$awakeVulkanCpp/${clazz.simpleName + "Mutator"}.cpp", cppClassCode.second)
 }
@@ -70,9 +70,10 @@ fun CppClassBuilder.createConstructor(clazz: Class<*>) {
     val declareMembers = clazz.declaredFields
     constructor(
         true,
-        1, listOf(
+        1,
+        listOf(
             Pair("env", "JNIEnv*"),
-        )
+        ),
     ) {
         body(2) {
             child("this->env = env;")
@@ -96,8 +97,10 @@ fun CppClassBuilder.createConstructor(clazz: Class<*>) {
 fun CppClassBuilder.createToObjectFunction(clazz: Class<*>) {
     val declareMembers = clazz.declaredFields
     function(
-        1, "jobject", "toObject",
-        listOf(Pair("source", clazz.simpleName))
+        1,
+        "jobject",
+        "toObject",
+        listOf(Pair("source", clazz.simpleName)),
     ) {
         body(2) {
             // return clazz info
@@ -107,7 +110,8 @@ fun CppClassBuilder.createToObjectFunction(clazz: Class<*>) {
                 when {
                     javaMember.type.isArray -> processMutatorArray(
                         javaMember,
-                        import = { import(it) })
+                        import = { import(it) },
+                    )
 
                     javaMember.type.isEnum -> processMutatorEnum(javaMember)
                     // int, byte, short, long, float, double, boolean and char
@@ -123,7 +127,7 @@ fun CppClassBuilder.createToObjectFunction(clazz: Class<*>) {
 
 fun CppFunctionBodyBuilder.processMutatorObject(
     javaMember: Field,
-    import: (dependency: String) -> Unit
+    import: (dependency: String) -> Unit,
 ) {
     val fieldIdName = javaMember.name + "Field"
     val objName = javaMember.name
@@ -148,7 +152,6 @@ fun CppFunctionBodyBuilder.processMutatorObject(
     child("env->DeleteLocalRef($objName);")
 }
 
-
 fun CppFunctionBodyBuilder.processMutatorPrimitive(javaMember: Field) {
     val fieldIdName = javaMember.name + "Field"
     if (javaMember.toJavaType() == JNIType.JChar) {
@@ -161,7 +164,7 @@ fun CppFunctionBodyBuilder.processMutatorPrimitive(javaMember: Field) {
             "env",
             "newObj",
             fieldIdName,
-            functionName
+            functionName,
         )
         child("$assignPrimitiveValue;")
     }
@@ -169,7 +172,7 @@ fun CppFunctionBodyBuilder.processMutatorPrimitive(javaMember: Field) {
 
 fun CppFunctionBodyBuilder.processMutatorArray(
     javaMember: Field,
-    import: (dependency: String) -> Unit
+    import: (dependency: String) -> Unit,
 ) {
     val fieldIdName = javaMember.name + "Field"
     if (javaMember.type.componentType.isPrimitive) {
@@ -184,8 +187,8 @@ fun CppFunctionBodyBuilder.processMutatorArray(
                 javaMember.name,
                 "0",
                 arraySize,
-                buffer
-            )
+                buffer,
+            ),
         )
         child("env->SetObjectField(newObj, $fieldIdName, ${javaMember.name});")
         child("env->DeleteLocalRef(${javaMember.name});")
@@ -200,9 +203,9 @@ fun CppFunctionBodyBuilder.processMutatorArray(
                 "jclass ${javaMember.name}Clazz = env->FindClass(\"${
                     javaMember.type.componentType.name.replace(
                         ".",
-                        "/"
+                        "/",
                     )
-                }\");"
+                }\");",
             )
             child("${javaMember.toJavaTypeArray()} $vulkanArrayName = env->NewObjectArray(source.${javaArray.sizeAlias}, ${javaMember.name}Clazz, nullptr);")
             child("for (int i = 0; i < source.${javaArray.sizeAlias}; ++i) {")
@@ -225,7 +228,7 @@ fun CppFunctionBodyBuilder.processMutatorEnum(javaMember: Field) {
         "env",
         "newObj",
         fieldIdName,
-        javaMember.name
+        javaMember.name,
     )
     child("auto ${javaMember.name} = $functionName;")
     child("$assignEnumValue;")

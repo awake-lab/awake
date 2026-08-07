@@ -45,8 +45,8 @@ fun UiModifier.paddingEnd(end: Dp): UiModifier = padding(0.dp, 0.dp, end, 0.dp)
 fun UiModifier.padding(horizontal: Dp, vertical: Dp): UiModifier = copy(
     insets = UiInsets(
         horizontal,
-        vertical
-    )
+        vertical,
+    ),
 )
 
 fun UiModifier.padding(start: Dp, top: Dp, end: Dp, bottom: Dp): UiModifier =

@@ -28,7 +28,7 @@ fun saveUiSnapshot(
     width: Int,
     height: Int,
     background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
-    font: UiFont? = null
+    font: UiFont? = null,
 ) {
     val pixels = primitives.rasterize(width, height, background, font)
     val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
@@ -55,7 +55,7 @@ fun saveUiTutorialSnapshot(
     width: Int,
     height: Int,
     background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
-    font: UiFont? = null
+    font: UiFont? = null,
 ) {
     saveUiSnapshot(name, primitives, width, height, background, font)
 

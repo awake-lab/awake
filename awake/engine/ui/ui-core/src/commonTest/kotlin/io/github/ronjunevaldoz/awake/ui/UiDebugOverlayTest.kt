@@ -3,11 +3,11 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.resolveRootSlot
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.resolveRootSlot
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,7 +30,7 @@ class UiDebugOverlayTest {
             role = UiSemanticRole.Button,
             bounds = UiBounds(0f, 0f, 100f, 40f),
             contentBounds = UiBounds(8f, 8f, 84f, 24f),
-            clippedBounds = UiBounds(0f, 0f, 60f, 40f)
+            clippedBounds = UiBounds(0f, 0f, 60f, 40f),
         )
         val primitives = node.debugOverlayPrimitives().filterIsInstance<UiDrawPrimitive.StrokedPath>()
         assertEquals(3, primitives.size)
@@ -42,12 +42,16 @@ class UiDebugOverlayTest {
     fun contextOverlaySurvivesPastEndFrameUntilNextBeginFrame() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(slot = ui.resolveRootSlot(Modifier.offset(10f.dp, 10f.dp), defaultWidth = Dimension.Fixed(0.dp), defaultHeight = Dimension.Fixed(0.dp))).recordSemantic(role = UiSemanticRole.Button, bounds = UiBounds(
-            10f,
-            10f,
-            80f,
-            32f
-        ), id = "b")
+        ui.createAbsolute(slot = ui.resolveRootSlot(Modifier.offset(10f.dp, 10f.dp), defaultWidth = Dimension.Fixed(0.dp), defaultHeight = Dimension.Fixed(0.dp))).recordSemantic(
+            role = UiSemanticRole.Button,
+            bounds = UiBounds(
+                10f,
+                10f,
+                80f,
+                32f,
+            ),
+            id = "b",
+        )
         ui.endFrame()
 
         val overlay = ui.debugOverlayPrimitives()

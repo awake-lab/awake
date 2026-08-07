@@ -7,24 +7,24 @@ import io.github.ronjunevaldoz.awake.engine.application.GameInstaller
 import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
 import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.Continuation
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.startCoroutine
 
 data class SceneRoute(
     val id: String,
     val label: String,
-    val spec: SceneGameSpec
+    val spec: SceneGameSpec,
 )
 
 data class SceneRouteInfo(
     val id: String,
-    val label: String
+    val label: String,
 )
 
 class SceneRouterSpec(
     routes: List<SceneRoute>,
-    private val initialRouteId: String
+    private val initialRouteId: String,
 ) : GameInstaller {
     internal val routes: List<SceneRoute> = routes.toList()
 
@@ -50,7 +50,7 @@ class SceneRouterSpec(
 class SceneRouterRuntime internal constructor(
     routes: List<SceneRoute>,
     initialRouteId: String,
-    private val services: GameServiceLookup
+    private val services: GameServiceLookup,
 ) : Game {
     private val routesById = routes.associateBy(SceneRoute::id)
     val scenes: List<SceneRouteInfo> = routes.map { SceneRouteInfo(id = it.id, label = it.label) }
@@ -138,7 +138,7 @@ private fun runImmediateReady(block: suspend () -> Unit) {
                 completed = true
                 failure = result.exceptionOrNull()
             }
-        }
+        },
     )
     check(completed) {
         "Routed scene activation cannot suspend after startup. Keep routed scene ready() work immediate."

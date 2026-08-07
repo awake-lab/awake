@@ -3,10 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui.font
 
 import kotlin.test.Test
-import kotlin.test.assertNotNull
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class BitmapFontTest {
 
@@ -48,7 +48,7 @@ class BitmapFontTest {
                 glyph.widthEm * glyphPx,
                 font.advanceFor(char, glyphPx),
                 "'$char' advance must match its quad width -- BitmapFont draws a full 1em-wide" +
-                    " quad per glyph, so a narrower advance makes consecutive glyphs overlap"
+                    " quad per glyph, so a narrower advance makes consecutive glyphs overlap",
             )
         }
     }

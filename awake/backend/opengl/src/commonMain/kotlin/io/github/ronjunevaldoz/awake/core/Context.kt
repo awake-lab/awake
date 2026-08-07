@@ -34,13 +34,13 @@ class AwakeContext(override val gl: OpenGL, override val config: Config) : Conte
                 val resolvedConfig = Config(debug = debug).apply(config)
                 instance = AwakeContext(
                     gl = gl,
-                    config = resolvedConfig
+                    config = resolvedConfig,
                 )
                 // GameLoop is backend-agnostic and can't depend on this OpenGL Context/Config,
                 // so mirror fps/ups into the generic holder it actually reads (D11 follow-up).
                 EngineConfigHolder.config = EngineConfig(
                     fps = resolvedConfig.fps,
-                    ups = resolvedConfig.ups
+                    ups = resolvedConfig.ups,
                 )
             }
             return instance as Context

@@ -28,7 +28,7 @@ class JoltPhysicsWorldTest {
                 shape = SphereShape(radius = 0.5f),
                 position = Vec3(0f, startY, 0f),
                 rotation = Vec3(0f, 0f, 0f),
-                motionType = MotionType.DYNAMIC
+                motionType = MotionType.DYNAMIC,
             )
 
             val deltaTime = 1f / 60f
@@ -48,7 +48,7 @@ class JoltPhysicsWorldTest {
                 abs(fallDistance - expectedFallDistance) < expectedFallDistance * 0.2f,
                 "Expected the sphere to fall about $expectedFallDistance m over $steps steps " +
                     "of $deltaTime s each, but it fell $fallDistance m " +
-                    "(from y=$startY to y=${transform.position.y})."
+                    "(from y=$startY to y=${transform.position.y}).",
             )
         } finally {
             world.destroy()

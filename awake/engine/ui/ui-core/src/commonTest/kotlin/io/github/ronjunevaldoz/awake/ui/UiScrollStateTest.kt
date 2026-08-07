@@ -56,7 +56,7 @@ class UiScrollStateTest {
 
         val thumb = verticalScrollThumb(
             track = UiBounds(90f, 10f, 6f, 80f),
-            state = state
+            state = state,
         )
 
         assertNotNull(thumb)

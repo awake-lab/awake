@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
  */
 class SimpleShader private constructor(
     private val vertSource: String,
-    private val fragSource: String
+    private val fragSource: String,
 ) : DefaultShader() {
 
     var transformMatrix by uniform
@@ -27,11 +27,11 @@ class SimpleShader private constructor(
     override fun getFragmentSource(): String = fragSource
 
     companion object {
-        private const val shaderDir = "assets/shader"
+        private const val SHADER_DIR = "assets/shader"
 
         suspend fun create(vertFile: String, fragFile: String, define: String = ""): SimpleShader {
-            val vertString = readResourceBytes("$shaderDir/$vertFile").decodeToString()
-            val fragString = readResourceBytes("$shaderDir/$fragFile").decodeToString()
+            val vertString = readResourceBytes("$SHADER_DIR/$vertFile").decodeToString()
+            val fragString = readResourceBytes("$SHADER_DIR/$fragFile").decodeToString()
             return SimpleShader(define + vertString, define + fragString)
         }
     }

@@ -43,8 +43,8 @@ internal fun Renderer.buildUiFramebuffers(renderPass: Long): List<Long> = swapch
             pAttachments = arrayOf(imageView),
             width = swapchainManager.extent.width,
             height = swapchainManager.extent.height,
-            layers = 1
-        )
+            layers = 1,
+        ),
     )
 }.toList()
 
@@ -94,7 +94,7 @@ private fun Renderer.buildUiGlyphRenderPipeline(renderPass: Long, font: UiFont):
         uiGlyphShaders.vertex,
         uiGlyphShaders.fragment,
         ensureFontTexture(font),
-        font
+        font,
     )
 
 internal fun Renderer.ensureFontTexture(font: UiFont): Texture {
@@ -120,8 +120,8 @@ internal fun Renderer.ensureFontTexture(font: UiFont): Texture {
             addressModeU = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
             addressModeV = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
             addressModeW = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-            mipmapMode = VkSamplerMipmapMode.VK_SAMPLER_MIPMAP_MODE_NEAREST
-        )
+            mipmapMode = VkSamplerMipmapMode.VK_SAMPLER_MIPMAP_MODE_NEAREST,
+        ),
     ).also { fontTexture = it }
 }
 
@@ -138,7 +138,7 @@ internal fun Renderer.ensureTextureQuadPipeline() {
         renderPass,
         uiTextureShaders.vertex,
         uiTextureShaders.fragment,
-        maxFramesInFlight
+        maxFramesInFlight,
     )
 }
 
@@ -154,7 +154,7 @@ internal fun Renderer.ensureRoundedQuadPipeline() {
         swapchainManager,
         renderPass,
         uiRoundedQuadShaders.vertex,
-        uiRoundedQuadShaders.fragment
+        uiRoundedQuadShaders.fragment,
     )
 }
 
@@ -168,7 +168,7 @@ internal fun Renderer.ensureOffscreenQuadPipeline() {
         swapchainManager,
         uiShaders.vertex,
         uiShaders.fragment,
-        externalRenderPass = renderPipeline.renderPass
+        externalRenderPass = renderPipeline.renderPass,
     )
 }
 
@@ -182,6 +182,6 @@ internal fun Renderer.ensureOffscreenRoundedQuadPipeline() {
         swapchainManager,
         renderPipeline.renderPass,
         uiRoundedQuadShaders.vertex,
-        uiRoundedQuadShaders.fragment
+        uiRoundedQuadShaders.fragment,
     )
 }

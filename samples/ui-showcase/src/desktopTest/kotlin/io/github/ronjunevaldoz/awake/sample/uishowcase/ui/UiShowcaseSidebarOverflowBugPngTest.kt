@@ -50,14 +50,14 @@ class UiShowcaseSidebarOverflowBugPngTest {
             shadcnSidebar(
                 id = "overflow-repro-sidebar",
                 style = Style { border(1f.dp, theme.colors.foreground) },
-                modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.Fixed(80f.dp))
+                modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.Fixed(80f.dp)),
             ) {
                 shadcnSidebarGroup {
                     shadcnSidebarMenu {
                         shadcnSidebarMenuItem(
                             id = "overflow-repro-item",
                             label = "Dropdown Menu And Dialog",
-                            active = false
+                            active = false,
                         )
                     }
                 }
@@ -72,12 +72,12 @@ class UiShowcaseSidebarOverflowBugPngTest {
                 summary = "Isolated sidebar label overflow repro.",
                 width = 360,
                 height = 90,
-                reportScale = 2
+                reportScale = 2,
             ),
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
         saveAwakeUiPreview(scene)
     }

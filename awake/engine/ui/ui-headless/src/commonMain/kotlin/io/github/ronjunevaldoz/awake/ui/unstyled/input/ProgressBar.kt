@@ -3,20 +3,20 @@
 package io.github.ronjunevaldoz.awake.ui.headless.input
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.resolveSurface
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 private const val PROGRESS_TRACK_HEIGHT_DP = 8f
@@ -31,13 +31,13 @@ fun UiScope.progress(
     id: String,
     value: Float,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ) {
     val theme = context.currentTheme
     val surface = resolveSurface(
         modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(PROGRESS_TRACK_HEIGHT_DP.dp)),
         style = style,
-        defaults = theme.components.slider
+        defaults = theme.components.slider,
     )
     paintSurface(slot = surface.slot, resolved = surface.resolved)
     val fraction = value.coerceIn(0f, 1f)
@@ -45,19 +45,18 @@ fun UiScope.progress(
     val fillWidth = (surface.slot.width * animatedFraction).coerceAtLeast(0f)
     if (fillWidth > 0f) {
         emitFillAndBorder(
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(surface.slot.x, surface.slot.y, fillWidth, surface.slot.height)
-                ,
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(surface.slot.x, surface.slot.y, fillWidth, surface.slot.height),
             fillColor = surface.resolved.foreground ?: theme.colors.primary,
             radiusPx = 0f,
             borderWidth = UiShape.none,
             borderColor = Color.Transparent,
-            shapeSpec = UiShapeSpec.Pill
+            shapeSpec = UiShapeSpec.Pill,
         )
     }
     recordSemantic(
         role = UiSemanticRole.Text,
         id = id,
         label = "${(fraction * 100).toInt()}%",
-        bounds = surface.slot
+        bounds = surface.slot,
     )
 }

@@ -14,7 +14,7 @@ import kotlinx.serialization.json.jsonPrimitive
 private data class DesignTokensSchema(
     val file_key: String,
     val modes: List<String>,
-    val tokens: Map<String, Map<String, JsonElement>>
+    val tokens: Map<String, Map<String, JsonElement>>,
 )
 
 /**
@@ -22,7 +22,7 @@ private data class DesignTokensSchema(
  * and provides type-safe access for fidelity tests.
  */
 class FigmaVariableProvider private constructor(
-    private val schema: DesignTokensSchema
+    private val schema: DesignTokensSchema,
 ) {
     companion object {
         private val json = Json { ignoreUnknownKeys = true }

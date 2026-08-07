@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.core.application
 
 import io.github.ronjunevaldoz.awake.core.utils.Time
 
-
 object AndroidGameLoop : GameLoop {
     private val desiredFrameRate = EngineConfigHolder.config.fps
     private val desiredFrameTimeMillis = (1000 / desiredFrameRate).toLong()
@@ -12,7 +11,6 @@ object AndroidGameLoop : GameLoop {
     private var fpsTimer = 0L
     private var frames = 0
     private var fps = 0
-
 
     override fun startLoop(onUpdate: (deltaTime: Double) -> Unit) {
         // Measure the current time using nanoseconds

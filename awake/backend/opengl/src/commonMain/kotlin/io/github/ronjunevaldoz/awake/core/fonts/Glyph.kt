@@ -14,5 +14,5 @@ data class Glyph(
     val code: Int,
     val size: Vec2,
     val bearing: Vec2,
-    val advance: Int
+    val advance: Int,
 )

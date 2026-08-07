@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan.material
 
-import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkShaderStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
@@ -25,6 +24,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.texture.ShadowMap
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 
 /**
  * Phase 2 (renderer abstraction): owns the MVP-matrix uniform buffer and the descriptor
@@ -53,7 +53,7 @@ class Material(
      * shader samples it" reasoning the base-color texture bindings (1/2) already use. `null`
      * (default) keeps every existing Material caller's descriptor-set layout/uniform buffer
      * exactly as it was before shadows existed. */
-    private val shadowMap: ShadowMap? = null
+    private val shadowMap: ShadowMap? = null,
 ) : RenderMaterial {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -113,7 +113,7 @@ class Material(
         }
         val (rawUniformBuffer, rawUniformBufferMemory) = createMaterialUniformBuffer(
             graphicsDevice,
-            uniformFloatCount
+            uniformFloatCount,
         )
         val rawDescriptorPool = createMaterialDescriptorPool(device, shadowMap != null)
         val rawDescriptorSet = createMaterialDescriptorSet(
@@ -126,14 +126,14 @@ class Material(
                 sampler = samplerHandle,
                 imageView = imageViewHandle,
                 shadowSampler = shadowMap?.sampler,
-                shadowImageView = shadowMap?.imageView
-            )
+                shadowImageView = shadowMap?.imageView,
+            ),
         )
         return UniformSlot(
             descriptorPool = DescriptorPoolHandle(rawDescriptorPool),
             descriptorSet = DescriptorSetHandle(rawDescriptorSet),
             uniformBuffer = BufferHandle(rawUniformBuffer),
-            uniformBufferMemory = DeviceMemoryHandle(rawUniformBufferMemory)
+            uniformBufferMemory = DeviceMemoryHandle(rawUniformBufferMemory),
         )
     }
 
@@ -176,7 +176,7 @@ class Material(
             commandBuffer,
             pipelineLayout,
             0,
-            uniformSlot(frameIndex, drawSlotIndex).descriptorSet.handle
+            uniformSlot(frameIndex, drawSlotIndex).descriptorSet.handle,
         )
     }
 
@@ -195,7 +195,7 @@ class Material(
         val descriptorPool: DescriptorPoolHandle,
         val descriptorSet: DescriptorSetHandle,
         val uniformBuffer: BufferHandle,
-        val uniformBufferMemory: DeviceMemoryHandle
+        val uniformBufferMemory: DeviceMemoryHandle,
     )
 
     companion object {
@@ -218,7 +218,7 @@ class Material(
                     // bits are required or vkCreateGraphicsPipelines fails validation
                     // (VUID-VkGraphicsPipelineCreateInfo-layout-07988) the moment a
                     // shader stage reads a binding this layout didn't declare for it.
-                    stageFlags = VkShaderStageFlagBits.VERTEX.value or VkShaderStageFlagBits.FRAGMENT.value
+                    stageFlags = VkShaderStageFlagBits.VERTEX.value or VkShaderStageFlagBits.FRAGMENT.value,
                 ),
                 // Two separate bindings (image + sampler), not one combined-image-
                 // sampler -- WGSL has no combined-sampler type at all, so naga always
@@ -231,13 +231,13 @@ class Material(
                 VkDescriptorSetLayoutBinding(
                     binding = 1,
                     descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value,
                 ),
                 VkDescriptorSetLayoutBinding(
                     binding = 2,
                     descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
-                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value
-                )
+                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value,
+                ),
             )
             if (shadowMap != null) {
                 // Bindings 3/4: the shadow depth map, same image+sampler split as 1/2 above --
@@ -245,19 +245,19 @@ class Material(
                 bindings += VkDescriptorSetLayoutBinding(
                     binding = 3,
                     descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value,
                 )
                 bindings += VkDescriptorSetLayoutBinding(
                     binding = 4,
                     descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
-                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value,
                 )
             }
             return DescriptorSetLayoutHandle(
                 VulkanDescriptors.vkCreateDescriptorSetLayout(
                     graphicsDevice.device,
-                    VkDescriptorSetLayoutCreateInfo(pBindings = bindings.toTypedArray())
-                )
+                    VkDescriptorSetLayoutCreateInfo(pBindings = bindings.toTypedArray()),
+                ),
             )
         }
     }
@@ -270,21 +270,21 @@ private fun createMaterialUniformBuffer(graphicsDevice: GraphicsDevice, uniformF
         VkBufferCreateInfo(
             size = (uniformFloatCount * Float.SIZE_BYTES).toLong(),
             usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        )
+        ),
     )
     val memRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, rawUniformBuffer)
     val memoryTypeIndex = VulkanBuffers.findMemoryType(
         graphicsDevice.physicalDevice,
         memRequirements.memoryTypeBits,
         VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
     )
     val rawUniformBufferMemory = VulkanBuffers.vkAllocateMemory(
         device,
         VkMemoryAllocateInfo(
             allocationSize = memRequirements.size,
-            memoryTypeIndex = memoryTypeIndex
-        )
+            memoryTypeIndex = memoryTypeIndex,
+        ),
     )
     VulkanBuffers.vkBindBufferMemory(device, rawUniformBuffer, rawUniformBufferMemory, 0)
     return rawUniformBuffer to rawUniformBufferMemory
@@ -297,29 +297,29 @@ private fun createMaterialDescriptorPool(device: Long, hasShadowMap: Boolean): L
         pPoolSizes = arrayOf(
             VkDescriptorPoolSize(
                 type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                descriptorCount = 1
+                descriptorCount = 1,
             ),
             VkDescriptorPoolSize(
                 type = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-                descriptorCount = if (hasShadowMap) 2 else 1
+                descriptorCount = if (hasShadowMap) 2 else 1,
             ),
             VkDescriptorPoolSize(
                 type = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
-                descriptorCount = if (hasShadowMap) 2 else 1
-            )
-        )
-    )
+                descriptorCount = if (hasShadowMap) 2 else 1,
+            ),
+        ),
+    ),
 )
 
 private fun createMaterialDescriptorSet(
     device: Long,
     descriptorPool: Long,
-    bindings: MaterialDescriptorSetBindings
+    bindings: MaterialDescriptorSetBindings,
 ): Long {
     val rawDescriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(
         device,
         descriptorPool,
-        bindings.descriptorSetLayout
+        bindings.descriptorSetLayout,
     )
     VulkanDescriptors.vkUpdateDescriptorSetBuffer(
         device,
@@ -328,8 +328,8 @@ private fun createMaterialDescriptorSet(
         VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
         VkDescriptorBufferInfo(
             buffer = bindings.uniformBuffer,
-            range = (bindings.uniformFloatCount * Float.SIZE_BYTES).toLong()
-        )
+            range = (bindings.uniformFloatCount * Float.SIZE_BYTES).toLong(),
+        ),
     )
     // Two separate writes -- see the descriptor set layout's own comment for why. Vulkan
     // ignores whichever of sampler/imageView doesn't apply to a given descriptorType, so
@@ -341,8 +341,8 @@ private fun createMaterialDescriptorSet(
         VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
         VkDescriptorImageInfo(
             sampler = 0L,
-            imageView = bindings.imageView
-        )
+            imageView = bindings.imageView,
+        ),
     )
     VulkanDescriptors.vkUpdateDescriptorSetImage(
         device,
@@ -351,8 +351,8 @@ private fun createMaterialDescriptorSet(
         VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
         VkDescriptorImageInfo(
             sampler = bindings.sampler,
-            imageView = 0L
-        )
+            imageView = 0L,
+        ),
     )
     if (bindings.shadowImageView != null && bindings.shadowSampler != null) {
         VulkanDescriptors.vkUpdateDescriptorSetImage(
@@ -360,14 +360,14 @@ private fun createMaterialDescriptorSet(
             rawDescriptorSet,
             3,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-            VkDescriptorImageInfo(sampler = 0L, imageView = bindings.shadowImageView)
+            VkDescriptorImageInfo(sampler = 0L, imageView = bindings.shadowImageView),
         )
         VulkanDescriptors.vkUpdateDescriptorSetImage(
             device,
             rawDescriptorSet,
             4,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
-            VkDescriptorImageInfo(sampler = bindings.shadowSampler, imageView = 0L)
+            VkDescriptorImageInfo(sampler = bindings.shadowSampler, imageView = 0L),
         )
     }
     return rawDescriptorSet
@@ -380,5 +380,5 @@ private data class MaterialDescriptorSetBindings(
     val sampler: Long,
     val imageView: Long,
     val shadowSampler: Long? = null,
-    val shadowImageView: Long? = null
+    val shadowImageView: Long? = null,
 )

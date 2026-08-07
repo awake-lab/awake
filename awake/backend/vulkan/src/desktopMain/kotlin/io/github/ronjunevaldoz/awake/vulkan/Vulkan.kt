@@ -78,7 +78,7 @@ actual object Vulkan {
      */
     actual external fun vkEnumerateDeviceExtensionProperties(
         @VkHandleRef("VkPhysicalDevice") physicalDevice: Long,
-        layerName: String?
+        layerName: String?,
     ): Array<VkExtensionProperties>
 
     /**
@@ -124,7 +124,7 @@ actual object Vulkan {
     @VkReturnType("VkImage")
     actual external fun vkGetSwapchainImagesKHR(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkSwapchainKHR") swapchain: Long
+        @VkHandleRef("VkSwapchainKHR") swapchain: Long,
     ): LongArray
 
     /**
@@ -137,7 +137,7 @@ actual object Vulkan {
     @VkReturnType("VkDevice")
     actual external fun vkCreateDevice(
         @VkHandleRef("VkPhysicalDevice") physicalDevice: Long,
-        deviceInfo: VkDeviceCreateInfo
+        deviceInfo: VkDeviceCreateInfo,
     ): Long
 
     /**
@@ -159,7 +159,7 @@ actual object Vulkan {
     actual external fun vkGetDeviceQueue(
         @VkHandleRef("VkDevice") device: Long,
         queueFamilyIndex: Int,
-        queueIndex: Int
+        queueIndex: Int,
     ): Long
 
     /**
@@ -172,7 +172,7 @@ actual object Vulkan {
     @VkReturnType("VkSurfaceKHR")
     actual fun vkCreateAndroidSurfaceKHR(
         @VkHandleRef("VkInstance") instance: Long,
-        surfaceInfo: VkAndroidSurfaceCreateInfoKHR
+        surfaceInfo: VkAndroidSurfaceCreateInfoKHR,
     ): Long {
         TODO("Not yet implemented")
     }
@@ -188,7 +188,7 @@ actual object Vulkan {
     actual external fun vkGetPhysicalDeviceSurfaceSupportKHR(
         @VkHandleRef("VkPhysicalDevice") physicalDevice: Long,
         queueFamilyIndex: Int,
-        @VkHandleRef("VkSurfaceKHR") surface: Long
+        @VkHandleRef("VkSurfaceKHR") surface: Long,
     ): Boolean
 
     /**
@@ -199,7 +199,7 @@ actual object Vulkan {
      */
     actual external fun vkDestroySurfaceKHR(
         @VkHandleRef("VkInstance") instance: Long,
-        @VkHandleRef("VkSurfaceKHR") surface: Long
+        @VkHandleRef("VkSurfaceKHR") surface: Long,
     )
 
     /**
@@ -211,7 +211,7 @@ actual object Vulkan {
      */
     actual external fun vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
         @VkHandleRef("VkPhysicalDevice") physicalDevice: Long,
-        @VkHandleRef("VkSurfaceKHR") surface: Long
+        @VkHandleRef("VkSurfaceKHR") surface: Long,
     ): VkSurfaceCapabilitiesKHR
 
     /**
@@ -223,7 +223,7 @@ actual object Vulkan {
      */
     actual external fun vkGetPhysicalDeviceSurfaceFormatsKHR(
         @VkHandleRef("VkPhysicalDevice") physicalDevice: Long,
-        @VkHandleRef("VkSurfaceKHR") surface: Long
+        @VkHandleRef("VkSurfaceKHR") surface: Long,
     ): Array<VkSurfaceFormatKHR>
 
     /**
@@ -235,7 +235,7 @@ actual object Vulkan {
      */
     actual external fun vkGetPhysicalDeviceSurfacePresentModesKHR(
         @VkHandleRef("VkPhysicalDevice") physicalDevice: Long,
-        @VkHandleRef("VkSurfaceKHR") surface: Long
+        @VkHandleRef("VkSurfaceKHR") surface: Long,
     ): Array<VkPresentModeKHR>
 
     /**
@@ -248,7 +248,7 @@ actual object Vulkan {
     @VkReturnType("VkSwapchainKHR")
     actual external fun vkCreateSwapchainKHR(
         @VkHandleRef("VkDevice") device: Long,
-        createInfoKHR: VkSwapchainCreateInfoKHR
+        createInfoKHR: VkSwapchainCreateInfoKHR,
     ): Long
 
     /**
@@ -259,125 +259,125 @@ actual object Vulkan {
      */
     actual external fun vkDestroySwapchainKHR(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkSwapchainKHR") swapchainKHR: Long
+        @VkHandleRef("VkSwapchainKHR") swapchainKHR: Long,
     )
 
     @VkReturnType("VkImageView")
     actual external fun vkCreateImageView(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkImageViewCreateInfo
+        createInfo: VkImageViewCreateInfo,
     ): Long
 
     actual external fun vkDestroyImageView(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkImageView") imageView: Long
+        @VkHandleRef("VkImageView") imageView: Long,
     )
 
     @VkReturnType("VkShaderModule")
     actual external fun vkCreateShaderModule(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkShaderModuleCreateInfo
+        createInfo: VkShaderModuleCreateInfo,
     ): Long
 
     actual external fun vkDestroyShaderModule(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkShaderModule") shaderModule: Long
+        @VkHandleRef("VkShaderModule") shaderModule: Long,
     )
 
     @VkReturnType("VkPipelineCache")
     actual external fun vkCreatePipelineCache(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkPipelineCacheCreateInfo
+        createInfo: VkPipelineCacheCreateInfo,
     ): Long
 
     actual external fun vkDestroyPipelineCache(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkPipelineCache") pipelineCache: Long
+        @VkHandleRef("VkPipelineCache") pipelineCache: Long,
     )
 
     @VkReturnType("VkPipelineLayout")
     actual external fun vkCreatePipelineLayout(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkPipelineLayoutCreateInfo
+        createInfo: VkPipelineLayoutCreateInfo,
     ): Long
 
     actual external fun vkDestroyPipelineLayout(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkPipelineLayout") pipelineLayout: Long
+        @VkHandleRef("VkPipelineLayout") pipelineLayout: Long,
     )
 
     @VkReturnType("VkPipeline")
     actual external fun vkCreateGraphicsPipelines(
         @VkHandleRef("VkDevice") device: Long,
         @VkHandleRef("VkPipelineCache") pipelineCache: Long,
-        createInfos: Array<VkGraphicsPipelineCreateInfo>
+        createInfos: Array<VkGraphicsPipelineCreateInfo>,
     ): LongArray
 
     actual external fun vkDestroyPipeline(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkPipeline") pipeline: Long
+        @VkHandleRef("VkPipeline") pipeline: Long,
     )
 
     @VkReturnType("VkRenderPass")
     actual external fun vkCreateRenderPass(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkRenderPassCreateInfo
+        createInfo: VkRenderPassCreateInfo,
     ): Long
 
     actual external fun vkDestroyRenderPass(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkRenderPass") renderPass: Long
+        @VkHandleRef("VkRenderPass") renderPass: Long,
     )
 
     @VkReturnType("VkFramebuffer")
     actual external fun vkCreateFramebuffer(
         @VkHandleRef("VkDevice") device: Long,
-        framebufferInfo: VkFramebufferCreateInfo
+        framebufferInfo: VkFramebufferCreateInfo,
     ): Long
 
     actual external fun vkDestroyFramebuffer(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkFramebuffer") framebuffer: Long
+        @VkHandleRef("VkFramebuffer") framebuffer: Long,
     )
 
     @VkReturnType("VkCommandBuffer")
     actual external fun vkAllocateCommandBuffers(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkCommandBufferAllocateInfo
+        createInfo: VkCommandBufferAllocateInfo,
     ): Long
 
     actual external fun vkBeginCommandBuffer(
         @VkHandleRef("VkCommandBuffer") commandBuffer: Long,
-        beginInfo: VkCommandBufferBeginInfo
+        beginInfo: VkCommandBufferBeginInfo,
     )
 
     @VkReturnType("VkCommandPool")
     actual external fun vkCreateCommandPool(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkCommandPoolCreateInfo
+        createInfo: VkCommandPoolCreateInfo,
     ): Long
 
     actual external fun vkDestroyCommandPool(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkCommandPool") commandPool: Long
+        @VkHandleRef("VkCommandPool") commandPool: Long,
     )
 
     actual external fun vkCmdBindPipeline(
         @VkHandleRef("VkCommandBuffer") commandBuffer: Long,
         pipelineBindPoint: VkPipelineBindPoint,
-        @VkHandleRef("VkPipeline") graphicsPipeline: Long
+        @VkHandleRef("VkPipeline") graphicsPipeline: Long,
     )
 
     actual external fun vkCmdSetViewport(
         @VkHandleRef("VkCommandBuffer") commandBuffer: Long,
         firstViewport: Int,
-        viewports: Array<VkViewport>
+        viewports: Array<VkViewport>,
     )
 
     actual external fun vkCmdSetScissor(
         @VkHandleRef("VkCommandBuffer") commandBuffer: Long,
         firstScissor: Int,
-        scissors: Array<VkRect2D>
+        scissors: Array<VkRect2D>,
     )
 
     actual external fun vkCmdDraw(
@@ -385,7 +385,7 @@ actual object Vulkan {
         vertexCount: Int,
         instanceCount: Int,
         firstVertex: Int,
-        firstInstance: Int
+        firstInstance: Int,
     )
 
     actual external fun vkCmdEndRenderPass(@VkHandleRef("VkCommandBuffer") commandBuffer: Long)
@@ -396,53 +396,53 @@ actual object Vulkan {
     @VkSingleton
     actual external fun vkCreateDebugUtilsMessengerEXT(
         @VkHandleRef("VkInstance") instance: Long,
-        createInfo: VkDebugUtilsMessengerCreateInfoEXT
+        createInfo: VkDebugUtilsMessengerCreateInfoEXT,
     ): Long
 
     @VkSingleton
     actual external fun vkDestroyDebugUtilsMessengerEXT(
         @VkHandleRef("VkInstance") instance: Long,
-        @VkHandleRef("VkDebugUtilsMessengerEXT") debugUtilsMessenger: Long
+        @VkHandleRef("VkDebugUtilsMessengerEXT") debugUtilsMessenger: Long,
     )
 
     actual external fun vkCmdBeginRenderPass(
         @VkHandleRef("VkCommandBuffer") commandBuffer: Long,
         renderPassBeginInfo: VkRenderPassBeginInfo,
-        contents: VkSubpassContents
+        contents: VkSubpassContents,
     )
 
     @VkReturnType("VkSemaphore")
     actual external fun vkCreateSemaphore(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkSemaphoreCreateInfo
+        createInfo: VkSemaphoreCreateInfo,
     ): Long
 
     actual external fun vkDestroySemaphore(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkSemaphore") semaphore: Long
+        @VkHandleRef("VkSemaphore") semaphore: Long,
     )
 
     @VkReturnType("VkFence")
     actual external fun vkCreateFence(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkFenceCreateInfo
+        createInfo: VkFenceCreateInfo,
     ): Long
 
     actual external fun vkDestroyFence(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkFence") fence: Long
+        @VkHandleRef("VkFence") fence: Long,
     )
 
     actual external fun vkWaitForFences(
         @VkHandleRef("VkDevice") device: Long,
         @VkHandleRef("VkFence") fences: LongArray,
         waitAll: Boolean,
-        timeout: Long
+        timeout: Long,
     )
 
     actual external fun vkResetFences(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkFence") fences: LongArray
+        @VkHandleRef("VkFence") fences: LongArray,
     )
 
     actual external fun vkAcquireNextImageKHR(
@@ -450,22 +450,22 @@ actual object Vulkan {
         @VkHandleRef("VkSwapchainKHR") swapchain: Long,
         timeout: Long,
         @VkHandleRef("VkSemaphore") semaphore: Long,
-        @VkHandleRef("VkFence") fence: Long
+        @VkHandleRef("VkFence") fence: Long,
     ): Int
 
     actual external fun vkResetCommandBuffer(
         @VkHandleRef("VkCommandBuffer") commandBuffer: Long,
-        flags: Int
+        flags: Int,
     )
 
     actual external fun vkQueueSubmit(
         @VkHandleRef("VkQueue") queue: Long,
         pSubmits: Array<VkSubmitInfo>,
-        @VkHandleRef("VkFence") fence: Long
+        @VkHandleRef("VkFence") fence: Long,
     )
 
     actual external fun vkQueuePresentKHR(
         @VkHandleRef("VkQueue") queue: Long,
-        pPresentInfoKHR: VkPresentInfoKHR
+        pPresentInfoKHR: VkPresentInfoKHR,
     )
 }

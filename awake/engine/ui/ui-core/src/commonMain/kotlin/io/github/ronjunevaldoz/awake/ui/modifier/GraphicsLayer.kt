@@ -78,7 +78,7 @@ data class UiScaleEffect(
     val scaleX: Float,
     val scaleY: Float,
     val pivotX: Float = 0f,
-    val pivotY: Float = 0f
+    val pivotY: Float = 0f,
 ) : UiGraphicsEffect
 
 /** Attaches a [UiScaleEffect] to this modifier's graphics layer -- [scaleY] defaults to

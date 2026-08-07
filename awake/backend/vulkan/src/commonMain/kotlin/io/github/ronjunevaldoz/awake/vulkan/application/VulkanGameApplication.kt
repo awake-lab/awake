@@ -60,12 +60,12 @@ class VulkanGameApplication(
      * The vertex-shader entry point here must read the SAME [vertexFormat] vertex attributes
      * as [vertexShaderResourcePath] itself (see `shadow_depth.wgsl`), since both draw the
      * exact same meshes. */
-    private val shadowShaderSet: GameShaderSet? = null
+    private val shadowShaderSet: GameShaderSet? = null,
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
     vertexFormat,
-    game
+    game,
 ) {
     constructor(
         shaderSet: GameShaderSet,
@@ -73,7 +73,7 @@ class VulkanGameApplication(
         game: Game,
         additionalPipelines: Map<VertexFormat, GameShaderSet> = emptyMap(),
         wireframeSupport: Boolean = false,
-        shadowShaderSet: GameShaderSet? = null
+        shadowShaderSet: GameShaderSet? = null,
     ) : this(
         vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
@@ -83,7 +83,7 @@ class VulkanGameApplication(
         fragmentShaderEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
         additionalPipelines = additionalPipelines,
         wireframeSupport = wireframeSupport,
-        shadowShaderSet = shadowShaderSet
+        shadowShaderSet = shadowShaderSet,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -106,7 +106,7 @@ class VulkanGameApplication(
         swapchainManager = SwapchainManager(
             graphicsDevice,
             MAX_FRAMES_IN_FLIGHT,
-            surfaceExtentProvider = { surfaceFramebufferExtent(window) }
+            surfaceExtentProvider = { surfaceFramebufferExtent(window) },
         )
         swapchainManager.create()
         // Built before pipelineDescriptorSetLayout/renderPipeline: both need this ShadowMap's
@@ -125,7 +125,7 @@ class VulkanGameApplication(
             fragmentPath: String,
             format: VertexFormat,
             vertexEntryPoint: String,
-            fragmentEntryPoint: String
+            fragmentEntryPoint: String,
         ): Pair<RenderPipeline, RenderPipeline?> {
             val shaders = loadShaderPair(vertexPath, fragmentPath)
             val fill = RenderPipeline(
@@ -135,7 +135,7 @@ class VulkanGameApplication(
                 shaders,
                 format,
                 vertexEntryPoint,
-                fragmentEntryPoint
+                fragmentEntryPoint,
             )
             val wireframe = if (wireframeSupport) {
                 RenderPipeline(
@@ -146,7 +146,7 @@ class VulkanGameApplication(
                     format,
                     vertexEntryPoint,
                     fragmentEntryPoint,
-                    polygonMode = VkPolygonMode.VK_POLYGON_MODE_LINE
+                    polygonMode = VkPolygonMode.VK_POLYGON_MODE_LINE,
                 )
             } else {
                 null
@@ -159,7 +159,7 @@ class VulkanGameApplication(
             fragmentShaderResourcePath,
             vertexFormat,
             vertexShaderEntryPoint,
-            fragmentShaderEntryPoint
+            fragmentShaderEntryPoint,
         )
         renderPipeline = fill
         wireframeRenderPipeline = wireframe
@@ -170,7 +170,7 @@ class VulkanGameApplication(
                 shaderSet.vulkan.fragmentResourcePath,
                 format,
                 shaderSet.vulkan.vertexEntryPoint,
-                shaderSet.vulkan.fragmentEntryPoint
+                shaderSet.vulkan.fragmentEntryPoint,
             )
             additionalRenderPipelines[format] = additionalFill
             additionalWireframe?.let { wireframeAdditionalRenderPipelines[format] = it }
@@ -186,7 +186,7 @@ class VulkanGameApplication(
                 vertexFormat,
                 map.size,
                 shaderSet.vulkan.vertexEntryPoint,
-                shaderSet.vulkan.fragmentEntryPoint
+                shaderSet.vulkan.fragmentEntryPoint,
             )
         }
         lineRenderPipeline = LineRenderPipeline(
@@ -194,7 +194,7 @@ class VulkanGameApplication(
             swapchainManager,
             renderPipeline.renderPass,
             loadShaderPair(DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH, DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH),
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
         transferContext = TransferContext(graphicsDevice)
         val additionalPipelinesByFormat = additionalRenderPipelines.toMap()
@@ -216,13 +216,13 @@ class VulkanGameApplication(
             MAX_FRAMES_IN_FLIGHT,
             wireframePipelinesByFormat,
             shadowMap,
-            shadowRenderPipeline
+            shadowRenderPipeline,
         )
         swapchainManager.createSyncObjects()
 
         return BackendResources(
             renderer = renderer,
-            viewportSize = { swapchainManager.extent.width.toFloat() to swapchainManager.extent.height.toFloat() }
+            viewportSize = { swapchainManager.extent.width.toFloat() to swapchainManager.extent.height.toFloat() },
         )
     }
 
@@ -241,7 +241,7 @@ class VulkanGameApplication(
         transferContext.destroy()
         VulkanDescriptors.vkDestroyDescriptorSetLayout(
             graphicsDevice.device,
-            pipelineDescriptorSetLayout.handle
+            pipelineDescriptorSetLayout.handle,
         )
         renderPipeline.destroy()
         additionalRenderPipelines.values.forEach { it.destroy() }

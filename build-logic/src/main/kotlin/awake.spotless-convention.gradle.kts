@@ -7,6 +7,44 @@ plugins {
 extensions.configure<SpotlessExtension> {
     kotlin {
         target("src/**/*.kt")
+        // Rules configured here rather than in a root .editorconfig: Spotless resolves
+        // .editorconfig relative to each subproject, and with this convention applied across
+        // ~30 modules the root file was picked up inconsistently (no-wildcard-imports in
+        // particular went unenforced in most of them). editorConfigOverride applies uniformly.
+        ktlint("1.5.0").editorConfigOverride(
+            mapOf(
+                // Off for now, and this is the one rule worth revisiting: ktlint cannot
+                // auto-fix a wildcard import, and expanding the ~20 remaining ones by hand
+                // needs real symbol resolution (a scripted attempt broke 10 call sites).
+                // Do it with the IDE's Optimize Imports, per module, then flip this to
+                // "enabled" so new ones can't creep back in.
+                "ktlint_standard_no-wildcard-imports" to "disabled",
+                // Off deliberately: this codebase's own convention is descriptive multi-line
+                // explanations above a declaration, and the repo has many long string
+                // literals (shader paths, error messages) that can't be wrapped meaningfully.
+                "ktlint_standard_max-line-length" to "disabled",
+                // Off: the UI DSL builds nested trailing-lambda trees where ktlint's preferred
+                // wrapping fights the layout that makes the hierarchy readable.
+                "ktlint_standard_function-signature" to "disabled",
+                "ktlint_standard_multiline-expression-wrapping" to "disabled",
+                "ktlint_standard_string-template-indent" to "disabled",
+                // Off: this rule demands file RENAMES (matrix.kt -> Mat4.kt), which is a
+                // separate decision from formatting and would bury real history in a
+                // whitespace commit. Revisit as its own change if we want it.
+                "ktlint_standard_filename" to "disabled",
+                // Off: AwakeLogger.kt is deliberately content-free (license + package only)
+                // and comments don't satisfy this rule. Deleting it is an API call to make on
+                // its own, not inside a formatting pass.
+                "ktlint_standard_no-empty-file" to "disabled",
+                // Off: the hand-written Vk*CreateInfo structs annotate individual constructor
+                // parameters with trailing comments naming the Vulkan spec field they map to.
+                // Hoisting those above each parameter would separate the note from the field.
+                "ktlint_standard_value-parameter-comment" to "disabled",
+                // Off: vulkan-generator's packages mirror the Vulkan spec's own underscored
+                // names so generated output stays traceable to the header it came from.
+                "ktlint_standard_package-name" to "disabled"
+            )
+        )
         targetExclude(
             "**/build/**",
             // The only file in the codebase with neither a `package` nor an `import` line --

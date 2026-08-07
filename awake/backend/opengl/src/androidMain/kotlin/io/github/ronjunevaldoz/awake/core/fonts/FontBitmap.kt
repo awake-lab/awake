@@ -26,7 +26,7 @@ class FontBitmap(fontSize: Float, antialias: Boolean) {
 
     private fun create(
         text: String,
-        fontSize: Float
+        fontSize: Float,
     ): Texture {
         textPaint.apply {
             typeface = Typeface.SERIF
@@ -41,8 +41,11 @@ class FontBitmap(fontSize: Float, antialias: Boolean) {
         val height = fontSize.toInt() + 2
 
         val staticLayout = StaticLayout.Builder.obtain(
-            text, 0, text.length,
-            textPaint, width
+            text,
+            0,
+            text.length,
+            textPaint,
+            width,
         )
             .setAlignment(Layout.Alignment.ALIGN_NORMAL)
             .setLineSpacing(0f, 1f)
@@ -53,7 +56,7 @@ class FontBitmap(fontSize: Float, antialias: Boolean) {
         val bitmap = Bitmap.createBitmap(
             width,
             height,
-            Bitmap.Config.ARGB_8888
+            Bitmap.Config.ARGB_8888,
         )
 
         canvas.setBitmap(bitmap)
@@ -69,9 +72,9 @@ class FontBitmap(fontSize: Float, antialias: Boolean) {
                 mag = Texture.Filter.Linear,
                 min = Texture.Filter.MipmapLinear,
                 wrapS = Texture.Wrap.ClampToEdge,
-                wrapT = Texture.Wrap.ClampToEdge
+                wrapT = Texture.Wrap.ClampToEdge,
             ),
-            mipmap = true
+            mipmap = true,
         )
         bitmap.recycle()
         return texture

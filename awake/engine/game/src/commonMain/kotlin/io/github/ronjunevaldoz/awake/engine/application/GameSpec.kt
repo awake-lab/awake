@@ -16,7 +16,7 @@ class GameSpec internal constructor(
     private val onPause: List<() -> Unit>,
     private val onResume: List<() -> Unit>,
     private val onDispose: List<() -> Unit>,
-    private val services: Map<KClass<*>, Any>
+    private val services: Map<KClass<*>, Any>,
 ) {
     fun createGame(): AwakeGame = AwakeGame(
         delegate = object : Game {
@@ -45,6 +45,6 @@ class GameSpec internal constructor(
             }
         },
         windowConfig = windowConfig,
-        services = services
+        services = services,
     )
 }

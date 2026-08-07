@@ -80,7 +80,7 @@ class Mat4LookAtTest {
             "(inverted). The camera only lands on the view-space origin when its basis happens " +
             "to be the identity -- i.e. eye on +Z looking down -Z, the one case every existing " +
             "test uses. Fix: swap the nine rotation assignments to m00/m01/m02 = s, " +
-            "m10/m11/m12 = u, m20/m21/m22 = -f. Un-@Ignore once matrix.kt is fixed."
+            "m10/m11/m12 = u, m20/m21/m22 = -f. Un-@Ignore once matrix.kt is fixed.",
     )
     @Test
     fun viewMatrixShouldMapTheCameraPositionToTheOrigin() {
@@ -147,7 +147,7 @@ class Mat4LookAtTest {
         val view = Mat4.setLookAt(
             eye = Vec3(0f, 0f, 0f),
             center = Vec3(0f, 1f, 0f),
-            up = Vec3(0.001f, 1f, 0f)
+            up = Vec3(0.001f, 1f, 0f),
         )
 
         assertTrue(view.data.none { it.isNaN() }, "expected no NaNs, got ${view.data.toList()}")

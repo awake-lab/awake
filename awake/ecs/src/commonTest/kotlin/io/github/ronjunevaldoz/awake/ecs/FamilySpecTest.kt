@@ -46,7 +46,10 @@ class FamilySpecTest {
         world.add(excluded, ComponentA)
         world.add(excluded, ComponentC)
 
-        val family = world.family { all(ComponentA::class); exclude(ComponentC::class) }
+        val family = world.family {
+            all(ComponentA::class)
+            exclude(ComponentC::class)
+        }
 
         assertEquals(setOf(plain), family.entitySet())
     }
@@ -73,7 +76,10 @@ class FamilySpecTest {
         val entity = world.create()
         world.add(entity, ComponentA)
 
-        val family = world.family { all(ComponentA::class); exclude(ComponentC::class) }
+        val family = world.family {
+            all(ComponentA::class)
+            exclude(ComponentC::class)
+        }
         assertEquals(setOf(entity), family.entitySet())
 
         world.add(entity, ComponentC)

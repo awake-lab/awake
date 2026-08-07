@@ -29,7 +29,7 @@ class MutableStyleState(
     override var active: Boolean = false,
     override var focused: Boolean = false,
     override var disabled: Boolean = false,
-    override var selected: Boolean = false
+    override var selected: Boolean = false,
 ) : StyleState {
     private val values = HashMap<StyleStateKey<*>, Any?>()
 
@@ -56,7 +56,7 @@ data class ResolvedStyle(
     val textStyle: TextStyle = TextStyle.Default,
     val textStyleToken: String? = null,
     val contentPadding: UiInsets = UiInsets.Zero,
-    val animation: StyleAnimation? = null
+    val animation: StyleAnimation? = null,
 )
 
 data class UiShadow(
@@ -65,12 +65,12 @@ data class UiShadow(
     val offsetY: Dp = 0f.dp,
     val blurRadius: Dp = 0f.dp,
     val spread: Dp = 0f.dp,
-    val tokenId: String? = null
+    val tokenId: String? = null,
 )
 
 data class StyleAnimation(
     val target: Style,
-    val responsiveness: Float = 12f
+    val responsiveness: Float = 12f,
 )
 
 interface StyleScope {
@@ -90,7 +90,7 @@ interface StyleScope {
         offsetY: Dp = 0f.dp,
         blurRadius: Dp = 0f.dp,
         spread: Dp = 0f.dp,
-        tokenId: String? = null
+        tokenId: String? = null,
     )
     fun textStyle(style: TextStyle, tokenId: String? = null)
     fun textScale(scale: Float)
@@ -112,7 +112,7 @@ interface StyleScope {
 }
 
 class Style private constructor(
-    private val rules: List<StyleRule>
+    private val rules: List<StyleRule>,
 ) {
     companion object {
         val Empty = Style(emptyList())
@@ -151,7 +151,7 @@ private class ResolvedStyleBuilder(
     var textStyle: TextStyle = TextStyle.Default,
     var textStyleToken: String? = null,
     var contentPadding: UiInsets = UiInsets.Zero,
-    var animation: StyleAnimation? = null
+    var animation: StyleAnimation? = null,
 ) {
     fun build(): ResolvedStyle = ResolvedStyle(
         background = background,
@@ -167,13 +167,13 @@ private class ResolvedStyleBuilder(
         textStyle = textStyle,
         textStyleToken = textStyleToken,
         contentPadding = contentPadding,
-        animation = animation
+        animation = animation,
     )
 }
 
 private data class StyleRule(
     val predicate: (StyleState) -> Boolean,
-    val mutation: ResolvedStyleBuilder.() -> Unit
+    val mutation: ResolvedStyleBuilder.() -> Unit,
 ) {
     fun apply(state: StyleState, builder: ResolvedStyleBuilder) {
         if (predicate(state)) builder.mutation()
@@ -181,7 +181,7 @@ private data class StyleRule(
 }
 
 private class StyleBuilder(
-    private val predicate: (StyleState) -> Boolean = { true }
+    private val predicate: (StyleState) -> Boolean = { true },
 ) : StyleScope {
     private val rules = ArrayList<StyleRule>()
 
@@ -232,7 +232,7 @@ private class StyleBuilder(
         offsetY: Dp,
         blurRadius: Dp,
         spread: Dp,
-        tokenId: String?
+        tokenId: String?,
     ) {
         rules += StyleRule(predicate) {
             shadow = UiShadow(
@@ -241,7 +241,7 @@ private class StyleBuilder(
                 offsetY = offsetY,
                 blurRadius = blurRadius,
                 spread = spread,
-                tokenId = tokenId
+                tokenId = tokenId,
             )
         }
     }

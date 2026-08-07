@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
  */
 internal class FamilyRegistry(
     private val world: World,
-    private val queryCollector: QueryCollector
+    private val queryCollector: QueryCollector,
 ) {
     private val families = mutableMapOf<FamilyKey, FamilyCache>()
     private val familySpecCaches = mutableMapOf<FamilySpec, FamilySpecCache>()
@@ -51,10 +51,8 @@ internal class FamilyRegistry(
         } as Family2Cache<A, B>
     }
 
-    fun familySpecCache(spec: FamilySpec): FamilySpecCache {
-        return familySpecCaches.getOrPut(spec) {
-            buildFamilySpecCache(spec).also(::indexFamily)
-        }
+    fun familySpecCache(spec: FamilySpec): FamilySpecCache = familySpecCaches.getOrPut(spec) {
+        buildFamilySpecCache(spec).also(::indexFamily)
     }
 
     fun removeEntity(entity: Entity) {
@@ -127,7 +125,7 @@ internal class FamilyRegistry(
         typeA: KClass<A>,
         typeIdA: ComponentTypeId,
         typeB: KClass<B>,
-        typeIdB: ComponentTypeId
+        typeIdB: ComponentTypeId,
     ): Family2Cache<A, B> {
         val storeA = world.store(typeIdA, typeA)
         val storeB = world.store(typeIdB, typeB)
@@ -149,7 +147,7 @@ internal class FamilyRegistry(
     private fun <A : Any, B : Any> fillFamily(
         cache: Family2Cache<A, B>,
         storeA: ComponentStore<A>,
-        storeB: ComponentStore<B>
+        storeB: ComponentStore<B>,
     ) {
         if (storeA.size <= storeB.size) {
             addMatchesFromA(cache, storeA, storeB)
@@ -161,7 +159,7 @@ internal class FamilyRegistry(
     private fun <A : Any, B : Any> addMatchesFromA(
         cache: Family2Cache<A, B>,
         storeA: ComponentStore<A>,
-        storeB: ComponentStore<B>
+        storeB: ComponentStore<B>,
     ) {
         storeA.forEach { entity, componentA ->
             storeB.get(entity)?.let { componentB ->
@@ -173,7 +171,7 @@ internal class FamilyRegistry(
     private fun <A : Any, B : Any> addMatchesFromB(
         cache: Family2Cache<A, B>,
         storeA: ComponentStore<A>,
-        storeB: ComponentStore<B>
+        storeB: ComponentStore<B>,
     ) {
         storeB.forEach { entity, componentB ->
             storeA.get(entity)?.let { componentA ->
@@ -185,28 +183,22 @@ internal class FamilyRegistry(
 
 @JvmInline
 value class ComponentTypeId(
-    val value: Int
+    val value: Int,
 )
 
 @JvmInline
 internal value class FamilyKey(
-    val packed: Long
+    val packed: Long,
 ) {
     companion object {
         private const val SINGLE_SENTINEL = -1
         private const val INT_BITS = 32
         private const val LOW_INT_MASK = 0xFFFF_FFFFL
 
-        fun single(type: ComponentTypeId): FamilyKey {
-            return FamilyKey(pack(type.value, SINGLE_SENTINEL))
-        }
+        fun single(type: ComponentTypeId): FamilyKey = FamilyKey(pack(type.value, SINGLE_SENTINEL))
 
-        fun pair(typeA: ComponentTypeId, typeB: ComponentTypeId): FamilyKey {
-            return FamilyKey(pack(typeA.value, typeB.value))
-        }
+        fun pair(typeA: ComponentTypeId, typeB: ComponentTypeId): FamilyKey = FamilyKey(pack(typeA.value, typeB.value))
 
-        private fun pack(first: Int, second: Int): Long {
-            return (first.toLong() shl INT_BITS) or (second.toLong() and LOW_INT_MASK)
-        }
+        private fun pack(first: Int, second: Int): Long = (first.toLong() shl INT_BITS) or (second.toLong() and LOW_INT_MASK)
     }
 }

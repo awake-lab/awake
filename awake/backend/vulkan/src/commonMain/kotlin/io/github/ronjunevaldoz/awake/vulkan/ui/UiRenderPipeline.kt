@@ -81,7 +81,7 @@ class UiRenderPipeline(
     // framebuffer. Same "externally injected render pass" shape UiGlyphRenderPipeline/
     // UiRoundedQuadRenderPipeline already use; kept as an optional trailing param (default
     // null) so the swapchain-owning caller (ensureUiQuadPipeline) is unchanged.
-    private val externalRenderPass: Long? = null
+    private val externalRenderPass: Long? = null,
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -97,6 +97,7 @@ class UiRenderPipeline(
     private var pipelineLayout: Long = 0
     private var pipelineCache: Long = 0
     private var graphicsPipeline: LongArray = longArrayOf()
+
     // Only destroy renderPass if this pipeline itself created it -- an externally-owned
     // render pass (offscreen case above) is torn down by whoever owns it instead.
     private var ownsRenderPass: Boolean = externalRenderPass == null
@@ -122,8 +123,8 @@ class UiRenderPipeline(
                     // PRESENT_SRC_KHR -- this pass picks up from there and does that final
                     // transition itself once the UI overlay is drawn on top.
                     initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                    finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-                )
+                    finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                ),
             ),
             pSubpasses = arrayOf(
                 VkSubpassDescription(
@@ -131,10 +132,10 @@ class UiRenderPipeline(
                     pColorAttachments = arrayOf(
                         VkAttachmentReference(
                             attachment = 0,
-                            layout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-                        )
-                    )
-                )
+                            layout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                        ),
+                    ),
+                ),
             ),
             pDependencies = arrayOf(
                 VkSubpassDependency(
@@ -148,10 +149,10 @@ class UiRenderPipeline(
                     srcAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value,
                     dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value,
                     dstAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.value or
-                        VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value
-                )
-            )
-        )
+                        VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value,
+                ),
+            ),
+        ),
     )
 
     private fun createDescriptorSetLayout(): Long = VulkanDescriptors.vkCreateDescriptorSetLayout(
@@ -161,28 +162,28 @@ class UiRenderPipeline(
                 VkDescriptorSetLayoutBinding(
                     binding = 0,
                     descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    stageFlags = VkShaderStageFlagBits.VERTEX.value
-                )
-            )
-        )
+                    stageFlags = VkShaderStageFlagBits.VERTEX.value,
+                ),
+            ),
+        ),
     )
 
     private fun createScreenSizeUniformBuffer() {
         val bufferSize = SCREEN_SIZE_UNIFORM_BYTES.toLong()
         screenSizeBuffer = VulkanBuffers.vkCreateBuffer(
             device,
-            VkBufferCreateInfo(size = bufferSize, usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+            VkBufferCreateInfo(size = bufferSize, usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT),
         )
         val requirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, screenSizeBuffer)
         val memoryTypeIndex = VulkanBuffers.findMemoryType(
             physicalDevice,
             requirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         )
         screenSizeBufferMemory = VulkanBuffers.vkAllocateMemory(
             device,
-            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex)
+            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex),
         )
         VulkanBuffers.vkBindBufferMemory(device, screenSizeBuffer, screenSizeBufferMemory, 0)
     }
@@ -193,9 +194,9 @@ class UiRenderPipeline(
             VkDescriptorPoolCreateInfo(
                 maxSets = 1,
                 pPoolSizes = arrayOf(
-                    VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount = 1)
-                )
-            )
+                    VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount = 1),
+                ),
+            ),
         )
         descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(device, descriptorPool, descriptorSetLayout)
         VulkanDescriptors.vkUpdateDescriptorSetBuffer(
@@ -203,7 +204,7 @@ class UiRenderPipeline(
             descriptorSet,
             0,
             VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            VkDescriptorBufferInfo(buffer = screenSizeBuffer, range = SCREEN_SIZE_UNIFORM_BYTES.toLong())
+            VkDescriptorBufferInfo(buffer = screenSizeBuffer, range = SCREEN_SIZE_UNIFORM_BYTES.toLong()),
         )
     }
 
@@ -215,7 +216,7 @@ class UiRenderPipeline(
             device,
             screenSizeBufferMemory,
             0,
-            floatArrayOf(width, height, 0f, 0f)
+            floatArrayOf(width, height, 0f, 0f),
         )
     }
 
@@ -235,7 +236,7 @@ class UiRenderPipeline(
 
         val shaderStages = arrayOf(
             VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main"),
-            VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")
+            VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main"),
         )
 
         val vertexInputInfo = arrayOf(
@@ -244,37 +245,37 @@ class UiRenderPipeline(
                     VkVertexInputBindingDescription(
                         binding = 0,
                         stride = DynamicMesh.FLOATS_PER_VERTEX * Float.SIZE_BYTES,
-                        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX
-                    )
+                        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX,
+                    ),
                 ),
                 pVertexAttributeDescriptions = arrayOf(
                     VkVertexInputAttributeDescription(
                         location = 0,
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32_SFLOAT,
-                        offset = 0
+                        offset = 0,
                     ),
                     VkVertexInputAttributeDescription(
                         location = 1,
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
-                        offset = 2 * Float.SIZE_BYTES
+                        offset = 2 * Float.SIZE_BYTES,
                     ),
                     // scale(xy) + pivot(zw) -- see ui_quad.vert's inTransform.
                     VkVertexInputAttributeDescription(
                         location = 2,
                         binding = 0,
                         format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
-                        offset = 6 * Float.SIZE_BYTES
-                    )
-                )
-            )
+                        offset = 6 * Float.SIZE_BYTES,
+                    ),
+                ),
+            ),
         )
 
         val dynamicInfo = arrayOf(
             VkPipelineDynamicStateCreateInfo(
-                pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)
-            )
+                pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR),
+            ),
         )
 
         val viewportInfo = arrayOf(
@@ -282,11 +283,11 @@ class UiRenderPipeline(
                 pViewports = arrayOf(
                     VkViewport(
                         width = swapchainManager.extent.width.toFloat(),
-                        height = swapchainManager.extent.height.toFloat()
-                    )
+                        height = swapchainManager.extent.height.toFloat(),
+                    ),
                 ),
-                pScissors = arrayOf(VkRect2D(offset = VkOffset2D(), extent = swapchainManager.extent))
-            )
+                pScissors = arrayOf(VkRect2D(offset = VkOffset2D(), extent = swapchainManager.extent)),
+            ),
         )
 
         val multisamplingInfo = arrayOf(VkPipelineMultisampleStateCreateInfo())
@@ -294,15 +295,15 @@ class UiRenderPipeline(
         val inputAssemblyInfo = arrayOf(
             VkPipelineInputAssemblyStateCreateInfo(
                 topology = VkPrimitiveTopology.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                primitiveRestartEnable = false
-            )
+                primitiveRestartEnable = false,
+            ),
         )
 
         val rasterizationInfo = arrayOf(
             VkPipelineRasterizationStateCreateInfo(
                 cullMode = VkCullModeFlagBits.VK_CULL_MODE_NONE.value,
-                lineWidth = 1f
-            )
+                lineWidth = 1f,
+            ),
         )
 
         val blendAttachment = VkPipelineColorBlendAttachmentState(
@@ -314,14 +315,14 @@ class UiRenderPipeline(
             colorWriteMask = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or
                 VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or
                 VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or
-                VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value
+                VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value,
         )
 
         val colorBlendInfo = arrayOf(VkPipelineColorBlendStateCreateInfo(pAttachments = arrayOf(blendAttachment)))
 
         pipelineLayout = Vulkan.vkCreatePipelineLayout(
             device,
-            VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout))
+            VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout)),
         )
 
         val createInfos = arrayOf(
@@ -339,8 +340,8 @@ class UiRenderPipeline(
                 renderPass = renderPass,
                 subpass = 0,
                 basePipelineHandle = 0,
-                basePipelineIndex = -1
-            )
+                basePipelineIndex = -1,
+            ),
         )
         pipelineCache = Vulkan.vkCreatePipelineCache(device, VkPipelineCacheCreateInfo())
         graphicsPipeline = Vulkan.vkCreateGraphicsPipelines(device, pipelineCache, createInfos)
@@ -370,8 +371,8 @@ class UiRenderPipeline(
         val uiDepthStencilState = arrayOf(
             VkPipelineDepthStencilStateCreateInfo(
                 depthTestEnable = false,
-                depthWriteEnable = false
-            )
+                depthWriteEnable = false,
+            ),
         )
     }
 }

@@ -20,7 +20,7 @@ interface UiComponentStyles {
 
 class CoreUiComponentStyles(
     tokens: UiColorTokens,
-    typography: UiTypography = UiTypography.Default
+    typography: UiTypography = UiTypography.Default,
 ) : UiComponentStyles {
     override val button: Style = tokens.neutralStyle() then Style {
         textSize(typography.label)

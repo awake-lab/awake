@@ -10,5 +10,5 @@ import kotlin.jvm.JvmOverloads
 data class VkExtensionProperties @JvmOverloads constructor(
     @VkConstArray("VK_MAX_EXTENSION_NAME_SIZE")
     val extensionName: String = "",
-    val specVersion: Int = 0
+    val specVersion: Int = 0,
 )

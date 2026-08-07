@@ -14,7 +14,6 @@ import org.jetbrains.skia.Typeface
 import org.jetbrains.skia.impl.use
 import org.jetbrains.skia.Pixmap as SkiaPixmap
 
-
 class FontBitmap(private val font: Font, antiAlias: Boolean) {
     val bitmap: Bitmap
     private val glyphs = mutableMapOf<Char, Glyph>()
@@ -23,9 +22,9 @@ class FontBitmap(private val font: Font, antiAlias: Boolean) {
         Font(
             org.jetbrains.skia.FontMgr.default.matchFamilyStyle(null, org.jetbrains.skia.FontStyle.NORMAL)
                 ?: Typeface.makeEmpty(),
-            fontSize
+            fontSize,
         ),
-        antiAlias
+        antiAlias,
     )
 
     init {
@@ -81,7 +80,7 @@ class FontBitmap(private val font: Font, antiAlias: Boolean) {
         fun createCharPixmap(
             font: Font,
             c: Char,
-            antiAlias: Boolean
+            antiAlias: Boolean,
         ): SkiaPixmap? {
             // Get character width and height
             val charWidth = font.measureTextWidth(c.toString())

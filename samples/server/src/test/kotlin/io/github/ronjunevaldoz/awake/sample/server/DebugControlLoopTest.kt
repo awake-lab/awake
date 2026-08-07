@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.server
 
-import java.net.BindException
 import kotlinx.coroutines.runBlocking
+import java.net.BindException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -22,7 +22,7 @@ class DebugControlLoopTest {
                 }
 
                 override fun snapshot(): String = handled.joinToString(separator = ",")
-            }
+            },
         )
 
         loop.start()
@@ -53,9 +53,9 @@ class DebugControlLoopTest {
                         }
 
                         override fun snapshot(): String = handled.joinToString(separator = ",")
-                    }
+                    },
                 )
-            }
+            },
         ) { beforeFrame, afterLoop ->
             beforeFrame()
             afterLoop()
@@ -74,7 +74,7 @@ class DebugControlLoopTest {
 
         withOptionalDebugLoop<String, String>(
             enabled = false,
-            createLoop = { error("should not build loop") }
+            createLoop = { error("should not build loop") },
         ) { beforeFrame, afterLoop ->
             runCalls++
             beforeFrame()
@@ -94,9 +94,7 @@ class DebugControlLoopTest {
             createLoop = {
                 DebugServiceLoop(
                     transport = object : DebugTransport<String, String> {
-                        override fun start() {
-                            throw BindException(AWAKE_DEBUG_CONTROL_PORT.toString())
-                        }
+                        override fun start(): Unit = throw BindException(AWAKE_DEBUG_CONTROL_PORT.toString())
 
                         override fun drainCommands() = emptyList<Pair<String, kotlinx.coroutines.CompletableDeferred<String>>>()
 
@@ -106,9 +104,9 @@ class DebugControlLoopTest {
                         override fun handle(command: String) = Unit
 
                         override fun snapshot(): String = ""
-                    }
+                    },
                 )
-            }
+            },
         ) { beforeFrame, afterLoop ->
             beforeFrameCalls += 1
             beforeFrame()

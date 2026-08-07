@@ -17,7 +17,7 @@ class VkRenderPassCreateInfo(
     @VkArray(sizeAlias = "subpassCount")
     val pSubpasses: Array<VkSubpassDescription>? = null,
     @VkArray(sizeAlias = "dependencyCount")
-    val pDependencies: Array<VkSubpassDependency>? = null
+    val pDependencies: Array<VkSubpassDependency>? = null,
 )
 
 typealias VkRenderPassCreateFlags = VkFlags

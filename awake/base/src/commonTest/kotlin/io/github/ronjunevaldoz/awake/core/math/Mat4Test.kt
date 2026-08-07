@@ -26,7 +26,7 @@ internal fun Mat4.applyToColumnVector(x: Float, y: Float, z: Float, w: Float = 1
     m00 * x + m01 * y + m02 * z + m03 * w,
     m10 * x + m11 * y + m12 * z + m13 * w,
     m20 * x + m21 * y + m22 * z + m23 * w,
-    m30 * x + m31 * y + m32 * z + m33 * w
+    m30 * x + m31 * y + m32 * z + m33 * w,
 )
 
 internal fun assertVec4(expected: Vec4, actual: Vec4, tolerance: Float = 0.0001f) {
@@ -217,7 +217,7 @@ class Mat4Test {
         val trs = Mat4.fromTrs(
             translation = Vec3(10f, 0f, 0f),
             rotation = Quat(0f, 0f, sin(HALF_PI / 2f), cos(HALF_PI / 2f)), // 90 degrees about +Z
-            scale = Vec3(2f, 2f, 2f)
+            scale = Vec3(2f, 2f, 2f),
         )
 
         // (1, 0, 0) -> scale -> (2, 0, 0) -> rotate 90 about Z -> (0, 2, 0) -> translate -> (10, 2, 0).
@@ -261,7 +261,7 @@ class Mat4Test {
     @Ignore(
         "DEFECT: Mat4.rotateX/rotateY/rotate build the transpose of the standard rotation " +
             "(they rotate by -angle), while Mat4.rotateZ and Quat.toMat4 build the standard one. " +
-            "Un-@Ignore once matrix.kt is made self-consistent."
+            "Un-@Ignore once matrix.kt is made self-consistent.",
     )
     @Test
     fun rotateXAndRotateYShouldMatchTheEquivalentQuaternion() {
@@ -283,7 +283,7 @@ class Mat4Test {
 
     @Ignore(
         "DEFECT: rotate(angle, Vec3(0, 0, 1)) and rotateZ(angle) rotate in opposite directions -- " +
-            "rotate() is transposed. Un-@Ignore once matrix.kt is made self-consistent."
+            "rotate() is transposed. Un-@Ignore once matrix.kt is made self-consistent.",
     )
     @Test
     fun rotateAboutAnAxisShouldMatchTheDedicatedPerAxisHelper() {
@@ -305,7 +305,7 @@ class Mat4Test {
     @Ignore(
         "DEFECT: Mat4.plus (matrix.kt:441) is a matrix-*multiply* loop with '+' substituted for " +
             "'*' -- it sums a[i,k] + b[k,j] over k instead of adding matching entries. Dead code " +
-            "today (no callers). Un-@Ignore once it is fixed or deleted."
+            "today (no callers). Un-@Ignore once it is fixed or deleted.",
     )
     @Test
     fun plusShouldAddMatchingEntries() {
@@ -325,7 +325,7 @@ class Mat4Test {
             1f, 0f, 0f, 0f,
             0f, 1f, 0f, 0f,
             0f, 0f, 1f, 0f,
-            0f, 0f, 0f, 1f
+            0f, 0f, 0f, 1f,
         )
     }
 }

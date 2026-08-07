@@ -4,16 +4,16 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 data class SceneValidationIssue(
     val path: String,
-    val message: String
+    val message: String,
 )
 
 class SceneValidationException(
-    val issues: List<SceneValidationIssue>
+    val issues: List<SceneValidationIssue>,
 ) : IllegalArgumentException(
     issues.joinToString(
         prefix = "Invalid scene document:\n",
-        separator = "\n"
-    ) { issue -> "- ${issue.path}: ${issue.message}" }
+        separator = "\n",
+    ) { issue -> "- ${issue.path}: ${issue.message}" },
 )
 
 object SceneValidator {
@@ -37,7 +37,7 @@ object SceneValidator {
         node: SceneNode,
         path: String,
         issues: MutableList<SceneValidationIssue>,
-        namedPaths: MutableMap<String, String>
+        namedPaths: MutableMap<String, String>,
     ) {
         node.name?.takeIf { it.isNotBlank() }?.let { name ->
             val previous = namedPaths[name]

@@ -1,8 +1,10 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /**
  * Vertical auto-stacking layout -- replaces every hand-written `PANEL_ROW_*_Y` constant a
@@ -23,8 +25,9 @@ class ColumnScope internal constructor(
     private val plannedSlots: List<UiBounds>? = null,
     /** Container-level cross-axis default -- matches Compose's `Column(horizontalAlignment =
      * ...)`. See [RowScope.verticalAlignment] for the matching row-side explanation. */
-    val horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
-) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
+    val horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
+) : AbstractUiScope(context, emitToOverlay),
+    FillAwareScope {
     /** Cursor advance between successive children -- derived from [verticalArrangement] rather
      * than threaded separately, since it was always just `verticalArrangement.baseSpacingPx()`
      * at every real call site (see UiLayoutFactory). */
@@ -57,7 +60,7 @@ class ColumnScope internal constructor(
             x,
             cursorY,
             resolvedWidth,
-            resolvedHeight
+            resolvedHeight,
         )
         cursorY += resolvedHeight + gap
         // width == FillMax means this child fills whatever width the column ends up with -- it

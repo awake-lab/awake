@@ -3,31 +3,30 @@
 package io.github.ronjunevaldoz.awake.ui.headless.input
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.fitTo
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.popup
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.rememberPopupState
-import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiIcons
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.popup
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.rememberPopupState
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.*
-
+import io.github.ronjunevaldoz.awake.ui.toPx
 
 // Real shadcn/ui slider shape: a thin track (not a full-height button-like bar) with a
 // circular knob straddling it at the current value -- the claimed slot stays the full
@@ -35,13 +34,12 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 // only a slice of it is painted as the track, and the knob is drawn on top, not "no knob at
 // all" (the previous version only drew a flat fill rectangle with no handle).
 
-
 fun UiScope.select(
     id: String,
     options: List<String>,
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): Int? {
     val theme = context.currentTheme
     val expandedState = rememberPopupState(id, key = "expanded")
@@ -50,7 +48,7 @@ fun UiScope.select(
     val (clicked, slot) = buttonSlot(
         id = "$id.trigger",
         modifier = modifier.height(modifier.heightDimension ?: Dimension.Fixed(36f.dp)),
-        style = resolvedDefaults then style
+        style = resolvedDefaults then style,
     )
     if (clicked) {
         expandedState.toggle()
@@ -60,14 +58,14 @@ fun UiScope.select(
         label = selectedLabel,
         expanded = expandedState.expanded,
         style = resolvedDefaults then style,
-        semanticId = "$id.label"
+        semanticId = "$id.label",
     )
     recordSemantic(
         role = UiSemanticRole.Dropdown,
         id = id,
         label = selectedLabel,
         bounds = slot,
-        selected = expandedState.expanded
+        selected = expandedState.expanded,
     )
     var picked: Int? = null
     val popupResult = popup(
@@ -77,7 +75,7 @@ fun UiScope.select(
         width = Dimension.Fixed(slot.width.px),
         height = Dimension.WrapContent,
         verticalArrangement = Arrangement.spacedBy(0f.dp),
-        positionProvider = UiPopupDefaults.dropdown()
+        positionProvider = UiPopupDefaults.dropdown(),
     ) {
         options.forEachIndexed { index, option ->
             val optionStyle = if (index == selectedIndex) {
@@ -95,7 +93,7 @@ fun UiScope.select(
                     modifier = Modifier
                         .width(slot.width.px)
                         .height(slot.height.px),
-                    style = resolvedDefaults then style then optionStyle
+                    style = resolvedDefaults then style then optionStyle,
                 )
             ) {
                 picked = index
@@ -124,14 +122,16 @@ fun UiScope.drawDropdownTriggerContent(
     semanticId: String? = null,
     // True when [label] is a placeholder rather than a real selected value (shadcnSelect's
     // `selectedIndex == null` case) -- muted, same treatment textField gives its placeholder.
-    isPlaceholder: Boolean = false
+    isPlaceholder: Boolean = false,
 ) {
     val theme = context.currentTheme
     val resolvedFont = context.currentFont
-    val resolved = resolveStyle(defaults = style, state = MutableStyleState(
+    val resolved = resolveStyle(
+        defaults = style,
+        state = MutableStyleState(
             hovered = hitTest(slot),
-            active = expanded
-        )
+            active = expanded,
+        ),
     )
     val textColor = if (isPlaceholder) theme.colors.mutedForeground else (resolved.foreground ?: theme.colors.foreground)
     // Authored in Dp and converted here, at the point of use. `slot` *is* physical-pixel
@@ -150,7 +150,7 @@ fun UiScope.drawDropdownTriggerContent(
             x = slot.x + horizontalPad,
             y = slot.y,
             width = (slot.width - horizontalPad * 2 - chevronSize - chevronGap).coerceAtLeast(0f),
-            height = slot.height
+            height = slot.height,
         ),
         font = resolvedFont,
         color = textColor,
@@ -158,13 +158,13 @@ fun UiScope.drawDropdownTriggerContent(
         verticallyCentered = true,
         overflow = UiTextOverflow.Ellipsis,
         textStyle = resolved.textStyle,
-        semanticId = semanticId
+        semanticId = semanticId,
     )
     val chevronSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         x = slot.x + slot.width - horizontalPad - chevronSize,
         y = slot.y + (slot.height - chevronSize) / 2f,
         width = chevronSize,
-        height = chevronSize
+        height = chevronSize,
     )
     val chevronColor = textColor.withAlpha(0.5f)
     UiIcons.chevronDown.fitTo(chevronSlot).forEach { vectorPath ->

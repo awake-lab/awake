@@ -13,7 +13,7 @@ class PresetUiThemesTest {
         assertEquals(ShadcnDefaultTheme.colors.background, DarkUiTheme.colors.background)
         assertEquals(
             ShadcnDefaultTheme.components.button.resolve().background!!,
-            DarkUiTheme.components.button.resolve().background!!
+            DarkUiTheme.components.button.resolve().background!!,
         )
     }
 
@@ -21,11 +21,11 @@ class PresetUiThemesTest {
     fun lightPresetSwapsBackgroundLuminance() {
         assertNotEquals(
             ShadcnDefaultTheme.colors.background,
-            LightUiTheme.colors.background
+            LightUiTheme.colors.background,
         )
         assertNotEquals(
             ShadcnDefaultTheme.colors.foreground,
-            LightUiTheme.colors.foreground
+            LightUiTheme.colors.foreground,
         )
     }
 }

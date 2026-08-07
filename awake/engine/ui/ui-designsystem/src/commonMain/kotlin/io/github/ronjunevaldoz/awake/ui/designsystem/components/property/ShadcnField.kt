@@ -7,7 +7,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnLabel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -15,10 +17,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.headless.separator
 
 /**
  * Matches real shadcn-compose's `Field` orientation switch -- [Vertical] stacks label above
@@ -38,18 +38,18 @@ fun ColumnScope.shadcnField(
     id: String? = null,
     modifier: UiModifier = Modifier,
     orientation: ShadcnFieldOrientation = ShadcnFieldOrientation.Vertical,
-    content: UiScope.() -> Unit
+    content: UiScope.() -> Unit,
 ): UiBounds = when (orientation) {
     ShadcnFieldOrientation.Vertical -> column(
         id = id,
         verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm),
-        modifier = modifier
+        modifier = modifier,
     ) { content() }
 
     ShadcnFieldOrientation.Horizontal -> row(
         horizontalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.md),
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = modifier
+        modifier = modifier,
     ) { content() }
 }
 
@@ -58,7 +58,7 @@ fun UiScope.shadcnFieldLabel(
     text: String,
     modifier: UiModifier = Modifier,
     required: Boolean = false,
-    disabled: Boolean = false
+    disabled: Boolean = false,
 ): UiBounds = shadcnLabel(text, modifier, required, disabled)
 
 /** Real shadcn's `FieldDescription` -- muted small text below a field's control. */
@@ -68,7 +68,7 @@ fun UiScope.shadcnFieldDescription(text: String, modifier: UiModifier = Modifier
         text,
         modifier = modifier,
         muted = true,
-        style = Style { textSize(shadcnTheme.typography.caption) }
+        style = Style { textSize(shadcnTheme.typography.caption) },
     )
 }
 
@@ -81,7 +81,7 @@ fun UiScope.shadcnFieldError(text: String, modifier: UiModifier = Modifier): UiB
         style = Style {
             foreground(shadcnTheme.colors.destructive)
             textSize(shadcnTheme.typography.caption)
-        }
+        },
     )
 }
 
@@ -95,7 +95,7 @@ fun UiScope.shadcnFieldError(text: String, modifier: UiModifier = Modifier): UiB
 fun ColumnScope.shadcnFieldSet(
     id: String? = null,
     modifier: UiModifier = Modifier,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ): UiBounds = column(id = id, verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm), modifier = modifier) { content() }
 
 /** Real shadcn's `FieldLegend` (HTML `<legend>` equivalent) -- the title of a [shadcnFieldSet],
@@ -103,14 +103,14 @@ fun ColumnScope.shadcnFieldSet(
  * same size/weight used by every other section-level heading in this module. */
 fun ColumnScope.shadcnFieldLegend(
     text: String,
-    modifier: UiModifier = Modifier
+    modifier: UiModifier = Modifier,
 ): UiBounds = shadcnSectionTitle(text, modifier = modifier)
 
 /** Real shadcn's `FieldGroup` -- groups several [shadcnField]s into one column. */
 fun ColumnScope.shadcnFieldGroup(
     id: String? = null,
     modifier: UiModifier = Modifier,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ): UiBounds = column(id = id, verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xxl), modifier = modifier) { content() }
 
 /**
@@ -125,7 +125,7 @@ fun ColumnScope.shadcnFieldSeparator(modifier: UiModifier = Modifier, label: Str
         row(
             horizontalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm),
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = modifier
+            modifier = modifier,
         ) {
             separator(modifier = Modifier.weight(1f), color = borderColor)
             shadcnFieldDescription(label)

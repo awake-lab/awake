@@ -19,18 +19,18 @@ class CanvasDiagnosticTest {
         // The header gradient is a horizontal gradient quad
         assertTrue(
             primitives.any { it is UiDrawPrimitive.GradientQuad },
-            "Canvas must emit at least one gradient quad"
+            "Canvas must emit at least one gradient quad",
         )
 
         // 2. Validate Clipping
         // clipShape(UiShapeSpec.Circle, ...) should emit ClipPush/Pop
         assertTrue(
             primitives.any { it is UiDrawPrimitive.ClipPush },
-            "Canvas must emit ClipPush for clipShape"
+            "Canvas must emit ClipPush for clipShape",
         )
         assertTrue(
             primitives.any { it is UiDrawPrimitive.ClipPop },
-            "Canvas must emit ClipPop after clipped content"
+            "Canvas must emit ClipPop after clipped content",
         )
 
         // 3. Validate Nested Local Coordinates

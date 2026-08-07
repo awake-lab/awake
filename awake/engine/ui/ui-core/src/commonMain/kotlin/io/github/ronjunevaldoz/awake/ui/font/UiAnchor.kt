@@ -6,19 +6,19 @@ import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectTextScale
 import io.github.ronjunevaldoz.awake.ui.toPx
 //
-//enum class UiAnchor {
+// enum class UiAnchor {
 //    TopLeft,
 //    TopRight,
 //    BottomLeft,
 //    BottomRight
-//}
+// }
 //
-//fun UiSlot.anchored(
+// fun UiSlot.anchored(
 //    anchor: UiAnchor,
 //    width: Float,
 //    height: Float,
 //    margin: UiInsets = UiInsets.Zero
-//): UiSlot {
+// ): UiSlot {
 //    val resolvedWidth = width.coerceAtLeast(0f)
 //    val resolvedHeight = height.coerceAtLeast(0f)
 //    val anchoredX = when (anchor) {
@@ -35,12 +35,12 @@ import io.github.ronjunevaldoz.awake.ui.toPx
 //        width = resolvedWidth,
 //        height = resolvedHeight
 //    )
-//}
+// }
 
 fun UiFont.textBlockHeight(
     lineCount: Int,
     textScale: Float = 1f,
-    gap: Float = UiSpacing.sm.toPx()
+    gap: Float = UiSpacing.sm.toPx(),
 ): Float {
     if (lineCount <= 0) {
         return 0f

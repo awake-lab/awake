@@ -2,9 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldRangeSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldTextField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.shadcnTabs
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAccordion
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
@@ -12,32 +21,26 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumb
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAccordion
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnKbd
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnProgress
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSkeleton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSpinner
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.shadcnTabs
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnProgress
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSkeleton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSpinner
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.UiIcons
+import io.github.ronjunevaldoz.awake.ui.headless.components.icon
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
@@ -54,9 +57,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.style.*
-import io.github.ronjunevaldoz.awake.ui.headless.UiIcons
-import io.github.ronjunevaldoz.awake.ui.headless.components.icon
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 internal fun ColumnScope.drawUiShowcaseButtonPreview() {
     shadcnSupportingText("Figma Component Layout: Hero interactive card, 2x2 variant matrix grid, and dynamic token inspector.")
@@ -71,7 +71,7 @@ internal fun ColumnScope.drawUiShowcaseButtonPreview() {
                 text("Interactive Hero Button")
                 shadcnBadge("FIGMA EXACT", variant = ShadcnBadgeVariant.Primary)
             }
-        }
+        },
     ) {
         row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(50f.dp.toDimension())) {
             shadcnButton("hero-button-primary", label = "Primary Action", variant = ShadcnButtonVariant.Primary, modifier = Modifier.width(150f.dp))
@@ -99,7 +99,7 @@ internal fun ColumnScope.drawUiShowcaseButtonPreview() {
     shadcnCard(
         id = "button-token-inspector",
         modifier = Modifier.fillMaxWidth(),
-        header = { text("Token & Metric Inspector") }
+        header = { text("Token & Metric Inspector") },
     ) {
         column(verticalArrangement = Arrangement.spacedBy(4f.dp)) {
             shadcnSupportingText("Tokens: primary | primary-foreground | border | ring")
@@ -114,7 +114,7 @@ internal fun ColumnScope.drawUiShowcaseBadgePreview() {
     shadcnCard(
         id = "badge-hero-card",
         modifier = Modifier.fillMaxWidth().height(120f.dp),
-        header = { text("Badge Variants") }
+        header = { text("Badge Variants") },
     ) {
         row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(30f.dp.toDimension())) {
             shadcnBadge("Primary", variant = ShadcnBadgeVariant.Primary)
@@ -135,21 +135,21 @@ internal fun ColumnScope.drawUiShowcaseTextFieldPreview() {
     shadcnCard(
         id = "text-field-hero-card",
         modifier = Modifier.fillMaxWidth(),
-        header = { text("Text Input & Area Interactive Preview") }
+        header = { text("Text Input & Area Interactive Preview") },
     ) {
         column(verticalArrangement = Arrangement.spacedBy(10f.dp)) {
             shadcnFieldTextField(
                 id = "showcase-name",
                 label = "Full Name",
                 value = name,
-                placeholder = "Jane Doe"
+                placeholder = "Jane Doe",
             ).also { name = it }
 
             shadcnFieldTextField(
                 id = "showcase-email",
                 label = "Email Address",
                 value = email,
-                placeholder = "jane@example.com"
+                placeholder = "jane@example.com",
             ).also { email = it }
 
             shadcnFieldTextarea(
@@ -157,7 +157,7 @@ internal fun ColumnScope.drawUiShowcaseTextFieldPreview() {
                 label = "Biography",
                 value = bio,
                 placeholder = "Tell us about your background...",
-                minLines = 4
+                minLines = 4,
             ).also { bio = it }
         }
     }
@@ -171,14 +171,14 @@ internal fun ColumnScope.drawUiShowcaseTextareaPreview() {
     shadcnCard(
         id = "textarea-hero-card",
         modifier = Modifier.fillMaxWidth(),
-        header = { text("Text Area Preview") }
+        header = { text("Text Area Preview") },
     ) {
         shadcnFieldTextarea(
             id = "showcase-bio",
             label = "Biography",
             value = bio,
             placeholder = "Tell us about your background...",
-            minLines = 4
+            minLines = 4,
         ).also { bio = it }
     }
 }
@@ -192,20 +192,20 @@ internal fun ColumnScope.drawUiShowcaseCheckboxPreview() {
     shadcnCard(
         id = "checkbox-hero-card",
         modifier = Modifier.fillMaxWidth(),
-        header = { text("Checkbox Preview") }
+        header = { text("Checkbox Preview") },
     ) {
         column(verticalArrangement = Arrangement.spacedBy(12f.dp)) {
             agree = shadcnCheckbox(
                 id = "showcase-checkbox-agree",
                 checked = agree,
                 label = "Accept terms and conditions",
-                modifier = Modifier.width(260f.dp).height(24f.dp)
+                modifier = Modifier.width(260f.dp).height(24f.dp),
             )
             updates = shadcnCheckbox(
                 id = "showcase-checkbox-updates",
                 checked = updates,
                 label = "Receive email updates",
-                modifier = Modifier.width(260f.dp).height(24f.dp)
+                modifier = Modifier.width(260f.dp).height(24f.dp),
             )
         }
     }
@@ -219,13 +219,13 @@ internal fun ColumnScope.drawUiShowcaseRadioGroupPreview() {
     shadcnCard(
         id = "radio-hero-card",
         modifier = Modifier.fillMaxWidth(),
-        header = { text("Radio Group Preview") }
+        header = { text("Radio Group Preview") },
     ) {
         quality = shadcnRadioGroup(
             id = "showcase-radio-quality",
             options = listOf("Low Quality (Fast)", "Medium Quality (Balanced)", "High Quality (Fidelity)"),
             selectedIndex = quality,
-            modifier = Modifier.width(320f.dp)
+            modifier = Modifier.width(320f.dp),
         )
     }
 }
@@ -238,13 +238,13 @@ internal fun ColumnScope.drawUiShowcaseSwitchPreview() {
     shadcnCard(
         id = "switch-hero-card",
         modifier = Modifier.fillMaxWidth(),
-        header = { text("Switch Preview") }
+        header = { text("Switch Preview") },
     ) {
         notifications = shadcnSwitch(
             id = "showcase-switch-notif",
             checked = notifications,
             label = "Enable push notifications",
-            modifier = Modifier.width(260f.dp).height(24f.dp)
+            modifier = Modifier.width(260f.dp).height(24f.dp),
         )
     }
 }
@@ -259,11 +259,12 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview() {
         id = "showcase-collapsible",
         title = "...",
         expanded = expanded,
-        onExpandedChange = { expanded = it }
+        onExpandedChange = { expanded = it },
     ) {
         column(
-            verticalArrangement = Arrangement.spacedBy(8f.dp)
-        , modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
+            verticalArrangement = Arrangement.spacedBy(8f.dp),
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent),
+        ) {
             shadcnSeparator(modifier = Modifier.padding(0f.dp, 4f.dp, 0f.dp, 4f.dp))
             row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
                 text("@radix-ui/primitives", style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) })
@@ -291,7 +292,7 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview() {
                 "acc-2" -> "Is it styled?"
                 else -> "Is it animated?"
             }
-        }
+        },
     ) { item ->
         shadcnBodyText("Yes. It adheres to the WAI-ARIA design pattern for accordion components.")
     }
@@ -306,7 +307,7 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
     row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.width(360f.dp)
+        modifier = Modifier.width(360f.dp),
     ) {
         shadcnText("Exposure")
         shadcnText("${exposure.toInt()}%", muted = true)
@@ -317,13 +318,13 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
         min = 0f,
         max = 100f,
         value = exposure,
-        modifier = Modifier.width(360f.dp)
+        modifier = Modifier.width(360f.dp),
     )
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.width(360f.dp)
+        modifier = Modifier.width(360f.dp),
     ) {
         shadcnText("Bloom")
         shadcnText("${bloom.toInt()} px", muted = true)
@@ -334,7 +335,7 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
         min = 0f,
         max = 32f,
         value = bloom,
-        modifier = Modifier.width(360f.dp)
+        modifier = Modifier.width(360f.dp),
     )
     spacer(Modifier.height(12f.dp))
 
@@ -344,7 +345,7 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
     row(
         horizontalArrangement = Arrangement.spacedBy(10f.dp),
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.height(32f.dp.toDimension())
+        modifier = Modifier.height(32f.dp.toDimension()),
     ) {
         shadcnText("Volume", modifier = Modifier.width(64f.dp))
         volume = shadcnSlider(
@@ -352,7 +353,7 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
             min = 0f,
             max = 100f,
             value = volume,
-            modifier = Modifier.width(220f.dp)
+            modifier = Modifier.width(220f.dp),
         )
         shadcnText("${volume.toInt()}%", muted = true, modifier = Modifier.width(40f.dp))
     }
@@ -364,7 +365,7 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
     row(
         horizontalArrangement = Arrangement.spacedBy(10f.dp),
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.height(32f.dp.toDimension())
+        modifier = Modifier.height(32f.dp.toDimension()),
     ) {
         shadcnText("0.5x", modifier = Modifier.width(36f.dp))
         speed = shadcnSlider(
@@ -372,7 +373,7 @@ internal fun ColumnScope.drawUiShowcaseSliderPreview() {
             min = 0.5f,
             max = 2f,
             value = speed,
-            modifier = Modifier.width(220f.dp)
+            modifier = Modifier.width(220f.dp),
         )
         shadcnText("2x", modifier = Modifier.width(28f.dp))
     }
@@ -391,7 +392,7 @@ internal fun ColumnScope.drawUiShowcaseRangeSliderPreview() {
         max = 1f,
         valueStart = temperature.first,
         valueEnd = temperature.second,
-        modifier = Modifier.width(360f.dp)
+        modifier = Modifier.width(360f.dp),
     )
     spacer(Modifier.height(8f.dp))
 }
@@ -409,19 +410,19 @@ internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
         id = "showcase-selection-wireframe",
         checked = wireframe,
         label = "Wireframe overlay",
-        modifier = Modifier.width(220f.dp).height(24f.dp)
+        modifier = Modifier.width(220f.dp).height(24f.dp),
     )
     darkMode = shadcnSwitch(
         id = "showcase-selection-dark-mode",
         checked = darkMode,
         label = "Dark mode",
-        modifier = Modifier.width(220f.dp).height(24f.dp)
+        modifier = Modifier.width(220f.dp).height(24f.dp),
     )
     stats = shadcnCheckbox(
         id = "showcase-selection-stats",
         checked = stats,
         label = "Scene statistics",
-        modifier = Modifier.width(220f.dp).height(24f.dp)
+        modifier = Modifier.width(220f.dp).height(24f.dp),
     )
     spacer(Modifier.height(10f.dp))
     shadcnSupportingText("RadioGroup: single-select, clicking the already-selected item is a no-op.")
@@ -430,7 +431,7 @@ internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
         id = "showcase-selection-quality",
         options = listOf("Low", "Medium", "High"),
         selectedIndex = quality,
-        modifier = Modifier.width(220f.dp)
+        modifier = Modifier.width(220f.dp),
     )
     spacer(Modifier.height(10f.dp))
     shadcnSupportingText("ToggleGroup: row of mutually exclusive toggle buttons, each option gets an equal share of the group width.")
@@ -440,11 +441,11 @@ internal fun ColumnScope.drawUiShowcaseSelectionPreview() {
         options = listOf("Left", "Center", "Right", "Justify"),
         selectedIndex = alignment,
         modifier = Modifier.width(280f.dp).height(32f.dp),
-        onIndexChange = { alignment = it }
+        onIndexChange = { alignment = it },
     )
     spacer(Modifier.height(8f.dp))
     shadcnSupportingText(
-        "Selection state now lives in the same preview lane as fields and overlays, so color inversions and label alignment regressions show up faster."
+        "Selection state now lives in the same preview lane as fields and overlays, so color inversions and label alignment regressions show up faster.",
     )
 }
 
@@ -457,7 +458,7 @@ internal fun ColumnScope.drawUiShowcaseTabsPreview() {
     section = shadcnTabs(
         id = "showcase-tabs-section",
         tabs = sections,
-        selectedIndex = section
+        selectedIndex = section,
     )
     spacer(Modifier.height(8f.dp))
     shadcnSupportingText("Selected: ${sections[section]}")
@@ -469,13 +470,13 @@ internal fun ColumnScope.drawUiShowcaseFeedbackPreview() {
     shadcnProgress(
         id = "showcase-feedback-progress-low",
         value = 0.25f,
-        modifier = Modifier.width(320f.dp).height(8f.dp)
+        modifier = Modifier.width(320f.dp).height(8f.dp),
     )
     spacer(Modifier.height(6f.dp))
     shadcnProgress(
         id = "showcase-feedback-progress-high",
         value = 0.8f,
-        modifier = Modifier.width(320f.dp).height(8f.dp)
+        modifier = Modifier.width(320f.dp).height(8f.dp),
     )
     spacer(Modifier.height(12f.dp))
     shadcnSupportingText("Skeleton -- a real per-widget opacity pulse standing in for unloaded content.")
@@ -504,13 +505,13 @@ internal fun ColumnScope.drawUiShowcaseSelectPreview() {
             id = "showcase-select-theme",
             options = listOf("Light", "Dark", "Auto"),
             selectedIndex = themeOption,
-            modifier = Modifier.width(200f.dp)
+            modifier = Modifier.width(200f.dp),
         ) ?: themeOption
         accentOption = shadcnSelect(
             id = "showcase-select-accent",
             options = listOf("Base", "Blue", "Emerald", "Rose"),
             selectedIndex = accentOption,
-            modifier = Modifier.width(200f.dp)
+            modifier = Modifier.width(200f.dp),
         ) ?: accentOption
     }
 }
@@ -558,18 +559,18 @@ internal fun ColumnScope.drawUiShowcaseCardPreview() {
         id = "showcase-card-full",
         modifier = Modifier.fillMaxWidth(),
         header = { shadcnSectionTitle("Full card") },
-        footer = { shadcnButton("showcase-card-full-action", label = "Save", modifier = Modifier.width(96f.dp).height(32f.dp)) }
+        footer = { shadcnButton("showcase-card-full-action", label = "Save", modifier = Modifier.width(96f.dp).height(32f.dp)) },
     ) { shadcnBodyText("Header, body, and footer all present.") }
     spacer(Modifier.height(8f.dp))
     shadcnCard(
         id = "showcase-card-header-only",
         modifier = Modifier.fillMaxWidth(),
-        header = { shadcnSectionTitle("Header, no footer") }
+        header = { shadcnSectionTitle("Header, no footer") },
     ) { shadcnBodyText("Only header and body -- no divider or footer below the body.") }
     spacer(Modifier.height(8f.dp))
     shadcnCard(
         id = "showcase-card-body-only",
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) { shadcnBodyText("Body only -- neither header nor footer, so no dividers at all.") }
 }
 
@@ -582,7 +583,7 @@ internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
             id = "showcase-sidebar-full",
             modifier = Modifier.width(220f.dp).height(Dimension.WrapContent),
             header = { shadcnBadge("STARTER", variant = ShadcnBadgeVariant.Primary) },
-            footer = { shadcnButton("showcase-sidebar-full-signout", label = "Sign out", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Outline) }
+            footer = { shadcnButton("showcase-sidebar-full-signout", label = "Sign out", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Outline) },
         ) { _ ->
             shadcnSidebarGroup(label = "Scene") {
                 shadcnSidebarMenu {
@@ -591,26 +592,26 @@ internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
                         label = "Lighting",
                         active = activeItem == "lighting",
                         badge = "New",
-                        onClick = { activeItem = "lighting" }
+                        onClick = { activeItem = "lighting" },
                     )
                     shadcnSidebarMenuItem(
                         id = "showcase-sidebar-full-camera",
                         label = "Camera",
                         active = activeItem == "camera",
-                        onClick = { activeItem = "camera" }
+                        onClick = { activeItem = "camera" },
                     )
                     shadcnSidebarMenuItem(
                         id = "showcase-sidebar-full-exposure",
                         label = "Exposure",
                         active = activeItem == "exposure",
-                        onClick = { activeItem = "exposure" }
+                        onClick = { activeItem = "exposure" },
                     )
                 }
             }
         }
         shadcnSidebar(
             id = "showcase-sidebar-content-only",
-            modifier = Modifier.width(220f.dp).height(Dimension.WrapContent)
+            modifier = Modifier.width(220f.dp).height(Dimension.WrapContent),
         ) { _ ->
             shadcnButton("showcase-sidebar-content-only-lighting", label = "Lighting", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Primary)
             shadcnButton("showcase-sidebar-content-only-camera", label = "Camera", modifier = Modifier.fillMaxWidth().height(32f.dp), variant = ShadcnButtonVariant.Secondary)
@@ -626,7 +627,7 @@ internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
         shadcnSidebar(
             id = "showcase-sidebar-collapsible",
             modifier = Modifier.width(220f.dp).height(Dimension.WrapContent),
-            expanded = sidebarExpanded
+            expanded = sidebarExpanded,
         ) { _ ->
             shadcnSidebarMenu {
                 shadcnSidebarMenuItem(id = "showcase-sidebar-collapsible-lighting", label = "Lighting", active = true)
@@ -637,7 +638,7 @@ internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
             id = "showcase-sidebar-collapsible-toggle",
             label = if (sidebarExpanded) "Collapse" else "Expand",
             variant = ShadcnButtonVariant.Outline,
-            modifier = Modifier.width(120f.dp).height(32f.dp)
+            modifier = Modifier.width(120f.dp).height(32f.dp),
         ) { sidebarExpanded = !sidebarExpanded }
     }
 }
@@ -649,7 +650,7 @@ internal fun ColumnScope.drawUiShowcaseAlertPreview() {
         id = "showcase-alert-default",
         title = "Scene saved",
         description = "Your changes are stored in the current project.",
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     )
     spacer(Modifier.height(8f.dp))
     shadcnAlert(
@@ -657,7 +658,7 @@ internal fun ColumnScope.drawUiShowcaseAlertPreview() {
         title = "Unable to load scene",
         description = "The scene file is missing or corrupted. Choose another scene to continue.",
         variant = ShadcnAlertVariant.Destructive,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
@@ -674,7 +675,7 @@ internal fun ColumnScope.drawUiShowcaseProgressPreview() {
     row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         shadcnText("Upload progress")
         shadcnText("56%", muted = true)
@@ -683,7 +684,7 @@ internal fun ColumnScope.drawUiShowcaseProgressPreview() {
     shadcnProgress(
         id = "showcase-progress-bar",
         value = 0.56f,
-        modifier = Modifier.fillMaxWidth().height(4f.dp)
+        modifier = Modifier.fillMaxWidth().height(4f.dp),
     )
 }
 

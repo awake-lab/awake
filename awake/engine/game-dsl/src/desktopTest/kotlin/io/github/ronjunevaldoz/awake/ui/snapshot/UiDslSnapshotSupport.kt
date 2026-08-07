@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -20,7 +20,7 @@ fun saveUiDslTutorialSnapshot(
     width: Int,
     height: Int,
     background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
-    font: UiFont? = null
+    font: UiFont? = null,
 ) {
     val pixels = primitives.rasterize(width, height, background, font)
     val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)

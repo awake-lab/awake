@@ -104,9 +104,7 @@ internal actual object Agl : OpenGL {
         glViewport(x, y, width, height)
     }
 
-    override fun createShader(type: OpenGL.ShaderType): Int {
-        return glCreateShader(type.value.toUInt()).toInt()
-    }
+    override fun createShader(type: OpenGL.ShaderType): Int = glCreateShader(type.value.toUInt()).toInt()
 
     override fun shaderSource(shader: Int, content: String) {
         memScoped {
@@ -136,9 +134,7 @@ internal actual object Agl : OpenGL {
         glGetShaderiv(shader.toUInt(), status.value.toUInt(), buffer.get())
     }
 
-    override fun createProgram(): Int {
-        return glCreateProgram().toInt()
-    }
+    override fun createProgram(): Int = glCreateProgram().toInt()
 
     override fun attachShader(program: Int, shader: Int) {
         glAttachShader(program.toUInt(), shader.toUInt())
@@ -174,17 +170,13 @@ internal actual object Agl : OpenGL {
         glDeleteProgram(program.toUInt())
     }
 
-    override fun getUniformLocation(program: Int, name: String): Int {
-        return glGetUniformLocation(program.toUInt(), name)
-    }
+    override fun getUniformLocation(program: Int, name: String): Int = glGetUniformLocation(program.toUInt(), name)
 
     override fun bindAttribLocation(program: ProgramId, index: Int, name: String) {
         glBindAttribLocation(program.toUInt(), index.toUInt(), name)
     }
 
-    override fun getAttribLocation(program: Int, name: String): Int {
-        return glGetAttribLocation(program.toUInt(), name)
-    }
+    override fun getAttribLocation(program: Int, name: String): Int = glGetAttribLocation(program.toUInt(), name)
 
     override fun vertexAttribPointer(
         index: Int,
@@ -192,7 +184,7 @@ internal actual object Agl : OpenGL {
         type: Int,
         normalized: Boolean,
         stride: Int,
-        ptr: Buffer?
+        ptr: Buffer?,
     ) {
         val pointer = ptr?.get() ?: 0.toLong().toCPointer<ByteVar>()
         glVertexAttribPointer(
@@ -201,7 +193,7 @@ internal actual object Agl : OpenGL {
             type = type.toUInt(),
             normalized = if (normalized) GL_TRUE.toUByte() else GL_FALSE.toUByte(),
             stride = stride,
-            ptr = pointer
+            ptr = pointer,
         )
     }
 
@@ -211,7 +203,7 @@ internal actual object Agl : OpenGL {
         type: Int,
         normalized: Boolean,
         stride: Int,
-        offset: Int
+        offset: Int,
     ) {
         glVertexAttribPointer(
             indx = index.toUInt(),
@@ -219,7 +211,7 @@ internal actual object Agl : OpenGL {
             type = type.toUInt(),
             normalized = if (normalized) GL_TRUE.toUByte() else GL_FALSE.toUByte(),
             stride = stride,
-            ptr = offset.toLong().toCPointer<ByteVar>()
+            ptr = offset.toLong().toCPointer<ByteVar>(),
         )
     }
 
@@ -261,7 +253,7 @@ internal actual object Agl : OpenGL {
             target.value.toUInt(),
             data.size * data.sizeBytes().toLong(),
             buffer,
-            usage.value.toUInt()
+            usage.value.toUInt(),
         )
     }
 
@@ -345,7 +337,7 @@ internal actual object Agl : OpenGL {
         height: Int,
         format: Int,
         type: Int,
-        pixels: Buffer
+        pixels: Buffer,
     ) {
         val pixelBuffer = pixels.get<ByteVar>()
         glReadPixels(x, y, width, height, format.toUInt(), type.toUInt(), pixelBuffer)
@@ -360,7 +352,7 @@ internal actual object Agl : OpenGL {
         border: Int,
         format: Int,
         type: Int,
-        buffer: Buffer?
+        buffer: Buffer?,
     ) {
         val pixelBuffer = buffer?.get() ?: 0.toLong().toCPointer<ByteVar>()
         glTexImage2D(
@@ -372,7 +364,7 @@ internal actual object Agl : OpenGL {
             border,
             format.toUInt(),
             type.toUInt(),
-            pixelBuffer
+            pixelBuffer,
         )
     }
 
@@ -385,7 +377,7 @@ internal actual object Agl : OpenGL {
         height: Int,
         format: Int,
         type: Int,
-        buffer: Buffer?
+        buffer: Buffer?,
     ) {
         val pixelBuffer = buffer?.get() ?: 0.toLong().toCPointer<ByteVar>()
         glTexSubImage2D(
@@ -397,7 +389,7 @@ internal actual object Agl : OpenGL {
             height = height,
             format = format.toUInt(),
             type = GL_UNSIGNED_BYTE.toUInt(),
-            pixels = pixelBuffer
+            pixels = pixelBuffer,
         )
     }
 
@@ -407,7 +399,7 @@ internal actual object Agl : OpenGL {
         xOffset: Int,
         yOffset: Int,
         bitmap: Bitmap,
-        format: Int
+        format: Int,
     ) {
         glTexSubImage2D(
             target = target.toUInt(),
@@ -418,7 +410,7 @@ internal actual object Agl : OpenGL {
             height = bitmap.height,
             format = format.toUInt(),
             type = GL_UNSIGNED_BYTE.toUInt(),
-            pixels = bitmap.pixels.refTo(0)
+            pixels = bitmap.pixels.refTo(0),
         )
     }
 
@@ -427,7 +419,7 @@ internal actual object Agl : OpenGL {
         level: Int,
         internalFormat: Int,
         bitmap: Bitmap,
-        border: Int
+        border: Int,
     ) {
         glTexImage2D(
             target = target.toUInt(),
@@ -438,7 +430,7 @@ internal actual object Agl : OpenGL {
             border = 0,
             format = internalFormat.toFormat().toUInt(),
             type = GL_UNSIGNED_BYTE.toUInt(),
-            pixels = bitmap.pixels.refTo(0)
+            pixels = bitmap.pixels.refTo(0),
         )
     }
 
@@ -474,13 +466,13 @@ internal actual object Agl : OpenGL {
         location: Int,
         count: Int,
         transpose: Boolean,
-        value: FloatBuf
+        value: FloatBuf,
     ) {
         glUniformMatrix4fv(
             location,
             count,
             if (transpose) GL_TRUE.toUByte() else GL_FALSE.toUByte(),
-            value.get()
+            value.get(),
         )
     }
 
@@ -499,14 +491,14 @@ internal actual object Agl : OpenGL {
         attachment: Int,
         texTarget: Int,
         texture: Int,
-        level: Int
+        level: Int,
     ) {
         glFramebufferTexture2DOES(
             target.toUInt(),
             attachment.toUInt(),
             texTarget.toUInt(),
             texture.toUInt(),
-            level
+            level,
         )
     }
 
@@ -528,19 +520,17 @@ internal actual object Agl : OpenGL {
         target: Int,
         attachment: Int,
         renderBufferTarget: Int,
-        renderBuffer: Int
+        renderBuffer: Int,
     ) {
         glFramebufferRenderbufferOES(
             target.toUInt(),
             attachment.toUInt(),
             renderBufferTarget.toUInt(),
-            renderBuffer.toUInt()
+            renderBuffer.toUInt(),
         )
     }
 
-    override fun checkFramebufferStatus(target: Int): Int {
-        return glCheckFramebufferStatusOES(target.toUInt()).toInt()
-    }
+    override fun checkFramebufferStatus(target: Int): Int = glCheckFramebufferStatusOES(target.toUInt()).toInt()
 
     override fun cullFace(face: Int) {
         glCullFace(face.toUInt())
@@ -568,7 +558,5 @@ internal actual object Agl : OpenGL {
         glDeleteBuffers(1, buffer.get())
     }
 
-    override fun getError(): Int {
-        return glGetError().toInt()
-    }
+    override fun getError(): Int = glGetError().toInt()
 }

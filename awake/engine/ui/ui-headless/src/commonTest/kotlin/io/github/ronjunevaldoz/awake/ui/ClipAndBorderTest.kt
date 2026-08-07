@@ -5,23 +5,23 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.graphics.border
+import io.github.ronjunevaldoz.awake.ui.graphics.clip
+import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.intersect
+import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.intersect
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.layouts.surface
+import io.github.ronjunevaldoz.awake.ui.style.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class ClipAndBorderTest {
 
@@ -118,11 +118,16 @@ class ClipAndBorderTest {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
         val scope = ui.createAbsolute(x = 0f, y = 0f)
-        scope.buttonSlot("b", modifier = Modifier.width(100f.px).height(40f.px), style = Style {
-            shape(
-                UiShape.md
-            )
-        }, radius = UiShape.none)
+        scope.buttonSlot(
+            "b",
+            modifier = Modifier.width(100f.px).height(40f.px),
+            style = Style {
+                shape(
+                    UiShape.md,
+                )
+            },
+            radius = UiShape.none,
+        )
         val primitive = ui.endFrame().first()
         assertIs<UiDrawPrimitive.RoundedQuad>(primitive, "style.shape() must produce a RoundedQuad even though radius param was UiShape.none")
     }
@@ -137,7 +142,7 @@ class ClipAndBorderTest {
             "b",
             modifier = Modifier.width(100f.px).height(40f.px),
             style = Style { border(3f.dp, customColor) },
-            variant = UiButtonVariant.Filled
+            variant = UiButtonVariant.Filled,
         )
         val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
         val borderQuads = quads.filter { it.color == customColor }
@@ -157,7 +162,7 @@ class ClipAndBorderTest {
             style = Style {
                 shape(UiShapeSpec.CutCorner(8f.dp))
                 border(2f.dp, customBorder)
-            }
+            },
         )
 
         val primitives = ui.endFrame()
@@ -174,7 +179,7 @@ class ClipAndBorderTest {
         scope.buttonSlot(
             "circle",
             modifier = Modifier.width(120f.px).height(40f.px),
-            style = Style { shape(UiShapeSpec.Circle) }
+            style = Style { shape(UiShapeSpec.Circle) },
         )
 
         val primitives = ui.endFrame()
@@ -197,15 +202,19 @@ class ClipAndBorderTest {
     fun pathClipRasterizerMasksPixelsOutsideCutCorner() {
         val red = Color(1f, 0f, 0f, 1f)
         val primitives = buildList {
-            add(UiDrawPrimitive.ClipPathPush(UiShapeSpec.CutCorner(8f.dp).toPath(
-                UiBounds(
-                    10f,
-                    10f,
-                    40f,
-                    30f
-                )
-            ), UiBounds(10f, 10f, 40f, 30f)
-            ))
+            add(
+                UiDrawPrimitive.ClipPathPush(
+                    UiShapeSpec.CutCorner(8f.dp).toPath(
+                        UiBounds(
+                            10f,
+                            10f,
+                            40f,
+                            30f,
+                        ),
+                    ),
+                    UiBounds(10f, 10f, 40f, 30f),
+                ),
+            )
             add(UiDrawPrimitive.Quad(10f, 10f, 40f, 30f, red))
             add(UiDrawPrimitive.ClipPop(UiBounds(0f, 0f, 64f, 64f)))
         }
@@ -218,7 +227,7 @@ class ClipAndBorderTest {
                 pixels[offset].toInt() and 0xFF,
                 pixels[offset + 1].toInt() and 0xFF,
                 pixels[offset + 2].toInt() and 0xFF,
-                pixels[offset + 3].toInt() and 0xFF
+                pixels[offset + 3].toInt() and 0xFF,
             )
         }
 
@@ -235,8 +244,9 @@ class ClipAndBorderTest {
         scope.surface(
             id = "panel",
             style = Style { shape(UiShapeSpec.CutCorner(8f.dp)) },
-            clipContent = true
-        , modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(60f.px))) { slot ->
+            clipContent = true,
+            modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(60f.px)),
+        ) { slot ->
             emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, Color(1f, 0f, 0f, 1f)))
         }
 

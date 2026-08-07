@@ -166,7 +166,6 @@ fun main(args: Array<String>) {
     generateJavaToVulkanCpp<VkSubmitInfo>()
     generateJavaToVulkanCpp<VkPresentInfoKHR>()
 
-
     // props
     generateJavaToVulkanCpp<VkExtensionProperties>()
     generateJavaToVulkanCpp<VkLayerProperties>()

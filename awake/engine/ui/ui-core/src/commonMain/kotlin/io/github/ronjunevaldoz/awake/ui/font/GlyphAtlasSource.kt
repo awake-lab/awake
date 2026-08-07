@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.font
 import kotlin.math.floor
 
 internal object GlyphAtlasSource {
-    const val sourceCellSize = 8
+    const val SOURCE_CELL_SIZE = 8
 
     fun atlasCharFor(char: Char): Char = when {
         glyphRows.containsKey(char) -> char
@@ -30,11 +30,11 @@ internal object GlyphAtlasSource {
     }
 
     fun isFilled(rows: IntArray, sourceX: Int, sourceY: Int): Boolean {
-        if (sourceX !in 0 until sourceCellSize || sourceY !in 0 until sourceCellSize) {
+        if (sourceX !in 0 until SOURCE_CELL_SIZE || sourceY !in 0 until SOURCE_CELL_SIZE) {
             return false
         }
         val bits = rows[sourceY]
-        return ((bits shr (sourceCellSize - 1 - sourceX)) and 1) == 1
+        return ((bits shr (SOURCE_CELL_SIZE - 1 - sourceX)) and 1) == 1
     }
 
     fun sampleCoverage(
@@ -44,7 +44,7 @@ internal object GlyphAtlasSource {
         atlasInsetPx: Int,
         atlasCellSize: Int,
         atlasInnerSize: Int,
-        supersampleGrid: Int
+        supersampleGrid: Int,
     ): Float {
         if (atlasX < atlasInsetPx || atlasY < atlasInsetPx) return 0f
         if (atlasX >= atlasCellSize - atlasInsetPx || atlasY >= atlasCellSize - atlasInsetPx) return 0f
@@ -52,8 +52,8 @@ internal object GlyphAtlasSource {
         var total = 0
         for (sampleY in 0 until supersampleGrid) {
             for (sampleX in 0 until supersampleGrid) {
-                val sourceX = ((atlasX - atlasInsetPx) + (sampleX + 0.5f) / supersampleGrid) / atlasInnerSize * sourceCellSize
-                val sourceY = ((atlasY - atlasInsetPx) + (sampleY + 0.5f) / supersampleGrid) / atlasInnerSize * sourceCellSize
+                val sourceX = ((atlasX - atlasInsetPx) + (sampleX + 0.5f) / supersampleGrid) / atlasInnerSize * SOURCE_CELL_SIZE
+                val sourceY = ((atlasY - atlasInsetPx) + (sampleY + 0.5f) / supersampleGrid) / atlasInnerSize * SOURCE_CELL_SIZE
                 val sourceCol = floor(sourceX).toInt()
                 val sourceRow = floor(sourceY).toInt()
                 if (isFilled(rows, sourceCol, sourceRow)) {
@@ -65,7 +65,7 @@ internal object GlyphAtlasSource {
         return covered.toFloat() / total.toFloat()
     }
 
-    private fun glyph(vararg rows: String): IntArray = IntArray(sourceCellSize) { rowIndex ->
+    private fun glyph(vararg rows: String): IntArray = IntArray(SOURCE_CELL_SIZE) { rowIndex ->
         rows.getOrElse(rowIndex) { "........" }.fold(0) { bits, cell ->
             (bits shl 1) or if (cell == '#') 1 else 0
         }
@@ -81,7 +81,7 @@ internal object GlyphAtlasSource {
             "...##...",
             "........",
             "...##...",
-            "........"
+            "........",
         ),
         '"' to glyph(
             "..#.#...",
@@ -91,7 +91,7 @@ internal object GlyphAtlasSource {
             "........",
             "........",
             "........",
-            "........"
+            "........",
         ),
         '\'' to glyph(
             "...##...",
@@ -101,7 +101,7 @@ internal object GlyphAtlasSource {
             "........",
             "........",
             "........",
-            "........"
+            "........",
         ),
         '(' to glyph(
             "...##...",
@@ -111,7 +111,7 @@ internal object GlyphAtlasSource {
             ".##.....",
             ".##.....",
             "..##....",
-            "...##..."
+            "...##...",
         ),
         ')' to glyph(
             ".##.....",
@@ -121,7 +121,7 @@ internal object GlyphAtlasSource {
             "...##...",
             "...##...",
             "..##....",
-            ".##....."
+            ".##.....",
         ),
         ',' to glyph(
             "........",
@@ -131,7 +131,7 @@ internal object GlyphAtlasSource {
             "........",
             "...##...",
             "...##...",
-            "..##...."
+            "..##....",
         ),
         '.' to intArrayOf(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x18),
         '/' to glyph(
@@ -142,7 +142,7 @@ internal object GlyphAtlasSource {
             "..##....",
             ".##.....",
             "##......",
-            "........"
+            "........",
         ),
         '-' to intArrayOf(0x00, 0x00, 0x00, 0x7E, 0x00, 0x00, 0x00, 0x00),
         ':' to intArrayOf(0x00, 0x18, 0x18, 0x00, 0x00, 0x18, 0x18, 0x00),
@@ -154,7 +154,7 @@ internal object GlyphAtlasSource {
             "........",
             "...##...",
             "...##...",
-            "..##...."
+            "..##....",
         ),
         '?' to glyph(
             ".####...",
@@ -164,7 +164,7 @@ internal object GlyphAtlasSource {
             "..##....",
             "........",
             "..##....",
-            "........"
+            "........",
         ),
         '0' to intArrayOf(0x7C, 0x82, 0x86, 0x8A, 0x92, 0xA2, 0x82, 0x7C),
         '1' to intArrayOf(0x18, 0x38, 0x18, 0x18, 0x18, 0x18, 0x18, 0x7E),
@@ -210,7 +210,7 @@ internal object GlyphAtlasSource {
             "..##....",
             "..##....",
             "..##....",
-            "..####.."
+            "..####..",
         ),
         '\\' to glyph(
             "##......",
@@ -220,7 +220,7 @@ internal object GlyphAtlasSource {
             "....##..",
             ".....##.",
             "......##",
-            "........"
+            "........",
         ),
         ']' to glyph(
             "..####..",
@@ -230,7 +230,7 @@ internal object GlyphAtlasSource {
             "....##..",
             "....##..",
             "....##..",
-            "..####.."
+            "..####..",
         ),
         '_' to intArrayOf(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFE),
         '=' to glyph(
@@ -241,7 +241,7 @@ internal object GlyphAtlasSource {
             ".#####..",
             "........",
             "........",
-            "........"
+            "........",
         ),
         '>' to glyph(
             "........",
@@ -251,7 +251,7 @@ internal object GlyphAtlasSource {
             "...##...",
             ".##.....",
             "........",
-            "........"
+            "........",
         ),
         '{' to glyph(
             "...###..",
@@ -261,7 +261,7 @@ internal object GlyphAtlasSource {
             "..##....",
             "..##....",
             "...###..",
-            "........"
+            "........",
         ),
         '}' to glyph(
             ".###....",
@@ -271,7 +271,7 @@ internal object GlyphAtlasSource {
             "...##...",
             "...##...",
             ".###....",
-            "........"
+            "........",
         ),
         'a' to glyph(
             "........",
@@ -281,7 +281,7 @@ internal object GlyphAtlasSource {
             "##...##.",
             "##..###.",
             ".###.##.",
-            "........"
+            "........",
         ),
         'b' to glyph(
             "##......",
@@ -291,7 +291,7 @@ internal object GlyphAtlasSource {
             "##...##.",
             "##...##.",
             "#####...",
-            "........"
+            "........",
         ),
         'c' to glyph(
             "........",
@@ -301,7 +301,7 @@ internal object GlyphAtlasSource {
             "##......",
             "##..##..",
             ".####...",
-            "........"
+            "........",
         ),
         'd' to glyph(
             ".....##.",
@@ -311,7 +311,7 @@ internal object GlyphAtlasSource {
             "##...##.",
             "##...##.",
             ".#####..",
-            "........"
+            "........",
         ),
         'e' to glyph(
             "........",
@@ -321,7 +321,7 @@ internal object GlyphAtlasSource {
             "##......",
             "##..##..",
             ".####...",
-            "........"
+            "........",
         ),
         'f' to glyph(
             "...###..",
@@ -331,7 +331,7 @@ internal object GlyphAtlasSource {
             "..##....",
             "..##....",
             "..##....",
-            "........"
+            "........",
         ),
         'g' to glyph(
             "........",
@@ -341,7 +341,7 @@ internal object GlyphAtlasSource {
             ".#####..",
             ".....##.",
             ".####...",
-            "........"
+            "........",
         ),
         'h' to glyph(
             "##......",
@@ -351,7 +351,7 @@ internal object GlyphAtlasSource {
             "##...##.",
             "##...##.",
             "##...##.",
-            "........"
+            "........",
         ),
         'i' to glyph(
             "...##...",
@@ -361,7 +361,7 @@ internal object GlyphAtlasSource {
             "...##...",
             "...##...",
             "..####..",
-            "........"
+            "........",
         ),
         'j' to glyph(
             "....##..",
@@ -371,7 +371,7 @@ internal object GlyphAtlasSource {
             "....##..",
             "##..##..",
             ".####...",
-            "........"
+            "........",
         ),
         'k' to glyph(
             "##......",
@@ -381,7 +381,7 @@ internal object GlyphAtlasSource {
             "####....",
             "##.##...",
             "##..##..",
-            "........"
+            "........",
         ),
         'l' to glyph(
             "..###...",
@@ -391,7 +391,7 @@ internal object GlyphAtlasSource {
             "...##...",
             "...##...",
             "..####..",
-            "........"
+            "........",
         ),
         'm' to glyph(
             "........",
@@ -401,7 +401,7 @@ internal object GlyphAtlasSource {
             "##.#.##.",
             "##...##.",
             "##...##.",
-            "........"
+            "........",
         ),
         'n' to glyph(
             "........",
@@ -411,7 +411,7 @@ internal object GlyphAtlasSource {
             "##...##.",
             "##...##.",
             "##...##.",
-            "........"
+            "........",
         ),
         'o' to glyph(
             "........",
@@ -421,7 +421,7 @@ internal object GlyphAtlasSource {
             "##..##..",
             "##..##..",
             ".####...",
-            "........"
+            "........",
         ),
         'p' to glyph(
             "........",
@@ -431,7 +431,7 @@ internal object GlyphAtlasSource {
             "#####...",
             "##......",
             "##......",
-            "........"
+            "........",
         ),
         'q' to glyph(
             "........",
@@ -441,7 +441,7 @@ internal object GlyphAtlasSource {
             ".#####..",
             ".....##.",
             ".....##.",
-            "........"
+            "........",
         ),
         'r' to glyph(
             "........",
@@ -451,7 +451,7 @@ internal object GlyphAtlasSource {
             "##......",
             "##......",
             "##......",
-            "........"
+            "........",
         ),
         's' to glyph(
             "........",
@@ -461,7 +461,7 @@ internal object GlyphAtlasSource {
             ".....##.",
             "##...##.",
             ".####...",
-            "........"
+            "........",
         ),
         't' to glyph(
             "..##....",
@@ -471,7 +471,7 @@ internal object GlyphAtlasSource {
             "..##....",
             "..##.##.",
             "...###..",
-            "........"
+            "........",
         ),
         'u' to glyph(
             "........",
@@ -481,7 +481,7 @@ internal object GlyphAtlasSource {
             "##...##.",
             "##..###.",
             ".###.##.",
-            "........"
+            "........",
         ),
         'v' to glyph(
             "........",
@@ -491,7 +491,7 @@ internal object GlyphAtlasSource {
             ".##.##..",
             ".##.##..",
             "..###...",
-            "........"
+            "........",
         ),
         'w' to glyph(
             "........",
@@ -501,7 +501,7 @@ internal object GlyphAtlasSource {
             "##.#.##.",
             "###.###.",
             ".##.##..",
-            "........"
+            "........",
         ),
         'x' to glyph(
             "........",
@@ -511,7 +511,7 @@ internal object GlyphAtlasSource {
             "..###...",
             ".##.##..",
             "##...##.",
-            "........"
+            "........",
         ),
         'y' to glyph(
             "........",
@@ -521,7 +521,7 @@ internal object GlyphAtlasSource {
             ".....##.",
             "##...##.",
             ".####...",
-            "........"
+            "........",
         ),
         'z' to glyph(
             "........",
@@ -531,8 +531,8 @@ internal object GlyphAtlasSource {
             "..##....",
             ".##.....",
             "######..",
-            "........"
-        )
+            "........",
+        ),
     )
 
     val chars: List<Char> = glyphRows.keys.toList()

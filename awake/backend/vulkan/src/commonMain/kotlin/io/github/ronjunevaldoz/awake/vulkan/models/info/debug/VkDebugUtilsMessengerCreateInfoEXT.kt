@@ -11,12 +11,11 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkDebugUtilsMessageTypeF
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkDebugUtilsMessageTypeFlagsEXT
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.formatted
 
-
 typealias PFN_vkDebugUtilsMessengerCallbackEXT = (
     messageSeverity: VkDebugUtilsMessageSeverityFlagBitsEXT,
     messageTypes: VkDebugUtilsMessageTypeFlagsEXT,
     pCallbackData: VkDebugUtilsMessengerCallbackDataEXT,
-    pUserData: Any?
+    pUserData: Any?,
 ) -> VkBool32
 
 data class VkDebugUtilsMessengerCreateInfoEXT(
@@ -25,13 +24,13 @@ data class VkDebugUtilsMessengerCreateInfoEXT(
     val flags: VkDebugUtilsMessengerCreateFlagsEXT = 0,
     val messageSeverity: VkDebugUtilsMessageSeverityFlagsEXT =
         VkDebugUtilsMessageSeverityFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT.value or
-                VkDebugUtilsMessageSeverityFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT.value,
+            VkDebugUtilsMessageSeverityFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT.value,
     val messageType: VkDebugUtilsMessageTypeFlagsEXT =
         VkDebugUtilsMessageTypeFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT.value or
-                VkDebugUtilsMessageTypeFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT.value or
-                VkDebugUtilsMessageTypeFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT.value,
+            VkDebugUtilsMessageTypeFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT.value or
+            VkDebugUtilsMessageTypeFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT.value,
     val pfnUserCallback: PFN_vkDebugUtilsMessengerCallbackEXT = { _, _, _, _ -> false },
-    val pUserData: Any? = null
+    val pUserData: Any? = null,
 )
 
 typealias VkDebugUtilsMessengerCreateFlagsEXT = VkFlags

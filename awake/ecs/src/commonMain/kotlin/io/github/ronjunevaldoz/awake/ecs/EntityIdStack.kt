@@ -11,9 +11,7 @@ internal class EntityIdStack {
     private var ids = IntArray(DEFAULT_CAPACITY)
     private var size = 0
 
-    fun pop(): Int {
-        return if (size > 0) ids[--size] else ABSENT
-    }
+    fun pop(): Int = if (size > 0) ids[--size] else ABSENT
 
     fun push(id: Int) {
         ensureCapacity(size + 1)

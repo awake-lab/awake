@@ -12,5 +12,5 @@ class VkStencilOpState(
     var compareOp: VkCompareOp = VkCompareOp.VK_COMPARE_OP_ALWAYS,
     var compareMask: Int = 0,
     var writeMask: Int = 0,
-    var reference: Int = 0
+    var reference: Int = 0,
 )

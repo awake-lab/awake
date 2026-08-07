@@ -16,18 +16,18 @@ class VkPipelineShaderStageCreateInfo(
     @field:VkHandleRef("VkShaderModule")
     val module: VkHandle = 0, // VkShaderModule
     val pName: String? = null,
-    val pSpecializationInfo: Array<VkSpecializationInfo>? = null
+    val pSpecializationInfo: Array<VkSpecializationInfo>? = null,
 )
 
 class VkSpecializationInfo(
     val mapEntryCount: Int = 0,
     val pMapEntries: Array<VkSpecializationMapEntry> = emptyArray(),
     val dataSize: Long = 0,
-    val pData: Array<Any>? = null // Replace Any with the appropriate data type for pData
+    val pData: Array<Any>? = null, // Replace Any with the appropriate data type for pData
 )
 
 data class VkSpecializationMapEntry(
     val constantID: Int = 0,
     val offset: Int = 0,
-    val size: Long = 0
+    val size: Long = 0,
 )

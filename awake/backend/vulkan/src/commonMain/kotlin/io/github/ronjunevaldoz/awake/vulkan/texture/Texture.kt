@@ -50,7 +50,7 @@ class Texture(
     data: ByteArray,
     width: Int,
     height: Int,
-    samplerCreateInfo: VkSamplerCreateInfo = VkSamplerCreateInfo()
+    samplerCreateInfo: VkSamplerCreateInfo = VkSamplerCreateInfo(),
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -80,21 +80,21 @@ class Texture(
             VkBufferCreateInfo(
                 size = combined.size.toLong(),
                 usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            )
+            ),
         )
         val stagingRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, stagingBuffer)
         val stagingMemoryTypeIndex = VulkanBuffers.findMemoryType(
             physicalDevice,
             stagingRequirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         )
         val stagingMemory = VulkanBuffers.vkAllocateMemory(
             device,
             VkMemoryAllocateInfo(
                 allocationSize = stagingRequirements.size,
-                memoryTypeIndex = stagingMemoryTypeIndex
-            )
+                memoryTypeIndex = stagingMemoryTypeIndex,
+            ),
         )
         VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)
         VulkanBuffers.writeBufferMemoryBytes(device, stagingMemory, 0, combined)
@@ -118,21 +118,21 @@ class Texture(
                     tiling = VkImageTiling.VK_IMAGE_TILING_OPTIMAL,
                     initialLayout = VkImageLayout2.VK_IMAGE_LAYOUT_UNDEFINED,
                     sharingMode = VkSharingMode2.VK_SHARING_MODE_EXCLUSIVE,
-                    mipLevels = mipLevels.size
-                )
+                    mipLevels = mipLevels.size,
+                ),
             )
             val imageRequirements = VulkanImages.vkGetImageMemoryRequirements(device, rawImage)
             val imageMemoryTypeIndex = VulkanBuffers.findMemoryType(
                 physicalDevice,
                 imageRequirements.memoryTypeBits,
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
             )
             rawImageMemory = VulkanBuffers.vkAllocateMemory(
                 device,
                 VkMemoryAllocateInfo(
                     allocationSize = imageRequirements.size,
-                    memoryTypeIndex = imageMemoryTypeIndex
-                )
+                    memoryTypeIndex = imageMemoryTypeIndex,
+                ),
             )
             VulkanImages.vkBindImageMemory(device, rawImage, rawImageMemory, 0)
 
@@ -142,7 +142,7 @@ class Texture(
                     rawImage,
                     VkImageLayout2.VK_IMAGE_LAYOUT_UNDEFINED,
                     VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    levelCount = mipLevels.size
+                    levelCount = mipLevels.size,
                 )
                 mipLevels.forEachIndexed { index, level ->
                     VulkanImages.vkCmdCopyBufferToImage(
@@ -153,8 +153,8 @@ class Texture(
                             imageWidth = level.width,
                             imageHeight = level.height,
                             bufferOffset = levelOffsets[index].toLong(),
-                            mipLevel = index
-                        )
+                            mipLevel = index,
+                        ),
                     )
                 }
                 VulkanImages.vkTransitionImageLayout(
@@ -162,7 +162,7 @@ class Texture(
                     rawImage,
                     VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                     VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                    levelCount = mipLevels.size
+                    levelCount = mipLevels.size,
                 )
             }
         } finally {
@@ -184,10 +184,10 @@ class Texture(
                         baseMipLevel = 0,
                         levelCount = mipLevels.size,
                         baseArrayLayer = 0,
-                        layerCount = 1
-                    )
-                )
-            )
+                        layerCount = 1,
+                    ),
+                ),
+            ),
         )
 
         // minLod/maxLod always reflect this texture's own real mip count, overriding
@@ -210,9 +210,9 @@ class Texture(
                     unnormalizedCoordinates = samplerCreateInfo.unnormalizedCoordinates,
                     mipmapMode = samplerCreateInfo.mipmapMode,
                     minLod = 0f,
-                    maxLod = (mipLevels.size - 1).toFloat()
-                )
-            )
+                    maxLod = (mipLevels.size - 1).toFloat(),
+                ),
+            ),
         )
     }
 

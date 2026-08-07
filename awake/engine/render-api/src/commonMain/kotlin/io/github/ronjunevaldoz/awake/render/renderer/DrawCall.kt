@@ -25,7 +25,7 @@ data class DrawCall(
     val mesh: Mesh,
     val material: Material,
     val model: Mat4 = Mat4(),
-    val extraUniformFloats: FloatArray = EMPTY_UNIFORM_FLOATS
+    val extraUniformFloats: FloatArray = EMPTY_UNIFORM_FLOATS,
 )
 
 private val EMPTY_UNIFORM_FLOATS = FloatArray(0)

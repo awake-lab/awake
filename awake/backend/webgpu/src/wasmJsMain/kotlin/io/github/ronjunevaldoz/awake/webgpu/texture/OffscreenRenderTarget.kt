@@ -34,15 +34,15 @@ import io.ygdrasil.webgpu.TextureViewDescriptor
 class OffscreenRenderTarget(
     graphicsDevice: GraphicsDevice,
     override val width: Int,
-    override val height: Int
+    override val height: Int,
 ) : RenderTarget {
     val colorTexture: GPUTexture = graphicsDevice.wgpuContext.device.createTexture(
         TextureDescriptor(
             size = Extent3D(width = width.toUInt(), height = height.toUInt()),
             format = graphicsDevice.wgpuContext.renderingContext.textureFormat,
             usage = GPUTextureUsage.RenderAttachment or GPUTextureUsage.TextureBinding or GPUTextureUsage.CopySrc,
-            dimension = GPUTextureDimension.TwoD
-        )
+            dimension = GPUTextureDimension.TwoD,
+        ),
     )
 
     val colorView: GPUTextureView = colorTexture.createView(TextureViewDescriptor())
@@ -51,8 +51,8 @@ class OffscreenRenderTarget(
             size = Extent3D(width = width.toUInt(), height = height.toUInt()),
             format = GPUTextureFormat.Depth32Float,
             usage = GPUTextureUsage.RenderAttachment,
-            dimension = GPUTextureDimension.TwoD
-        )
+            dimension = GPUTextureDimension.TwoD,
+        ),
     )
     val depthView: GPUTextureView = depthTexture.createView(TextureViewDescriptor())
 

@@ -10,5 +10,5 @@ import kotlin.jvm.JvmOverloads
 @VkMutator
 data class VkSurfaceFormatKHR @JvmOverloads constructor(
     val format: VkFormat = VkFormat.VK_FORMAT_UNDEFINED,
-    val colorSpace: VkColorSpaceKHR = VkColorSpaceKHR.VK_COLORSPACE_SRGB_NONLINEAR_KHR
+    val colorSpace: VkColorSpaceKHR = VkColorSpaceKHR.VK_COLORSPACE_SRGB_NONLINEAR_KHR,
 )

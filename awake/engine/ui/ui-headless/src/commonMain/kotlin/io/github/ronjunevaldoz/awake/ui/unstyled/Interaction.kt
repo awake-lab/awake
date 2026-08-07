@@ -2,20 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.inputState
 import io.github.ronjunevaldoz.awake.ui.isFocused
-import io.github.ronjunevaldoz.awake.ui.requestFocus
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.requestFocus
+import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 
 internal data class UiInteraction(
     val slot: UiBounds,
     val hovered: Boolean,
     val active: Boolean,
-    val clicked: Boolean
+    val clicked: Boolean,
 )
 
 /** [enabled] mirrors [io.github.ronjunevaldoz.awake.ui.modifier.resolveClickable]'s own gating
@@ -25,7 +25,7 @@ internal data class UiInteraction(
 internal fun UiScope.interact(
     id: String,
     modifier: UiModifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ): UiInteraction {
     val slot = claimModifiedSlot(modifier)
     val hovered = hitTest(slot)
@@ -42,6 +42,6 @@ internal fun UiScope.interact(
         slot = slot,
         hovered = hovered,
         active = active,
-        clicked = activatedByPointer || activatedByKeyboard
+        clicked = activatedByPointer || activatedByKeyboard,
     )
 }

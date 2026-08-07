@@ -15,7 +15,7 @@ class GameSpecBuilder {
     private val onDispose = mutableListOf<() -> Unit>()
     private val windowBuilder = GameWindowConfigBuilder()
     private val services = MutableGameServices()
-    
+
     /** The single [Input] instance for this game session. Registered as a service up front. */
     val input = Input().also { services.register(Input::class, it) }
 
@@ -71,7 +71,7 @@ class GameSpecBuilder {
         onPause = onPause.toList(),
         onResume = onResume.toList(),
         onDispose = onDispose.toList(),
-        services = services.snapshot()
+        services = services.snapshot(),
     )
 }
 
@@ -90,7 +90,7 @@ class GameWindowConfigBuilder {
         title = title,
         width = width,
         height = height,
-        backend = backend.selection
+        backend = backend.selection,
     )
 }
 

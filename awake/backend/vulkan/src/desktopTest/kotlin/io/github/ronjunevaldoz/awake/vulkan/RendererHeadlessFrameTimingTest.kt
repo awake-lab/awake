@@ -50,14 +50,14 @@ class RendererHeadlessFrameTimingTest {
             runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
             VertexFormat.PositionColorUv,
             vertexEntryPoint = "vertexMain",
-            fragmentEntryPoint = "fragmentMain"
+            fragmentEntryPoint = "fragmentMain",
         )
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
             runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
         val transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(
@@ -73,7 +73,7 @@ class RendererHeadlessFrameTimingTest {
             runBlocking {
                 loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
             },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
 
         var mesh: io.github.ronjunevaldoz.awake.render.mesh.Mesh? = null
@@ -85,7 +85,7 @@ class RendererHeadlessFrameTimingTest {
                 center = Vec3(0f, 0f, 0f),
                 fovYRadians = 1f,
                 near = 0.1f,
-                far = 10f
+                far = 10f,
             )
             val createdMesh = renderer.createMesh(MeshGeometry(cubeVertices, cubeIndices)).also { mesh = it }
             val createdMaterial = renderer.createMaterial().also { material = it }
@@ -120,8 +120,8 @@ class RendererHeadlessFrameTimingTest {
                         meanMs,
                         stats.p50FrameTimeMs,
                         stats.p95FrameTimeMs,
-                        stats.p99FrameTimeMs
-                    )
+                        stats.p99FrameTimeMs,
+                    ),
             )
 
             check(totalNanos > 0) { "headless frame timing measured zero time -- instrumentation broken" }

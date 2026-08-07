@@ -18,5 +18,5 @@ class VkRenderPassBeginInfo(
     val framebuffer: VkHandle = 0,
     val renderArea: VkRect2D = VkRect2D(),
     @VkArray("clearValueCount")
-    val pClearValues: Array<VkClearValue>? = null
+    val pClearValues: Array<VkClearValue>? = null,
 )

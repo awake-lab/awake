@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.pipeline
 
+import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
-import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.ygdrasil.webgpu.ColorTargetState
 import io.ygdrasil.webgpu.DepthStencilState
 import io.ygdrasil.webgpu.FragmentState
@@ -47,7 +47,7 @@ class RenderPipeline(
     vertexStride: Int,
     vertexEntryPoint: String = DEFAULT_VERTEX_ENTRY_POINT,
     fragmentEntryPoint: String = DEFAULT_FRAGMENT_ENTRY_POINT,
-    topology: GPUPrimitiveTopology = GPUPrimitiveTopology.TriangleList
+    topology: GPUPrimitiveTopology = GPUPrimitiveTopology.TriangleList,
 ) {
     var renderPass: Long = 0
     var pipelineLayout: Long = 0
@@ -71,42 +71,42 @@ class RenderPipeline(
                                 VertexAttribute(
                                     shaderLocation = 0u,
                                     offset = 0uL,
-                                    format = GPUVertexFormat.Float32x3
+                                    format = GPUVertexFormat.Float32x3,
                                 ),
                                 VertexAttribute(
                                     shaderLocation = 1u,
                                     offset = (3 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x3
+                                    format = GPUVertexFormat.Float32x3,
                                 ),
                                 VertexAttribute(
                                     shaderLocation = 2u,
                                     offset = (6 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x2
-                                )
-                            )
-                        )
-                    )
+                                    format = GPUVertexFormat.Float32x2,
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
                 fragment = FragmentState(
                     module = shaderModule,
                     entryPoint = fragmentEntryPoint,
                     targets = listOf(
-                        ColorTargetState(format = swapchainManager.imageFormatWebGpu)
-                    )
+                        ColorTargetState(format = swapchainManager.imageFormatWebGpu),
+                    ),
                 ),
                 primitive = PrimitiveState(
                     topology = topology,
                     cullMode = GPUCullMode.None,
-                    frontFace = GPUFrontFace.CW
+                    frontFace = GPUFrontFace.CW,
                 ),
                 depthStencil = DepthStencilState(
                     format = GPUTextureFormat.Depth32Float,
                     depthWriteEnabled = true,
                     depthCompare = GPUCompareFunction.Less,
                     stencilFront = StencilFaceState(),
-                    stencilBack = StencilFaceState()
-                )
-            )
+                    stencilBack = StencilFaceState(),
+                ),
+            ),
         )
         graphicsPipeline = longArrayOf(WebGpuHandles.register(pipeline))
     }

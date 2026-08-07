@@ -19,20 +19,20 @@ actual object VulkanImages {
         image: Long,
         oldLayout: Int,
         newLayout: Int,
-        levelCount: Int
+        levelCount: Int,
     )
 
     actual external fun vkCmdCopyBufferToImage(
         commandBuffer: Long,
         srcBuffer: Long,
         dstImage: Long,
-        copy: VkBufferImageCopy
+        copy: VkBufferImageCopy,
     )
 
     actual external fun vkCmdCopyImageToBuffer(
         commandBuffer: Long,
         srcImage: Long,
         dstBuffer: Long,
-        copy: VkBufferImageCopy
+        copy: VkBufferImageCopy,
     )
 }

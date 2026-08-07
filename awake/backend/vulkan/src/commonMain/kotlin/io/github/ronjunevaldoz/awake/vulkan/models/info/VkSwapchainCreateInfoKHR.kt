@@ -21,7 +21,7 @@ class VkSwapchainCreateInfoKHR(
     val pNext: Any? = null, // You can use the appropriate type for pNext based on your requirements
     val flags: Int = 0,
     @field:VkHandleRef("VkSurfaceKHR")
-    val surface: VkHandle = 0, //VkSurfaceKHR,
+    val surface: VkHandle = 0, // VkSurfaceKHR,
     val minImageCount: Int = 0,
     val imageFormat: VkFormat = VkFormat.VK_FORMAT_UNDEFINED,
     val imageColorSpace: VkColorSpaceKHR = VkColorSpaceKHR.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
@@ -36,5 +36,5 @@ class VkSwapchainCreateInfoKHR(
     val presentMode: VkPresentModeKHR = VkPresentModeKHR.VK_PRESENT_MODE_IMMEDIATE_KHR,
     val clipped: VkBool32 = false,
     @field:VkHandleRef("VkSwapchainKHR")
-    val oldSwapchain: VkHandle = 0// VkSwapchainKHR
+    val oldSwapchain: VkHandle = 0, // VkSwapchainKHR
 )

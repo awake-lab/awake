@@ -16,7 +16,7 @@ fun UiContext.animateFloat(
     target: Float,
     initial: Float = target,
     responsiveness: Float = 12f,
-    snapDistance: Float = 0.001f
+    snapDistance: Float = 0.001f,
 ): Float {
     val state = widgetStateInternal("__animation__$id")
     val current = state.get("value", initial)
@@ -37,7 +37,7 @@ fun UiScope.animateFloat(
     target: Float,
     initial: Float = target,
     responsiveness: Float = 12f,
-    snapDistance: Float = 0.001f
+    snapDistance: Float = 0.001f,
 ): Float = context.animateFloat(id, target, initial, responsiveness, snapDistance)
 
 /** Frame-time spikes (a GC pause, a dropped frame, a window resize) feed a large [deltaSeconds]
@@ -55,7 +55,7 @@ internal fun animateFloatStep(
     target: Float,
     deltaSeconds: Float,
     responsiveness: Float,
-    snapDistance: Float = 0.001f
+    snapDistance: Float = 0.001f,
 ): Float {
     if (responsiveness <= 0f || deltaSeconds <= 0f) {
         return target
@@ -80,7 +80,7 @@ fun UiContext.animateFloatTween(
     target: Float,
     initial: Float = target,
     durationMs: Float = 300f,
-    easing: Easing = LinearEasing
+    easing: Easing = LinearEasing,
 ): Float {
     val state = widgetStateInternal("__tween__$id")
     val currentValue = state.get("value", initial)
@@ -112,7 +112,7 @@ fun UiScope.animateFloatTween(
     target: Float,
     initial: Float = target,
     durationMs: Float = 300f,
-    easing: Easing = LinearEasing
+    easing: Easing = LinearEasing,
 ): Float = context.animateFloatTween(id, target, initial, durationMs, easing)
 
 internal fun animateFloatTweenStep(
@@ -120,7 +120,7 @@ internal fun animateFloatTweenStep(
     target: Float,
     elapsedMs: Float,
     durationMs: Float,
-    easing: Easing
+    easing: Easing,
 ): Float {
     if (durationMs <= 0f) return target
     val fraction = (elapsedMs / durationMs).coerceIn(0f, 1f)
@@ -137,7 +137,7 @@ enum class RepeatMode {
     Restart,
 
     /** Play the previous cycle backward -- a continuous ping-pong with no jump. */
-    Reverse
+    Reverse,
 }
 
 /**
@@ -162,7 +162,7 @@ fun UiContext.animateFloatRepeatable(
     durationMs: Float = 300f,
     easing: Easing = LinearEasing,
     repeatMode: RepeatMode = RepeatMode.Restart,
-    iterations: Int = Int.MAX_VALUE
+    iterations: Int = Int.MAX_VALUE,
 ): Float {
     val state = widgetStateInternal("__repeatable__$id")
     val elapsedMs = state.get("elapsed", 0f)
@@ -173,14 +173,26 @@ fun UiContext.animateFloatRepeatable(
     // real frame's pass -- this exact bug class was already found and fixed for shimmer (85f14821).
     if (isMeasuringInternal()) {
         return animateFloatRepeatableStep(
-            initialValue, targetValue, elapsedMs, durationMs, easing, repeatMode, iterations
+            initialValue,
+            targetValue,
+            elapsedMs,
+            durationMs,
+            easing,
+            repeatMode,
+            iterations,
         )
     }
 
     val nextElapsed = elapsedMs + frameDeltaSecondsInternal() * 1000f
     state.set("elapsed", nextElapsed)
     return animateFloatRepeatableStep(
-        initialValue, targetValue, nextElapsed, durationMs, easing, repeatMode, iterations
+        initialValue,
+        targetValue,
+        nextElapsed,
+        durationMs,
+        easing,
+        repeatMode,
+        iterations,
     )
 }
 
@@ -191,7 +203,7 @@ fun UiScope.animateFloatRepeatable(
     durationMs: Float = 300f,
     easing: Easing = LinearEasing,
     repeatMode: RepeatMode = RepeatMode.Restart,
-    iterations: Int = Int.MAX_VALUE
+    iterations: Int = Int.MAX_VALUE,
 ): Float = context.animateFloatRepeatable(id, initialValue, targetValue, durationMs, easing, repeatMode, iterations)
 
 internal fun animateFloatRepeatableStep(
@@ -201,7 +213,7 @@ internal fun animateFloatRepeatableStep(
     durationMs: Float,
     easing: Easing,
     repeatMode: RepeatMode,
-    iterations: Int
+    iterations: Int,
 ): Float {
     if (durationMs <= 0f) return target
 

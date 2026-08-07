@@ -4,14 +4,13 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
-import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnAccent
-import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnBaseColor
-import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnStylePreset
-import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.comparison.drawShadcnSideBySideComparisonPreview
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.inputs.drawShadcnInputOtpDemoPreview
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.layout.drawShadcnAccordionDemoPreview
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.overlay.drawShadcnContextMenuDemoPreview
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.overlay.drawShadcnDrawerDemoPreview
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnAccent
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnBaseColor
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnStylePreset
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 
 internal typealias ShowcasePreviewRenderer = ColumnScope.(UiShowcaseRuntimeState) -> Unit
@@ -51,7 +50,7 @@ internal val ShowcasePages = listOf(
         description = "A dedicated catalog sample for owned Awake UI components.",
         usageCode = "gameUi { theme(shadcnTheme()) }",
         notes = listOf("Mirrors shadcn catalog chrome + sidebar + detail pane."),
-        renderPreview = { drawUiShowcaseOverviewPreview() }
+        renderPreview = { drawUiShowcaseOverviewPreview() },
     ),
     ShowcasePage(
         id = "theming",
@@ -60,7 +59,7 @@ internal val ShowcasePages = listOf(
         description = "Live preset, base color, accent, and dark mode theme controls.",
         usageCode = "val theme = shadcnTheme(preset = ShadcnStylePreset.Vega, dark = true)",
         notes = listOf("Re-themes content pane live while maintaining shell chrome."),
-        renderPreview = { state -> drawUiShowcaseControlsPreview(state) }
+        renderPreview = { state -> drawUiShowcaseControlsPreview(state) },
     ),
 
     // --- Inputs & Controls ---
@@ -71,7 +70,7 @@ internal val ShowcasePages = listOf(
         description = "Interactive trigger button supporting Primary, Secondary, Outline, Ghost, and Destructive variants.",
         usageCode = "shadcnButton(id = \"btn\", label = \"Click Me\", variant = ShadcnButtonVariant.Primary)",
         notes = listOf("Supports text labels, icons, and custom slot API blocks."),
-        renderPreview = { drawUiShowcaseButtonPreview() }
+        renderPreview = { drawUiShowcaseButtonPreview() },
     ),
     ShowcasePage(
         id = "badge",
@@ -80,7 +79,7 @@ internal val ShowcasePages = listOf(
         description = "Compact pill badge indicator for status labels and counts.",
         usageCode = "shadcnBadge(\"NEW\", variant = ShadcnBadgeVariant.Primary)",
         notes = listOf("Pill shape with primary, secondary, outline, and destructive tokens."),
-        renderPreview = { drawUiShowcaseBadgePreview() }
+        renderPreview = { drawUiShowcaseBadgePreview() },
     ),
     ShowcasePage(
         id = "text-input",
@@ -89,7 +88,7 @@ internal val ShowcasePages = listOf(
         description = "Single-line keyboard-driven text input control with label and focus ring.",
         usageCode = "shadcnFieldTextField(id = \"email\", label = \"Email\", value = email)",
         notes = listOf("Supports live keyboard typing, arrow navigation, and clear actions."),
-        renderPreview = { drawUiShowcaseTextFieldPreview() }
+        renderPreview = { drawUiShowcaseTextFieldPreview() },
     ),
     ShowcasePage(
         id = "text-area",
@@ -98,7 +97,7 @@ internal val ShowcasePages = listOf(
         description = "Multi-line expandable text input field for longform text entry.",
         usageCode = "shadcnFieldTextarea(id = \"bio\", label = \"Bio\", value = bio, minLines = 4)",
         notes = listOf("Scrollable multiline input with focus ring boundary."),
-        renderPreview = { drawUiShowcaseTextareaPreview() }
+        renderPreview = { drawUiShowcaseTextareaPreview() },
     ),
     ShowcasePage(
         id = "input-otp",
@@ -107,7 +106,7 @@ internal val ShowcasePages = listOf(
         description = "Segmented One-Time Password / PIN code digit entry row.",
         usageCode = "shadcnInputOTP(id = \"otp\", value = otpCode, length = 6)",
         notes = listOf("Segmented digits with length mask and space separation."),
-        renderPreview = { drawShadcnInputOtpDemoPreview() }
+        renderPreview = { drawShadcnInputOtpDemoPreview() },
     ),
     ShowcasePage(
         id = "checkbox",
@@ -116,7 +115,7 @@ internal val ShowcasePages = listOf(
         description = "Independent toggle box for binary boolean options.",
         usageCode = "shadcnCheckbox(id = \"agree\", checked = true, label = \"I agree\")",
         notes = listOf("Supports checked, unchecked, and focus ring state tokens."),
-        renderPreview = { drawUiShowcaseCheckboxPreview() }
+        renderPreview = { drawUiShowcaseCheckboxPreview() },
     ),
     ShowcasePage(
         id = "radio-group",
@@ -125,7 +124,7 @@ internal val ShowcasePages = listOf(
         description = "Single-selection group of radio options.",
         usageCode = "shadcnRadioGroup(id = \"rad\", options = listOf(\"A\", \"B\"), selectedIndex = 0)",
         notes = listOf("Exclusive single-choice selection with keyboard navigation."),
-        renderPreview = { drawUiShowcaseRadioGroupPreview() }
+        renderPreview = { drawUiShowcaseRadioGroupPreview() },
     ),
     ShowcasePage(
         id = "switch",
@@ -134,7 +133,7 @@ internal val ShowcasePages = listOf(
         description = "Sliding toggle switch for binary setting states.",
         usageCode = "shadcnSwitch(id = \"sw\", checked = enabled, label = \"Enable notifications\")",
         notes = listOf("Smooth thumb sliding animation across track."),
-        renderPreview = { drawUiShowcaseSwitchPreview() }
+        renderPreview = { drawUiShowcaseSwitchPreview() },
     ),
     ShowcasePage(
         id = "slider",
@@ -143,7 +142,7 @@ internal val ShowcasePages = listOf(
         description = "Continuous range thumb slider for numeric inputs.",
         usageCode = "shadcnSlider(id = \"vol\", min = 0f, max = 100f, value = 50f)",
         notes = listOf("Track fill with thumb drag interaction."),
-        renderPreview = { drawUiShowcaseSliderPreview() }
+        renderPreview = { drawUiShowcaseSliderPreview() },
     ),
     ShowcasePage(
         id = "select",
@@ -152,7 +151,7 @@ internal val ShowcasePages = listOf(
         description = "Dropdown picker menu trigger with item selection popover.",
         usageCode = "shadcnSelect(id = \"sel\", options = options, selectedIndex = 0)",
         notes = listOf("Floating item popover with hover highlight."),
-        renderPreview = { drawUiShowcaseSelectPreview() }
+        renderPreview = { drawUiShowcaseSelectPreview() },
     ),
 
     // --- Layout & Surfaces ---
@@ -163,7 +162,7 @@ internal val ShowcasePages = listOf(
         description = "Surface container with header, content, and footer slots.",
         usageCode = "shadcnCard(id = \"card\", header = { text(\"Title\") }) { ... }",
         notes = listOf("Encapsulated content surface with card and border tokens."),
-        renderPreview = { drawUiShowcaseCardPreview() }
+        renderPreview = { drawUiShowcaseCardPreview() },
     ),
     ShowcasePage(
         id = "tabs",
@@ -172,7 +171,7 @@ internal val ShowcasePages = listOf(
         description = "Segmented tab track for switching between content panes.",
         usageCode = "shadcnTabs(id = \"tabs\", tabs = tabs, activeTab = active) { ... }",
         notes = listOf("Muted track with active tab surface elevation."),
-        renderPreview = { drawUiShowcaseTabsPreview() }
+        renderPreview = { drawUiShowcaseTabsPreview() },
     ),
     ShowcasePage(
         id = "accordion",
@@ -181,7 +180,7 @@ internal val ShowcasePages = listOf(
         description = "Single-select interactive collapsible section group.",
         usageCode = "shadcnAccordion(items = items, selectedId = sel) { ... }",
         notes = listOf("Collapsible group supporting WAI-ARIA single selection."),
-        renderPreview = { drawShadcnAccordionDemoPreview() }
+        renderPreview = { drawShadcnAccordionDemoPreview() },
     ),
     ShowcasePage(
         id = "collapsible",
@@ -190,7 +189,7 @@ internal val ShowcasePages = listOf(
         description = "Expandable disclosure container with height transition.",
         usageCode = "shadcnCollapsible(id = \"col\", title = \"Header\", expanded = exp) { ... }",
         notes = listOf("Smooth expand/collapse animation for hidden content."),
-        renderPreview = { drawUiShowcaseCollapsiblePreview() }
+        renderPreview = { drawUiShowcaseCollapsiblePreview() },
     ),
     ShowcasePage(
         id = "sidebar",
@@ -199,7 +198,7 @@ internal val ShowcasePages = listOf(
         description = "Navigation sidebar panel with collapsible groups and menus.",
         usageCode = "shadcnSidebar(id = \"sb\") { drawUiShowcaseSidebarMenu() }",
         notes = listOf("App navigation rail with sidebar tokens."),
-        renderPreview = { drawUiShowcaseSidebarPreview() }
+        renderPreview = { drawUiShowcaseSidebarPreview() },
     ),
     ShowcasePage(
         id = "breadcrumb",
@@ -208,7 +207,7 @@ internal val ShowcasePages = listOf(
         description = "Hierarchy navigation link trail with chevron dividers.",
         usageCode = "shadcnBreadcrumb(items = listOf(\"Home\", \"Components\", \"Button\"))",
         notes = listOf("Compact path trail for deep page hierarchies."),
-        renderPreview = { drawUiShowcaseBreadcrumbPreview() }
+        renderPreview = { drawUiShowcaseBreadcrumbPreview() },
     ),
 
     // --- Overlays & Popups ---
@@ -219,7 +218,7 @@ internal val ShowcasePages = listOf(
         description = "Centered modal dialog window with backdrop scrim.",
         usageCode = "shadcnDialog(id = \"dlg\", expanded = open, onDismissRequest = { ... }) { ... }",
         notes = listOf("Centered popup window with dismiss actions."),
-        renderPreview = { drawUiShowcaseDialogPreview() }
+        renderPreview = { drawUiShowcaseDialogPreview() },
     ),
     ShowcasePage(
         id = "drawer",
@@ -228,7 +227,7 @@ internal val ShowcasePages = listOf(
         description = "Slide-over viewport overlay panel (Bottom, Top, Left, Right).",
         usageCode = "shadcnDrawer(id = \"drw\", expanded = open, position = ShadcnDrawerPosition.Bottom) { ... }",
         notes = listOf("Anchors to any viewport edge with overlay scrim."),
-        renderPreview = { drawShadcnDrawerDemoPreview() }
+        renderPreview = { drawShadcnDrawerDemoPreview() },
     ),
     ShowcasePage(
         id = "context-menu",
@@ -237,7 +236,7 @@ internal val ShowcasePages = listOf(
         description = "Right-click trigger opening a floating action dropdown popup.",
         usageCode = "shadcnContextMenu(id = \"ctx\", expanded = open, items = items) { ... }",
         notes = listOf("Triggers on secondary pointer click over target bounds."),
-        renderPreview = { drawShadcnContextMenuDemoPreview() }
+        renderPreview = { drawShadcnContextMenuDemoPreview() },
     ),
     ShowcasePage(
         id = "tooltip",
@@ -246,7 +245,7 @@ internal val ShowcasePages = listOf(
         description = "Contextual hover popover surfacing helpful hint text.",
         usageCode = "shadcnTooltip(anchorSlot = slot, visible = true) { text(\"Hint\") }",
         notes = listOf("Floating popover positioned relative to anchor bounds."),
-        renderPreview = { drawUiShowcaseTooltipPreview() }
+        renderPreview = { drawUiShowcaseTooltipPreview() },
     ),
 
     // --- Status & Feedback ---
@@ -257,7 +256,7 @@ internal val ShowcasePages = listOf(
         description = "Callout message box for warnings, errors, and announcements.",
         usageCode = "shadcnAlert(title = \"Warning\", description = \"Action required\")",
         notes = listOf("Default and Destructive alert callout boxes."),
-        renderPreview = { drawUiShowcaseAlertPreview() }
+        renderPreview = { drawUiShowcaseAlertPreview() },
     ),
     ShowcasePage(
         id = "avatar",
@@ -266,7 +265,7 @@ internal val ShowcasePages = listOf(
         description = "Circular profile picture or fallback initial badge.",
         usageCode = "shadcnAvatar(initials = \"JD\")",
         notes = listOf("Rounded avatar with initial text fallback."),
-        renderPreview = { drawUiShowcaseAvatarPreview() }
+        renderPreview = { drawUiShowcaseAvatarPreview() },
     ),
     ShowcasePage(
         id = "progress",
@@ -275,7 +274,7 @@ internal val ShowcasePages = listOf(
         description = "Linear progress indicator track.",
         usageCode = "shadcnProgress(progress = 0.7f)",
         notes = listOf("Animated progress fill bar."),
-        renderPreview = { drawUiShowcaseProgressPreview() }
+        renderPreview = { drawUiShowcaseProgressPreview() },
     ),
     ShowcasePage(
         id = "skeleton",
@@ -284,7 +283,7 @@ internal val ShowcasePages = listOf(
         description = "Placeholder wireframe pulse shape during data loading.",
         usageCode = "shadcnSkeleton(modifier = Modifier.width(120f.dp).height(20f.dp))",
         notes = listOf("Muted background box indicating content loading."),
-        renderPreview = { drawUiShowcaseSkeletonPreview() }
+        renderPreview = { drawUiShowcaseSkeletonPreview() },
     ),
     ShowcasePage(
         id = "spinner",
@@ -293,7 +292,7 @@ internal val ShowcasePages = listOf(
         description = "Circular activity loading spinner indicator.",
         usageCode = "shadcnSpinner(modifier = Modifier.width(24f.dp))",
         notes = listOf("Continuous rotation loading indicator."),
-        renderPreview = { drawUiShowcaseSpinnerPreview() }
+        renderPreview = { drawUiShowcaseSpinnerPreview() },
     ),
     ShowcasePage(
         id = "kbd",
@@ -302,7 +301,7 @@ internal val ShowcasePages = listOf(
         description = "Keyboard shortcut key pill display.",
         usageCode = "shadcnKbd(\"Ctrl+K\")",
         notes = listOf("Subtle border box representing physical keys."),
-        renderPreview = { drawUiShowcaseKbdPreview() }
+        renderPreview = { drawUiShowcaseKbdPreview() },
     ),
 
     // --- Typography & Patterns ---
@@ -313,8 +312,8 @@ internal val ShowcasePages = listOf(
         description = "The shadcn text component family: shadcnSectionTitle, headline, bodyText, shadcnSupportingText, and label.",
         usageCode = "shadcnHeadline(\"Headline text\")",
         notes = listOf("Official typography components."),
-        renderPreview = { drawUiShowcaseTypographySpecimenPreview() }
-    )
+        renderPreview = { drawUiShowcaseTypographySpecimenPreview() },
+    ),
 )
 
 internal val ShowcasePagesByCategory = ShowcasePages.groupBy { it.category }

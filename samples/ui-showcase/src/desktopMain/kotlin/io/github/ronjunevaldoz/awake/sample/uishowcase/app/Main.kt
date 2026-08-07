@@ -8,6 +8,6 @@ fun main() {
     val game = uiShowcase()
     runVulkanDesktopGame(
         game = game,
-        applicationFactory = ::createUiShowcaseVulkanApplication
+        applicationFactory = ::createUiShowcaseVulkanApplication,
     )
 }

@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.vulkan.VkHandle
 import io.github.ronjunevaldoz.awake.vulkan.VkHandleRef
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkStructureType
 
-
 class VkFramebufferCreateInfo(
     val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
     val pNext: Any? = null,
@@ -20,7 +19,7 @@ class VkFramebufferCreateInfo(
     val pAttachments: Array<VkImageView> = emptyArray(),
     val width: Int = 0,
     val height: Int = 0,
-    val layers: Int = 0
+    val layers: Int = 0,
 )
 
 typealias VkImageView = VkHandle

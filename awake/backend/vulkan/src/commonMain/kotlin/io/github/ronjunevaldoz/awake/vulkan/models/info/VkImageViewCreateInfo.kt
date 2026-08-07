@@ -19,14 +19,14 @@ data class VkImageViewCreateInfo(
     val viewType: VkImageViewType = VkImageViewType.VK_IMAGE_VIEW_TYPE_2D,
     val format: VkFormat = VkFormat.VK_FORMAT_UNDEFINED,
     val components: VkComponentMapping = VkComponentMapping(),
-    val subresourceRange: VkImageSubresourceRange = VkImageSubresourceRange()
+    val subresourceRange: VkImageSubresourceRange = VkImageSubresourceRange(),
 )
 
 data class VkComponentMapping(
     val r: VkComponentSwizzle = VkComponentSwizzle.VK_COMPONENT_SWIZZLE_IDENTITY,
     val g: VkComponentSwizzle = VkComponentSwizzle.VK_COMPONENT_SWIZZLE_IDENTITY,
     val b: VkComponentSwizzle = VkComponentSwizzle.VK_COMPONENT_SWIZZLE_IDENTITY,
-    val a: VkComponentSwizzle = VkComponentSwizzle.VK_COMPONENT_SWIZZLE_IDENTITY
+    val a: VkComponentSwizzle = VkComponentSwizzle.VK_COMPONENT_SWIZZLE_IDENTITY,
 )
 
 data class VkImageSubresourceRange(
@@ -34,5 +34,5 @@ data class VkImageSubresourceRange(
     val baseMipLevel: Int = 0,
     val levelCount: Int = 1,
     val baseArrayLayer: Int = 0,
-    val layerCount: Int = 1
+    val layerCount: Int = 1,
 )

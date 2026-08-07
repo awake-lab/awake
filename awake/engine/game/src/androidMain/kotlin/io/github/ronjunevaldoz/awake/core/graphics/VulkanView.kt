@@ -20,15 +20,16 @@ import io.github.ronjunevaldoz.awake.ui.UiDensity
 
 class VulkanView(
     context: Context,
-    private val application: Application
-) : SurfaceView(context), SurfaceHolder.Callback2 {
+    private val application: Application,
+) : SurfaceView(context),
+    SurfaceHolder.Callback2 {
 
     @Volatile
     private var running = false
     private var renderThread: Thread? = null
-    
+
     private val input: Input get() = application.input
-        
+
     private val softKeyboardBridge by lazy { AndroidSoftKeyboardBridge(this, input) }
 
     init {
@@ -73,17 +74,11 @@ class VulkanView(
         application.dispose()
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        return event.syncAwakePointerInput(input) || super.onTouchEvent(event)
-    }
+    override fun onTouchEvent(event: MotionEvent): Boolean = event.syncAwakePointerInput(input) || super.onTouchEvent(event)
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        return event.syncAwakeKeyInput(down = true, input) || super.onKeyDown(keyCode, event)
-    }
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean = event.syncAwakeKeyInput(down = true, input) || super.onKeyDown(keyCode, event)
 
-    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        return event.syncAwakeKeyInput(down = false, input) || super.onKeyUp(keyCode, event)
-    }
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean = event.syncAwakeKeyInput(down = false, input) || super.onKeyUp(keyCode, event)
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)

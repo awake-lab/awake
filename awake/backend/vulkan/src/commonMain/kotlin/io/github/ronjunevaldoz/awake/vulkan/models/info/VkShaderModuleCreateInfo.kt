@@ -11,7 +11,7 @@ class VkShaderModuleCreateInfo(
     val pNext: Any? = null,
     val flags: VkShaderModuleCreateFlags = 0,
     @VkArray(sizeAlias = "codeSize", stride = UInt::class)
-    val pCode: IntArray
+    val pCode: IntArray,
 )
 
 typealias VkShaderModuleCreateFlags = VkFlags

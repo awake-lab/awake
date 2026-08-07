@@ -3,8 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import kotlin.math.cos
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
@@ -17,7 +17,7 @@ data class OklchColor(
     val lightness: Float,
     val chroma: Float,
     val hueDegrees: Float,
-    val alpha: Float = 1f
+    val alpha: Float = 1f,
 ) {
     fun toSrgb(): Color {
         val hueRadians = hueDegrees.toDouble() * PI / 180.0
@@ -40,7 +40,7 @@ data class OklchColor(
             r = redLinear.toSrgbChannel(),
             g = greenLinear.toSrgbChannel(),
             b = blueLinear.toSrgbChannel(),
-            a = alpha.coerceIn(0f, 1f).stableChannel()
+            a = alpha.coerceIn(0f, 1f).stableChannel(),
         )
     }
 }
@@ -49,16 +49,18 @@ fun oklch(
     lightness: Float,
     chroma: Float,
     hueDegrees: Float = 0f,
-    alpha: Float = 1f
+    alpha: Float = 1f,
 ): Color = OklchColor(lightness, chroma, hueDegrees, alpha).toSrgb()
 
 private fun Float.toSrgbChannel(): Float {
     val clamped = coerceIn(0f, 1f)
-    return (if (clamped <= 0.0031308f) {
-        12.92f * clamped
-    } else {
-        1.055f * clamped.toDouble().pow(1.0 / 2.4).toFloat() - 0.055f
-    }.coerceIn(0f, 1f)).stableChannel()
+    return (
+        if (clamped <= 0.0031308f) {
+            12.92f * clamped
+        } else {
+            1.055f * clamped.toDouble().pow(1.0 / 2.4).toFloat() - 0.055f
+        }.coerceIn(0f, 1f)
+        ).stableChannel()
 }
 
 private fun Float.stableChannel(): Float = (this * 1_000_000f).toInt() / 1_000_000f

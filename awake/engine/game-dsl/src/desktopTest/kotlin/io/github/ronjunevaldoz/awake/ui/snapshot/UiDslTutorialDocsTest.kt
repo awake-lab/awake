@@ -4,14 +4,18 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.canvas
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.headless.input.select
+import io.github.ronjunevaldoz.awake.ui.headless.input.slider
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
@@ -19,17 +23,13 @@ import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.uiPath
-import io.github.ronjunevaldoz.awake.ui.headless.input.select
-import io.github.ronjunevaldoz.awake.ui.headless.input.slider
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
 import kotlin.test.Test
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** Builds a one-off [UiInputState] for a test frame -- [Input] is a per-session instance
  * now (no longer a global object), so tests construct their own throwaway one instead of
@@ -62,35 +62,36 @@ class UiDslTutorialDocsTest {
                 style = Style {
                     borderWidth(1f.dp)
                     contentPadding(12f.dp)
-                }
-            , modifier = Modifier.height(190f.toDimension())) {
+                },
+                modifier = Modifier.height(190f.toDimension()),
+            ) {
                 text("Camera")
-                row( modifier = Modifier.height(28f.dp)) { slot ->
+                row(modifier = Modifier.height(28f.dp)) { slot ->
                     select(
                         id = "mode",
                         options = listOf("Orbit", "Free Fly"),
                         selectedIndex = 0,
-                        modifier = Modifier.width(slot.width.px).height(slot.height.px)
+                        modifier = Modifier.width(slot.width.px).height(slot.height.px),
                     )
                 }
-                row( modifier = Modifier.height(28f.dp)) { slot ->
+                row(modifier = Modifier.height(28f.dp)) { slot ->
                     orbitYaw = slider(
                         id = "slider-azimuth",
                         min = -3.14f,
                         max = 3.14f,
                         value = orbitYaw,
                         label = "Azimuth",
-                        modifier = Modifier.width(slot.width.px).height(slot.height.px)
+                        modifier = Modifier.width(slot.width.px).height(slot.height.px),
                     )
                 }
-                row( modifier = Modifier.height(28f.dp)) { slot ->
+                row(modifier = Modifier.height(28f.dp)) { slot ->
                     orbitDistance = slider(
                         id = "slider-distance",
                         min = 3f,
                         max = 20f,
                         value = orbitDistance,
                         label = "Distance",
-                        modifier = Modifier.width(slot.width.px).height(slot.height.px)
+                        modifier = Modifier.width(slot.width.px).height(slot.height.px),
                     )
                 }
                 spacer(Modifier.height(8f.dp))
@@ -109,7 +110,7 @@ class UiDslTutorialDocsTest {
             width = 320,
             height = 250,
             background = UiDefaultTheme.colors.background,
-            font = font
+            font = font,
         )
     }
 
@@ -128,12 +129,13 @@ class UiDslTutorialDocsTest {
                 style = Style {
                     borderWidth(1f.dp)
                     contentPadding(12f.dp)
-                }
-            , modifier = Modifier.height(180f.toDimension())) { slot ->
+                },
+                modifier = Modifier.height(180f.toDimension()),
+            ) { slot ->
                 canvas(slot) {
                     val headerGradient = UiLinearGradient.horizontal(
                         start = Color(0.12f, 0.38f, 0.95f, 1f),
-                        end = Color(0.42f, 0.17f, 0.96f, 1f)
+                        end = Color(0.42f, 0.17f, 0.96f, 1f),
                     )
                     drawGradientRect(0f, 0f, bounds.width, 54f, headerGradient)
                     drawGradientBorder(
@@ -143,14 +145,14 @@ class UiDslTutorialDocsTest {
                         bounds.height,
                         UiLinearGradient.vertical(
                             top = Color(1f, 1f, 1f, 0.18f),
-                            bottom = Color(1f, 1f, 1f, 0.05f)
-                        )
+                            bottom = Color(1f, 1f, 1f, 0.05f),
+                        ),
                     )
                     drawText(
                         text = "Canvas DSL",
                         x = 14f,
                         y = 34f,
-                        color = Color.White
+                        color = Color.White,
                     )
                     drawRoundRect(
                         x = 14f,
@@ -158,7 +160,7 @@ class UiDslTutorialDocsTest {
                         width = 108f,
                         height = 72f,
                         color = Color(0.96f, 0.97f, 0.99f, 1f),
-                        radius = 12f.dp
+                        radius = 12f.dp,
                     )
                     fillPath(
                         uiPath {
@@ -167,7 +169,7 @@ class UiDslTutorialDocsTest {
                             lineTo(102f, 124f)
                             close()
                         },
-                        color = Color(0.18f, 0.48f, 0.89f, 1f)
+                        color = Color(0.18f, 0.48f, 0.89f, 1f),
                     )
                     clipShape(UiShapeSpec.Circle, 178f, 76f, 92f, 92f) {
                         drawGradientRect(
@@ -177,8 +179,8 @@ class UiDslTutorialDocsTest {
                             92f,
                             UiLinearGradient.vertical(
                                 top = Color(0.98f, 0.73f, 0.20f, 1f),
-                                bottom = Color(0.91f, 0.31f, 0.16f, 1f)
-                            )
+                                bottom = Color(0.91f, 0.31f, 0.16f, 1f),
+                            ),
                         )
                         nested(192f, 90f, 64f, 64f) {
                             drawCircle(0f, 0f, 64f, Color(1f, 1f, 1f, 0.22f))
@@ -197,7 +199,7 @@ class UiDslTutorialDocsTest {
             width = 360,
             height = 240,
             background = UiDefaultTheme.colors.background,
-            font = font
+            font = font,
         )
     }
 }

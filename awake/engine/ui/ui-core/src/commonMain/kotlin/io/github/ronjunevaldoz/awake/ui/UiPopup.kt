@@ -2,36 +2,35 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.*
-
 
 data class UiPopupSize(
     val width: Float,
-    val height: Float
+    val height: Float,
 )
 
 data class UiPopupProperties(
     val dismissOnClickOutside: Boolean = true,
-    val clippingEnabled: Boolean = true
+    val clippingEnabled: Boolean = true,
 )
 
 data class UiPopupResult(
     val slot: UiBounds?,
-    val dismissed: Boolean
+    val dismissed: Boolean,
 )
 
 fun interface UiPopupPositionProvider {
     fun calculatePosition(
         anchorBounds: UiBounds,
         windowBounds: UiBounds,
-        popupContentSize: UiPopupSize
+        popupContentSize: UiPopupSize,
     ): UiBounds
 }
 
@@ -40,7 +39,7 @@ object UiPopupDefaults {
         anchorAlignment: UiAlignment = UiAlignment.BottomStart,
         popupAlignment: UiAlignment = UiAlignment.TopStart,
         offsetX: Dp = UiShape.none,
-        offsetY: Dp = UiShape.none
+        offsetY: Dp = UiShape.none,
     ): UiPopupPositionProvider = UiPopupPositionProvider { anchorBounds, windowBounds, popupContentSize ->
         placePopupRelativeToAnchor(
             anchorBounds = anchorBounds,
@@ -49,25 +48,25 @@ object UiPopupDefaults {
             anchorAlignment = anchorAlignment,
             popupAlignment = popupAlignment,
             offsetX = offsetX.toPx(),
-            offsetY = offsetY.toPx()
+            offsetY = offsetY.toPx(),
         )
     }
 
     fun dropdown(
         offsetX: Dp = UiShape.none,
-        offsetY: Dp = UiShape.none
+        offsetY: Dp = UiShape.none,
     ): UiPopupPositionProvider = aligned(
         anchorAlignment = UiAlignment.BottomStart,
         popupAlignment = UiAlignment.TopStart,
         offsetX = offsetX,
-        offsetY = offsetY
+        offsetY = offsetY,
     )
 
     fun centered(): UiPopupPositionProvider = UiPopupPositionProvider { _, windowBounds, popupContentSize ->
         windowBounds.place(
             width = popupContentSize.width,
             height = popupContentSize.height,
-            alignment = UiAlignment.Center
+            alignment = UiAlignment.Center,
         )
     }
 
@@ -76,12 +75,12 @@ object UiPopupDefaults {
     // start-aligned, flush-against-the-trigger placement.
     fun popover(
         offsetX: Dp = UiShape.none,
-        offsetY: Dp = 4f.dp
+        offsetY: Dp = 4f.dp,
     ): UiPopupPositionProvider = aligned(
         anchorAlignment = UiAlignment.BottomCenter,
         popupAlignment = UiAlignment.TopCenter,
         offsetX = offsetX,
-        offsetY = offsetY
+        offsetY = offsetY,
     )
 }
 
@@ -96,7 +95,7 @@ fun UiScope.popup(
     properties: UiPopupProperties = UiPopupProperties(),
     id: String? = null,
     fadeDurationMs: Float = 150f,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiPopupResult {
     // Real AnimatedVisibility-equivalent (see UiAnimatedVisibility.kt) instead of the previous
     // bare `if (!expanded) return` instant-unmount: keep computing position/content -- wrapped in
@@ -109,7 +108,7 @@ fun UiScope.popup(
         id = "__popup_alpha__$stateId",
         target = if (expanded) 1f else 0f,
         initial = if (expanded) 1f else 0f,
-        durationMs = fadeDurationMs
+        durationMs = fadeDurationMs,
     )
     val visuallyActive = expanded || alpha > 0.001f
     if (!visuallyActive) {
@@ -129,7 +128,7 @@ fun UiScope.popup(
             width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
             gap = gap,
             insets = insets,
-            content = content
+            content = content,
         )
     } else {
         null
@@ -169,7 +168,7 @@ fun UiScope.popup(
             insets = insets,
             verticalArrangement = verticalArrangement,
             testTag = modifier.testTag,
-            overlayOnly = true
+            overlayOnly = true,
         ).content(popupSlot)
     }
 
@@ -179,7 +178,7 @@ fun UiScope.popup(
 private fun resolvePopupDimension(
     requested: Dimension,
     measured: Float?,
-    available: Float
+    available: Float,
 ): Float = when (requested) {
     is Dimension.Fixed -> requested.dp.toPx()
     Dimension.FillMax -> available
@@ -200,7 +199,7 @@ private fun placePopupRelativeToAnchor(
     anchorAlignment: UiAlignment,
     popupAlignment: UiAlignment,
     offsetX: Float,
-    offsetY: Float
+    offsetY: Float,
 ): UiBounds {
     var resolvedAnchorAlignment = anchorAlignment
     var resolvedPopupAlignment = popupAlignment
@@ -255,7 +254,7 @@ private fun placePopupRelativeToAnchor(
     anchorAlignment: UiAlignment,
     popupAlignment: UiAlignment,
     offsetX: Float,
-    offsetY: Float
+    offsetY: Float,
 ): UiBounds {
     val anchorPoint = anchorBounds.alignmentPoint(anchorAlignment)
     val popupPoint = popupSize.alignmentOffset(popupAlignment)
@@ -263,7 +262,7 @@ private fun placePopupRelativeToAnchor(
         x = anchorPoint.first - popupPoint.first + offsetX,
         y = anchorPoint.second - popupPoint.second + offsetY,
         width = popupSize.width,
-        height = popupSize.height
+        height = popupSize.height,
     )
 }
 

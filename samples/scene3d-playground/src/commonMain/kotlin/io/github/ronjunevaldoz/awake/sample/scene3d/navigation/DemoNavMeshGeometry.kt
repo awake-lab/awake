@@ -33,8 +33,12 @@ internal object DemoNavMeshGeometry {
         // discards downward-facing triangles, so the ground itself must wind this way to
         // be walkable at all.
         val groundTris = intArrayOf(
-            0, 2, 1,
-            0, 3, 2,
+            0,
+            2,
+            1,
+            0,
+            3,
+            2,
         )
 
         // Same corner layout/winding as the demo's rendered cube geometry (see

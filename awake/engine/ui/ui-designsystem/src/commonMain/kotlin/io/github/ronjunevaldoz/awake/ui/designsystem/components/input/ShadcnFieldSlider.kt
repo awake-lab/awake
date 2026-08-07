@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.input
 
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
@@ -17,11 +16,12 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
 import kotlin.math.round
 
 /** `shadcnFieldSlider`: see the `shadcnField*` control family doc in
@@ -36,7 +36,7 @@ fun ColumnScope.shadcnFieldSlider(
     value: Float,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    labelContent: UiScope.() -> Unit
+    labelContent: UiScope.() -> Unit,
 ): Float {
     var resolved = value
     shadcnField(modifier = modifier, orientation = ShadcnFieldOrientation.Horizontal) {
@@ -47,7 +47,7 @@ fun ColumnScope.shadcnFieldSlider(
             max = max,
             value = value,
             modifier = Modifier.weight(1f).height(20f.dp),
-            style = style
+            style = style,
         )
     }
     return resolved
@@ -60,7 +60,7 @@ fun ColumnScope.shadcnFieldSlider(
     value: Float,
     height: Dp,
     style: Style = Style.Empty,
-    labelContent: UiScope.() -> Unit
+    labelContent: UiScope.() -> Unit,
 ): Float {
     var resolved = value
     shadcnField(modifier = Modifier.height(height), orientation = ShadcnFieldOrientation.Horizontal) {
@@ -71,7 +71,7 @@ fun ColumnScope.shadcnFieldSlider(
             max = max,
             value = value,
             modifier = Modifier.weight(1f).height(height),
-            style = style
+            style = style,
         )
     }
     return resolved
@@ -84,14 +84,14 @@ fun ColumnScope.shadcnFieldSlider(
     max: Float,
     value: Float,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): Float = shadcnFieldSlider(
     id = id,
     min = min,
     max = max,
     value = value,
     modifier = modifier,
-    style = style
+    style = style,
 ) {
     shadcnFieldLabel(label)
 }
@@ -117,12 +117,12 @@ fun ColumnScope.shadcnFieldSliderWithValue(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     enabled: Boolean = true,
-    valueLabel: (Float, Float, Float) -> String = ::defaultSliderValueLabel
+    valueLabel: (Float, Float, Float) -> String = ::defaultSliderValueLabel,
 ): Float {
     var resolved = value
     column(
         verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xs),
-        modifier = modifier
+        modifier = modifier,
     ) {
         row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             shadcnFieldLabel(label)
@@ -135,7 +135,7 @@ fun ColumnScope.shadcnFieldSliderWithValue(
             value = value,
             modifier = Modifier.fillMaxWidth().height(20f.dp),
             style = style,
-            enabled = enabled
+            enabled = enabled,
         )
     }
     return resolved

@@ -11,10 +11,10 @@ import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
+import kotlinx.coroutines.CompletableDeferred
 import java.net.BindException
 import java.net.ServerSocket
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlinx.coroutines.CompletableDeferred
 
 /**
  * A generic, protocol-agnostic Ktor WebSocket debug-control channel -- lets an AI agent (or
@@ -42,7 +42,7 @@ import kotlinx.coroutines.CompletableDeferred
 class WebSocketDebugTransport<TCommand, TResponse>(
     private val port: Int = AWAKE_DEBUG_CONTROL_PORT,
     private val parseCommand: (String) -> TCommand?,
-    private val encodeResponse: (TResponse) -> String
+    private val encodeResponse: (TResponse) -> String,
 ) : DebugTransport<TCommand, TResponse> {
     private val commandQueue = ConcurrentLinkedQueue<Pair<TCommand, CompletableDeferred<TResponse>>>()
     private var server: EmbeddedServer<*, *>? = null

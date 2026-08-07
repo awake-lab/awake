@@ -4,16 +4,16 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertSame
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 
 class CanvasTest {
 
@@ -24,7 +24,7 @@ class CanvasTest {
         val root = ui.createAbsolute(x = 20f, y = 30f)
 
         root.canvas(
-            modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(60f.px))
+            modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(60f.px)),
         ) {
             drawRect(x = 5f, y = 7f, width = 10f, height = 12f, color = Color.White)
             drawGradientRect(
@@ -32,7 +32,7 @@ class CanvasTest {
                 y = 0f,
                 width = 20f,
                 height = 16f,
-                gradient = UiLinearGradient.horizontal(Color.White, Color.Black)
+                gradient = UiLinearGradient.horizontal(Color.White, Color.Black),
             )
         }
 
@@ -60,7 +60,7 @@ class CanvasTest {
         val glyphRect = ui.currentFont.uvFor('A')!!
 
         root.canvas(
-            modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(80f.px))
+            modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(80f.px)),
         ) {
             drawText(text = "A", x = 8f, y = 10f, color = Color.White)
             drawImage(x = 12f, y = 18f, width = 24f, height = 20f, material = material)
@@ -86,7 +86,7 @@ class CanvasTest {
         ui.beginFrame(240f, 160f, testSnapshot())
 
         ui.createAbsolute(x = 10f, y = 15f).canvas(
-            modifier = Modifier.width(Dimension.Fixed(100f.px)).height(Dimension.Fixed(80f.px))
+            modifier = Modifier.width(Dimension.Fixed(100f.px)).height(Dimension.Fixed(80f.px)),
         ) {
             fillPath(
                 path = uiPath {
@@ -95,14 +95,14 @@ class CanvasTest {
                     lineTo(21f, 18f)
                     close()
                 },
-                color = Color.White
+                color = Color.White,
             )
             clipShape(
                 shape = UiShapeSpec.CutCorner(6f.dp),
                 x = 4f,
                 y = 6f,
                 width = 30f,
-                height = 24f
+                height = 24f,
             ) {
                 drawRect(0f, 0f, 10f, 10f, Color.Black)
             }
@@ -124,7 +124,7 @@ class CanvasTest {
         ui.beginFrame(300f, 200f, testSnapshot())
 
         ui.createAbsolute(x = 50f, y = 60f).canvas(
-            modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(90f.px))
+            modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(90f.px)),
         ) {
             nested(x = 10f, y = 12f, width = 40f, height = 30f) {
                 drawLine(0f, 0f, 10f, 8f, color = Color.White)

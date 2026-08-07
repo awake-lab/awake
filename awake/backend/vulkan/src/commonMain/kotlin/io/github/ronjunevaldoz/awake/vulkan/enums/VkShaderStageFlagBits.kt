@@ -25,7 +25,8 @@ enum class VkShaderStageFlagBits(val value: Int) {
     CLOSEST_HIT_NV(CLOSEST_HIT_KHR.value),
     MISS_NV(MISS_KHR.value),
     INTERSECTION_NV(INTERSECTION_KHR.value),
-    CALLABLE_NV(CALLABLE_KHR.value);
+    CALLABLE_NV(CALLABLE_KHR.value),
+    ;
 
     companion object {
         fun fromValue(value: Int) =

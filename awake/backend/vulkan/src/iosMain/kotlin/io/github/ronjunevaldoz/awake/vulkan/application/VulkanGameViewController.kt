@@ -12,7 +12,7 @@ import platform.UIKit.UIViewController
  * Wraps a [VulkanGameApplication] in a plain UIKit view controller.
  */
 fun makeVulkanGameViewController(
-    application: VulkanGameApplication
+    application: VulkanGameApplication,
 ): UIViewController {
     val controller = UIViewController()
     controller.view = VulkanMetalView(
@@ -22,7 +22,7 @@ fun makeVulkanGameViewController(
         onUpdate = { delta -> application.update(delta) },
         onResize = { width, height -> application.resize(0, 0, width, height) },
         onPause = { application.pause() },
-        onResume = { application.resume() }
+        onResume = { application.resume() },
     )
     return controller
 }

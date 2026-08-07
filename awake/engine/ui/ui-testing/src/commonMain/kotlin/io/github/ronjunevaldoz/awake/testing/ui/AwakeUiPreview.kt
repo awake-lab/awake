@@ -16,7 +16,7 @@ annotation class AwakeUiPreview(
     val summary: String = "",
     val width: Int = 960,
     val height: Int = 720,
-    val reportScale: Int = 1
+    val reportScale: Int = 1,
 )
 
 data class AwakeUiPreviewMetadata(
@@ -26,7 +26,7 @@ data class AwakeUiPreviewMetadata(
     val summary: String,
     val width: Int,
     val height: Int,
-    val reportScale: Int = 1
+    val reportScale: Int = 1,
 ) {
     val rasterWidth: Int get() = width * reportScale.coerceAtLeast(1)
     val rasterHeight: Int get() = height * reportScale.coerceAtLeast(1)
@@ -40,14 +40,14 @@ data class AwakeUiPreviewSample(
     val width: Int,
     val height: Int,
     val reportScale: Int,
-    val frame: AwakeUiPreviewFrame
+    val frame: AwakeUiPreviewFrame,
 )
 
 data class AwakeUiPreviewFrame(
     val primitives: List<UiDrawPrimitive>,
     val background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
     val font: UiFont? = null,
-    val semantics: List<UiSemanticNode> = emptyList()
+    val semantics: List<UiSemanticNode> = emptyList(),
 )
 
 data class AwakeUiPreviewScene(
@@ -55,14 +55,14 @@ data class AwakeUiPreviewScene(
     val primitives: List<UiDrawPrimitive>,
     val background: Color,
     val font: UiFont?,
-    val semantics: List<UiSemanticNode> = emptyList()
+    val semantics: List<UiSemanticNode> = emptyList(),
 )
 
 interface AwakeUiPreviewEntry {
     fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame
 
     fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> = listOf(
-        metadata.sample(frame = render(metadata))
+        metadata.sample(frame = render(metadata)),
     )
 }
 
@@ -70,7 +70,7 @@ fun AwakeUiPreviewMetadata.sample(
     frame: AwakeUiPreviewFrame,
     idSuffix: String = "",
     titleSuffix: String = "",
-    summarySuffix: String = ""
+    summarySuffix: String = "",
 ): AwakeUiPreviewSample = AwakeUiPreviewSample(
     id = if (idSuffix.isBlank()) id else "$id-$idSuffix",
     title = if (titleSuffix.isBlank()) title else "$title - $titleSuffix",
@@ -79,5 +79,5 @@ fun AwakeUiPreviewMetadata.sample(
     width = width,
     height = height,
     reportScale = reportScale,
-    frame = frame
+    frame = frame,
 )

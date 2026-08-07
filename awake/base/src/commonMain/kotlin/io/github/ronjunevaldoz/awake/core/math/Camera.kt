@@ -21,7 +21,7 @@ class Camera(
     var up: Vec3 = Vec3(0f, 1f, 0f),
     var fovYRadians: Float,
     var near: Float,
-    var far: Float
+    var far: Float,
 ) {
     /** Returns `view * projection` in Mat4's own (Kotlin-operator) multiplication order,
      * which -- per [Mat4.times]'s convention (`A * B` computes the conventional `B * A`) --
@@ -40,7 +40,7 @@ class Camera(
             aspect = aspect,
             near = near,
             far = far,
-            clipSpace = clipSpace
+            clipSpace = clipSpace,
         )
         if (clipSpace.flipY) {
             projection.m11 *= -1f
@@ -62,14 +62,14 @@ class Camera(
             up: Vec3 = Vec3.UP,
             fovYDegrees: Float = DEFAULT_FOV_DEGREES,
             near: Float = DEFAULT_NEAR,
-            far: Float = DEFAULT_FAR
+            far: Float = DEFAULT_FAR,
         ): Camera = Camera(
             eye = eye,
             center = center,
             up = up,
             fovYRadians = fovYDegrees.angleRad,
             near = near,
-            far = far
+            far = far,
         )
 
         const val DEFAULT_FOV_DEGREES = 45f

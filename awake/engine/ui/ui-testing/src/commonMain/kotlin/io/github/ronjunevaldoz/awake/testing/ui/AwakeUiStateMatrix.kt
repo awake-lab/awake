@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.testing.ui
 
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.forceActive
 import io.github.ronjunevaldoz.awake.ui.modifier.forceFocus
 import io.github.ronjunevaldoz.awake.ui.modifier.forceHover
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 /**
  * Automates the rendering of a component in multiple interaction states using forced modifiers.
@@ -21,13 +21,13 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 fun AwakeUiPreviewMetadata.componentStateMatrix(
     font: UiFont = UiFonts.default(),
     theme: UiTheme? = null,
-    block: ColumnScope.(UiModifier) -> Unit
+    block: ColumnScope.(UiModifier) -> Unit,
 ): List<AwakeUiPreviewSample> {
     val states = listOf(
         "default" to Modifier,
         "hover" to Modifier.forceHover(),
         "active" to Modifier.forceActive(),
-        "focus" to Modifier.forceFocus()
+        "focus" to Modifier.forceFocus(),
     )
 
     return states.map { (idSuffix, forcedModifier) ->
@@ -49,8 +49,8 @@ fun AwakeUiPreviewMetadata.componentStateMatrix(
                 primitives = frameOutput.primitives,
                 background = resolvedTheme.colors.background,
                 font = font,
-                semantics = frameOutput.semantics
-            )
+                semantics = frameOutput.semantics,
+            ),
         )
     }
 }

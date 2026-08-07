@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.material
 
-import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.BufferHandle
 import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorPoolHandle
@@ -12,6 +11,7 @@ import io.github.ronjunevaldoz.awake.webgpu.handles.DeviceMemoryHandle
 import io.github.ronjunevaldoz.awake.webgpu.texture.Texture
 import io.ygdrasil.webgpu.GPUSampler
 import io.ygdrasil.webgpu.GPUTextureView
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 
 // Phase 2.5 (Web/WebGPU, decision D7) milestone 1: compile-only stub -- see
 // docs/MVP_PLAN.md. `previewTextureView`/`previewSampler` are the one exception: set by

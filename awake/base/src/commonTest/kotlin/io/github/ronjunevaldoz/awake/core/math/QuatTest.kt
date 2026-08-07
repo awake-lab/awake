@@ -17,9 +17,9 @@ class QuatTest {
                 1f, 0f, 0f, 0f,
                 0f, 1f, 0f, 0f,
                 0f, 0f, 1f, 0f,
-                0f, 0f, 0f, 1f
+                0f, 0f, 0f, 1f,
             ),
-            identity.data.toList()
+            identity.data.toList(),
         )
     }
 

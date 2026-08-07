@@ -20,9 +20,7 @@ class AttributeBinderImpl(private val programId: Int) : AttributeBinder {
         }
     }
 
-    override fun getLocation(name: String): Int {
-        return checkNotNull(attributes[name]) {
-            "Attribute location not found: `$name`"
-        }
+    override fun getLocation(name: String): Int = checkNotNull(attributes[name]) {
+        "Attribute location not found: `$name`"
     }
 }

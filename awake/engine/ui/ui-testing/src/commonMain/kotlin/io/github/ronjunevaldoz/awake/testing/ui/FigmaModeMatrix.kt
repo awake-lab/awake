@@ -5,27 +5,28 @@ package io.github.ronjunevaldoz.awake.testing.ui
 /** Design system theme mode representation in Figma validation matrix. */
 enum class FigmaMode {
     Light,
-    Dark
+    Dark,
 }
 
 /** Display density scale representation in Figma validation matrix. */
 enum class FigmaDensity(val densityScale: Float) {
     Default(1.0f),
-    HighDensity(2.0f)
+    HighDensity(2.0f),
 }
 
 /** Layout scale multiplier representation in Figma validation matrix. */
+@Suppress("ktlint:standard:enum-entry-name-case")
 enum class FigmaScale(val scale: Float) {
     Scale1_0x(1.0f),
     Scale1_5x(1.5f),
-    Scale2_0x(2.0f)
+    Scale2_0x(2.0f),
 }
 
 /** A single configuration combination within the Figma Mode Matrix. */
 data class FigmaMatrixConfig(
     val mode: FigmaMode,
     val density: FigmaDensity,
-    val scale: FigmaScale
+    val scale: FigmaScale,
 ) {
     val id: String get() = "${mode.name.lowercase()}-${density.name.lowercase()}-${scale.scale}x"
 }
@@ -59,7 +60,7 @@ object FigmaModeMatrix {
      */
     fun runMatrix(
         matrix: List<FigmaMatrixConfig> = defaultMatrix,
-        previewRunner: (config: FigmaMatrixConfig) -> UiSemanticReport
+        previewRunner: (config: FigmaMatrixConfig) -> UiSemanticReport,
     ): UiSemanticReport {
         val aggregatedIssues = ArrayList<UiSemanticIssue>()
         for (config in matrix) {
@@ -67,8 +68,8 @@ object FigmaModeMatrix {
             report.issues.forEach { issue ->
                 aggregatedIssues.add(
                     issue.copy(
-                        message = "[${config.id}] ${issue.message}"
-                    )
+                        message = "[${config.id}] ${issue.message}",
+                    ),
                 )
             }
         }
@@ -81,7 +82,7 @@ object FigmaModeMatrix {
      */
     fun runValidationMatrix(
         matrix: List<FigmaMatrixConfig> = defaultMatrix,
-        previewRunner: (config: FigmaMatrixConfig) -> AwakeUiPreviewValidationReport
+        previewRunner: (config: FigmaMatrixConfig) -> AwakeUiPreviewValidationReport,
     ): UiSemanticReport {
         val aggregatedIssues = ArrayList<UiSemanticIssue>()
         for (config in matrix) {
@@ -91,8 +92,8 @@ object FigmaModeMatrix {
                     UiSemanticIssue(
                         kind = UiSemanticIssueKind.MismatchedToken,
                         nodeId = config.id,
-                        message = "[${config.id}] $issueStr"
-                    )
+                        message = "[${config.id}] $issueStr",
+                    ),
                 )
             }
         }

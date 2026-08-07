@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.application
 
-import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -14,30 +14,30 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
-import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
-import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
+import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class GameUiDslTest {
 
@@ -50,7 +50,7 @@ class GameUiDslTest {
                     override fun install(into: GameSpecBuilder) {
                         into.service(String::class, "Inspector")
                     }
-                }
+                },
             )
             ui {
                 overlay {
@@ -98,7 +98,7 @@ class GameUiDslTest {
                     override fun install(into: GameSpecBuilder) {
                         into.service(String::class, "Module Inspector")
                     }
-                }
+                },
             )
             ui {
                 overlay {
@@ -134,7 +134,8 @@ class GameUiDslTest {
                     frame {
                         surface(
                             id = "theme-proof",
-                            modifier = (Modifier.align(UiAlignment.TopStart).offset(20f.dp, 20f.dp)).width(180f.toDimension()).height(96f.toDimension())) {
+                            modifier = (Modifier.align(UiAlignment.TopStart).offset(20f.dp, 20f.dp)).width(180f.toDimension()).height(96f.toDimension()),
+                        ) {
                             emit(UiDrawPrimitive.Quad(x = 28f, y = 28f, w = 16f, h = 16f, color = Color(0.9f, 0.9f, 0.2f, 1f)))
                         }
                     }
@@ -162,8 +163,8 @@ class GameUiDslTest {
                 font = UiFonts.default(),
                 overlays = emptyList(),
                 onReadyBlock = {},
-                onDisposeBlock = {}
-            )
+                onDisposeBlock = {},
+            ),
         )
         val panelColor = Color(0.15f, 0.32f, 0.62f, 1f)
         val markerColor = Color(0.92f, 0.28f, 0.24f, 1f)
@@ -173,21 +174,21 @@ class GameUiDslTest {
             uiContext.createBox(
                 slot = UiBounds(0f, 0f, 240f, 160f),
                 contentAlignment = UiAlignment.TopStart,
-                overlayOnly = true
+                overlayOnly = true,
             ).surface(
                 id = "overlay-panel",
                 modifier = (Modifier.align(UiAlignment.TopStart).offset(16f.dp, 20f.dp)).width(160f.toDimension()).height(96f.toDimension()),
                 style = Style {
                     background(panelColor)
-                }
+                },
             ) { panelSlot ->
                 column(
                     slot = UiBounds(
                         x = panelSlot.x + 12f,
                         y = panelSlot.y + 12f,
                         width = 32f,
-                        height = 16f
-                    )
+                        height = 16f,
+                    ),
                 ) {
                     emit(UiDrawPrimitive.Quad(x = 0f, y = 0f, w = 6f, h = 6f, color = markerColor))
                 }
@@ -206,9 +207,10 @@ class GameUiDslTest {
         assertTrue(markerIndex >= 0, "expected the nested column marker to render")
         assertTrue(
             markerIndex > panelIndex,
-            "nested column(slot = ...) inside a GameUiRuntime receiver must inherit the current UiScope overlay pass instead of falling back to the runtime root receiver"
+            "nested column(slot = ...) inside a GameUiRuntime receiver must inherit the current UiScope overlay pass instead of falling back to the runtime root receiver",
         )
     }
+
     @Test
     fun perfStatsEnabledDrawsTheHudAsGlyphPrimitivesIndependentlyOfWireframe() = runTest {
         val renderer = RecordingUiRenderer()
@@ -226,7 +228,7 @@ class GameUiDslTest {
         assertNotNull(runtime)
         assertTrue(
             renderer.lastUiPrimitives.none { it is UiDrawPrimitive.Glyph },
-            "perf HUD must not draw anything while perfStatsEnabled is off (the default)"
+            "perf HUD must not draw anything while perfStatsEnabled is off (the default)",
         )
 
         runtime.perfStatsEnabled = true
@@ -236,11 +238,11 @@ class GameUiDslTest {
             renderer.lastUiPrimitives.any { it is UiDrawPrimitive.Glyph },
             "perf HUD must draw glyph primitives (its fps/frame-time/cache-stat text) once " +
                 "perfStatsEnabled is on, independent of debugOverlayEnabled (the wireframe " +
-                "bounds overlay, which this test never touches)"
+                "bounds overlay, which this test never touches)",
         )
         assertTrue(
             !runtime.debugOverlayEnabled,
-            "perfStatsEnabled must not implicitly flip debugOverlayEnabled -- only F3 links them"
+            "perfStatsEnabled must not implicitly flip debugOverlayEnabled -- only F3 links them",
         )
     }
 }

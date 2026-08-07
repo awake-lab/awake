@@ -14,11 +14,11 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.testTag
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -44,7 +44,7 @@ class ShadcnCardFidelityTest {
             ui.createAbsolute(slot = ui.frameBounds()).shadcnCard(
                 id = "card-fidelity",
                 modifier = Modifier.testTag("card-fidelity").width(cardWidth.dp).height(cardHeight.dp),
-                header = { text("Card Title") }
+                header = { text("Card Title") },
             ) {
                 text("Card Body Content")
             }
@@ -55,15 +55,15 @@ class ShadcnCardFidelityTest {
                     AwakeUiPreviewTokenRule(
                         nodeId = "card-fidelity",
                         expectedBackgroundToken = "card",
-                        expectedBorderToken = "border"
-                    )
+                        expectedBorderToken = "border",
+                    ),
                 ),
                 exactPaddingRules = listOf(
                     AwakeUiPreviewExactPaddingRule(
                         nodeId = "card-fidelity",
-                        exactPaddingPx = figma.getPx("spacing-lg") * config.scale.scale
-                    )
-                )
+                        exactPaddingPx = figma.getPx("spacing-lg") * config.scale.scale,
+                    ),
+                ),
             )
 
             validateAwakeUiPreview(
@@ -73,15 +73,15 @@ class ShadcnCardFidelityTest {
                     group = "Card",
                     summary = "Card surface fidelity check [${config.id}]",
                     width = (400 * config.scale.scale).toInt(),
-                    height = (300 * config.scale.scale).toInt()
+                    height = (300 * config.scale.scale).toInt(),
                 ),
                 frame = AwakeUiPreviewFrame(
                     primitives = frameOutput.primitives,
                     background = ui.currentTheme.colors.background,
                     font = ui.currentFont,
-                    semantics = frameOutput.semantics
+                    semantics = frameOutput.semantics,
                 ),
-                config = validationConfig
+                config = validationConfig,
             )
         }
 

@@ -14,13 +14,13 @@ val DefaultAndroidGameplayKeys: Map<Int, Key> = linkedMapOf(
     KeyEvent.KEYCODE_DPAD_LEFT to Key.ArrowLeft,
     KeyEvent.KEYCODE_DPAD_RIGHT to Key.ArrowRight,
     KeyEvent.KEYCODE_SPACE to Key.Space,
-    KeyEvent.KEYCODE_ESCAPE to Key.Escape
+    KeyEvent.KEYCODE_ESCAPE to Key.Escape,
 )
 
 fun KeyEvent.syncAwakeKeyInput(
     down: Boolean,
     input: Input,
-    keys: Map<Int, Key> = DefaultAndroidGameplayKeys
+    keys: Map<Int, Key> = DefaultAndroidGameplayKeys,
 ): Boolean {
     val key = keys[keyCode] ?: return false
     input.setKeyDown(key, down)

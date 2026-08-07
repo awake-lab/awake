@@ -9,7 +9,7 @@ class VkPipelineTessellationStateCreateInfo(
     val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO,
     val pNext: Any? = null,
     val flags: VkPipelineTessellationStateCreateFlags = 0,
-    val patchControlPoints: Int = 0
+    val patchControlPoints: Int = 0,
 )
 
 typealias VkPipelineTessellationStateCreateFlags = VkFlags

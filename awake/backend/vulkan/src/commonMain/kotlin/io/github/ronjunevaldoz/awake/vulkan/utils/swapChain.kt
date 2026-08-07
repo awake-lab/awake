@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkPresentModeKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceCapabilitiesKHR
 import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceFormatKHR
 
-
 data class SwapChainSupportDetails(
     val capabilities: VkSurfaceCapabilitiesKHR,
     val formats: List<VkSurfaceFormatKHR>,
@@ -21,11 +20,11 @@ fun isSwapChainSupported(physicalDevice: Long, surface: Long): Boolean {
     if (isDeviceExtSupported(physicalDevice, VulkanExtension.VK_KHR_SWAPCHAIN)) {
         val swapChainSupport = querySwapChainSupport(physicalDevice, surface)
         swapChainAdequate =
-            swapChainSupport.formats.isNotEmpty() && swapChainSupport.presentModes.isNotEmpty()
+            swapChainSupport.formats.isNotEmpty() &&
+            swapChainSupport.presentModes.isNotEmpty()
     }
     return swapChainAdequate
 }
-
 
 fun querySwapChainSupport(physicalDevice: Long, surface: Long): SwapChainSupportDetails {
     val capabilities =
@@ -37,6 +36,6 @@ fun querySwapChainSupport(physicalDevice: Long, surface: Long): SwapChainSupport
     return SwapChainSupportDetails(
         capabilities,
         formats.toList(),
-        presentModes.toList()
+        presentModes.toList(),
     )
 }

@@ -1,16 +1,18 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 /**
  * Regression test for the real bug report (Task #21): `shadcnCard(modifier =
@@ -35,11 +37,11 @@ class WrapContentWidthFillMaxChildTest {
         var slot: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 900f, height = 400f).column(
             id = "parent",
-            modifier = Modifier.width(Dimension.Fixed(900f.px)).height(Dimension.WrapContent)
+            modifier = Modifier.width(Dimension.Fixed(900f.px)).height(Dimension.WrapContent),
         ) {
             slot = surface(
                 id = "card",
-                modifier = Modifier.width(Dimension.WrapContent).height(Dimension.WrapContent)
+                modifier = Modifier.width(Dimension.WrapContent).height(Dimension.WrapContent),
             ) {
                 spacer(Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(20f.px)))
             }
@@ -50,7 +52,7 @@ class WrapContentWidthFillMaxChildTest {
         assertTrue(
             width < 200f,
             "WrapContent surface with only an 80px-wide child must hug it, not fill the 900px " +
-                "parent -- got width=$width"
+                "parent -- got width=$width",
         )
     }
 
@@ -64,11 +66,11 @@ class WrapContentWidthFillMaxChildTest {
         var slot: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 900f, height = 400f).column(
             id = "parent",
-            modifier = Modifier.width(Dimension.Fixed(900f.px)).height(Dimension.WrapContent)
+            modifier = Modifier.width(Dimension.Fixed(900f.px)).height(Dimension.WrapContent),
         ) {
             slot = surface(
                 id = "card",
-                modifier = Modifier.width(Dimension.WrapContent).height(Dimension.WrapContent)
+                modifier = Modifier.width(Dimension.WrapContent).height(Dimension.WrapContent),
             ) {
                 spacer(Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(20f.px)))
                 // The "divider" -- explicit FillMax width, like separator()'s default.
@@ -81,7 +83,7 @@ class WrapContentWidthFillMaxChildTest {
         assertTrue(
             width < 200f,
             "WrapContent surface must hug its 80px fixed-width child, not the fillMaxWidth() " +
-                "divider mixed in alongside it -- got width=$width"
+                "divider mixed in alongside it -- got width=$width",
         )
     }
 }

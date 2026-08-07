@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.ecs.ensure
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
-import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.components.CameraMode
@@ -45,7 +44,7 @@ class EntityModifier {
      */
     inline fun <reified T : Any> configure(
         noinline factory: () -> T,
-        crossinline setup: T.() -> Unit
+        crossinline setup: T.() -> Unit,
     ) = apply {
         actions.add { world, entity ->
             world.ensure(entity, factory).setup()
@@ -60,7 +59,7 @@ class EntityModifier {
  * way UI authoring does. Note this is a *function*, unlike `ui.modifier.Modifier`, which is a
  * `val` -- both names can be imported into one file without clashing.
  */
-@Suppress("FunctionNaming")
+@Suppress("FunctionNaming", "ktlint:standard:function-naming")
 fun Modifier() = EntityModifier()
 
 // --- Semantic Extensions ---
@@ -77,7 +76,7 @@ fun EntityModifier.transform(
     sz: Float = 1f,
     rx: Float = 0f,
     ry: Float = 0f,
-    rz: Float = 0f
+    rz: Float = 0f,
 ) = configure(::Transform) {
     position.set(x, y, z)
     scale.set(sx, sy, sz)
@@ -97,7 +96,7 @@ fun EntityModifier.camera(
     target: Entity? = null,
     lens: CoreCamera = defaultLens(),
     primary: Boolean = true,
-    setup: CameraComponent.() -> Unit = {}
+    setup: CameraComponent.() -> Unit = {},
 ): EntityModifier = with(Camera(lens, isPrimary = primary)).configure(::CameraComponent) {
     this.mode = mode
     this.targetEntity = target
@@ -111,5 +110,5 @@ private fun defaultLens() = CoreCamera.perspective()
  */
 fun EntityModifier.meshRenderer(
     mesh: Mesh,
-    material: Material
+    material: Material,
 ) = with(MeshRenderer(mesh, material))

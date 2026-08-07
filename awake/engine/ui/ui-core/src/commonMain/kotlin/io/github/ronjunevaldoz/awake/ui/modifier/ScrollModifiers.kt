@@ -7,16 +7,16 @@ import io.github.ronjunevaldoz.awake.ui.UiScrollState
 
 fun UiModifier.verticalScroll(
     state: UiScrollState,
-    config: UiScrollConfig = UiScrollConfig.Default
+    config: UiScrollConfig = UiScrollConfig.Default,
 ): UiModifier = copy(
     scrollState = state,
-    scrollConfig = config
+    scrollConfig = config,
 )
 
 fun UiModifier.horizontalScroll(
     state: UiScrollState,
-    config: UiScrollConfig = UiScrollConfig.Default
+    config: UiScrollConfig = UiScrollConfig.Default,
 ): UiModifier = copy(
     scrollState = state,
-    scrollConfig = config
+    scrollConfig = config,
 )

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan
 
-
 const val VK_UUID_SIZE = 16
 const val VK_ATTACHMENT_UNUSED = -1
 const val VK_FALSE = 0
@@ -18,7 +17,6 @@ const val VK_MAX_MEMORY_HEAPS = 16
 const val VK_MAX_PHYSICAL_DEVICE_NAME_SIZE = 256
 const val VK_MAX_EXTENSION_NAME_SIZE = 256
 const val VK_MAX_DESCRIPTION_SIZE = 256
-
 
 typealias VkBool32 = Boolean
 typealias VkDeviceAddress = Long
@@ -43,7 +41,8 @@ enum class VulkanExtension(val extensionName: String) {
     VK_KHR_ANDROID_SURFACE("VK_KHR_android_surface"),
     VK_KHR_XCB_SURFACE("VK_KHR_xcb_surface"),
     VK_KHR_XLIB_SURFACE("VK_KHR_xlib_surface"),
-    VK_KHR_WIN32_SURFACE("VK_KHR_win32_surface");
+    VK_KHR_WIN32_SURFACE("VK_KHR_win32_surface"),
+    ;
 
     companion object {
         fun fromString(name: String): VulkanExtension? =

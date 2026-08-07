@@ -10,7 +10,7 @@ fun recordGameDslTutorial(
     name: String,
     title: String,
     summary: String,
-    snippet: String
+    snippet: String,
 ) {
     synchronized(tutorialManifestLock) {
         val manifest = File("build/game-dsl-tutorials/tutorials.tsv")

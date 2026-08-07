@@ -2,46 +2,36 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
-import io.github.ronjunevaldoz.awake.ui.popup
-import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnResolvedTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
-import io.github.ronjunevaldoz.awake.ui.animateFloat
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.separator
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.headless.separator
-import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** Inserts the header/footer separator convention shared with [DropdownMenu]'s
  * item separator: a thin border-colored rule with a small gap on both sides,
@@ -60,7 +50,7 @@ internal fun ColumnScope.shadcnCardContent(
     size: ShadcnCardSize,
     header: (ColumnScope.() -> Unit)?,
     footer: (ColumnScope.() -> Unit)?,
-    body: ColumnScope.(slot: UiBounds) -> Unit
+    body: ColumnScope.(slot: UiBounds) -> Unit,
 ) {
     val gap = size.dividerGapDp.dp
     if (header != null) {
@@ -102,70 +92,70 @@ private fun UiScope.emitCardElevationShadow(slot: UiBounds) {
  * background, border, and content padding. Composed from the [surface] primitive. */
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
-    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
+    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface"),
 )
 fun UiScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = { slot -> content(slot) }
+    content = { slot -> content(slot) },
 )
 
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
-    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
+    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface"),
 )
 fun ColumnScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = { slot -> content(slot) }
+    content = { slot -> content(slot) },
 )
 
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
-    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
+    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface"),
 )
 fun RowScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = { slot -> content(slot) }
+    content = { slot -> content(slot) },
 )
 
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
-    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
+    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface"),
 )
 fun BoxScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = { slot -> content(slot) }
+    content = { slot -> content(slot) },
 )
 
 /** Real shadcn's `Card`: a dedicated header/body/footer composition, not just a
@@ -183,13 +173,13 @@ fun UiScope.shadcnCard(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    body: ColumnScope.(slot: UiBounds) -> Unit
+    body: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val bounds = surface(
         id = id,
         modifier = modifier,
         style = theme.asShadcnTheme().components.surface then style,
-        content = { slot -> shadcnCardContent(slot, size, header, footer, body) }
+        content = { slot -> shadcnCardContent(slot, size, header, footer, body) },
     )
     if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
     return bounds
@@ -204,13 +194,13 @@ fun ColumnScope.shadcnCard(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    body: ColumnScope.(slot: UiBounds) -> Unit
+    body: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val bounds = surface(
         id = id,
         modifier = modifier,
         style = theme.asShadcnTheme().components.surface then style,
-        content = { slot -> shadcnCardContent(slot, size, header, footer, body) }
+        content = { slot -> shadcnCardContent(slot, size, header, footer, body) },
     )
     if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
     return bounds
@@ -225,13 +215,13 @@ fun RowScope.shadcnCard(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    body: ColumnScope.(slot: UiBounds) -> Unit
+    body: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val bounds = surface(
         id = id,
         modifier = modifier,
         style = theme.asShadcnTheme().components.surface then style,
-        content = { slot -> shadcnCardContent(slot, size, header, footer, body) }
+        content = { slot -> shadcnCardContent(slot, size, header, footer, body) },
     )
     if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
     return bounds
@@ -246,19 +236,17 @@ fun BoxScope.shadcnCard(
     style: Style = Style.Empty,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
-    body: ColumnScope.(slot: UiBounds) -> Unit
+    body: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val bounds = surface(
         id = id,
         modifier = modifier,
         style = theme.asShadcnTheme().components.surface then style,
-        content = { slot -> shadcnCardContent(slot, size, header, footer, body) }
+        content = { slot -> shadcnCardContent(slot, size, header, footer, body) },
     )
     if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
     return bounds
 }
-
-
 
 /** Own visual style for real shadcn's `Popover` panel chrome -- the dedicated popover
  * background/border tokens pulled straight off [ShadcnResolvedTheme], not routed through
@@ -280,7 +268,7 @@ internal fun popoverStyle(theme: ShadcnResolvedTheme): Style = Style {
  * primitive's result across design-system components. */
 data class UiPopoverResult(
     val slot: UiBounds?,
-    val dismissed: Boolean
+    val dismissed: Boolean,
 )
 
 /** Real shadcn's `Popover`: a trigger-anchored floating panel (Radix's `Popover.Content`),
@@ -302,7 +290,7 @@ fun UiScope.shadcnPopover(
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.popover(),
     properties: UiPopupProperties = UiPopupProperties(),
     style: Style = Style.Empty,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiPopoverResult {
     val resolvedTheme = theme.asShadcnTheme()
     val popupResult = popup(
@@ -312,13 +300,13 @@ fun UiScope.shadcnPopover(
         width = width,
         height = height,
         positionProvider = positionProvider,
-        properties = properties
+        properties = properties,
     ) { popupSlot ->
         surface(
             id = "$id.content",
             style = popoverStyle(resolvedTheme) then style,
             modifier = Modifier.width(Dimension.Fixed(popupSlot.width.px)).height(height),
-            content = { slot -> content(slot) }
+            content = { slot -> content(slot) },
         )
     }
     return UiPopoverResult(slot = popupResult.slot, dismissed = popupResult.dismissed)

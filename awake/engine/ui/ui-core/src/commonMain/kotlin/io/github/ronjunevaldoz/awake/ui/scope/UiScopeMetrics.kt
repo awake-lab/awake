@@ -34,7 +34,7 @@ fun UiScope.resolvedTextScale(): Float =
 
 fun UiScope.resolveGlyphPx(
     font: UiFont = context.currentFont,
-    textStyle: TextStyle = context.currentTextStyle
+    textStyle: TextStyle = context.currentTextStyle,
 ): Float {
     val baseSize = textStyle.size ?: context.currentTheme.typography.body
     val scale = pixelPerfectTextScale(textStyle.scale, font.textScaleStep)
@@ -79,7 +79,7 @@ fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiBounds {
         alignment = modifier.alignment ?: defaultAlignment(),
         insets = modifier.insets,
         offsetX = modifier.offsetX.toPx(),
-        offsetY = modifier.offsetY.toPx()
+        offsetY = modifier.offsetY.toPx(),
     )
 }
 

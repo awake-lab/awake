@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.font
 
 enum class UiFontSamplingMode {
     CoverageAlpha,
-    DistanceField
+    DistanceField,
 }
 
 data class GlyphRect(
@@ -15,7 +15,7 @@ data class GlyphRect(
     val offsetXEm: Float = 0f,
     val offsetYEm: Float = 0f,
     val widthEm: Float = 1f,
-    val heightEm: Float = 1f
+    val heightEm: Float = 1f,
 )
 
 interface UiFont {

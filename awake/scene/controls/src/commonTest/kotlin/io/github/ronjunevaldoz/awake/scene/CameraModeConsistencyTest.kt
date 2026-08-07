@@ -123,7 +123,7 @@ class CameraModeConsistencyTest {
         world: World,
         mode: CameraMode,
         yaw: Float,
-        pitch: Float
+        pitch: Float,
     ): Pair<io.github.ronjunevaldoz.awake.ecs.Entity, CameraComponent> {
         val target = world.create()
         world.add(target, Transform())
@@ -132,8 +132,8 @@ class CameraModeConsistencyTest {
         world.add(
             cameraEntity,
             Camera(
-                CoreCamera.perspective(eye = Vec3(0f, 0f, 5f), center = Vec3.ZERO)
-            )
+                CoreCamera.perspective(eye = Vec3(0f, 0f, 5f), center = Vec3.ZERO),
+            ),
         )
         val config = CameraComponent().apply {
             this.mode = mode
@@ -160,7 +160,7 @@ class CameraModeConsistencyTest {
             keysPressed = emptySet(),
             keysReleased = emptySet(),
             typedText = "",
-            editActions = emptyList()
+            editActions = emptyList(),
         )
 
         val DRAGGING = IDLE.copy(pointerX = 40f, pointerY = 25f, pointerDown = true)

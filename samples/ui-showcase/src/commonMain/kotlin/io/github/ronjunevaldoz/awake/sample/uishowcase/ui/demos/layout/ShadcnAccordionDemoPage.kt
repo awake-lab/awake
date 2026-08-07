@@ -19,7 +19,7 @@ private data class AccordionItem(val id: String, val title: String, val body: St
 private val SampleAccordionItems = listOf(
     AccordionItem("item-1", "Is it accessible?", "Yes. It adheres to the WAI-ARIA design pattern for accordion components."),
     AccordionItem("item-2", "Is it headless?", "Yes. It's headless by default, giving you full control over the visual presentation."),
-    AccordionItem("item-3", "Can it be animated?", "Yes. Height transitions animate smoothly between collapsed and expanded states.")
+    AccordionItem("item-3", "Can it be animated?", "Yes. Height transitions animate smoothly between collapsed and expanded states."),
 )
 
 internal fun ColumnScope.drawShadcnAccordionDemoPreview() {
@@ -34,7 +34,7 @@ internal fun ColumnScope.drawShadcnAccordionDemoPreview() {
         selectedId = selectedId,
         onSelectId = { selectedId = it },
         idProvider = { it.id },
-        titleProvider = { it.title }
+        titleProvider = { it.title },
     ) { item ->
         shadcnBodyText(item.body)
     }

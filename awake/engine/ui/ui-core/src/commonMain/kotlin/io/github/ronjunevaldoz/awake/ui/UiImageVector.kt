@@ -3,14 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.UiStroke
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
-import io.github.ronjunevaldoz.awake.ui.UiStroke
 
 data class UiVectorPath(
     val path: UiPath,
     val fill: Color? = null,
-    val stroke: UiStroke? = null
+    val stroke: UiStroke? = null,
 )
 
 data class UiImageVector(
@@ -18,21 +18,21 @@ data class UiImageVector(
     val defaultHeight: Dp,
     val viewportWidth: Float,
     val viewportHeight: Float,
-    val paths: List<UiVectorPath>
+    val paths: List<UiVectorPath>,
 )
 
 class UiImageVectorBuilder internal constructor(
     private val defaultWidth: Dp,
     private val defaultHeight: Dp,
     private val viewportWidth: Float,
-    private val viewportHeight: Float
+    private val viewportHeight: Float,
 ) {
     private val paths = ArrayList<UiVectorPath>()
 
     fun path(fill: Color? = null, block: UiPathBuilder.() -> Unit) {
         paths += UiVectorPath(
             path = uiPath(block = block),
-            fill = fill
+            fill = fill,
         )
     }
 
@@ -41,7 +41,7 @@ class UiImageVectorBuilder internal constructor(
         defaultHeight = defaultHeight,
         viewportWidth = viewportWidth,
         viewportHeight = viewportHeight,
-        paths = paths.toList()
+        paths = paths.toList(),
     )
 }
 
@@ -50,7 +50,7 @@ fun uiImageVector(
     defaultHeight: Dp,
     viewportWidth: Float,
     viewportHeight: Float,
-    block: UiImageVectorBuilder.() -> Unit
+    block: UiImageVectorBuilder.() -> Unit,
 ): UiImageVector {
     val builder = UiImageVectorBuilder(defaultWidth, defaultHeight, viewportWidth, viewportHeight)
     builder.block()
@@ -73,8 +73,8 @@ fun UiImageVector.fitTo(slot: UiBounds): List<UiVectorPath> {
                 scaleX = scale,
                 scaleY = scale,
                 translateX = translateX,
-                translateY = translateY
-            )
+                translateY = translateY,
+            ),
         )
     }
 }

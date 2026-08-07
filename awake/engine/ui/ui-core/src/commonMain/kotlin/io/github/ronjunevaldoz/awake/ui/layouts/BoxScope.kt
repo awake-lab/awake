@@ -1,8 +1,10 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /**
  * Every [claimSlot] call returns the same fixed rect -- for a single fixed-position widget,
@@ -18,8 +20,9 @@ class BoxScope internal constructor(
     override val testTag: String? = null,
     override val hasBoundedFillWidth: Boolean = true,
     override val hasBoundedFillHeight: Boolean = true,
-    emitToOverlay: Boolean = false
-) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
+    emitToOverlay: Boolean = false,
+) : AbstractUiScope(context, emitToOverlay),
+    FillAwareScope {
     override val fillWidth: Float? = this.width
     override val fillHeight: Float? = this.height
 

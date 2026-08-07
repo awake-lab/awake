@@ -36,7 +36,7 @@ class CubicBezierEasing(
     private val x1: Float,
     private val y1: Float,
     private val x2: Float,
-    private val y2: Float
+    private val y2: Float,
 ) : Easing {
     private val ax = 1f - 3f * x2 + 3f * x1
     private val bx = 3f * x2 - 6f * x1

@@ -7,14 +7,14 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.rememberFloatState
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
 
 private const val TOAST_WIDTH_DP = 280f
 private const val TOAST_HEIGHT_DP = 44f
@@ -38,7 +38,7 @@ fun UiScope.toast(
     message: String,
     modifier: UiModifier = Modifier,
     durationMs: Float = 3000f,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): Boolean {
     val elapsed = rememberFloatState(id, "elapsed")
     if (elapsed.value >= durationMs) return false
@@ -51,7 +51,7 @@ fun UiScope.toast(
         // already landed on -- both axes fall back to a fixed size, not content-derived.
         modifier = modifier.withSizeFallback(Dimension.Fixed(TOAST_WIDTH_DP.dp), Dimension.Fixed(TOAST_HEIGHT_DP.dp)),
         style = style,
-        defaults = theme.components.surface
+        defaults = theme.components.surface,
     )
     paintSurface(slot = surface.slot, resolved = surface.resolved)
     text(
@@ -60,13 +60,13 @@ fun UiScope.toast(
         font = context.currentFont,
         color = surface.resolved.foreground ?: theme.colors.foreground,
         verticallyCentered = true,
-        semanticId = "$id.label"
+        semanticId = "$id.label",
     )
     recordSemantic(
         role = UiSemanticRole.Panel,
         id = id,
         label = message,
-        bounds = surface.slot
+        bounds = surface.slot,
     )
     return true
 }

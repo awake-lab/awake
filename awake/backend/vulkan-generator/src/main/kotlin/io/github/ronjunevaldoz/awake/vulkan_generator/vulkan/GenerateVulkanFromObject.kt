@@ -13,7 +13,7 @@ import java.lang.reflect.Field
 fun CppClassBuilder.generateVulkanFromObject(
     clazz: Class<*>,
     declareMembers: Array<Field>,
-    hasArrayField: Boolean
+    hasArrayField: Boolean,
 ) {
     val clazzInfo = "clazzInfo"
     fun CppFunctionBodyBuilder.createBody(void: Boolean = false) {
@@ -31,36 +31,35 @@ fun CppClassBuilder.generateVulkanFromObject(
             }
 
             fun generateEnum(comment: String) {
-                child("$clazzInfo.${javaMember.name} = ${functionName}(); // $comment")
+                child("$clazzInfo.${javaMember.name} = $functionName(); // $comment")
             }
 
             fun generatePrimitive(comment: String) {
-                child("$clazzInfo.${javaMember.name} = ${functionName}(); // $comment")
+                child("$clazzInfo.${javaMember.name} = $functionName(); // $comment")
             }
 
-
             fun generateDefault(returnType: String, comment: String) {
-                if (returnType.contains("void", true)
-                    || returnType.contains("char", true)
-                    || returnType.startsWith("vk", true)
+                if (returnType.contains("void", true) ||
+                    returnType.contains("char", true) ||
+                    returnType.startsWith("vk", true)
                 ) {
-                    child("${functionName}(clazzInfo); // $comment")
+                    child("$functionName(clazzInfo); // $comment")
                 } else {
-                    child("$clazzInfo.${javaMember.name} = ${functionName}(); // $comment")
+                    child("$clazzInfo.${javaMember.name} = $functionName(); // $comment")
                 }
             }
 
             fun generateVkHandle(comment: String) {
-                child("$clazzInfo.${javaMember.name} = ${functionName}(); // $comment")
+                child("$clazzInfo.${javaMember.name} = $functionName(); // $comment")
             }
 
             fun generatePointer(comment: String) {
-                child("${functionName}(clazzInfo); // $comment")
+                child("$functionName(clazzInfo); // $comment")
             }
 
             fun processArrayData(comment: String) {
                 val elementType = javaMember.type.componentType
-                child("${functionName}(clazzInfo);  // ${elementType.simpleName} $comment")
+                child("$functionName(clazzInfo);  // ${elementType.simpleName} $comment")
             }
             if (javaMember.type.isArray) {
                 processArrayData("Object Array")
@@ -85,7 +84,7 @@ fun CppClassBuilder.generateVulkanFromObject(
         1,
         if (hasArrayField) "void" else clazz.simpleName,
         "fromObject",
-        if (hasArrayField) listOf(Pair(clazzInfo, getParentClassName(clazz) + "&")) else emptyList()
+        if (hasArrayField) listOf(Pair(clazzInfo, getParentClassName(clazz) + "&")) else emptyList(),
     ) {
         body(2) {
             createBody(void = hasArrayField)

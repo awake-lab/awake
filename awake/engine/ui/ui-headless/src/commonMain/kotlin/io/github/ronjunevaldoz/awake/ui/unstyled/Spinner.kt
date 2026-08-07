@@ -3,25 +3,25 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 private const val SPINNER_REVOLUTIONS_PER_SECOND = 1f
 private const val SPINNER_DOT_COUNT = 8
@@ -35,7 +35,7 @@ private const val SPINNER_DOT_COUNT = 8
 fun UiScope.spinner(
     id: String,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ) {
     val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.Fixed(24f.dp), Dimension.Fixed(24f.dp)))
     val resolved = resolveStyle(style = style)
@@ -60,19 +60,19 @@ fun UiScope.spinner(
                 dotX - dotDiameter / 2f,
                 dotY - dotDiameter / 2f,
                 dotDiameter,
-                dotDiameter
+                dotDiameter,
             ),
             fillColor = dotColor.withAlpha(dotColor.a * alpha),
             radiusPx = 0f,
             borderWidth = UiShape.none,
             borderColor = Color.Transparent,
-            shapeSpec = UiShapeSpec.Circle
+            shapeSpec = UiShapeSpec.Circle,
         )
     }
 
     recordSemantic(
         role = UiSemanticRole.Spinner,
         id = id,
-        bounds = slot
+        bounds = slot,
     )
 }

@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.scene.components
 import io.github.ronjunevaldoz.awake.ecs.Poolable
 
 data class Name(
-    var value: String = ""
+    var value: String = "",
 ) : Poolable {
     override fun reset() {
         value = ""

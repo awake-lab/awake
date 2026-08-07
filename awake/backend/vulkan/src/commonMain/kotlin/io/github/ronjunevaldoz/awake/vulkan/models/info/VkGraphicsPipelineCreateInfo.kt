@@ -27,37 +27,37 @@ class VkGraphicsPipelineCreateInfo(
     val pStages: Array<VkPipelineShaderStageCreateInfo> = emptyArray(),
     @VkPointer
     val pVertexInputState: Array<VkPipelineVertexInputStateCreateInfo> = arrayOf(
-        VkPipelineVertexInputStateCreateInfo()
+        VkPipelineVertexInputStateCreateInfo(),
     ),
     @VkPointer
     val pInputAssemblyState: Array<VkPipelineInputAssemblyStateCreateInfo> = arrayOf(
-        VkPipelineInputAssemblyStateCreateInfo()
+        VkPipelineInputAssemblyStateCreateInfo(),
     ),
     @VkPointer
     val pTessellationState: Array<VkPipelineTessellationStateCreateInfo> = arrayOf(
-        VkPipelineTessellationStateCreateInfo()
+        VkPipelineTessellationStateCreateInfo(),
     ),
     @VkPointer
     val pViewportState: Array<VkPipelineViewportStateCreateInfo> = arrayOf(
-        VkPipelineViewportStateCreateInfo()
+        VkPipelineViewportStateCreateInfo(),
     ),
     @VkPointer
     val pRasterizationState: Array<VkPipelineRasterizationStateCreateInfo> = arrayOf(
-        VkPipelineRasterizationStateCreateInfo()
+        VkPipelineRasterizationStateCreateInfo(),
     ),
     @VkPointer
     val pMultisampleState: Array<VkPipelineMultisampleStateCreateInfo> = arrayOf(
-        VkPipelineMultisampleStateCreateInfo()
+        VkPipelineMultisampleStateCreateInfo(),
     ),
     @VkPointer
     val pDepthStencilState: Array<VkPipelineDepthStencilStateCreateInfo>? = null,
     @VkPointer
     val pColorBlendState: Array<VkPipelineColorBlendStateCreateInfo> = arrayOf(
-        VkPipelineColorBlendStateCreateInfo()
+        VkPipelineColorBlendStateCreateInfo(),
     ),
     @VkPointer
     val pDynamicState: Array<VkPipelineDynamicStateCreateInfo> = arrayOf(
-        VkPipelineDynamicStateCreateInfo()
+        VkPipelineDynamicStateCreateInfo(),
     ),
     @field:VkHandleRef("VkPipelineLayout")
     val layout: VkHandle = 0, // VkPipelineLayout handle
@@ -66,5 +66,5 @@ class VkGraphicsPipelineCreateInfo(
     val subpass: Int = 0,
     @field:VkHandleRef("VkPipeline")
     val basePipelineHandle: VkHandle = 0, // VkPipeline handle
-    val basePipelineIndex: Int = -1
+    val basePipelineIndex: Int = -1,
 )

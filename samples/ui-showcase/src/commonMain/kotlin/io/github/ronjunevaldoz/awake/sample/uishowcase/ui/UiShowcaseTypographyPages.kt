@@ -16,29 +16,29 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.sp
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal fun ColumnScope.drawUiShowcaseTypographySpecimenPreview() {
     shadcnSectionHeader(
         title = "Typography",
-        description = "The shadcn text component family: section title, headline, body, supporting/caption, and generic muted text."
+        description = "The shadcn text component family: section title, headline, body, supporting/caption, and generic muted text.",
     )
     spacer(Modifier.height(12f.dp))
     shadcnSectionTitle("Section Title")
@@ -65,26 +65,27 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
     shadcnBadge("TYPOGRAPHY", variant = ShadcnBadgeVariant.Outline)
     shadcnSupportingLines(
         listOf(
-            "The same specimen rendered through each Awake UI font path so we can judge edge quality and spacing directly."
-        )
+            "The same specimen rendered through each Awake UI font path so we can judge edge quality and spacing directly.",
+        ),
     )
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(292f.dp.toDimension())
+        modifier = Modifier.height(292f.dp.toDimension()),
     ) {
         surface(
             id = "showcase-font-bitmap",
             style = Style { shape(14f.dp) },
             modifier = Modifier.copy(
                 widthDimension = Dimension.Fixed(264f.dp),
-                heightDimension = Dimension.Fixed(292f.dp)
-            )) { slot ->
+                heightDimension = Dimension.Fixed(292f.dp),
+            ),
+        ) { slot ->
             drawUiShowcaseFontSpecimen(
                 slot = slot,
                 label = "Bitmap",
                 detail = "Coverage-alpha atlas from the original grid source.",
-                previewFont = BitmapFont()
+                previewFont = BitmapFont(),
             )
         }
         surface(
@@ -92,13 +93,14 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
             style = Style { shape(14f.dp) },
             modifier = Modifier.copy(
                 widthDimension = Dimension.Fixed(264f.dp),
-                heightDimension = Dimension.Fixed(292f.dp)
-            )) { slot ->
+                heightDimension = Dimension.Fixed(292f.dp),
+            ),
+        ) { slot ->
             drawUiShowcaseFontSpecimen(
                 slot = slot,
                 label = "True Font",
                 detail = "Real Roboto glyph atlas baked from a TTF source with proportional quad metrics.",
-                previewFont = UiFonts.trueSans()
+                previewFont = UiFonts.trueSans(),
             )
         }
     }
@@ -106,8 +108,8 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
     shadcnSupportingLines(
         listOf(
             "Bitmap stays closer to the authored pixel grid and remains useful for low-fi or debug surfaces.",
-            "True Font uses real outline-derived glyphs, so spacing and letterforms stop fighting the renderer."
-        )
+            "True Font uses real outline-derived glyphs, so spacing and letterforms stop fighting the renderer.",
+        ),
     )
 }
 
@@ -122,27 +124,27 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
         slot = slot,
         insets = UiInsets(16f.dp),
         verticalArrangement = Arrangement.spacedBy(8f.dp),
-        overlayOnly = emitsToOverlay
+        overlayOnly = emitsToOverlay,
     )
     specimenScope.shadcnBadge(
         label.uppercase(),
         modifier = Modifier.width(120f.dp).height(28f.dp),
-        variant = ShadcnBadgeVariant.Outline
+        variant = ShadcnBadgeVariant.Outline,
     )
     specimenScope.text(
         label = "Awake UI",
         color = theme.colors.foreground,
-        textStyle = TextStyle(size = 18f.sp)
+        textStyle = TextStyle(size = 18f.sp),
     )
     specimenScope.text(
         label = "Sphinx 123",
         color = theme.colors.foreground,
-        textStyle = TextStyle(size = 16f.sp)
+        textStyle = TextStyle(size = 16f.sp),
     )
     specimenScope.text(
         label = "THE QUICK BROWN FOX",
         color = theme.colors.foreground,
-        textStyle = TextStyle(size = 12.sp)
+        textStyle = TextStyle(size = 12.sp),
     )
     specimenScope.text(
         label = detail,
@@ -151,7 +153,7 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
         wrap = UiTextWrap.Word,
         overflow = UiTextOverflow.Ellipsis,
         maxLines = 3,
-        textStyle = TextStyle(size = 11.sp)
+        textStyle = TextStyle(size = 11.sp),
     )
     context.popFont()
 }

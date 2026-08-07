@@ -43,7 +43,6 @@ actual object Vulkan {
     actual external fun vkCreateInstance(createInfo: VkInstanceCreateInfo): Long
     actual external fun vkDestroyInstance(instance: Long)
 
-
     /**
      * Enumerates the Vulkan extension properties available for the instance.
      *
@@ -53,7 +52,7 @@ actual object Vulkan {
     actual external fun vkEnumerateInstanceExtensionProperties(layerName: String?): Array<VkExtensionProperties>
     actual external fun vkEnumerateDeviceExtensionProperties(
         physicalDevice: Long,
-        layerName: String?
+        layerName: String?,
     ): Array<VkExtensionProperties>
 
     actual external fun vkEnumeratePhysicalDevices(instance: Long): LongArray
@@ -70,127 +69,127 @@ actual object Vulkan {
 
     actual external fun vkCreateAndroidSurfaceKHR(
         instance: Long,
-        surfaceInfo: VkAndroidSurfaceCreateInfoKHR
+        surfaceInfo: VkAndroidSurfaceCreateInfoKHR,
     ): Long
 
     actual external fun vkGetPhysicalDeviceSurfaceSupportKHR(
         physicalDevice: Long,
         queueFamilyIndex: Int,
-        surface: Long
+        surface: Long,
     ): Boolean
 
     actual external fun vkDestroySurfaceKHR(instance: Long, surface: Long)
 
     actual external fun vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
         physicalDevice: Long,
-        surface: Long
+        surface: Long,
     ): VkSurfaceCapabilitiesKHR
 
     actual external fun vkGetPhysicalDeviceSurfaceFormatsKHR(
         physicalDevice: Long,
-        surface: Long
+        surface: Long,
     ): Array<VkSurfaceFormatKHR>
 
     actual external fun vkGetPhysicalDeviceSurfacePresentModesKHR(
         physicalDevice: Long,
-        surface: Long
+        surface: Long,
     ): Array<VkPresentModeKHR>
 
     actual external fun vkCreateSwapchainKHR(
         device: Long,
-        createInfoKHR: VkSwapchainCreateInfoKHR
+        createInfoKHR: VkSwapchainCreateInfoKHR,
     ): Long
 
     actual external fun vkDestroySwapchainKHR(
         device: Long,
-        swapchainKHR: Long
+        swapchainKHR: Long,
     )
 
     actual external fun vkCreateDebugUtilsMessengerEXT(
         instance: Long,
-        createInfo: VkDebugUtilsMessengerCreateInfoEXT
+        createInfo: VkDebugUtilsMessengerCreateInfoEXT,
     ): Long
 
     actual external fun vkDestroyDebugUtilsMessengerEXT(instance: Long, debugUtilsMessenger: Long)
     actual external fun vkCreateImageView(
         device: Long,
-        createInfo: VkImageViewCreateInfo
+        createInfo: VkImageViewCreateInfo,
     ): Long
 
     actual external fun vkDestroyImageView(device: Long, imageView: Long)
     actual external fun vkCreateShaderModule(
         device: Long,
-        createInfo: VkShaderModuleCreateInfo
+        createInfo: VkShaderModuleCreateInfo,
     ): Long
 
     actual external fun vkDestroyShaderModule(device: Long, shaderModule: Long)
     actual external fun vkCreatePipelineCache(
         device: Long,
-        createInfo: VkPipelineCacheCreateInfo
+        createInfo: VkPipelineCacheCreateInfo,
     ): Long
 
     actual external fun vkDestroyPipelineCache(
         device: Long,
-        pipelineCache: Long
+        pipelineCache: Long,
     )
 
     actual external fun vkCreateGraphicsPipelines(
         device: Long,
         pipelineCache: Long,
-        createInfos: Array<VkGraphicsPipelineCreateInfo>
+        createInfos: Array<VkGraphicsPipelineCreateInfo>,
     ): LongArray
 
     actual external fun vkDestroyPipeline(device: Long, pipeline: Long)
     actual external fun vkCreatePipelineLayout(
         device: Long,
-        createInfo: VkPipelineLayoutCreateInfo
+        createInfo: VkPipelineLayoutCreateInfo,
     ): Long
 
     actual external fun vkDestroyPipelineLayout(device: Long, pipelineLayout: Long)
     actual external fun vkCreateRenderPass(
         device: Long,
-        createInfo: VkRenderPassCreateInfo
+        createInfo: VkRenderPassCreateInfo,
     ): Long
 
     actual external fun vkDestroyRenderPass(device: Long, renderPass: Long)
     actual external fun vkCreateFramebuffer(
         device: Long,
-        framebufferInfo: VkFramebufferCreateInfo
+        framebufferInfo: VkFramebufferCreateInfo,
     ): Long
 
     actual external fun vkDestroyFramebuffer(device: Long, framebuffer: Long)
     actual external fun vkAllocateCommandBuffers(
         device: Long,
-        createInfo: VkCommandBufferAllocateInfo
+        createInfo: VkCommandBufferAllocateInfo,
     ): Long
 
     actual external fun vkBeginCommandBuffer(
         commandBuffer: Long,
-        beginInfo: VkCommandBufferBeginInfo
+        beginInfo: VkCommandBufferBeginInfo,
     )
 
     actual external fun vkCreateCommandPool(
         device: Long,
-        createInfo: VkCommandPoolCreateInfo
+        createInfo: VkCommandPoolCreateInfo,
     ): Long
 
     actual external fun vkDestroyCommandPool(device: Long, commandPool: Long)
     actual external fun vkCmdBindPipeline(
         commandBuffer: Long,
         pipelineBindPoint: VkPipelineBindPoint,
-        graphicsPipeline: Long
+        graphicsPipeline: Long,
     )
 
     actual external fun vkCmdSetViewport(
         commandBuffer: Long,
         firstViewport: Int,
-        viewports: Array<VkViewport>
+        viewports: Array<VkViewport>,
     )
 
     actual external fun vkCmdSetScissor(
         commandBuffer: Long,
         firstScissor: Int,
-        scissors: Array<VkRect2D>
+        scissors: Array<VkRect2D>,
     )
 
     actual external fun vkCmdDraw(
@@ -198,13 +197,13 @@ actual object Vulkan {
         vertexCount: Int,
         instanceCount: Int,
         firstVertex: Int,
-        firstInstance: Int
+        firstInstance: Int,
     )
 
     actual external fun vkCmdBeginRenderPass(
         @VkHandleRef("VkCommandBuffer") commandBuffer: Long,
         renderPassBeginInfo: VkRenderPassBeginInfo,
-        contents: VkSubpassContents
+        contents: VkSubpassContents,
     )
 
     actual external fun vkCmdEndRenderPass(commandBuffer: Long)
@@ -214,35 +213,35 @@ actual object Vulkan {
     @VkReturnType("VkSemaphore")
     actual external fun vkCreateSemaphore(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkSemaphoreCreateInfo
+        createInfo: VkSemaphoreCreateInfo,
     ): Long
 
     actual external fun vkDestroySemaphore(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkSemaphore") semaphore: Long
+        @VkHandleRef("VkSemaphore") semaphore: Long,
     )
 
     @VkReturnType("VkFence")
     actual external fun vkCreateFence(
         @VkHandleRef("VkDevice") device: Long,
-        createInfo: VkFenceCreateInfo
+        createInfo: VkFenceCreateInfo,
     ): Long
 
     actual external fun vkDestroyFence(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkFence") fence: Long
+        @VkHandleRef("VkFence") fence: Long,
     )
 
     actual external fun vkWaitForFences(
         @VkHandleRef("VkDevice") device: Long,
         @VkHandleRef("VkFence") fences: LongArray,
         waitAll: Boolean,
-        timeout: Long
+        timeout: Long,
     )
 
     actual external fun vkResetFences(
         @VkHandleRef("VkDevice") device: Long,
-        @VkHandleRef("VkFence") fences: LongArray
+        @VkHandleRef("VkFence") fences: LongArray,
     )
 
     actual external fun vkAcquireNextImageKHR(
@@ -255,17 +254,17 @@ actual object Vulkan {
 
     actual external fun vkResetCommandBuffer(
         @VkHandleRef("VkCommandBuffer") commandBuffer: Long,
-        flags: Int
+        flags: Int,
     )
 
     actual external fun vkQueueSubmit(
         @VkHandleRef("VkQueue") queue: Long,
         pSubmits: Array<VkSubmitInfo>,
-        @VkHandleRef("VkFence") fence: Long
+        @VkHandleRef("VkFence") fence: Long,
     )
 
     actual external fun vkQueuePresentKHR(
         @VkHandleRef("VkQueue") queue: Long,
-        pPresentInfoKHR: VkPresentInfoKHR
+        pPresentInfoKHR: VkPresentInfoKHR,
     )
 }

@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.isFocused
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -19,12 +20,11 @@ import io.github.ronjunevaldoz.awake.ui.modifier.clickable
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.requestFocus
+import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 /**
  * Real 1:1 shadcn/ui `InputOTP`: a segmented One-Time Password / PIN code digit entry row
@@ -47,7 +47,7 @@ fun UiScope.shadcnInputOTP(
     enabled: Boolean = true,
     isError: Boolean = false,
     groupSize: Int = 0,
-    onValueChange: (String) -> Unit = {}
+    onValueChange: (String) -> Unit = {},
 ): String {
     var resultValue = value
     val focused = enabled && isFocused(id)
@@ -64,7 +64,7 @@ fun UiScope.shadcnInputOTP(
         row(
             horizontalArrangement = Arrangement.spacedBy(6f.dp),
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.fillMaxWidth().height(40f.dp)
+            modifier = Modifier.fillMaxWidth().height(40f.dp),
         ) {
             for (i in 0 until length) {
                 if (groupSize > 0 && i > 0 && i % groupSize == 0) {
@@ -93,7 +93,7 @@ fun UiScope.shadcnInputOTP(
                         shape(6f.dp)
                         // Zero content padding so the slot slot-lambda receives the full 36×40 area
                         contentPadding(0f.dp)
-                    }
+                    },
                 ) { slotBounds ->
                     // Draw the digit centered within the full slotBounds (not a wrap-content
                     // claim). text(slot=...) renders directly into the given bounds without
@@ -105,7 +105,7 @@ fun UiScope.shadcnInputOTP(
                             slot = slotBounds,
                             color = if (enabled) palette.foreground else palette.mutedForeground,
                             centered = true,
-                            verticallyCentered = true
+                            verticallyCentered = true,
                         )
                     }
                 }
@@ -127,7 +127,7 @@ fun UiScope.shadcnInputOTP(
                 foreground(Color.Transparent)
                 background(Color.Transparent)
                 border(0f.dp, Color.Transparent)
-            }
+            },
         )
 
         val digitsOnly = rawInput.filter { it.isDigit() }.take(length)

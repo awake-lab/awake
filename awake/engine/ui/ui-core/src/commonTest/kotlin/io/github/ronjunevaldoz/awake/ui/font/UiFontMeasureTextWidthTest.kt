@@ -39,7 +39,7 @@ class UiFontMeasureTextWidthTest {
             assertTrue(
                 measured >= trueRightEdge - 0.001f,
                 "measureTextWidth(\"$label\") = $measured must be >= the last glyph's true right " +
-                    "edge $trueRightEdge, otherwise a box sized to it clips that glyph"
+                    "edge $trueRightEdge, otherwise a box sized to it clips that glyph",
             )
         }
     }

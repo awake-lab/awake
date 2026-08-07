@@ -31,7 +31,7 @@ fun UiContext.rememberTransition(
     id: String,
     targetState: Any?,
     durationMs: Float = 300f,
-    easing: Easing = LinearEasing
+    easing: Easing = LinearEasing,
 ): Float {
     val state = widgetStateInternal("__transition_anchor__$id")
     val anchorState = state.get("anchor", targetState)
@@ -43,5 +43,5 @@ fun UiScope.rememberTransition(
     id: String,
     targetState: Any?,
     durationMs: Float = 300f,
-    easing: Easing = LinearEasing
+    easing: Easing = LinearEasing,
 ): Float = context.rememberTransition(id, targetState, durationMs, easing)

@@ -6,11 +6,11 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
@@ -43,7 +43,7 @@ class UiShowcaseTextareaIntegrationTest {
                     .offset(24f.dp, 24f.dp)
                     .width((width - 48f).dp)
                     .height((height - 48f).dp),
-                verticalArrangement = Arrangement.spacedBy(10f.dp)
+                verticalArrangement = Arrangement.spacedBy(10f.dp),
             ) {
                 renderUiShowcasePagePreview(page, state)
             }
@@ -62,7 +62,7 @@ class UiShowcaseTextareaIntegrationTest {
         frame(pointerDown = true, x = clickX, y = clickY)
         assertTrue(
             ui.isFocused("showcase-bio"),
-            "clicking the real page's textarea must grant it focus"
+            "clicking the real page's textarea must grant it focus",
         )
 
         // Frame 3: type
@@ -77,7 +77,7 @@ class UiShowcaseTextareaIntegrationTest {
         assertEquals(
             "Hello World\nLine 2",
             bioLabel,
-            "the textarea's value must reflect what was typed"
+            "the textarea's value must reflect what was typed",
         )
     }
 
@@ -102,7 +102,7 @@ class UiShowcaseTextareaIntegrationTest {
             ui.column(
                 modifier = Modifier.offset(24f.dp, 24f.dp).width((width - 48f).dp)
                     .height((height - 48f).dp),
-                verticalArrangement = Arrangement.spacedBy(10f.dp)
+                verticalArrangement = Arrangement.spacedBy(10f.dp),
             ) {
                 renderUiShowcasePagePreview(page, state)
             }
@@ -134,7 +134,7 @@ class UiShowcaseTextareaIntegrationTest {
         val lineCount = bioNode.lineCount
         assertTrue(
             lineCount > 1,
-            "Long text without manual newlines must wrap into multiple lines (got $lineCount)"
+            "Long text without manual newlines must wrap into multiple lines (got $lineCount)",
         )
     }
 }

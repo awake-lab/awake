@@ -16,9 +16,8 @@ class VkInstanceCreateInfo(
     @VkArray(sizeAlias = "enabledLayerCount")
     val ppEnabledLayerNames: Array<String>? = null,
     @VkArray(sizeAlias = "enabledExtensionCount")
-    val ppEnabledExtensionNames: Array<String>? = null
+    val ppEnabledExtensionNames: Array<String>? = null,
 )
-
 
 // Representing VkInstanceCreateFlags as a typealias of Int
 typealias VkInstanceCreateFlags = VkFlags

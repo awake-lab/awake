@@ -29,7 +29,7 @@ object UiWeightCacheConsistencyCheck {
 internal fun UiContext.resolveHasWeightedChild(
     id: String?,
     cacheKey: Any?,
-    trial: () -> Boolean
+    trial: () -> Boolean,
 ): Boolean {
     if (id == null || cacheKey == null) return trial()
     val state = widgetStateInternal("__weightcache__$id")

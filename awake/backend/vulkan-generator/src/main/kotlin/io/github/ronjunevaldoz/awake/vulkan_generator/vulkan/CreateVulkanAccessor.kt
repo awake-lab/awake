@@ -39,7 +39,7 @@ fun createVulkanAccessor(clazz: Class<*>) {
 
                 constructor(
                     indent = 1,
-                    parameters = listOf(Pair("env", "JNIEnv*"), Pair("obj", "jobject"))
+                    parameters = listOf(Pair("env", "JNIEnv*"), Pair("obj", "jobject")),
                 ) {
                     body(2) {
 //                        child("this->env = env;")
@@ -52,7 +52,7 @@ fun createVulkanAccessor(clazz: Class<*>) {
                             import("<includes/${subClass.simpleName}Accessor.h>")
                             val classSig = subClass.qualifiedName?.replace(".", "/")?.replace(
                                 "/" + subClass.simpleName.toString(),
-                                "$" + subClass.simpleName.toString()
+                                "$" + subClass.simpleName.toString(),
                             )
                             child("auto ${subClass.simpleName} = env->FindClass(\"${classSig}\");")
                             child("if(env->IsInstanceOf(obj, ${subClass.simpleName})) {")
@@ -91,10 +91,11 @@ fun createVulkanAccessor(clazz: Class<*>) {
 
                 constructor(
                     false,
-                    1, listOf(
+                    1,
+                    listOf(
                         Pair("env", "JNIEnv*"),
                         Pair("obj", "jobject"),
-                    )
+                    ),
                 ) {
                     body(2) {
 //                        child("this->env = env;")
@@ -119,7 +120,6 @@ fun createVulkanAccessor(clazz: Class<*>) {
                 // generate getters
                 generateVulkanGetters(clazz, declareMembers)
 
-
                 generateVulkanFromObject(clazz, declareMembers, hasArrayField)
             }
         }
@@ -127,11 +127,11 @@ fun createVulkanAccessor(clazz: Class<*>) {
     val awakeVulkanCpp = "awake-backend-vulkan/src/main/cpp/vulkan-kotlin"
     FileWriter.writeFile(
         "$awakeVulkanCpp/includes/${clazz.simpleName + "Accessor"}.h",
-        cppClassCode.first
+        cppClassCode.first,
     )
     FileWriter.writeFile(
         "$awakeVulkanCpp/${clazz.simpleName + "Accessor"}.cpp",
-        cppClassCode.second
+        cppClassCode.second,
     )
 }
 
@@ -160,7 +160,7 @@ fun getParentClassName(clazz: Class<*>): String {
 
 private fun CppClassBuilder.generateVulkanGetters(
     clazz: Class<*>,
-    declareMembers: Array<Field>
+    declareMembers: Array<Field>,
 ) {
     declareMembers.forEach { javaMember ->
         val returnType: String = if (javaMember.type.isEnum) {
@@ -171,59 +171,55 @@ private fun CppClassBuilder.generateVulkanGetters(
             javaMember.toVulkanType()
         }
         val functionName = "get" + javaMember.name
-        fun getReturnType(type: Class<*>): String {
-            return when {
-                type.isEnum -> returnType
-                type.isPrimitive -> when {
-                    javaMember.isVkConstArray() -> "void"
-                    javaMember.isVkPointer() -> "void"
-                    else -> returnType
-                }
-
-                type.isArray -> when {
-                    type.componentType.isEnum -> "void"
-                    else -> when (javaMember.getArrayElementJavaType()) {
-                        JNIType.JString -> getReturnType(type.componentType)
-                        JNIType.JObject -> getReturnType(type.componentType)
-                        else -> "void"
-                    }
-                }
-
-                else -> "void"
+        fun getReturnType(type: Class<*>): String = when {
+            type.isEnum -> returnType
+            type.isPrimitive -> when {
+                javaMember.isVkConstArray() -> "void"
+                javaMember.isVkPointer() -> "void"
+                else -> returnType
             }
+
+            type.isArray -> when {
+                type.componentType.isEnum -> "void"
+                else -> when (javaMember.getArrayElementJavaType()) {
+                    JNIType.JString -> getReturnType(type.componentType)
+                    JNIType.JObject -> getReturnType(type.componentType)
+                    else -> "void"
+                }
+            }
+
+            else -> "void"
         }
 
-        fun getParameter(type: Class<*>): List<Pair<String, String>> {
-            return when {
-                type.isEnum -> emptyList()
-                type.isPrimitive -> when {
-                    javaMember.isVkPointer() -> listOf(
-                        Pair(
-                            "clazzInfo",
-                            "${getParentClassName(clazz)}&"
-                        )
-                    )
+        fun getParameter(type: Class<*>): List<Pair<String, String>> = when {
+            type.isEnum -> emptyList()
+            type.isPrimitive -> when {
+                javaMember.isVkPointer() -> listOf(
+                    Pair(
+                        "clazzInfo",
+                        "${getParentClassName(clazz)}&",
+                    ),
+                )
 
-                    else -> emptyList()
-                }
-
-                type.isArray -> when {
-                    type.componentType.isEnum -> listOf(
-                        Pair(
-                            "clazzInfo",
-                            "${getParentClassName(clazz)}&"
-                        )
-                    )
-
-                    else -> when (javaMember.getArrayElementJavaType()) {
-                        JNIType.JString -> getParameter(type.componentType)
-                        JNIType.JObject -> getParameter(type.componentType)
-                        else -> listOf(Pair("clazzInfo", "${getParentClassName(clazz)}&"))
-                    }
-                }
-
-                else -> listOf(Pair("clazzInfo", "${getParentClassName(clazz)}&"))
+                else -> emptyList()
             }
+
+            type.isArray -> when {
+                type.componentType.isEnum -> listOf(
+                    Pair(
+                        "clazzInfo",
+                        "${getParentClassName(clazz)}&",
+                    ),
+                )
+
+                else -> when (javaMember.getArrayElementJavaType()) {
+                    JNIType.JString -> getParameter(type.componentType)
+                    JNIType.JObject -> getParameter(type.componentType)
+                    else -> listOf(Pair("clazzInfo", "${getParentClassName(clazz)}&"))
+                }
+            }
+
+            else -> listOf(Pair("clazzInfo", "${getParentClassName(clazz)}&"))
         }
 
         fun CppFunctionBodyBuilder.createBody() {
@@ -236,7 +232,8 @@ private fun CppClassBuilder.generateVulkanGetters(
                     clazz,
                     javaMember,
                     returnType,
-                    import = { import(it) })
+                    import = { import(it) },
+                )
 
                 else -> processObjectAccessor(void, javaMember, returnType, import = { import(it) })
             }
@@ -245,7 +242,7 @@ private fun CppClassBuilder.generateVulkanGetters(
             1,
             getReturnType(javaMember.type),
             functionName,
-            getParameter(javaMember.type)
+            getParameter(javaMember.type),
         ) {
             body(2) {
                 createBody()
@@ -259,7 +256,7 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
     clazz: Class<*>,
     javaMember: Field,
     returnType: String,
-    import: (dependency: String) -> Unit
+    import: (dependency: String) -> Unit,
 ) {
     val arrayName = javaMember.name
     val suffix = javaMember.javaTypeSuffix()
@@ -268,7 +265,7 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
     val javaValue = javaMember.getJavaValue(
         "env",
         "obj",
-        javaMember.name + "Field"
+        javaMember.name + "Field",
     )
 
     fun processDefaultElement(clazzInfo: String, arrayVariable: String) {
@@ -277,7 +274,7 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
         if (vkArray != null) {
             val arraySizeName = vkArray.sizeAlias // javaMember.name + "Count"
             if (arraySizeName.isNotEmpty()) {
-                child("    $clazzInfo.${arraySizeName} = 0;")
+                child("    $clazzInfo.$arraySizeName = 0;")
             }
             child("    clazzInfo.$arrayName = nullptr;")
         } else if (javaMember.isVkConstArray()) {
@@ -299,9 +296,9 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
             "     auto element = ($javaType) env->${
                 javaMember.getArrayElement(
                     localVariable,
-                    "i"
+                    "i",
                 )
-            };"
+            };",
         )
         child("     auto str = env->GetStringUTFChars(element, nullptr);")
         child("     auto result = strdup(str); // Allocate memory and copy the string")
@@ -312,7 +309,7 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
 
     fun processObjectElement(javaType: JNIType) {
         val accessor =
-            "${javaMember.type.componentType.simpleName}Accessor"  // TODO fix hardcoded
+            "${javaMember.type.componentType.simpleName}Accessor" // TODO fix hardcoded
 
         child("$returnType $arrayName;")
         child("for (int i = 0; i < size; ++i) {")
@@ -320,12 +317,11 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
             "     auto element = ($javaType) env->${
                 javaMember.getArrayElement(
                     localVariable,
-                    "i"
+                    "i",
                 )
-            };"
+            };",
         )
         if (returnType !in listOf("void*", "std::vector<void*>")) {
-
             val kotlinElement = javaMember.type.componentType.kotlin
             if (kotlinElement.isSealed) {
                 child("    // sealed class")
@@ -335,9 +331,9 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
                         "   auto $subClassName = env->FindClass(\"${
                             subClass.qualifiedName?.replace(
                                 ".",
-                                "/"
+                                "/",
                             )
-                        }\");"
+                        }\");",
                     )
                     child("   if(env->IsInstanceOf(element, $subClassName)) {")
                     val subClassAccessor = subClass.simpleName + "Accessor"
@@ -387,16 +383,16 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
         child("for (int i = 0; i < size; ++i) {")
         val handle = javaMember.getVkHandle()
         child(
-            "     auto element = env->GetObjectArrayElement($localVariable, i);"
+            "     auto element = env->GetObjectArrayElement($localVariable, i);",
         )
         // get long value
         child(
             "   jmethodID getValueMethod = ${
                 javaMember.type.componentType.getObjectJavaValue(
                     "element",
-                    javaMember.toJavaSignature(true)
+                    javaMember.toJavaSignature(true),
                 )
-            };"
+            };",
         )
         child("   jlong value = env->Call${javaMember.type.componentType.simpleName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}Method(element, getValueMethod);")
 
@@ -414,9 +410,9 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
                     localVariable,
                     "0",
                     "size",
-                    "reinterpret_cast<${javaMember.getArrayElementJavaType()} *>(${arrayName}.data())"
+                    "reinterpret_cast<${javaMember.getArrayElementJavaType()} *>($arrayName.data())",
                 )
-            }"
+            }",
         )
     }
 
@@ -428,9 +424,9 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
             "     auto element = ($javaType) env->${
                 javaMember.getArrayElement(
                     localVariable,
-                    "i"
+                    "i",
                 )
-            };"
+            };",
         )
         val enumName = javaMember.type.componentType.simpleName
         child("     $arrayName.push_back(static_cast<$enumName>(enum_utils::getEnumFromObject(env, element))); // type is enum")
@@ -451,7 +447,7 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
                     ""
                 }
                 child("auto $arraySizeName = static_cast<uint32_t>($arrayName.size()$stride);")
-                child("$clazzInfo.${arraySizeName} = $arraySizeName;")
+                child("$clazzInfo.$arraySizeName = $arraySizeName;")
             } else {
                 child("// no array size generated")
             }
@@ -459,10 +455,10 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
         if (elementType.isPrimitive) {
             if (javaMember.isVkConstArray()) {
                 // fixed size array
-                child("std::copy(${arrayName}.begin(), ${arrayName}.end(), $clazzInfo.${arrayName}); // fixed array size")
+                child("std::copy($arrayName.begin(), $arrayName.end(), $clazzInfo.$arrayName); // fixed array size")
             } else if (clazz.isAnnotationPresent(VkUnionMember::class.java)) {
                 val unionMember = clazz.getDeclaredAnnotation(VkUnionMember::class.java)
-                child("std::copy(${arrayName}.begin(), ${arrayName}.end(), $clazzInfo.${unionMember.alias}); // union member")
+                child("std::copy($arrayName.begin(), $arrayName.end(), $clazzInfo.${unionMember.alias}); // union member")
             } else {
                 child("// Make a copy of the primitive to ensure proper memory management;")
                 val javaTypeArray = javaMember.toJavaTypeArray()
@@ -473,8 +469,8 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
                 } else {
                     javaMember.type.componentType.simpleName
                 }
-                child("auto copy = new ${newData}[size];")
-                child("std::copy(${arrayName}.begin(), ${arrayName}.end(), copy);")
+                child("auto copy = new $newData[size];")
+                child("std::copy($arrayName.begin(), $arrayName.end(), copy);")
                 child("clazzInfo.$arrayName = copy;")
 //                            child("$clazzInfo.${arrayName} = $arrayName.data(); // primitive $comment")
             }
@@ -486,8 +482,9 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
                 javaType == JNIType.JString || javaType == JNIType.JStringArray -> "const char*"
                 !javaMember.type.componentType.simpleName.startsWith(
                     "vk",
-                    true
-                ) && javaType == JNIType.JObject -> "const void*"
+                    true,
+                ) &&
+                    javaType == JNIType.JObject -> "const void*"
 
                 (javaType == JNIType.JLong || javaType == JNIType.JLongArray) && javaMember.isVkHandle() -> javaMember.getVkHandle().name
                 javaType == JNIType.JInt || javaType == JNIType.JIntArray -> "uint32_t"
@@ -496,8 +493,8 @@ fun CppFunctionBodyBuilder.processArrayAccessor(
                 javaType == JNIType.JObjectArray && javaMember.type.componentType == Any::class.java -> "const void*"
                 else -> javaMember.type.componentType.simpleName
             }
-            child("auto copy = new ${newData}[size];")
-            child("std::copy(${arrayName}.begin(), ${arrayName}.end(), copy);")
+            child("auto copy = new $newData[size];")
+            child("std::copy($arrayName.begin(), $arrayName.end(), copy);")
             child("clazzInfo.$arrayName = copy;")
         }
         child("env->DeleteLocalRef($arrayVariable); // release reference")
@@ -545,7 +542,7 @@ fun CppFunctionBodyBuilder.processObjectAccessor(
     void: Boolean,
     javaMember: Field,
     returnType: String,
-    import: (dependency: String) -> Unit
+    import: (dependency: String) -> Unit,
 ) {
     val suffix = javaMember.javaTypeSuffix()
     val localVariable = javaMember.name + suffix
@@ -553,7 +550,7 @@ fun CppFunctionBodyBuilder.processObjectAccessor(
     val javaValue = javaMember.getJavaValue(
         "env",
         "obj",
-        javaMember.name + "Field"
+        javaMember.name + "Field",
     )
     // object
     if (javaType == JNIType.JString) {
@@ -575,7 +572,7 @@ fun CppFunctionBodyBuilder.processObjectAccessor(
             // object is null??
             // should be accessed by an accessor
             val accessor =
-                "${javaMember.type.simpleName}Accessor"  // TODO fix hardcoded
+                "${javaMember.type.simpleName}Accessor" // TODO fix hardcoded
             import("<includes/$accessor.h>") // TODO move to .h
             child("auto $localVariable = ($javaType) $javaValue;")
             child("if($localVariable == nullptr) {")
@@ -594,12 +591,12 @@ fun CppFunctionBodyBuilder.processObjectAccessor(
                 }
                 child("env->DeleteLocalRef($localVariable); // Delete object reference")
             } else {
-                child("return (${returnType}) (accessor.fromObject()); // Object is null, should be accessed by an accessor")
+                child("return ($returnType) (accessor.fromObject()); // Object is null, should be accessed by an accessor")
             }
         } else {
             if (void) {
                 if (!javaMember.isAnnotationPresent(NativeSurfaceWindow::class.java)) {
-                    child("auto ref = (${returnType}) ($javaType) $javaValue; // Any Object")
+                    child("auto ref = ($returnType) ($javaType) $javaValue; // Any Object")
                     child("clazzInfo.${javaMember.name} = ref;")
                 } else {
                     import("<android/native_window_jni.h>")
@@ -607,7 +604,7 @@ fun CppFunctionBodyBuilder.processObjectAccessor(
                     child("clazzInfo.${javaMember.name} = ANativeWindow_fromSurface(env, windowObj);")
                 }
             } else {
-                child("return (${returnType}) ($javaType) $javaValue; // Any Object")
+                child("return ($returnType) ($javaType) $javaValue; // Any Object")
             }
         }
     }
@@ -620,10 +617,10 @@ fun CppFunctionBodyBuilder.processEnumAccessor(javaMember: Field, returnType: St
     val javaValue = javaMember.getJavaValue(
         "env",
         "obj",
-        javaMember.name + "Field"
+        javaMember.name + "Field",
     )
     child("auto $localVariable = ($javaType) $javaValue;")
-    child("auto enumValue = (${returnType}) enum_utils::getEnumFromObject(env, $localVariable);")
+    child("auto enumValue = ($returnType) enum_utils::getEnumFromObject(env, $localVariable);")
     child("env->DeleteLocalRef($localVariable); // release enum reference")
     child("return enumValue;")
 }
@@ -633,7 +630,7 @@ fun CppFunctionBodyBuilder.processPrimitiveAccessor(javaMember: Field, returnTyp
     val javaValue = javaMember.getJavaValue(
         "env",
         "obj",
-        javaMember.name + "Field"
+        javaMember.name + "Field",
     )
     if (javaMember.isVkHandle()) {
         child("auto value = $javaValue;")
@@ -647,6 +644,6 @@ fun CppFunctionBodyBuilder.processPrimitiveAccessor(javaMember: Field, returnTyp
         child("    clazzInfo.${javaMember.name} = &ptr; // Primitive Pointer")
         child("}")
     } else {
-        child("return (${returnType}) ($javaType) $javaValue; // primitive")
+        child("return ($returnType) ($javaType) $javaValue; // primitive")
     }
 }

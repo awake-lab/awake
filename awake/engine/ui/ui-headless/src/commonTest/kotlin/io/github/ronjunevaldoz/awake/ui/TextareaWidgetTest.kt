@@ -6,11 +6,10 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.TextEditAction
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.textarea
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.textarea
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -48,13 +47,13 @@ class TextareaWidgetTest {
         input.setPointer(down = false, x = 100f, y = 20f)
         ui.beginFrame(200f, 200f, input.updateSnapshot().toUiInputState())
         ui.pushFont(BitmapFont())
-            value = ui.createAbsolute(x = 20f, y = 20f)
+        value = ui.createAbsolute(x = 20f, y = 20f)
             .textarea("notes", value, modifier = Modifier.width(160f.px).height(60f.px), minLines = 3)
         val glyphCount = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size
         assertEquals(
             "last line".length,
             glyphCount,
-            "the caret's current (scrolled-into-view) line must still be laid out as glyphs"
+            "the caret's current (scrolled-into-view) line must still be laid out as glyphs",
         )
     }
 
@@ -77,11 +76,11 @@ class TextareaWidgetTest {
         }
 
         val textareaNode = requireNotNull(
-            ui.semanticNodes().firstOrNull { it.id == "notes" && it.role == UiSemanticRole.Text }
+            ui.semanticNodes().firstOrNull { it.id == "notes" && it.role == UiSemanticRole.Text },
         ) { "textarea should record its own semantic node" }
         assertTrue(
             textareaNode.lineCount > 1,
-            "textarea semantic lineCount must reflect the wrapped value typed during this frame"
+            "textarea semantic lineCount must reflect the wrapped value typed during this frame",
         )
     }
 }

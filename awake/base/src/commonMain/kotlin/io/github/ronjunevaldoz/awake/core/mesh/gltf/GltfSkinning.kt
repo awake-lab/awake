@@ -21,7 +21,7 @@ data class LoadedNode(
     val matrix: Mat4?,
     val children: List<Int>,
     val mesh: Int?,
-    val skin: Int?
+    val skin: Int?,
 ) {
     /** This node's local transform -- [matrix] verbatim when present, otherwise composed from
      * [translation]/[rotation]/[scale] (which playback may have already overwritten). */
@@ -32,7 +32,7 @@ data class LoadedNode(
  * is the same length, one matrix per joint, already decoded from the skin's `MAT4` accessor. */
 data class LoadedSkin(
     val joints: List<Int>,
-    val inverseBindMatrices: List<Mat4>
+    val inverseBindMatrices: List<Mat4>,
 )
 
 /** One glTF animation sampler, decoded -- [times] is the keyframe input accessor (seconds,
@@ -43,13 +43,13 @@ data class LoadedSkin(
 data class LoadedAnimationSampler(
     val times: FloatArray,
     val values: FloatArray,
-    val componentsPerKeyframe: Int
+    val componentsPerKeyframe: Int,
 )
 
 data class LoadedAnimationChannel(
     val targetNode: Int,
     val targetPath: String,
-    val sampler: LoadedAnimationSampler
+    val sampler: LoadedAnimationSampler,
 )
 
 data class LoadedAnimation(val channels: List<LoadedAnimationChannel>)
@@ -65,5 +65,5 @@ data class LoadedSkinnedScene(
     val meshes: List<GltfMesh>,
     val skins: List<LoadedSkin>,
     val animations: List<LoadedAnimation>,
-    val rootNodes: List<Int>
+    val rootNodes: List<Int>,
 )

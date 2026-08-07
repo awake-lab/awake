@@ -98,7 +98,7 @@ internal fun scene3DPlaygroundModule(): GameModule {
  * block. */
 private class Scene3DDemoDriverSystem(
     private val runtime: SceneGameRuntime,
-    private val state: Scene3DPlaygroundState
+    private val state: Scene3DPlaygroundState,
 ) : System {
     private var activatedDemoId: String? = null
 

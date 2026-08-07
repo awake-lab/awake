@@ -6,6 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
+import io.github.ronjunevaldoz.awake.ui.headless.components.icon
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -19,8 +21,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.headless.components.icon
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 /**
  * Real shadcn's `Collapsible` (and `Accordion`, a group of these with only one open at a
@@ -43,7 +43,7 @@ fun ColumnScope.shadcnCollapsible(
     modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
     trigger: ColumnScope.(isOpen: Boolean, toggle: () -> Unit) -> Unit,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ): Boolean {
     trigger(expanded) { onExpandedChange(!expanded) }
 
@@ -77,7 +77,7 @@ private fun ColumnScope.shadcnCollapsible(
     onExpandedChange: (Boolean) -> Unit = {},
     bordered: Boolean = false,
     header: RowScope.() -> Unit,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ): Boolean {
     val shadcnTheme = theme.asShadcnTheme()
     fun ColumnScope.triggerAndContent(triggerModifier: UiModifier): Boolean = shadcnCollapsible(
@@ -94,19 +94,19 @@ private fun ColumnScope.shadcnCollapsible(
                     contentPadding(shadcnTheme.spacing.sm, 0f.dp)
                 },
                 centered = false,
-                onClick = { toggle() }
+                onClick = { toggle() },
             ) { slot ->
                 row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = UiAlignment.Vertical.Center,
-                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))
+                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp)),
                 ) {
                     header()
                     icon(if (isOpen) ShadcnIcons.chevronUp else ShadcnIcons.chevronDown)
                 }
             }
         },
-        content = content
+        content = content,
     )
     if (!bordered) return triggerAndContent(modifier)
     var result = expanded
@@ -124,7 +124,7 @@ fun ColumnScope.shadcnCollapsible(
     modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
     bordered: Boolean = false,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ): Boolean = shadcnCollapsible(
     id = id,
     expanded = expanded,
@@ -132,5 +132,5 @@ fun ColumnScope.shadcnCollapsible(
     onExpandedChange = onExpandedChange,
     bordered = bordered,
     header = { text(title, verticallyCentered = true) },
-    content = content
+    content = content,
 )

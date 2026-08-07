@@ -29,8 +29,12 @@ class ChaseAiSystemTest {
         val navMesh = FakeNavMesh(listOf(Vec3(1f, 0f, 0f), Vec3(2f, 0f, 0f)))
         // repathInterval huge so the fixed path above isn't reset mid-test.
         val system = ChaseAiSystem(
-            npcTransform, targetTransform, navMesh,
-            speed = 1f, repathInterval = 100f, waypointRadius = 0.1f
+            npcTransform,
+            targetTransform,
+            navMesh,
+            speed = 1f,
+            repathInterval = 100f,
+            waypointRadius = 0.1f,
         )
 
         system.update(world, 0.1f)
@@ -41,7 +45,7 @@ class ChaseAiSystemTest {
         assertTrue(
             npcTransform.position.x > 1.1f,
             "Expected the NPC to pass the first waypoint (1,0,0) and head toward the " +
-                "second (2,0,0) by now (x=${npcTransform.position.x})."
+                "second (2,0,0) by now (x=${npcTransform.position.x}).",
         )
     }
 

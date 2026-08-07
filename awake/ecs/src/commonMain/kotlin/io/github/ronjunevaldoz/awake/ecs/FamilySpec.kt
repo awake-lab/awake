@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
 data class FamilySpec(
     val all: Set<KClass<out Any>> = emptySet(),
     val one: Set<KClass<out Any>> = emptySet(),
-    val exclude: Set<KClass<out Any>> = emptySet()
+    val exclude: Set<KClass<out Any>> = emptySet(),
 )
 
 /** Builds a [FamilySpec] via `world.family { all(A::class); exclude(B::class) }`. */
@@ -50,7 +50,7 @@ class FamilySpecBuilder @PublishedApi internal constructor() {
  * genuinely needs 3+ types or `one`/`exclude` semantics neither of those support.
  */
 class Family @PublishedApi internal constructor(
-    @PublishedApi internal val cache: FamilySpecCache
+    @PublishedApi internal val cache: FamilySpecCache,
 ) {
     val size: Int get() = cache.size
 
@@ -69,14 +69,15 @@ class Family @PublishedApi internal constructor(
 @PublishedApi
 internal class FamilySpecCache(
     private val world: World,
-    private val spec: FamilySpec
+    private val spec: FamilySpec,
 ) : FamilyCache() {
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
+
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
-    
+
     private val allMask = spec.all.fold(0L) { acc, type -> acc or (1L shl world.typeId(type).value) }
     private val oneMask = spec.one.fold(0L) { acc, type -> acc or (1L shl world.typeId(type).value) }
     private val excludeMask = spec.exclude.fold(0L) { acc, type -> acc or (1L shl world.typeId(type).value) }

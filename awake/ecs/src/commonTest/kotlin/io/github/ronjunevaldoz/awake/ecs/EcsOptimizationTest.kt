@@ -358,7 +358,7 @@ private val first64ComponentTypes = listOf(
     ComponentType60::class,
     ComponentType61::class,
     ComponentType62::class,
-    ComponentType63::class
+    ComponentType63::class,
 )
 
 private val emptyComponentTypes = emptyArray<kotlin.reflect.KClass<out Any>>()

@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.core.memory.Buffer
 import io.github.ronjunevaldoz.awake.core.memory.FloatBuf
 import io.github.ronjunevaldoz.awake.core.memory.IntBuf
 
-
 internal expect object Agl : OpenGL
 internal object AglDebuggable : OpenGL {
     override fun clearColor(r: Float, g: Float, b: Float, a: Float) {
@@ -26,10 +25,8 @@ internal object AglDebuggable : OpenGL {
         checkGL()
     }
 
-    override fun createShader(type: OpenGL.ShaderType): Int {
-        return Agl.createShader(type).apply {
-            checkGL()
-        }
+    override fun createShader(type: OpenGL.ShaderType): Int = Agl.createShader(type).apply {
+        checkGL()
     }
 
     override fun shaderSource(shader: ShaderId, content: String) {
@@ -42,10 +39,8 @@ internal object AglDebuggable : OpenGL {
         checkGL()
     }
 
-    override fun getShaderInfoLog(shader: ShaderId): String {
-        return Agl.getShaderInfoLog(shader).apply {
-            checkGL()
-        }
+    override fun getShaderInfoLog(shader: ShaderId): String = Agl.getShaderInfoLog(shader).apply {
+        checkGL()
     }
 
     override fun getShaderiv(shader: ShaderId, status: OpenGL.Status, buffer: IntBuf) {
@@ -53,10 +48,8 @@ internal object AglDebuggable : OpenGL {
         checkGL()
     }
 
-    override fun createProgram(): ProgramId {
-        return Agl.createProgram().apply {
-            checkGL()
-        }
+    override fun createProgram(): ProgramId = Agl.createProgram().apply {
+        checkGL()
     }
 
     override fun attachShader(program: ProgramId, shader: ShaderId) {
@@ -69,10 +62,8 @@ internal object AglDebuggable : OpenGL {
         checkGL()
     }
 
-    override fun getProgramInfoLog(program: ProgramId): String {
-        return Agl.getProgramInfoLog(program).apply {
-            checkGL()
-        }
+    override fun getProgramInfoLog(program: ProgramId): String = Agl.getProgramInfoLog(program).apply {
+        checkGL()
     }
 
     override fun getProgramiv(program: ProgramId, status: OpenGL.Status, buffer: IntBuf) {
@@ -95,10 +86,8 @@ internal object AglDebuggable : OpenGL {
         checkGL()
     }
 
-    override fun getUniformLocation(program: ProgramId, name: String): Int {
-        return Agl.getUniformLocation(program, name).apply {
-            checkGL()
-        }
+    override fun getUniformLocation(program: ProgramId, name: String): Int = Agl.getUniformLocation(program, name).apply {
+        checkGL()
     }
 
     override fun bindAttribLocation(program: ProgramId, index: Int, name: String) {
@@ -106,10 +95,8 @@ internal object AglDebuggable : OpenGL {
         checkGL()
     }
 
-    override fun getAttribLocation(program: ProgramId, name: String): Int {
-        return Agl.getAttribLocation(program, name).apply {
-            checkGL()
-        }
+    override fun getAttribLocation(program: ProgramId, name: String): Int = Agl.getAttribLocation(program, name).apply {
+        checkGL()
     }
 
     override fun vertexAttribPointer(
@@ -118,7 +105,7 @@ internal object AglDebuggable : OpenGL {
         type: Int,
         normalized: Boolean,
         stride: Int,
-        ptr: Buffer?
+        ptr: Buffer?,
     ) {
         Agl.vertexAttribPointer(index, size, type, normalized, stride, ptr)
         checkGL()
@@ -130,7 +117,7 @@ internal object AglDebuggable : OpenGL {
         type: Int,
         normalized: Boolean,
         stride: Int,
-        offset: Int
+        offset: Int,
     ) {
         Agl.vertexAttribPointer(index, size, type, normalized, stride, offset)
         checkGL()
@@ -151,10 +138,8 @@ internal object AglDebuggable : OpenGL {
         checkGL()
     }
 
-    override fun genBuffers(): Int {
-        return Agl.genBuffers().also {
-            checkGL()
-        }
+    override fun genBuffers(): Int = Agl.genBuffers().also {
+        checkGL()
     }
 
     override fun genBuffers(n: Int, buffers: IntBuf) {
@@ -170,16 +155,14 @@ internal object AglDebuggable : OpenGL {
     override fun bufferData(
         target: OpenGL.BufferType,
         data: Buffer,
-        usage: OpenGL.DrawType
+        usage: OpenGL.DrawType,
     ) {
         Agl.bufferData(target, data, usage)
         checkGL()
     }
 
-    override fun genVertexArrays(): Int {
-        return Agl.genVertexArrays().also {
-            checkGL()
-        }
+    override fun genVertexArrays(): Int = Agl.genVertexArrays().also {
+        checkGL()
     }
 
     override fun deleteBuffers(n: Int, buffers: IntBuf) {
@@ -232,10 +215,8 @@ internal object AglDebuggable : OpenGL {
         checkGL()
     }
 
-    override fun genTextures(): Int {
-        return Agl.genTextures().also {
-            checkGL()
-        }
+    override fun genTextures(): Int = Agl.genTextures().also {
+        checkGL()
     }
 
     override fun genTextures(n: Int, textures: IntBuf) {
@@ -260,7 +241,7 @@ internal object AglDebuggable : OpenGL {
         height: Int,
         format: Int,
         type: Int,
-        pixels: Buffer
+        pixels: Buffer,
     ) {
         Agl.readPixels(x, y, width, height, format, type, pixels)
         checkGL()
@@ -275,7 +256,7 @@ internal object AglDebuggable : OpenGL {
         border: Int,
         format: Int,
         type: Int,
-        buffer: Buffer?
+        buffer: Buffer?,
     ) {
         Agl.texImage2D(target, level, internalFormat, width, height, border, format, type, buffer)
         checkGL()
@@ -286,7 +267,7 @@ internal object AglDebuggable : OpenGL {
         level: Int,
         internalFormat: Int,
         bitmap: Bitmap,
-        border: Int
+        border: Int,
     ) {
         Agl.texImage2D(target, level, internalFormat, bitmap, border)
         checkGL()
@@ -301,7 +282,7 @@ internal object AglDebuggable : OpenGL {
         height: Int,
         format: Int,
         type: Int,
-        buffer: Buffer?
+        buffer: Buffer?,
     ) {
         Agl.texSubImage2D(target, level, xOffset, yOffset, width, height, format, type, buffer)
         checkGL()
@@ -313,7 +294,7 @@ internal object AglDebuggable : OpenGL {
         xOffset: Int,
         yOffset: Int,
         bitmap: Bitmap,
-        format: Int
+        format: Int,
     ) {
         Agl.texSubImage2D(target, level, xOffset, yOffset, bitmap, format)
         checkGL()
@@ -359,10 +340,8 @@ internal object AglDebuggable : OpenGL {
         checkGL()
     }
 
-    override fun genFrameBuffers(): Int {
-        return Agl.genFrameBuffers().also {
-            checkGL()
-        }
+    override fun genFrameBuffers(): Int = Agl.genFrameBuffers().also {
+        checkGL()
     }
 
     override fun bindFramebuffer(target: Int, frameBuffer: Int) {
@@ -375,16 +354,14 @@ internal object AglDebuggable : OpenGL {
         attachment: Int,
         texTarget: Int,
         texture: Int,
-        level: Int
+        level: Int,
     ) {
         Agl.framebufferTexture2D(target, attachment, texTarget, texture, level)
         checkGL()
     }
 
-    override fun genRenderBuffers(): Int {
-        return Agl.genRenderBuffers().also {
-            checkGL()
-        }
+    override fun genRenderBuffers(): Int = Agl.genRenderBuffers().also {
+        checkGL()
     }
 
     override fun bindRenderBuffers(target: Int, renderBuffer: Int) {
@@ -401,16 +378,14 @@ internal object AglDebuggable : OpenGL {
         target: Int,
         attachment: Int,
         renderBufferTarget: Int,
-        renderBuffer: Int
+        renderBuffer: Int,
     ) {
         Agl.framebufferRenderBuffer(target, attachment, renderBufferTarget, renderBuffer)
         checkGL()
     }
 
-    override fun checkFramebufferStatus(target: Int): Int {
-        return Agl.checkFramebufferStatus(target).also {
-            checkGL()
-        }
+    override fun checkFramebufferStatus(target: Int): Int = Agl.checkFramebufferStatus(target).also {
+        checkGL()
     }
 
     override fun cullFace(face: Int) {
@@ -443,7 +418,5 @@ internal object AglDebuggable : OpenGL {
         checkGL()
     }
 
-    override fun getError(): Int {
-        return Agl.getError()
-    }
+    override fun getError(): Int = Agl.getError()
 }

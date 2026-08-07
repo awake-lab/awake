@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.vulkan.utils
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.VulkanExtension
 
-
 fun getAppExtProps(layerName: String? = null): List<String> {
     val extensionProperties = Vulkan.vkEnumerateInstanceExtensionProperties(layerName)
     return extensionProperties.map { it.extensionName }.toSet().toList()

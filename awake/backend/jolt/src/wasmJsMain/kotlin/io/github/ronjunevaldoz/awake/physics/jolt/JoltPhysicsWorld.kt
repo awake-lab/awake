@@ -105,7 +105,7 @@ private object JoltModule {
 
         return { jolt, joltInterface, physicsSystem, bodyInterface };
     }
-    """
+    """,
 )
 private external fun joltCreateWorld(jolt: JsAny, gravityX: Double, gravityY: Double, gravityZ: Double): JsAny
 
@@ -132,7 +132,7 @@ private external fun joltCreateWorld(jolt: JsAny, gravityX: Double, gravityY: Do
         world.bodyInterface.AddBody(body.GetID(), activation);
         return body.GetID().GetIndexAndSequenceNumber();
     }
-    """
+    """,
 )
 private external fun joltCreateBody(
     world: JsAny,
@@ -149,7 +149,7 @@ private external fun joltCreateBody(
     rotationY: Double,
     rotationZ: Double,
     motionTypeCode: Int,
-    isStatic: Boolean
+    isStatic: Boolean,
 ): Int
 
 @Suppress("unused")
@@ -160,7 +160,7 @@ private external fun joltCreateBody(
         world.bodyInterface.RemoveBody(id);
         world.bodyInterface.DestroyBody(id);
     }
-    """
+    """,
 )
 private external fun joltDestroyBody(world: JsAny, idNum: Int)
 
@@ -183,7 +183,7 @@ private external fun joltStep(world: JsAny, deltaTime: Double, collisionSteps: I
             rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ()
         ];
     }
-    """
+    """,
 )
 private external fun joltGetBodyTransform(world: JsAny, idNum: Int): JsAny
 
@@ -212,7 +212,7 @@ private external fun joltGetBodyTransform(world: JsAny, idNum: Int): JsAny
         const hit = collector.mHit;
         return [hit.mFraction, hit.mBodyID.GetIndexAndSequenceNumber()];
     }
-    """
+    """,
 )
 private external fun joltRaycast(
     world: JsAny,
@@ -221,7 +221,7 @@ private external fun joltRaycast(
     originZ: Double,
     directionX: Double,
     directionY: Double,
-    directionZ: Double
+    directionZ: Double,
 ): JsAny?
 
 @Suppress("unused")
@@ -258,7 +258,7 @@ class JoltPhysicsWorld private constructor(private val world: JsAny) : PhysicsWo
         shape: PhysicsShape,
         position: Vec3,
         rotation: Vec3,
-        motionType: MotionType
+        motionType: MotionType,
     ): BodyHandle {
         val (qw, qx, qy, qz) = eulerVec3ToQuatWxyz(rotation)
         val motionTypeCode = when (motionType) {
@@ -283,7 +283,7 @@ class JoltPhysicsWorld private constructor(private val world: JsAny) : PhysicsWo
                 qy.toDouble(),
                 qz.toDouble(),
                 motionTypeCode,
-                isStatic
+                isStatic,
             )
             is SphereShape -> joltCreateBody(
                 world,
@@ -300,7 +300,7 @@ class JoltPhysicsWorld private constructor(private val world: JsAny) : PhysicsWo
                 qy.toDouble(),
                 qz.toDouble(),
                 motionTypeCode,
-                isStatic
+                isStatic,
             )
         }
         trackedBodyIds.add(idNum)
@@ -325,14 +325,14 @@ class JoltPhysicsWorld private constructor(private val world: JsAny) : PhysicsWo
             position = Vec3(
                 jsArrayGet(transform, 0).toFloat(),
                 jsArrayGet(transform, 1).toFloat(),
-                jsArrayGet(transform, 2).toFloat()
+                jsArrayGet(transform, 2).toFloat(),
             ),
             rotation = quatToEulerVec3(
                 jsArrayGet(transform, 3).toFloat(),
                 jsArrayGet(transform, 4).toFloat(),
                 jsArrayGet(transform, 5).toFloat(),
-                jsArrayGet(transform, 6).toFloat()
-            )
+                jsArrayGet(transform, 6).toFloat(),
+            ),
         )
     }
 
@@ -341,7 +341,7 @@ class JoltPhysicsWorld private constructor(private val world: JsAny) : PhysicsWo
         val castVector = Vec3(
             normalizedDirection.x * maxDistance,
             normalizedDirection.y * maxDistance,
-            normalizedDirection.z * maxDistance
+            normalizedDirection.z * maxDistance,
         )
         val result = joltRaycast(
             world,
@@ -350,7 +350,7 @@ class JoltPhysicsWorld private constructor(private val world: JsAny) : PhysicsWo
             origin.z.toDouble(),
             castVector.x.toDouble(),
             castVector.y.toDouble(),
-            castVector.z.toDouble()
+            castVector.z.toDouble(),
         ) ?: return null
 
         val fraction = jsArrayGet(result, 0).toFloat()
@@ -359,7 +359,7 @@ class JoltPhysicsWorld private constructor(private val world: JsAny) : PhysicsWo
         val point = Vec3(
             origin.x + normalizedDirection.x * distance,
             origin.y + normalizedDirection.y * distance,
-            origin.z + normalizedDirection.z * distance
+            origin.z + normalizedDirection.z * distance,
         )
         return RaycastHit(BodyHandle(bodyIdNum.toLong()), point, distance)
     }

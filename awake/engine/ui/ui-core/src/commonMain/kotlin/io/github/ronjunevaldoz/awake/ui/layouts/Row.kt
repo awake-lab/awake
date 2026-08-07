@@ -2,22 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.childRow
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.childRow
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.scope.fillHeightOrNull
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.toPx
 
 fun ColumnScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
@@ -27,7 +27,7 @@ fun ColumnScope.row(
     // Both default to null (existing call sites unaffected).
     id: String? = null,
     cacheKey: Any? = null,
-    content: RowScope.(slot: UiBounds) -> Unit
+    content: RowScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
     // Height is this row's main axis when it's hosted in a column -- a weight()-tagged row must
@@ -45,9 +45,11 @@ fun ColumnScope.row(
             context.measureRowContent(
                 availableHeight,
                 effectiveArrangement.baseSpacingPx(),
-                content = content
+                content = content,
             )
-        } else null
+        } else {
+            null
+        }
 
     val resolvedWidth = when (requestedWidth) {
         Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
@@ -69,7 +71,7 @@ fun ColumnScope.row(
         precomputedMeasured = measured,
         id = id,
         cacheKey = cacheKey,
-        content = content
+        content = content,
     )
 }
 
@@ -80,7 +82,7 @@ fun RowScope.row(
     // Forwarded straight through to UiScope.row() below -- see that function's doc comment.
     id: String? = null,
     cacheKey: Any? = null,
-    content: RowScope.(slot: UiBounds) -> Unit
+    content: RowScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
     val requestedHeight = modifier.heightDimension ?: Dimension.FillMax
@@ -94,9 +96,11 @@ fun RowScope.row(
             context.measureRowContent(
                 availableHeight,
                 effectiveArrangement.baseSpacingPx(),
-                content = content
+                content = content,
             )
-        } else null
+        } else {
+            null
+        }
 
     val resolvedWidth = when (requestedWidth) {
         Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
@@ -118,7 +122,7 @@ fun RowScope.row(
         precomputedMeasured = measured,
         id = id,
         cacheKey = cacheKey,
-        content = content
+        content = content,
     )
 }
 
@@ -129,7 +133,7 @@ fun AbsoluteScope.row(
     // Forwarded straight through to UiScope.row() below -- see that function's doc comment.
     id: String? = null,
     cacheKey: Any? = null,
-    content: RowScope.(slot: UiBounds) -> Unit
+    content: RowScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
     val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
@@ -143,9 +147,11 @@ fun AbsoluteScope.row(
             context.measureRowContent(
                 availableHeight,
                 effectiveArrangement.baseSpacingPx(),
-                content = content
+                content = content,
             )
-        } else null
+        } else {
+            null
+        }
 
     val resolvedWidth = when (requestedWidth) {
         Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
@@ -167,7 +173,7 @@ fun AbsoluteScope.row(
         precomputedMeasured = measured,
         id = id,
         cacheKey = cacheKey,
-        content = content
+        content = content,
     )
 }
 
@@ -178,7 +184,7 @@ fun BoxScope.row(
     // Forwarded straight through to UiScope.row() below -- see that function's doc comment.
     id: String? = null,
     cacheKey: Any? = null,
-    content: RowScope.(slot: UiBounds) -> Unit
+    content: RowScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
     val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
@@ -192,9 +198,11 @@ fun BoxScope.row(
             context.measureRowContent(
                 availableHeight,
                 effectiveArrangement.baseSpacingPx(),
-                content = content
+                content = content,
             )
-        } else null
+        } else {
+            null
+        }
 
     val resolvedWidth = when (requestedWidth) {
         Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
@@ -216,10 +224,9 @@ fun BoxScope.row(
         precomputedMeasured = measured,
         id = id,
         cacheKey = cacheKey,
-        content = content
+        content = content,
     )
 }
-
 
 fun UiScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
@@ -241,14 +248,14 @@ fun UiScope.row(
     // (UiWeightCacheConsistencyCheck) exists to catch -- to skip the trial on cache hits.
     id: String? = null,
     cacheKey: Any? = null,
-    content: RowScope.(slot: UiBounds) -> Unit
+    content: RowScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
     val slot = claimModifiedSlot(sizedModifier)
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: hitTest(slot),
         active = modifier.forceActive ?: false,
-        focused = modifier.forceFocus ?: false
+        focused = modifier.forceFocus ?: false,
     )
     val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
 
@@ -270,18 +277,19 @@ fun UiScope.row(
     // regardless of hasWeightedChild's value -- `||` short-circuits, so the trial to the right
     // never runs in that case, skipping a full throwaway execution of [content] that the branch
     // decision below never needed anyway.
-    val hasWeightedChild = effectiveArrangement.requiresMeasuredDistribution() || if (precomputedMeasured != null) {
-        precomputedMeasured.weights.any { it != null }
-    } else {
-        context.resolveHasWeightedChild(id, cacheKey) {
-            context.measureRowContent(
-                height = slot.height,
-                gap = effectiveArrangement.baseSpacingPx(),
-                width = slot.width,
-                content = content
-            ).weights.any { it != null }
+    val hasWeightedChild = effectiveArrangement.requiresMeasuredDistribution() ||
+        if (precomputedMeasured != null) {
+            precomputedMeasured.weights.any { it != null }
+        } else {
+            context.resolveHasWeightedChild(id, cacheKey) {
+                context.measureRowContent(
+                    height = slot.height,
+                    gap = effectiveArrangement.baseSpacingPx(),
+                    width = slot.width,
+                    content = content,
+                ).weights.any { it != null }
+            }
         }
-    }
     val scope = if (hasWeightedChild) {
         // The plannedSlots branch below positions children using real, final pixel sizes --
         // unlike the hasWeightedChild check above, this genuinely needs a trial at this row's
@@ -295,14 +303,14 @@ fun UiScope.row(
             // spacing comes from plan()'s free-space division below, not this base gap).
             gap = effectiveArrangement.baseSpacingPx(),
             width = slot.width,
-            content = content
+            content = content,
         )
         val childWidths = resolveWeightedMainAxis(
             measuredSizes = measured.slots.map { it.width },
             weights = measured.weights,
             containerSize = slot.width,
             gap = effectiveArrangement.baseSpacingPx(),
-            fillsMainAxis = measured.fillsMainAxis
+            fillsMainAxis = measured.fillsMainAxis,
         )
         val occupiedWidth = childWidths.sum() + effectiveArrangement.baseSpacingPx() * (childWidths.size - 1).coerceAtLeast(0)
         val plan = effectiveArrangement.plan(slot.width, childWidths.size, occupiedWidth)
@@ -323,7 +331,7 @@ fun UiScope.row(
             hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
             overlayOnly = emitsToOverlay,
             plannedSlots = arrangedSlots,
-            verticalAlignment = verticalAlignment
+            verticalAlignment = verticalAlignment,
         )
     } else {
         childRow(
@@ -332,7 +340,7 @@ fun UiScope.row(
             modifier = UiModifier(testTag = testTag ?: modifier.testTag),
             hasBoundedFillWidth = requestedWidth != Dimension.WrapContent,
             hasBoundedFillHeight = requestedHeight != Dimension.WrapContent,
-            verticalAlignment = verticalAlignment
+            verticalAlignment = verticalAlignment,
         )
     }
     // This row's own direct-child claims were already recorded above (via the `measured`

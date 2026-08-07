@@ -85,13 +85,13 @@ class ShadcnInputOTPTest {
             abs(contentCX - slotCX) <= tolerancePx,
             "digit '4' is NOT horizontally centered in slot 0: " +
                 "contentCenterX=$contentCX, slotCenterX=$slotCX, " +
-                "deviation=${abs(contentCX - slotCX)}, tolerance=$tolerancePx"
+                "deviation=${abs(contentCX - slotCX)}, tolerance=$tolerancePx",
         )
         assertTrue(
             abs(contentCY - slotCY) <= tolerancePx,
             "digit '4' is NOT vertically centered in slot 0: " +
                 "contentCenterY=$contentCY, slotCenterY=$slotCY, " +
-                "deviation=${abs(contentCY - slotCY)}, tolerance=$tolerancePx"
+                "deviation=${abs(contentCY - slotCY)}, tolerance=$tolerancePx",
         )
     }
 

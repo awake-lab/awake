@@ -4,6 +4,11 @@
 
 package io.github.ronjunevaldoz.awake.physics.jolt
 
+import cnames.structs.JPC_BodyInterface
+import cnames.structs.JPC_JobSystem
+import cnames.structs.JPC_PhysicsSystem
+import cnames.structs.JPC_Shape
+import cnames.structs.JPC_String
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.physics.BodyHandle
 import io.github.ronjunevaldoz.awake.physics.BodyTransform
@@ -32,7 +37,6 @@ import platform.joltc.JPC_Activation
 import platform.joltc.JPC_BodyCreationSettings
 import platform.joltc.JPC_BodyCreationSettings_default
 import platform.joltc.JPC_BodyID
-import cnames.structs.JPC_BodyInterface
 import platform.joltc.JPC_BodyInterface_AddBody
 import platform.joltc.JPC_BodyInterface_CreateBody
 import platform.joltc.JPC_BodyInterface_DestroyBody
@@ -47,7 +51,6 @@ import platform.joltc.JPC_BroadPhaseLayerInterfaceFns
 import platform.joltc.JPC_BroadPhaseLayerInterface_delete
 import platform.joltc.JPC_BroadPhaseLayerInterface_new
 import platform.joltc.JPC_FactoryInit
-import cnames.structs.JPC_JobSystem
 import platform.joltc.JPC_JobSystemThreadPool_delete
 import platform.joltc.JPC_JobSystemThreadPool_new2
 import platform.joltc.JPC_MAX_PHYSICS_BARRIERS
@@ -62,7 +65,6 @@ import platform.joltc.JPC_ObjectLayerPairFilter_new
 import platform.joltc.JPC_ObjectVsBroadPhaseLayerFilterFns
 import platform.joltc.JPC_ObjectVsBroadPhaseLayerFilter_delete
 import platform.joltc.JPC_ObjectVsBroadPhaseLayerFilter_new
-import cnames.structs.JPC_PhysicsSystem
 import platform.joltc.JPC_PhysicsSystem_GetBodyInterface
 import platform.joltc.JPC_PhysicsSystem_GetNarrowPhaseQuery
 import platform.joltc.JPC_PhysicsSystem_Init
@@ -73,12 +75,10 @@ import platform.joltc.JPC_PhysicsSystem_new
 import platform.joltc.JPC_Quat
 import platform.joltc.JPC_RVec3
 import platform.joltc.JPC_RegisterDefaultAllocator
-import cnames.structs.JPC_Shape
 import platform.joltc.JPC_RegisterTypes
 import platform.joltc.JPC_SphereShapeSettings
 import platform.joltc.JPC_SphereShapeSettings_Create
 import platform.joltc.JPC_SphereShapeSettings_default
-import cnames.structs.JPC_String
 import platform.joltc.JPC_String_c_str
 import platform.joltc.JPC_String_delete
 import platform.joltc.JPC_TempAllocatorImpl_delete
@@ -105,21 +105,21 @@ private fun getNumBroadPhaseLayers(self: COpaquePointer?): UInt = 1u
 @OptIn(ExperimentalForeignApi::class)
 private fun getBroadPhaseLayer(
     self: COpaquePointer?,
-    layer: JPC_ObjectLayer
+    layer: JPC_ObjectLayer,
 ): JPC_BroadPhaseLayer = 0u
 
 @OptIn(ExperimentalForeignApi::class)
 private fun objectVsBroadPhaseShouldCollide(
     self: COpaquePointer?,
     objectLayer: JPC_ObjectLayer,
-    broadPhaseLayer: JPC_BroadPhaseLayer
+    broadPhaseLayer: JPC_BroadPhaseLayer,
 ): Boolean = true
 
 @OptIn(ExperimentalForeignApi::class)
 private fun objectLayerPairShouldCollide(
     self: COpaquePointer?,
     layer1: JPC_ObjectLayer,
-    layer2: JPC_ObjectLayer
+    layer2: JPC_ObjectLayer,
 ): Boolean = !(layer1 == OBJECT_LAYER_NON_MOVING && layer2 == OBJECT_LAYER_NON_MOVING)
 
 // Function-parameter Vec3/Quat cinterop as by-value CValue ([vec3Value]/[quatValue]), but
@@ -233,7 +233,7 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
             MAX_CONTACTS,
             broadPhaseLayerInterface,
             objectVsBroadPhaseLayerFilter,
-            objectLayerPairFilter
+            objectLayerPairFilter,
         )
         JPC_PhysicsSystem_SetGravity(physicsSystem, vec3Value(gravity))
         bodyInterface = JPC_PhysicsSystem_GetBodyInterface(physicsSystem) ?: error("JPC_PhysicsSystem_GetBodyInterface failed")
@@ -243,7 +243,7 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
         shape: PhysicsShape,
         position: Vec3,
         rotation: Vec3,
-        motionType: MotionType
+        motionType: MotionType,
     ): BodyHandle = memScoped {
         val joltShape = when (shape) {
             is BoxShape -> {
@@ -322,7 +322,7 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
             BodyTransform(
                 handle = BodyHandle(id.toLong()),
                 position = Vec3(position.x, position.y, position.z),
-                rotation = quatToEulerVec3(rotation.w, rotation.x, rotation.y, rotation.z)
+                rotation = quatToEulerVec3(rotation.w, rotation.x, rotation.y, rotation.z),
             )
         }
     }
@@ -332,7 +332,7 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
         val castVector = Vec3(
             normalizedDirection.x * maxDistance,
             normalizedDirection.y * maxDistance,
-            normalizedDirection.z * maxDistance
+            normalizedDirection.z * maxDistance,
         )
         val args = alloc<JPC_NarrowPhaseQuery_CastRayArgs>()
         args.Ray.Origin.write(origin)
@@ -351,7 +351,7 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
         val point = Vec3(
             origin.x + normalizedDirection.x * distance,
             origin.y + normalizedDirection.y * distance,
-            origin.z + normalizedDirection.z * distance
+            origin.z + normalizedDirection.z * distance,
         )
         RaycastHit(BodyHandle(args.Result.BodyID.toLong()), point, distance)
     }

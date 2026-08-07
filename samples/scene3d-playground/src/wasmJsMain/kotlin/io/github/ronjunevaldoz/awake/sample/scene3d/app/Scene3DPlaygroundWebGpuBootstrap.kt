@@ -8,11 +8,9 @@ import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
 
 private val Scene3DPlaygroundShaders = gameShaderSet("triangle")
 
-fun createScene3DPlaygroundWebGpuApplication(): WebGpuGameApplication {
-    return WebGpuGameApplication(
-        shaderSet = Scene3DPlaygroundShaders,
-        vertexFormat = VertexFormat.PositionNormalColor,
-        game = scene3DPlayground(),
-        wireframeSupport = true
-    )
-}
+fun createScene3DPlaygroundWebGpuApplication(): WebGpuGameApplication = WebGpuGameApplication(
+    shaderSet = Scene3DPlaygroundShaders,
+    vertexFormat = VertexFormat.PositionNormalColor,
+    game = scene3DPlayground(),
+    wireframeSupport = true,
+)

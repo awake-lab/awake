@@ -23,7 +23,7 @@ class SceneAssetsDsl internal constructor() {
     fun renderer(
         mesh: String,
         material: String,
-        factory: SceneMeshRendererFactory
+        factory: SceneMeshRendererFactory,
     ) {
         rendererFactories[SceneRenderableKey(mesh, material)] = factory
     }
@@ -31,6 +31,6 @@ class SceneAssetsDsl internal constructor() {
     internal fun buildLibrary(): SceneAssetLibrary = SceneAssetLibrary(
         meshFactories = meshFactories.toMap(),
         materialFactories = materialFactories.toMap(),
-        rendererFactories = rendererFactories.toMap()
+        rendererFactories = rendererFactories.toMap(),
     )
 }

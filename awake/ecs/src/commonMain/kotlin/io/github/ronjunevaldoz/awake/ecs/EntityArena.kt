@@ -56,13 +56,9 @@ internal class EntityArena {
         }
     }
 
-    fun entity(id: Int): Entity {
-        return Entity.of(id, entityGenerations[id])
-    }
+    fun entity(id: Int): Entity = Entity.of(id, entityGenerations[id])
 
-    fun signature(id: Int): Long {
-        return if (id >= 0 && id < entitiesCount) entitySignatures[id] else 0L
-    }
+    fun signature(id: Int): Long = if (id >= 0 && id < entitiesCount) entitySignatures[id] else 0L
 
     fun has(entity: Entity, typeId: ComponentTypeId): Boolean {
         if (!isAlive(entity)) return false

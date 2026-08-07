@@ -24,7 +24,7 @@ internal interface PackedUiFontData {
 
 class PackedUiFont internal constructor(
     private val data: PackedUiFontData,
-    override val cellSize: Int = data.baseCellSize
+    override val cellSize: Int = data.baseCellSize,
 ) : UiFont {
     override val samplingMode: UiFontSamplingMode = data.samplingMode
     override val textScaleStep: Float = data.textScaleStep
@@ -87,7 +87,7 @@ class PackedUiFont internal constructor(
                 offsetXEm = data.quadMetricsEm[metricIndex],
                 offsetYEm = data.quadMetricsEm[metricIndex + 1],
                 widthEm = data.quadMetricsEm[metricIndex + 2],
-                heightEm = data.quadMetricsEm[metricIndex + 3]
+                heightEm = data.quadMetricsEm[metricIndex + 3],
             )
             uvIndex += 4
             metricIndex += 4

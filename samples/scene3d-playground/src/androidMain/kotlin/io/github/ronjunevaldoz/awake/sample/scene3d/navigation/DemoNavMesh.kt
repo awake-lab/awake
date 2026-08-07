@@ -84,7 +84,7 @@ internal actual fun createScene3DDemoNavMesh(): NavMesh? {
         PartitionType.WATERSHED,
         cellSize, cellHeight, agentHeight, agentRadius, agentMaxClimb, agentMaxSlope,
         regionMinSize, regionMergeSize, edgeMaxLen, edgeMaxError, vertsPerPoly,
-        detailSampleDist, detailSampleMaxError, walkableAreaMod
+        detailSampleDist, detailSampleMaxError, walkableAreaMod,
     )
     val builderConfig = RecastBuilderConfig(config, geom.meshBoundsMin, geom.meshBoundsMax)
     val result = RecastBuilder().build(geom, builderConfig)

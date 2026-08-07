@@ -20,9 +20,9 @@ fun Bitmap.toRgba8Bytes(): ByteArray {
     for (i in 0 until width * height) {
         val argb = pixels[i]
         val offset = i * 4
-        bytes[offset] = ((argb ushr 16) and 0xFF).toByte()     // R
-        bytes[offset + 1] = ((argb ushr 8) and 0xFF).toByte()  // G
-        bytes[offset + 2] = (argb and 0xFF).toByte()           // B
+        bytes[offset] = ((argb ushr 16) and 0xFF).toByte() // R
+        bytes[offset + 1] = ((argb ushr 8) and 0xFF).toByte() // G
+        bytes[offset + 2] = (argb and 0xFF).toByte() // B
         bytes[offset + 3] = ((argb ushr 24) and 0xFF).toByte() // A
     }
     return bytes
@@ -43,7 +43,7 @@ fun Bitmap.toRgba8Bytes(): ByteArray {
 suspend fun loadVulkanTexture(
     graphicsDevice: GraphicsDevice,
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
-    resourcePath: String
+    resourcePath: String,
 ): Texture {
     val bitmap = createBitmap(readResourceBytes(resourcePath))
     return Texture(graphicsDevice, runOneTimeCommands, bitmap.toRgba8Bytes(), bitmap.width, bitmap.height)

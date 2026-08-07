@@ -10,11 +10,9 @@ import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 private val UiShowcaseShaders = gameShaderSet("triangle")
 
 fun createUiShowcaseVulkanApplication(
-    game: AwakeGame = uiShowcase()
-): VulkanGameApplication {
-    return VulkanGameApplication(
-        shaderSet = UiShowcaseShaders,
-        vertexFormat = VertexFormat.PositionColorUv,
-        game = game
-    )
-}
+    game: AwakeGame = uiShowcase(),
+): VulkanGameApplication = VulkanGameApplication(
+    shaderSet = UiShowcaseShaders,
+    vertexFormat = VertexFormat.PositionColorUv,
+    game = game,
+)

@@ -8,17 +8,13 @@ fun GameSpecDsl.scenes(block: SceneRouterDsl.() -> Unit) {
     install(sceneFlow(block))
 }
 
-fun sceneRouter(block: SceneRouterDsl.() -> Unit): SceneRouterSpec {
-    return sceneFlow(block)
-}
+fun sceneRouter(block: SceneRouterDsl.() -> Unit): SceneRouterSpec = sceneFlow(block)
 
 fun GameSpecDsl.flow(block: SceneFlowDsl.() -> Unit) {
     install(sceneFlow(block))
 }
 
-fun sceneFlow(block: SceneFlowDsl.() -> Unit): SceneRouterSpec {
-    return SceneFlowDsl().apply(block).build()
-}
+fun sceneFlow(block: SceneFlowDsl.() -> Unit): SceneRouterSpec = SceneFlowDsl().apply(block).build()
 
 typealias SceneRouterDsl = SceneFlowDsl
 
@@ -37,7 +33,7 @@ class SceneFlowDsl internal constructor() {
     fun route(
         id: String,
         label: String = id,
-        spec: SceneGameSpec
+        spec: SceneGameSpec,
     ) {
         require(routes.none { it.id == id }) { "Scene route '$id' is already registered." }
         routes += SceneRoute(id = id, label = label, spec = spec)
@@ -49,7 +45,7 @@ class SceneFlowDsl internal constructor() {
     fun scene(
         id: String,
         label: String = id,
-        spec: SceneGameSpec
+        spec: SceneGameSpec,
     ) {
         route(id = id, label = label, spec = spec)
     }
@@ -57,7 +53,7 @@ class SceneFlowDsl internal constructor() {
     fun route(
         id: String,
         label: String = id,
-        block: SceneGameDsl.() -> Unit
+        block: SceneGameDsl.() -> Unit,
     ) {
         route(
             id = id,
@@ -65,14 +61,14 @@ class SceneFlowDsl internal constructor() {
             spec = sceneGame {
                 name(id)
                 block()
-            }
+            },
         )
     }
 
     fun scene(
         id: String,
         label: String = id,
-        block: SceneGameDsl.() -> Unit
+        block: SceneGameDsl.() -> Unit,
     ) {
         route(id = id, label = label, block = block)
     }

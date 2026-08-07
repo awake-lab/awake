@@ -8,7 +8,7 @@ enum class ShadcnButtonVariant {
     Outline,
     Ghost,
     Danger,
-    Link
+    Link,
 }
 
 // Mirrors real shadcn's ButtonSize axis (Xs/Sm/Md/Lg/Icon). Height only -- width still
@@ -20,7 +20,7 @@ enum class ShadcnButtonSize(val heightDp: Float) {
     Sm(32f),
     Md(36f),
     Lg(40f),
-    Icon(36f)
+    Icon(36f),
 }
 
 enum class ShadcnBadgeVariant {
@@ -28,39 +28,39 @@ enum class ShadcnBadgeVariant {
     Secondary,
     Outline,
     Danger,
-    Ghost
+    Ghost,
 }
 
 enum class ShadcnSurfaceVariant {
-    Muted
+    Muted,
 }
 
 enum class ShadcnTextFieldVariant {
     Default,
     Filled,
-    Ghost
+    Ghost,
 }
 
 enum class ShadcnAlertVariant {
     Default,
-    Destructive
+    Destructive,
 }
 
 enum class ShadcnCardVariant {
     Default,
-    Elevated
+    Elevated,
 }
 
 /** Mirrors real shadcn-compose's `CardSize` -- controls header/footer divider spacing only,
  * everything else about a card's own layout is unaffected. */
 enum class ShadcnCardSize(val dividerGapDp: Float) {
     Compact(2f),
-    Default(4f)
+    Default(4f),
 }
 
 // Mirrors real shadcn's `ToggleVariant` (Default/Outline) -- Outline reuses the same bordered
 // treatment as ShadcnButtonVariant.Outline (see UiButtonVariant.Outline in shadcnToggle()).
 enum class ShadcnToggleVariant {
     Default,
-    Outline
+    Outline,
 }

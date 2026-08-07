@@ -6,12 +6,11 @@ import io.github.ronjunevaldoz.awake.vulkan.VkFlags
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkEnum
 import io.github.ronjunevaldoz.awake.vulkan.has
 
-
 enum class VkDebugUtilsMessageTypeFlagBitsEXT(override val value: VkFlags) : VkEnum {
     VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT(0x00000001),
     VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT(0x00000002),
     VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT(0x00000004),
-    VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT(0x7FFFFFFF)
+    VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT(0x7FFFFFFF),
 }
 typealias VkDebugUtilsMessageTypeFlagsEXT = VkFlags
 
@@ -21,21 +20,20 @@ val VkDebugUtilsMessageTypeFlagsEXT.formatted: String
 
         when {
             this has VkDebugUtilsMessageTypeFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT -> types.add(
-                "General"
+                "General",
             )
 
             this has VkDebugUtilsMessageTypeFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT -> types.add(
-                "Validation"
+                "Validation",
             )
 
             this has VkDebugUtilsMessageTypeFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT -> types.add(
-                "Performance"
+                "Performance",
             )
 
             this has VkDebugUtilsMessageTypeFlagBitsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT -> types.add(
-                "All"
+                "All",
             )
         }
         return types.joinToString()
     }
-

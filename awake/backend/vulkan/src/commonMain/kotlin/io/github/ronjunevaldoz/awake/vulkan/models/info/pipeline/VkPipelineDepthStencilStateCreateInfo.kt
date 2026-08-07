@@ -20,7 +20,7 @@ class VkPipelineDepthStencilStateCreateInfo(
     var front: VkStencilOpState = VkStencilOpState(),
     var back: VkStencilOpState = VkStencilOpState(),
     var minDepthBounds: Float = 0.0f,
-    var maxDepthBounds: Float = 1.0f
+    var maxDepthBounds: Float = 1.0f,
 )
 
 typealias VkPipelineDepthStencilStateCreateFlags = VkFlags

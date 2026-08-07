@@ -9,5 +9,5 @@ enum class VkAttachmentStoreOp(val value: Int) {
     NONE_KHR(NONE.value),
     NONE_QCOM(NONE.value),
     NONE_EXT(NONE.value),
-    MAX_ENUM(0x7FFFFFFF)
+    MAX_ENUM(0x7FFFFFFF),
 }

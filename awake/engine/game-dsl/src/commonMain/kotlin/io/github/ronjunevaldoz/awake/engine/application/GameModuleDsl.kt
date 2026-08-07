@@ -3,12 +3,10 @@
 package io.github.ronjunevaldoz.awake.engine.application
 
 fun gameModule(
-    block: GameModuleDsl.() -> Unit
-): GameModule {
-    return object : GameModule {
-        override fun install(into: GameSpecBuilder) {
-            GameModuleDsl(into).block()
-        }
+    block: GameModuleDsl.() -> Unit,
+): GameModule = object : GameModule {
+    override fun install(into: GameSpecBuilder) {
+        GameModuleDsl(into).block()
     }
 }
 
@@ -17,29 +15,25 @@ fun GameDsl.module(module: GameModule) {
 }
 
 fun GameDsl.module(
-    block: GameModuleDsl.() -> Unit
+    block: GameModuleDsl.() -> Unit,
 ) {
     install(gameModule(block))
 }
 
 fun GameModule.createGame(
-    window: WindowDsl.() -> Unit
-): AwakeGame {
-    return createGameSpec(window).createGame()
-}
+    window: WindowDsl.() -> Unit,
+): AwakeGame = createGameSpec(window).createGame()
 
 fun GameModule.createGameSpec(
-    window: WindowDsl.() -> Unit
-): GameSpec {
-    return gameSpec {
-        window(window)
-        module(this@createGameSpec)
-    }
+    window: WindowDsl.() -> Unit,
+): GameSpec = gameSpec {
+    window(window)
+    module(this@createGameSpec)
 }
 
 @AwakeGameDsl
 class GameModuleDsl internal constructor(
-    builder: GameSpecBuilder
+    builder: GameSpecBuilder,
 ) : GameSpecDsl(builder) {
 
     fun module(module: GameModule) {

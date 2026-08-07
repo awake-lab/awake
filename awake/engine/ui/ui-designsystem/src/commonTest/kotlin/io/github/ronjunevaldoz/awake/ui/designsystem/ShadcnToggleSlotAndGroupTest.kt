@@ -7,11 +7,9 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
-import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.px
 import kotlin.test.Test
@@ -36,7 +34,7 @@ class ShadcnToggleSlotAndGroupTest {
             .shadcnToggle(
                 id = "bold",
                 checked = true,
-                modifier = Modifier.width(40f.px).height(40f.px)
+                modifier = Modifier.width(40f.px).height(40f.px),
             ) {
                 // Icon-only content: no text() call at all, proving the slot isn't forced
                 // through a String label like the old shadcnToggle(label: String?) API.
@@ -46,7 +44,7 @@ class ShadcnToggleSlotAndGroupTest {
         assertTrue(primitives.isNotEmpty(), "icon-only toggle should still paint its surface")
         assertTrue(
             primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isEmpty(),
-            "no text label was supplied via the content slot, so no glyphs should render"
+            "no text label was supplied via the content slot, so no glyphs should render",
         )
     }
 
@@ -67,7 +65,7 @@ class ShadcnToggleSlotAndGroupTest {
                 options = listOf("Bold", "Italic"),
                 selectedIndices = selected,
                 modifier = Modifier.width(160f.px).height(40f.px),
-                onSelectedIndicesChange = { selected = it }
+                onSelectedIndicesChange = { selected = it },
             )
         ui.endFrame()
 
@@ -78,7 +76,7 @@ class ShadcnToggleSlotAndGroupTest {
                 options = listOf("Bold", "Italic"),
                 selectedIndices = selected,
                 modifier = Modifier.width(160f.px).height(40f.px),
-                onSelectedIndicesChange = { selected = it }
+                onSelectedIndicesChange = { selected = it },
             )
         val semantics = ui.finishFrame().semantics.filter { it.role == UiSemanticRole.Toggle }
 

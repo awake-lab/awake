@@ -28,7 +28,7 @@ internal fun ColumnScope.drawShadcnInputOtpDemoPreview() {
         otpValue = shadcnInputOTP(
             id = "showcase-otp-input",
             value = otpValue,
-            length = 6
+            length = 6,
         )
         shadcnFieldDescription("Current entered code: $otpValue")
     }

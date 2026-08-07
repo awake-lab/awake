@@ -48,7 +48,7 @@ class UiAnimationFrameCapture private constructor(
     private val width: Int,
     private val height: Int,
     private val outputDir: File,
-    private val fixture: HeadlessUiRendererFixture
+    private val fixture: HeadlessUiRendererFixture,
 ) : AutoCloseable {
 
     /** Renders [primitives] (one real frame's worth, as returned by `UiContext.endFrame()`)
@@ -89,7 +89,7 @@ class HeadlessUiRendererFixture(
     private val renderPipeline: RenderPipeline,
     private val lineRenderPipeline: LineRenderPipeline,
     private val transferContext: TransferContext,
-    val renderer: Renderer
+    val renderer: Renderer,
 ) {
     fun destroy() {
         renderer.destroy()
@@ -121,7 +121,7 @@ fun buildHeadlessUiRendererFixture(width: Int, height: Int): HeadlessUiRendererF
         },
         VertexFormat.PositionColorUv,
         vertexEntryPoint = "vertexMain",
-        fragmentEntryPoint = "fragmentMain"
+        fragmentEntryPoint = "fragmentMain",
     )
     val lineRenderPipeline = LineRenderPipeline(
         graphicsDevice,
@@ -130,7 +130,7 @@ fun buildHeadlessUiRendererFixture(width: Int, height: Int): HeadlessUiRendererF
         runBlocking {
             loadUiAnimationShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv")
         },
-        UI_ANIMATION_MAX_FRAMES_IN_FLIGHT
+        UI_ANIMATION_MAX_FRAMES_IN_FLIGHT,
     )
     val transferContext = TransferContext(graphicsDevice)
     val renderer = Renderer(
@@ -148,10 +148,10 @@ fun buildHeadlessUiRendererFixture(width: Int, height: Int): HeadlessUiRendererF
         runBlocking {
             loadUiAnimationShaderPair(
                 "assets/shader/vulkan/ui_rounded_quad.vert.spv",
-                "assets/shader/vulkan/ui_rounded_quad.frag.spv"
+                "assets/shader/vulkan/ui_rounded_quad.frag.spv",
             )
         },
-        UI_ANIMATION_MAX_FRAMES_IN_FLIGHT
+        UI_ANIMATION_MAX_FRAMES_IN_FLIGHT,
     )
     return HeadlessUiRendererFixture(
         graphicsDevice,
@@ -160,7 +160,7 @@ fun buildHeadlessUiRendererFixture(width: Int, height: Int): HeadlessUiRendererF
         renderPipeline,
         lineRenderPipeline,
         transferContext,
-        renderer
+        renderer,
     )
 }
 

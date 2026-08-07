@@ -16,8 +16,8 @@ import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.ColorTargetState
 import io.ygdrasil.webgpu.Extent3D
 import io.ygdrasil.webgpu.FragmentState
-import io.ygdrasil.webgpu.GPUBindGroup
 import io.ygdrasil.webgpu.GPUAddressMode
+import io.ygdrasil.webgpu.GPUBindGroup
 import io.ygdrasil.webgpu.GPUBlendFactor
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
@@ -55,7 +55,7 @@ class UiGlyphRenderPipeline(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     shaderCode: ByteArray,
-    private val font: UiFont
+    private val font: UiFont,
 ) {
     private val device = graphicsDevice.wgpuContext.device
     val pipeline: GPURenderPipeline
@@ -80,22 +80,22 @@ class UiGlyphRenderPipeline(
                                 VertexAttribute(
                                     shaderLocation = 1u,
                                     offset = (2 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x2
+                                    format = GPUVertexFormat.Float32x2,
                                 ),
                                 VertexAttribute(
                                     shaderLocation = 2u,
                                     offset = (4 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x4
+                                    format = GPUVertexFormat.Float32x4,
                                 ),
                                 // scale(xy) + pivot(zw) -- see ui_glyph.wgsl's `transform` field.
                                 VertexAttribute(
                                     shaderLocation = 3u,
                                     offset = (8 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x4
-                                )
-                            )
-                        )
-                    )
+                                    format = GPUVertexFormat.Float32x4,
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
                 fragment = FragmentState(
                     module = shaderModule,
@@ -106,25 +106,25 @@ class UiGlyphRenderPipeline(
                             blend = BlendState(
                                 color = BlendComponent(
                                     srcFactor = GPUBlendFactor.SrcAlpha,
-                                    dstFactor = GPUBlendFactor.OneMinusSrcAlpha
+                                    dstFactor = GPUBlendFactor.OneMinusSrcAlpha,
                                 ),
                                 alpha = BlendComponent(
                                     srcFactor = GPUBlendFactor.SrcAlpha,
-                                    dstFactor = GPUBlendFactor.OneMinusSrcAlpha
-                                )
-                            )
-                        )
-                    )
+                                    dstFactor = GPUBlendFactor.OneMinusSrcAlpha,
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
-                primitive = PrimitiveState(topology = GPUPrimitiveTopology.TriangleList)
-            )
+                primitive = PrimitiveState(topology = GPUPrimitiveTopology.TriangleList),
+            ),
         )
 
         screenSizeBuffer = device.createBuffer(
             BufferDescriptor(
                 size = (4 * Float.SIZE_BYTES).toULong(),
-                usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst
-            )
+                usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst,
+            ),
         )
 
         // Deliberately NOT swapchainManager.imageFormatWebGpu: this is a sampled-only texture
@@ -137,14 +137,14 @@ class UiGlyphRenderPipeline(
                 size = Extent3D(width = font.atlasWidth.toUInt(), height = font.atlasHeight.toUInt()),
                 format = GPUTextureFormat.RGBA8Unorm,
                 usage = GPUTextureUsage.TextureBinding or GPUTextureUsage.CopyDst,
-                dimension = GPUTextureDimension.TwoD
-            )
+                dimension = GPUTextureDimension.TwoD,
+            ),
         )
         device.queue.writeTexture(
             destination = TexelCopyTextureInfo(texture = fontTexture),
             data = fastArrayBufferOf(font.atlasPixelsRgba),
             dataLayout = TexelCopyBufferLayout(bytesPerRow = (font.atlasWidth * 4).toUInt()),
-            size = Extent3D(width = font.atlasWidth.toUInt(), height = font.atlasHeight.toUInt())
+            size = Extent3D(width = font.atlasWidth.toUInt(), height = font.atlasHeight.toUInt()),
         )
         val fontTextureView = fontTexture.createView(TextureViewDescriptor())
         val fontSampler = device.createSampler(
@@ -154,8 +154,8 @@ class UiGlyphRenderPipeline(
                 addressModeW = GPUAddressMode.ClampToEdge,
                 magFilter = GPUFilterMode.Linear,
                 minFilter = GPUFilterMode.Linear,
-                mipmapFilter = GPUMipmapFilterMode.Linear
-            )
+                mipmapFilter = GPUMipmapFilterMode.Linear,
+            ),
         )
 
         bindGroup = device.createBindGroup(
@@ -164,9 +164,9 @@ class UiGlyphRenderPipeline(
                 entries = listOf(
                     BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = screenSizeBuffer)),
                     BindGroupEntry(binding = 1u, resource = fontTextureView),
-                    BindGroupEntry(binding = 2u, resource = fontSampler)
-                )
-            )
+                    BindGroupEntry(binding = 2u, resource = fontSampler),
+                ),
+            ),
         )
 
         val renderingContext = graphicsDevice.wgpuContext.renderingContext
@@ -183,9 +183,9 @@ class UiGlyphRenderPipeline(
                     width,
                     height,
                     if (font.samplingMode == UiFontSamplingMode.DistanceField) 1f else 0f,
-                    font.distanceFieldRangePx
-                )
-            )
+                    font.distanceFieldRangePx,
+                ),
+            ),
         )
     }
 

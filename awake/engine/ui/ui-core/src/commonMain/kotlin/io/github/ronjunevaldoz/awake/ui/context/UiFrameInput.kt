@@ -8,5 +8,5 @@ data class UiFrameInput(
     val viewportWidth: Float,
     val viewportHeight: Float,
     val input: UiInputState,
-    val deltaSeconds: Float = 1f / 60f
+    val deltaSeconds: Float = 1f / 60f,
 )

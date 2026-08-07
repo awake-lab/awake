@@ -21,7 +21,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 class LineMesh(
     private val graphicsDevice: GraphicsDevice,
     private val maxLines: Int,
-    private val framesInFlight: Int = 1
+    private val framesInFlight: Int = 1,
 ) {
     private val device get() = graphicsDevice.device
     private val physicalDevice get() = graphicsDevice.physicalDevice
@@ -31,7 +31,7 @@ class LineMesh(
     private data class FrameResources(
         val vertexBuffer: BufferHandle,
         val vertexBufferMemory: DeviceMemoryHandle,
-        var vertexCount: Int = 0
+        var vertexCount: Int = 0,
     )
 
     private val frameResources: Array<FrameResources>
@@ -49,19 +49,19 @@ class LineMesh(
                 device,
                 VkBufferCreateInfo(
                     size = (maxVertices * FLOATS_PER_VERTEX * Float.SIZE_BYTES).toLong(),
-                    usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
-                )
+                    usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                ),
             )
             val requirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, buffer)
             val memoryTypeIndex = VulkanBuffers.findMemoryType(
                 physicalDevice,
                 requirements.memoryTypeBits,
                 VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                    VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                    VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
             )
             val memory = VulkanBuffers.vkAllocateMemory(
                 device,
-                VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex)
+                VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex),
             )
             VulkanBuffers.vkBindBufferMemory(device, buffer, memory, 0)
             FrameResources(BufferHandle(buffer), DeviceMemoryHandle(memory))
@@ -101,7 +101,7 @@ class LineMesh(
             commandBuffer,
             0,
             longArrayOf(frame.vertexBuffer.handle),
-            longArrayOf(0L)
+            longArrayOf(0L),
         )
     }
 

@@ -1,31 +1,35 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless.input.selection
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
-import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
-import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
+import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 private const val TOGGLE_WIDTH_PX = 44f
 private const val TOGGLE_HEIGHT_PX = 24f
+
 // Dp, not raw px: added to/subtracted from `trackSlot` coordinates that are already
 // density-scaled, so a raw literal would render a half-size inset at 2x.
 private val TOGGLE_KNOB_INSET = 2f.dp
+
 // Dp, not raw px: it is added to `trackSlot`/`surface.interaction.slot` coordinates that are
 // already density-scaled, so a raw literal would render a half-size gap at 2x.
 private val TOGGLE_LABEL_GAP = 8f.dp
@@ -36,7 +40,7 @@ fun UiScope.switch(
     label: String? = null,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ): Boolean {
     val theme = context.currentTheme
     // The switch track is always a fixed TOGGLE_WIDTH_PX × TOGGLE_HEIGHT_PX pill — it never
@@ -49,7 +53,7 @@ fun UiScope.switch(
         defaults = theme.components.toggle,
         modifier = modifier.withSizeFallback(Dimension.Fixed(TOGGLE_WIDTH_PX.dp), Dimension.Fixed(TOGGLE_HEIGHT_PX.dp)),
         selected = checked,
-        enabled = enabled
+        enabled = enabled,
     )
     // Track slot is always fixed-size, anchored at the START of the claimed slot.
     // When the caller passes .width(260dp), the full slot is 260dp wide but we only paint
@@ -58,7 +62,7 @@ fun UiScope.switch(
         x = surface.interaction.slot.x,
         y = surface.interaction.slot.y + (surface.interaction.slot.height - TOGGLE_HEIGHT_PX.dp.toPx()) / 2f,
         width = TOGGLE_WIDTH_PX.dp.toPx(),
-        height = TOGGLE_HEIGHT_PX.dp.toPx()
+        height = TOGGLE_HEIGHT_PX.dp.toPx(),
     )
     val newChecked = if (surface.interaction.clicked) !checked else checked
     // Both states are hardcoded tokens, not resolved.background -- a Switch's on/off track
@@ -79,7 +83,7 @@ fun UiScope.switch(
             resolved = surface.resolved,
             fillColor = trackFill,
             borderColor = surface.resolved.borderColor ?: theme.colors.border,
-            shapeSpec = UiShapeSpec.Pill
+            shapeSpec = UiShapeSpec.Pill,
         )
         val knobInsetPx = TOGGLE_KNOB_INSET.toPx()
         val knobDiameter = trackSlot.height - knobInsetPx * 2f
@@ -89,13 +93,12 @@ fun UiScope.switch(
             trackSlot.x + knobInsetPx
         }
         emitFillAndBorder(
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, trackSlot.y + knobInsetPx, knobDiameter, knobDiameter)
-                ,
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, trackSlot.y + knobInsetPx, knobDiameter, knobDiameter),
             fillColor = theme.colors.background,
             radiusPx = 0f,
             borderWidth = UiShape.none,
             borderColor = Color.Transparent,
-            shapeSpec = UiShapeSpec.Pill
+            shapeSpec = UiShapeSpec.Pill,
         )
         if (label != null) {
             val trackWidthPx = TOGGLE_WIDTH_PX.dp.toPx()
@@ -109,8 +112,10 @@ fun UiScope.switch(
                 // to derive a label box from. 160dp is simply "wide enough for a typical short
                 // switch label"; text() ellipsizes anything longer. Replace this with a real
                 // measurement (font.measureTextWidth) if labels ever start truncating here.
-                (this@switch.fillWidthOrNull()?.let { it - trackWidthPx - gapPx }
-                    ?: SWITCH_LABEL_WIDTH_GUESS.toPx()).coerceAtLeast(0f)
+                (
+                    this@switch.fillWidthOrNull()?.let { it - trackWidthPx - gapPx }
+                        ?: SWITCH_LABEL_WIDTH_GUESS.toPx()
+                    ).coerceAtLeast(0f)
             }
             text(
                 label,
@@ -118,7 +123,7 @@ fun UiScope.switch(
                     trackSlot.x + trackWidthPx + gapPx,
                     surface.interaction.slot.y,
                     labelWidth,
-                    surface.interaction.slot.height
+                    surface.interaction.slot.height,
                 ),
                 font = context.currentFont,
                 color = surface.resolved.foreground ?: theme.colors.foreground,
@@ -126,7 +131,7 @@ fun UiScope.switch(
                 verticallyCentered = true,
                 overflow = UiTextOverflow.Ellipsis,
                 textStyle = surface.resolved.textStyle,
-                semanticId = "$id.label"
+                semanticId = "$id.label",
             )
         }
     }
@@ -136,7 +141,7 @@ fun UiScope.switch(
         label = label,
         bounds = surface.interaction.slot,
         truncated = false,
-        selected = newChecked
+        selected = newChecked,
     )
     return newChecked
 }

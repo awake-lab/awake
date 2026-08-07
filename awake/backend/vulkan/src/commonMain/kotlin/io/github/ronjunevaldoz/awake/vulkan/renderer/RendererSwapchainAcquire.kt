@@ -18,7 +18,7 @@ internal fun Renderer.acquireSwapchainImage(currentFrame: Int): Int? {
         device,
         longArrayOf(swapchainManager.inFlightFences[currentFrame]),
         true,
-        Long.MAX_VALUE
+        Long.MAX_VALUE,
     )
     // Reset only AFTER a successful acquire (not before) -- if acquire throws and this
     // frame bails out early (see the catch below), an already-reset-but-never-submitted
@@ -31,7 +31,7 @@ internal fun Renderer.acquireSwapchainImage(currentFrame: Int): Int? {
             swapchainManager.swapChain,
             Int.MAX_VALUE.toLong(),
             swapchainManager.imageAvailableSemaphores[currentFrame],
-            0
+            0,
         )
     } catch (e: VkResultException) {
         when (e.result) {

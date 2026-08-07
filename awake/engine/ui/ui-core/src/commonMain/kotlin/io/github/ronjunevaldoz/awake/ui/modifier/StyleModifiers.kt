@@ -12,8 +12,11 @@ data object UiShimmerEffect : UiGraphicsEffect
 
 /** shadcn-compose-style shimmer extension built on the [graphicsLayer] primitive. */
 fun UiModifier.shadcnShimmer(value: Boolean = true): UiModifier =
-    if (value) graphicsLayer(UiShimmerEffect)
-    else copy(graphicsLayer = graphicsLayer?.without<UiShimmerEffect>())
+    if (value) {
+        graphicsLayer(UiShimmerEffect)
+    } else {
+        copy(graphicsLayer = graphicsLayer?.without<UiShimmerEffect>())
+    }
 
 /** True when this modifier's graphics layer carries the shadcn shimmer effect. */
 val UiModifier.shimmer: Boolean
@@ -25,9 +28,11 @@ fun UiModifier.styleable(style: Style): UiModifier =
 fun UiModifier.background(color: Color): UiModifier =
     styleable(Style.Companion { background(color) })
 
-fun UiModifier.border(width: Dp, color: Color? = null): UiModifier = styleable(Style.Companion {
-    borderWidth(width)
-    color?.let { borderColor(it) }
-})
+fun UiModifier.border(width: Dp, color: Color? = null): UiModifier = styleable(
+    Style.Companion {
+        borderWidth(width)
+        color?.let { borderColor(it) }
+    },
+)
 
 fun UiModifier.shape(radius: Dp): UiModifier = styleable(Style.Companion { shape(radius) })

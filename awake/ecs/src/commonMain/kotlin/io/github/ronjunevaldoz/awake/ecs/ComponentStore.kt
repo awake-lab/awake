@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ecs
 import kotlin.reflect.KClass
 
 class ComponentStore<T : Any>(
-    internal val type: KClass<T>
+    internal val type: KClass<T>,
 ) {
     private val sparse = EntityIndexMap()
     private var denseEntities = LongArray(DEFAULT_CAPACITY)
@@ -22,9 +22,7 @@ class ComponentStore<T : Any>(
     private val entitiesView: List<Entity> = object : AbstractList<Entity>() {
         override val size: Int get() = count
 
-        override fun get(index: Int): Entity {
-            return Entity(denseEntities[index])
-        }
+        override fun get(index: Int): Entity = Entity(denseEntities[index])
     }
 
     val entities: List<Entity> get() = entitiesView
@@ -64,9 +62,7 @@ class ComponentStore<T : Any>(
         }
     }
 
-    fun contains(entity: Entity): Boolean {
-        return get(entity) != null
-    }
+    fun contains(entity: Entity): Boolean = get(entity) != null
 
     fun remove(entity: Entity): T? {
         val denseIndex = sparse.get(entity.id)

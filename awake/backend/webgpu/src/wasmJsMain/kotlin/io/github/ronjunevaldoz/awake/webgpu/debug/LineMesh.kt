@@ -17,7 +17,7 @@ import io.ygdrasil.webgpu.GPUBufferUsage
  */
 class LineMesh(
     private val graphicsDevice: GraphicsDevice,
-    private val maxLines: Int
+    private val maxLines: Int,
 ) {
     private val maxVertices = maxLines * VERTICES_PER_LINE
     private val vertexBuffer: GPUBuffer
@@ -32,8 +32,8 @@ class LineMesh(
         vertexBuffer = device.createBuffer(
             BufferDescriptor(
                 size = (maxVertices * FLOATS_PER_VERTEX * Float.SIZE_BYTES).toULong(),
-                usage = GPUBufferUsage.Vertex or GPUBufferUsage.CopyDst
-            )
+                usage = GPUBufferUsage.Vertex or GPUBufferUsage.CopyDst,
+            ),
         )
     }
 

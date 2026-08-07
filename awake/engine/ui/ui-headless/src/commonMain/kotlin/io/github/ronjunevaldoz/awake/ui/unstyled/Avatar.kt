@@ -2,20 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.childBox
-import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 private val AVATAR_DEFAULT_DIAMETER = 40f.dp
@@ -36,15 +36,15 @@ private val AVATAR_DEFAULT_DIAMETER = 40f.dp
 fun UiScope.avatarFallback(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    content: BoxScope.(slot: UiBounds) -> Unit
+    content: BoxScope.(slot: UiBounds) -> Unit,
 ) {
     val theme = context.currentTheme
     val resolved = resolveStyle(style = style, defaults = theme.components.avatar)
     val slot = claimModifiedSlot(
         modifier.withSizeFallback(
             Dimension.Fixed(AVATAR_DEFAULT_DIAMETER),
-            Dimension.Fixed(AVATAR_DEFAULT_DIAMETER)
-        )
+            Dimension.Fixed(AVATAR_DEFAULT_DIAMETER),
+        ),
     )
     emitFillAndBorder(
         slot = slot,
@@ -52,7 +52,7 @@ fun UiScope.avatarFallback(
         radiusPx = 0f,
         borderWidth = resolved.borderWidth,
         borderColor = resolved.borderColor ?: theme.colors.border,
-        shapeSpec = UiShapeSpec.Circle
+        shapeSpec = UiShapeSpec.Circle,
     )
     childBox(slot).content(slot)
 }
@@ -67,7 +67,7 @@ fun UiScope.avatarFallback(
 fun UiScope.avatarFallback(
     initials: String,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ) {
     val theme = context.currentTheme
     val resolved = resolveStyle(style = style, defaults = theme.components.avatar)
@@ -78,7 +78,7 @@ fun UiScope.avatarFallback(
             font = context.currentFont,
             color = resolved.foreground ?: theme.colors.foreground,
             textStyle = resolved.textStyle,
-            centered = true
+            centered = true,
         )
     }
 }

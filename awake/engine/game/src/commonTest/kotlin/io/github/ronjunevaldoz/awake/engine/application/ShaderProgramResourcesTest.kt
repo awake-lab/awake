@@ -27,23 +27,23 @@ class ShaderProgramResourcesTest {
             vulkan = ShaderProgramResources(
                 vertex = ShaderStageResource(
                     resourcePath = "assets/shader/vulkan/custom.vert.spv",
-                    entryPoint = "appVertex"
+                    entryPoint = "appVertex",
                 ),
                 fragment = ShaderStageResource(
                     resourcePath = "assets/shader/vulkan/custom.frag.spv",
-                    entryPoint = "appFragment"
-                )
+                    entryPoint = "appFragment",
+                ),
             ),
             webGpu = ShaderProgramResources(
                 vertex = ShaderStageResource(
                     resourcePath = "assets/shader/webgpu/custom.wgsl",
-                    entryPoint = "vsMain"
+                    entryPoint = "vsMain",
                 ),
                 fragment = ShaderStageResource(
                     resourcePath = "assets/shader/webgpu/custom.wgsl",
-                    entryPoint = "fsMain"
-                )
-            )
+                    entryPoint = "fsMain",
+                ),
+            ),
         )
 
         assertEquals("assets/shader/vulkan/custom.vert.spv", shaders.vulkan.vertexResourcePath)

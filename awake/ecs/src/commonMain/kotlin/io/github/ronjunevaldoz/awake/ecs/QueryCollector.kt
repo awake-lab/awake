@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
  */
 internal class QueryCollector(
     private val entities: EntityArena,
-    private val components: ComponentRegistry
+    private val components: ComponentRegistry,
 ) {
     fun collect(types: Set<KClass<out Any>>): List<Entity> {
         if (types.isEmpty()) {

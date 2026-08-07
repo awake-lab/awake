@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 
 /** Slot API for custom scrollbar rendering. */
 typealias UiScrollbarSlot = AbsoluteScope.(thumb: UiScrollThumb) -> Unit
@@ -12,10 +12,12 @@ typealias UiScrollbarSlot = AbsoluteScope.(thumb: UiScrollThumb) -> Unit
 enum class UiScrollbarVisibility {
     /** Show only when content exceeds the viewport. */
     Auto,
+
     /** Always reserve space and show the thumb (even if disabled). */
     Always,
+
     /** Never show or reserve space for the scrollbar, even if content overflows. */
-    Never
+    Never,
 }
 
 /** Styling and behavior configuration for a scrollable container. Both [width] and [gap]
@@ -30,20 +32,20 @@ data class UiScrollConfig(
     val horizontalVisibility: UiScrollbarVisibility = UiScrollbarVisibility.Auto,
     val verticalScrollbar: UiScrollbarSlot? = null,
     val horizontalScrollbar: UiScrollbarSlot? = null,
-    val scrollSpeed: Float = 32f
+    val scrollSpeed: Float = 32f,
 ) {
     companion object {
         val Default = UiScrollConfig()
         val Hidden = UiScrollConfig(
             verticalVisibility = UiScrollbarVisibility.Never,
-            horizontalVisibility = UiScrollbarVisibility.Never
+            horizontalVisibility = UiScrollbarVisibility.Never,
         )
     }
 }
 
 open class UiScrollState(
     initialOffsetX: Float = 0f,
-    initialOffsetY: Float = 0f
+    initialOffsetY: Float = 0f,
 ) {
     open var offsetX: Float = initialOffsetX.coerceAtLeast(0f)
         protected set
@@ -82,13 +84,13 @@ open class UiScrollState(
         viewportWidth: Float = this.viewportWidth,
         viewportHeight: Float = this.viewportHeight,
         contentWidth: Float = this.contentWidth,
-        contentHeight: Float = this.contentHeight
+        contentHeight: Float = this.contentHeight,
     ) {
         this.viewportWidth = viewportWidth.coerceAtLeast(0f)
         this.viewportHeight = viewportHeight.coerceAtLeast(0f)
         this.contentWidth = contentWidth.coerceAtLeast(0f)
         this.contentHeight = contentHeight.coerceAtLeast(0f)
-        
+
         offsetX = offsetX.coerceIn(0f, maxOffsetX)
         offsetY = offsetY.coerceIn(0f, maxOffsetY)
     }
@@ -118,10 +120,10 @@ open class UiScrollState(
 internal class PersistedUiScrollState(
     private val widgetState: WidgetState,
     initialOffsetX: Float = 0f,
-    initialOffsetY: Float = 0f
+    initialOffsetY: Float = 0f,
 ) : UiScrollState(
     widgetState.get("offsetX", initialOffsetX),
-    widgetState.get("offsetY", initialOffsetY)
+    widgetState.get("offsetY", initialOffsetY),
 ) {
     override var offsetX: Float
         get() = super.offsetX
@@ -152,13 +154,13 @@ internal class PersistedUiScrollState(
 
 data class UiScrollThumb(
     val track: UiBounds,
-    val thumb: UiBounds
+    val thumb: UiBounds,
 )
 
 fun verticalScrollThumb(
     track: UiBounds,
     state: UiScrollState,
-    minThumbHeight: Float = 12f
+    minThumbHeight: Float = 12f,
 ): UiScrollThumb? {
     if (!state.canScrollY || track.height <= 0f || track.width <= 0f) {
         return null
@@ -174,15 +176,15 @@ fun verticalScrollThumb(
             x = track.x,
             y = thumbY,
             width = track.width,
-            height = thumbHeight
-        )
+            height = thumbHeight,
+        ),
     )
 }
 
 fun horizontalScrollThumb(
     track: UiBounds,
     state: UiScrollState,
-    minThumbWidth: Float = 12f
+    minThumbWidth: Float = 12f,
 ): UiScrollThumb? {
     if (!state.canScrollX || track.width <= 0f || track.height <= 0f) {
         return null
@@ -198,7 +200,7 @@ fun horizontalScrollThumb(
             x = thumbX,
             y = track.y,
             width = thumbWidth,
-            height = track.height
-        )
+            height = track.height,
+        ),
     )
 }

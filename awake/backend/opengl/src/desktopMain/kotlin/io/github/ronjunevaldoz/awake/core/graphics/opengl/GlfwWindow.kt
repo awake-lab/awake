@@ -9,7 +9,6 @@ import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11
 import org.lwjgl.system.MemoryStack.stackPush
 
-
 class GlfwWindow(val width: Int, val height: Int, title: String) {
     val id: Long
 
@@ -21,13 +20,12 @@ class GlfwWindow(val width: Int, val height: Int, title: String) {
         initOpenGL()
     }
 
-
     private fun initHints() {
         // Configure GLFW
         GLFW.glfwDefaultWindowHints() // optional, the current window hints are already the default
         GLFW.glfwWindowHint(
             GLFW.GLFW_VISIBLE,
-            GLFW.GLFW_FALSE
+            GLFW.GLFW_FALSE,
         ) // the window will stay hidden after creation
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE) // the window will be resizable
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3)
@@ -47,23 +45,18 @@ class GlfwWindow(val width: Int, val height: Int, title: String) {
         GLFW.glfwShowWindow(id)
     }
 
-
     private fun initOpenGL() {
         GL.createCapabilities()
         GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
     }
 
-    fun shouldClose(): Boolean {
-        return GLFW.glfwWindowShouldClose(id)
-    }
+    fun shouldClose(): Boolean = GLFW.glfwWindowShouldClose(id)
 
     fun setShouldClose(value: Boolean) {
         GLFW.glfwSetWindowShouldClose(id, value)
     }
 
-    fun getTime(): Double {
-        return GLFW.glfwGetTime()
-    }
+    fun getTime(): Double = GLFW.glfwGetTime()
 
     fun setCloseListener(onClose: () -> Unit) {
         GLFW.glfwSetWindowCloseCallback(id) {
@@ -100,7 +93,7 @@ class GlfwWindow(val width: Int, val height: Int, title: String) {
             GLFW.glfwSetWindowPos(
                 id,
                 (vidMode!!.width() - w) / 2,
-                (vidMode.height() - h) / 2
+                (vidMode.height() - h) / 2,
             )
         }
     }
@@ -116,13 +109,11 @@ class GlfwWindow(val width: Int, val height: Int, title: String) {
         }
     }
 
-    fun <T> getContentScale(scale: (x: Float, y: Float) -> T): T {
-        return stackPush().use { s ->
-            val px = s.mallocFloat(1)
-            val py = s.mallocFloat(1)
-            GLFW.glfwGetMonitorContentScale(id, px, py)
-            scale(px[0], py[0])
-        }
+    fun <T> getContentScale(scale: (x: Float, y: Float) -> T): T = stackPush().use { s ->
+        val px = s.mallocFloat(1)
+        val py = s.mallocFloat(1)
+        GLFW.glfwGetMonitorContentScale(id, px, py)
+        scale(px[0], py[0])
     }
 
     fun pollEvents() {

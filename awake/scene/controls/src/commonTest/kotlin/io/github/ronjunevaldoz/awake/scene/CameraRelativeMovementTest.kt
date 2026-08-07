@@ -54,7 +54,7 @@ class CameraRelativeMovementTest {
     private fun travel(
         cameraDistance: Float,
         eye: Vec3 = Vec3(0f, 0f, cameraDistance),
-        intent: MovementControl.() -> Unit
+        intent: MovementControl.() -> Unit,
     ): Vec3 {
         val world = World()
 
@@ -62,8 +62,8 @@ class CameraRelativeMovementTest {
         world.add(
             cameraEntity,
             Camera(
-                CoreCamera.perspective(eye = eye, center = Vec3.ZERO)
-            )
+                CoreCamera.perspective(eye = eye, center = Vec3.ZERO),
+            ),
         )
         world.add(cameraEntity, ActiveCamera())
 

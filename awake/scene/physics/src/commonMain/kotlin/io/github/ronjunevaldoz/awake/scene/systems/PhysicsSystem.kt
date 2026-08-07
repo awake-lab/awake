@@ -29,7 +29,7 @@ import io.github.ronjunevaldoz.awake.scene.components.Transform
  * readback" contract.
  */
 class PhysicsSystem(
-    private val physicsWorld: PhysicsWorld
+    private val physicsWorld: PhysicsWorld,
 ) : System {
     private val handleToEntity = HashMap<BodyHandle, Entity>()
 
@@ -41,7 +41,7 @@ class PhysicsSystem(
                     physicsBody.shape,
                     transform.position,
                     transform.rotation,
-                    physicsBody.motionType
+                    physicsBody.motionType,
                 )
                 physicsBody.handle = handle
                 handleToEntity[handle] = entity

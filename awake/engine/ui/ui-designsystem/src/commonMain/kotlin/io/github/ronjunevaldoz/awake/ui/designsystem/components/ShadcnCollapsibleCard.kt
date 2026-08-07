@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTransparent
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
+import io.github.ronjunevaldoz.awake.ui.headless.components.icon
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -22,7 +23,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.headless.components.icon
 
 /**
  * The "card-collapsible" shape (shadcn.io's own example: a rounded card whose header is the
@@ -45,7 +45,7 @@ fun ColumnScope.shadcnCollapsibleCard(
     modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
     header: RowScope.() -> Unit,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ): Boolean {
     val shadcnTheme = theme.asShadcnTheme()
     // shadcnCard's own default style (theme.components.surface) bakes in contentPadding
@@ -67,16 +67,22 @@ fun ColumnScope.shadcnCollapsibleCard(
             style = Style {
                 foreground(shadcnTheme.colors.foreground)
                 contentPadding(shadcnTheme.spacing.sm, 0f.dp)
-                hovered { background(ShadcnTransparent); foreground(shadcnTheme.colors.foreground) }
-                active { background(ShadcnTransparent); foreground(shadcnTheme.colors.foreground) }
+                hovered {
+                    background(ShadcnTransparent)
+                    foreground(shadcnTheme.colors.foreground)
+                }
+                active {
+                    background(ShadcnTransparent)
+                    foreground(shadcnTheme.colors.foreground)
+                }
             },
             centered = false,
-            onClick = { onExpandedChange(!expanded) }
+            onClick = { onExpandedChange(!expanded) },
         ) { slot ->
             row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = UiAlignment.Vertical.Center,
-                modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp))
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp)),
             ) {
                 header()
                 icon(if (expanded) ShadcnIcons.chevronUp else ShadcnIcons.chevronDown)

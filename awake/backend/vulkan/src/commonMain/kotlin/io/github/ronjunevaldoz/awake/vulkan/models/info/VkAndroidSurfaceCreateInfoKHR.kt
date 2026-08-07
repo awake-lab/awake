@@ -11,7 +11,8 @@ data class VkAndroidSurfaceCreateInfoKHR(
     val pNext: Any? = null,
     val flags: VkAndroidSurfaceCreateFlagsKHR = 0,
     @field:NativeSurfaceWindow
-    val window: Any? = null
+    val window: Any? = null,
 )
+
 // You can define the VkAndroidSurfaceCreateFlagsKHR as a typealias or enum class
 typealias VkAndroidSurfaceCreateFlagsKHR = VkFlags

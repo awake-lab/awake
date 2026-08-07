@@ -8,8 +8,8 @@ import io.github.ronjunevaldoz.awake.core.graphics.opengl.CommonGL
 import io.github.ronjunevaldoz.awake.core.memory.ByteBuf
 import io.github.ronjunevaldoz.awake.core.utils.BufferUtils
 
-
-class FrameBuffer(private val width: Int, private val height: Int) : BufferObject,
+class FrameBuffer(private val width: Int, private val height: Int) :
+    BufferObject,
     Disposable {
     override var id: Int = -1
     private var texture: Texture? = null
@@ -28,7 +28,7 @@ class FrameBuffer(private val width: Int, private val height: Int) : BufferObjec
                     CommonGL.GL_COLOR_ATTACHMENT0,
                     CommonGL.GL_TEXTURE_2D,
                     id, // texture id
-                    0
+                    0,
                 )
             }
             // Create a renderBuffer for depth and stencil
@@ -59,7 +59,7 @@ class FrameBuffer(private val width: Int, private val height: Int) : BufferObjec
                 height,
                 CommonGL.GL_RGBA,
                 CommonGL.GL_UNSIGNED_BYTE,
-                pixelBuffer
+                pixelBuffer,
             )
         }
         return pixelBuffer

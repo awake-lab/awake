@@ -3,15 +3,15 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 /**
  * Real-measurement probe for the live report: "the parent [WrapContent] container is expanding
@@ -26,12 +26,12 @@ class WrapContentScrollLeakProbeTest {
     private fun content(): io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.(UiBounds) -> Unit = {
         column(
             id = "scroll-container",
-            modifier = Modifier.width(Dimension.FillMax).height(176f.px).verticalScroll(scrollState)
+            modifier = Modifier.width(Dimension.FillMax).height(176f.px).verticalScroll(scrollState),
         ) {
             repeat(10) { index ->
                 surface(
                     id = "row-$index",
-                    modifier = Modifier.width(Dimension.FillMax).height(32f.px)
+                    modifier = Modifier.width(Dimension.FillMax).height(32f.px),
                 ) { }
             }
         }
@@ -49,12 +49,12 @@ class WrapContentScrollLeakProbeTest {
             var outerSlot: UiBounds? = null
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
                 id = "page",
-                modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
             ) {
                 outerSlot = surface(
                     id = "showcase-scroll-panel-page",
                     modifier = Modifier.width(Dimension.Fixed(420f.px)).height(Dimension.WrapContent),
-                    content = content()
+                    content = content(),
                 )
             }
             ui.endFrame()

@@ -27,7 +27,7 @@ private val PixelBaselineIds: Set<String> = setOf(
     "ui-showcase-field-matrix",
     "ui-showcase-easing-rest",
     "ui-showcase-easing-in-flight",
-    "ui-showcase-easing-settled"
+    "ui-showcase-easing-settled",
 )
 
 /**
@@ -38,12 +38,12 @@ private val PixelBaselineIds: Set<String> = setOf(
 private val KnownPreviewIssues: Map<String, AwakeUiPreviewValidationConfig> = mapOf(
     // Intentionally demonstrates ellipsis truncation on a long button label.
     "ui-showcase-button-matrix" to AwakeUiPreviewValidationConfig(
-        allowTruncatedTextIds = setOf("showcase-matrix-button-long.label")
+        allowTruncatedTextIds = setOf("showcase-matrix-button-long.label"),
     ),
     // shadcnCheckbox's fixed-size box is a few px taller than its claimed row -- pre-existing,
     // unrelated to this session's work.
     "ui-showcase-field-matrix" to AwakeUiPreviewValidationConfig(
-        contentFitTolerancePx = 8f
+        contentFitTolerancePx = 8f,
     ),
     // Items 1/2's supporting text is intentionally longer than fits in 2 lines -- expected
     // ellipsis truncation, not a layout bug. (Item 0's supporting text fits in 2 lines exactly
@@ -52,12 +52,12 @@ private val KnownPreviewIssues: Map<String, AwakeUiPreviewValidationConfig> = ma
     "ui-showcase-dropdown-open" to AwakeUiPreviewValidationConfig(
         allowTruncatedTextIds = setOf(
             "showcase-matrix-dropdown-menu.item.1.supporting",
-            "showcase-matrix-dropdown-menu.item.2.supporting"
-        )
+            "showcase-matrix-dropdown-menu.item.2.supporting",
+        ),
     ),
     "ui-showcase-theming" to AwakeUiPreviewValidationConfig(
-        contentFitTolerancePx = 20f
-    )
+        contentFitTolerancePx = 20f,
+    ),
 )
 
 class UiShowcasePreviewDocsTest {

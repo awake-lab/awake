@@ -42,9 +42,9 @@ enum class ClipSpace(
      * projection must produce so nothing is clipped. Keep the depth clear value (1.0) and
      * compare op (`Less`) in step with it -- a reverse-Z setup would flip both.
      */
-    val depthZeroToOne: Boolean
+    val depthZeroToOne: Boolean,
 ) {
     OpenGl(flipY = false, depthZeroToOne = false),
     Vulkan(flipY = true, depthZeroToOne = true),
-    WebGpu(flipY = false, depthZeroToOne = true)
+    WebGpu(flipY = false, depthZeroToOne = true),
 }

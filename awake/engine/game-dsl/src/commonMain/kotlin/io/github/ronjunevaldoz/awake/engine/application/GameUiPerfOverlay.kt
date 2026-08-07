@@ -5,11 +5,11 @@ package io.github.ronjunevaldoz.awake.engine.application
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.textLayoutCacheStats
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.textLayoutCacheStats
 import kotlin.math.roundToInt
 
 /**
@@ -25,7 +25,7 @@ data class GameFrameStats(
     val fps: Float,
     val trialPasses: Int,
     val textCacheHits: Int,
-    val textCacheMisses: Int
+    val textCacheMisses: Int,
 ) {
     val textCacheTotal: Int get() = textCacheHits + textCacheMisses
     val textCacheHitRatePercent: Int get() = if (textCacheTotal > 0) (textCacheHits * 100 / textCacheTotal) else 0
@@ -38,7 +38,7 @@ fun GameUiRuntime.frameStats(): GameFrameStats {
         fps = fps,
         trialPasses = UiMeasureTrialStats.trialCount,
         textCacheHits = cacheHits,
-        textCacheMisses = cacheMisses
+        textCacheMisses = cacheMisses,
     )
 }
 
@@ -60,19 +60,19 @@ internal fun GameUiRuntime.drawPerfStatsOverlay() {
     val lines = listOf(
         "${stats.frameTimeMs}ms  ${stats.fps.roundToInt()} fps",
         "trial passes: ${stats.trialPasses}",
-        "text cache: ${stats.textCacheHitRatePercent}% hit (${stats.textCacheHits}/${stats.textCacheTotal})"
+        "text cache: ${stats.textCacheHitRatePercent}% hit (${stats.textCacheHits}/${stats.textCacheTotal})",
     )
 
     frame {
         column(
             id = "awake-perf-stats-overlay",
-            modifier = Modifier.offset(8f.dp, 8f.dp)
+            modifier = Modifier.offset(8f.dp, 8f.dp),
         ) {
             lines.forEach { line ->
                 text(
                     label = line,
                     color = Color(0.3f, 1f, 0.4f, 1f),
-                    textStyle = null
+                    textStyle = null,
                 )
             }
         }

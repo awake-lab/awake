@@ -32,7 +32,7 @@ class DynamicMesh(
      * textured glyph quads (pos2+uv2+color4, see `ui_glyph.vert`). Parameterized (not a
      * fixed companion constant) so this one class serves both vertex layouts. */
     private val floatsPerVertex: Int = FLOATS_PER_VERTEX,
-    private val framesInFlight: Int = 1
+    private val framesInFlight: Int = 1,
 ) {
     private val device get() = graphicsDevice.device
     private val physicalDevice get() = graphicsDevice.physicalDevice
@@ -45,7 +45,7 @@ class DynamicMesh(
         val vertexBufferMemory: DeviceMemoryHandle,
         val indexBuffer: BufferHandle,
         val indexBufferMemory: DeviceMemoryHandle,
-        var drawIndexCount: Int = 0
+        var drawIndexCount: Int = 0,
     )
 
     private val frameResources: Array<FrameResources>
@@ -61,17 +61,17 @@ class DynamicMesh(
         frameResources = Array(framesInFlight) {
             val (vBuffer, vMemory) = allocateHostVisibleBuffer(
                 byteSize = (maxVertices * floatsPerVertex * Float.SIZE_BYTES).toLong(),
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
             )
             val (iBuffer, iMemory) = allocateHostVisibleBuffer(
                 byteSize = (maxIndices * Int.SIZE_BYTES).toLong(),
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
             )
             FrameResources(
                 vertexBuffer = BufferHandle(vBuffer),
                 vertexBufferMemory = DeviceMemoryHandle(vMemory),
                 indexBuffer = BufferHandle(iBuffer),
-                indexBufferMemory = DeviceMemoryHandle(iMemory)
+                indexBufferMemory = DeviceMemoryHandle(iMemory),
             )
         }
     }
@@ -117,13 +117,13 @@ class DynamicMesh(
             commandBuffer,
             0,
             longArrayOf(frame.vertexBuffer.handle),
-            longArrayOf(0L)
+            longArrayOf(0L),
         )
         VulkanBuffers.vkCmdBindIndexBuffer(
             commandBuffer,
             frame.indexBuffer.handle,
             0,
-            VkIndexType.VK_INDEX_TYPE_UINT32
+            VkIndexType.VK_INDEX_TYPE_UINT32,
         )
     }
 
@@ -158,11 +158,11 @@ class DynamicMesh(
             physicalDevice,
             requirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         )
         val memory = VulkanBuffers.vkAllocateMemory(
             device,
-            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex)
+            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex),
         )
         VulkanBuffers.vkBindBufferMemory(device, buffer, memory, 0)
         return buffer to memory

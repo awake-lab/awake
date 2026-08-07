@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.Dp
@@ -47,7 +49,7 @@ internal fun Arrangement.plan(containerSize: Float, childCount: Int, occupiedSiz
         Arrangement.End -> ArrangementPlan(freeSpace, 0f)
         Arrangement.SpaceBetween -> ArrangementPlan(
             leadingSpacePx = 0f,
-            betweenSpacePx = if (childCount > 1) freeSpace / (childCount - 1) else 0f
+            betweenSpacePx = if (childCount > 1) freeSpace / (childCount - 1) else 0f,
         )
         Arrangement.SpaceEvenly -> {
             val spacing = freeSpace / (childCount + 1)
@@ -92,7 +94,7 @@ internal fun resolveWeightedMainAxis(
     weights: List<LayoutWeight?>,
     containerSize: Float,
     gap: Float,
-    fillsMainAxis: List<Boolean> = emptyList()
+    fillsMainAxis: List<Boolean> = emptyList(),
 ): List<Float> {
     if (weights.none { it != null }) return measuredSizes
     val gapsTotal = gap * (measuredSizes.size - 1).coerceAtLeast(0)

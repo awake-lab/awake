@@ -3,14 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import kotlin.test.AfterTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
+import kotlin.test.AfterTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class DpTest {
 
@@ -71,7 +71,7 @@ class DpTest {
         ui.pushTheme(UiDefaultTheme)
         val glyphPx = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f)).resolveGlyphPx(
             font = font,
-            textStyle = TextStyle(size = 10.sp)
+            textStyle = TextStyle(size = 10.sp),
         )
 
         assertEquals(10f, glyphPx, "styled text sizes should not be clamped back up to the bitmap cell size")
@@ -89,7 +89,7 @@ class DpTest {
         ui.pushTheme(UiDefaultTheme)
         val glyphPx = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f)).resolveGlyphPx(
             font = font,
-            textStyle = TextStyle(size = 13f.sp)
+            textStyle = TextStyle(size = 13f.sp),
         )
 
         assertEquals(14f, glyphPx, "styled text sizes should snap to whole device pixels for crisper bitmap text")

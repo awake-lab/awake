@@ -13,7 +13,7 @@ class UiLayoutSignatureTest {
 
     private fun sampleNodes() = listOf(
         UiSemanticNode(role = UiSemanticRole.Button, bounds = UiBounds(0f, 0f, 100f, 40f), id = "primary"),
-        UiSemanticNode(role = UiSemanticRole.Text, bounds = UiBounds(0f, 48f, 100f, 20f), id = "label")
+        UiSemanticNode(role = UiSemanticRole.Text, bounds = UiBounds(0f, 48f, 100f, 20f), id = "label"),
     )
 
     @Test

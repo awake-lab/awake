@@ -4,25 +4,25 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.Sp
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.avatarFallback
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.headless.avatarFallback
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 /** Mirrors real shadcn-compose's `ShadcnAvatarSize` (`Sm`/`Default`/`Lg`): drives both the
  * avatar's box diameter AND its [shadcnAvatarBadge]/initials text size together, so a caller
@@ -31,7 +31,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 enum class ShadcnAvatarSize(val boxSize: Dp, val textSize: Sp, val badgeSize: Dp) {
     Sm(24f.dp, ShadcnTheme.typography.caption, 8f.dp),
     Default(32f.dp, ShadcnTheme.typography.label, 10f.dp),
-    Lg(40f.dp, ShadcnTheme.typography.body, 12f.dp)
+    Lg(40f.dp, ShadcnTheme.typography.body, 12f.dp),
 }
 
 private fun shadcnAvatarStyle(theme: UiTheme, size: ShadcnAvatarSize, style: Style): Style {
@@ -55,11 +55,11 @@ fun UiScope.shadcnAvatar(
     modifier: UiModifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
     style: Style = Style.Empty,
-    content: BoxScope.(slot: UiBounds) -> Unit
+    content: BoxScope.(slot: UiBounds) -> Unit,
 ): Unit = avatarFallback(
     modifier = modifier.withAvatarSize(size),
     style = shadcnAvatarStyle(theme, size, style),
-    content = content
+    content = content,
 )
 
 /** [shadcnAvatar] convenience that renders plain initials text as the content. */
@@ -67,11 +67,11 @@ fun UiScope.shadcnAvatar(
     initials: String,
     modifier: UiModifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): Unit = avatarFallback(
     initials = initials,
     modifier = modifier.withAvatarSize(size),
-    style = shadcnAvatarStyle(theme, size, style)
+    style = shadcnAvatarStyle(theme, size, style),
 )
 
 /**
@@ -87,7 +87,7 @@ fun UiScope.shadcnAvatar(
  */
 fun BoxScope.shadcnAvatarBadge(
     modifier: UiModifier = Modifier.align(UiAlignment.BottomEnd),
-    size: ShadcnAvatarSize = ShadcnAvatarSize.Default
+    size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
 ) {
     val shadcnTheme = theme.asShadcnTheme()
     avatarFallback(
@@ -96,7 +96,7 @@ fun BoxScope.shadcnAvatarBadge(
             background(shadcnTheme.palette.primary)
             borderWidth(2f.dp)
             borderColor(shadcnTheme.colors.background)
-        }
+        },
     ) { }
 }
 
@@ -109,7 +109,7 @@ fun BoxScope.shadcnAvatarBadge(
 fun RowScope.shadcnAvatarGroup(
     modifier: UiModifier = Modifier,
     horizontalArrangement: Arrangement = defaultArrangement(),
-    content: RowScope.() -> Unit
+    content: RowScope.() -> Unit,
 ): UiBounds = row(modifier = modifier, horizontalArrangement = horizontalArrangement) { content() }
 
 /** [shadcnAvatarGroup] convenience that overlaps a plain initials list automatically -- each
@@ -121,7 +121,7 @@ fun RowScope.shadcnAvatarGroup(
     initials: List<String>,
     modifier: UiModifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
-    overlap: Dp = 8f.dp
+    overlap: Dp = 8f.dp,
 ): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
     return shadcnAvatarGroup(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(0f.dp)) {
@@ -133,7 +133,7 @@ fun RowScope.shadcnAvatarGroup(
                 style = Style {
                     borderWidth(2f.dp)
                     borderColor(shadcnTheme.colors.background)
-                }
+                },
             )
         }
     }

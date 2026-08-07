@@ -2,12 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan.gen
 
+import cnames.structs.VkBuffer_T
+import cnames.structs.VkDeviceMemory_T
+import cnames.structs.VkDevice_T
 import io.github.ronjunevaldoz.awake.vulkan.models.VkMemoryRequirements
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.UIntVar
+import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.get
@@ -17,16 +20,14 @@ import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.set
 import kotlinx.cinterop.toCPointer
 import kotlinx.cinterop.usePinned
-import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.value
-import cnames.structs.VkBuffer_T
-import cnames.structs.VkCommandBuffer_T
-import cnames.structs.VkDeviceMemory_T
-import cnames.structs.VkDevice_T
-import cnames.structs.VkPhysicalDevice_T
 import platform.MoltenVK.VK_SUCCESS
 import platform.MoltenVK.VkBufferVar
 import platform.MoltenVK.VkDeviceMemoryVar
+import platform.posix.memcpy
+import platform.MoltenVK.VkBufferCopy as NativeVkBufferCopy
+import platform.MoltenVK.VkBufferCreateInfo as NativeVkBufferCreateInfo
+import platform.MoltenVK.VkMemoryAllocateInfo as NativeVkMemoryAllocateInfo
 import platform.MoltenVK.vkAllocateMemory as nativeVkAllocateMemory
 import platform.MoltenVK.vkBindBufferMemory as nativeVkBindBufferMemory
 import platform.MoltenVK.vkCmdBindIndexBuffer as nativeVkCmdBindIndexBuffer
@@ -41,10 +42,6 @@ import platform.MoltenVK.vkGetBufferMemoryRequirements as nativeVkGetBufferMemor
 import platform.MoltenVK.vkGetPhysicalDeviceMemoryProperties as nativeVkGetPhysicalDeviceMemoryProperties
 import platform.MoltenVK.vkMapMemory as nativeVkMapMemory
 import platform.MoltenVK.vkUnmapMemory as nativeVkUnmapMemory
-import platform.MoltenVK.VkBufferCopy as NativeVkBufferCopy
-import platform.MoltenVK.VkBufferCreateInfo as NativeVkBufferCreateInfo
-import platform.MoltenVK.VkMemoryAllocateInfo as NativeVkMemoryAllocateInfo
-import platform.posix.memcpy
 
 // Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md.
 @OptIn(ExperimentalForeignApi::class)
@@ -76,7 +73,7 @@ actual object VulkanBuffers {
         VkMemoryRequirements(
             size = native.size.toLong(),
             alignment = native.alignment.toLong(),
-            memoryTypeBits = native.memoryTypeBits.toInt()
+            memoryTypeBits = native.memoryTypeBits.toInt(),
         )
     }
 
@@ -117,7 +114,7 @@ actual object VulkanBuffers {
             device.toCPointer(),
             buffer.toCPointer<VkBuffer_T>(),
             memory.toCPointer<VkDeviceMemory_T>(),
-            memoryOffset.toULong()
+            memoryOffset.toULong(),
         )
         check(result == VK_SUCCESS) { "vkBindBufferMemory failed: $result" }
     }
@@ -153,7 +150,7 @@ actual object VulkanBuffers {
         commandBuffer: Long,
         firstBinding: Int,
         buffers: LongArray,
-        offsets: LongArray
+        offsets: LongArray,
     ) = memScoped {
         val nativeBuffers = allocArray<CPointerVar<VkBuffer_T>>(buffers.size) { i ->
             value = buffers[i].toCPointer()
@@ -166,7 +163,7 @@ actual object VulkanBuffers {
             firstBinding.toUInt(),
             buffers.size.toUInt(),
             nativeBuffers,
-            nativeOffsets
+            nativeOffsets,
         )
     }
 
@@ -175,7 +172,7 @@ actual object VulkanBuffers {
             commandBuffer.toCPointer(),
             buffer.toCPointer<VkBuffer_T>(),
             offset.toULong(),
-            indexType.toUInt()
+            indexType.toUInt(),
         )
     }
 
@@ -190,7 +187,7 @@ actual object VulkanBuffers {
             srcBuffer.toCPointer<VkBuffer_T>(),
             dstBuffer.toCPointer<VkBuffer_T>(),
             1u,
-            region.ptr
+            region.ptr,
         )
     }
 
@@ -200,7 +197,7 @@ actual object VulkanBuffers {
         instanceCount: Int,
         firstIndex: Int,
         vertexOffset: Int,
-        firstInstance: Int
+        firstInstance: Int,
     ) {
         nativeVkCmdDrawIndexed(
             commandBuffer.toCPointer(),
@@ -208,7 +205,7 @@ actual object VulkanBuffers {
             instanceCount.toUInt(),
             firstIndex.toUInt(),
             vertexOffset,
-            firstInstance.toUInt()
+            firstInstance.toUInt(),
         )
     }
 

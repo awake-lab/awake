@@ -11,33 +11,25 @@ import io.github.ronjunevaldoz.awake.core.utils.BufferUtils
 
 class UniformBinderImpl(val program: Int) : UniformBinder {
     private val uniforms: MutableMap<String, Int> = mutableMapOf()
-    override fun getLocation(name: String): Int {
-        return checkNotNull(if (uniforms.containsKey(name)) {
+    override fun getLocation(name: String): Int = checkNotNull(
+        if (uniforms.containsKey(name)) {
             uniforms[name]
         } else {
             uniforms.getOrPut(name) {
                 AwakeContext.gl.getUniformLocation(program, name)
             }
-        }) {
-            "Uniform `$name` not found"
-        }
+        },
+    ) {
+        "Uniform `$name` not found"
     }
 
-    override fun set(location: Int, value: Int) {
-        return AwakeContext.gl.uniform(location, value)
-    }
+    override fun set(location: Int, value: Int) = AwakeContext.gl.uniform(location, value)
 
-    override fun set(location: Int, value: Float) {
-        return AwakeContext.gl.uniform(location, value)
-    }
+    override fun set(location: Int, value: Float) = AwakeContext.gl.uniform(location, value)
 
-    override fun set(location: Int, x: Float, y: Float, z: Float) {
-        return AwakeContext.gl.uniform(location, x, y, z)
-    }
+    override fun set(location: Int, x: Float, y: Float, z: Float) = AwakeContext.gl.uniform(location, x, y, z)
 
-    override fun set(location: Int, x: Float, y: Float, z: Float, w: Float) {
-        return AwakeContext.gl.uniform(location, x, y, z, w)
-    }
+    override fun set(location: Int, x: Float, y: Float, z: Float, w: Float) = AwakeContext.gl.uniform(location, x, y, z, w)
 
     override fun set(location: Int, value: Vec3) {
         set(location, value.x, value.y, value.z)

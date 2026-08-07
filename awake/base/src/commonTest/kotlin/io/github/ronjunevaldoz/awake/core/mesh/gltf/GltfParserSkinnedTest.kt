@@ -29,7 +29,7 @@ class GltfParserSkinnedTest {
         1f, 0f, 0f, 0f,
         0f, 1f, 0f, 0f,
         0f, 0f, 1f, 0f,
-        0f, 0f, 0f, 1f
+        0f, 0f, 0f, 1f,
     )
 
     @Test
@@ -37,8 +37,14 @@ class GltfParserSkinnedTest {
         val inverseBindMatrices = identityMat4() + identityMat4() // 2 joints, both identity.
         val times = floatArrayOf(0f, 1f)
         val rotations = floatArrayOf(
-            0f, 0f, 0f, 1f, // keyframe 0: identity rotation.
-            0f, 0f, 0.7071f, 0.7071f // keyframe 1: ~90 degrees about Z.
+            0f,
+            0f,
+            0f,
+            1f, // keyframe 0: identity rotation.
+            0f,
+            0f,
+            0.7071f,
+            0.7071f, // keyframe 1: ~90 degrees about Z.
         )
 
         val bytes = floatBytes(inverseBindMatrices) + floatBytes(times) + floatBytes(rotations)

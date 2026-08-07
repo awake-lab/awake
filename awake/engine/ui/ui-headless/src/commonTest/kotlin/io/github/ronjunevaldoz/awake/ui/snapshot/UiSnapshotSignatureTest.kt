@@ -24,7 +24,7 @@ class UiSnapshotSignatureTest {
 
 private fun assertSnapshotSignatures(
     scenes: List<UiSnapshotScene>,
-    expected: Map<String, ULong>
+    expected: Map<String, ULong>,
 ) {
     val actual = scenes.associate { scene ->
         scene.name to scene.snapshotSignature().also { signature ->
@@ -41,7 +41,7 @@ private fun assertSnapshotSignatures(
         val inspection = inspectUiFrame(
             primitives = scene.primitives,
             frame = UiBounds(0f, 0f, scene.width.toFloat(), scene.height.toFloat()),
-            font = scene.font
+            font = scene.font,
         )
         assertEquals(true, inspection.isClean, "UI inspection failed for ${scene.name}:\n${inspection.summary()}")
         val pixels = scene.primitives.rasterize(scene.width, scene.height, scene.background, scene.font)
@@ -52,7 +52,7 @@ private fun assertSnapshotSignatures(
             actualSignature,
             "Snapshot drift for ${scene.name}: actual=${actualSignature.toHexString()}, size=${scene.width}x${scene.height}, " +
                 "center=${summary.center}, topLeft=${summary.topLeft}, topRight=${summary.topRight}, " +
-                "bottomLeft=${summary.bottomLeft}, bottomRight=${summary.bottomRight}"
+                "bottomLeft=${summary.bottomLeft}, bottomRight=${summary.bottomRight}",
         )
     }
 }
@@ -81,7 +81,7 @@ private val expectedReviewSnapshotSignatures = mapOf(
     "theme-dark" to 0xa9d6aab03ea5efebuL,
     "theme-light" to 0x477edd757ade548buL,
     "panel-with-children" to 0x05b435841e619a07uL,
-    "shadcn-field-error" to 0x2661959fe977c56euL
+    "shadcn-field-error" to 0x2661959fe977c56euL,
 )
 
 // 2026-08-03: quads/rounded-quads/borders (surface fills, buttons, dialogs, separators) now
@@ -98,7 +98,7 @@ private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-alert-dialog" to 0x91c88d40e4db9a39uL,
     "ui-component-state-matrix" to 0xeb8e460e55572192uL,
     "ui-rounded-clip-vector" to 0x6252fcda705461c1uL,
-    "ui-awake-shadcn-showcase" to 0x475f0c7766de5f75uL
+    "ui-awake-shadcn-showcase" to 0x475f0c7766de5f75uL,
 )
 
 private fun ULong.toHexString(): String {

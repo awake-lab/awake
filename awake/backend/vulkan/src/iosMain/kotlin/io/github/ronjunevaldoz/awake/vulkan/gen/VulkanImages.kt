@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan.gen
 
+import cnames.structs.VkBuffer_T
+import cnames.structs.VkDeviceMemory_T
+import cnames.structs.VkImage_T
+import cnames.structs.VkSampler_T
 import io.github.ronjunevaldoz.awake.vulkan.models.VkMemoryRequirements
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferImageCopy
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageCreateInfo
@@ -13,10 +17,6 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toCPointer
 import kotlinx.cinterop.value
-import cnames.structs.VkBuffer_T
-import cnames.structs.VkDeviceMemory_T
-import cnames.structs.VkImage_T
-import cnames.structs.VkSampler_T
 import platform.MoltenVK.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
 import platform.MoltenVK.VK_ACCESS_SHADER_READ_BIT
 import platform.MoltenVK.VK_ACCESS_TRANSFER_READ_BIT
@@ -33,6 +33,10 @@ import platform.MoltenVK.VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO
 import platform.MoltenVK.VK_SUCCESS
 import platform.MoltenVK.VkImageVar
 import platform.MoltenVK.VkSamplerVar
+import platform.MoltenVK.VkBufferImageCopy as NativeVkBufferImageCopy
+import platform.MoltenVK.VkImageCreateInfo as NativeVkImageCreateInfo
+import platform.MoltenVK.VkImageMemoryBarrier as NativeVkImageMemoryBarrier
+import platform.MoltenVK.VkSamplerCreateInfo as NativeVkSamplerCreateInfo
 import platform.MoltenVK.vkBindImageMemory as nativeVkBindImageMemory
 import platform.MoltenVK.vkCmdCopyBufferToImage as nativeVkCmdCopyBufferToImage
 import platform.MoltenVK.vkCmdCopyImageToBuffer as nativeVkCmdCopyImageToBuffer
@@ -42,10 +46,6 @@ import platform.MoltenVK.vkCreateSampler as nativeVkCreateSampler
 import platform.MoltenVK.vkDestroyImage as nativeVkDestroyImage
 import platform.MoltenVK.vkDestroySampler as nativeVkDestroySampler
 import platform.MoltenVK.vkGetImageMemoryRequirements as nativeVkGetImageMemoryRequirements
-import platform.MoltenVK.VkBufferImageCopy as NativeVkBufferImageCopy
-import platform.MoltenVK.VkImageCreateInfo as NativeVkImageCreateInfo
-import platform.MoltenVK.VkImageMemoryBarrier as NativeVkImageMemoryBarrier
-import platform.MoltenVK.VkSamplerCreateInfo as NativeVkSamplerCreateInfo
 
 // Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md.
 @OptIn(ExperimentalForeignApi::class)
@@ -88,7 +88,7 @@ actual object VulkanImages {
         VkMemoryRequirements(
             size = native.size.toLong(),
             alignment = native.alignment.toLong(),
-            memoryTypeBits = native.memoryTypeBits.toInt()
+            memoryTypeBits = native.memoryTypeBits.toInt(),
         )
     }
 
@@ -97,7 +97,7 @@ actual object VulkanImages {
             device.toCPointer(),
             image.toCPointer<VkImage_T>(),
             memory.toCPointer<VkDeviceMemory_T>(),
-            memoryOffset.toULong()
+            memoryOffset.toULong(),
         )
         check(result == VK_SUCCESS) { "vkBindImageMemory failed: $result" }
     }
@@ -140,7 +140,7 @@ actual object VulkanImages {
         image: Long,
         oldLayout: Int,
         newLayout: Int,
-        levelCount: Int
+        levelCount: Int,
     ) = memScoped {
         val barrier = alloc<NativeVkImageMemoryBarrier>().apply {
             sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER
@@ -215,7 +215,7 @@ actual object VulkanImages {
             0u,
             null,
             1u,
-            barrier.ptr
+            barrier.ptr,
         )
     }
 
@@ -223,7 +223,7 @@ actual object VulkanImages {
         commandBuffer: Long,
         srcBuffer: Long,
         dstImage: Long,
-        copy: VkBufferImageCopy
+        copy: VkBufferImageCopy,
     ) = memScoped {
         val region = alloc<NativeVkBufferImageCopy>().apply {
             bufferOffset = copy.bufferOffset.toULong()
@@ -252,7 +252,7 @@ actual object VulkanImages {
             dstImage.toCPointer<VkImage_T>(),
             VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL.toUInt(),
             1u,
-            region.ptr
+            region.ptr,
         )
     }
 
@@ -263,7 +263,7 @@ actual object VulkanImages {
         commandBuffer: Long,
         srcImage: Long,
         dstBuffer: Long,
-        copy: VkBufferImageCopy
+        copy: VkBufferImageCopy,
     ): Unit = memScoped {
         val region = alloc<NativeVkBufferImageCopy>().apply {
             bufferOffset = copy.bufferOffset.toULong()
@@ -292,7 +292,7 @@ actual object VulkanImages {
             VkImageLayout2.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.toUInt(),
             dstBuffer.toCPointer<VkBuffer_T>(),
             1u,
-            region.ptr
+            region.ptr,
         )
     }
 }

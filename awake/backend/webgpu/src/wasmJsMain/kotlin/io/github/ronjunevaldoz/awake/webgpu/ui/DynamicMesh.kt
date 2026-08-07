@@ -20,7 +20,7 @@ import io.ygdrasil.webgpu.GPUIndexFormat
 class DynamicMesh(
     private val graphicsDevice: GraphicsDevice,
     private val maxQuads: Int,
-    private val floatsPerVertex: Int = FLOATS_PER_VERTEX
+    private val floatsPerVertex: Int = FLOATS_PER_VERTEX,
 ) {
     private val maxVertices = maxQuads * VERTICES_PER_QUAD
     private val maxIndices = maxQuads * INDICES_PER_QUAD
@@ -37,14 +37,14 @@ class DynamicMesh(
         vertexBuffer = device.createBuffer(
             BufferDescriptor(
                 size = (maxVertices * floatsPerVertex * Float.SIZE_BYTES).toULong(),
-                usage = GPUBufferUsage.Vertex or GPUBufferUsage.CopyDst
-            )
+                usage = GPUBufferUsage.Vertex or GPUBufferUsage.CopyDst,
+            ),
         )
         indexBuffer = device.createBuffer(
             BufferDescriptor(
                 size = (maxIndices * Int.SIZE_BYTES).toULong(),
-                usage = GPUBufferUsage.Index or GPUBufferUsage.CopyDst
-            )
+                usage = GPUBufferUsage.Index or GPUBufferUsage.CopyDst,
+            ),
         )
     }
 

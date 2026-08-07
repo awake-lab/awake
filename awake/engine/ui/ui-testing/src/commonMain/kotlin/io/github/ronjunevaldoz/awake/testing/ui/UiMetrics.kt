@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.bounds
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.abs
 import kotlin.math.max
@@ -22,13 +22,13 @@ enum class UiPrimitiveMetricKind {
     ShadowQuad,
     ClipPush,
     ClipPathPush,
-    ClipPop
+    ClipPop,
 }
 
 data class UiFrameMetrics(
     val frame: UiBounds,
     val primitiveCounts: Map<UiPrimitiveMetricKind, Int>,
-    val contentBounds: UiBounds?
+    val contentBounds: UiBounds?,
 ) {
     fun normalizedContentBounds(): UiBounds? = contentBounds?.let { bounds ->
         if (frame.width <= 0f || frame.height <= 0f) {
@@ -38,7 +38,7 @@ data class UiFrameMetrics(
                 x = (bounds.x - frame.x) / frame.width,
                 y = (bounds.y - frame.y) / frame.height,
                 width = bounds.width / frame.width,
-                height = bounds.height / frame.height
+                height = bounds.height / frame.height,
             )
         }
     }
@@ -60,7 +60,7 @@ data class UiMetricsReport(val issues: List<String>) {
 
 fun measureUiFrame(
     primitives: List<UiDrawPrimitive>,
-    frame: UiBounds
+    frame: UiBounds,
 ): UiFrameMetrics {
     val counts = linkedMapOf<UiPrimitiveMetricKind, Int>()
     var contentBounds: io.github.ronjunevaldoz.awake.ui.layout.UiBounds? = null
@@ -78,14 +78,14 @@ fun measureUiFrame(
     return UiFrameMetrics(
         frame = frame,
         primitiveCounts = counts,
-        contentBounds = contentBounds
+        contentBounds = contentBounds,
     )
 }
 
 fun inspectThemeParity(
     reference: UiFrameMetrics,
     candidate: UiFrameMetrics,
-    boundsTolerancePx: Float = 1f
+    boundsTolerancePx: Float = 1f,
 ): UiMetricsReport {
     val issues = ArrayList<String>()
     val allKinds = (reference.primitiveCounts.keys + candidate.primitiveCounts.keys).distinct()
@@ -102,7 +102,7 @@ fun inspectThemeParity(
         reference = reference.contentBounds,
         candidate = candidate.contentBounds,
         tolerance = boundsTolerancePx,
-        issues = issues
+        issues = issues,
     )
 
     return UiMetricsReport(issues)
@@ -111,7 +111,7 @@ fun inspectThemeParity(
 fun inspectDensityParity(
     reference: UiFrameMetrics,
     candidate: UiFrameMetrics,
-    normalizedTolerance: Float = 0.04f
+    normalizedTolerance: Float = 0.04f,
 ): UiMetricsReport {
     val issues = ArrayList<String>()
     val referenceBounds = reference.normalizedContentBounds()
@@ -121,7 +121,7 @@ fun inspectDensityParity(
         reference = referenceBounds,
         candidate = candidateBounds,
         tolerance = normalizedTolerance,
-        issues = issues
+        issues = issues,
     )
     return UiMetricsReport(issues)
 }
@@ -130,7 +130,7 @@ fun inspectBoundsFit(
     label: String,
     metrics: UiFrameMetrics,
     allowedBounds: UiBounds,
-    tolerancePx: Float = 0f
+    tolerancePx: Float = 0f,
 ): UiMetricsReport {
     val bounds = metrics.contentBounds ?: return UiMetricsReport(emptyList())
     val issues = ArrayList<String>()
@@ -147,7 +147,7 @@ fun inspectBoundsFit(
 fun inspectNonOverlappingBounds(
     label: String,
     bounds: List<UiBounds>,
-    tolerancePx: Float = 0f
+    tolerancePx: Float = 0f,
 ): UiMetricsReport {
     val issues = ArrayList<String>()
     bounds.forEachIndexed { index, current ->
@@ -170,7 +170,7 @@ private fun compareBounds(
     reference: UiBounds?,
     candidate: UiBounds?,
     tolerance: Float,
-    issues: MutableList<String>
+    issues: MutableList<String>,
 ) {
     when {
         reference == null && candidate == null -> Unit
@@ -207,7 +207,7 @@ private fun UiDrawPrimitive.metricBounds(): io.github.ronjunevaldoz.awake.ui.lay
         x + offsetX - blurRadius - spread,
         y + offsetY - blurRadius - spread,
         w + (blurRadius + spread) * 2f,
-        h + (blurRadius + spread) * 2f
+        h + (blurRadius + spread) * 2f,
     )
     is UiDrawPrimitive.FilledPath -> path.bounds()
     is UiDrawPrimitive.StrokedPath -> strokedBounds(path, stroke.width.toPx())
@@ -223,7 +223,7 @@ private fun strokedBounds(path: UiPath, strokeWidthPx: Float): io.github.ronjune
         x = bounds.x - inset,
         y = bounds.y - inset,
         width = bounds.width + inset * 2f,
-        height = bounds.height + inset * 2f
+        height = bounds.height + inset * 2f,
     )
 }
 
@@ -236,6 +236,6 @@ private fun io.github.ronjunevaldoz.awake.ui.layout.UiBounds.union(other: io.git
         x = minX,
         y = minY,
         width = maxX - minX,
-        height = maxY - minY
+        height = maxY - minY,
     )
 }

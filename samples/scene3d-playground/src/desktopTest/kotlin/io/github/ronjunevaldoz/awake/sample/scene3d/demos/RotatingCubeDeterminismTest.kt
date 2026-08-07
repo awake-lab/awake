@@ -52,7 +52,7 @@ class RotatingCubeDeterminismTest {
         orbitDegrees: Float,
         pitchDegrees: Float,
         zoom: Float,
-        elevation: Float
+        elevation: Float,
     ): CoreCamera {
         val orbitRad = orbitDegrees * (PI / 180.0).toFloat()
         val pitchRad = pitchDegrees * (PI / 180.0).toFloat()
@@ -60,14 +60,14 @@ class RotatingCubeDeterminismTest {
         val eye = Vec3(
             target.x + zoom * cp * sin(orbitRad),
             elevation + zoom * sin(pitchRad),
-            target.z + zoom * cp * cos(orbitRad)
+            target.z + zoom * cp * cos(orbitRad),
         )
         return CoreCamera(
             eye = eye,
             center = target,
             fovYRadians = 45f * (PI / 180.0).toFloat(),
             near = 0.1f,
-            far = 100f
+            far = 100f,
         )
     }
 
@@ -85,14 +85,14 @@ class RotatingCubeDeterminismTest {
             runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
             VertexFormat.PositionNormalColor,
             vertexEntryPoint = "vertexMain",
-            fragmentEntryPoint = "fragmentMain"
+            fragmentEntryPoint = "fragmentMain",
         )
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
             runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
         val transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(
@@ -108,7 +108,7 @@ class RotatingCubeDeterminismTest {
             runBlocking {
                 loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
             },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
 
         var mesh: RenderMesh? = null
@@ -128,7 +128,7 @@ class RotatingCubeDeterminismTest {
                 orbitDegrees = 0f,
                 pitchDegrees = 0f,
                 zoom = 15f,
-                elevation = 2.2f
+                elevation = 2.2f,
             )
 
             fun renderOnce(): ByteArray {
@@ -142,7 +142,7 @@ class RotatingCubeDeterminismTest {
             assertTrue(
                 first.contentEquals(second),
                 "Cube render is non-deterministic for an unchanging scene -- two renders of the exact " +
-                    "same spin angle/camera through the real shader produced different pixels."
+                    "same spin angle/camera through the real shader produced different pixels.",
             )
         } finally {
             mesh?.destroy()

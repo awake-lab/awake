@@ -38,7 +38,7 @@ class RendererHeadlessFilledPathAaTest {
                     lineTo(32f, 40f)
                     close()
                 },
-                color = Color(1f, 1f, 1f, 1f)
+                color = Color(1f, 1f, 1f, 1f),
             )
 
             renderer.renderUiToTexture(target, listOf(triangle), font = null)
@@ -68,7 +68,7 @@ class RendererHeadlessFilledPathAaTest {
             assertTrue(
                 intermediateReds.isNotEmpty(),
                 "expected at least one intermediate (non-0/255) red value along the " +
-                    "diagonal FilledPath edge at y=24, got reds=$scanlineReds"
+                    "diagonal FilledPath edge at y=24, got reds=$scanlineReds",
             )
 
             // Sanity: the shape actually rendered a real edge -- both a solid white interior

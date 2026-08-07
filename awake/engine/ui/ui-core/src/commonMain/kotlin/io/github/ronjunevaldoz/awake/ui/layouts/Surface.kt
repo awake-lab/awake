@@ -35,7 +35,7 @@ fun UiScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = smartColumn(
     id = id,
     gap = verticalArrangement.baseSpacingPx(),
@@ -47,7 +47,7 @@ fun UiScope.surface(
     modifier = modifier,
     clipContent = clipContent,
     role = UiSemanticRole.Panel,
-    content = content
+    content = content,
 )
 
 fun ColumnScope.surface(
@@ -56,14 +56,14 @@ fun ColumnScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = (this as UiScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
     modifier = modifier.width(modifier.widthDimension ?: Dimension.FillMax),
     clipContent = clipContent,
-    content = content
+    content = content,
 )
 
 fun RowScope.surface(
@@ -72,14 +72,14 @@ fun RowScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = (this as UiScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
     modifier = modifier.height(modifier.heightDimension ?: Dimension.FillMax),
     clipContent = clipContent,
-    content = content
+    content = content,
 )
 
 fun AbsoluteScope.surface(
@@ -88,14 +88,14 @@ fun AbsoluteScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = (this as UiScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
     modifier = modifier,
     clipContent = clipContent,
-    content = content
+    content = content,
 )
 
 fun BoxScope.surface(
@@ -104,14 +104,14 @@ fun BoxScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = (this as UiScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
     modifier = modifier,
     clipContent = clipContent,
-    content = content
+    content = content,
 )
 
 fun UiScope.surface(
@@ -119,7 +119,7 @@ fun UiScope.surface(
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val width = modifier.widthDimension ?: Dimension.WrapContent
     val height = modifier.heightDimension ?: Dimension.WrapContent
@@ -127,7 +127,7 @@ fun UiScope.surface(
     val effectiveStyle = modifier.styleable ?: Style.Empty
     val containerTag = modifier.testTag ?: id
     val hasWrapContent = width == Dimension.WrapContent || height == Dimension.WrapContent
-    
+
     // Only perform early slot claim and hit test if we don't have WrapContent dimensions.
     // WrapContent dimensions must be measured first before claiming any slot.
     val (initialSlot, initialHovered) = if (!hasWrapContent) {
@@ -136,16 +136,16 @@ fun UiScope.surface(
     } else {
         null to false
     }
-    
+
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: initialHovered,
         active = modifier.forceActive ?: isActive(id),
-        focused = modifier.forceFocus ?: context.isFocused(id)
+        focused = modifier.forceFocus ?: context.isFocused(id),
     )
     val resolved = resolveStyle(
         style = effectiveStyle,
         defaults = context.currentTheme.components.surface,
-        state = styleState
+        state = styleState,
     )
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
@@ -158,7 +158,7 @@ fun UiScope.surface(
         context.measureColumnContent(
             width = maxContentWidth,
             gap = gap,
-            content = content
+            content = content,
         )
     } else {
         null
@@ -183,7 +183,7 @@ fun UiScope.surface(
         borderColor = resolved.borderColor ?: context.currentTheme.colors.border,
         shapeSpec = resolved.shapeSpec,
         fillTokenId = resolved.backgroundToken,
-        borderTokenId = resolved.borderColorToken
+        borderTokenId = resolved.borderColorToken,
     )
     recordSemantic(
         role = UiSemanticRole.Panel,
@@ -195,18 +195,18 @@ fun UiScope.surface(
         foregroundToken = resolved.foregroundToken,
         borderColor = resolved.borderColor,
         borderToken = resolved.borderColorToken,
-        borderRadius = resolved.shape.toPx()
+        borderRadius = resolved.shape.toPx(),
     )
     context.pushTextStyle(resolved.textStyle, tokenId = resolved.textStyleToken)
     val effectiveShape = resolved.shapeSpec ?: UiShapeSpec.RoundedRectangle(resolved.shape)
     context.pushShapeSpec(effectiveShape)
-    
+
     val contentScope = childColumn(
         slot,
         verticalArrangement = Arrangement.spacedBy(gap.px),
         modifier = UiModifier(insets = resolved.contentPadding, testTag = containerTag),
         hasBoundedFillWidth = width != Dimension.WrapContent,
-        hasBoundedFillHeight = height != Dimension.WrapContent
+        hasBoundedFillHeight = height != Dimension.WrapContent,
     )
     // Any non-zero shape/radius must clip its own children, not just round the background
     // paint -- otherwise square-cornered content (a badge, a button row) can visibly poke

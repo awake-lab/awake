@@ -8,14 +8,12 @@ import io.github.ronjunevaldoz.awake.vulkan.VkHandle
 import io.github.ronjunevaldoz.awake.vulkan.VkHandleRef
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkStructureType
 
-
 class VkPushConstantRange(
     val stageFlags: VkShaderStageFlags = 0,
     val offset: Int = 0,
-    val size: Int = 0
+    val size: Int = 0,
 )
 typealias VkShaderStageFlags = VkFlags
-
 
 class VkPipelineLayoutCreateInfo(
     val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,

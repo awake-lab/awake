@@ -19,7 +19,7 @@ val ALL_TEXT_NODES: Set<String> = object : AbstractSet<String>() {
 data class AwakeUiPreviewOverlapRule(
     val label: String,
     val nodeIds: Set<String>,
-    val tolerancePx: Float = 1f
+    val tolerancePx: Float = 1f,
 )
 
 data class AwakeUiPreviewValidationConfig(
@@ -70,7 +70,7 @@ data class AwakeUiPreviewValidationConfig(
     val exactPaddingRules: List<AwakeUiPreviewExactPaddingRule> = emptyList(),
 
     /** Assert exact sibling spacing from Figma */
-    val exactSpacingRules: List<AwakeUiPreviewExactSpacingRule> = emptyList()
+    val exactSpacingRules: List<AwakeUiPreviewExactSpacingRule> = emptyList(),
 )
 
 /** Assert that specific semantic nodes use the correct design tokens */
@@ -79,7 +79,7 @@ data class AwakeUiPreviewTokenRule(
     val expectedBackgroundToken: String? = null,
     val expectedForegroundToken: String? = null,
     val expectedBorderToken: String? = null,
-    val expectedTextStyleToken: String? = null
+    val expectedTextStyleToken: String? = null,
 )
 
 /** Assert exact pixel dimensions from Figma */
@@ -87,14 +87,14 @@ data class AwakeUiPreviewDimensionRule(
     val nodeId: String,
     val exactHeight: Float? = null,
     val exactWidth: Float? = null,
-    val tolerancePx: Float = 0.5f
+    val tolerancePx: Float = 0.5f,
 )
 
 /** Assert exact content padding from Figma */
 data class AwakeUiPreviewExactPaddingRule(
     val nodeId: String,
     val exactPaddingPx: Float,
-    val tolerancePx: Float = 0.5f
+    val tolerancePx: Float = 0.5f,
 )
 
 /** Assert exact sibling spacing from Figma */
@@ -103,7 +103,7 @@ data class AwakeUiPreviewExactSpacingRule(
     val nodeIds: Set<String>,
     val exactGapPx: Float,
     val axis: SpacingAxis? = null,
-    val tolerancePx: Float = 0.5f
+    val tolerancePx: Float = 0.5f,
 )
 
 /** Declares a minimum-gap rule for a named set of sibling semantic nodes. */
@@ -111,11 +111,11 @@ data class AwakeUiPreviewSpacingRule(
     val label: String,
     val nodeIds: Set<String>,
     val minGapPx: Float,
-    val axis: SpacingAxis? = null
+    val axis: SpacingAxis? = null,
 )
 
 data class AwakeUiPreviewValidationReport(
-    val issues: List<String>
+    val issues: List<String>,
 ) {
     val isClean: Boolean get() = issues.isEmpty()
 
@@ -132,22 +132,22 @@ data class AwakeUiPreviewValidationReport(
 
 fun validateAwakeUiPreview(
     scene: AwakeUiPreviewScene,
-    config: AwakeUiPreviewValidationConfig = AwakeUiPreviewValidationConfig()
+    config: AwakeUiPreviewValidationConfig = AwakeUiPreviewValidationConfig(),
 ): AwakeUiPreviewValidationReport = validateAwakeUiPreview(
     metadata = scene.metadata,
     frame = AwakeUiPreviewFrame(
         primitives = scene.primitives,
         background = scene.background,
         font = scene.font,
-        semantics = scene.semantics
+        semantics = scene.semantics,
     ),
-    config = config
+    config = config,
 )
 
 fun validateAwakeUiPreview(
     metadata: AwakeUiPreviewMetadata,
     frame: AwakeUiPreviewFrame,
-    config: AwakeUiPreviewValidationConfig = AwakeUiPreviewValidationConfig()
+    config: AwakeUiPreviewValidationConfig = AwakeUiPreviewValidationConfig(),
 ): AwakeUiPreviewValidationReport {
     val issues = ArrayList<String>()
     val frameBounds = UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())
@@ -155,7 +155,7 @@ fun validateAwakeUiPreview(
     val visualReport = inspectUiFrame(
         primitives = frame.primitives,
         frame = frameBounds,
-        font = frame.font
+        font = frame.font,
     )
     if (!visualReport.isClean) {
         issues += "[${metadata.id}] ${visualReport.summary()}"
@@ -173,13 +173,18 @@ fun validateAwakeUiPreview(
         // Centering check: only runs when the caller has explicitly opted in via
         // checkCenteredTextIds. An empty set skips the check entirely (safe default).
         if (config.checkCenteredTextIds.isNotEmpty()) {
-            val allowExempt = if (config.checkCenteredTextIds === ALL_TEXT_NODES) emptySet()
-                             else semantics.mapNotNull { it.id }.toSet() - config.checkCenteredTextIds
-            add(inspectTextCentering(
-                nodes = semantics,
-                tolerancePx = config.centeringTolerancePx,
-                allowIds = allowExempt
-            ))
+            val allowExempt = if (config.checkCenteredTextIds === ALL_TEXT_NODES) {
+                emptySet()
+            } else {
+                semantics.mapNotNull { it.id }.toSet() - config.checkCenteredTextIds
+            }
+            add(
+                inspectTextCentering(
+                    nodes = semantics,
+                    tolerancePx = config.centeringTolerancePx,
+                    allowIds = allowExempt,
+                ),
+            )
         }
     }
     semanticReports
@@ -197,7 +202,7 @@ fun validateAwakeUiPreview(
         val paddingReport = inspectPadding(
             nodes = semantics,
             minPaddingPx = config.minContentPaddingPx,
-            allowIds = config.paddingAllowIds
+            allowIds = config.paddingAllowIds,
         )
         if (!paddingReport.isClean) {
             issues += "[${metadata.id}] ${paddingReport.summary()}"
@@ -217,7 +222,7 @@ fun validateAwakeUiPreview(
                 label = rule.label,
                 nodes = nodes,
                 minGapPx = rule.minGapPx,
-                axis = rule.axis
+                axis = rule.axis,
             )
             if (!spacingReport.isClean) {
                 issues += "[${metadata.id}] ${spacingReport.summary()}"
@@ -236,7 +241,7 @@ fun validateAwakeUiPreview(
             val overlapReport = inspectSemanticOverlaps(
                 label = rule.label,
                 nodes = nodes,
-                tolerancePx = rule.tolerancePx
+                tolerancePx = rule.tolerancePx,
             )
             if (!overlapReport.isClean) {
                 issues += "[${metadata.id}] ${overlapReport.summary()}"
@@ -255,7 +260,7 @@ fun validateAwakeUiPreview(
                 nodes = listOf(node),
                 exactHeight = rule.exactHeight,
                 exactWidth = rule.exactWidth,
-                tolerancePx = rule.tolerancePx
+                tolerancePx = rule.tolerancePx,
             )
             if (!dimensionReport.isClean) {
                 issues += "[${metadata.id}] ${dimensionReport.summary()}"
@@ -275,7 +280,7 @@ fun validateAwakeUiPreview(
                 expectedBackgroundToken = rule.expectedBackgroundToken,
                 expectedForegroundToken = rule.expectedForegroundToken,
                 expectedBorderToken = rule.expectedBorderToken,
-                expectedTextStyleToken = rule.expectedTextStyleToken
+                expectedTextStyleToken = rule.expectedTextStyleToken,
             )
             if (!tokenReport.isClean) {
                 issues += "[${metadata.id}] ${tokenReport.summary()}"
@@ -293,7 +298,7 @@ fun validateAwakeUiPreview(
             val paddingReport = inspectExactPadding(
                 nodes = listOf(node),
                 expectedPaddingPx = rule.exactPaddingPx,
-                tolerancePx = rule.tolerancePx
+                tolerancePx = rule.tolerancePx,
             )
             if (!paddingReport.isClean) {
                 issues += "[${metadata.id}] ${paddingReport.summary()}"
@@ -315,7 +320,7 @@ fun validateAwakeUiPreview(
                 nodes = nodes,
                 expectedGapPx = rule.exactGapPx,
                 axis = rule.axis,
-                tolerancePx = rule.tolerancePx
+                tolerancePx = rule.tolerancePx,
             )
             if (!spacingReport.isClean) {
                 issues += "[${metadata.id}] ${spacingReport.summary()}"
@@ -329,5 +334,5 @@ fun validateAwakeUiPreview(
 fun requirePreviewNode(
     semantics: List<UiSemanticNode>,
     id: String,
-    role: UiSemanticRole? = null
+    role: UiSemanticRole? = null,
 ): UiSemanticNode = requireSemanticNode(semantics, id, role)

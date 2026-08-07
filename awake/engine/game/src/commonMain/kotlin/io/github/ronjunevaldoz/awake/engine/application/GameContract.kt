@@ -9,14 +9,14 @@ enum class GameWindowBackend {
     DEFAULT,
     VULKAN,
     WEBGPU,
-    OPENGL
+    OPENGL,
 }
 
 data class GameWindowConfig(
     val title: String,
     val width: Int,
     val height: Int,
-    val backend: GameWindowBackend
+    val backend: GameWindowBackend,
 )
 
 interface GameInstaller {
@@ -39,15 +39,16 @@ inline fun <reified T : Any> GameServiceLookup.service(): T? = service(T::class)
 inline fun <reified T : Any> GameServiceLookup.requireService(): T = requireService(T::class)
 
 /**
- * A single game session. Pure delegation to a [Game] implementation with 
+ * A single game session. Pure delegation to a [Game] implementation with
  * attached window configuration and services.
  */
 class AwakeGame internal constructor(
     private val delegate: Game,
     val windowConfig: GameWindowConfig,
-    private val services: Map<KClass<*>, Any>
-) : Game by delegate, GameServiceLookup {
-    
+    private val services: Map<KClass<*>, Any>,
+) : Game by delegate,
+    GameServiceLookup {
+
     /** The session's input accumulator. Guaranteed to exist. */
     val input: Input get() = requireService(Input::class)
 

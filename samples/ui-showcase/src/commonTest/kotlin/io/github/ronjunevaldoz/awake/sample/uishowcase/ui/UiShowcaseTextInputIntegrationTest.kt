@@ -6,11 +6,11 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
@@ -52,7 +52,7 @@ class UiShowcaseTextInputIntegrationTest {
                 modifier = Modifier.offset(24f.dp, 24f.dp)
                     .width((width - 48f).dp)
                     .height((height - 48f).dp),
-                verticalArrangement = Arrangement.spacedBy(10f.dp)
+                verticalArrangement = Arrangement.spacedBy(10f.dp),
             ) {
                 renderUiShowcasePagePreview(page, state)
             }
@@ -73,7 +73,7 @@ class UiShowcaseTextInputIntegrationTest {
         frame(pointerDown = true, x = clickX, y = clickY)
         assertTrue(
             ui.isFocused("showcase-name"),
-            "clicking the real page's field must grant it focus"
+            "clicking the real page's field must grant it focus",
         )
 
         // Frame 3: type, exactly as the desktop bridge does -- push BEFORE beginFrame.
@@ -83,7 +83,7 @@ class UiShowcaseTextInputIntegrationTest {
         val glyphCount = primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size
         assertTrue(
             glyphCount > 0,
-            "typed text must actually render as glyph primitives, not just update hidden state"
+            "typed text must actually render as glyph primitives, not just update hidden state",
         )
 
         val nameLabel = ui.semanticNodes()
@@ -91,7 +91,7 @@ class UiShowcaseTextInputIntegrationTest {
         assertEquals(
             "Hi",
             nameLabel,
-            "the field's value must reflect what was typed after going through the real page composition"
+            "the field's value must reflect what was typed after going through the real page composition",
         )
     }
 
@@ -110,7 +110,7 @@ class UiShowcaseTextInputIntegrationTest {
         ui.pushTheme(theme)
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
             renderUiShowcasePagePreview(page, state)
         }
@@ -123,7 +123,7 @@ class UiShowcaseTextInputIntegrationTest {
         ui.pushTheme(theme)
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
             renderUiShowcasePagePreview(page, state)
         }
@@ -134,7 +134,7 @@ class UiShowcaseTextInputIntegrationTest {
         assertEquals(
             "Jane Doe",
             label,
-            "typed text must not leak into a field that was never clicked -- value stays empty, so its placeholder is still what's recorded"
+            "typed text must not leak into a field that was never clicked -- value stays empty, so its placeholder is still what's recorded",
         )
     }
 }

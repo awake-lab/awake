@@ -49,7 +49,7 @@ internal class UiShowcaseCounterStore {
     }
 
     private inline fun updateState(
-        update: (UiShowcaseCounterContract.State) -> UiShowcaseCounterContract.State
+        update: (UiShowcaseCounterContract.State) -> UiShowcaseCounterContract.State,
     ): UiShowcaseCounterContract.State {
         var nextState = _state.value
         _state.update { current ->

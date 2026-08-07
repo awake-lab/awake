@@ -12,14 +12,14 @@ import io.github.ronjunevaldoz.awake.core.math.Mat4
 data class LoadedPrimitive(
     val vertices: FloatArray,
     val indices: IntArray,
-    val localTransform: Mat4
+    val localTransform: Mat4,
 )
 
 data class LoadedMesh(
     val name: String,
-    val primitives: List<LoadedPrimitive>
+    val primitives: List<LoadedPrimitive>,
 )
 
 data class LoadedScene(
-    val meshes: List<LoadedMesh>
+    val meshes: List<LoadedMesh>,
 )

@@ -15,8 +15,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
 import kotlin.math.round
 
 private fun defaultRangeSliderValueLabel(start: Float, end: Float): String {
@@ -41,12 +41,12 @@ fun ColumnScope.shadcnFieldRangeSlider(
     valueEnd: Float,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    valueLabel: (Float, Float) -> String = ::defaultRangeSliderValueLabel
+    valueLabel: (Float, Float) -> String = ::defaultRangeSliderValueLabel,
 ): Pair<Float, Float> {
     var resolved = valueStart to valueEnd
     column(
         verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xs),
-        modifier = modifier
+        modifier = modifier,
     ) {
         row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             shadcnFieldLabel(label)
@@ -64,7 +64,7 @@ fun ColumnScope.shadcnFieldRangeSlider(
             valueEnd = valueEnd,
             label = label,
             modifier = Modifier.fillMaxWidth().height(20f.dp),
-            style = style
+            style = style,
         )
     }
     return resolved

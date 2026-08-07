@@ -4,9 +4,7 @@ package io.github.ronjunevaldoz.awake.ecs
 
 import kotlin.reflect.KClass
 
-internal actual fun <T : Any> newComponentArray(type: KClass<T>, capacity: Int): Array<Any?> {
-    return arrayOfNulls<Any>(capacity)
-}
+internal actual fun <T : Any> newComponentArray(type: KClass<T>, capacity: Int): Array<Any?> = arrayOfNulls<Any>(capacity)
 
 internal actual fun <T : Any> createComponentInstance(type: KClass<T>): T {
     error("Automatic component instantiation not supported on this platform. Register a factory via registerPool.")

@@ -18,7 +18,7 @@ class CameraTest {
         up = Vec3(0f, 1f, 0f),
         fovYRadians = (60.0 * kotlin.math.PI / 180.0).toFloat(),
         near = 0.1f,
-        far = 100f
+        far = 100f,
     )
 
     @Test
@@ -30,7 +30,7 @@ class CameraTest {
             aspect = aspect,
             near = camera.near,
             far = camera.far,
-            clipSpace = ClipSpace.WebGpu
+            clipSpace = ClipSpace.WebGpu,
         )
 
         val actual = camera.viewProjectionMatrix(aspect, ClipSpace.WebGpu)
@@ -47,7 +47,7 @@ class CameraTest {
             aspect = aspect,
             near = camera.near,
             far = camera.far,
-            clipSpace = ClipSpace.Vulkan
+            clipSpace = ClipSpace.Vulkan,
         )
 
         val actual = camera.viewProjectionMatrix(aspect, ClipSpace.Vulkan)
@@ -109,7 +109,7 @@ class CameraTest {
             up = Vec3(0f, 1f, 0f),
             fovYRadians = (60.0 * kotlin.math.PI / 180.0).toFloat(),
             near = 0.1f,
-            far = 100f
+            far = 100f,
         )
 
         val clip = pulledBack.viewProjectionMatrix(aspect = 1f, clipSpace = ClipSpace.WebGpu)

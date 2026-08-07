@@ -4,15 +4,13 @@ package io.github.ronjunevaldoz.awake.engine.application
 
 fun <State> gameDefinition(
     createState: () -> State,
-    block: GameDefinitionDsl<State>.() -> Unit
-): GameDefinition<State> {
-    return GameDefinitionDsl(createState).apply(block).build()
-}
+    block: GameDefinitionDsl<State>.() -> Unit,
+): GameDefinition<State> = GameDefinitionDsl(createState).apply(block).build()
 
 class GameDefinition<State> internal constructor(
     private val createStateBlock: () -> State,
     private val windowBlock: WindowDsl.() -> Unit,
-    private val moduleFactory: (State) -> GameModule
+    private val moduleFactory: (State) -> GameModule,
 ) {
     fun createState(): State = createStateBlock()
 
@@ -29,7 +27,7 @@ class GameDefinition<State> internal constructor(
 
 @AwakeGameDsl
 class GameDefinitionDsl<State> internal constructor(
-    private val createStateBlock: () -> State
+    private val createStateBlock: () -> State,
 ) {
     private var windowBlock: WindowDsl.() -> Unit = {}
     private var moduleFactory: ((State) -> GameModule)? = null
@@ -53,7 +51,7 @@ class GameDefinitionDsl<State> internal constructor(
         return GameDefinition(
             createStateBlock = createStateBlock,
             windowBlock = windowBlock,
-            moduleFactory = builtModule
+            moduleFactory = builtModule,
         )
     }
 }

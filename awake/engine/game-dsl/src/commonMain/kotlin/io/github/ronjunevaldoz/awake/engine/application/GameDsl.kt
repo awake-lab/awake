@@ -6,24 +6,20 @@ package io.github.ronjunevaldoz.awake.engine.application
 annotation class AwakeGameDsl
 
 fun game(
-    block: GameDsl.() -> Unit
-): AwakeGame {
-    return gameSpec(block).createGame()
-}
+    block: GameDsl.() -> Unit,
+): AwakeGame = gameSpec(block).createGame()
 
 fun gameSpec(
-    block: GameDsl.() -> Unit
+    block: GameDsl.() -> Unit,
 ): GameSpec {
     val builder = GameSpecBuilder()
     GameDsl(builder).block()
     return builder.build()
 }
 
-fun gameInstaller(block: GameDsl.() -> Unit): GameInstaller {
-    return object : GameInstaller {
-        override fun install(into: GameSpecBuilder) {
-            GameDsl(into).block()
-        }
+fun gameInstaller(block: GameDsl.() -> Unit): GameInstaller = object : GameInstaller {
+    override fun install(into: GameSpecBuilder) {
+        GameDsl(into).block()
     }
 }
 
@@ -33,7 +29,7 @@ fun gameInstaller(block: GameDsl.() -> Unit): GameInstaller {
 // a GameModule installs into an already-windowed spec.
 @AwakeGameDsl
 sealed class GameSpecDsl(
-    protected val builder: GameSpecBuilder
+    protected val builder: GameSpecBuilder,
 ) {
     fun install(installer: GameInstaller) {
         builder.install(installer)
@@ -76,7 +72,7 @@ sealed class GameSpecDsl(
 
 @AwakeGameDsl
 class GameDsl internal constructor(
-    builder: GameSpecBuilder
+    builder: GameSpecBuilder,
 ) : GameSpecDsl(builder) {
     fun window(block: WindowDsl.() -> Unit) {
         WindowDsl(builder.windowBuilder()).apply(block)
@@ -85,7 +81,7 @@ class GameDsl internal constructor(
 
 @AwakeGameDsl
 class WindowDsl internal constructor(
-    private val builder: GameWindowConfigBuilder
+    private val builder: GameWindowConfigBuilder,
 ) {
     var title: String
         get() = builder.title
@@ -102,7 +98,7 @@ class WindowDsl internal constructor(
 
 @AwakeGameDsl
 class WindowBackendDsl internal constructor(
-    private val builder: GameWindowBackendBuilder
+    private val builder: GameWindowBackendBuilder,
 ) {
     fun default() {
         builder.default()

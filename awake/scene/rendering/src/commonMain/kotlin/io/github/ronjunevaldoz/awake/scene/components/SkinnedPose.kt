@@ -10,5 +10,5 @@ package io.github.ronjunevaldoz.awake.scene.components
  * shape [io.github.ronjunevaldoz.awake.scene.components.SpinControl.radians] already uses,
  * not a value this component computes itself. */
 data class SkinnedPose(
-    var jointPalette: FloatArray
+    var jointPalette: FloatArray,
 )

@@ -3,19 +3,18 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.style.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class PanelTest {
 
@@ -53,9 +52,13 @@ class PanelTest {
     fun zeroRadiusEmitsPlainQuad() {
         val ui = UiContext()
         val column = ui.createColumn(x = 0f, y = 0f, width = 200f)
-        column.surface("p", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px)), style = Style {
-            shape(UiShape.none)
-        }) { }
+        column.surface(
+            "p",
+            modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px)),
+            style = Style {
+                shape(UiShape.none)
+            },
+        ) { }
         val primitives = ui.endFrame()
         assertTrue(primitives.isNotEmpty())
         assertIs<UiDrawPrimitive.Quad>(primitives.first(), "radius = UiShape.none must emit a plain Quad, not a RoundedQuad")
@@ -79,7 +82,9 @@ class PanelTest {
         val column = ui.createColumn(x = 0f, y = 0f, width = 220f)
 
         val panelSlot = column.surface(
-            id = "wrap-height", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.WrapContent)) {
+            id = "wrap-height",
+            modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.WrapContent),
+        ) {
             text("Line One")
             text("Line Two")
         }
@@ -95,7 +100,9 @@ class PanelTest {
         val column = ui.createColumn(x = 0f, y = 0f, width = 220f)
 
         val panelSlot = column.surface(
-            id = "wrap-width", modifier = Modifier.width(Dimension.WrapContent).height(Dimension.WrapContent)) {
+            id = "wrap-width",
+            modifier = Modifier.width(Dimension.WrapContent).height(Dimension.WrapContent),
+        ) {
             claimSlot(Dimension.Fixed(32f.px), Dimension.Fixed(8f.px))
         }
 

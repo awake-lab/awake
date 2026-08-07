@@ -17,7 +17,6 @@ import org.lwjgl.system.MemoryStack.stackPush
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 
-
 class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
     private val ttf = readResource(filePath)
     private val info: STBTTFontinfo = STBTTFontinfo.create()
@@ -26,7 +25,6 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
 
     private val cdata = STBTTBakedChar.malloc(96)
     override val texture: Texture
-
 
     val fontHeight = fontSize
     val contentScaleX = 1f
@@ -39,7 +37,6 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
     private val bitmapHeight: Int
         get() = (256 * contentScaleY).toInt()
 
-
     init {
         require(stbtt_InitFont(info, ttf)) { "Failed to init font info" }
         stackPush().use { stack ->
@@ -50,7 +47,7 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
             metrics = FontMetrics(
                 ascent = pAscent.get(0),
                 descent = pDescent.get(0),
-                lineGap = pLineGap.get(0)
+                lineGap = pLineGap.get(0),
             )
         }
         texture = createTexture(bitmapWidth, bitmapHeight)
@@ -72,7 +69,7 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
             bitmapWidth,
             bitmapHeight,
             32,
-            cdata
+            cdata,
         )
         return Texture.load(
             width = bitmapWidth,
@@ -115,14 +112,11 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
                     getCP(text, to, i, pCodePoint)
                     x.put(0, x[0] + stbtt_GetCodepointKernAdvance(info, cp, pCodePoint[0]) * scale)
                 }
-
             }
         }
     }
 
-    private fun scale(center: Float, offset: Float, factor: Float): Float {
-        return (offset - center) * factor + center
-    }
+    private fun scale(center: Float, offset: Float, factor: Float): Float = (offset - center) * factor + center
 
     private fun getCP(text: String, to: Int, i: Int, cpOut: IntBuffer): Int {
         val c1 = text[i]
@@ -137,17 +131,13 @@ class NativeTrueType(filePath: String, fontSize: Float) : TrueType {
         return 1
     }
 
-    private fun readResource(path: String): ByteBuffer {
-        return this::class.java.classLoader?.getResourceAsStream(path)?.use {
-            it.readBytes().let { bytes ->
-                BufferUtils.allocateByte(bytes.size).apply {
-                    put(bytes)
-                }.get()
-            }
-        } ?: throw Exception("$path not found")
-    }
+    private fun readResource(path: String): ByteBuffer = this::class.java.classLoader?.getResourceAsStream(path)?.use {
+        it.readBytes().let { bytes ->
+            BufferUtils.allocateByte(bytes.size).apply {
+                put(bytes)
+            }.get()
+        }
+    } ?: throw Exception("$path not found")
 }
 
-actual fun createTrueType(path: String, size: Float): TrueType {
-    return NativeTrueType(path, size)
-}
+actual fun createTrueType(path: String, size: Float): TrueType = NativeTrueType(path, size)

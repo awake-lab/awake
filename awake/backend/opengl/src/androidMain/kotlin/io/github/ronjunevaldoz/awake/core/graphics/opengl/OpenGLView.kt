@@ -13,7 +13,7 @@ class OpenGLView(context: Context, private val renderer: AndroidRenderer) : GLSu
                 OpenGL.Version.ES1 -> 1
                 OpenGL.Version.ES2 -> 2
                 OpenGL.Version.ES3 -> 3
-            }
+            },
         )
         if (AwakeContext.config.debug) {
             debugFlags = DEBUG_CHECK_GL_ERROR

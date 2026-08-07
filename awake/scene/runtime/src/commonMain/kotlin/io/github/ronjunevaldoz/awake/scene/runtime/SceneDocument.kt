@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SceneDocument(
     val name: String? = null,
-    val nodes: List<SceneNode> = emptyList()
+    val nodes: List<SceneNode> = emptyList(),
 )
 
 @Serializable
@@ -17,21 +17,21 @@ data class SceneNode(
     val camera: SceneCamera? = null,
     val light: SceneLight? = null,
     val meshRenderer: SceneMeshRenderer? = null,
-    val children: List<SceneNode> = emptyList()
+    val children: List<SceneNode> = emptyList(),
 )
 
 @Serializable
 data class SceneTransform(
     val position: SceneVec3 = SceneVec3(),
     val rotation: SceneVec3 = SceneVec3(),
-    val scale: SceneVec3 = SceneVec3(1f, 1f, 1f)
+    val scale: SceneVec3 = SceneVec3(1f, 1f, 1f),
 )
 
 @Serializable
 data class SceneVec3(
     val x: Float = 0f,
     val y: Float = 0f,
-    val z: Float = 0f
+    val z: Float = 0f,
 )
 
 @Serializable
@@ -42,7 +42,7 @@ data class SceneCamera(
     val fovYDegrees: Float = 60f,
     val near: Float = 0.1f,
     val far: Float = 100f,
-    val primary: Boolean = true
+    val primary: Boolean = true,
     // No clip-space field here -- that's a backend convention (Vulkan vs WebGPU), not
     // scene-authored content. The active Renderer.clipSpace supplies it at the moment a
     // projection matrix is built (see that property's own doc comment).
@@ -52,17 +52,17 @@ data class SceneCamera(
 data class SceneLight(
     val color: SceneVec3 = SceneVec3(1f, 1f, 1f),
     val intensity: Float = 1f,
-    val type: Type = Type.Point
+    val type: Type = Type.Point,
 ) {
     @Serializable
     enum class Type {
         Directional,
-        Point
+        Point,
     }
 }
 
 @Serializable
 data class SceneMeshRenderer(
     val mesh: String,
-    val material: String
+    val material: String,
 )

@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAccordion
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -28,7 +28,7 @@ class ShadcnAccordionTest {
                 selectedId = selectedId,
                 onSelectId = { selectedId = it },
                 idProvider = { it },
-                titleProvider = { it.replace("-", " ").capitalize() }
+                titleProvider = { it.replace("-", " ").capitalize() },
             ) { item ->
                 text("Content for $item")
             }

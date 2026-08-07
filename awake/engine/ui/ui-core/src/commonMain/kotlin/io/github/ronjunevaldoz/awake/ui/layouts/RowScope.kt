@@ -1,8 +1,10 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 /**
  * Horizontal counterpart to [ColumnScope] -- advances an X cursor instead of Y. Each
@@ -26,8 +28,9 @@ class RowScope internal constructor(
      * `claimModifiedSlot()`'s `defaultAlignment()`, which widens that child's alignment
      * container up to this row's own full height first (see
      * `UiScopeMetrics.crossAxisAlignmentContainer`) so there's real slack to center/end into. */
-    val verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
-) : AbstractUiScope(context, emitToOverlay), FillAwareScope {
+    val verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
+) : AbstractUiScope(context, emitToOverlay),
+    FillAwareScope {
     /** Cursor advance between successive children -- derived from [horizontalArrangement] rather
      * than threaded separately, since it was always just `horizontalArrangement.baseSpacingPx()`
      * at every real call site (see UiLayoutFactory). */
@@ -62,7 +65,7 @@ class RowScope internal constructor(
             cursorX,
             y,
             resolvedWidth,
-            resolvedHeight
+            resolvedHeight,
         )
         cursorX += resolvedWidth + gap
         // height == FillMax means this child stretches to whatever height the row ends up

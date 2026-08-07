@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan.mesh
 
-import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
@@ -13,6 +12,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkIndexType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 
 /**
  * Phase 2 (renderer abstraction): owns a single mesh's vertex/index buffer upload -- the
@@ -36,7 +36,7 @@ class Mesh(
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     vertices: FloatArray,
     indices: IntArray,
-    override val format: VertexFormat = VertexFormat.PositionColorUv
+    override val format: VertexFormat = VertexFormat.PositionColorUv,
 ) : RenderMesh {
     private val graphicsDevice = graphicsDevice
     private val runOneTimeCommands = runOneTimeCommands
@@ -56,7 +56,7 @@ class Mesh(
             usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
             write = { stagingMemory ->
                 VulkanBuffers.writeBufferMemoryFloats(device, stagingMemory, 0, vertices)
-            }
+            },
         )
         vertexBuffer = BufferHandle(vBuffer)
         vertexBufferMemory = DeviceMemoryHandle(vMemory)
@@ -68,7 +68,7 @@ class Mesh(
             usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
             write = { stagingMemory ->
                 VulkanBuffers.writeBufferMemoryBytes(device, stagingMemory, 0, indexBytes)
-            }
+            },
         )
         indexBuffer = BufferHandle(iBuffer)
         indexBufferMemory = DeviceMemoryHandle(iMemory)
@@ -80,28 +80,28 @@ class Mesh(
     private fun createDeviceLocalBuffer(
         byteSize: Long,
         usage: Int,
-        write: (memory: Long) -> Unit
+        write: (memory: Long) -> Unit,
     ): Pair<Long, Long> {
         val stagingBuffer = VulkanBuffers.vkCreateBuffer(
             device,
             VkBufferCreateInfo(
                 size = byteSize,
                 usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            )
+            ),
         )
         val stagingRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, stagingBuffer)
         val stagingMemoryTypeIndex = VulkanBuffers.findMemoryType(
             physicalDevice,
             stagingRequirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         )
         val stagingMemory = VulkanBuffers.vkAllocateMemory(
             device,
             VkMemoryAllocateInfo(
                 allocationSize = stagingRequirements.size,
-                memoryTypeIndex = stagingMemoryTypeIndex
-            )
+                memoryTypeIndex = stagingMemoryTypeIndex,
+            ),
         )
         VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)
         // The staging buffer/memory must be freed even if something below throws (e.g. the
@@ -117,20 +117,20 @@ class Mesh(
                 VkBufferCreateInfo(
                     size = byteSize,
                     usage = usage or VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                )
+                ),
             )
             val destRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, destBuffer)
             val destMemoryTypeIndex = VulkanBuffers.findMemoryType(
                 physicalDevice,
                 destRequirements.memoryTypeBits,
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
             )
             val destMemory = VulkanBuffers.vkAllocateMemory(
                 device,
                 VkMemoryAllocateInfo(
                     allocationSize = destRequirements.size,
-                    memoryTypeIndex = destMemoryTypeIndex
-                )
+                    memoryTypeIndex = destMemoryTypeIndex,
+                ),
             )
             VulkanBuffers.vkBindBufferMemory(device, destBuffer, destMemory, 0)
 
@@ -164,13 +164,13 @@ class Mesh(
             commandBuffer,
             0,
             longArrayOf(vertexBuffer.handle),
-            longArrayOf(0L)
+            longArrayOf(0L),
         )
         VulkanBuffers.vkCmdBindIndexBuffer(
             commandBuffer,
             indexBuffer.handle,
             0,
-            VkIndexType.VK_INDEX_TYPE_UINT32
+            VkIndexType.VK_INDEX_TYPE_UINT32,
         )
     }
 

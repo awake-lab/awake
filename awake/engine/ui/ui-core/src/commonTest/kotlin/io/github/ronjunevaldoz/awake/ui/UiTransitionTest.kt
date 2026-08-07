@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
@@ -41,7 +41,8 @@ class UiTransitionTest {
         ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
         ui.rememberTransition(id = "card", targetState = CardState.Collapsed, durationMs = 300f)
 
-        repeat(30) { // 500ms, comfortably past a 300ms duration.
+        repeat(30) {
+            // 500ms, comfortably past a 300ms duration.
             ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
             ui.rememberTransition(id = "card", targetState = CardState.Expanded, durationMs = 300f)
         }
@@ -81,11 +82,11 @@ class UiTransitionTest {
             ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
             ui.createBox(x = 0f, y = 0f, width = 320f, height = 200f).column(
                 id = "viewport",
-                modifier = Modifier.verticalScroll(UiScrollState()).width(Dimension.FillMax).height(Dimension.FillMax)
+                modifier = Modifier.verticalScroll(UiScrollState()).width(Dimension.FillMax).height(Dimension.FillMax),
             ) {
                 surface(
                     id = "transition-host",
-                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)
+                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent),
                 ) {
                     lastProgress = rememberTransition(id = "card", targetState = targetState, durationMs = 1000f)
                 }
@@ -110,7 +111,7 @@ class UiTransitionTest {
             expectedSingleStep,
             afterFrame1,
             "a WrapContent/scroll trial-measurement re-execution of the same content must not " +
-                "step the transition an extra time on top of the real pass"
+                "step the transition an extra time on top of the real pass",
         )
 
         drawFrame(CardState.Expanded)

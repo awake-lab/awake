@@ -32,7 +32,7 @@ actual object VulkanBuffers {
         commandBuffer: Long,
         firstBinding: Int,
         buffers: LongArray,
-        offsets: LongArray
+        offsets: LongArray,
     )
 
     actual external fun vkCmdBindIndexBuffer(commandBuffer: Long, buffer: Long, offset: Long, indexType: Int)
@@ -45,7 +45,7 @@ actual object VulkanBuffers {
         instanceCount: Int,
         firstIndex: Int,
         vertexOffset: Int,
-        firstInstance: Int
+        firstInstance: Int,
     )
 
     actual external fun vkDeviceWaitIdle(device: Long)

@@ -3,38 +3,38 @@
 package io.github.ronjunevaldoz.awake.ui.headless.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
+import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.clearFocusIfMatches
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.inputState
-import io.github.ronjunevaldoz.awake.ui.isFocused
-import io.github.ronjunevaldoz.awake.ui.pointerDownEdge
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
-import io.github.ronjunevaldoz.awake.ui.requestFocus
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.font
-import io.github.ronjunevaldoz.awake.ui.childBox
-import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.headless.interact
 import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
-import io.github.ronjunevaldoz.awake.ui.headless.interact
+import io.github.ronjunevaldoz.awake.ui.inputState
+import io.github.ronjunevaldoz.awake.ui.isFocused
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.pointerDownEdge
+import io.github.ronjunevaldoz.awake.ui.requestFocus
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.style.*
-
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.toPx
 
 private const val TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS = 1f
+
 // Dp, not raw px: used as the caret rect's width against `textContentSlot`, which is already
 // density-scaled, so a raw literal would render a half-size caret at 2x.
 private val TEXT_FIELD_CARET_WIDTH = 1.5f.dp
@@ -60,11 +60,11 @@ fun UiScope.textField(
     // Applied only to what's drawn -- `value`/the returned string always carry the real typed
     // text, same as real shadcn's Input; a password field passes `{ "*".repeat(it.length) }`
     // here and stores/returns the actual characters untouched.
-    visualTransformation: (String) -> String = { it }
+    visualTransformation: (String) -> String = { it },
 ): String {
     val interaction = interact(
         id = id,
-        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp))
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
     )
     // Disabled fields never claim focus or consume input -- if a field was focused and then
     // became disabled mid-session, drop that focus too, the same way a real disabled input
@@ -82,16 +82,16 @@ fun UiScope.textField(
         style = style,
         defaults = theme.components.textField,
         disabled = !enabled,
-        focused = focused
+        focused = focused,
     )
     val borderColor =
         if (isError) theme.colors.destructive else (surface.resolved.borderColor ?: theme.colors.border)
     paintSurface(
         slot = surface.interaction.slot,
         resolved = surface.resolved.copy(
-            borderWidth = if (focused || isError) 1.5f.dp else surface.resolved.borderWidth
+            borderWidth = if (focused || isError) 1.5f.dp else surface.resolved.borderWidth,
         ),
-        borderColor = borderColor
+        borderColor = borderColor,
     )
 
     val resolvedFont = font
@@ -108,21 +108,32 @@ fun UiScope.textField(
     // half-size gap between icon and text at 2x.
     val iconGap = 6f.dp.toPx()
     val textAreaX = contentSlot.x + if (leadingIcon != null) iconSlotWidth + iconGap else 0f
-    val textAreaWidth = (contentSlot.width
-        - (if (leadingIcon != null) iconSlotWidth + iconGap else 0f)
-        - (if (trailingIcon != null) iconSlotWidth + iconGap else 0f)).coerceAtLeast(0f)
+    val textAreaWidth = (
+        contentSlot.width -
+            (if (leadingIcon != null) iconSlotWidth + iconGap else 0f) -
+            (if (trailingIcon != null) iconSlotWidth + iconGap else 0f)
+        ).coerceAtLeast(0f)
     val textContentSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-        textAreaX, contentSlot.y, textAreaWidth, contentSlot.height
+        textAreaX,
+        contentSlot.y,
+        textAreaWidth,
+        contentSlot.height,
     )
     if (leadingIcon != null) {
         val iconBounds = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-            contentSlot.x, contentSlot.y, iconSlotWidth, contentSlot.height
+            contentSlot.x,
+            contentSlot.y,
+            iconSlotWidth,
+            contentSlot.height,
         )
         childBox(iconBounds, contentAlignment = UiAlignment.Center).leadingIcon()
     }
     if (trailingIcon != null) {
         val iconBounds = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-            contentSlot.x + contentSlot.width - iconSlotWidth, contentSlot.y, iconSlotWidth, contentSlot.height
+            contentSlot.x + contentSlot.width - iconSlotWidth,
+            contentSlot.y,
+            iconSlotWidth,
+            contentSlot.height,
         )
         childBox(iconBounds, contentAlignment = UiAlignment.Center).trailingIcon()
     }
@@ -147,7 +158,7 @@ fun UiScope.textField(
                     resolvedFont,
                     glyphPx,
                     textContentSlot.x - lastScrollOffsetX,
-                    inputState.pointerX
+                    inputState.pointerX,
                 )
             } else {
                 null
@@ -221,12 +232,18 @@ fun UiScope.textField(
                 label = displayed,
                 slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(drawTextX, textContentSlot.y, measureWidth, textContentSlot.height),
                 font = resolvedFont,
-                color = if (showingPlaceholder) theme.colors.mutedForeground else (surface.resolved.foreground
-                    ?: theme.colors.foreground),
+                color = if (showingPlaceholder) {
+                    theme.colors.mutedForeground
+                } else {
+                    (
+                        surface.resolved.foreground
+                            ?: theme.colors.foreground
+                        )
+                },
                 verticallyCentered = true,
                 overflow = UiTextOverflow.Clip,
                 textStyle = surface.resolved.textStyle,
-                semanticId = "$id.value"
+                semanticId = "$id.value",
             )
         }
         if (focused) {
@@ -241,12 +258,12 @@ fun UiScope.textField(
                         caretX,
                         textContentSlot.y,
                         TEXT_FIELD_CARET_WIDTH.toPx(),
-                        textContentSlot.height
+                        textContentSlot.height,
                     ),
                     fillColor = surface.resolved.foreground ?: theme.colors.foreground,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
-                    borderColor = Color.Transparent
+                    borderColor = Color.Transparent,
                 )
             }
         }
@@ -258,7 +275,7 @@ fun UiScope.textField(
         label = if (nextValue.isEmpty()) placeholder else nextValue,
         bounds = surface.interaction.slot,
         contentBounds = contentSlot,
-        selected = focused
+        selected = focused,
     )
     return nextValue
 }
@@ -283,7 +300,7 @@ private fun indexForPointerX(
     font: UiFont,
     glyphPx: Float,
     contentX: Float,
-    pointerX: Float
+    pointerX: Float,
 ): Int {
     var advance = 0f
     value.forEachIndexed { index, char ->

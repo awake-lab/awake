@@ -8,11 +8,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -32,7 +32,7 @@ class ShadcnContextMenuTest {
                 id = "ctx-1",
                 expanded = open,
                 onExpandedChange = { open = it },
-                items = listOf(UiDropdownMenuItem(label = "Copy"))
+                items = listOf(UiDropdownMenuItem(label = "Copy")),
             ) {
                 text("Right click me", modifier = Modifier.width(100f.dp).height(40f.dp))
             }

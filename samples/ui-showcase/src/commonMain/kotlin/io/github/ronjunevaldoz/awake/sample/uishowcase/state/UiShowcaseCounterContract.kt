@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.state
 
 internal object UiShowcaseCounterContract {
     data class State(
-        val count: Int = 0
+        val count: Int = 0,
     )
 
     sealed interface Intent {

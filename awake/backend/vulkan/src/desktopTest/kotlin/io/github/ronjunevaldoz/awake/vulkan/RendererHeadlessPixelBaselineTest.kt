@@ -6,8 +6,6 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
-import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
@@ -27,6 +25,8 @@ import java.io.File
 import javax.imageio.ImageIO
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 
 /**
  * Proves the headless construction path ([GraphicsDevice.createHeadless]/
@@ -89,14 +89,14 @@ class RendererHeadlessPixelBaselineTest {
             runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
             VertexFormat.PositionColorUv,
             vertexEntryPoint = "vertexMain",
-            fragmentEntryPoint = "fragmentMain"
+            fragmentEntryPoint = "fragmentMain",
         )
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
             runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
         val transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(
@@ -112,7 +112,7 @@ class RendererHeadlessPixelBaselineTest {
             runBlocking {
                 loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
             },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
 
         var mesh: RenderMesh? = null
@@ -124,7 +124,7 @@ class RendererHeadlessPixelBaselineTest {
                 center = Vec3(0f, 0f, 0f),
                 fovYRadians = 1f,
                 near = 0.1f,
-                far = 10f
+                far = 10f,
             )
             val createdMesh = renderer.createMesh(MeshGeometry(cubeVertices, cubeIndices)).also { mesh = it }
             val createdMaterial = renderer.createMaterial().also { material = it }
@@ -151,7 +151,7 @@ class RendererHeadlessPixelBaselineTest {
                         "Headless cube render diverged from baseline: ${result.diffPixelCount} pixels differ " +
                             "(max channel diff ${result.maxChannelDiff}). Compare ${actualPngFile.absolutePath} " +
                             "against ${baselinePngFile.absolutePath}. Re-record $BASELINE_RESOURCE_PATH if this " +
-                        "divergence is an intentional rendering change."
+                            "divergence is an intentional rendering change.",
                     )
                 }
             }
@@ -165,30 +165,30 @@ class RendererHeadlessPixelBaselineTest {
                 camera,
                 listOf(
                     DrawCall(createdMesh, createdMaterial, Mat4().translate(-SHARED_CUBE_OFFSET_X, 0f, 0f)),
-                    DrawCall(createdMesh, createdMaterial, Mat4().translate(SHARED_CUBE_OFFSET_X, 0f, 0f))
-                )
+                    DrawCall(createdMesh, createdMaterial, Mat4().translate(SHARED_CUBE_OFFSET_X, 0f, 0f)),
+                ),
             )
             val sharedMaterialPixels = runBlocking { renderer.readPixels(target) }
             val leftPainted = countPaintedPixels(
                 sharedMaterialPixels.data,
                 xRange = SHARED_MATERIAL_LEFT_X,
-                yRange = SHARED_MATERIAL_Y
+                yRange = SHARED_MATERIAL_Y,
             )
             val rightPainted = countPaintedPixels(
                 sharedMaterialPixels.data,
                 xRange = SHARED_MATERIAL_RIGHT_X,
-                yRange = SHARED_MATERIAL_Y
+                yRange = SHARED_MATERIAL_Y,
             )
 
             assertTrue(
                 leftPainted > MIN_SHARED_MATERIAL_REGION_PIXELS,
                 "left cube should render with the shared material's first transform, " +
-                    "but only $leftPainted pixels were painted"
+                    "but only $leftPainted pixels were painted",
             )
             assertTrue(
                 rightPainted > MIN_SHARED_MATERIAL_REGION_PIXELS,
                 "right cube should render with the shared material's second transform, " +
-                    "but only $rightPainted pixels were painted"
+                    "but only $rightPainted pixels were painted",
             )
         } finally {
             // Symmetric with VulkanGameApplication.destroyBackend()'s own teardown order: a
@@ -205,7 +205,7 @@ class RendererHeadlessPixelBaselineTest {
             // teardown, so only the layout itself is destroyed here, not the full Material.
             VulkanDescriptors.vkDestroyDescriptorSetLayout(
                 graphicsDevice.device,
-                pipelineLayoutMaterial.descriptorSetLayout.handle
+                pipelineLayoutMaterial.descriptorSetLayout.handle,
             )
             transferContext.destroy()
             graphicsDevice.destroy()

@@ -21,10 +21,22 @@ data class Quat(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w: 
         val wz = w * z
 
         return Mat4().apply {
-            m00 = 1f - 2f * (yy + zz); m10 = 2f * (xy + wz); m20 = 2f * (xz - wy); m30 = 0f
-            m01 = 2f * (xy - wz); m11 = 1f - 2f * (xx + zz); m21 = 2f * (yz + wx); m31 = 0f
-            m02 = 2f * (xz + wy); m12 = 2f * (yz - wx); m22 = 1f - 2f * (xx + yy); m32 = 0f
-            m03 = 0f; m13 = 0f; m23 = 0f; m33 = 1f
+            m00 = 1f - 2f * (yy + zz)
+            m10 = 2f * (xy + wz)
+            m20 = 2f * (xz - wy)
+            m30 = 0f
+            m01 = 2f * (xy - wz)
+            m11 = 1f - 2f * (xx + zz)
+            m21 = 2f * (yz + wx)
+            m31 = 0f
+            m02 = 2f * (xz + wy)
+            m12 = 2f * (yz - wx)
+            m22 = 1f - 2f * (xx + yy)
+            m32 = 0f
+            m03 = 0f
+            m13 = 0f
+            m23 = 0f
+            m33 = 1f
         }
     }
 
@@ -38,11 +50,20 @@ data class Quat(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w: 
          * between two equivalent-but-oppositely-signed quaternions spins the long way around. */
         fun nlerp(a: Quat, b: Quat, t: Float): Quat {
             val dot = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w
-            val bx: Float; val by: Float; val bz: Float; val bw: Float
+            val bx: Float
+            val by: Float
+            val bz: Float
+            val bw: Float
             if (dot < 0f) {
-                bx = -b.x; by = -b.y; bz = -b.z; bw = -b.w
+                bx = -b.x
+                by = -b.y
+                bz = -b.z
+                bw = -b.w
             } else {
-                bx = b.x; by = b.y; bz = b.z; bw = b.w
+                bx = b.x
+                by = b.y
+                bz = b.z
+                bw = b.w
             }
             val rx = a.x + (bx - a.x) * t
             val ry = a.y + (by - a.y) * t

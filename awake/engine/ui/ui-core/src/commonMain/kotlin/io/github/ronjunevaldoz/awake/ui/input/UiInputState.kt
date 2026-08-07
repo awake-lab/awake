@@ -23,7 +23,7 @@ data class UiInputState(
      * has no [io.github.ronjunevaldoz.awake.core.input.Key] entry, only a
      * [io.github.ronjunevaldoz.awake.core.input.TextEditAction] for text-field submit, so it
      * isn't observable here yet -- widening `Key` to add it is a separate, larger change. */
-    val activatePressed: Boolean = false
+    val activatePressed: Boolean = false,
 )
 
 fun InputSnapshot.toUiInputState(): UiInputState = UiInputState(
@@ -35,7 +35,7 @@ fun InputSnapshot.toUiInputState(): UiInputState = UiInputState(
     scrollDeltaY = scrollDeltaY,
     typedText = typedText,
     editActions = editActions.map { it.toUiAction() },
-    activatePressed = wasPressed(io.github.ronjunevaldoz.awake.core.input.Key.Space)
+    activatePressed = wasPressed(io.github.ronjunevaldoz.awake.core.input.Key.Space),
 )
 
 private fun TextEditAction.toUiAction(): UiTextEditAction = when (this) {
@@ -54,5 +54,13 @@ private fun TextEditAction.toUiAction(): UiTextEditAction = when (this) {
  * UI-internal mirror of text editing actions to avoid coupling to core.input.
  */
 enum class UiTextEditAction {
-    Backspace, Delete, Enter, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Home, End
+    Backspace,
+    Delete,
+    Enter,
+    ArrowLeft,
+    ArrowRight,
+    ArrowUp,
+    ArrowDown,
+    Home,
+    End,
 }

@@ -37,7 +37,7 @@ class ShadcnTooltipFidelityTest {
                 anchorSlot = anchor,
                 visible = true,
                 text = "Tooltip Info",
-                id = "tooltip-fidelity"
+                id = "tooltip-fidelity",
             )
             val frameOutput = ui.finishFrame()
 
@@ -46,9 +46,9 @@ class ShadcnTooltipFidelityTest {
                     AwakeUiPreviewTokenRule(
                         nodeId = "tooltip-fidelity",
                         expectedBackgroundToken = "card",
-                        expectedBorderToken = "border"
-                    )
-                )
+                        expectedBorderToken = "border",
+                    ),
+                ),
             )
 
             validateAwakeUiPreview(
@@ -58,15 +58,15 @@ class ShadcnTooltipFidelityTest {
                     group = "Tooltip",
                     summary = "Tooltip content fidelity check [${config.id}]",
                     width = (300 * config.scale.scale).toInt(),
-                    height = (150 * config.scale.scale).toInt()
+                    height = (150 * config.scale.scale).toInt(),
                 ),
                 frame = AwakeUiPreviewFrame(
                     primitives = frameOutput.primitives,
                     background = ui.currentTheme.colors.background,
                     font = ui.currentFont,
-                    semantics = frameOutput.semantics
+                    semantics = frameOutput.semantics,
                 ),
-                config = validationConfig
+                config = validationConfig,
             )
         }
 

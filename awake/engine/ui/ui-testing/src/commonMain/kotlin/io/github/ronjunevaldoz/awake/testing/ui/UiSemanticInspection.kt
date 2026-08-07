@@ -12,32 +12,39 @@ enum class UiSemanticIssueKind {
     SemanticOverlap,
     TextTruncated,
     ContentOutsideBounds,
+
     /** Text [UiSemanticNode.contentBounds] center deviates from the node's own [UiSemanticNode.bounds]
      *  center by more than the configured tolerance. Catches widgets that emit text with
      *  `centered = true` but feed it the wrong slot (e.g. a wrap-content inner claim instead
      *  of the parent panel's full bounds). */
     ContentNotCentered,
+
     /** A Panel node's [UiSemanticNode.contentBounds] (or Text node's [UiSemanticNode.contentBounds])
      *  is too close to the edge of its [UiSemanticNode.bounds] — less than the minimum inset
      *  on at least one side. Catches components rendered without the required content padding. */
     InsufficientPadding,
+
     /** Two adjacent sibling nodes are too close (gap < minimum) or overlap each other (gap < 0).
      *  Catches row/column spacing bugs where `spacedBy()` was omitted or set to zero. */
     InsufficientSpacing,
+
     /** A node's background, foreground, or border token does not match the expected token ID. */
     MismatchedToken,
+
     /** A node's width or height deviates from the exact value required by the design system. */
     WrongDimension,
+
     /** A node's content padding deviates from the exact value required by the design system. */
     MismatchedPadding,
+
     /** A node's spacing from its sibling deviates from the exact value required by the design system. */
-    MismatchedSpacing
+    MismatchedSpacing,
 }
 
 data class UiSemanticIssue(
     val kind: UiSemanticIssueKind,
     val nodeId: String? = null,
-    val message: String
+    val message: String,
 )
 
 data class UiSemanticReport(val issues: List<UiSemanticIssue>) {
@@ -65,7 +72,7 @@ fun inspectSemanticNodes(nodes: List<UiSemanticNode>): UiSemanticReport {
             issues += UiSemanticIssue(
                 kind = UiSemanticIssueKind.InvalidSemanticBounds,
                 nodeId = node.id,
-                message = "semantic bounds are invalid: ${node.bounds}"
+                message = "semantic bounds are invalid: ${node.bounds}",
             )
         }
         val contentBounds = node.contentBounds
@@ -73,7 +80,7 @@ fun inspectSemanticNodes(nodes: List<UiSemanticNode>): UiSemanticReport {
             issues += UiSemanticIssue(
                 kind = UiSemanticIssueKind.InvalidSemanticBounds,
                 nodeId = node.id,
-                message = "semantic content bounds are invalid: $contentBounds"
+                message = "semantic content bounds are invalid: $contentBounds",
             )
         }
         val clippedBounds = node.clippedBounds
@@ -81,7 +88,7 @@ fun inspectSemanticNodes(nodes: List<UiSemanticNode>): UiSemanticReport {
             issues += UiSemanticIssue(
                 kind = UiSemanticIssueKind.InvalidSemanticBounds,
                 nodeId = node.id,
-                message = "semantic clipped bounds are invalid: $clippedBounds"
+                message = "semantic clipped bounds are invalid: $clippedBounds",
             )
         }
         node.id?.let { id ->
@@ -89,7 +96,7 @@ fun inspectSemanticNodes(nodes: List<UiSemanticNode>): UiSemanticReport {
                 issues += UiSemanticIssue(
                     kind = UiSemanticIssueKind.DuplicateSemanticId,
                     nodeId = id,
-                    message = "duplicate semantic id detected"
+                    message = "duplicate semantic id detected",
                 )
             }
         }
@@ -99,7 +106,7 @@ fun inspectSemanticNodes(nodes: List<UiSemanticNode>): UiSemanticReport {
 
 fun inspectTextTruncation(
     nodes: List<UiSemanticNode>,
-    allowIds: Set<String> = emptySet()
+    allowIds: Set<String> = emptySet(),
 ): UiSemanticReport {
     val issues = nodes
         .filter { it.role == UiSemanticRole.Text && it.truncated && it.id !in allowIds }
@@ -107,7 +114,7 @@ fun inspectTextTruncation(
             UiSemanticIssue(
                 kind = UiSemanticIssueKind.TextTruncated,
                 nodeId = node.id,
-                message = "text '${node.label.orEmpty()}' was truncated in bounds ${node.bounds}"
+                message = "text '${node.label.orEmpty()}' was truncated in bounds ${node.bounds}",
             )
         }
     return UiSemanticReport(issues)
@@ -115,7 +122,7 @@ fun inspectTextTruncation(
 
 fun inspectSemanticContentFit(
     nodes: List<UiSemanticNode>,
-    tolerancePx: Float = 0f
+    tolerancePx: Float = 0f,
 ): UiSemanticReport {
     val issues = ArrayList<UiSemanticIssue>()
     nodes.forEach { node ->
@@ -124,7 +131,7 @@ fun inspectSemanticContentFit(
             issues += UiSemanticIssue(
                 kind = UiSemanticIssueKind.ContentOutsideBounds,
                 nodeId = node.id,
-                message = "content bounds $content exceed node bounds ${node.bounds} with tolerance=$tolerancePx"
+                message = "content bounds $content exceed node bounds ${node.bounds} with tolerance=$tolerancePx",
             )
         }
         val clipped = node.clippedBounds ?: return@forEach
@@ -132,7 +139,7 @@ fun inspectSemanticContentFit(
             issues += UiSemanticIssue(
                 kind = UiSemanticIssueKind.ContentOutsideBounds,
                 nodeId = node.id,
-                message = "clipped bounds $clipped exceed node bounds ${node.bounds} with tolerance=$tolerancePx"
+                message = "clipped bounds $clipped exceed node bounds ${node.bounds} with tolerance=$tolerancePx",
             )
         }
     }
@@ -142,7 +149,7 @@ fun inspectSemanticContentFit(
 fun inspectSemanticOverlaps(
     label: String,
     nodes: List<UiSemanticNode>,
-    tolerancePx: Float = 0f
+    tolerancePx: Float = 0f,
 ): UiSemanticReport {
     val issues = ArrayList<UiSemanticIssue>()
     nodes.forEachIndexed { index, current ->
@@ -151,7 +158,7 @@ fun inspectSemanticOverlaps(
                 issues += UiSemanticIssue(
                     kind = UiSemanticIssueKind.SemanticOverlap,
                     nodeId = current.id ?: other.id,
-                    message = "$label overlap between ${describeNode(current)} and ${describeNode(other)}"
+                    message = "$label overlap between ${describeNode(current)} and ${describeNode(other)}",
                 )
             }
         }
@@ -178,7 +185,7 @@ fun inspectTextCentering(
     tolerancePx: Float = 1f,
     horizontal: Boolean = true,
     vertical: Boolean = true,
-    allowIds: Set<String> = emptySet()
+    allowIds: Set<String> = emptySet(),
 ): UiSemanticReport {
     val issues = ArrayList<UiSemanticIssue>()
     nodes.forEach { node ->
@@ -196,7 +203,7 @@ fun inspectTextCentering(
                 kind = UiSemanticIssueKind.ContentNotCentered,
                 nodeId = node.id,
                 message = "text '${node.label.orEmpty()}' is not horizontally centered: " +
-                    "contentCenterX=${contentCX.roundTo1()} ≠ nodeCenterX=${nodeCX.roundTo1()} (tolerance=$tolerancePx, deviation=${kotlin.math.abs(contentCX - nodeCX).roundTo1()})"
+                    "contentCenterX=${contentCX.roundTo1()} ≠ nodeCenterX=${nodeCX.roundTo1()} (tolerance=$tolerancePx, deviation=${kotlin.math.abs(contentCX - nodeCX).roundTo1()})",
             )
         }
         if (vertical && kotlin.math.abs(contentCY - nodeCY) > tolerancePx) {
@@ -204,7 +211,7 @@ fun inspectTextCentering(
                 kind = UiSemanticIssueKind.ContentNotCentered,
                 nodeId = node.id,
                 message = "text '${node.label.orEmpty()}' is not vertically centered: " +
-                    "contentCenterY=${contentCY.roundTo1()} ≠ nodeCenterY=${nodeCY.roundTo1()} (tolerance=$tolerancePx, deviation=${kotlin.math.abs(contentCY - nodeCY).roundTo1()})"
+                    "contentCenterY=${contentCY.roundTo1()} ≠ nodeCenterY=${nodeCY.roundTo1()} (tolerance=$tolerancePx, deviation=${kotlin.math.abs(contentCY - nodeCY).roundTo1()})",
             )
         }
     }
@@ -224,7 +231,7 @@ fun inspectOpticalCentering(
     nodes: List<UiSemanticNode>,
     font: io.github.ronjunevaldoz.awake.ui.font.UiFont,
     tolerancePx: Float = 1f,
-    allowIds: Set<String> = emptySet()
+    allowIds: Set<String> = emptySet(),
 ): UiSemanticReport {
     val issues = ArrayList<UiSemanticIssue>()
     nodes.forEach { node ->
@@ -245,7 +252,7 @@ fun inspectOpticalCentering(
                 nodeId = node.id,
                 message = "text '${node.label.orEmpty()}' optical center (${textOpticalCenterY.roundTo1()}) " +
                     "deviates from container center (${containerCenterY.roundTo1()}) by ${deviation.roundTo1()}px " +
-                    "(tolerance=${tolerancePx}px, font capHeight=${font.capHeightEm}em, ascent=${font.ascentEm}em)"
+                    "(tolerance=${tolerancePx}px, font capHeight=${font.capHeightEm}em, ascent=${font.ascentEm}em)",
             )
         }
     }
@@ -255,9 +262,9 @@ fun inspectOpticalCentering(
 fun requireSemanticNode(
     nodes: List<UiSemanticNode>,
     id: String,
-    role: UiSemanticRole? = null
+    role: UiSemanticRole? = null,
 ): UiSemanticNode = requireNotNull(
-    nodes.firstOrNull { it.id == id && (role == null || it.role == role) }
+    nodes.firstOrNull { it.id == id && (role == null || it.role == role) },
 ) {
     "expected semantic node id=$id role=${role ?: "any"}"
 }
@@ -283,7 +290,7 @@ fun requireSemanticNode(
 fun inspectPadding(
     nodes: List<UiSemanticNode>,
     minPaddingPx: Float,
-    allowIds: Set<String> = emptySet()
+    allowIds: Set<String> = emptySet(),
 ): UiSemanticReport {
     if (minPaddingPx <= 0f) return UiSemanticReport(emptyList())
     val issues = ArrayList<UiSemanticIssue>()
@@ -292,15 +299,15 @@ fun inspectPadding(
         if (node.id in allowIds) return@forEach
         if (node.role != UiSemanticRole.Panel) return@forEach
 
-        val insetLeft   = content.x - node.bounds.x
-        val insetTop    = content.y - node.bounds.y
-        val insetRight  = (node.bounds.x + node.bounds.width) - (content.x + content.width)
+        val insetLeft = content.x - node.bounds.x
+        val insetTop = content.y - node.bounds.y
+        val insetRight = (node.bounds.x + node.bounds.width) - (content.x + content.width)
         val insetBottom = (node.bounds.y + node.bounds.height) - (content.y + content.height)
 
         val violations = buildList {
-            if (insetLeft   < minPaddingPx) add("left=${insetLeft.roundTo1()}")
-            if (insetTop    < minPaddingPx) add("top=${insetTop.roundTo1()}")
-            if (insetRight  < minPaddingPx) add("right=${insetRight.roundTo1()}")
+            if (insetLeft < minPaddingPx) add("left=${insetLeft.roundTo1()}")
+            if (insetTop < minPaddingPx) add("top=${insetTop.roundTo1()}")
+            if (insetRight < minPaddingPx) add("right=${insetRight.roundTo1()}")
             if (insetBottom < minPaddingPx) add("bottom=${insetBottom.roundTo1()}")
         }
         if (violations.isNotEmpty()) {
@@ -308,7 +315,7 @@ fun inspectPadding(
                 kind = UiSemanticIssueKind.InsufficientPadding,
                 nodeId = node.id,
                 message = "node ${describeNode(node)} has insufficient content padding " +
-                    "(min=${minPaddingPx}px): ${violations.joinToString(", ")}"
+                    "(min=${minPaddingPx}px): ${violations.joinToString(", ")}",
             )
         }
     }
@@ -328,7 +335,7 @@ fun inspectExactPadding(
     nodes: List<UiSemanticNode>,
     expectedPaddingPx: Float,
     tolerancePx: Float = 0.5f,
-    allowIds: Set<String> = emptySet()
+    allowIds: Set<String> = emptySet(),
 ): UiSemanticReport {
     val issues = ArrayList<UiSemanticIssue>()
     nodes.forEach { node ->
@@ -336,9 +343,9 @@ fun inspectExactPadding(
         if (node.id in allowIds) return@forEach
         if (node.role != UiSemanticRole.Panel && node.role != UiSemanticRole.Text) return@forEach
 
-        val insetLeft   = content.x - node.bounds.x
-        val insetTop    = content.y - node.bounds.y
-        val insetRight  = (node.bounds.x + node.bounds.width) - (content.x + content.width)
+        val insetLeft = content.x - node.bounds.x
+        val insetTop = content.y - node.bounds.y
+        val insetRight = (node.bounds.x + node.bounds.width) - (content.x + content.width)
         val insetBottom = (node.bounds.y + node.bounds.height) - (content.y + content.height)
 
         val violations = buildList {
@@ -352,7 +359,7 @@ fun inspectExactPadding(
                 kind = UiSemanticIssueKind.MismatchedPadding,
                 nodeId = node.id,
                 message = "node ${describeNode(node)} has incorrect content padding " +
-                    "(expected=${expectedPaddingPx}px): ${violations.joinToString(", ")}"
+                    "(expected=${expectedPaddingPx}px): ${violations.joinToString(", ")}",
             )
         }
     }
@@ -380,7 +387,7 @@ fun inspectSpacing(
     label: String,
     nodes: List<UiSemanticNode>,
     minGapPx: Float,
-    axis: SpacingAxis? = null
+    axis: SpacingAxis? = null,
 ): UiSemanticReport {
     if (nodes.size < 2) return UiSemanticReport(emptyList())
     val issues = ArrayList<UiSemanticIssue>()
@@ -394,20 +401,20 @@ fun inspectSpacing(
 
     val sorted = when (resolvedAxis) {
         SpacingAxis.Horizontal -> nodes.sortedBy { it.bounds.x }
-        SpacingAxis.Vertical   -> nodes.sortedBy { it.bounds.y }
+        SpacingAxis.Vertical -> nodes.sortedBy { it.bounds.y }
     }
 
     sorted.zipWithNext().forEach { (a, b) ->
         val gap = when (resolvedAxis) {
             SpacingAxis.Horizontal -> b.bounds.x - (a.bounds.x + a.bounds.width)
-            SpacingAxis.Vertical   -> b.bounds.y - (a.bounds.y + a.bounds.height)
+            SpacingAxis.Vertical -> b.bounds.y - (a.bounds.y + a.bounds.height)
         }
         if (gap < minGapPx) {
             issues += UiSemanticIssue(
                 kind = UiSemanticIssueKind.InsufficientSpacing,
                 nodeId = a.id ?: b.id,
                 message = "$label ($resolvedAxis): gap between ${describeNode(a)} and " +
-                    "${describeNode(b)} is ${gap.roundTo1()}px < min=${minGapPx}px"
+                    "${describeNode(b)} is ${gap.roundTo1()}px < min=${minGapPx}px",
             )
         }
     }
@@ -426,7 +433,7 @@ fun inspectExactSpacing(
     nodes: List<UiSemanticNode>,
     expectedGapPx: Float,
     axis: SpacingAxis? = null,
-    tolerancePx: Float = 0.5f
+    tolerancePx: Float = 0.5f,
 ): UiSemanticReport {
     if (nodes.size < 2) return UiSemanticReport(emptyList())
     val issues = ArrayList<UiSemanticIssue>()
@@ -439,20 +446,20 @@ fun inspectExactSpacing(
 
     val sorted = when (resolvedAxis) {
         SpacingAxis.Horizontal -> nodes.sortedBy { it.bounds.x }
-        SpacingAxis.Vertical   -> nodes.sortedBy { it.bounds.y }
+        SpacingAxis.Vertical -> nodes.sortedBy { it.bounds.y }
     }
 
     sorted.zipWithNext().forEach { (a, b) ->
         val gap = when (resolvedAxis) {
             SpacingAxis.Horizontal -> b.bounds.x - (a.bounds.x + a.bounds.width)
-            SpacingAxis.Vertical   -> b.bounds.y - (a.bounds.y + a.bounds.height)
+            SpacingAxis.Vertical -> b.bounds.y - (a.bounds.y + a.bounds.height)
         }
         if (kotlin.math.abs(gap - expectedGapPx) > tolerancePx) {
             issues += UiSemanticIssue(
                 kind = UiSemanticIssueKind.MismatchedSpacing,
                 nodeId = a.id ?: b.id,
                 message = "$label ($resolvedAxis): gap between ${describeNode(a)} and " +
-                    "${describeNode(b)} is ${gap.roundTo1()}px ≠ expected=${expectedGapPx}px"
+                    "${describeNode(b)} is ${gap.roundTo1()}px ≠ expected=${expectedGapPx}px",
             )
         }
     }
@@ -466,7 +473,7 @@ fun inspectDimensions(
     nodes: List<UiSemanticNode>,
     exactHeight: Float? = null,
     exactWidth: Float? = null,
-    tolerancePx: Float = 0.5f
+    tolerancePx: Float = 0.5f,
 ): UiSemanticReport {
     val issues = ArrayList<UiSemanticIssue>()
     nodes.forEach { node ->
@@ -475,7 +482,7 @@ fun inspectDimensions(
                 kind = UiSemanticIssueKind.WrongDimension,
                 nodeId = node.id,
                 message = "node ${describeNode(node)} has incorrect height: " +
-                    "${node.bounds.height.roundTo1()}px ≠ expected=${exactHeight}px"
+                    "${node.bounds.height.roundTo1()}px ≠ expected=${exactHeight}px",
             )
         }
         if (exactWidth != null && kotlin.math.abs(node.bounds.width - exactWidth) > tolerancePx) {
@@ -483,7 +490,7 @@ fun inspectDimensions(
                 kind = UiSemanticIssueKind.WrongDimension,
                 nodeId = node.id,
                 message = "node ${describeNode(node)} has incorrect width: " +
-                    "${node.bounds.width.roundTo1()}px ≠ expected=${exactWidth}px"
+                    "${node.bounds.width.roundTo1()}px ≠ expected=${exactWidth}px",
             )
         }
     }
@@ -498,7 +505,7 @@ fun inspectTokens(
     expectedBackgroundToken: String? = null,
     expectedForegroundToken: String? = null,
     expectedBorderToken: String? = null,
-    expectedTextStyleToken: String? = null
+    expectedTextStyleToken: String? = null,
 ): UiSemanticReport {
     val issues = ArrayList<UiSemanticIssue>()
     nodes.forEach { node ->
@@ -507,7 +514,7 @@ fun inspectTokens(
                 kind = UiSemanticIssueKind.MismatchedToken,
                 nodeId = node.id,
                 message = "node ${describeNode(node)} background token mismatch: " +
-                    "actual='${node.backgroundToken}' ≠ expected='$expectedBackgroundToken'"
+                    "actual='${node.backgroundToken}' ≠ expected='$expectedBackgroundToken'",
             )
         }
         if (expectedForegroundToken != null && node.foregroundToken != expectedForegroundToken) {
@@ -515,7 +522,7 @@ fun inspectTokens(
                 kind = UiSemanticIssueKind.MismatchedToken,
                 nodeId = node.id,
                 message = "node ${describeNode(node)} foreground token mismatch: " +
-                    "actual='${node.foregroundToken}' ≠ expected='$expectedForegroundToken'"
+                    "actual='${node.foregroundToken}' ≠ expected='$expectedForegroundToken'",
             )
         }
         if (expectedBorderToken != null && node.borderToken != expectedBorderToken) {
@@ -523,7 +530,7 @@ fun inspectTokens(
                 kind = UiSemanticIssueKind.MismatchedToken,
                 nodeId = node.id,
                 message = "node ${describeNode(node)} border token mismatch: " +
-                    "actual='${node.borderToken}' ≠ expected='$expectedBorderToken'"
+                    "actual='${node.borderToken}' ≠ expected='$expectedBorderToken'",
             )
         }
         if (expectedTextStyleToken != null && node.textStyleToken != expectedTextStyleToken) {
@@ -531,7 +538,7 @@ fun inspectTokens(
                 kind = UiSemanticIssueKind.MismatchedToken,
                 nodeId = node.id,
                 message = "node ${describeNode(node)} text style token mismatch: " +
-                    "actual='${node.textStyleToken}' ≠ expected='$expectedTextStyleToken'"
+                    "actual='${node.textStyleToken}' ≠ expected='$expectedTextStyleToken'",
             )
         }
     }

@@ -16,13 +16,13 @@ class SceneValidationTest {
             nodes = listOf(
                 SceneNode(
                     name = "camera",
-                    camera = SceneCamera(fovYDegrees = 200f, near = 0f, far = 0f)
+                    camera = SceneCamera(fovYDegrees = 200f, near = 0f, far = 0f),
                 ),
                 SceneNode(
                     name = "camera",
-                    meshRenderer = SceneMeshRenderer(mesh = "", material = "")
-                )
-            )
+                    meshRenderer = SceneMeshRenderer(mesh = "", material = ""),
+                ),
+            ),
         )
 
         val issues = SceneValidator.validate(document)
@@ -40,9 +40,9 @@ class SceneValidationTest {
             nodes = listOf(
                 SceneNode(
                     name = "bad-camera",
-                    camera = SceneCamera(near = 10f, far = 1f)
-                )
-            )
+                    camera = SceneCamera(near = 10f, far = 1f),
+                ),
+            ),
         )
 
         val exception = assertFailsWith<SceneValidationException> {

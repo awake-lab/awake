@@ -51,7 +51,7 @@ class GlfwInputBridgeTest {
         pollGlfwInput(reader, input)
         assertTrue(
             input.updateSnapshot().secondaryPointerDown,
-            "GLFW button 1 must reach Input.secondaryPointerDown -- shadcnContextMenu gates on it"
+            "GLFW button 1 must reach Input.secondaryPointerDown -- shadcnContextMenu gates on it",
         )
         assertFalse(input.pointerDown, "a right-click must not also register as a left click")
     }

@@ -2,28 +2,25 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.renderer
 
-import io.github.ronjunevaldoz.awake.core.colors.Color as AwakeColor
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.times
-import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
-import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
-import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
-import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
 import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
@@ -35,9 +32,7 @@ import io.github.ronjunevaldoz.awake.webgpu.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRoundedQuadRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiTextureRenderPipeline
-import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.ygdrasil.webgpu.BufferDescriptor
-import io.ygdrasil.webgpu.Color as GpuColor
 import io.ygdrasil.webgpu.Extent3D
 import io.ygdrasil.webgpu.GPUBindGroup
 import io.ygdrasil.webgpu.GPUBuffer
@@ -53,6 +48,11 @@ import io.ygdrasil.webgpu.SamplerDescriptor
 import io.ygdrasil.webgpu.TexelCopyBufferInfo
 import io.ygdrasil.webgpu.TexelCopyTextureInfo
 import io.ygdrasil.webgpu.beginRenderPass
+import io.github.ronjunevaldoz.awake.core.colors.Color as AwakeColor
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
+import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
+import io.ygdrasil.webgpu.Color as GpuColor
 
 /**
  * Phase 2.5 milestone 2 slice 1 (see docs/MVP_PLAN.md): real wgpu4k implementation of a
@@ -101,7 +101,7 @@ class Renderer(
      * .Mesh.lineIndexBuffer] instead of its triangle index buffer) -- see [wireframe]'s doc
      * comment for the "why LineList, not a barycentric shader" rationale. `null` (default)
      * for every game that doesn't opt into `WebGpuGameApplication`'s `wireframeSupport`. */
-    internal val wireframeRenderPipeline: RenderPipeline? = null
+    internal val wireframeRenderPipeline: RenderPipeline? = null,
 ) : RenderRenderer {
     // WebGPU's NDC has +Y up -- confirmed by this module's own ui_quad.wgsl comment
     // ("pixel-space is Y-down, NDC is Y-up") -- so unlike Vulkan (+Y down NDC) no flip is
@@ -193,7 +193,7 @@ class Renderer(
     internal data class TexturedPrimitiveRun(
         val material: Any,
         val vertices: FloatArray,
-        val indices: IntArray
+        val indices: IntArray,
     )
 
     /** This frame's runs, in paint order -- staged by `performDrawUi`, consumed by
@@ -276,21 +276,27 @@ class Renderer(
                         view = offscreen.colorView,
                         loadOp = GPULoadOp.Clear,
                         clearValue = clearColorValue,
-                        storeOp = GPUStoreOp.Store
-                    )
+                        storeOp = GPUStoreOp.Store,
+                    ),
                 ),
                 depthStencilAttachment = RenderPassDepthStencilAttachment(
                     view = offscreen.depthView,
                     depthClearValue = 1.0f,
                     depthLoadOp = GPULoadOp.Clear,
-                    depthStoreOp = GPUStoreOp.Store
-                )
-            )
+                    depthStoreOp = GPUStoreOp.Store,
+                ),
+            ),
         ) {
             // vec4f (not vec3f) for both -- see triangle.wgsl's own Uniforms struct doc comment.
             val lightFloats = floatArrayOf(
-                DEFAULT_SCENE_LIGHT.direction.x, DEFAULT_SCENE_LIGHT.direction.y, DEFAULT_SCENE_LIGHT.direction.z, 0f,
-                DEFAULT_SCENE_LIGHT.color.x, DEFAULT_SCENE_LIGHT.color.y, DEFAULT_SCENE_LIGHT.color.z, 0f
+                DEFAULT_SCENE_LIGHT.direction.x,
+                DEFAULT_SCENE_LIGHT.direction.y,
+                DEFAULT_SCENE_LIGHT.direction.z,
+                0f,
+                DEFAULT_SCENE_LIGHT.color.x,
+                DEFAULT_SCENE_LIGHT.color.y,
+                DEFAULT_SCENE_LIGHT.color.z,
+                0f,
             )
             setPipeline(pipeline)
             var drawIndex = 0
@@ -330,13 +336,13 @@ class Renderer(
         val bytesPerRow = ((unpaddedBytesPerRow + 255) / 256) * 256
         val bufferSize = (bytesPerRow * offscreen.height).toULong()
         val readbackBuffer = device.createBuffer(
-            BufferDescriptor(size = bufferSize, usage = GPUBufferUsage.CopyDst or GPUBufferUsage.MapRead)
+            BufferDescriptor(size = bufferSize, usage = GPUBufferUsage.CopyDst or GPUBufferUsage.MapRead),
         )
         val encoder = device.createCommandEncoder()
         encoder.copyTextureToBuffer(
             source = TexelCopyTextureInfo(texture = offscreen.colorTexture),
             destination = TexelCopyBufferInfo(buffer = readbackBuffer, bytesPerRow = bytesPerRow.toUInt()),
-            copySize = Extent3D(width = offscreen.width.toUInt(), height = offscreen.height.toUInt())
+            copySize = Extent3D(width = offscreen.width.toUInt(), height = offscreen.height.toUInt()),
         )
         device.queue.submit(listOf(encoder.finish()))
 
@@ -350,7 +356,7 @@ class Renderer(
                 destination = packed,
                 destinationOffset = row * unpaddedBytesPerRow,
                 startIndex = row * bytesPerRow,
-                endIndex = row * bytesPerRow + unpaddedBytesPerRow
+                endIndex = row * bytesPerRow + unpaddedBytesPerRow,
             )
             row += 1
         }

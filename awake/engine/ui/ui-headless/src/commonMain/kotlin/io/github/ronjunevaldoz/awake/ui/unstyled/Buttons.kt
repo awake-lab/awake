@@ -4,24 +4,24 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 /** [button] with the resolved [UiBounds] alongside the click result. */
 data class UiButtonResult(val clicked: Boolean, val slot: UiBounds)
@@ -34,7 +34,7 @@ private inline fun UiScope.buttonSlotInternal(
     radius: Dp = UiShape.none,
     semanticLabel: String? = null,
     enabled: Boolean = true,
-    crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit
+    crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): UiButtonResult {
     val theme = context.currentTheme
     val defaults = theme.components.button then Style.Companion {
@@ -49,7 +49,7 @@ private inline fun UiScope.buttonSlotInternal(
         style = style,
         defaults = defaults,
         selected = false,
-        enabled = enabled
+        enabled = enabled,
     )
     val baseFill = surface.resolved.background ?: theme.colors.background
     val fillColor = variant.resolveFill(baseFill, surface.interaction.hovered, surface.interaction.active)
@@ -72,7 +72,7 @@ private inline fun UiScope.buttonSlotInternal(
         // label overload's own internal `text()` call below.
         context.pushTextStyle(
             surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground),
-            tokenId = surface.resolved.textStyleToken
+            tokenId = surface.resolved.textStyleToken,
         )
         childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
         context.popTextStyle()
@@ -90,7 +90,7 @@ private inline fun UiScope.buttonSlotInternal(
         borderColor = surface.resolved.borderColor,
         borderToken = surface.resolved.borderColorToken,
         borderRadius = surface.resolved.shape.toPx(),
-        textStyleToken = surface.resolved.textStyleToken
+        textStyleToken = surface.resolved.textStyleToken,
     )
     return UiButtonResult(surface.interaction.clicked, surface.interaction.slot)
 }
@@ -104,7 +104,7 @@ fun UiScope.button(
     radius: Dp = UiShape.none,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ): Boolean = buttonSlot(
     id = id,
     label = label,
@@ -114,7 +114,7 @@ fun UiScope.button(
     radius = radius,
     centered = centered,
     verticallyCentered = verticallyCentered,
-    enabled = enabled
+    enabled = enabled,
 ).clicked
 
 fun UiScope.buttonSlot(
@@ -126,7 +126,7 @@ fun UiScope.buttonSlot(
     radius: Dp = UiShape.none,
     centered: Boolean = true,
     verticallyCentered: Boolean = centered,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ): UiButtonResult = buttonSlotInternal(
     id = id,
     modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
@@ -147,10 +147,10 @@ fun UiScope.buttonSlot(
                 verticallyCentered = verticallyCentered,
                 overflow = UiTextOverflow.Ellipsis,
                 textStyle = resolved.textStyle,
-                semanticId = "$id.label"
+                semanticId = "$id.label",
             )
         }
-    }
+    },
 )
 
 fun UiScope.buttonSlot(
@@ -160,14 +160,14 @@ fun UiScope.buttonSlot(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
     enabled: Boolean = true,
-    content: AbsoluteScope.(slot: UiBounds) -> Unit
+    content: AbsoluteScope.(slot: UiBounds) -> Unit,
 ): UiButtonResult = buttonSlotInternal(
     id = id,
     modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
     style = style,
     variant = variant,
     radius = radius,
-    enabled = enabled
+    enabled = enabled,
 ) { contentSlot, _ ->
     content(contentSlot)
 }
@@ -179,7 +179,7 @@ fun UiScope.button(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
     enabled: Boolean = true,
-    content: AbsoluteScope.(slot: UiBounds) -> Unit
+    content: AbsoluteScope.(slot: UiBounds) -> Unit,
 ): Boolean = buttonSlot(
     id = id,
     modifier = modifier,
@@ -187,7 +187,7 @@ fun UiScope.button(
     variant = variant,
     radius = radius,
     enabled = enabled,
-    content = content
+    content = content,
 ).clicked
 
 /**
@@ -204,7 +204,7 @@ fun UiScope.button(
 enum class UiButtonVariant {
     Filled,
     Outline,
-    Ghost
+    Ghost,
 }
 
 internal fun UiButtonVariant.resolveFill(baseColor: Color, hovered: Boolean, active: Boolean): Color =

@@ -24,14 +24,14 @@ fun runVulkanDesktopGame(
     applicationFactory: (AwakeGame) -> VulkanGameApplication,
     pollInput: (window: Long, input: Input) -> Unit = ::pollGlfwInput,
     beforeFrame: () -> Unit = {},
-    afterLoop: () -> Unit = {}
+    afterLoop: () -> Unit = {},
 ) {
     runVulkanDesktopGame(
         game = game,
         application = applicationFactory(game),
         pollInput = pollInput,
         beforeFrame = beforeFrame,
-        afterLoop = afterLoop
+        afterLoop = afterLoop,
     )
 }
 
@@ -40,7 +40,7 @@ fun runVulkanDesktopGame(
     application: VulkanGameApplication,
     pollInput: (window: Long, input: Input) -> Unit = ::pollGlfwInput,
     beforeFrame: () -> Unit = {},
-    afterLoop: () -> Unit = {}
+    afterLoop: () -> Unit = {},
 ) {
     check(game.windowConfig.backend == GameWindowBackend.VULKAN) {
         "Desktop Vulkan host requires a Vulkan backend, found ${game.windowConfig.backend}."
@@ -50,7 +50,7 @@ fun runVulkanDesktopGame(
     val window = VulkanWindow.glfwCreateWindow(
         game.windowConfig.width,
         game.windowConfig.height,
-        game.windowConfig.title
+        game.windowConfig.title,
     )
     check(window != 0L) { "glfwCreateWindow returned null" }
     VulkanWindow.glfwFocusWindow(window)

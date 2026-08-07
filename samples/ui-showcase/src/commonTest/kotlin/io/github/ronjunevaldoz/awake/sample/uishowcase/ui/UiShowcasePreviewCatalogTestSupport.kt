@@ -13,52 +13,52 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.layouts.spacer
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.scrollPanel
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.layouts.row
+import io.github.ronjunevaldoz.awake.ui.layouts.spacer
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.scrollPanel
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
 
 internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseOverviewPreview,
@@ -90,32 +90,32 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseShimmerPreview,
     UiShowcaseCollapsiblePreview,
     UiShowcaseCollapsibleOpenPreview,
-    UiShowcaseFieldDemoPreview
+    UiShowcaseFieldDemoPreview,
 )
 
 private val PreviewOverlayMenuItems = listOf(
     UiDropdownMenuItem(
         label = "Pinned action",
         enabled = false,
-        shadcnSupportingText = "Disabled rows stay visible in the popover."
+        shadcnSupportingText = "Disabled rows stay visible in the popover.",
     ),
     UiDropdownMenuSeparator,
     UiDropdownMenuItem(
         label = "Duplicate panel",
         trailingLabel = "Cmd+D",
-        shadcnSupportingText = "Secondary action metadata sits on the trailing edge."
+        shadcnSupportingText = "Secondary action metadata sits on the trailing edge.",
     ),
     UiDropdownMenuItem(
         label = "Delete scene",
         destructive = true,
         trailingLabel = "Del",
-        shadcnSupportingText = "Destructive actions use the red foreground treatment."
-    )
+        shadcnSupportingText = "Destructive actions use the red foreground treatment.",
+    ),
 )
 
 internal expect fun previewMetadataFor(
     entry: AwakeUiPreviewEntry,
-    reportScale: Int = 1
+    reportScale: Int = 1,
 ): AwakeUiPreviewMetadata
 
 @AwakeUiPreview(
@@ -125,7 +125,7 @@ internal expect fun previewMetadataFor(
     summary = "Docs-style shell overview for the Awake shadcn showcase.",
     width = 900,
     height = 560,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseOverviewPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -139,7 +139,7 @@ internal object UiShowcaseOverviewPreview : AwakeUiPreviewEntry {
     summary = "Side-by-side visual cues we are matching against the shadcn reference.",
     width = 900,
     height = 620,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseReferencePreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -153,7 +153,7 @@ internal object UiShowcaseReferencePreview : AwakeUiPreviewEntry {
     summary = "Preset, base color, accent, and dark-mode controls sharing the same Awake theme factory.",
     width = 900,
     height = 660,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseThemePreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -167,7 +167,7 @@ internal object UiShowcaseThemePreview : AwakeUiPreviewEntry {
     summary = "The shadcn text component family, including shadcnLabel's default/required/disabled states.",
     width = 900,
     height = 620,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseTypographyPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -181,7 +181,7 @@ internal object UiShowcaseTypographyPreview : AwakeUiPreviewEntry {
     summary = "Direct specimen comparison between the bitmap default and the new TTF-derived runtime font.",
     width = 920,
     height = 620,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseFontsPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -195,7 +195,7 @@ internal object UiShowcaseFontsPreview : AwakeUiPreviewEntry {
     summary = "row/column/spacer, the modifier-first layout primitives every other page is built from.",
     width = 900,
     height = 460,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseLayoutPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -209,7 +209,7 @@ internal object UiShowcaseLayoutPreview : AwakeUiPreviewEntry {
     summary = "Immediate-mode drawing through Awake's public canvas DSL: gradients, paths, clipping, and nested local coordinates.",
     width = 900,
     height = 520,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseCanvasPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -218,7 +218,7 @@ internal object UiShowcaseCanvasPreview : AwakeUiPreviewEntry {
             surfaceId = "canvas",
             badge = "PATTERNS",
             title = "Canvas",
-            summary = "Immediate-mode drawing through Awake's public canvas DSL: gradients, paths, clipping, and nested local coordinates."
+            summary = "Immediate-mode drawing through Awake's public canvas DSL: gradients, paths, clipping, and nested local coordinates.",
         ) {
             drawUiShowcaseCanvasPreview()
         }
@@ -231,7 +231,7 @@ internal object UiShowcaseCanvasPreview : AwakeUiPreviewEntry {
     summary = "buttonSlot(...)'s content-lambda form composing arbitrary content inside a widget's own claimed slot.",
     width = 900,
     height = 360,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseSlotApisPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -245,7 +245,7 @@ internal object UiShowcaseSlotApisPreview : AwakeUiPreviewEntry {
     summary = "Core action and status components rendered with the current Awake shadcn recipe.",
     width = 900,
     height = 560,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseButtonsPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -259,7 +259,7 @@ internal object UiShowcaseButtonsPreview : AwakeUiPreviewEntry {
     summary = "Initials-string convenience overload beside the slot-based primary overload rendering custom icon content.",
     width = 900,
     height = 360,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseAvatarPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -273,7 +273,7 @@ internal object UiShowcaseAvatarPreview : AwakeUiPreviewEntry {
     summary = "A muted link trail with the last item rendered as plain current-page text.",
     width = 900,
     height = 320,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseBreadcrumbPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -287,7 +287,7 @@ internal object UiShowcaseBreadcrumbPreview : AwakeUiPreviewEntry {
     summary = "Full header+body+footer, header+body-only, and body-only slot combinations of shadcnCard.",
     width = 900,
     height = 620,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseCardPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -301,7 +301,7 @@ internal object UiShowcaseCardPreview : AwakeUiPreviewEntry {
     summary = "A fixed-width navigation shell beside a content-only variant, both header/footer optional.",
     width = 900,
     height = 560,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseSidebarPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -315,7 +315,7 @@ internal object UiShowcaseSidebarPreview : AwakeUiPreviewEntry {
     summary = "Toggle, Switch, Checkbox, RadioGroup, and ToggleGroup -- the current Awake-owned selection family.",
     width = 900,
     height = 640,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseSelectionPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -329,7 +329,7 @@ internal object UiShowcaseSelectionPreview : AwakeUiPreviewEntry {
     summary = "Dual-thumb variant of Slider -- two draggable knobs sharing one track, fill spanning only between them.",
     width = 900,
     height = 380,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseRangeSliderPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -343,7 +343,7 @@ internal object UiShowcaseRangeSliderPreview : AwakeUiPreviewEntry {
     summary = "A muted track with a raised active tab, composed from shadcnButton.",
     width = 900,
     height = 320,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseTabsPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -357,7 +357,7 @@ internal object UiShowcaseTabsPreview : AwakeUiPreviewEntry {
     summary = "Closed-state dropdown triggers -- a non-searchable Select matching real shadcn's plain Select.",
     width = 900,
     height = 320,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseSelectPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -371,7 +371,7 @@ internal object UiShowcaseSelectPreview : AwakeUiPreviewEntry {
     summary = "Two tiny presentational primitives with no variant/state axis, grouped on one page.",
     width = 900,
     height = 360,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseKbdSeparatorPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -385,7 +385,7 @@ internal object UiShowcaseKbdSeparatorPreview : AwakeUiPreviewEntry {
     summary = "Progress, Skeleton, and Spinner -- three small loading/status primitives grouped on one page.",
     width = 900,
     height = 480,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseFeedbackPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -399,7 +399,7 @@ internal object UiShowcaseFeedbackPreview : AwakeUiPreviewEntry {
     summary = "Default and destructive inline banner variants.",
     width = 900,
     height = 400,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseAlertPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -413,7 +413,7 @@ internal object UiShowcaseAlertPreview : AwakeUiPreviewEntry {
     summary = "A real, typeable single-line field with click-to-position cursor and keyboard editing.",
     width = 900,
     height = 460,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseTextInputPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -427,7 +427,7 @@ internal object UiShowcaseTextInputPreview : AwakeUiPreviewEntry {
     summary = "Dropdown and dialog proofs rendered through the shared DSL surface.",
     width = 900,
     height = 620,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcasePopupsPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -441,7 +441,7 @@ internal object UiShowcasePopupsPreview : AwakeUiPreviewEntry {
     summary = "Clipped scroll content and scrollbar proof in one static validation surface.",
     width = 920,
     height = 440,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseScrollPanelPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -449,7 +449,7 @@ internal object UiShowcaseScrollPanelPreview : AwakeUiPreviewEntry {
             metadata = metadata,
             badge = "LAYOUT",
             title = "Scroll panel state",
-            summary = "Scrollable content should clip cleanly, reserve a thumb lane, and keep the card shell measured correctly."
+            summary = "Scrollable content should clip cleanly, reserve a thumb lane, and keep the card shell measured correctly.",
         ) {
             drawUiShowcaseScrollPanelContent()
         }
@@ -462,7 +462,7 @@ internal object UiShowcaseScrollPanelPreview : AwakeUiPreviewEntry {
     summary = "A sweeping highlight animation for loading states and attention cues.",
     width = 900,
     height = 320,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseShimmerPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -482,7 +482,7 @@ internal object UiShowcaseShimmerPreview : AwakeUiPreviewEntry {
     summary = "Easing tween thumbs at their rest state (fraction 0) before the animation starts.",
     width = 900,
     height = 620,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseEasingRestPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -496,7 +496,7 @@ internal object UiShowcaseEasingRestPreview : AwakeUiPreviewEntry {
     summary = "Easing tween thumbs mid-animation (fraction 0.5), where the four curves visibly diverge in position.",
     width = 900,
     height = 620,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseEasingInFlightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -510,7 +510,7 @@ internal object UiShowcaseEasingInFlightPreview : AwakeUiPreviewEntry {
     summary = "Easing tween thumbs at their settled state (fraction 1) once the tween duration elapses.",
     width = 900,
     height = 620,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseEasingSettledPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -524,7 +524,7 @@ internal object UiShowcaseEasingSettledPreview : AwakeUiPreviewEntry {
     summary = "Reducer-backed counter preview showing Awake's small MVI path in the sample catalog.",
     width = 900,
     height = 560,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseStatePreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -538,7 +538,7 @@ internal object UiShowcaseStatePreview : AwakeUiPreviewEntry {
     summary = "Variant and long-label button coverage side by side so spacing and fit regressions show up without a click-through.",
     width = 920,
     height = 420,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseButtonMatrixPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -546,7 +546,7 @@ internal object UiShowcaseButtonMatrixPreview : AwakeUiPreviewEntry {
             metadata = metadata,
             badge = "INPUTS",
             title = "Button state matrix",
-            summary = "Primary, secondary, outline, ghost, danger, and constrained-label cases captured as one validation surface."
+            summary = "Primary, secondary, outline, ghost, danger, and constrained-label cases captured as one validation surface.",
         ) {
             drawUiShowcaseButtonMatrixContent()
         }
@@ -559,7 +559,7 @@ internal object UiShowcaseButtonMatrixPreview : AwakeUiPreviewEntry {
     summary = "Text fields, dropdowns, toggles, and checkboxes rendered in their key states under the shared shadcn recipe.",
     width = 920,
     height = 520,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseFieldMatrixPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -568,7 +568,7 @@ internal object UiShowcaseFieldMatrixPreview : AwakeUiPreviewEntry {
             badge = "INPUTS",
             title = "Field state matrix",
             summary = "Focused text, placeholder text, closed selects, and binary controls all share the same automated review surface.",
-            focusedNodeId = "showcase-matrix-field-focused"
+            focusedNodeId = "showcase-matrix-field-focused",
         ) {
             drawUiShowcaseFieldMatrixContent()
         }
@@ -581,7 +581,7 @@ internal object UiShowcaseFieldMatrixPreview : AwakeUiPreviewEntry {
     summary = "Low, mid, and max slider positions rendered together so track fill, thumb sizing, and label rhythm stay stable.",
     width = 920,
     height = 420,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseSliderMatrixPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -589,7 +589,7 @@ internal object UiShowcaseSliderMatrixPreview : AwakeUiPreviewEntry {
             metadata = metadata,
             badge = "INPUTS",
             title = "Slider state matrix",
-            summary = "Three values expose track fill, knob placement, and label spacing without interactive setup."
+            summary = "Three values expose track fill, knob placement, and label spacing without interactive setup.",
         ) {
             drawUiShowcaseSliderMatrixContent()
         }
@@ -602,7 +602,7 @@ internal object UiShowcaseSliderMatrixPreview : AwakeUiPreviewEntry {
     summary = "Open popover-state proof for menu spacing, grouping, and disabled/destructive rows.",
     width = 920,
     height = 420,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseDropdownOpenPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -610,7 +610,7 @@ internal object UiShowcaseDropdownOpenPreview : AwakeUiPreviewEntry {
             metadata = metadata,
             badge = "OVERLAYS",
             title = "Dropdown open state",
-            summary = "The menu stays inside a real popover container, not a loose stack of buttons."
+            summary = "The menu stays inside a real popover container, not a loose stack of buttons.",
         ) {
             drawUiShowcaseDropdownOpenContent()
         }
@@ -623,7 +623,7 @@ internal object UiShowcaseDropdownOpenPreview : AwakeUiPreviewEntry {
     summary = "Open popover proof for freeform content, anchored placement, and panel chrome.",
     width = 920,
     height = 380,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcasePopoverOpenPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -631,7 +631,7 @@ internal object UiShowcasePopoverOpenPreview : AwakeUiPreviewEntry {
             metadata = metadata,
             badge = "OVERLAYS",
             title = "Popover open state",
-            summary = "The panel stays inside a real popover container anchored to its trigger, with freeform content instead of a fixed menu row list."
+            summary = "The panel stays inside a real popover container anchored to its trigger, with freeform content instead of a fixed menu row list.",
         ) {
             drawUiShowcasePopoverOpenContent()
         }
@@ -644,7 +644,7 @@ internal object UiShowcasePopoverOpenPreview : AwakeUiPreviewEntry {
     summary = "Open tooltip proof for anchored placement, wrap, and popover chrome.",
     width = 920,
     height = 460,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseTooltipOpenPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -652,7 +652,7 @@ internal object UiShowcaseTooltipOpenPreview : AwakeUiPreviewEntry {
             metadata = metadata,
             badge = "OVERLAYS",
             title = "Tooltip open state",
-            summary = "The helper text should sit in a real surfaced popup, aligned to the trigger with tidy spacing."
+            summary = "The helper text should sit in a real surfaced popup, aligned to the trigger with tidy spacing.",
         ) {
             drawUiShowcaseTooltipOpenContent()
         }
@@ -665,7 +665,7 @@ internal object UiShowcaseTooltipOpenPreview : AwakeUiPreviewEntry {
     summary = "Centered dialog-state proof for wrapping, action-row layout, and scrim rendering.",
     width = 920,
     height = 520,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseAlertDialogPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -673,7 +673,7 @@ internal object UiShowcaseAlertDialogPreview : AwakeUiPreviewEntry {
             metadata = metadata,
             badge = "OVERLAYS",
             title = "Alert dialog open state",
-            summary = "Long titles and dialog actions stay clipped and aligned inside the centered modal shell."
+            summary = "Long titles and dialog actions stay clipped and aligned inside the centered modal shell.",
         ) {
             drawUiShowcaseAlertDialogContent()
         }
@@ -686,7 +686,7 @@ internal object UiShowcaseAlertDialogPreview : AwakeUiPreviewEntry {
     summary = "Ghost-button header disclosure panel in its default collapsed state.",
     width = 900,
     height = 360,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseCollapsiblePreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -700,7 +700,7 @@ internal object UiShowcaseCollapsiblePreview : AwakeUiPreviewEntry {
     summary = "Expanded-state proof for the collapsible's animated height transition and revealed content.",
     width = 900,
     height = 440,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseCollapsibleOpenPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -708,7 +708,7 @@ internal object UiShowcaseCollapsibleOpenPreview : AwakeUiPreviewEntry {
             metadata = metadata,
             badge = "LAYOUT",
             title = "Collapsible open state",
-            summary = "Expanded content, separators, and row spacing stay stable while the panel is open."
+            summary = "Expanded content, separators, and row spacing stay stable while the panel is open.",
         ) {
             drawUiShowcaseCollapsibleOpenContent()
         }
@@ -721,7 +721,7 @@ internal object UiShowcaseCollapsibleOpenPreview : AwakeUiPreviewEntry {
     summary = "shadcn/ui's Payment Method checkout form rebuilt from shadcnFieldSet/shadcnFieldLegend and the rest of the Field family.",
     width = 900,
     height = 1000,
-    reportScale = 2
+    reportScale = 2,
 )
 internal object UiShowcaseFieldDemoPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -739,7 +739,7 @@ private fun renderUiShowcasePagePreviewFrame(
         surfaceId = page.id,
         badge = page.category.title.uppercase(),
         title = page.title,
-        summary = page.description
+        summary = page.description,
     ) {
         renderUiShowcasePagePreview(page, state)
     }
@@ -752,7 +752,7 @@ private fun renderUiShowcasePagePreviewFrame(
  */
 private fun renderUiShowcaseEasingPreviewFrame(
     metadata: AwakeUiPreviewMetadata,
-    deltaSeconds: Float
+    deltaSeconds: Float,
 ): AwakeUiPreviewFrame {
     val previewScale = metadata.reportScale.coerceAtLeast(1)
     val state = UiShowcaseRuntimeState()
@@ -771,8 +771,8 @@ private fun renderUiShowcaseEasingPreviewFrame(
                 viewportWidth = metadata.rasterWidth.toFloat(),
                 viewportHeight = metadata.rasterHeight.toFloat(),
                 input = previewInput.updateSnapshot().toUiInputState(),
-                deltaSeconds = deltaSeconds
-            )
+                deltaSeconds = deltaSeconds,
+            ),
         )
         ui.pushFont(font)
         ui.pushTheme(theme)
@@ -781,15 +781,15 @@ private fun renderUiShowcaseEasingPreviewFrame(
                 .offset(insetPx.px, insetPx.px)
                 .width((metadata.rasterWidth.toFloat() - insetPx * 2f).px)
                 .height((metadata.rasterHeight.toFloat() - insetPx * 2f).px),
-            verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp)
+            verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp),
         ) {
             shadcnSurface(
                 id = "ui-showcase-preview-${metadata.id}",
                 style = Style { shape(16f.dp) },
                 modifier = Modifier.copy(
                     widthDimension = Dimension.FillMax,
-                    heightDimension = Dimension.WrapContent
-                )
+                    heightDimension = Dimension.WrapContent,
+                ),
             ) {
                 shadcnBadge(page.category.title.uppercase(), variant = ShadcnBadgeVariant.Outline)
                 shadcnSectionHeader(title = metadata.title, description = metadata.summary)
@@ -802,7 +802,7 @@ private fun renderUiShowcaseEasingPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -814,7 +814,7 @@ private fun renderUiShowcaseCardPreviewFrame(
     title: String,
     summary: String,
     focusedNodeId: String? = null,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ): AwakeUiPreviewFrame {
     val previewScale = metadata.reportScale.coerceAtLeast(1)
     val state = UiShowcaseRuntimeState()
@@ -830,7 +830,7 @@ private fun renderUiShowcaseCardPreviewFrame(
         ui.beginFrame(
             metadata.rasterWidth.toFloat(),
             metadata.rasterHeight.toFloat(),
-            previewInput.updateSnapshot().toUiInputState()
+            previewInput.updateSnapshot().toUiInputState(),
         )
         if (focusedNodeId != null) {
             ui.requestFocus(focusedNodeId)
@@ -842,20 +842,20 @@ private fun renderUiShowcaseCardPreviewFrame(
                 .offset(insetPx.px, insetPx.px)
                 .width((metadata.rasterWidth.toFloat() - insetPx * 2f).px)
                 .height((metadata.rasterHeight.toFloat() - insetPx * 2f).px),
-            verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp)
+            verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp),
         ) {
             shadcnSurface(
                 id = "ui-showcase-preview-$surfaceId",
                 style = Style { shape(16f.dp) },
                 modifier = Modifier.copy(
                     widthDimension = Dimension.FillMax,
-                    heightDimension = Dimension.WrapContent
-                )
+                    heightDimension = Dimension.WrapContent,
+                ),
             ) {
                 shadcnBadge(badge, variant = ShadcnBadgeVariant.Outline)
                 shadcnSectionHeader(
                     title = title,
-                    description = summary
+                    description = summary,
                 )
                 spacer(Modifier.height(10f.dp))
                 content()
@@ -866,7 +866,7 @@ private fun renderUiShowcaseCardPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -874,48 +874,48 @@ private fun renderUiShowcaseCardPreviewFrame(
 private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
     row(
         horizontalArrangement = Arrangement.spacedBy(10f.dp),
-        modifier = Modifier.height(36f.dp)
+        modifier = Modifier.height(36f.dp),
     ) {
         shadcnButton(
             id = "showcase-matrix-button-primary",
             label = "Primary",
             modifier = Modifier.width(120f.px).height(36f.dp),
-            variant = ShadcnButtonVariant.Primary
+            variant = ShadcnButtonVariant.Primary,
         )
         shadcnButton(
             id = "showcase-matrix-button-secondary",
             label = "Secondary",
             modifier = Modifier.width(120f.px).height(36f.dp),
-            variant = ShadcnButtonVariant.Secondary
+            variant = ShadcnButtonVariant.Secondary,
         )
         shadcnButton(
             id = "showcase-matrix-button-outline",
             label = "Outline",
             modifier = Modifier.width(112f.px).height(36f.dp),
-            variant = ShadcnButtonVariant.Outline
+            variant = ShadcnButtonVariant.Outline,
         )
     }
     row(
         horizontalArrangement = Arrangement.spacedBy(10f.dp),
-        modifier = Modifier.height(36f.dp.toDimension())
+        modifier = Modifier.height(36f.dp.toDimension()),
     ) {
         shadcnButton(
             id = "showcase-matrix-button-ghost",
             label = "Ghost",
             modifier = Modifier.width(100f.px).height(36f.dp),
-            variant = ShadcnButtonVariant.Ghost
+            variant = ShadcnButtonVariant.Ghost,
         )
         shadcnButton(
             id = "showcase-matrix-button-danger",
             label = "Danger",
             modifier = Modifier.width(108f.px).height(36f.dp),
-            variant = ShadcnButtonVariant.Danger
+            variant = ShadcnButtonVariant.Danger,
         )
         shadcnButton(
             id = "showcase-matrix-button-long",
             label = "Primary action with a long label",
             modifier = Modifier.width(248f.px).height(36f.dp),
-            variant = ShadcnButtonVariant.Primary
+            variant = ShadcnButtonVariant.Primary,
         )
     }
     shadcnSupportingText("This matrix is the quick read for control height, horizontal padding, and long-label fit.")
@@ -924,69 +924,69 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
 private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension())
+        modifier = Modifier.height(36f.dp.toDimension()),
     ) {
         shadcnInput(
             id = "showcase-matrix-field-empty",
             value = "",
             placeholder = "Placeholder",
-            modifier = Modifier.width(200f.px).height(36f.dp)
+            modifier = Modifier.width(200f.px).height(36f.dp),
         )
         shadcnInput(
             id = "showcase-matrix-field-focused",
             value = "Typed text",
-            modifier = Modifier.width(200f.px).height(36f.dp)
+            modifier = Modifier.width(200f.px).height(36f.dp),
         )
     }
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension())
+        modifier = Modifier.height(36f.dp.toDimension()),
     ) {
         shadcnSelect(
             id = "showcase-matrix-dropdown-theme",
             options = listOf("Light", "Dark", "Auto"),
             selectedIndex = 0,
-            modifier = Modifier.width(200f.px)
+            modifier = Modifier.width(200f.px),
         )
         shadcnSelect(
             id = "showcase-matrix-dropdown-accent",
             options = listOf("Base", "Blue", "Emerald"),
             selectedIndex = 1,
-            modifier = Modifier.width(200f.px)
+            modifier = Modifier.width(200f.px),
         )
     }
     row(
         horizontalArrangement = Arrangement.spacedBy(16f.dp),
-        modifier = Modifier.height(24f.dp.toDimension())
+        modifier = Modifier.height(24f.dp.toDimension()),
     ) {
         shadcnToggle(
             id = "showcase-matrix-toggle-off",
             checked = false,
             label = "Off",
-            modifier = Modifier.width(120f.px).height(24f.px)
+            modifier = Modifier.width(120f.px).height(24f.px),
         )
         shadcnToggle(
             id = "showcase-matrix-toggle-on",
             checked = true,
             label = "On",
-            modifier = Modifier.width(120f.px).height(24f.px)
+            modifier = Modifier.width(120f.px).height(24f.px),
         )
     }
     row(
         horizontalArrangement = Arrangement.spacedBy(16f.dp),
-        modifier = Modifier.height(24f.dp.toDimension())
+        modifier = Modifier.height(24f.dp.toDimension()),
     ) {
         shadcnCheckbox(
             id = "showcase-matrix-checkbox-off",
             checked = false,
             label = "Unchecked",
-            modifier = Modifier.width(180f.px).height(24f.px)
+            modifier = Modifier.width(180f.px).height(24f.px),
         )
         shadcnCheckbox(
             id = "showcase-matrix-checkbox-on",
             checked = true,
             label = "Checked",
-            modifier = Modifier.width(180f.px).height(24f.px)
+            modifier = Modifier.width(180f.px).height(24f.px),
         )
     }
 }
@@ -1000,7 +1000,7 @@ private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
         max = 100f,
         value = 12f,
         label = "Exposure 12%",
-        modifier = Modifier.width(360f.px).height(32f.px)
+        modifier = Modifier.width(360f.px).height(32f.px),
     )
     shadcnSlider(
         id = "showcase-matrix-slider-mid",
@@ -1008,7 +1008,7 @@ private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
         max = 100f,
         value = 52f,
         label = "Exposure 52%",
-        modifier = Modifier.width(360f.px).height(32f.px)
+        modifier = Modifier.width(360f.px).height(32f.px),
     )
     shadcnSlider(
         id = "showcase-matrix-slider-high",
@@ -1016,24 +1016,24 @@ private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
         max = 100f,
         value = 100f,
         label = "Exposure 100%",
-        modifier = Modifier.width(360f.px).height(32f.px)
+        modifier = Modifier.width(360f.px).height(32f.px),
     )
 }
 
 private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
     shadcnSupportingText(
-        "This preview intentionally renders the menu in its expanded state so row spacing and popover chrome are reviewable in docs."
+        "This preview intentionally renders the menu in its expanded state so row spacing and popover chrome are reviewable in docs.",
     )
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension())
+        modifier = Modifier.height(36f.dp.toDimension()),
     ) {
         val trigger = buttonSlot(
             id = "showcase-matrix-dropdown-trigger",
             label = "Actions",
             modifier = Modifier.width(124f.px).height(36f.dp),
-            style = theme.components.button
+            style = theme.components.button,
         )
         shadcnDropdownMenu(
             id = "showcase-matrix-dropdown-menu",
@@ -1044,38 +1044,38 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
             width = Dimension.Fixed(340f.px),
             itemHeight = 32f,
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
-            style = Style { contentPadding(4f.dp) }
+            style = Style { contentPadding(4f.dp) },
         )
         shadcnButton(
             id = "showcase-matrix-dropdown-secondary",
             label = "Secondary",
             modifier = Modifier.width(132f.px).height(36f.dp),
-            variant = ShadcnButtonVariant.Outline
+            variant = ShadcnButtonVariant.Outline,
         )
     }
 }
 
 private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
     shadcnSupportingText(
-        "This preview intentionally renders the popover in its expanded state so anchored placement and panel chrome are reviewable in docs."
+        "This preview intentionally renders the popover in its expanded state so anchored placement and panel chrome are reviewable in docs.",
     )
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension())
+        modifier = Modifier.height(36f.dp.toDimension()),
     ) {
         spacer(Modifier.width(100f.px))
         val trigger = buttonSlot(
             id = "showcase-matrix-popover-trigger",
             label = "Share",
             modifier = Modifier.width(120f.px).height(36f.dp),
-            style = theme.components.button
+            style = theme.components.button,
         )
         shadcnPopover(
             id = "showcase-matrix-popover",
             anchorSlot = trigger.slot,
             expanded = true,
-            width = Dimension.Fixed(280f.px)
+            width = Dimension.Fixed(280f.px),
         ) {
             text(
                 label = "Share scene",
@@ -1085,7 +1085,7 @@ private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
                 style = Style {
                     foreground(theme.colors.foreground)
                     textSize(theme.typography.body)
-                }
+                },
             )
             shadcnSupportingText("Anyone with the link can view this scene until you revoke it.")
         }
@@ -1093,7 +1093,7 @@ private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
             id = "showcase-matrix-popover-secondary",
             label = "Reference",
             modifier = Modifier.width(120f.px).height(36f.dp),
-            variant = ShadcnButtonVariant.Secondary
+            variant = ShadcnButtonVariant.Secondary,
         )
     }
 }
@@ -1103,32 +1103,32 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension())
+        modifier = Modifier.height(36f.dp.toDimension()),
     ) {
         val trigger = buttonSlot(
             id = "showcase-matrix-tooltip-trigger",
             label = "Hover target",
             modifier = Modifier.width(156f.px).height(36f.dp),
-            style = theme.components.button
+            style = theme.components.button,
         )
         shadcnTooltip(
             anchorSlot = trigger.slot,
             visible = true,
             width = Dimension.Fixed(260f.dp),
-            positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
+            positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
         ) {
             text(
                 label = "Scene stats stay live here when the cursor rests on the trigger.",
                 wrap = UiTextWrap.Word,
                 overflow = UiTextOverflow.Ellipsis,
-                maxLines = 3
+                maxLines = 3,
             )
         }
         shadcnButton(
             id = "showcase-matrix-tooltip-secondary",
             label = "Reference",
             modifier = Modifier.width(120f.dp).height(36f.dp),
-            variant = ShadcnButtonVariant.Secondary
+            variant = ShadcnButtonVariant.Secondary,
         )
     }
     spacer(Modifier.height(12f.dp))
@@ -1136,34 +1136,34 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension())
+        modifier = Modifier.height(36f.dp.toDimension()),
     ) {
         val textTrigger = buttonSlot(
             id = "showcase-matrix-tooltip-text-trigger",
             label = "Text-only tooltip",
             modifier = Modifier.width(200f.px).height(36f.dp),
-            style = theme.components.button
+            style = theme.components.button,
         )
         shadcnTooltipText(
             id = "tooltip-text",
             anchorSlot = textTrigger.slot,
             visible = true,
             text = "shadcnTooltipText skips the custom content lambda for a plain wrapped label.",
-            positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp)
+            positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
         )
     }
 }
 
 private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
     shadcnSupportingText(
-        "The dialog is rendered open on purpose so title wrapping, message rhythm, scrim color, and action widths can be checked without live interaction."
+        "The dialog is rendered open on purpose so title wrapping, message rhythm, scrim color, and action widths can be checked without live interaction.",
     )
     spacer(Modifier.height(8f.dp))
     shadcnButton(
         id = "showcase-matrix-dialog-trigger",
         label = "Open Dialog",
         modifier = Modifier.width(140f.px).height(36f.dp),
-        variant = ShadcnButtonVariant.Outline
+        variant = ShadcnButtonVariant.Outline,
     )
     shadcnAlertDialog(
         id = "showcase-matrix-alert-dialog",
@@ -1171,24 +1171,24 @@ private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
         title = "Delete this long showcase card title before publishing the updated catalog?",
         message = "This static preview exists only to validate the dialog treatment. No real deletion happens here.",
         confirmLabel = "Delete",
-        dismissLabel = "Cancel"
+        dismissLabel = "Cancel",
     )
 }
 
 private fun ColumnScope.drawUiShowcaseCollapsibleOpenContent() {
     shadcnSupportingText(
-        "The panel is rendered expanded on purpose so revealed-content spacing and separators are reviewable without live interaction."
+        "The panel is rendered expanded on purpose so revealed-content spacing and separators are reviewable without live interaction.",
     )
     spacer(Modifier.height(8f.dp))
     shadcnCollapsible(
         id = "showcase-matrix-collapsible",
         title = "@radix-ui/primitives",
         expanded = true,
-        onExpandedChange = {}
+        onExpandedChange = {},
     ) {
         column(
             verticalArrangement = Arrangement.spacedBy(8f.dp),
-            modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent),
         ) {
             shadcnSeparator(modifier = Modifier.padding(0f.dp, 4f.dp, 0f.dp, 4f.dp))
             row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
@@ -1211,14 +1211,14 @@ private fun ColumnScope.drawUiShowcaseScrollPanelContent() {
             .width(Dimension.Fixed(420f.px))
             .height(Dimension.Fixed(168f.px))
             .verticalScroll(scrollState),
-        style = Style { shape(14f.dp) }
+        style = Style { shape(14f.dp) },
     ) {
         repeat(8) { index ->
             shadcnButton(
                 id = "showcase-matrix-scroll-item-$index",
                 label = "Scene action row ${index + 1}",
                 modifier = Modifier.width(360f.px).height(32f.px),
-                variant = if (index % 2 == 0) ShadcnButtonVariant.Outline else ShadcnButtonVariant.Ghost
+                variant = if (index % 2 == 0) ShadcnButtonVariant.Outline else ShadcnButtonVariant.Ghost,
             )
         }
     }

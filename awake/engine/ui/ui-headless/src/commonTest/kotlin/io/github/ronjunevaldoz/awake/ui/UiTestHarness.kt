@@ -24,7 +24,7 @@ fun UiContext.simulateFrame(
     screenWidth: Float = 200f,
     screenHeight: Float = 200f,
     input: Input = Input(),
-    widgetCalls: () -> Unit
+    widgetCalls: () -> Unit,
 ) {
     input.setPointer(down = pointerDown, x = x, y = y)
     beginFrame(screenWidth, screenHeight, input.updateSnapshot().toUiInputState())
@@ -39,7 +39,7 @@ fun UiContext.simulateScrollFrame(
     screenWidth: Float = 200f,
     screenHeight: Float = 200f,
     input: Input = Input(),
-    widgetCalls: () -> Unit
+    widgetCalls: () -> Unit,
 ) {
     input.scrollDeltaY = scrollDeltaY
     simulateFrame(
@@ -49,7 +49,7 @@ fun UiContext.simulateScrollFrame(
         screenWidth = screenWidth,
         screenHeight = screenHeight,
         input = input,
-        widgetCalls = widgetCalls
+        widgetCalls = widgetCalls,
     )
 }
 
@@ -62,7 +62,7 @@ fun UiContext.simulateClick(
     screenWidth: Float = 200f,
     screenHeight: Float = 200f,
     input: Input = Input(),
-    widgetCalls: () -> Unit
+    widgetCalls: () -> Unit,
 ) {
     simulateFrame(pointerDown = true, x = x, y = y, screenWidth = screenWidth, screenHeight = screenHeight, input = input, widgetCalls = widgetCalls)
     simulateFrame(pointerDown = false, x = x, y = y, screenWidth = screenWidth, screenHeight = screenHeight, input = input, widgetCalls = widgetCalls)

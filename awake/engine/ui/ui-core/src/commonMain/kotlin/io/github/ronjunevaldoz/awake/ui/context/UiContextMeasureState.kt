@@ -3,16 +3,17 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
+import io.github.ronjunevaldoz.awake.ui.px
 import kotlin.math.max
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 internal class UiContextMeasureState {
     internal var measuredMaxRight = 0f
+
     // Same running max as [measuredMaxRight], but skipping slots recorded with
     // contributesToWrapWidth = false (a Dimension.FillMax-width child, e.g. a divider --
     // see [record]). Kept separate rather than folded into [measuredMaxRight] directly so a
@@ -22,6 +23,7 @@ internal class UiContextMeasureState {
     // instead of collapsing to zero -- see snapshot().
     internal var measuredMaxRightExcludingFill = 0f
     internal var measuredMaxBottom = 0f
+
     // Same running max as [measuredMaxBottom], but skipping slots recorded with
     // contributesToWrapHeight = false -- the height-axis counterpart to
     // [measuredMaxRightExcludingFill]. A RowScope child that resolves Dimension.FillMax height
@@ -53,7 +55,7 @@ internal class UiContextMeasureState {
         slot: UiBounds,
         contributesToWrapWidth: Boolean = true,
         contributesToWrapHeight: Boolean = true,
-        contributesToChildList: Boolean = true
+        contributesToChildList: Boolean = true,
     ) {
         // A child that explicitly requested Dimension.FillMax on the cross axis (e.g. a
         // ColumnScope child's width) fills whatever width its container ends up with -- it
@@ -108,7 +110,7 @@ internal class UiContextMeasureState {
         insets: UiInsets,
         sourceContext: UiContext,
         height: Float = 100_000f,
-        content: ColumnScope.(slot: UiBounds) -> Unit
+        content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent {
         val measureContext = createMeasureContext(sourceContext)
         val outerSlot = UiBounds(0f, 0f, width.coerceAtLeast(0f), height.coerceAtLeast(0f))
@@ -120,7 +122,7 @@ internal class UiContextMeasureState {
             // via .px (not .dp) so verticalArrangement.baseSpacingPx() round-trips back to the
             // exact same pixel value regardless of UiDensity.scale.
             verticalArrangement = Arrangement.spacedBy(gap.px),
-            insets = insets
+            insets = insets,
         )
         UiMeasureTrialStats.record { measureScope.content(outerSlot) }
         return measureContext.measuredContentSnapshot()
@@ -132,7 +134,7 @@ internal class UiContextMeasureState {
         insets: UiInsets,
         sourceContext: UiContext,
         width: Float = 100_000f,
-        content: RowScope.(slot: UiBounds) -> Unit
+        content: RowScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent {
         val measureContext = createMeasureContext(sourceContext)
         val outerSlot = UiBounds(0f, 0f, width.coerceAtLeast(0f), height.coerceAtLeast(0f))
@@ -141,7 +143,7 @@ internal class UiContextMeasureState {
             // See the matching comment in measureColumnContent -- same real-gap-not-default
             // reasoning, row-side.
             horizontalArrangement = Arrangement.spacedBy(gap.px),
-            insets = insets
+            insets = insets,
         )
         UiMeasureTrialStats.record { measureScope.content(outerSlot) }
         return measureContext.measuredContentSnapshot()
@@ -181,15 +183,15 @@ internal class UiContextMeasureState {
         // the same real, live state store the un-cached code did.
         val measureContext = cachedMeasureContext ?: UiContext(
             measuring = true,
-            stateStore = sourceContext.stateStoreInternal()
+            stateStore = sourceContext.stateStoreInternal(),
         ).also { cachedMeasureContext = it }
         measureContext.beginFrame(
             UiFrameInput(
                 viewportWidth = 100_000f,
                 viewportHeight = 100_000f,
                 input = UiInputState(),
-                deltaSeconds = 0f
-            )
+                deltaSeconds = 0f,
+            ),
         )
         // Reset (not push) theme/font/textStyle -- this context is reused across many trial
         // passes within (and across) frames, and is never explicitly popped back to empty the
@@ -200,7 +202,7 @@ internal class UiContextMeasureState {
         measureContext.resetStacksForTrialInternal(
             theme = sourceContext.currentTheme,
             textStyle = sourceContext.currentTextStyle,
-            font = sourceContext.currentFont
+            font = sourceContext.currentFont,
         )
         measureContext
     }

@@ -43,7 +43,7 @@ class TransferContext(graphicsDevice: GraphicsDevice) {
 
         val poolInfo = VkCommandPoolCreateInfo(
             flags = VkCommandPoolCreateFlagBits.VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT.value,
-            queueFamilyIndex = graphicsFamily!!
+            queueFamilyIndex = graphicsFamily!!,
         )
 
         commandPool = CommandPoolHandle(Vulkan.vkCreateCommandPool(device, poolInfo))
@@ -56,14 +56,14 @@ class TransferContext(graphicsDevice: GraphicsDevice) {
         val allocInfo = VkCommandBufferAllocateInfo(
             commandPool = commandPool.handle,
             level = VkCommandBufferLevel.VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            commandBufferCount = 1
+            commandBufferCount = 1,
         )
         val commandBuffer = Vulkan.vkAllocateCommandBuffers(device, allocInfo)
         Vulkan.vkBeginCommandBuffer(
             commandBuffer,
             VkCommandBufferBeginInfo(
-                flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value
-            )
+                flags = VkCommandBufferUsageFlagBits.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT.value,
+            ),
         )
         block(commandBuffer)
         Vulkan.vkEndCommandBuffer(commandBuffer)
@@ -72,7 +72,7 @@ class TransferContext(graphicsDevice: GraphicsDevice) {
         Vulkan.vkQueueSubmit(
             graphicsQueue,
             arrayOf(VkSubmitInfo(pCommandBuffers = arrayOf(commandBuffer))),
-            fence
+            fence,
         )
         Vulkan.vkWaitForFences(device, longArrayOf(fence), true, Long.MAX_VALUE)
         Vulkan.vkDestroyFence(device, fence)

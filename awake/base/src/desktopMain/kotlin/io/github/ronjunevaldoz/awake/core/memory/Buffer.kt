@@ -14,9 +14,7 @@ class ByteBuffer(size: Int) : ByteBuf {
         buffer.position(0)
     }
 
-    override fun get(index: Int): Byte {
-        return buffer.get(index)
-    }
+    override fun get(index: Int): Byte = buffer.get(index)
 
     override fun set(index: Int, value: Byte) {
         buffer.put(index, value)
@@ -47,9 +45,7 @@ class ShortBuffer(size: Int) : ShortBuf {
         buffer.position(0)
     }
 
-    override fun get(index: Int): Short {
-        return buffer.get(index)
-    }
+    override fun get(index: Int): Short = buffer.get(index)
 
     override fun set(index: Int, value: Short) {
         buffer.put(index, value)
@@ -80,9 +76,7 @@ class IntBuffer(size: Int) : IntBuf {
         buffer.position(0)
     }
 
-    override fun get(index: Int): Int {
-        return buffer.get(index)
-    }
+    override fun get(index: Int): Int = buffer.get(index)
 
     override fun set(index: Int, value: Int) {
         buffer.put(index, value)
@@ -113,9 +107,7 @@ class FloatBuffer(size: Int) : FloatBuf {
         buffer.position(0)
     }
 
-    override fun get(index: Int): Float {
-        return buffer.get(index)
-    }
+    override fun get(index: Int): Float = buffer.get(index)
 
     override fun set(index: Int, value: Float) {
         buffer.put(index, value)
@@ -141,18 +133,10 @@ actual interface Buffer {
     actual fun clear()
 }
 
-actual fun createByteBuffer(data: ByteArray): ByteBuf {
-    return ByteBuffer(data)
-}
+actual fun createByteBuffer(data: ByteArray): ByteBuf = ByteBuffer(data)
 
-actual fun createShortBuffer(data: ShortArray): ShortBuf {
-    return ShortBuffer(data)
-}
+actual fun createShortBuffer(data: ShortArray): ShortBuf = ShortBuffer(data)
 
-actual fun createIntBuffer(data: IntArray): IntBuf {
-    return IntBuffer(data)
-}
+actual fun createIntBuffer(data: IntArray): IntBuf = IntBuffer(data)
 
-actual fun createFloatBuffer(data: FloatArray): FloatBuf {
-    return FloatBuffer(data)
-}
+actual fun createFloatBuffer(data: FloatArray): FloatBuf = FloatBuffer(data)

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.context
 
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -9,7 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 /**
  * The bookkeeping flags every [UiLayoutFactory] `create*` call repeats identically --
@@ -21,11 +21,11 @@ internal data class UiLayoutTracking(
     val testTag: String? = null,
     val hasBoundedFillWidth: Boolean = true,
     val hasBoundedFillHeight: Boolean = true,
-    val overlayOnly: Boolean = false
+    val overlayOnly: Boolean = false,
 )
 
 internal class UiLayoutFactory(
-    private val context: UiContext
+    private val context: UiContext,
 ) {
     fun createColumn(
         x: Float,
@@ -35,7 +35,7 @@ internal class UiLayoutFactory(
         verticalArrangement: Arrangement = defaultArrangement(),
         tracking: UiLayoutTracking = UiLayoutTracking(hasBoundedFillHeight = height != null),
         plannedSlots: List<UiBounds>? = null,
-        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
+        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     ): ColumnScope = ColumnScope(
         context,
         x,
@@ -48,7 +48,7 @@ internal class UiLayoutFactory(
         tracking.hasBoundedFillHeight,
         tracking.overlayOnly,
         plannedSlots,
-        horizontalAlignment
+        horizontalAlignment,
     )
 
     fun createColumn(
@@ -57,7 +57,7 @@ internal class UiLayoutFactory(
         verticalArrangement: Arrangement = defaultArrangement(),
         tracking: UiLayoutTracking = UiLayoutTracking(),
         plannedSlots: List<UiBounds>? = null,
-        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
+        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     ): ColumnScope {
         val content = slot.inset(insets)
         return createColumn(
@@ -68,7 +68,7 @@ internal class UiLayoutFactory(
             verticalArrangement = verticalArrangement,
             tracking = tracking,
             plannedSlots = plannedSlots,
-            horizontalAlignment = horizontalAlignment
+            horizontalAlignment = horizontalAlignment,
         )
     }
 
@@ -76,20 +76,20 @@ internal class UiLayoutFactory(
         x: Float,
         y: Float,
         testTag: String? = null,
-        overlayOnly: Boolean = false
+        overlayOnly: Boolean = false,
     ): AbsoluteScope = AbsoluteScope(
         context = context,
         x = x,
         y = y,
         testTag = testTag,
-        emitToOverlay = overlayOnly
+        emitToOverlay = overlayOnly,
     )
 
     fun createAbsolute(
         slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         testTag: String? = null,
-        overlayOnly: Boolean = false
+        overlayOnly: Boolean = false,
     ): AbsoluteScope {
         val content = slot.inset(insets)
         return createAbsolute(content.x, content.y, testTag, overlayOnly)
@@ -103,7 +103,7 @@ internal class UiLayoutFactory(
         horizontalArrangement: Arrangement = defaultArrangement(),
         tracking: UiLayoutTracking = UiLayoutTracking(hasBoundedFillWidth = width != null),
         plannedSlots: List<UiBounds>? = null,
-        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
+        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     ): RowScope = RowScope(
         context,
         x,
@@ -116,7 +116,7 @@ internal class UiLayoutFactory(
         tracking.hasBoundedFillHeight,
         tracking.overlayOnly,
         plannedSlots,
-        verticalAlignment
+        verticalAlignment,
     )
 
     fun createRow(
@@ -125,7 +125,7 @@ internal class UiLayoutFactory(
         horizontalArrangement: Arrangement = defaultArrangement(),
         tracking: UiLayoutTracking = UiLayoutTracking(),
         plannedSlots: List<UiBounds>? = null,
-        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
+        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     ): RowScope {
         val content = slot.inset(insets)
         return createRow(
@@ -136,7 +136,7 @@ internal class UiLayoutFactory(
             horizontalArrangement = horizontalArrangement,
             tracking = tracking,
             plannedSlots = plannedSlots,
-            verticalAlignment = verticalAlignment
+            verticalAlignment = verticalAlignment,
         )
     }
 
@@ -146,7 +146,7 @@ internal class UiLayoutFactory(
         width: Float,
         height: Float,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
-        tracking: UiLayoutTracking = UiLayoutTracking()
+        tracking: UiLayoutTracking = UiLayoutTracking(),
     ): BoxScope = BoxScope(
         context,
         x,
@@ -157,14 +157,14 @@ internal class UiLayoutFactory(
         tracking.testTag,
         tracking.hasBoundedFillWidth,
         tracking.hasBoundedFillHeight,
-        tracking.overlayOnly
+        tracking.overlayOnly,
     )
 
     fun createBox(
         slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
-        tracking: UiLayoutTracking = UiLayoutTracking()
+        tracking: UiLayoutTracking = UiLayoutTracking(),
     ): BoxScope {
         val content = slot.inset(insets)
         return createBox(
@@ -173,7 +173,7 @@ internal class UiLayoutFactory(
             width = content.width,
             height = content.height,
             contentAlignment = contentAlignment,
-            tracking = tracking
+            tracking = tracking,
         )
     }
 }

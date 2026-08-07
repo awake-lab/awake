@@ -52,26 +52,26 @@ class ShadcnCollapsibleRealRenderCollapseFrameCaptureTest {
             ui.pushTheme(ShadcnTheme)
             ui.createBox(x = 0f, y = 0f, width = 480f, height = 800f).shadcnSidebar(
                 id = "capture-sidebar",
-                modifier = Modifier.width(280f.dp).height(Dimension.FillMax)
+                modifier = Modifier.width(280f.dp).height(Dimension.FillMax),
             ) {
                 shadcnCollapsible(
                     id = "capture-category-getting-started",
                     title = "Getting Started",
                     expanded = expanded,
-                    onExpandedChange = { expanded = it }
+                    onExpandedChange = { expanded = it },
                 ) {
                     repeat(4) { index ->
                         shadcnButton(
                             id = "capture-item-$index",
                             label = "Item $index",
-                            modifier = Modifier.fillMaxWidth().height(32f.dp)
+                            modifier = Modifier.fillMaxWidth().height(32f.dp),
                         ) {}
                     }
                 }
                 shadcnButton(
                     id = "capture-inputs-header",
                     label = "Inputs",
-                    modifier = Modifier.fillMaxWidth().height(32f.dp)
+                    modifier = Modifier.fillMaxWidth().height(32f.dp),
                 ) {}
             }
             return ui.endFrame()
@@ -93,7 +93,7 @@ class ShadcnCollapsibleRealRenderCollapseFrameCaptureTest {
         println(
             "Real rendered collapse sequence written to " +
                 "${File(outputDir, "frame-000.png").absolutePath.substringBeforeLast(File.separator)} " +
-                "($FRAME_COUNT frames) -- inspect for a visible jump/snap between consecutive frames."
+                "($FRAME_COUNT frames) -- inspect for a visible jump/snap between consecutive frames.",
         )
     }
 

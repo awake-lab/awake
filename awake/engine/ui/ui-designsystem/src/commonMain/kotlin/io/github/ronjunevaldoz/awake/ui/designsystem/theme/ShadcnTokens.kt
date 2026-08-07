@@ -14,7 +14,7 @@ internal data class ShadcnRadiusScale(
     override val md: Dp,
     override val lg: Dp,
     override val xl: Dp,
-    override val full: Dp
+    override val full: Dp,
 ) : UiShapeTokens {
     companion object {
         fun fromBase(base: Dp): ShadcnRadiusScale = ShadcnRadiusScale(
@@ -23,7 +23,7 @@ internal data class ShadcnRadiusScale(
             md = Dp(base.value * 0.8f),
             lg = base,
             xl = Dp(base.value * 1.4f),
-            full = 9999f.dp
+            full = 9999f.dp,
         )
     }
 }
@@ -45,7 +45,7 @@ internal data class ShadcnMetrics(
     val fieldPaddingX: Dp,
     val fieldPaddingY: Dp,
     val badgePaddingX: Dp,
-    val badgePaddingY: Dp
+    val badgePaddingY: Dp,
 )
 
 internal data class ShadcnPalette(
@@ -83,5 +83,5 @@ internal data class ShadcnPalette(
     val sidebarAccent: Color,
     val sidebarAccentForeground: Color,
     val sidebarBorder: Color,
-    val sidebarRing: Color
+    val sidebarRing: Color,
 )

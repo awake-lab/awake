@@ -5,13 +5,13 @@ package io.github.ronjunevaldoz.awake.ui.context
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.WidgetState
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 
 internal class UiRuntimeCoordinator(
     private val interaction: UiContextInteractionState = UiContextInteractionState(),
     private val frameState: UiContextFrameState = UiContextFrameState(),
-    private val stateStore: UiStateStore = UiStateStore()
+    private val stateStore: UiStateStore = UiStateStore(),
 ) {
     private var finalizedFrameOutput: UiFrameOutput? = null
 
@@ -23,7 +23,7 @@ internal class UiRuntimeCoordinator(
         screenWidth: Float,
         screenHeight: Float,
         inputState: UiInputState,
-        deltaSeconds: Float
+        deltaSeconds: Float,
     ) {
         finalizedFrameOutput = null
         frameState.beginFrame(screenWidth, screenHeight, inputState, deltaSeconds)
@@ -45,7 +45,7 @@ internal class UiRuntimeCoordinator(
             primitives = frameState.endFrame(),
             semantics = frameState.semanticNodes(),
             ownership = ownership,
-            effects = UiPlatformEffects(requestKeyboard = ownership.isTextInputFocused)
+            effects = UiPlatformEffects(requestKeyboard = ownership.isTextInputFocused),
         )
     }
 
@@ -111,12 +111,12 @@ private fun UiInputResult.toOwnership(): UiInputOwnership = UiInputOwnership(
     isCaptured = isCaptured,
     isOverScrollable = isOverScrollable,
     isScrollConsumed = isScrollConsumed,
-    isTextInputFocused = isTextInputFocused
+    isTextInputFocused = isTextInputFocused,
 )
 
 private fun UiInputOwnership.toInputResult(): UiInputResult = UiInputResult(
     isCaptured = isCaptured,
     isOverScrollable = isOverScrollable,
     isScrollConsumed = isScrollConsumed,
-    isTextInputFocused = isTextInputFocused
+    isTextInputFocused = isTextInputFocused,
 )

@@ -9,17 +9,13 @@ import kotlin.reflect.KClass
  * for how membership is kept up to date incrementally as [World] mutates.
  */
 class Family1<A : Any> @PublishedApi internal constructor(
-    @PublishedApi internal val cache: Family1Cache<A>
+    @PublishedApi internal val cache: Family1Cache<A>,
 ) {
     val size: Int get() = cache.size
 
-    fun components(): Array<A> {
-        return cache.components()
-    }
+    fun components(): Array<A> = cache.components()
 
-    fun componentAt(index: Int): A {
-        return cache.componentAt(index)
-    }
+    fun componentAt(index: Int): A = cache.componentAt(index)
 
     inline fun forEach(block: (Entity, A) -> Unit) {
         cache.forEach(block)
@@ -32,25 +28,17 @@ class Family1<A : Any> @PublishedApi internal constructor(
 
 /** The public, read-only view of a maintained two-component family -- see [Family2Cache]. */
 class Family2<A : Any, B : Any> @PublishedApi internal constructor(
-    @PublishedApi internal val cache: Family2Cache<A, B>
+    @PublishedApi internal val cache: Family2Cache<A, B>,
 ) {
     val size: Int get() = cache.size
 
-    fun componentsA(): Array<A> {
-        return cache.componentsA()
-    }
+    fun componentsA(): Array<A> = cache.componentsA()
 
-    fun componentsB(): Array<B> {
-        return cache.componentsB()
-    }
+    fun componentsB(): Array<B> = cache.componentsB()
 
-    fun componentA(index: Int): A {
-        return cache.componentA(index)
-    }
+    fun componentA(index: Int): A = cache.componentA(index)
 
-    fun componentB(index: Int): B {
-        return cache.componentB(index)
-    }
+    fun componentB(index: Int): B = cache.componentB(index)
 
     inline fun forEach(block: (Entity, A, B) -> Unit) {
         cache.forEach(block)
@@ -80,12 +68,14 @@ internal sealed class FamilyCache {
 internal class Family1Cache<A : Any>(
     private val type: KClass<A>,
     private val typeId: ComponentTypeId,
-    @Suppress("unused") private val store: ComponentStore<A>
+    @Suppress("unused") private val store: ComponentStore<A>,
 ) : FamilyCache() {
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
+
     @PublishedApi
     internal var components = newComponentArray(type, DEFAULT_FAMILY_CAPACITY)
+
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
@@ -123,6 +113,7 @@ internal class Family1Cache<A : Any>(
     @PublishedApi
     internal inline fun forEach(block: (Entity, A) -> Unit) {
         val localEntities = entities
+
         @Suppress("UNCHECKED_CAST")
         val localComponents = components as Array<A>
         val localCount = count
@@ -219,14 +210,17 @@ internal class Family2Cache<A : Any, B : Any>(
     private val storeA: ComponentStore<A>,
     private val typeB: KClass<B>,
     private val typeIdB: ComponentTypeId,
-    private val storeB: ComponentStore<B>
+    private val storeB: ComponentStore<B>,
 ) : FamilyCache() {
     @PublishedApi
     internal var entities = LongArray(DEFAULT_FAMILY_CAPACITY)
+
     @PublishedApi
     internal var componentsA = newComponentArray(typeA, DEFAULT_FAMILY_CAPACITY)
+
     @PublishedApi
     internal var componentsB = newComponentArray(typeB, DEFAULT_FAMILY_CAPACITY)
+
     @PublishedApi
     internal var count: Int = 0
     private val sparse = EntityIndexMap()
@@ -277,8 +271,10 @@ internal class Family2Cache<A : Any, B : Any>(
     @PublishedApi
     internal inline fun forEach(block: (Entity, A, B) -> Unit) {
         val localEntities = entities
+
         @Suppress("UNCHECKED_CAST")
         val localComponentsA = componentsA as Array<A>
+
         @Suppress("UNCHECKED_CAST")
         val localComponentsB = componentsB as Array<B>
         val localCount = count
@@ -291,6 +287,7 @@ internal class Family2Cache<A : Any, B : Any>(
     internal inline fun forEachComponents(block: (A, B) -> Unit) {
         @Suppress("UNCHECKED_CAST")
         val localComponentsA = componentsA as Array<A>
+
         @Suppress("UNCHECKED_CAST")
         val localComponentsB = componentsB as Array<B>
         val localCount = count

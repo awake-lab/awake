@@ -59,7 +59,7 @@ class RendererHeadlessGradientClipTest {
             topLeft = Color(1f, 0f, 0f, 1f),
             topRight = Color(0f, 1f, 0f, 1f),
             bottomRight = Color(0f, 0f, 1f, 1f),
-            bottomLeft = Color(1f, 1f, 0f, 1f)
+            bottomLeft = Color(1f, 1f, 0f, 1f),
         )
         // Gradient quad covers the WHOLE canvas -- bigger than clipBounds on every side -- so
         // any painted pixel outside clipBounds proves the clip failed outright, and any painted
@@ -68,7 +68,7 @@ class RendererHeadlessGradientClipTest {
         val primitives = listOf(
             UiDrawPrimitive.ClipPathPush(clipPath, clipBounds),
             UiDrawPrimitive.GradientQuad(0f, 0f, TARGET_SIZE.toFloat(), TARGET_SIZE.toFloat(), gradient),
-            UiDrawPrimitive.ClipPop(UiBounds(0f, 0f, TARGET_SIZE.toFloat(), TARGET_SIZE.toFloat()))
+            UiDrawPrimitive.ClipPop(UiBounds(0f, 0f, TARGET_SIZE.toFloat(), TARGET_SIZE.toFloat())),
         )
 
         renderer.renderUiToTexture(target, primitives, font = null)
@@ -97,7 +97,7 @@ class RendererHeadlessGradientClipTest {
         assertTrue(
             isBackground(20, 20),
             "pixel inside the clip's bounding box but outside its rounded corner must stay " +
-                "background -- a bounding-box-only scissor would incorrectly paint it"
+                "background -- a bounding-box-only scissor would incorrectly paint it",
         )
 
         // Center of the clip region -- must show the gradient (not background).
@@ -112,7 +112,7 @@ class RendererHeadlessGradientClipTest {
         val renderPipeline: RenderPipeline,
         val lineRenderPipeline: LineRenderPipeline,
         val transferContext: TransferContext,
-        val renderer: Renderer
+        val renderer: Renderer,
     ) {
         fun destroy() {
             renderer.destroy()
@@ -140,14 +140,14 @@ class RendererHeadlessGradientClipTest {
             runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
             VertexFormat.PositionColorUv,
             vertexEntryPoint = "vertexMain",
-            fragmentEntryPoint = "fragmentMain"
+            fragmentEntryPoint = "fragmentMain",
         )
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
             runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
         val transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(
@@ -163,7 +163,7 @@ class RendererHeadlessGradientClipTest {
             runBlocking {
                 loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
             },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
         return Fixture(graphicsDevice, pipelineLayoutMaterial, renderPipeline, lineRenderPipeline, transferContext, renderer)
     }

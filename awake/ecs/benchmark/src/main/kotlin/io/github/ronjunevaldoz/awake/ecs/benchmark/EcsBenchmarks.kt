@@ -2,16 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ecs.benchmark
 
-import com.artemis.World as ArtemisWorld
 import com.artemis.WorldConfigurationBuilder
-import com.badlogic.ashley.core.Engine as AshleyEngine
-import com.badlogic.ashley.core.Entity as AshleyEntity
-import com.github.quillraven.fleks.Entity as FleksEntity
-import com.github.quillraven.fleks.World as FleksWorld
 import com.github.quillraven.fleks.configureWorld
 import io.github.ronjunevaldoz.awake.ecs.ComponentTypeId
-import io.github.ronjunevaldoz.awake.ecs.Entity as AwakeEntity
-import io.github.ronjunevaldoz.awake.ecs.World as AwakeWorld
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import org.openjdk.jmh.annotations.Benchmark
@@ -25,6 +18,12 @@ import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.Warmup
 import java.util.concurrent.TimeUnit
+import com.artemis.World as ArtemisWorld
+import com.badlogic.ashley.core.Engine as AshleyEngine
+import com.badlogic.ashley.core.Entity as AshleyEntity
+import com.github.quillraven.fleks.Entity as FleksEntity
+import io.github.ronjunevaldoz.awake.ecs.Entity as AwakeEntity
+import io.github.ronjunevaldoz.awake.ecs.World as AwakeWorld
 
 @Fork(1)
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)

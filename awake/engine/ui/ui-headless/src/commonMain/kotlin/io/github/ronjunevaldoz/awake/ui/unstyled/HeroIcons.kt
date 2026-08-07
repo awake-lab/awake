@@ -47,7 +47,7 @@ object HeroIcons {
             defaultWidth = 16f.dp,
             defaultHeight = 16f.dp,
             viewportWidth = 16f,
-            viewportHeight = 16f
+            viewportHeight = 16f,
         ) {
             path {
                 moveTo(4f, 4.8f)
@@ -64,7 +64,7 @@ object HeroIcons {
             defaultWidth = 16f.dp,
             defaultHeight = 16f.dp,
             viewportWidth = 16f,
-            viewportHeight = 16f
+            viewportHeight = 16f,
         ) {
             path {
                 moveTo(4f, 11.2f)

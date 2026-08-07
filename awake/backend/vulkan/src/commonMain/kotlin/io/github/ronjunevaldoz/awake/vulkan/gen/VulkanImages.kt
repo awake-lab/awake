@@ -39,14 +39,14 @@ expect object VulkanImages {
         image: Long,
         oldLayout: Int,
         newLayout: Int,
-        levelCount: Int = 1
+        levelCount: Int = 1,
     )
 
     fun vkCmdCopyBufferToImage(
         commandBuffer: Long,
         srcBuffer: Long,
         dstImage: Long,
-        copy: VkBufferImageCopy
+        copy: VkBufferImageCopy,
     )
 
     /** Inverse of [vkCmdCopyBufferToImage] -- copies [srcImage] (expected in
@@ -57,6 +57,6 @@ expect object VulkanImages {
         commandBuffer: Long,
         srcImage: Long,
         dstBuffer: Long,
-        copy: VkBufferImageCopy
+        copy: VkBufferImageCopy,
     )
 }

@@ -11,7 +11,6 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.usePinned
 
-
 actual interface Buffer {
     fun <C : CPointed> get(): CValuesRef<C>
     actual val size: Int
@@ -25,9 +24,7 @@ class ByteBuffer(size: Int) : ByteBuf {
         data.copyInto(this.buffer)
     }
 
-    override fun get(index: Int): Byte {
-        return buffer[index]
-    }
+    override fun get(index: Int): Byte = buffer[index]
 
     override fun set(index: Int, value: Byte) {
         buffer[index] = value
@@ -37,9 +34,7 @@ class ByteBuffer(size: Int) : ByteBuf {
         data.copyInto(this.buffer)
     }
 
-    override fun <C : CPointed> get(): CValuesRef<C> {
-        return buffer.usePinned { it.addressOf(0).reinterpret() }
-    }
+    override fun <C : CPointed> get(): CValuesRef<C> = buffer.usePinned { it.addressOf(0).reinterpret() }
 
     override val size: Int = buffer.size
 
@@ -55,9 +50,7 @@ class ShortBuffer(size: Int) : ShortBuf {
         data.copyInto(buffer)
     }
 
-    override fun get(index: Int): Short {
-        return buffer[index]
-    }
+    override fun get(index: Int): Short = buffer[index]
 
     override fun set(index: Int, value: Short) {
         buffer[index] = value
@@ -67,9 +60,7 @@ class ShortBuffer(size: Int) : ShortBuf {
         data.copyInto(buffer)
     }
 
-    override fun <C : CPointed> get(): CValuesRef<C> {
-        return buffer.usePinned { it.addressOf(0).reinterpret() }
-    }
+    override fun <C : CPointed> get(): CValuesRef<C> = buffer.usePinned { it.addressOf(0).reinterpret() }
 
     override val size: Int = buffer.size
 
@@ -85,9 +76,7 @@ class IntBuffer(size: Int) : IntBuf {
         data.copyInto(buffer)
     }
 
-    override fun get(index: Int): Int {
-        return buffer[index]
-    }
+    override fun get(index: Int): Int = buffer[index]
 
     override fun set(index: Int, value: Int) {
         buffer[index] = value
@@ -97,9 +86,7 @@ class IntBuffer(size: Int) : IntBuf {
         data.copyInto(buffer)
     }
 
-    override fun <C : CPointed> get(): CValuesRef<C> {
-        return buffer.usePinned { it.addressOf(0).reinterpret() }
-    }
+    override fun <C : CPointed> get(): CValuesRef<C> = buffer.usePinned { it.addressOf(0).reinterpret() }
 
     override val size: Int = buffer.size
 
@@ -115,9 +102,7 @@ class FloatBuffer(size: Int) : FloatBuf {
         data.copyInto(buffer)
     }
 
-    override fun get(index: Int): Float {
-        return buffer[index]
-    }
+    override fun get(index: Int): Float = buffer[index]
 
     override fun set(index: Int, value: Float) {
         buffer[index] = value
@@ -127,9 +112,7 @@ class FloatBuffer(size: Int) : FloatBuf {
         data.copyInto(buffer)
     }
 
-    override fun <C : CPointed> get(): CValuesRef<C> {
-        return buffer.usePinned { it.addressOf(0).reinterpret() }
-    }
+    override fun <C : CPointed> get(): CValuesRef<C> = buffer.usePinned { it.addressOf(0).reinterpret() }
 
     override val size: Int = buffer.size
 
@@ -138,18 +121,10 @@ class FloatBuffer(size: Int) : FloatBuf {
     }
 }
 
-actual fun createByteBuffer(data: ByteArray): ByteBuf {
-    return ByteBuffer(data)
-}
+actual fun createByteBuffer(data: ByteArray): ByteBuf = ByteBuffer(data)
 
-actual fun createShortBuffer(data: ShortArray): ShortBuf {
-    return ShortBuffer(data)
-}
+actual fun createShortBuffer(data: ShortArray): ShortBuf = ShortBuffer(data)
 
-actual fun createIntBuffer(data: IntArray): IntBuf {
-    return IntBuffer(data)
-}
+actual fun createIntBuffer(data: IntArray): IntBuf = IntBuffer(data)
 
-actual fun createFloatBuffer(data: FloatArray): FloatBuf {
-    return FloatBuffer(data)
-}
+actual fun createFloatBuffer(data: FloatArray): FloatBuf = FloatBuffer(data)

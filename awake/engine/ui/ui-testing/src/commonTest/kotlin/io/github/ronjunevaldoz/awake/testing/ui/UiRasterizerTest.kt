@@ -25,7 +25,7 @@ class UiRasterizerTest {
                 (pixels[offset].toInt() and 0xFF) / 255f,
                 (pixels[offset + 1].toInt() and 0xFF) / 255f,
                 (pixels[offset + 2].toInt() and 0xFF) / 255f,
-                (pixels[offset + 3].toInt() and 0xFF) / 255f
+                (pixels[offset + 3].toInt() and 0xFF) / 255f,
             )
         }
 

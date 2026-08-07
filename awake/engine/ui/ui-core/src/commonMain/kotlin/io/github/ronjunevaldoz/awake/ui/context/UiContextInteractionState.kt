@@ -32,7 +32,7 @@ internal class UiContextInteractionState {
         isCaptured = activeId != null,
         isOverScrollable = isOverScrollableThisFrame,
         isScrollConsumed = isScrollConsumedThisFrame,
-        isTextInputFocused = focusedId != null
+        isTextInputFocused = focusedId != null,
     )
 
     fun onOverScrollable() {

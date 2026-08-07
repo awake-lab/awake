@@ -3,9 +3,10 @@
 package io.github.ronjunevaldoz.awake.vulkan.swapchain
 
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
+import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorSpaceKHR
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkCompositeAlphaFlagBitsKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkComponentSwizzle
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkCompositeAlphaFlagBitsKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkFormat
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageAspectFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageUsageFlagBits
@@ -13,7 +14,6 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkImageViewType
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPresentModeKHR
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSharingMode
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkFenceCreateFlagBits
-import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.has
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkSurfaceCapabilitiesKHR
@@ -42,7 +42,7 @@ import io.github.ronjunevaldoz.awake.vulkan.utils.querySwapChainSupport
 class SwapchainManager(
     graphicsDevice: GraphicsDevice,
     val maxFramesInFlight: Int,
-    private val surfaceExtentProvider: (() -> VkExtent2D?)? = null
+    private val surfaceExtentProvider: (() -> VkExtent2D?)? = null,
 ) {
     private val graphicsDevice = graphicsDevice
     private val physicalDevice get() = graphicsDevice.physicalDevice
@@ -110,7 +110,7 @@ class SwapchainManager(
             compositeAlpha = compositeAlpha,
             presentMode = presentMode,
             clipped = true,
-            oldSwapchain = swapChain
+            oldSwapchain = swapChain,
         )
         imageFormat = format
         swapChain = Vulkan.vkCreateSwapchainKHR(device, createInfo)
@@ -156,8 +156,8 @@ class SwapchainManager(
                     baseMipLevel = 0,
                     levelCount = 1,
                     baseArrayLayer = 0,
-                    layerCount = 1
-                )
+                    layerCount = 1,
+                ),
             )
             Vulkan.vkCreateImageView(device, createInfo)
         }
@@ -236,7 +236,7 @@ class SwapchainManager(
     fun createSyncObjects() {
         val semaphoreInfo = VkSemaphoreCreateInfo()
         val fenceInfo = VkFenceCreateInfo(
-            flags = VkFenceCreateFlagBits.VK_FENCE_CREATE_SIGNALED_BIT.value
+            flags = VkFenceCreateFlagBits.VK_FENCE_CREATE_SIGNALED_BIT.value,
         )
 
         for (i in 0 until maxFramesInFlight) {

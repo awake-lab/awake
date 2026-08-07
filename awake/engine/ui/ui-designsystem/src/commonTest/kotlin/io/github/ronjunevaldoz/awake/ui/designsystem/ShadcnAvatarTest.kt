@@ -9,11 +9,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatarBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatarGroup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import kotlin.math.abs
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -49,7 +48,7 @@ class ShadcnAvatarTest {
 
         assertTrue(
             glyphHeight(ShadcnAvatarSize.Lg) > glyphHeight(ShadcnAvatarSize.Sm),
-            "Lg avatar initials should render taller than Sm avatar initials"
+            "Lg avatar initials should render taller than Sm avatar initials",
         )
     }
 

@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldDescription
@@ -10,12 +13,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnF
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLegend
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldSet
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInputOTP
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -58,7 +58,7 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
                     otpCode = shadcnInputOTP(
                         id = "checkout-otp-input",
                         value = otpCode,
-                        length = 6
+                        length = 6,
                     )
                 }
                 shadcnField(id = "checkout-name-on-card") {
@@ -66,7 +66,7 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
                     nameOnCard = shadcnInput(
                         id = "checkout-name-on-card-input",
                         value = nameOnCard,
-                        placeholder = "Evil Rabbit"
+                        placeholder = "Evil Rabbit",
                     )
                 }
                 shadcnField(id = "checkout-card-number") {
@@ -74,7 +74,7 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
                     cardNumber = shadcnInput(
                         id = "checkout-card-number-input",
                         value = cardNumber,
-                        placeholder = "1234 5678 9012 3456"
+                        placeholder = "1234 5678 9012 3456",
                     )
                     shadcnFieldDescription("Enter your 16-digit card number")
                 }
@@ -86,7 +86,7 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
                             monthIndex = shadcnSelect(
                                 id = "checkout-month-select",
                                 options = CheckoutMonthOptions,
-                                selectedIndex = monthIndex
+                                selectedIndex = monthIndex,
                             ) ?: monthIndex
                         }
                     }
@@ -96,7 +96,7 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
                             yearIndex = shadcnSelect(
                                 id = "checkout-year-select",
                                 options = CheckoutYearOptions,
-                                selectedIndex = yearIndex
+                                selectedIndex = yearIndex,
                             ) ?: yearIndex
                         }
                     }
@@ -106,7 +106,7 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
                             cvv = shadcnInput(
                                 id = "checkout-cvv-input",
                                 value = cvv,
-                                placeholder = "123"
+                                placeholder = "123",
                             )
                         }
                     }
@@ -122,7 +122,7 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
                     sameAsShipping = shadcnCheckbox(
                         id = "checkout-same-as-shipping-checkbox",
                         checked = sameAsShipping,
-                        modifier = Modifier.width(20f.dp).height(20f.dp)
+                        modifier = Modifier.width(20f.dp).height(20f.dp),
                     )
                     shadcnFieldLabel("Same as shipping address")
                 }
@@ -136,7 +136,7 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
                         id = "checkout-comments-textarea",
                         value = comments,
                         placeholder = "Add any additional comments",
-                        minLines = 4
+                        minLines = 4,
                     )
                 }
             }
@@ -146,13 +146,13 @@ internal fun ColumnScope.drawUiShowcaseFieldDemoPreview() {
                 id = "checkout-submit",
                 label = "Submit",
                 variant = ShadcnButtonVariant.Primary,
-                modifier = Modifier.width(100f.dp).height(36f.dp)
+                modifier = Modifier.width(100f.dp).height(36f.dp),
             )
             shadcnButton(
                 id = "checkout-cancel",
                 label = "Cancel",
                 variant = ShadcnButtonVariant.Outline,
-                modifier = Modifier.width(100f.dp).height(36f.dp)
+                modifier = Modifier.width(100f.dp).height(36f.dp),
             )
         }
     }

@@ -6,16 +6,36 @@ package io.github.ronjunevaldoz.awake.core.input
  * Common subset of keys this engine cares about.
  */
 enum class Key {
-    W, A, S, D,
-    ArrowUp, ArrowDown, ArrowLeft, ArrowRight,
-    Space, Escape, F1, F2, F3, F4, F5
+    W,
+    A,
+    S,
+    D,
+    ArrowUp,
+    ArrowDown,
+    ArrowLeft,
+    ArrowRight,
+    Space,
+    Escape,
+    F1,
+    F2,
+    F3,
+    F4,
+    F5,
 }
 
 /**
  * Discrete text-editing commands.
  */
 enum class TextEditAction {
-    Backspace, Delete, Enter, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Home, End
+    Backspace,
+    Delete,
+    Enter,
+    ArrowLeft,
+    ArrowRight,
+    ArrowUp,
+    ArrowDown,
+    Home,
+    End,
 }
 
 /**
@@ -40,7 +60,7 @@ data class InputSnapshot(
     val keysReleased: Set<Key>,
     val typedText: String,
     val editActions: List<TextEditAction>,
-    val secondaryPointerDown: Boolean = false
+    val secondaryPointerDown: Boolean = false,
 ) {
     fun isDown(k: Key): Boolean = k in keysDown
 
@@ -83,7 +103,7 @@ class Input {
         keysPressed = emptySet(),
         keysReleased = emptySet(),
         typedText = "",
-        editActions = emptyList()
+        editActions = emptyList(),
     )
         private set
 
@@ -103,7 +123,7 @@ class Input {
             keysReleased = previousKeysDown - heldKeys,
             typedText = typedText.toString(),
             editActions = pendingEditActions.toList(),
-            secondaryPointerDown = secondaryPointerDown
+            secondaryPointerDown = secondaryPointerDown,
         )
         // Clear transient buffers
         scrollDeltaX = 0f

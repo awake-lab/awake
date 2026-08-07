@@ -62,7 +62,7 @@ class ShadcnCollapsibleToggleTest {
             id = "ui-showcase-sidebar",
             modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden))
                 .width(264f.dp)
-                .height(Dimension.FillMax)
+                .height(Dimension.FillMax),
         ) {
             drawUiShowcaseSidebar(compact = false)
         }
@@ -83,27 +83,36 @@ class ShadcnCollapsibleToggleTest {
         }
 
         // Warm-up frame: establish default (expanded = true for every category) and record bounds.
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
+        frameNoInput {
+            ui.pushTheme(theme)
+            drawSidebar(ui)
+        }
 
         val before = mapOf(
             "GettingStarted" to expandedState(ui, "GettingStarted").value,
             "Inputs" to expandedState(ui, "Inputs").value,
             "Typography" to expandedState(ui, "Typography").value,
-            "Patterns" to expandedState(ui, "Patterns").value
+            "Patterns" to expandedState(ui, "Patterns").value,
         )
         assertTrue(before.values.all { it }, "every category should start expanded: $before")
 
         val headerCenter = headerBounds(ui, "GettingStarted").center()
 
-        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui) }
+        ui.click(input, headerCenter) {
+            ui.pushTheme(theme)
+            drawSidebar(ui)
+        }
 
         // One extra settled frame so the flipped state is visible to a fresh read.
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
+        frameNoInput {
+            ui.pushTheme(theme)
+            drawSidebar(ui)
+        }
 
         assertEquals(
             false,
             expandedState(ui, "GettingStarted").value,
-            "clicking the Getting Started header must collapse it"
+            "clicking the Getting Started header must collapse it",
         )
         assertEquals(true, expandedState(ui, "Inputs").value, "Inputs must be unaffected by a click on a sibling header")
         assertEquals(true, expandedState(ui, "Typography").value, "Typography must be unaffected by a click on a sibling header")
@@ -124,22 +133,43 @@ class ShadcnCollapsibleToggleTest {
             ui.endFrame()
         }
 
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
+        frameNoInput {
+            ui.pushTheme(theme)
+            drawSidebar(ui)
+        }
         val headerCenter = headerBounds(ui, "GettingStarted").center()
 
         // click 1: expanded (true) -> collapsed (false)
-        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui) }
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
+        ui.click(input, headerCenter) {
+            ui.pushTheme(theme)
+            drawSidebar(ui)
+        }
+        frameNoInput {
+            ui.pushTheme(theme)
+            drawSidebar(ui)
+        }
         assertEquals(false, expandedState(ui, "GettingStarted").value, "first click must collapse")
 
         // click 2: collapsed (false) -> expanded (true)
-        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui) }
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
+        ui.click(input, headerCenter) {
+            ui.pushTheme(theme)
+            drawSidebar(ui)
+        }
+        frameNoInput {
+            ui.pushTheme(theme)
+            drawSidebar(ui)
+        }
         assertEquals(true, expandedState(ui, "GettingStarted").value, "second click must re-expand, not stick or double-fire")
 
         // click 3: expanded (true) -> collapsed (false)
-        ui.click(input, headerCenter) { ui.pushTheme(theme); drawSidebar(ui) }
-        frameNoInput { ui.pushTheme(theme); drawSidebar(ui) }
+        ui.click(input, headerCenter) {
+            ui.pushTheme(theme)
+            drawSidebar(ui)
+        }
+        frameNoInput {
+            ui.pushTheme(theme)
+            drawSidebar(ui)
+        }
         assertEquals(false, expandedState(ui, "GettingStarted").value, "third click must collapse again")
     }
 }

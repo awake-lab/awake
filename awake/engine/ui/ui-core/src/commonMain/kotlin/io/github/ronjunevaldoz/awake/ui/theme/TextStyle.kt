@@ -14,7 +14,7 @@ data class TextStyle(
     val size: Sp? = null,
     val scale: Float = 1f,
     val weight: FontWeight = FontWeight.Normal,
-    val letterSpacing: Sp = 0f.sp
+    val letterSpacing: Sp = 0f.sp,
 ) {
     companion object {
         val Default = TextStyle()
@@ -25,6 +25,6 @@ data class TextStyle(
         size = other.size ?: size,
         scale = other.scale,
         weight = other.weight,
-        letterSpacing = other.letterSpacing
+        letterSpacing = other.letterSpacing,
     )
 }

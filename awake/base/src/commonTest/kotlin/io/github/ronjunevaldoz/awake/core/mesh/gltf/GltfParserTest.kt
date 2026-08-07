@@ -19,7 +19,7 @@ class GltfParserTest {
         val positions = floatArrayOf(
             0f, 0f, 0f,
             1f, 0f, 0f,
-            0f, 1f, 0f
+            0f, 1f, 0f,
         )
         val indices = shortArrayOf(0, 1, 2)
         val bytes = ByteArray(positions.size * 4 + indices.size * 2)
@@ -71,7 +71,7 @@ class GltfParserTest {
         assertEquals(3, mesh.vertexCount)
         assertEquals(
             listOf(0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f, 0f),
-            mesh.positions.toList()
+            mesh.positions.toList(),
         )
         assertEquals(listOf(0, 1, 2), mesh.indices.toList())
         assertNull(mesh.normals)

@@ -9,7 +9,7 @@ data class UiInputOwnership(
     val isCaptured: Boolean = false,
     val isOverScrollable: Boolean = false,
     val isScrollConsumed: Boolean = false,
-    val isTextInputFocused: Boolean = false
+    val isTextInputFocused: Boolean = false,
 )
 
 /**
@@ -21,12 +21,12 @@ data class UiInputOwnership(
 val UiInputOwnership.blocksGameplayKeys: Boolean get() = isCaptured || isTextInputFocused
 
 data class UiPlatformEffects(
-    val requestKeyboard: Boolean = false
+    val requestKeyboard: Boolean = false,
 )
 
 data class UiFrameOutput(
     val primitives: List<UiDrawPrimitive>,
     val semantics: List<UiSemanticNode>,
     val ownership: UiInputOwnership = UiInputOwnership(),
-    val effects: UiPlatformEffects = UiPlatformEffects()
+    val effects: UiPlatformEffects = UiPlatformEffects(),
 )

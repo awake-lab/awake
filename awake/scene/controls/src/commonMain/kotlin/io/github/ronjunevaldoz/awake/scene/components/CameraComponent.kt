@@ -28,19 +28,19 @@ class CameraComponent : Poolable {
         }
 
     var needsReset: Boolean = false
-    
+
     // Target Tracking (Used by ThirdPerson, Cinematic, and TopDown)
     var targetEntity: Entity? = null
-    
+
     // Orbit and Offset configurations
     /** Current zoom distance from the target. */
     var distance: Float = DEFAULT_DISTANCE
     var minDistance: Float = DEFAULT_MIN_DISTANCE
     var maxDistance: Float = DEFAULT_MAX_DISTANCE
-    
-    var pitch: Float = 0f            // Vertical orbit angle (radians)
-    var yaw: Float = 0f              // Horizontal orbit angle (radians)
-    
+
+    var pitch: Float = 0f // Vertical orbit angle (radians)
+    var yaw: Float = 0f // Horizontal orbit angle (radians)
+
     // Mode-specific offsets (e.g., eye-height for FirstPerson, or focal point offset)
     var offsetPosition: Vec3 = Vec3(0f, DEFAULT_EYE_HEIGHT, 0f)
 
@@ -74,7 +74,7 @@ class CameraComponent : Poolable {
 enum class CameraMode(
     internal val usesYaw: Boolean,
     internal val usesPitch: Boolean,
-    internal val usesZoom: Boolean
+    internal val usesZoom: Boolean,
 ) {
     FirstPerson(usesYaw = true, usesPitch = true, usesZoom = false),
     ThirdPerson(usesYaw = true, usesPitch = true, usesZoom = true),
@@ -83,5 +83,5 @@ enum class CameraMode(
     Cinematic(usesYaw = false, usesPitch = false, usesZoom = false),
 
     /** Fixed downward tilt; drag orbits the target horizontally, scroll changes height. */
-    TopDown(usesYaw = true, usesPitch = false, usesZoom = true)
+    TopDown(usesYaw = true, usesPitch = false, usesZoom = true),
 }

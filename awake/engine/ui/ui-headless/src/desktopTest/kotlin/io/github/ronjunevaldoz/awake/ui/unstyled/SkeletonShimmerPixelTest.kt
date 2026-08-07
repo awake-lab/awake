@@ -6,14 +6,11 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.testSnapshot
-import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -49,7 +46,7 @@ class SkeletonShimmerPixelTest {
                 id = "skeleton-shimmer-probe",
                 modifier = Modifier.width(width.dp).height(height.dp),
                 style = Style { shape(radiusDp.dp) },
-                shimmer = shimmer
+                shimmer = shimmer,
             )
             primitives = ui.endFrame()
         }
@@ -62,7 +59,7 @@ class SkeletonShimmerPixelTest {
             (pixels[offset].toInt() and 0xFF) / 255f,
             (pixels[offset + 1].toInt() and 0xFF) / 255f,
             (pixels[offset + 2].toInt() and 0xFF) / 255f,
-            (pixels[offset + 3].toInt() and 0xFF) / 255f
+            (pixels[offset + 3].toInt() and 0xFF) / 255f,
         )
     }
 
@@ -78,13 +75,15 @@ class SkeletonShimmerPixelTest {
         val cornerWithShimmer = pixelAt(pulseAndShimmer, 2, 2)
 
         assertEquals(
-            Color.Black, cornerNoShimmer,
-            "sanity: the cut corner outside the rounded shape must be untouched background with pulse alone"
+            Color.Black,
+            cornerNoShimmer,
+            "sanity: the cut corner outside the rounded shape must be untouched background with pulse alone",
         )
         assertEquals(
-            Color.Black, cornerWithShimmer,
+            Color.Black,
+            cornerWithShimmer,
             "the shimmer band must be clipped to the rounded shape -- it must NOT paint past the cut corner " +
-                "(a failure here means GradientQuad clipping regressed, not that shimmer itself is broken)"
+                "(a failure here means GradientQuad clipping regressed, not that shimmer itself is broken)",
         )
     }
 
@@ -103,7 +102,7 @@ class SkeletonShimmerPixelTest {
         assertTrue(
             brightnessWithShimmer > brightnessNoShimmer,
             "shimmer=true must visibly brighten the skeleton interior versus pulse alone: " +
-                "$brightnessWithShimmer vs $brightnessNoShimmer"
+                "$brightnessWithShimmer vs $brightnessNoShimmer",
         )
     }
 }

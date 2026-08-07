@@ -3,14 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 internal class UiMeasurementRuntime(
-    private val measureState: UiContextMeasureState = UiContextMeasureState()
+    private val measureState: UiContextMeasureState = UiContextMeasureState(),
 ) {
     fun beginFrame() {
         measureState.beginFrame()
@@ -20,7 +20,7 @@ internal class UiMeasurementRuntime(
         slot: UiBounds,
         contributesToWrapWidth: Boolean = true,
         contributesToWrapHeight: Boolean = true,
-        contributesToChildList: Boolean = true
+        contributesToChildList: Boolean = true,
     ) {
         measureState.record(slot, contributesToWrapWidth, contributesToWrapHeight, contributesToChildList)
     }
@@ -46,7 +46,7 @@ internal class UiMeasurementRuntime(
         height = measureState.measuredMaxBottomExcludingFill.takeIf { it > 0f } ?: measureState.measuredMaxBottom,
         slots = measureState.measuredSlots.toList(),
         weights = measureState.measuredWeights.toList(),
-        fillsMainAxis = measureState.measuredFillsMainAxis.toList()
+        fillsMainAxis = measureState.measuredFillsMainAxis.toList(),
     )
 
     fun measureColumnContent(
@@ -55,14 +55,14 @@ internal class UiMeasurementRuntime(
         insets: UiInsets = UiInsets.Zero,
         height: Float = 100_000f,
         sourceContext: UiContext,
-        content: ColumnScope.(slot: UiBounds) -> Unit
+        content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measureState.measureColumnContent(
         width = width,
         gap = gap,
         insets = insets,
         height = height,
         sourceContext = sourceContext,
-        content = content
+        content = content,
     )
 
     fun measureRowContent(
@@ -71,13 +71,13 @@ internal class UiMeasurementRuntime(
         insets: UiInsets = UiInsets.Zero,
         width: Float = 100_000f,
         sourceContext: UiContext,
-        content: RowScope.(slot: UiBounds) -> Unit
+        content: RowScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measureState.measureRowContent(
         height = height,
         gap = gap,
         insets = insets,
         width = width,
         sourceContext = sourceContext,
-        content = content
+        content = content,
     )
 }

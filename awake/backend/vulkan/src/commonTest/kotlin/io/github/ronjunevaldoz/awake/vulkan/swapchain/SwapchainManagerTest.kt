@@ -18,8 +18,8 @@ class SwapchainManagerTest {
             VkSurfaceCapabilitiesKHR(
                 currentExtent = VkExtent2D(Int.MAX_VALUE, Int.MAX_VALUE),
                 minImageExtent = VkExtent2D(64, 64),
-                maxImageExtent = VkExtent2D(4096, 4096)
-            )
+                maxImageExtent = VkExtent2D(4096, 4096),
+            ),
         )
 
         assertEquals(VkExtent2D(1920, 1080), extent)
@@ -33,8 +33,8 @@ class SwapchainManagerTest {
             VkSurfaceCapabilitiesKHR(
                 currentExtent = VkExtent2D(Int.MAX_VALUE, Int.MAX_VALUE),
                 minImageExtent = VkExtent2D(64, 64),
-                maxImageExtent = VkExtent2D(4096, 2160)
-            )
+                maxImageExtent = VkExtent2D(4096, 2160),
+            ),
         )
 
         assertEquals(VkExtent2D(4096, 64), extent)
@@ -49,8 +49,8 @@ class SwapchainManagerTest {
                 VkSurfaceCapabilitiesKHR(
                     currentExtent = VkExtent2D(Int.MAX_VALUE, Int.MAX_VALUE),
                     minImageExtent = VkExtent2D(64, 64),
-                    maxImageExtent = VkExtent2D(4096, 2160)
-                )
+                    maxImageExtent = VkExtent2D(4096, 2160),
+                ),
             )
         }
     }
@@ -62,8 +62,8 @@ class SwapchainManagerTest {
         val imageCount = manager.chooseSwapchainImageCount(
             VkSurfaceCapabilitiesKHR(
                 minImageCount = 2,
-                maxImageCount = 0
-            )
+                maxImageCount = 0,
+            ),
         )
 
         assertEquals(3, imageCount)
@@ -82,6 +82,6 @@ class SwapchainManagerTest {
         SwapchainManager(
             GraphicsDevice(),
             maxFramesInFlight = 2,
-            surfaceExtentProvider = { VkExtent2D(width, height) }
+            surfaceExtentProvider = { VkExtent2D(width, height) },
         )
 }

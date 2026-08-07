@@ -6,16 +6,12 @@ import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkQueueFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.has
 
-
 data class QueueFamilyIndices(
     var graphicsFamily: Int? = null,
-    var presentFamily: Int? = null
+    var presentFamily: Int? = null,
 ) {
-    fun isComplete(): Boolean {
-        return graphicsFamily != null && presentFamily != null
-    }
+    fun isComplete(): Boolean = graphicsFamily != null && presentFamily != null
 }
-
 
 fun findQueueFamilies(physicalDevice: Long, surface: Long): QueueFamilyIndices {
     val queueFamilyProperties =
@@ -29,10 +25,11 @@ fun findQueueFamilies(physicalDevice: Long, surface: Long): QueueFamilyIndices {
         // GraphicsDevice.createHeadless) -- querying vkGetPhysicalDeviceSurfaceSupportKHR
         // against VK_NULL_HANDLE is undefined behavior per spec, so skip present-family
         // detection entirely; headless callers never need presentFamily anyway.
-        if (surface != 0L && Vulkan.vkGetPhysicalDeviceSurfaceSupportKHR(
+        if (surface != 0L &&
+            Vulkan.vkGetPhysicalDeviceSurfaceSupportKHR(
                 physicalDevice,
                 index,
-                surface
+                surface,
             )
         ) {
             indices.presentFamily = index

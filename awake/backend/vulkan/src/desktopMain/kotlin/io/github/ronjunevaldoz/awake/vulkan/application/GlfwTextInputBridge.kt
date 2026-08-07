@@ -44,7 +44,7 @@ private val EditKeys: Map<Int, TextEditAction> = mapOf(
     GLFW_KEY_LEFT to TextEditAction.ArrowLeft,
     GLFW_KEY_RIGHT to TextEditAction.ArrowRight,
     GLFW_KEY_HOME to TextEditAction.Home,
-    GLFW_KEY_END to TextEditAction.End
+    GLFW_KEY_END to TextEditAction.End,
 )
 
 private class KeyRepeatState {

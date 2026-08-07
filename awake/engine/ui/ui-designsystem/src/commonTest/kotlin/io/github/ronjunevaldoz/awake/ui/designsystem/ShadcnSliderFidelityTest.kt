@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewDimensionRule
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewExactSpacingRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
@@ -14,10 +13,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnS
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.layouts.column
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -43,7 +42,7 @@ class ShadcnSliderFidelityTest {
             min = 0f,
             max = 100f,
             value = 50f,
-            modifier = Modifier.width(sliderWidth.dp)
+            modifier = Modifier.width(sliderWidth.dp),
         )
         val frameOutput = ui.finishFrame()
 
@@ -62,9 +61,9 @@ class ShadcnSliderFidelityTest {
                 AwakeUiPreviewDimensionRule(
                     nodeId = "test-slider",
                     exactHeight = 20f.dp.toPx(),
-                    exactWidth = sliderWidth.dp.toPx()
-                )
-            )
+                    exactWidth = sliderWidth.dp.toPx(),
+                ),
+            ),
         )
 
         validateAwakeUiPreview(
@@ -74,15 +73,15 @@ class ShadcnSliderFidelityTest {
                 group = "Control",
                 summary = "Slider 20dp height and track overlay contract test",
                 width = 400,
-                height = 200
+                height = 200,
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ui.currentTheme.colors.background,
                 font = ui.currentFont,
-                semantics = frameOutput.semantics
+                semantics = frameOutput.semantics,
             ),
-            config = config
+            config = config,
         ).requireClean()
     }
 
@@ -100,7 +99,7 @@ class ShadcnSliderFidelityTest {
                 label = "Exposure",
                 min = 0f,
                 max = 100f,
-                value = 52f
+                value = 52f,
             )
         }
         val frameOutput = ui.finishFrame()
@@ -115,9 +114,9 @@ class ShadcnSliderFidelityTest {
             dimensionRules = listOf(
                 AwakeUiPreviewDimensionRule(
                     nodeId = "field-slider-test",
-                    exactHeight = 20f.dp.toPx()
-                )
-            )
+                    exactHeight = 20f.dp.toPx(),
+                ),
+            ),
         )
 
         validateAwakeUiPreview(
@@ -127,15 +126,15 @@ class ShadcnSliderFidelityTest {
                 group = "Input",
                 summary = "Field slider 20dp height and label proximity check",
                 width = 400,
-                height = 200
+                height = 200,
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ui.currentTheme.colors.background,
                 font = ui.currentFont,
-                semantics = frameOutput.semantics
+                semantics = frameOutput.semantics,
             ),
-            config = config
+            config = config,
         ).requireClean()
     }
 }

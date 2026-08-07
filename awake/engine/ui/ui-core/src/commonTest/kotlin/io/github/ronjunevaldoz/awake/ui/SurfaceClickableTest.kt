@@ -4,14 +4,14 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.resolveRootSlot
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.modifier.clickable
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.resolveRootSlot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -45,7 +45,7 @@ class SurfaceClickableTest {
             ui.createAbsolute(slot = ui.resolveRootSlot(Modifier.offset(20f.dp, 20f.dp), defaultWidth = Dimension.Fixed(0.dp), defaultHeight = Dimension.Fixed(0.dp)))
                 .surface(
                     id = "s",
-                    modifier = Modifier.width(160f.px).height(40f.px).clickable { clicks++ }
+                    modifier = Modifier.width(160f.px).height(40f.px).clickable { clicks++ },
                 ) {}
             Unit
         }
@@ -62,7 +62,7 @@ class SurfaceClickableTest {
             ui.createAbsolute(slot = ui.resolveRootSlot(Modifier.offset(20f.dp, 20f.dp), defaultWidth = Dimension.Fixed(0.dp), defaultHeight = Dimension.Fixed(0.dp)))
                 .surface(
                     id = "s",
-                    modifier = Modifier.width(160f.px).height(40f.px).clickable(enabled = false) { clicks++ }
+                    modifier = Modifier.width(160f.px).height(40f.px).clickable(enabled = false) { clicks++ },
                 ) {}
             Unit
         }
@@ -79,7 +79,7 @@ class SurfaceClickableTest {
             ui.createAbsolute(slot = ui.resolveRootSlot(Modifier.offset(20f.dp, 20f.dp), defaultWidth = Dimension.Fixed(0.dp), defaultHeight = Dimension.Fixed(0.dp)))
                 .surface(
                     id = "s",
-                    modifier = Modifier.width(160f.px).height(40f.px).clickable { clicks++ }
+                    modifier = Modifier.width(160f.px).height(40f.px).clickable { clicks++ },
                 ) {}
             Unit
         }

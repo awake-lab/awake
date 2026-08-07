@@ -6,5 +6,5 @@ package io.github.ronjunevaldoz.awake.vulkan.models
 data class VkMemoryRequirements(
     val size: Long = 0,
     val alignment: Long = 0,
-    val memoryTypeBits: Int = 0
+    val memoryTypeBits: Int = 0,
 )

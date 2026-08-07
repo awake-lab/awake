@@ -8,7 +8,7 @@ package io.github.ronjunevaldoz.awake.testing
 data class PixelDiffResult(
     val matches: Boolean,
     val diffPixelCount: Int,
-    val maxChannelDiff: Int
+    val maxChannelDiff: Int,
 )
 
 /**
@@ -40,7 +40,7 @@ fun comparePixels(actual: ByteArray, expected: ByteArray, toleranceParChannel: I
         var channel = 0
         while (channel < 4) {
             val diff = kotlin.math.abs(
-                (actual[offset + channel].toInt() and 0xFF) - (expected[offset + channel].toInt() and 0xFF)
+                (actual[offset + channel].toInt() and 0xFF) - (expected[offset + channel].toInt() and 0xFF),
             )
             if (diff > maxChannelDiff) maxChannelDiff = diff
             if (diff > toleranceParChannel) pixelDiffers = true

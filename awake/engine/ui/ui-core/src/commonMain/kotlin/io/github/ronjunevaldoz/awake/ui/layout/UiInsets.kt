@@ -11,7 +11,7 @@ data class UiInsets(
     val start: Dp = UiShape.none,
     val top: Dp = UiShape.none,
     val end: Dp = UiShape.none,
-    val bottom: Dp = UiShape.none
+    val bottom: Dp = UiShape.none,
 ) {
     companion object {
         val Zero = UiInsets()
@@ -35,6 +35,6 @@ fun UiBounds.inset(insets: UiInsets): UiBounds {
         x = x + startPx,
         y = y + topPx,
         width = (width - startPx - endPx).coerceAtLeast(0f),
-        height = (height - topPx - bottomPx).coerceAtLeast(0f)
+        height = (height - topPx - bottomPx).coerceAtLeast(0f),
     )
 }

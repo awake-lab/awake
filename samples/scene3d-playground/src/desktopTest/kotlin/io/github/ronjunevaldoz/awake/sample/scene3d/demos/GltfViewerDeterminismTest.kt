@@ -3,13 +3,10 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
-import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
-import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
@@ -29,6 +26,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
+import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 
 /**
  * User report: the Duck flickers while rotating when "Normalize scale" is on
@@ -66,7 +66,7 @@ class GltfViewerDeterminismTest {
         pitchDegrees: Float,
         zoom: Float,
         elevation: Float,
-        far: Float
+        far: Float,
     ): CoreCamera {
         val orbitRad = orbitDegrees * (PI / 180.0).toFloat()
         val pitchRad = pitchDegrees * (PI / 180.0).toFloat()
@@ -74,14 +74,14 @@ class GltfViewerDeterminismTest {
         val eye = Vec3(
             target.x + zoom * cp * sin(orbitRad),
             elevation + zoom * sin(pitchRad),
-            target.z + zoom * cp * cos(orbitRad)
+            target.z + zoom * cp * cos(orbitRad),
         )
         return CoreCamera(
             eye = eye,
             center = target,
             fovYRadians = 45f * (PI / 180.0).toFloat(),
             near = 0.1f,
-            far = far
+            far = far,
         )
     }
 
@@ -99,14 +99,14 @@ class GltfViewerDeterminismTest {
             runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
             VertexFormat.PositionNormalColor,
             vertexEntryPoint = "vertexMain",
-            fragmentEntryPoint = "fragmentMain"
+            fragmentEntryPoint = "fragmentMain",
         )
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
             runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
         val transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(
@@ -122,7 +122,7 @@ class GltfViewerDeterminismTest {
             runBlocking {
                 loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
             },
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
         )
 
         var mesh: RenderMesh? = null
@@ -136,7 +136,7 @@ class GltfViewerDeterminismTest {
             val geometry = MeshGeometry(
                 duckMesh.toInterleavedPositionNormalColor(),
                 duckMesh.indices,
-                format = VertexFormat.PositionNormalColor
+                format = VertexFormat.PositionNormalColor,
             )
             val createdMesh = renderer.createMesh(geometry).also { mesh = it }
             val createdMaterial = renderer.createMaterial().also { material = it }
@@ -150,7 +150,7 @@ class GltfViewerDeterminismTest {
                     pitchDegrees = 0f,
                     zoom = if (normalizeScale) 6f else modelRadius * 2.5f,
                     elevation = 0f,
-                    far = if (normalizeScale) 100f else modelRadius * 40f
+                    far = if (normalizeScale) 100f else modelRadius * 40f,
                 )
                 renderer.renderToTexture(target, camera, listOf(DrawCall(createdMesh, createdMaterial, duckModel)))
                 return runBlocking { renderer.readPixels(target) }
@@ -168,7 +168,7 @@ class GltfViewerDeterminismTest {
             assertEquals(
                 emptyList<String>(),
                 findings,
-                "Duck render is non-deterministic for an unchanging scene: " + findings.joinToString("; ")
+                "Duck render is non-deterministic for an unchanging scene: " + findings.joinToString("; "),
             )
         } finally {
             mesh?.destroy()

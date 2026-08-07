@@ -20,6 +20,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadc
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -31,8 +33,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
 
 internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
     var selectedPage by rememberStateValue("ui-showcase-page", "entry") {
@@ -45,13 +45,13 @@ internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
             "Choose one page at a time."
         } else {
             "Grouped component and pattern pages, following the shadcn-compose catalog layout."
-        }
+        },
     )
     spacer(Modifier.height(12f.dp))
     drawUiShowcaseSidebarMenu(
         compact = compact,
         selectedPageId = selectedPage,
-        onSelect = { selectedPage = it.id }
+        onSelect = { selectedPage = it.id },
     )
 }
 
@@ -68,7 +68,7 @@ internal fun ColumnScope.drawUiShowcasePageContent(
         drawUiShowcaseSidebarMenu(
             compact = true,
             selectedPageId = page.id,
-            onSelect = { selectedPage = it.id }
+            onSelect = { selectedPage = it.id },
         )
         spacer(Modifier.height(12f.dp))
     }
@@ -76,7 +76,7 @@ internal fun ColumnScope.drawUiShowcasePageContent(
     shadcnBadge(page.category.title.uppercase(), variant = ShadcnBadgeVariant.Outline)
     shadcnSectionHeader(
         title = { shadcnSectionTitle(page.title) },
-        description = { shadcnBodyText(page.description) }
+        description = { shadcnBodyText(page.description) },
     )
     spacer(Modifier.height(8f.dp))
     drawUiShowcasePreviewCodeSection(page, state)
@@ -84,8 +84,9 @@ internal fun ColumnScope.drawUiShowcasePageContent(
         spacer(Modifier.height(12f.dp))
         shadcnSurface(
             id = "ui-showcase-notes-${page.id}",
-            style = Style { shape(14f.dp) }
-        , modifier = Modifier.height(Dimension.WrapContent)) {
+            style = Style { shape(14f.dp) },
+            modifier = Modifier.height(Dimension.WrapContent),
+        ) {
             shadcnSectionTitle("Notes")
             shadcnSupportingLines(page.notes)
         }
@@ -112,7 +113,7 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                         id = "ui-showcase-page-${page.id}",
                         label = page.title,
                         active = page.id == selectedPageId,
-                        onClick = { onSelect(page) }
+                        onClick = { onSelect(page) },
                     )
                 }
             }
@@ -122,7 +123,7 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                 id = "ui-showcase-sidebar-category-${category.name}",
                 title = category.title,
                 expanded = expanded,
-                onExpandedChange = { expanded = it }
+                onExpandedChange = { expanded = it },
             ) {
                 shadcnSidebarGroup {
                     shadcnSidebarMenu {
@@ -136,7 +137,7 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                                 label = page.title,
                                 active = page.id == selectedPageId,
                                 style = Style { contentPadding(start = 24f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp) },
-                                onClick = { onSelect(page) }
+                                onClick = { onSelect(page) },
                             )
                         }
                     }
@@ -160,13 +161,13 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
         // weight()-usage -- so a constant cacheKey is safe here too.
         cacheKey = "static",
         modifier = Modifier.height(36.dp),
-        horizontalArrangement = Arrangement.spacedBy(8f.dp)
+        horizontalArrangement = Arrangement.spacedBy(8f.dp),
     ) {
         shadcnButton(
             id = "ui-showcase-preview-tab-${page.id}",
             label = "Preview",
             modifier = Modifier.width(96f.dp).height(36f.dp),
-            variant = if (!showCode) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost
+            variant = if (!showCode) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
         ).also { clicked ->
             if (clicked) showCode = false
         }
@@ -174,7 +175,7 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
             id = "ui-showcase-code-tab-${page.id}",
             label = "Code",
             modifier = Modifier.width(88f.dp).height(36f.dp),
-            variant = if (showCode) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost
+            variant = if (showCode) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
         ).also { clicked ->
             if (clicked) showCode = true
         }
@@ -182,8 +183,9 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
     spacer(Modifier.height(8f.dp))
     shadcnSurface(
         id = "ui-showcase-preview-code-${page.id}",
-        style = Style { shape(14f.dp) }
-    , modifier = Modifier.height(Dimension.WrapContent)) {
+        style = Style { shape(14f.dp) },
+        modifier = Modifier.height(Dimension.WrapContent),
+    ) {
         if (showCode) {
             drawUiShowcaseCodeBlock(page.usageCode)
         } else {
@@ -201,6 +203,6 @@ private fun ColumnScope.drawUiShowcaseCodeBlock(code: String) {
         },
         wrap = UiTextWrap.Word,
         overflow = UiTextOverflow.Clip,
-        maxLines = Int.MAX_VALUE
+        maxLines = Int.MAX_VALUE,
     )
 }

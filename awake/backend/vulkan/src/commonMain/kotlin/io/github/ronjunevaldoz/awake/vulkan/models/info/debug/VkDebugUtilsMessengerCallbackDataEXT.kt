@@ -21,7 +21,7 @@ class VkDebugUtilsMessengerCallbackDataEXT @JvmOverloads constructor(
     @VkArray(sizeAlias = "cmdBufLabelCount")
     val pCmdBufLabels: Array<VkDebugUtilsLabelEXT>? = null,
     @VkArray(sizeAlias = "objectCount")
-    val pObjects: Array<VkDebugUtilsObjectNameInfoEXT>? = null
+    val pObjects: Array<VkDebugUtilsObjectNameInfoEXT>? = null,
 )
 
 typealias VkDebugUtilsMessengerCallbackDataFlagsEXT = VkFlags

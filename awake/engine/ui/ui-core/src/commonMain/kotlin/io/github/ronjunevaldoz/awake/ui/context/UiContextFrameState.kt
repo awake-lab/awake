@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.intersect
 internal class UiContextFrameState {
     private val renderCollector = UiRenderCollector()
     private val semanticCollector = UiSemanticCollector()
+
     // Two independent clip stacks, not one shared stack keyed by call order -- see [pushClip]'s
     // doc comment for why. clip() dispatch is synchronous/nested regardless of which bucket a
     // widget's primitives end up in, so a single shared stack would let an ambient non-overlay

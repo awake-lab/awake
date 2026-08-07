@@ -135,7 +135,7 @@ class WorldTest {
 }
 
 private data class TestComponent(
-    val value: Int = 0
+    val value: Int = 0,
 )
 
 private data object MarkerComponent

@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.boundingCenter
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
@@ -20,13 +19,20 @@ import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.scene.components.*
+import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
+import io.github.ronjunevaldoz.awake.scene.components.SkinnedPose
+import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.*
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.Modifier
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.camera
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.meshRenderer
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.scene
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.transform
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /**
  * Real GPU-skinned glTF viewer.
@@ -90,7 +96,7 @@ internal object SkinnedMeshDemo {
                 id = "skinned-controls-display",
                 expanded = displayGroupExpanded,
                 onExpandedChange = { displayGroupExpanded = it },
-                header = { text("Display", verticallyCentered = true) }
+                header = { text("Display", verticallyCentered = true) },
             ) {
                 timeController.autoPlay = shadcnSwitch(id = "skinned-auto-play", checked = timeController.autoPlay, label = "Auto-play")
                 timeController.hours = shadcnFieldSliderWithValue(
@@ -99,7 +105,7 @@ internal object SkinnedMeshDemo {
                     min = 0f,
                     max = ManualTimeController.HOURS_PER_CYCLE,
                     value = timeController.hours,
-                    enabled = !timeController.autoPlay
+                    enabled = !timeController.autoPlay,
                 )
                 text(label = "Turn off Auto-play to scrub the walk-cycle clip by hand.")
             }
@@ -143,7 +149,7 @@ internal object SkinnedMeshDemo {
                 cameraEntity = cameraEntity!!,
                 targetEntity = fte,
                 panningEntity = panningEntity,
-                onPanningEntityCreated = { panningEntity = it }
+                onPanningEntityCreated = { panningEntity = it },
             )
 
             if (showAimMarkers) {
@@ -158,7 +164,7 @@ internal object SkinnedMeshDemo {
                 markers += LineSegment(ft, ft + Vec3(0f, 0f, 0.1f), floatArrayOf(1f, 1f, 0f, 1f))
                 renderer.drawDebugLines(markers)
             }
-        }
+        },
     )
 
     private fun ensureSpawned(runtime: SceneGameRuntime) {
@@ -168,23 +174,23 @@ internal object SkinnedMeshDemo {
         val currentSkin = requireNotNull(skin)
         val currentPlayer = requireNotNull(player)
         mesh = runtime.renderer.createMesh(
-            MeshGeometry(vertices, indices, format = VertexFormat.PositionNormalColorSkin)
+            MeshGeometry(vertices, indices, format = VertexFormat.PositionNormalColorSkin),
         )
         material = runtime.renderer.createMaterial(uniformFloatCount = SKINNED_UNIFORM_FLOAT_COUNT)
-        
+
         runtime.world.scene {
             cameraEntity = entity(
                 "Camera",
                 Modifier().camera(
                     target = null,
-                    lens = CoreCamera.perspective(eye = Vec3(0f, 5f, 10f), center = modelCenter)
-                )
+                    lens = CoreCamera.perspective(eye = Vec3(0f, 5f, 10f), center = modelCenter),
+                ),
             )
 
             skinnedEntity = entity("SkinnedMesh", Modifier().transform().meshRenderer(mesh!!, material!!))
             runtime.world.add(skinnedEntity!!, SkinnedPose(currentPlayer.jointPalette(currentSkin)))
         }
-        
+
         spawned = true
     }
 

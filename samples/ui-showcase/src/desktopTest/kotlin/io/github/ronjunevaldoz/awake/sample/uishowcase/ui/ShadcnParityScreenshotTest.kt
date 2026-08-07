@@ -24,10 +24,19 @@ import io.github.ronjunevaldoz.awake.testing.ui.componentStateMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.verifyAwakeUiPreview
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.shadcnTabs
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
@@ -35,49 +44,40 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumb
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnKbd
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnProgress
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSkeleton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSpinner
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.shadcnTabs
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnTextarea
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDialog
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.input.selection.switch
+import io.github.ronjunevaldoz.awake.ui.headless.input.slider
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.textField
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.textarea
+import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.headless.input.slider
-import io.github.ronjunevaldoz.awake.ui.headless.input.selection.switch
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.textField
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.textarea
-import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
-import kotlin.test.Test
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
+import kotlin.test.Test
 
 /** Builds a one-off [UiInputState] for a preview frame -- [Input] is a per-session
  * instance now (no longer a global object), so tests construct their own throwaway one. */
@@ -119,7 +119,7 @@ class ShadcnParityScreenshotTest {
             AwakeTooltipTriggerLightPreview,
             AwakeDialogStatesLightPreview,
             AwakeDropdownMenuStatesLightPreview,
-            AwakePopoverStatesLightPreview
+            AwakePopoverStatesLightPreview,
         ).forEach { entry ->
             renderAnnotatedUiPreviews(entry).forEach { scene ->
                 // Always save to build/ui-previews for report generation
@@ -137,7 +137,7 @@ class ShadcnParityScreenshotTest {
     group = "Shadcn Parity",
     summary = "Matches docs/reference/shadcn-previews/button_variants_light.png's arrangement for a direct side-by-side.",
     width = 661,
-    height = 132
+    height = 132,
 )
 internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -148,51 +148,54 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            x = 30f, y = 45f, width = 600f, height = metadata.height.toFloat() - 45f,
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
-        ).row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
-                shadcnButton(
-                    "parity-default",
-                    "Default",
-                    modifier = Modifier.width(90f.px).height(40f.px),
-                    variant = ShadcnButtonVariant.Primary
-                )
-                shadcnButton(
-                    "parity-secondary",
-                    "Secondary",
-                    modifier = Modifier.width(100f.px).height(40f.px),
-                    variant = ShadcnButtonVariant.Secondary
-                )
-                shadcnButton(
-                    "parity-outline",
-                    "Outline",
-                    modifier = Modifier.width(90f.px).height(40f.px),
-                    variant = ShadcnButtonVariant.Outline
-                )
-                shadcnButton(
-                    "parity-ghost",
-                    "Ghost",
-                    modifier = Modifier.width(80f.px).height(40f.px),
-                    variant = ShadcnButtonVariant.Ghost
-                )
-                shadcnButton(
-                    "parity-destructive",
-                    "Destructive",
-                    modifier = Modifier.width(110f.px).height(40f.px),
-                    variant = ShadcnButtonVariant.Danger
-                )
-                shadcnButton(
-                    "parity-link",
-                    "Link",
-                    modifier = Modifier.width(60f.px).height(40f.px),
-                    variant = ShadcnButtonVariant.Link
-                )
-            }
+            x = 30f,
+            y = 45f,
+            width = 600f,
+            height = metadata.height.toFloat() - 45f,
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
+        ).row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
+            shadcnButton(
+                "parity-default",
+                "Default",
+                modifier = Modifier.width(90f.px).height(40f.px),
+                variant = ShadcnButtonVariant.Primary,
+            )
+            shadcnButton(
+                "parity-secondary",
+                "Secondary",
+                modifier = Modifier.width(100f.px).height(40f.px),
+                variant = ShadcnButtonVariant.Secondary,
+            )
+            shadcnButton(
+                "parity-outline",
+                "Outline",
+                modifier = Modifier.width(90f.px).height(40f.px),
+                variant = ShadcnButtonVariant.Outline,
+            )
+            shadcnButton(
+                "parity-ghost",
+                "Ghost",
+                modifier = Modifier.width(80f.px).height(40f.px),
+                variant = ShadcnButtonVariant.Ghost,
+            )
+            shadcnButton(
+                "parity-destructive",
+                "Destructive",
+                modifier = Modifier.width(110f.px).height(40f.px),
+                variant = ShadcnButtonVariant.Danger,
+            )
+            shadcnButton(
+                "parity-link",
+                "Link",
+                modifier = Modifier.width(60f.px).height(40f.px),
+                variant = ShadcnButtonVariant.Link,
+            )
+        }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -203,7 +206,7 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Matches docs/reference/shadcn-previews/badge_variants_light.png's arrangement for a direct side-by-side.",
     width = 479,
-    height = 116
+    height = 116,
 )
 internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -214,40 +217,43 @@ internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            x = 30f, y = 42f, width = 420f, height = metadata.height.toFloat() - 42f,
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
-        ).row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(30f.dp.toDimension())) {
-                shadcnBadge(
-                    "Default",
-                    modifier = Modifier.width(72f.px).height(30f.px),
-                    variant = ShadcnBadgeVariant.Primary
-                )
-                shadcnBadge(
-                    "Secondary",
-                    modifier = Modifier.width(90f.px).height(30f.px),
-                    variant = ShadcnBadgeVariant.Secondary
-                )
-                shadcnBadge(
-                    "Destructive",
-                    modifier = Modifier.width(100f.px).height(30f.px),
-                    variant = ShadcnBadgeVariant.Danger
-                )
-                shadcnBadge(
-                    "Outline",
-                    modifier = Modifier.width(80f.px).height(30f.px),
-                    variant = ShadcnBadgeVariant.Outline
-                )
-                shadcnBadge(
-                    "Ghost",
-                    modifier = Modifier.width(70f.px).height(30f.px),
-                    variant = ShadcnBadgeVariant.Ghost
-                )
-            }
+            x = 30f,
+            y = 42f,
+            width = 420f,
+            height = metadata.height.toFloat() - 42f,
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
+        ).row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(30f.dp.toDimension())) {
+            shadcnBadge(
+                "Default",
+                modifier = Modifier.width(72f.px).height(30f.px),
+                variant = ShadcnBadgeVariant.Primary,
+            )
+            shadcnBadge(
+                "Secondary",
+                modifier = Modifier.width(90f.px).height(30f.px),
+                variant = ShadcnBadgeVariant.Secondary,
+            )
+            shadcnBadge(
+                "Destructive",
+                modifier = Modifier.width(100f.px).height(30f.px),
+                variant = ShadcnBadgeVariant.Danger,
+            )
+            shadcnBadge(
+                "Outline",
+                modifier = Modifier.width(80f.px).height(30f.px),
+                variant = ShadcnBadgeVariant.Outline,
+            )
+            shadcnBadge(
+                "Ghost",
+                modifier = Modifier.width(70f.px).height(30f.px),
+                variant = ShadcnBadgeVariant.Ghost,
+            )
+        }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -258,7 +264,7 @@ internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Matches docs/reference/shadcn-previews/text-field_states_light.png's arrangement -- all 5 real shadcn states now exist.",
     width = 296,
-    height = 400
+    height = 400,
 )
 internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -271,7 +277,7 @@ internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(248f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(16f.dp)
+            verticalArrangement = Arrangement.spacedBy(16f.dp),
         ) {
             shadcnInput("parity-field-1", value = "", placeholder = "Default", modifier = Modifier.width(248f.px).height(40f.px))
             shadcnInput("parity-field-2", value = "", placeholder = "Filled", variant = ShadcnTextFieldVariant.Filled, modifier = Modifier.width(248f.px).height(40f.px))
@@ -283,7 +289,7 @@ internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -294,7 +300,7 @@ internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "New component -- Awake had no inline banner before, only alertDialog (a modal). Matches real shadcn's Default/Destructive Alert look.",
     width = 320,
-    height = 220
+    height = 220,
 )
 internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -307,27 +313,27 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(272f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(16f.dp)
+            verticalArrangement = Arrangement.spacedBy(16f.dp),
         ) {
             shadcnAlert(
                 id = "parity-alert-default",
                 title = "You can add components",
                 description = "Use the CLI to add components to your project.",
-                modifier = Modifier.width(Dimension.Fixed(272f.px))
+                modifier = Modifier.width(Dimension.Fixed(272f.px)),
             )
             shadcnAlert(
                 id = "parity-alert-destructive",
                 title = "Unable to process your payment.",
                 description = "Please verify your billing information and try again.",
                 modifier = Modifier.width(Dimension.Fixed(272f.px)),
-                variant = ShadcnAlertVariant.Destructive
+                variant = ShadcnAlertVariant.Destructive,
             )
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -338,7 +344,7 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "New component -- circular checkbox() reused via a Circle shapeSpec, single-select logic composed on top, no new ui-headless primitive.",
     width = 200,
-    height = 108
+    height = 108,
 )
 internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -351,19 +357,19 @@ internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(160f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(8f.dp)
+            verticalArrangement = Arrangement.spacedBy(8f.dp),
         ) {
             shadcnRadioGroup(
                 id = "parity-radio",
                 options = listOf("Default", "Comfortable", "Compact"),
-                selectedIndex = 1
+                selectedIndex = 1,
             )
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -374,7 +380,7 @@ internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "New component -- non-interactive track+fill, ProgressWidget.kt reuses slider()'s painting logic minus the knob/drag handling.",
     width = 260,
-    height = 96
+    height = 96,
 )
 internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -387,7 +393,7 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(212f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(16f.dp)
+            verticalArrangement = Arrangement.spacedBy(16f.dp),
         ) {
             shadcnProgress("parity-progress-1", value = 0.25f, modifier = Modifier.width(212f.px))
             shadcnProgress("parity-progress-2", value = 0.65f, modifier = Modifier.width(212f.px))
@@ -396,7 +402,7 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -407,7 +413,7 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "New component -- AvatarFallback-only (initials on a muted circle); no image-loading pipeline wired into this rasterizer yet, that's the real component's image slot.",
     width = 220,
-    height = 96
+    height = 96,
 )
 internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -420,9 +426,9 @@ internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(180f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
-            row( horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(48f.dp.toDimension())) {
+            row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(48f.dp.toDimension())) {
                 shadcnAvatar("CN")
                 shadcnAvatar("RV", modifier = Modifier.size(48f.dp, 48f.dp))
             }
@@ -431,7 +437,7 @@ internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -442,7 +448,7 @@ internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "New component -- inline key-cap label, same measure-and-draw mechanics as shadcnBadge with a Kbd-specific style.",
     width = 200,
-    height = 72
+    height = 72,
 )
 internal object AwakeKbdLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -455,9 +461,9 @@ internal object AwakeKbdLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 28f.dp).width(160f.dp)
                 .height((metadata.height.toFloat() - 52f).dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
-            row( horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.height(24f.dp.toDimension())) {
+            row(horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.height(24f.dp.toDimension())) {
                 shadcnKbd("Ctrl")
                 shadcnKbd("K")
             }
@@ -466,7 +472,7 @@ internal object AwakeKbdLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -477,7 +483,7 @@ internal object AwakeKbdLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "New component -- muted placeholder block with a real per-widget opacity pulse (sine wave over elapsed time), not a static gray box.",
     width = 240,
-    height = 96
+    height = 96,
 )
 internal object AwakeSkeletonLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -490,7 +496,7 @@ internal object AwakeSkeletonLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(192f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
             shadcnSkeleton("parity-skeleton-1", modifier = Modifier.width(192f.px).height(16f.px))
             shadcnSkeleton("parity-skeleton-2", modifier = Modifier.width(140f.px).height(16f.px))
@@ -499,7 +505,7 @@ internal object AwakeSkeletonLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -510,7 +516,7 @@ internal object AwakeSkeletonLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "New component -- shadcnTabs composes shadcnButton (Ghost variant) per tab inside a muted track, same reuse-existing-variant approach as shadcnRadioGroup.",
     width = 320,
-    height = 80
+    height = 80,
 )
 internal object AwakeTabsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -523,19 +529,19 @@ internal object AwakeTabsLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(280f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
             shadcnTabs(
                 id = "parity-tabs",
                 tabs = listOf("Account", "Password"),
-                selectedIndex = 0
+                selectedIndex = 0,
             )
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -546,7 +552,7 @@ internal object AwakeTabsLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "New component -- muted link trail, last item plain current-page text, separator glyph between.",
     width = 260,
-    height = 60
+    height = 60,
 )
 internal object AwakeBreadcrumbLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -559,7 +565,7 @@ internal object AwakeBreadcrumbLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(220f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
             shadcnBreadcrumb(listOf("Home", "Components", "Breadcrumb"))
         }
@@ -567,7 +573,7 @@ internal object AwakeBreadcrumbLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -578,7 +584,7 @@ internal object AwakeBreadcrumbLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "New component -- expand/collapse header with +/- indicator; content only laid out while expanded.",
     width = 260,
-    height = 120
+    height = 120,
 )
 internal object AwakeCollapsibleLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -591,7 +597,7 @@ internal object AwakeCollapsibleLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(220f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
             shadcnCollapsible(id = "parity-collapsible", title = "Can I use this in my project?", expanded = true) {
                 shadcnSupportingText("Yes. Free to use for personal and commercial projects.")
@@ -601,7 +607,7 @@ internal object AwakeCollapsibleLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -612,7 +618,7 @@ internal object AwakeCollapsibleLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "New component -- orbiting-dots loader, a real distinct animation (not a static substitute) approximating shadcn's CSS-rotated loader icon, which this engine has no SVG-rotation pipeline to reproduce exactly.",
     width = 120,
-    height = 80
+    height = 80,
 )
 internal object AwakeSpinnerLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -625,7 +631,7 @@ internal object AwakeSpinnerLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(72f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
             shadcnSpinner("parity-spinner")
         }
@@ -633,7 +639,7 @@ internal object AwakeSpinnerLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -644,7 +650,7 @@ internal object AwakeSpinnerLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Multi-line text input with manual newline support.",
     width = 320,
-    height = 360
+    height = 360,
 )
 internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -657,7 +663,7 @@ internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(272f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(16f.dp)
+            verticalArrangement = Arrangement.spacedBy(16f.dp),
         ) {
             shadcnTextarea("parity-textarea-1", value = "", placeholder = "Default textarea", modifier = Modifier.width(272f.px))
             shadcnTextarea("parity-textarea-2", value = "Line 1\nLine 2\nLine 3", modifier = Modifier.width(272f.px))
@@ -667,7 +673,7 @@ internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -678,7 +684,7 @@ internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Pill-shaped boolean switch, matches real shadcn Switch.",
     width = 200,
-    height = 100
+    height = 100,
 )
 internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -691,7 +697,7 @@ internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(152f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(12f.dp)
+            verticalArrangement = Arrangement.spacedBy(12f.dp),
         ) {
             shadcnSwitch("parity-switch-off", checked = false, label = "Airplane Mode")
             shadcnSwitch("parity-switch-on", checked = true, label = "Airplane Mode")
@@ -700,7 +706,7 @@ internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -711,7 +717,7 @@ internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Pressable two-state button, matches real shadcn Toggle.",
     width = 240,
-    height = 120
+    height = 120,
 )
 internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -724,9 +730,9 @@ internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(192f.dp)
                 .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp)
+            verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
-            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
+            row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
                 shadcnToggle("parity-toggle-off", checked = false, label = "B", modifier = Modifier.width(40f.px).height(40f.px))
                 shadcnToggle("parity-toggle-on", checked = true, label = "B", modifier = Modifier.width(40f.px).height(40f.px))
                 shadcnToggle("parity-toggle-disabled", checked = false, label = "B", modifier = Modifier.width(40f.px).height(40f.px), enabled = false)
@@ -736,7 +742,7 @@ internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -747,7 +753,7 @@ internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
     group = "Component Matrix",
     summary = "Shows Slider in all interaction states.",
     width = 320,
-    height = 240
+    height = 240,
 )
 internal object AwakeSliderMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
@@ -766,7 +772,7 @@ internal object AwakeSliderMatrixLightPreview : AwakeUiPreviewEntry {
     group = "Component Matrix",
     summary = "Shows Textarea in all interaction states.",
     width = 320,
-    height = 240
+    height = 240,
 )
 internal object AwakeTextareaMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
@@ -784,13 +790,13 @@ internal object AwakeTextareaMatrixLightPreview : AwakeUiPreviewEntry {
     group = "Component Matrix",
     summary = "Shows Toggle (button style) in all interaction states.",
     width = 240,
-    height = 120
+    height = 120,
 )
 internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = shadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
-            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
+            row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
                 toggle("toggle-off", checked = false, label = "Off", modifier = forcedModifier.width(Dimension.Fixed(60f.px)))
                 toggle("toggle-on", checked = true, label = "On", modifier = forcedModifier.width(Dimension.Fixed(60f.px)))
             }
@@ -805,7 +811,7 @@ internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
     group = "Component Matrix",
     summary = "Shows TextField in all interaction states.",
     width = 320,
-    height = 160
+    height = 160,
 )
 internal object AwakeTextFieldMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
@@ -823,13 +829,13 @@ internal object AwakeTextFieldMatrixLightPreview : AwakeUiPreviewEntry {
     group = "Component Matrix",
     summary = "Shows Switch in all interaction states.",
     width = 240,
-    height = 120
+    height = 120,
 )
 internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = shadcnTheme(dark = false)
         return metadata.componentStateMatrix(theme = theme) { forcedModifier ->
-            row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
+            row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
                 switch("switch-off", checked = false, label = "Off", modifier = forcedModifier)
                 switch("switch-on", checked = true, label = "On", modifier = forcedModifier)
             }
@@ -850,7 +856,7 @@ internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Matches docs/reference/shadcn-previews/checkbox_states_light.png's arrangement for a direct side-by-side.",
     width = 160,
-    height = 70
+    height = 70,
 )
 internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -861,7 +867,10 @@ internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            x = 24f, y = 24f, width = 120f, height = metadata.height.toFloat() - 24f
+            x = 24f,
+            y = 24f,
+            width = 120f,
+            height = metadata.height.toFloat() - 24f,
         ).row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
             shadcnCheckbox("parity-checkbox-unchecked", checked = false, modifier = Modifier.width(20f.dp).height(20f.dp))
             shadcnCheckbox("parity-checkbox-checked", checked = true, modifier = Modifier.width(20f.dp).height(20f.dp))
@@ -870,7 +879,7 @@ internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -881,7 +890,7 @@ internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Matches docs/reference/shadcn-previews/select_closed_light.png's arrangement for a direct side-by-side.",
     width = 220,
-    height = 70
+    height = 70,
 )
 internal object AwakeSelectClosedLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -893,20 +902,20 @@ internal object AwakeSelectClosedLightPreview : AwakeUiPreviewEntry {
         ui.pushTheme(theme)
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(172f.dp)
-                .height((metadata.height.toFloat() - 24f).dp)
+                .height((metadata.height.toFloat() - 24f).dp),
         ) {
             shadcnSelect(
                 id = "parity-select",
                 options = listOf("Vega", "Nova", "Comet"),
                 selectedIndex = 0,
-                modifier = Modifier.width(172f.dp)
+                modifier = Modifier.width(172f.dp),
             )
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -917,7 +926,7 @@ internal object AwakeSelectClosedLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Matches docs/reference/shadcn-previews/tooltip_trigger_light.png's arrangement -- the reference screenshot only shows the trigger, not the (hover-only) tooltip content.",
     width = 160,
-    height = 70
+    height = 70,
 )
 internal object AwakeTooltipTriggerLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -929,19 +938,19 @@ internal object AwakeTooltipTriggerLightPreview : AwakeUiPreviewEntry {
         ui.pushTheme(theme)
         ui.column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(120f.dp)
-                .height((metadata.height.toFloat() - 24f).dp)
+                .height((metadata.height.toFloat() - 24f).dp),
         ) {
             shadcnButton(
                 "parity-tooltip-trigger",
                 "Hover me",
-                modifier = Modifier.width(110f.px).height(36f.px)
+                modifier = Modifier.width(110f.px).height(36f.px),
             )
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -952,7 +961,7 @@ internal object AwakeTooltipTriggerLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Matches docs/reference/shadcn-previews/dialog_states_light.png's arrangement (title/description/action) for a direct side-by-side.",
     width = 420,
-    height = 260
+    height = 260,
 )
 internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -974,14 +983,14 @@ internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
                     shadcnButton(
                         "parity-dialog-save",
                         "Save changes",
-                        modifier = Modifier.width(120f.px).height(32f.px)
+                        modifier = Modifier.width(120f.px).height(32f.px),
                     )
-                }
+                },
             ) { _ ->
                 text(
                     "Make changes to your profile here. Click save when you're done.",
                     style = Style { textSize(theme.typography.body) },
-                    wrap = UiTextWrap.Word
+                    wrap = UiTextWrap.Word,
                 )
             }
         }
@@ -989,7 +998,7 @@ internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -1000,7 +1009,7 @@ internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Matches docs/reference/shadcn-previews/dropdown-menu_states_light.png's arrangement (trigger + open menu) for a direct side-by-side.",
     width = 220,
-    height = 220
+    height = 220,
 )
 internal object AwakeDropdownMenuStatesLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -1012,13 +1021,13 @@ internal object AwakeDropdownMenuStatesLightPreview : AwakeUiPreviewEntry {
         ui.pushTheme(theme)
         ui.column(
             modifier = Modifier.offset(24f.dp, 16f.dp).width(160f.dp)
-                .height((metadata.height.toFloat() - 16f).dp)
+                .height((metadata.height.toFloat() - 16f).dp),
         ) {
             val trigger = buttonSlot(
                 id = "parity-dropdown-trigger",
                 label = "Open",
                 modifier = Modifier.width(80f.px).height(36f.px),
-                style = theme.components.button
+                style = theme.components.button,
             )
             shadcnDropdownMenu(
                 id = "parity-dropdown",
@@ -1028,16 +1037,16 @@ internal object AwakeDropdownMenuStatesLightPreview : AwakeUiPreviewEntry {
                     UiDropdownMenuItem(label = "My Account"),
                     UiDropdownMenuItem(label = "Edit"),
                     UiDropdownMenuItem(label = "Duplicate"),
-                    UiDropdownMenuItem(label = "Delete", destructive = true)
+                    UiDropdownMenuItem(label = "Delete", destructive = true),
                 ),
-                width = Dimension.Fixed(160f.px)
+                width = Dimension.Fixed(160f.px),
             )
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }
@@ -1048,7 +1057,7 @@ internal object AwakeDropdownMenuStatesLightPreview : AwakeUiPreviewEntry {
     group = "Shadcn Parity",
     summary = "Matches docs/reference/shadcn-previews/popover_states_light.png's arrangement (trigger + open panel) for a direct side-by-side.",
     width = 300,
-    height = 140
+    height = 140,
 )
 internal object AwakePopoverStatesLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -1060,23 +1069,23 @@ internal object AwakePopoverStatesLightPreview : AwakeUiPreviewEntry {
         ui.pushTheme(theme)
         ui.column(
             modifier = Modifier.offset(24f.dp, 16f.dp).width(260f.dp)
-                .height((metadata.height.toFloat() - 16f).dp)
+                .height((metadata.height.toFloat() - 16f).dp),
         ) {
             val trigger = buttonSlot(
                 id = "parity-popover-trigger",
                 label = "Open popover",
                 modifier = Modifier.width(130f.px).height(36f.px),
-                style = theme.components.button
+                style = theme.components.button,
             )
             shadcnPopover(
                 id = "parity-popover",
                 anchorSlot = trigger.slot,
                 expanded = true,
-                width = Dimension.Fixed(260f.dp)
+                width = Dimension.Fixed(260f.dp),
             ) {
                 text(
                     "Place content for the popover here.",
-                    style = Style { textSize(theme.typography.body) }
+                    style = Style { textSize(theme.typography.body) },
                 )
             }
         }
@@ -1084,7 +1093,7 @@ internal object AwakePopoverStatesLightPreview : AwakeUiPreviewEntry {
             primitives = ui.endFrame(),
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes()
+            semantics = ui.semanticNodes(),
         )
     }
 }

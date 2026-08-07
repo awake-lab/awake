@@ -6,26 +6,26 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
-import io.github.ronjunevaldoz.awake.ui.debugOverlayPrimitives
-import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
+import io.github.ronjunevaldoz.awake.ui.debugOverlayPrimitives
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 /**
  * Concrete binding between Awake's stateless [UiContext] and the stateful/suspendable
@@ -34,7 +34,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 @AwakeUiDsl
 class GameUiRuntime(
     val services: GameServiceLookup,
-    val spec: GameUiSpec
+    val spec: GameUiSpec,
 ) {
     val uiContext = UiContext()
     var theme: UiTheme = spec.theme
@@ -117,7 +117,7 @@ class GameUiRuntime(
             center = Vec3(0f, 0f, 0f),
             fovYRadians = 1f,
             near = 0.1f,
-            far = 10f
+            far = 10f,
         )
     }
 
@@ -129,7 +129,7 @@ class GameUiRuntime(
     fun render(
         deltaSeconds: Float,
         viewportWidth: Float,
-        viewportHeight: Float
+        viewportHeight: Float,
     ) {
         this.viewportWidth = viewportWidth
         this.viewportHeight = viewportHeight
@@ -153,8 +153,8 @@ class GameUiRuntime(
                 viewportWidth = viewportWidth,
                 viewportHeight = viewportHeight,
                 input = snapshot.toUiInputState(),
-                deltaSeconds = deltaSeconds
-            )
+                deltaSeconds = deltaSeconds,
+            ),
         )
 
         // Overlay calls from game setup
@@ -185,7 +185,6 @@ class GameUiRuntime(
         renderer.draw(camera, drawCalls)
     }
 
-
     /**
      * Opens a root-level column directly from the runtime.
      *
@@ -196,7 +195,7 @@ class GameUiRuntime(
     fun rootColumn(
         modifier: UiModifier = Modifier,
         verticalArrangement: Arrangement = defaultArrangement(),
-        block: ColumnScope.() -> Unit
+        block: ColumnScope.() -> Unit,
     ) {
         val frame = UiBounds(0f, 0f, viewportWidth, viewportHeight)
         val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
@@ -218,50 +217,50 @@ class GameUiRuntime(
                 alignment = modifier.alignment ?: UiAlignment.TopStart,
                 insets = modifier.insets,
                 offsetX = modifier.offsetX.toPx(),
-                offsetY = modifier.offsetY.toPx()
+                offsetY = modifier.offsetY.toPx(),
             ),
             verticalArrangement = verticalArrangement,
-            testTag = modifier.testTag
+            testTag = modifier.testTag,
         ).block()
     }
 
     @Deprecated(
         message = "Use rootColumn(modifier = ...) so authored runtime layout comes from UiModifier, not UiSlot geometry.",
-        replaceWith = ReplaceWith("rootColumn(modifier = modifier, verticalArrangement = verticalArrangement, block = block)")
+        replaceWith = ReplaceWith("rootColumn(modifier = modifier, verticalArrangement = verticalArrangement, block = block)"),
     )
     fun rootColumn(
         slot: UiBounds,
         modifier: UiModifier = Modifier,
         verticalArrangement: Arrangement = defaultArrangement(),
-        block: ColumnScope.() -> Unit
+        block: ColumnScope.() -> Unit,
     ) {
         uiContext.createColumn(
             slot = slot,
             insets = modifier.insets,
             verticalArrangement = verticalArrangement,
-            testTag = modifier.testTag
+            testTag = modifier.testTag,
         ).block()
     }
 
     @Deprecated(
         message = "Use rootColumn(slot = ..., modifier = ...) or frame { column(...) } for runtime-owned root layout.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun column(
         modifier: UiModifier = Modifier,
         verticalArrangement: Arrangement = defaultArrangement(),
-        block: ColumnScope.() -> Unit
+        block: ColumnScope.() -> Unit,
     ) = rootColumn(modifier, verticalArrangement, block)
 
     @Deprecated(
         message = "Use rootColumn(modifier = ...) or frame { column(...) } for runtime-owned root layout.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun column(
         slot: UiBounds,
         modifier: UiModifier = Modifier,
         verticalArrangement: Arrangement = defaultArrangement(),
-        block: ColumnScope.() -> Unit
+        block: ColumnScope.() -> Unit,
     ) = rootColumn(slot, modifier, verticalArrangement, block)
 
     inline fun <reified T : Any> service(): T? = services.service(T::class)
@@ -278,7 +277,7 @@ data class GameUiSpec(
     val font: UiFont,
     val overlays: List<GameUiOverlayBlock>,
     val onReadyBlock: GameUiReadyBlock,
-    val onDisposeBlock: GameUiDisposeBlock
+    val onDisposeBlock: GameUiDisposeBlock,
 ) : GameInstaller {
     override fun install(into: GameSpecBuilder) {
         val runtime = GameUiRuntime(into.serviceLookup(), this)
@@ -294,16 +293,16 @@ data class GameUiSpec(
  * raw-primitive drawing API (a real naming collision this project hit in practice). */
 fun GameUiRuntime.frame(
     contentAlignment: UiAlignment = UiAlignment.TopStart,
-    block: BoxScope.(constraints: UiBoxConstraints) -> Unit
+    block: BoxScope.(constraints: UiBoxConstraints) -> Unit,
 ) {
     val rootSlot = UiBounds(0f, 0f, viewportWidth, viewportHeight)
     uiContext.createBox(
         slot = rootSlot,
-        contentAlignment = contentAlignment
+        contentAlignment = contentAlignment,
     ).block(
         UiBoxConstraints(
             maxWidthPx = viewportWidth,
-            maxHeightPx = viewportHeight
-        )
+            maxHeightPx = viewportHeight,
+        ),
     )
 }

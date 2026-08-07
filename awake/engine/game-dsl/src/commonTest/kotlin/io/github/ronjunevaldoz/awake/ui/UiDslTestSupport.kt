@@ -11,7 +11,7 @@ internal fun testSnapshot(
     x: Float = -100f,
     y: Float = -100f,
     down: Boolean = false,
-    scrollDeltaY: Float = 0f
+    scrollDeltaY: Float = 0f,
 ): UiInputState {
     val input = Input()
     input.setPointer(down, x, y)

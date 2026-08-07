@@ -2,17 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.selection
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnToggleVariant
+import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
+import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggleSlot
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
-import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
-import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggleSlot
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 private fun ShadcnToggleVariant.toUiButtonVariant(): UiButtonVariant = when (this) {
@@ -32,7 +32,7 @@ fun UiScope.shadcnToggle(
     enabled: Boolean = true,
     variant: ShadcnToggleVariant = ShadcnToggleVariant.Default,
     onCheckedChange: (Boolean) -> Unit = {},
-    content: BoxScope.(slot: UiBounds) -> Unit
+    content: BoxScope.(slot: UiBounds) -> Unit,
 ): Boolean = toggleSlot(
     id = id,
     checked = checked,
@@ -40,7 +40,7 @@ fun UiScope.shadcnToggle(
     style = style,
     enabled = enabled,
     variant = variant.toUiButtonVariant(),
-    onCheckedChange = onCheckedChange
+    onCheckedChange = onCheckedChange,
 ) { contentSlot ->
     childBox(contentSlot, contentAlignment = UiAlignment.Center).content(contentSlot)
 }
@@ -58,7 +58,7 @@ fun UiScope.shadcnToggle(
     enabled: Boolean = true,
     variant: ShadcnToggleVariant = ShadcnToggleVariant.Default,
     onCheckedChange: (Boolean) -> Unit = {},
-    label: String? = null
+    label: String? = null,
 ): Boolean = toggle(
     id = id,
     checked = checked,
@@ -67,5 +67,5 @@ fun UiScope.shadcnToggle(
     style = style,
     enabled = enabled,
     variant = variant.toUiButtonVariant(),
-    onCheckedChange = onCheckedChange
+    onCheckedChange = onCheckedChange,
 )

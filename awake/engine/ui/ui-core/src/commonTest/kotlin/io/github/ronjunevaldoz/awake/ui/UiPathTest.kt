@@ -3,12 +3,12 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.style.*
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class UiPathTest {
 
@@ -31,9 +31,9 @@ class UiPathTest {
                 UiPathCommand.QuadTo(5f, 6f, 7f, 8f),
                 UiPathCommand.CubicTo(9f, 10f, 11f, 12f, 13f, 14f),
                 UiPathCommand.ArcTo(15f, 16f, 17f, 18f, 90f, 180f),
-                UiPathCommand.Close
+                UiPathCommand.Close,
             ),
-            path.commands
+            path.commands,
         )
     }
 
@@ -52,9 +52,9 @@ class UiPathTest {
                 UiPathCommand.ArcTo(0f, 4f, 16f, 20f, 90f, 90f),
                 UiPathCommand.LineTo(0f, 8f),
                 UiPathCommand.ArcTo(0f, 0f, 16f, 16f, 180f, 90f),
-                UiPathCommand.Close
+                UiPathCommand.Close,
             ),
-            path.commands
+            path.commands,
         )
     }
 
@@ -66,7 +66,7 @@ class UiPathTest {
         assertEquals(
             UiPathCommand.ArcTo(10f, 0f, 30f, 20f, -90f, 90f),
             path.commands[2],
-            "circle should be centered using the largest inscribed square"
+            "circle should be centered using the largest inscribed square",
         )
     }
 
@@ -119,9 +119,9 @@ class UiPathTest {
             listOf(
                 UiPathCommand.MoveTo(7f, 13f),
                 UiPathCommand.LineTo(11f, 19f),
-                UiPathCommand.ArcTo(5f, 10f, 13f, 22f, 0f, 90f)
+                UiPathCommand.ArcTo(5f, 10f, 13f, 22f, 0f, 90f),
             ),
-            path.commands
+            path.commands,
         )
     }
 
@@ -159,19 +159,21 @@ class UiPathTest {
                 UiPoint(0f, 0f),
                 UiPoint(40f, 0f),
                 UiPoint(40f, 20f),
-                UiPoint(0f, 20f)
+                UiPoint(0f, 20f),
             ),
-            indices = intArrayOf(0, 1, 2, 2, 3, 0)
+            indices = intArrayOf(0, 1, 2, 2, 3, 0),
         )
 
-        val clipped = quadMesh.clipToConvexPath(UiShapeSpec.CutCorner(6f.dp).toPath(
-            UiBounds(
-                0f,
-                0f,
-                40f,
-                20f
-            )
-        ))
+        val clipped = quadMesh.clipToConvexPath(
+            UiShapeSpec.CutCorner(6f.dp).toPath(
+                UiBounds(
+                    0f,
+                    0f,
+                    40f,
+                    20f,
+                ),
+            ),
+        )
 
         assertTrue(clipped.points.size > 4, "clipping should introduce intersection vertices")
         assertTrue(clipped.points.none { it.x == 0f && it.y == 0f }, "the fully clipped corner vertex should be removed from the output mesh")
@@ -184,19 +186,21 @@ class UiPathTest {
                 UiTexturedVertex(UiPoint(0f, 0f), u = 0f, v = 0f),
                 UiTexturedVertex(UiPoint(40f, 0f), u = 1f, v = 0f),
                 UiTexturedVertex(UiPoint(40f, 20f), u = 1f, v = 1f),
-                UiTexturedVertex(UiPoint(0f, 20f), u = 0f, v = 1f)
+                UiTexturedVertex(UiPoint(0f, 20f), u = 0f, v = 1f),
             ),
-            indices = intArrayOf(0, 1, 2, 2, 3, 0)
+            indices = intArrayOf(0, 1, 2, 2, 3, 0),
         )
 
-        val clipped = quadMesh.clipToConvexPath(UiShapeSpec.CutCorner(6f.dp).toPath(
-            UiBounds(
-                0f,
-                0f,
-                40f,
-                20f
-            )
-        ))
+        val clipped = quadMesh.clipToConvexPath(
+            UiShapeSpec.CutCorner(6f.dp).toPath(
+                UiBounds(
+                    0f,
+                    0f,
+                    40f,
+                    20f,
+                ),
+            ),
+        )
 
         assertTrue(clipped.vertices.size > 4, "clipping should introduce intersection vertices")
         assertTrue(clipped.vertices.none { it.position.x == 0f && it.position.y == 0f }, "the fully clipped corner vertex should be removed from the output mesh")
@@ -213,7 +217,7 @@ class UiPathTest {
             defaultWidth = 12f.dp,
             defaultHeight = 12f.dp,
             viewportWidth = 12f,
-            viewportHeight = 12f
+            viewportHeight = 12f,
         ) {
             path {
                 moveTo(0f, 0f)
@@ -230,9 +234,9 @@ class UiPathTest {
                 UiPathCommand.MoveTo(16f, 20f),
                 UiPathCommand.LineTo(28f, 20f),
                 UiPathCommand.LineTo(28f, 32f),
-                UiPathCommand.Close
+                UiPathCommand.Close,
             ),
-            fitted.commands
+            fitted.commands,
         )
     }
 }

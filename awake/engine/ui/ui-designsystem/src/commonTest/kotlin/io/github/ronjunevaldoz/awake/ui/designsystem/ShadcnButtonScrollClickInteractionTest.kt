@@ -54,7 +54,7 @@ class ShadcnButtonScrollClickInteractionTest {
         ui.createBox(x = 0f, y = 0f, width = 300f, height = 220f).run {
             shadcnSidebar(
                 id = "interleave-sidebar",
-                modifier = Modifier.verticalScroll(scroll).width(260f.dp.toDimension()).height(Dimension.FillMax)
+                modifier = Modifier.verticalScroll(scroll).width(260f.dp.toDimension()).height(Dimension.FillMax),
             ) {
                 shadcnSidebarGroup {
                     shadcnSidebarMenu {
@@ -93,7 +93,7 @@ class ShadcnButtonScrollClickInteractionTest {
         val movedTarget = boundsOf(ui, "item-3")
         assertTrue(
             movedTarget.y != target.y,
-            "test setup bug: item-3 didn't actually move -- scroll had no effect, sidebar isn't scrollable at this size"
+            "test setup bug: item-3 didn't actually move -- scroll had no effect, sidebar isn't scrollable at this size",
         )
 
         // Whatever item now sits at the stationary pointer's (px, py) after scrolling.
@@ -110,7 +110,7 @@ class ShadcnButtonScrollClickInteractionTest {
         if (relocatedId != null && relocatedId != "item-3") {
             assertFalse(
                 lastClickedIds.contains(relocatedId),
-                "activeId is bound to item-3's own id -- content that scrolled INTO the old pixel position must not steal the click"
+                "activeId is bound to item-3's own id -- content that scrolled INTO the old pixel position must not steal the click",
             )
         }
         assertTrue(lastClickedIds.isEmpty(), "no click at all should fire from this release-outside sequence")

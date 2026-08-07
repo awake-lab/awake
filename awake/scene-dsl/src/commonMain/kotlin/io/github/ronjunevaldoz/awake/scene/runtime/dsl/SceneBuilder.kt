@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.scene.components.Transform
 @AwakeSceneDsl
 class SceneBuilder internal constructor(
     private val world: World,
-    val parentEntity: Entity? = null
+    val parentEntity: Entity? = null,
 ) {
     /**
      * Spawns an entity with an optional name, modifier, and child block.
@@ -21,7 +21,7 @@ class SceneBuilder internal constructor(
     fun entity(
         name: String? = null,
         modifier: EntityModifier = Modifier(),
-        block: SceneBuilder.() -> Unit = {}
+        block: SceneBuilder.() -> Unit = {},
     ): Entity {
         val currentEntity = world.create()
 

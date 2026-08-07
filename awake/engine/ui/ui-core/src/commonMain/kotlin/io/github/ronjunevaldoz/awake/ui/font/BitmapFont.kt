@@ -25,7 +25,7 @@ package io.github.ronjunevaldoz.awake.ui.font
  */
 class BitmapFont(
     override val cellSize: Int = 12,
-    atlasScale: Int = 4
+    atlasScale: Int = 4,
 ) : UiFont {
     override val samplingMode = UiFontSamplingMode.CoverageAlpha
     private val atlasScale = atlasScale.coerceAtLeast(1)
@@ -54,7 +54,7 @@ class BitmapFont(
                         atlasInsetPx = atlasInsetPx,
                         atlasCellSize = atlasCellSize,
                         atlasInnerSize = atlasInnerSize,
-                        supersampleGrid = SUPERSAMPLE_GRID
+                        supersampleGrid = SUPERSAMPLE_GRID,
                     )
                     if (alpha <= 0f) {
                         continue

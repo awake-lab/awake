@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.dsl.meshRenderer
 
 fun SceneGameDsl.cameraEntity(
     name: String,
-    modifier: EntityModifier = Modifier()
+    modifier: EntityModifier = Modifier(),
 ) {
     entity(name, modifier.camera())
 }
@@ -21,7 +21,7 @@ fun SceneGameDsl.meshEntity(
     name: String,
     mesh: Mesh,
     material: Material,
-    modifier: EntityModifier = Modifier()
+    modifier: EntityModifier = Modifier(),
 ) {
     entity(name, modifier.meshRenderer(mesh, material))
 }

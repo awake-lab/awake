@@ -13,5 +13,5 @@ data class VkApplicationInfo(
     var applicationVersion: Int = Version(1, 0, 0).vkVersion,
     var pEngineName: String,
     var engineVersion: Int = Version(1, 0, 0).vkVersion,
-    var apiVersion: Int = Version(1, 0, 0).vkVersion
+    var apiVersion: Int = Version(1, 0, 0).vkVersion,
 )

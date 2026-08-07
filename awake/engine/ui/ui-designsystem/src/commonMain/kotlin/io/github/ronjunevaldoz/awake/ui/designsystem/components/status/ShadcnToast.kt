@@ -6,12 +6,12 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.toast
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.headless.toast
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 private fun shadcnToastStyle(theme: UiTheme, style: Style): Style {
     val shadcnTheme = theme.asShadcnTheme()
@@ -28,11 +28,11 @@ fun UiScope.shadcnToast(
     message: String,
     modifier: UiModifier = Modifier,
     durationMs: Float = 3000f,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): Boolean = toast(
     id = id,
     message = message,
     modifier = modifier,
     durationMs = durationMs,
-    style = shadcnToastStyle(theme, style)
+    style = shadcnToastStyle(theme, style),
 )

@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.core.application
 
 import io.github.ronjunevaldoz.awake.core.utils.Time
+import platform.posix.usleep
 import kotlin.native.concurrent.ThreadLocal
 import kotlin.time.TimeSource
-import platform.posix.usleep
 
 /**
  * Was previously an empty no-op stub (`startLoop` never called [onUpdate] at all) -- no

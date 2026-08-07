@@ -5,15 +5,12 @@ package io.github.ronjunevaldoz.awake.testing.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
-import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.containsPoint
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.tessellateFill
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
-import io.github.ronjunevaldoz.awake.ui.toPath
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -27,7 +24,7 @@ fun List<UiDrawPrimitive>.rasterize(
     width: Int,
     height: Int,
     background: Color = Color(0.1f, 0.1f, 0.12f, 1f),
-    font: UiFont? = null
+    font: UiFont? = null,
 ): ByteArray {
     val pixels = ByteArray(width * height * 4)
     var i = 0
@@ -103,7 +100,7 @@ fun List<UiDrawPrimitive>.rasterize(
             sampleChannel(0),
             sampleChannel(1),
             sampleChannel(2),
-            sampleChannel(3)
+            sampleChannel(3),
         )
     }
 
@@ -263,7 +260,7 @@ fun List<UiDrawPrimitive>.rasterize(
                             font,
                             glyph,
                             glyph.u0 + (glyph.u1 - glyph.u0) * u,
-                            glyph.v0 + (glyph.v1 - glyph.v0) * v
+                            glyph.v0 + (glyph.v1 - glyph.v0) * v,
                         )
                     }
                 }
@@ -378,7 +375,7 @@ fun List<UiDrawPrimitive>.rasterize(
                     primitive.y + primitive.offsetY - primitive.spread,
                     primitive.w + primitive.spread * 2f,
                     primitive.h + primitive.spread * 2f,
-                    primitive.color
+                    primitive.color,
                 )
             }
             is UiDrawPrimitive.ClipPathPush -> {
@@ -416,5 +413,5 @@ private fun lerpColor(start: Color, end: Color, fraction: Float): Color = Color(
     r = start.r + (end.r - start.r) * fraction,
     g = start.g + (end.g - start.g) * fraction,
     b = start.b + (end.b - start.b) * fraction,
-    a = start.a + (end.a - start.a) * fraction
+    a = start.a + (end.a - start.a) * fraction,
 )

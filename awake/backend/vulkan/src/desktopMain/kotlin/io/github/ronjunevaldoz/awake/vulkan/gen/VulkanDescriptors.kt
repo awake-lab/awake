@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCre
 actual object VulkanDescriptors {
     actual external fun vkCreateDescriptorSetLayout(
         device: Long,
-        createInfo: VkDescriptorSetLayoutCreateInfo
+        createInfo: VkDescriptorSetLayoutCreateInfo,
     ): Long
 
     actual external fun vkDestroyDescriptorSetLayout(device: Long, layout: Long)
@@ -27,7 +27,7 @@ actual object VulkanDescriptors {
         dstSet: Long,
         dstBinding: Int,
         descriptorType: Int,
-        bufferInfo: VkDescriptorBufferInfo
+        bufferInfo: VkDescriptorBufferInfo,
     )
 
     actual external fun vkUpdateDescriptorSetImage(
@@ -35,13 +35,13 @@ actual object VulkanDescriptors {
         dstSet: Long,
         dstBinding: Int,
         descriptorType: Int,
-        imageInfo: VkDescriptorImageInfo
+        imageInfo: VkDescriptorImageInfo,
     )
 
     actual external fun vkCmdBindDescriptorSet(
         commandBuffer: Long,
         pipelineLayout: Long,
         firstSet: Int,
-        descriptorSet: Long
+        descriptorSet: Long,
     )
 }

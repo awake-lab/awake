@@ -8,6 +8,6 @@ fun main() {
     val game = scene3DPlayground()
     runVulkanDesktopGame(
         game = game,
-        applicationFactory = ::createScene3DPlaygroundVulkanApplication
+        applicationFactory = ::createScene3DPlaygroundVulkanApplication,
     )
 }

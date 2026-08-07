@@ -17,7 +17,7 @@ annotation class VkConstArray(val arraySize: String = "")
     AnnotationTarget.FIELD,
     AnnotationTarget.PROPERTY,
     AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.TYPE
+    AnnotationTarget.TYPE,
 )
 @Retention(AnnotationRetention.RUNTIME)
 annotation class VkHandleRef(val name: String)
@@ -37,7 +37,6 @@ annotation class NativeSurfaceWindow
 annotation class VkSingleton
 annotation class VkUnionMember(val alias: String, val saveToParent: Boolean = false)
 
-
 /**
  * @param sizeAlias <elementType> [sizeAlias] otherwise do not generate
  * @param stride multiplier for array size for example given UInt::class -> sizeOf(uint32_t)
@@ -46,7 +45,7 @@ annotation class VkUnionMember(val alias: String, val saveToParent: Boolean = fa
 @Retention(AnnotationRetention.RUNTIME)
 annotation class VkArray(
     val sizeAlias: String = "",
-    val stride: KClass<*> = Nothing::class
+    val stride: KClass<*> = Nothing::class,
 )
 
 /**

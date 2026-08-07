@@ -4,6 +4,9 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.UiButtonResult
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
@@ -12,12 +15,9 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.UiButtonResult
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 class RowSpacerCompositionTest {
 
@@ -32,19 +32,19 @@ class RowSpacerCompositionTest {
         ui.pushFont(BitmapFont())
         ui.column(
             modifier = Modifier.offset(10f.dp, 20f.dp).width(220f.dp).height(80f.dp),
-            verticalArrangement = Arrangement.spacedBy(0f.dp)
+            verticalArrangement = Arrangement.spacedBy(0f.dp),
         ) {
-            row( horizontalArrangement = Arrangement.spacedBy(4f.dp), modifier = Modifier.height(30f.dp)) {
+            row(horizontalArrangement = Arrangement.spacedBy(4f.dp), modifier = Modifier.height(30f.dp)) {
                 first = buttonSlot(
                     id = "one",
                     label = "One",
-                    modifier = Modifier.width(60f.px).height(30f.px)
+                    modifier = Modifier.width(60f.px).height(30f.px),
                 )
                 spacer(Modifier.width(12f.dp))
                 second = buttonSlot(
                     id = "two",
                     label = "Two",
-                    modifier = Modifier.width(60f.px).height(30f.px)
+                    modifier = Modifier.width(60f.px).height(30f.px),
                 )
             }
         }

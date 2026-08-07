@@ -43,7 +43,6 @@ import platform.UIKit.drawInRect
 import platform.UIKit.size
 import kotlin.math.ceil
 
-
 /**
  *
  *  Creates and returns a UIImage by using a custom drawing block on a CGContextRef.
@@ -69,7 +68,6 @@ fun createImage(width: Double, height: Double, block: CGContextRef.() -> Unit): 
     return image
 }
 
-
 /**
  * TODO Experimental native image
  */
@@ -82,7 +80,7 @@ fun createImage(text: String, fontSize: Double): UIImage {
         NSFontAttributeName to font,
         NSForegroundColorAttributeName to color,
         NSKernAttributeName to 0.0f,
-        NSLigatureAttributeName to 0
+        NSLigatureAttributeName to 0,
     )
 
     // Create attributed string with the specified text and attributes
@@ -122,7 +120,7 @@ fun createImage(text: String, fontSize: Double): UIImage {
         // Draw the glyphs of the text on the context
         layoutManager.drawGlyphsForGlyphRange(
             glyphsToShow = layoutManager.glyphRangeForTextContainer(textContainer),
-            atPoint = textOrigin
+            atPoint = textOrigin,
         )
     }
 }
@@ -142,7 +140,7 @@ fun getCharacterGlyph(character: Char, fontSize: Float): UIImage? {
         NSFontAttributeName to font,
         NSForegroundColorAttributeName to UIColor.blackColor,
         NSKernAttributeName to 0.0f,
-        NSLigatureAttributeName to 0
+        NSLigatureAttributeName to 0,
     )
     val attributedString = NSAttributedString.create(character.toString(), attributes)
     val size = attributedString.size()

@@ -41,7 +41,7 @@ class RendererHeadlessStrokedPathChunkingTest {
                         close()
                     },
                     stroke = UiStroke(width = 2f.dp),
-                    color = Color(0.8f, 0.85f, 1f, 1f)
+                    color = Color(0.8f, 0.85f, 1f, 1f),
                 )
             }
 
@@ -54,7 +54,7 @@ class RendererHeadlessStrokedPathChunkingTest {
             assertTrue(
                 pixels.data.any { it.toInt() != 0 },
                 "a stroked-path run larger than one DynamicMesh should chunk across multiple " +
-                    "runs and render non-empty output instead of throwing"
+                    "runs and render non-empty output instead of throwing",
             )
         }
     }

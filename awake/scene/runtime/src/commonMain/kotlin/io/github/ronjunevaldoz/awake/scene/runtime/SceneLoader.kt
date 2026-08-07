@@ -11,18 +11,18 @@ import kotlinx.serialization.json.Json
 data class SceneInstance(
     val world: World,
     val roots: List<SceneNodeInstance>,
-    val renderableRequests: List<SceneRenderableRequest>
+    val renderableRequests: List<SceneRenderableRequest>,
 )
 
 data class SceneNodeInstance(
     val name: String?,
     val entity: Entity,
-    val children: List<SceneNodeInstance>
+    val children: List<SceneNodeInstance>,
 )
 
 data class SceneRenderableRequest(
     val entity: Entity,
-    val meshRenderer: SceneMeshRenderer
+    val meshRenderer: SceneMeshRenderer,
 )
 
 private val SceneJson = Json {
@@ -32,27 +32,19 @@ private val SceneJson = Json {
 }
 
 object SceneLoader {
-    fun encode(document: SceneDocument, json: Json = SceneJson): String {
-        return json.encodeToString(document)
-    }
+    fun encode(document: SceneDocument, json: Json = SceneJson): String = json.encodeToString(document)
 
-    fun decode(text: String, json: Json = SceneJson): SceneDocument {
-        return json.decodeFromString(text)
-    }
+    fun decode(text: String, json: Json = SceneJson): SceneDocument = json.decodeFromString(text)
 
-    suspend fun loadFromResource(path: String, json: Json = SceneJson): SceneDocument {
-        return decode(readResourceBytes(path).decodeToString(), json)
-    }
+    suspend fun loadFromResource(path: String, json: Json = SceneJson): SceneDocument = decode(readResourceBytes(path).decodeToString(), json)
 
-    fun instantiate(document: SceneDocument, world: World = World()): SceneInstance {
-        return instantiate(document, AwakeWorldSceneAdapter(world))
-    }
+    fun instantiate(document: SceneDocument, world: World = World()): SceneInstance = instantiate(document, AwakeWorldSceneAdapter(world))
 
     /** Adapter-driven instantiation path: the scene DSL/model stays Awake-owned, while the
      * execution target can vary as long as it implements [SceneInstantiationAdapter]. */
     fun <Node, Instance> instantiate(
         document: SceneDocument,
-        adapter: SceneInstantiationAdapter<Node, Instance>
+        adapter: SceneInstantiationAdapter<Node, Instance>,
     ): Instance {
         SceneValidator.requireValid(document)
         val roots = document.nodes.mapIndexed { index, node ->
@@ -65,7 +57,7 @@ object SceneLoader {
         adapter: SceneInstantiationAdapter<Node, *>,
         node: SceneNode,
         parent: Node?,
-        path: String
+        path: String,
     ): SceneNodeHandle<Node> {
         val created = adapter.createNode(node, parent)
         adapter.attachTransform(created, node.transform, parent)
@@ -79,19 +71,17 @@ object SceneLoader {
                 adapter = adapter,
                 node = child,
                 parent = created,
-                path = child.name?.takeIf { it.isNotBlank() } ?: "$path/#$index"
+                path = child.name?.takeIf { it.isNotBlank() } ?: "$path/#$index",
             )
         }
         return SceneNodeHandle(node.name, created, children)
     }
 }
 
-fun SceneDocument.instantiate(world: World = World()): SceneInstance {
-    return SceneLoader.instantiate(this, world)
-}
+fun SceneDocument.instantiate(world: World = World()): SceneInstance = SceneLoader.instantiate(this, world)
 
 fun SceneInstance.attachRenderableComponents(
-    factory: (SceneRenderableRequest) -> MeshRenderer
+    factory: (SceneRenderableRequest) -> MeshRenderer,
 ) {
     renderableRequests.forEach { request ->
         world.add(request.entity, factory(request))

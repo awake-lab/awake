@@ -44,7 +44,7 @@ import io.ygdrasil.webgpu.VertexState
 class UiTextureRenderPipeline(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
-    shaderCode: ByteArray
+    shaderCode: ByteArray,
 ) {
     private val device = graphicsDevice.wgpuContext.device
     val pipeline: GPURenderPipeline
@@ -68,37 +68,37 @@ class UiTextureRenderPipeline(
                                 VertexAttribute(
                                     shaderLocation = 1u,
                                     offset = (2 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x2
+                                    format = GPUVertexFormat.Float32x2,
                                 ),
                                 VertexAttribute(
                                     shaderLocation = 2u,
                                     offset = (4 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x4
+                                    format = GPUVertexFormat.Float32x4,
                                 ),
                                 // scale(xy) + pivot(zw) -- see ui_texture.wgsl's `transform` field.
                                 VertexAttribute(
                                     shaderLocation = 3u,
                                     offset = (8 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x4
-                                )
-                            )
-                        )
-                    )
+                                    format = GPUVertexFormat.Float32x4,
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
                 fragment = FragmentState(
                     module = shaderModule,
                     entryPoint = "fragmentMain",
-                    targets = listOf(ColorTargetState(format = swapchainManager.imageFormatWebGpu))
+                    targets = listOf(ColorTargetState(format = swapchainManager.imageFormatWebGpu)),
                 ),
-                primitive = PrimitiveState(topology = GPUPrimitiveTopology.TriangleList)
-            )
+                primitive = PrimitiveState(topology = GPUPrimitiveTopology.TriangleList),
+            ),
         )
 
         screenSizeBuffer = device.createBuffer(
             BufferDescriptor(
                 size = (2 * Float.SIZE_BYTES).toULong(),
-                usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst
-            )
+                usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst,
+            ),
         )
 
         val renderingContext = graphicsDevice.wgpuContext.renderingContext
@@ -119,14 +119,20 @@ class UiTextureRenderPipeline(
                 layout = pipeline.getBindGroupLayout(0u),
                 entries = listOf(
                     BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = screenSizeBuffer)),
-                    BindGroupEntry(binding = 1u, resource = requireNotNull(material.previewTextureView) {
-                        "Material has no previewTextureView -- was it built via createMaterial(renderTarget = ...)?"
-                    }),
-                    BindGroupEntry(binding = 2u, resource = requireNotNull(material.previewSampler) {
-                        "Material has no previewSampler -- was it built via createMaterial(renderTarget = ...)?"
-                    })
-                )
-            )
+                    BindGroupEntry(
+                        binding = 1u,
+                        resource = requireNotNull(material.previewTextureView) {
+                            "Material has no previewTextureView -- was it built via createMaterial(renderTarget = ...)?"
+                        },
+                    ),
+                    BindGroupEntry(
+                        binding = 2u,
+                        resource = requireNotNull(material.previewSampler) {
+                            "Material has no previewSampler -- was it built via createMaterial(renderTarget = ...)?"
+                        },
+                    ),
+                ),
+            ),
         )
     }
 

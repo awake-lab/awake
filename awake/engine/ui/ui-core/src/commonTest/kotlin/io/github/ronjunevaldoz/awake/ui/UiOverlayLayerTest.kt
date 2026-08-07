@@ -43,7 +43,7 @@ class UiOverlayLayerTest {
             "childAbsolute() must inherit emitsToOverlay from its calling scope -- if it silently " +
                 "falls back to the base layer, overlay content painted through it (e.g. dropdown " +
                 "menu item text via buttonSlot's content-lambda overload) sorts before, and gets " +
-                "painted under, its own popup surface."
+                "painted under, its own popup surface.",
         )
     }
 
@@ -63,7 +63,7 @@ class UiOverlayLayerTest {
             slot = UiBounds(0f, 0f, 10f, 10f),
             fillColor = Color(0f, 0f, 1f, 1f),
             radiusPx = 0f,
-            borderWidth = 0f.dp
+            borderWidth = 0f.dp,
         )
 
         val primitives = ui.endFrame()
@@ -72,12 +72,12 @@ class UiOverlayLayerTest {
             primitives.count { it is UiDrawPrimitive.Quad && (it as UiDrawPrimitive.Quad).color == Color(0f, 0f, 1f, 1f) },
             "emitFillAndBorder's default overlay parameter must follow the calling scope's " +
                 "emitsToOverlay instead of hardcoding false -- otherwise every surface's own " +
-                "fill/border paints on the base layer regardless of whether it's inside a popup."
+                "fill/border paints on the base layer regardless of whether it's inside a popup.",
         )
         assertEquals(
             UiDrawPrimitive.Quad(0f, 0f, 10f, 10f, Color(0f, 0f, 1f, 1f)),
             primitives.last(),
-            "the overlay-scope fill must sort after the base-layer marker"
+            "the overlay-scope fill must sort after the base-layer marker",
         )
     }
 
@@ -121,7 +121,7 @@ class UiOverlayLayerTest {
             "a popup/dialog's own clip must resolve against its own (overlay) clip stack, not " +
                 "intersect down to whatever ambient clip a synchronously-nesting base-layer " +
                 "ancestor happens to have active -- otherwise a WrapContent card only tall enough " +
-                "for its own normal-flow content silently truncates every popup composed inside it."
+                "for its own normal-flow content silently truncates every popup composed inside it.",
         )
     }
 }

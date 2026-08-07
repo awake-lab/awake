@@ -3,28 +3,28 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layout.toDimension
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.testTag
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
-import io.github.ronjunevaldoz.awake.ui.style.Style
 
 class LayoutTest {
 
@@ -52,7 +52,7 @@ class LayoutTest {
         ui.createColumn(x = 0f, y = 0f, width = 1200f, height = 800f).row(
             id = "shell",
             horizontalArrangement = Arrangement.spacedBy(0f.px),
-            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
         ) {
             sidebar = surface(id = "sidebar", style = visualStyle, modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.FillMax)) {
                 claimSlot(Dimension.Fixed(60f.px), Dimension.Fixed(20f.px))
@@ -154,8 +154,9 @@ class LayoutTest {
         var second: UiBounds? = null
 
         root.row(
-            horizontalArrangement = Arrangement.SpaceBetween
-        , modifier = Modifier.width(Dimension.Fixed(240f.px)).height(Dimension.Fixed(32f.px))) {
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.width(Dimension.Fixed(240f.px)).height(Dimension.Fixed(32f.px)),
+        ) {
             first = claimSlot(Dimension.Fixed(40f.px), Dimension.FillMax)
             second = claimSlot(Dimension.Fixed(60f.px), Dimension.FillMax)
         }
@@ -173,8 +174,9 @@ class LayoutTest {
         var second: UiBounds? = null
 
         root.column(
-            verticalArrangement = Arrangement.SpaceEvenly
-        , modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(200f.px))) {
+            verticalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(200f.px)),
+        ) {
             first = claimSlot(Dimension.FillMax, Dimension.Fixed(20f.px))
             second = claimSlot(Dimension.FillMax, Dimension.Fixed(20f.px))
         }
@@ -201,7 +203,7 @@ class LayoutTest {
 
         root.row(
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.width(Dimension.Fixed(240f.px)).height(Dimension.Fixed(60f.px))
+            modifier = Modifier.width(Dimension.Fixed(240f.px)).height(Dimension.Fixed(60f.px)),
         ) {
             tall = claimModifiedSlot(Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(60f.px)))
             short = claimModifiedSlot(Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)))
@@ -220,10 +222,10 @@ class LayoutTest {
 
         root.row(
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.width(Dimension.Fixed(240f.px)).height(Dimension.Fixed(60f.px))
+            modifier = Modifier.width(Dimension.Fixed(240f.px)).height(Dimension.Fixed(60f.px)),
         ) {
             overridden = claimModifiedSlot(
-                Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)).align(UiAlignment.BottomStart)
+                Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)).align(UiAlignment.BottomStart),
             )
         }
 
@@ -240,7 +242,7 @@ class LayoutTest {
 
         root.column(
             horizontalAlignment = UiAlignment.Horizontal.Center,
-            modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(80f.px))
+            modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(80f.px)),
         ) {
             wide = claimModifiedSlot(Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(20f.px)))
             narrow = claimModifiedSlot(Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)))
@@ -259,10 +261,10 @@ class LayoutTest {
 
         root.column(
             horizontalAlignment = UiAlignment.Horizontal.Center,
-            modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(80f.px))
+            modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(80f.px)),
         ) {
             overridden = claimModifiedSlot(
-                Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)).align(UiAlignment.TopEnd)
+                Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)).align(UiAlignment.TopEnd),
             )
         }
 
@@ -290,7 +292,7 @@ class LayoutTest {
         val box = ui.createBox(x = 10f, y = 20f, width = 100f, height = 60f, contentAlignment = UiAlignment.Center)
 
         val slot = box.claimModifiedSlot(
-            Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px))
+            Modifier.width(Dimension.Fixed(40f.px)).height(Dimension.Fixed(20f.px)),
         )
 
         assertEquals(UiBounds(40f, 40f, 40f, 20f), slot)
@@ -306,7 +308,7 @@ class LayoutTest {
                 .width(Dimension.Fixed(40f.px))
                 .height(Dimension.Fixed(20f.px))
                 .padding(start = 8f.dp, top = 6f.dp, end = 10f.dp, bottom = 4f.dp)
-                .offset(x = (-2f).dp, y = (-3f).dp)
+                .offset(x = (-2f).dp, y = (-3f).dp),
         )
 
         assertEquals(UiBounds(68f, 53f, 40f, 20f), slot)
@@ -346,14 +348,19 @@ class LayoutTest {
         var contentSlot: UiBounds? = null
 
         ui.createBox(x = 0f, y = 0f, width = 800f, height = 600f).row(
-            horizontalArrangement = Arrangement.spacedBy(20f.px)
-        , modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)) {
+            horizontalArrangement = Arrangement.spacedBy(20f.px),
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
+        ) {
             sidebarSlot = column(
                 id = "sidebar",
                 modifier = (Modifier.verticalScroll(UiScrollState(), UiScrollConfig.Hidden)).width(264f.toDimension()).height(
-                    Dimension.FillMax)) { }
+                    Dimension.FillMax,
+                ),
+            ) { }
             contentSlot = column(
-                id = "content", modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)) { }
+                id = "content",
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
+            ) { }
         }
 
         assertEquals(264f, sidebarSlot?.width)
@@ -367,15 +374,21 @@ class LayoutTest {
 
         renderScrollableNestedSurface { ui, content ->
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).row(
-                horizontalArrangement = Arrangement.spacedBy(16f.px)
-            , modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)) {
+                horizontalArrangement = Arrangement.spacedBy(16f.px),
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
+            ) {
                 surface(
-                    id = "sidebar", modifier = Modifier.width(Dimension.Fixed(220f.px)).height(
-                        Dimension.FillMax)) { }
+                    id = "sidebar",
+                    modifier = Modifier.width(Dimension.Fixed(220f.px)).height(
+                        Dimension.FillMax,
+                    ),
+                ) { }
                 column(
                     id = "content-viewport",
                     modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.FillMax).height(
-                        Dimension.FillMax)) {
+                        Dimension.FillMax,
+                    ),
+                ) {
                     content()
                 }
             }
@@ -393,7 +406,9 @@ class LayoutTest {
             ui.createColumn(x = 0f, y = 0f, width = 920f, height = 620f).column(
                 id = "content-viewport",
                 modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.FillMax).height(
-                    Dimension.FillMax)) {
+                    Dimension.FillMax,
+                ),
+            ) {
                 content()
             }
         }
@@ -410,7 +425,9 @@ class LayoutTest {
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
                 id = "content-viewport",
                 modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.FillMax).height(
-                    Dimension.FillMax)) {
+                    Dimension.FillMax,
+                ),
+            ) {
                 content()
             }
         }
@@ -427,7 +444,9 @@ class LayoutTest {
             ui.createAbsolute(x = 0f, y = 0f).column(
                 id = "content-viewport",
                 modifier = (Modifier.verticalScroll(scrollState)).width(Dimension.Fixed(920f.px)).height(
-                    Dimension.Fixed(620f.px))) {
+                    Dimension.Fixed(620f.px),
+                ),
+            ) {
                 content()
             }
         }
@@ -445,15 +464,22 @@ class LayoutTest {
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).surface(
                 id = "surface-semantic",
                 modifier = (Modifier.testTag("preview-root")).width(Dimension.FillMax).height(
-                    Dimension.WrapContent)) {
+                    Dimension.WrapContent,
+                ),
+            ) {
                 column(
                     id = "content-viewport",
                     modifier = (Modifier.verticalScroll(UiScrollState())).width(Dimension.FillMax).height(
-                        Dimension.FillMax)) {
+                        Dimension.FillMax,
+                    ),
+                ) {
                     repeat(20) { index ->
                         surface(
-                            id = "content-row-$index", modifier = Modifier.width(Dimension.FillMax).height(
-                                Dimension.Fixed(36f.px))) { }
+                            id = "content-row-$index",
+                            modifier = Modifier.width(Dimension.FillMax).height(
+                                Dimension.Fixed(36f.px),
+                            ),
+                        ) { }
                     }
                 }
             }
@@ -474,7 +500,7 @@ class LayoutTest {
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
-            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px)),
         ) {
             first = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
             second = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
@@ -496,7 +522,7 @@ class LayoutTest {
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
-            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px)),
         ) {
             first = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
             second = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(3f))
@@ -517,7 +543,7 @@ class LayoutTest {
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
-            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px)),
         ) {
             fixed = claimSlot(Dimension.Fixed(50f.px), Dimension.FillMax)
             weighted = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
@@ -542,7 +568,7 @@ class LayoutTest {
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
-            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px)),
         ) {
             weighted = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
             fillMax = claimSlot(Dimension.FillMax, Dimension.FillMax)
@@ -550,7 +576,7 @@ class LayoutTest {
 
         assertTrue(
             (weighted?.width ?: 0f) > 100f,
-            "weighted sibling must get a reasonable, non-zero share of the row, got ${weighted?.width}"
+            "weighted sibling must get a reasonable, non-zero share of the row, got ${weighted?.width}",
         )
     }
 
@@ -566,7 +592,7 @@ class LayoutTest {
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
-            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px)),
         ) {
             fillMax = claimSlot(Dimension.FillMax, Dimension.FillMax)
             weighted = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
@@ -574,7 +600,7 @@ class LayoutTest {
 
         assertTrue(
             (weighted?.width ?: 0f) > 100f,
-            "weighted sibling must get a reasonable, non-zero share regardless of sibling order, got ${weighted?.width}"
+            "weighted sibling must get a reasonable, non-zero share regardless of sibling order, got ${weighted?.width}",
         )
     }
 
@@ -588,7 +614,7 @@ class LayoutTest {
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
-            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px)),
         ) {
             filled = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f, fill = true))
             unfilled = claimSlot(Dimension.Fixed(30f.px), Dimension.FillMax, LayoutWeight(1f, fill = false))
@@ -609,7 +635,7 @@ class LayoutTest {
 
         root.column(
             verticalArrangement = Arrangement.spacedBy(0f.px),
-            modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(200f.px))
+            modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(200f.px)),
         ) {
             first = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
             second = claimSlot(Dimension.FillMax, Dimension.FillMax, LayoutWeight(1f))
@@ -631,7 +657,7 @@ class LayoutTest {
 
         root.row(
             horizontalArrangement = Arrangement.spacedBy(0f.px),
-            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px))
+            modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(32f.px)),
         ) {
             first = claimModifiedSlot(Modifier.weight(1f).height(Dimension.FillMax))
             second = claimModifiedSlot(Modifier.weight(1f).height(Dimension.FillMax))
@@ -659,7 +685,7 @@ class LayoutTest {
 
         rowSlot = root.row(
             horizontalArrangement = Arrangement.spacedBy(16f.px),
-            modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent),
         ) {
             // This content lambda re-runs across trial-measurement passes before the real,
             // final render -- only the last invocation's slots reflect real placement, so start
@@ -668,7 +694,7 @@ class LayoutTest {
             repeat(3) { index ->
                 columnSlots += column(
                     id = "field-$index",
-                    modifier = Modifier.weight(1f).height(Dimension.WrapContent)
+                    modifier = Modifier.weight(1f).height(Dimension.WrapContent),
                 ) {
                     surface(id = "label-$index", modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(16f.px))) {}
                     surface(id = "input-$index", modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(32f.px))) {}
@@ -711,7 +737,7 @@ class LayoutTest {
                         leafCount++
                         surface(
                             id = "leaf-$leafCount",
-                            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(16f.px))
+                            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(16f.px)),
                         ) {}
                     }
                 }
@@ -743,7 +769,7 @@ class LayoutTest {
                 column(id = "grid-cell-$index", modifier = Modifier.weight(1f)) {
                     surface(
                         id = "control-$index",
-                        modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(40f.px))
+                        modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(40f.px)),
                     ) {}
                 }
             }
@@ -759,11 +785,16 @@ private fun renderScrollableNestedSurface(renderParent: (UiContext, ColumnConten
 
     val content: ColumnContent = {
         surface(
-            id = "content-card", modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
+            id = "content-card",
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent),
+        ) {
             repeat(20) { index ->
                 surface(
-                    id = "content-row-$index", modifier = Modifier.width(Dimension.FillMax).height(
-                        Dimension.Fixed(36f.px))) { }
+                    id = "content-row-$index",
+                    modifier = Modifier.width(Dimension.FillMax).height(
+                        Dimension.Fixed(36f.px),
+                    ),
+                ) { }
             }
         }
     }

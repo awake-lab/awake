@@ -23,7 +23,7 @@ class VkPipelineRasterizationStateCreateInfo(
     val depthBiasConstantFactor: Float = 0.0f,
     val depthBiasClamp: Float = 0.0f,
     val depthBiasSlopeFactor: Float = 0.0f,
-    val lineWidth: Float = 1.0f
+    val lineWidth: Float = 1.0f,
 )
 
 typealias VkPipelineRasterizationStateCreateFlags = VkFlags

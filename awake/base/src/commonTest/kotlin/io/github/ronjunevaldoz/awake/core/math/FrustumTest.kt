@@ -18,7 +18,7 @@ class FrustumTest {
         up = Vec3(0f, 1f, 0f),
         fovYRadians = (kotlin.math.PI / 2.0).toFloat(),
         near = 1f,
-        far = 10f
+        far = 10f,
     )
 
     @Test
@@ -59,7 +59,7 @@ class FrustumTest {
             up = Vec3(0f, 1f, 0f),
             fovYRadians = (kotlin.math.PI / 2.0).toFloat(),
             near = 1f,
-            far = 10f
+            far = 10f,
         )
 
         // forward = +X, right = forward x up = +Z, up = right x forward = +Y.
@@ -84,9 +84,9 @@ class FrustumTest {
                 up = Vec3(0f, 1f, 0f),
                 fovYRadians = (kotlin.math.PI / 2.0).toFloat(),
                 near = 1f,
-                far = 10f
+                far = 10f,
             ),
-            aspect = 1f
+            aspect = 1f,
         )
 
         for (index in atOrigin.indices) {

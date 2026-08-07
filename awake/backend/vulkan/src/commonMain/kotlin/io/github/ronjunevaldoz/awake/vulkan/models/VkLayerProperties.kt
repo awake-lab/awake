@@ -13,5 +13,5 @@ data class VkLayerProperties @JvmOverloads constructor(
     val specVersion: Int = 0,
     val implementationVersion: Int = 0,
     @VkConstArray("VK_MAX_DESCRIPTION_SIZE")
-    val description: String = ""
+    val description: String = "",
 )

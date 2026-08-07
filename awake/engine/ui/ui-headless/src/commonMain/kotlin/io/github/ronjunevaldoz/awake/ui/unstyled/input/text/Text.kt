@@ -1,10 +1,10 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
-import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
@@ -18,6 +18,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.shimmer
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
@@ -40,7 +42,7 @@ internal fun UiScope.drawResolvedText(
     maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text,
-    shimmer: Boolean = false
+    shimmer: Boolean = false,
 ): UiBounds {
     val theme = context.currentTheme
     if (
@@ -57,7 +59,7 @@ internal fun UiScope.drawResolvedText(
             borderColor = resolvedStyle.borderColor ?: theme.colors.border,
             shapeSpec = resolvedStyle.shapeSpec,
             fillTokenId = resolvedStyle.backgroundToken,
-            borderTokenId = resolvedStyle.borderColorToken
+            borderTokenId = resolvedStyle.borderColorToken,
         )
     }
     renderTextBlock(
@@ -77,7 +79,7 @@ internal fun UiScope.drawResolvedText(
         textStyleToken = resolvedStyle.textStyleToken,
         backgroundToken = resolvedStyle.backgroundToken,
         foregroundToken = resolvedStyle.foregroundToken,
-        borderToken = resolvedStyle.borderColorToken
+        borderToken = resolvedStyle.borderColorToken,
     )
     return slot
 }
@@ -96,7 +98,7 @@ fun UiScope.text(
     textStyle: TextStyle? = null,
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text,
-    shimmer: Boolean = false
+    shimmer: Boolean = false,
 ): UiBounds {
     val slotAsSlot = slot
     val theme = context.currentTheme
@@ -108,8 +110,8 @@ fun UiScope.text(
             }
         },
         state = MutableStyleState(
-            hovered = hitTest(slotAsSlot)
-        )
+            hovered = hitTest(slotAsSlot),
+        ),
     )
     return drawResolvedText(
         label = label,
@@ -125,7 +127,7 @@ fun UiScope.text(
         maxLines = maxLines,
         semanticId = semanticId,
         semanticRole = semanticRole,
-        shimmer = shimmer
+        shimmer = shimmer,
     )
 }
 
@@ -146,7 +148,7 @@ fun UiScope.text(
     maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
     textStyle: TextStyle? = null,
     semanticId: String? = null,
-    semanticRole: UiSemanticRole = UiSemanticRole.Text
+    semanticRole: UiSemanticRole = UiSemanticRole.Text,
 ): UiBounds {
     val resolvedFont = font
     val theme = context.currentTheme
@@ -162,7 +164,7 @@ fun UiScope.text(
     var styleState = MutableStyleState(
         hovered = assumedHover,
         active = modifier.forceActive ?: false,
-        focused = modifier.forceFocus ?: false
+        focused = modifier.forceFocus ?: false,
     )
 
     fun resolveAndMeasure(state: MutableStyleState): Pair<ResolvedStyle, Float> {
@@ -173,7 +175,7 @@ fun UiScope.text(
                     foreground(theme.colors.foreground)
                 }
             },
-            state = state
+            state = state,
         )
         val textStyle = textStyle ?: resolved.textStyle
         val glyphPx = resolveGlyphPx(resolvedFont, textStyle)
@@ -205,15 +207,15 @@ fun UiScope.text(
         wrap = wrap,
         overflow = overflow,
         maxLines = maxLines,
-        advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
+        advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) },
     )
     val lineGap = glyphPx * 0.25f
     val blockHeight = layout.blockHeight(glyphPx, lineGap)
     var slot = claimModifiedSlot(
         modifier.withSizeFallback(
             defaultWidth,
-            Dimension.Fixed((blockHeight + resolved.contentPadding.verticalPx()).px)
-        )
+            Dimension.Fixed((blockHeight + resolved.contentPadding.verticalPx()).px),
+        ),
     )
 
     // If hover isn't forced, check actual hover and recompute if it changed.
@@ -226,7 +228,7 @@ fun UiScope.text(
             styleState = MutableStyleState(
                 hovered = actualHover,
                 active = modifier.forceActive ?: false,
-                focused = modifier.forceFocus ?: false
+                focused = modifier.forceFocus ?: false,
             )
             val (newResolved, newLabelWidthPx) = resolveAndMeasure(styleState)
             resolved = newResolved
@@ -246,7 +248,7 @@ fun UiScope.text(
                 wrap = wrap,
                 overflow = overflow,
                 maxLines = maxLines,
-                advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) }
+                advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) },
             )
         }
     }
@@ -264,6 +266,6 @@ fun UiScope.text(
         maxLines = maxLines,
         semanticId = resolvedSemanticId,
         semanticRole = semanticRole,
-        shimmer = modifier.shimmer
+        shimmer = modifier.shimmer,
     )
 }

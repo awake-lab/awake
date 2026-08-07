@@ -3,29 +3,29 @@
 package io.github.ronjunevaldoz.awake.ui.headless.input
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layouts.box
-import io.github.ronjunevaldoz.awake.ui.pointerDown
-import io.github.ronjunevaldoz.awake.ui.pointerX
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.UiInteraction
 import io.github.ronjunevaldoz.awake.ui.headless.interact
 import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layouts.box
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.pointerDown
+import io.github.ronjunevaldoz.awake.ui.pointerX
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import kotlin.math.abs
 
 private const val RANGE_SLIDER_TRACK_HEIGHT_PX = 6f
@@ -57,7 +57,7 @@ fun UiScope.rangeSlider(
     label: String? = null,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ): Pair<Float, Float> {
     var resultStart = valueStart
     var resultEnd = valueEnd
@@ -76,7 +76,7 @@ fun UiScope.rangeSlider(
             boxSlot.x + trackInsetPx,
             boxSlot.y + (boxSlot.height - RANGE_SLIDER_TRACK_HEIGHT_PX) / 2f,
             (boxSlot.width - trackInsetPx * 2f).coerceAtLeast(0f),
-            RANGE_SLIDER_TRACK_HEIGHT_PX
+            RANGE_SLIDER_TRACK_HEIGHT_PX,
         )
 
         val startFraction = ((valueStart - min) / (max - min)).coerceIn(0f, 1f)
@@ -124,12 +124,12 @@ fun UiScope.rangeSlider(
                 slot = boxSlot,
                 hovered = startInteraction.hovered || endInteraction.hovered,
                 active = startInteraction.active || endInteraction.active,
-                clicked = false
+                clicked = false,
             ),
             modifier = modifier,
             style = style,
             defaults = theme.components.slider,
-            focused = false
+            focused = false,
         )
 
         val lowFraction = ((newStart - min) / (max - min)).coerceIn(0f, 1f)
@@ -142,7 +142,7 @@ fun UiScope.rangeSlider(
         withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
             paintSurface(
                 slot = trackSlot,
-                resolved = surface.resolved.copy(shapeSpec = UiShapeSpec.Pill)
+                resolved = surface.resolved.copy(shapeSpec = UiShapeSpec.Pill),
             )
             if (fillWidth > 0f) {
                 emitFillAndBorder(
@@ -151,7 +151,7 @@ fun UiScope.rangeSlider(
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent,
-                    shapeSpec = UiShapeSpec.Pill
+                    shapeSpec = UiShapeSpec.Pill,
                 )
             }
             for (knobCenterX in listOf(newStartKnobX, newEndKnobX)) {
@@ -160,14 +160,14 @@ fun UiScope.rangeSlider(
                         knobCenterX - RANGE_SLIDER_KNOB_DIAMETER_PX / 2f,
                         boxSlot.y + (boxSlot.height - RANGE_SLIDER_KNOB_DIAMETER_PX) / 2f,
                         RANGE_SLIDER_KNOB_DIAMETER_PX,
-                        RANGE_SLIDER_KNOB_DIAMETER_PX
+                        RANGE_SLIDER_KNOB_DIAMETER_PX,
                     ),
                     resolved = surface.resolved.copy(
                         borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
-                        shapeSpec = UiShapeSpec.Pill
+                        shapeSpec = UiShapeSpec.Pill,
                     ),
                     fillColor = theme.colors.background,
-                    borderColor = theme.colors.primary
+                    borderColor = theme.colors.primary,
                 )
             }
         }
@@ -177,7 +177,7 @@ fun UiScope.rangeSlider(
             id = id,
             label = label,
             bounds = boxSlot,
-            contentBounds = if (fillWidth > 0f) UiBounds(fillX, trackSlot.y, fillWidth, trackSlot.height) else null
+            contentBounds = if (fillWidth > 0f) UiBounds(fillX, trackSlot.y, fillWidth, trackSlot.height) else null,
         )
     }
     return resultStart to resultEnd

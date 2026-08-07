@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.controls
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
+import io.github.ronjunevaldoz.awake.ui.headless.input.slider
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.headless.input.slider
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal fun shadcnSliderStyle(theme: UiTheme, style: Style): Style =
     ShadcnStyles.slider(theme.asShadcnTheme()) then style
@@ -26,7 +26,7 @@ fun UiScope.shadcnSlider(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     enabled: Boolean = true,
-    showKnob: Boolean = true
+    showKnob: Boolean = true,
 ): Float = slider(
     id = id,
     min = min,
@@ -36,5 +36,5 @@ fun UiScope.shadcnSlider(
     modifier = modifier,
     style = shadcnSliderStyle(theme, style),
     enabled = enabled,
-    showKnob = showKnob
+    showKnob = showKnob,
 )

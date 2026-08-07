@@ -23,13 +23,13 @@ interface OpenGL {
         Compile(CommonGL.GL_COMPILE_STATUS),
         Link(CommonGL.GL_LINK_STATUS),
         Delete(CommonGL.GL_DELETE_STATUS),
-        Validate(CommonGL.GL_VALIDATE_STATUS)
+        Validate(CommonGL.GL_VALIDATE_STATUS),
     }
 
     enum class BufferBit(val value: Int) {
         Color(CommonGL.GL_COLOR_BUFFER_BIT),
         Depth(CommonGL.GL_DEPTH_BUFFER_BIT),
-        Stencil(CommonGL.GL_STENCIL_BUFFER_BIT)
+        Stencil(CommonGL.GL_STENCIL_BUFFER_BIT),
     }
 
     enum class DrawMode(val value: Int) {
@@ -40,17 +40,17 @@ interface OpenGL {
 
     enum class ShaderType(val value: Int) {
         Vertex(CommonGL.GL_VERTEX_SHADER),
-        Fragment(CommonGL.GL_FRAGMENT_SHADER)
+        Fragment(CommonGL.GL_FRAGMENT_SHADER),
     }
 
     enum class BufferType(val value: Int) {
         Array(CommonGL.GL_ARRAY_BUFFER),
-        ElementArray(CommonGL.GL_ELEMENT_ARRAY_BUFFER)
+        ElementArray(CommonGL.GL_ELEMENT_ARRAY_BUFFER),
     }
 
     enum class DrawType(val value: Int) {
         Static(CommonGL.GL_STATIC_DRAW),
-        Dynamic(CommonGL.GL_DYNAMIC_DRAW)
+        Dynamic(CommonGL.GL_DYNAMIC_DRAW),
     }
 
     fun clearColor(r: Float, g: Float, b: Float, a: Float)
@@ -84,7 +84,7 @@ interface OpenGL {
         type: Int,
         normalized: Boolean,
         stride: Int,
-        ptr: Buffer? = null
+        ptr: Buffer? = null,
     )
 
     fun vertexAttribPointer(
@@ -93,7 +93,7 @@ interface OpenGL {
         type: Int,
         normalized: Boolean,
         stride: Int,
-        offset: Int
+        offset: Int,
     )
 
     fun enableVertexAttribArray(index: Int)
@@ -107,7 +107,7 @@ interface OpenGL {
     fun bufferData(
         target: BufferType,
         data: Buffer,
-        usage: DrawType
+        usage: DrawType,
     )
 
     // available only for android gl 3.0 or up and for ios use EOS which available in 2.0
@@ -130,7 +130,7 @@ interface OpenGL {
         border: Int,
         format: Int,
         type: Int,
-        buffer: Buffer?
+        buffer: Buffer?,
     )
 
     fun texImage2D(target: Int, level: Int, internalFormat: Int, bitmap: Bitmap, border: Int)
@@ -143,7 +143,7 @@ interface OpenGL {
         height: Int,
         format: Int,
         type: Int,
-        buffer: Buffer?
+        buffer: Buffer?,
     )
 
     fun texSubImage2D(
@@ -152,7 +152,7 @@ interface OpenGL {
         xOffset: Int,
         yOffset: Int,
         bitmap: Bitmap,
-        format: Int
+        format: Int,
     )
 
     fun texParameteri(target: Int, pname: Int, param: Int)
@@ -173,7 +173,7 @@ interface OpenGL {
         target: Int,
         attachment: Int,
         renderBufferTarget: Int,
-        renderBuffer: Int
+        renderBuffer: Int,
     )
 
     fun checkFramebufferStatus(target: Int): Int
@@ -192,4 +192,3 @@ interface OpenGL {
     fun deleteRenderBuffers(renderBuffer: Int)
     fun getError(): Int
 }
-

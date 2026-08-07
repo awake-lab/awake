@@ -24,7 +24,7 @@ internal data class UiShowcaseUiState(
     val showcaseSurfaceRadius: Float = 12f,
     val showcasePrimaryClicks: Int = 0,
     val showcaseCounterEffectMessage: String? = null,
-    val showcaseNotifyChecked: Boolean = true
+    val showcaseNotifyChecked: Boolean = true,
 )
 
 internal class UiShowcaseRuntimeState {
@@ -108,7 +108,7 @@ internal class UiShowcaseRuntimeState {
         preset = showcaseStylePreset(),
         baseColor = showcaseBaseColor(),
         accent = showcaseAccent(),
-        dark = showcaseResolvedDarkMode()
+        dark = showcaseResolvedDarkMode(),
     )
 
     fun showcaseStylePreset(): ShadcnStylePreset = ShadcnStylePreset.entries.getOrElse(showcaseStylePresetIndex) {

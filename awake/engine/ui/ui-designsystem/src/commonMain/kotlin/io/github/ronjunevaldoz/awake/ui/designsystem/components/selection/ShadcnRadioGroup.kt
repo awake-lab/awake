@@ -3,21 +3,21 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.selection
 
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.input.selection.checkbox
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.headless.input.selection.checkbox
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 // Real shadcn's RadioGroup item is a circular checkbox.checkbox() -- same box/inset-dot
 // mechanics, just a Circle shapeSpec instead of a rounded square. No separate ui-headless
@@ -34,7 +34,7 @@ fun UiScope.shadcnRadioButton(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ) {
     val boxSize = 16f.dp
     val newChecked = checkbox(
@@ -43,7 +43,7 @@ fun UiScope.shadcnRadioButton(
         label = null,
         modifier = modifier.width(boxSize).height(boxSize),
         style = shadcnRadioStyle(theme, style),
-        boxSize = boxSize
+        boxSize = boxSize,
     )
     if (newChecked != selected) onClick()
 }
@@ -58,7 +58,7 @@ fun UiScope.shadcnRadioButton(
 fun ColumnScope.shadcnRadioGroup(
     id: String,
     modifier: UiModifier = Modifier,
-    content: ColumnScope.() -> Unit
+    content: ColumnScope.() -> Unit,
 ) {
     content()
 }
@@ -73,7 +73,7 @@ fun ColumnScope.shadcnRadioGroup(
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
     gap: Dp = 8f.dp,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): Int {
     var resolved = selectedIndex
     val radioStyle = shadcnRadioStyle(theme, style)
@@ -91,7 +91,7 @@ fun ColumnScope.shadcnRadioGroup(
                 // width constraint for the whole group container, not for individual rows.
                 modifier = Modifier.height(24f.dp),
                 style = radioStyle,
-                boxSize = 16f.dp
+                boxSize = 16f.dp,
             )
             // Only update when clicking an unselected item (newChecked=true means it just
             // transitioned from unchecked→checked, i.e. a new selection was made).

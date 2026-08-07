@@ -20,7 +20,8 @@ enum class VkImageAspectFlagBits(val value: Int) {
     VK_IMAGE_ASPECT_PLANE_0_BIT_KHR(VK_IMAGE_ASPECT_PLANE_0_BIT.value),
     VK_IMAGE_ASPECT_PLANE_1_BIT_KHR(VK_IMAGE_ASPECT_PLANE_1_BIT.value),
     VK_IMAGE_ASPECT_PLANE_2_BIT_KHR(VK_IMAGE_ASPECT_PLANE_2_BIT.value),
-    VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM(0x7FFFFFFF);
+    VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM(0x7FFFFFFF),
+    ;
 
     companion object {
         // Helper function to convert integer value to VkImageAspectFlagBits

@@ -19,5 +19,5 @@ data class VkCommandBufferInheritanceInfo(
     val framebuffer: VkHandle = 0,
     val occlusionQueryEnable: VkBool32 = false,
     val queryFlags: VkQueryControlFlags = 0,
-    val pipelineStatistics: VkQueryPipelineStatisticFlags = 0
+    val pipelineStatistics: VkQueryPipelineStatisticFlags = 0,
 )

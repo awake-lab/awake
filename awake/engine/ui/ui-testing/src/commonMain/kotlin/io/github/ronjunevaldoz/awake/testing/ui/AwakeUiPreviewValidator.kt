@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.testing.comparePixels
 fun verifyAwakeUiPreview(
     scene: AwakeUiPreviewScene,
     config: AwakeUiPreviewValidationConfig = AwakeUiPreviewValidationConfig(),
-    record: Boolean = false
+    record: Boolean = false,
 ) {
     // 1. Semantic/Layout validation
     val report = validateAwakeUiPreview(scene, config)
@@ -21,7 +21,7 @@ fun verifyAwakeUiPreview(
         width = scene.metadata.rasterWidth,
         height = scene.metadata.rasterHeight,
         background = scene.background,
-        font = scene.font
+        font = scene.font,
     )
 
     if (record) {
@@ -40,9 +40,11 @@ fun verifyAwakeUiPreview(
     if (!diff.matches) {
         val diffImage = generatePixelDiffImage(rasterized, baseline)
         saveAwakeUiDiff(scene.metadata.id, diffImage, scene.metadata.rasterWidth, scene.metadata.rasterHeight)
-        throw AssertionError("[${scene.metadata.id}] Visual regression detected! " +
-            "Pixels mismatched: ${diff.diffPixelCount}. Max channel diff: ${diff.maxChannelDiff}. " +
-            "Check build/ui-previews/${scene.metadata.id}_diff.png")
+        throw AssertionError(
+            "[${scene.metadata.id}] Visual regression detected! " +
+                "Pixels mismatched: ${diff.diffPixelCount}. Max channel diff: ${diff.maxChannelDiff}. " +
+                "Check build/ui-previews/${scene.metadata.id}_diff.png",
+        )
     }
 }
 

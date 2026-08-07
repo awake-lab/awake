@@ -9,13 +9,13 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Light
 import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.Transform
-import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
 import kotlin.math.PI
+import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
 
 data class SceneNodeHandle<T>(
     val name: String?,
     val value: T,
-    val children: List<SceneNodeHandle<T>>
+    val children: List<SceneNodeHandle<T>>,
 )
 
 interface SceneInstantiationAdapter<Node, Instance> {
@@ -29,7 +29,7 @@ interface SceneInstantiationAdapter<Node, Instance> {
 }
 
 class AwakeWorldSceneAdapter(
-    private val world: World = World()
+    private val world: World = World(),
 ) : SceneInstantiationAdapter<Entity, SceneInstance> {
     private val renderableRequests = ArrayList<SceneRenderableRequest>()
 
@@ -58,7 +58,7 @@ class AwakeWorldSceneAdapter(
     override fun complete(roots: List<SceneNodeHandle<Entity>>): SceneInstance = SceneInstance(
         world = world,
         roots = roots.map { it.toSceneNodeInstance() },
-        renderableRequests = renderableRequests.toList()
+        renderableRequests = renderableRequests.toList(),
     )
 }
 
@@ -66,7 +66,7 @@ internal fun SceneTransform.toComponent(parent: Entity?): Transform = Transform(
     position = position.toVec3(),
     rotation = rotation.toVec3(),
     scale = scale.toVec3(),
-    parent = parent
+    parent = parent,
 )
 
 internal fun SceneCamera.toComponent(): SceneCameraComponent = SceneCameraComponent(
@@ -76,9 +76,9 @@ internal fun SceneCamera.toComponent(): SceneCameraComponent = SceneCameraCompon
         up = up.toVec3(),
         fovYRadians = degreesToRadians(fovYDegrees),
         near = near,
-        far = far
+        far = far,
     ),
-    isPrimary = primary
+    isPrimary = primary,
 )
 
 internal fun SceneLight.toComponent(): Light = Light(
@@ -87,7 +87,7 @@ internal fun SceneLight.toComponent(): Light = Light(
     type = when (type) {
         SceneLight.Type.Directional -> Light.Type.Directional
         SceneLight.Type.Point -> Light.Type.Point
-    }
+    },
 )
 
 internal fun SceneVec3.toVec3(): Vec3 = Vec3(x, y, z)
@@ -97,5 +97,5 @@ private fun degreesToRadians(degrees: Float): Float = degrees * (PI.toFloat() / 
 private fun SceneNodeHandle<Entity>.toSceneNodeInstance(): SceneNodeInstance = SceneNodeInstance(
     name = name,
     entity = value,
-    children = children.map { it.toSceneNodeInstance() }
+    children = children.map { it.toSceneNodeInstance() },
 )

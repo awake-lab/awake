@@ -13,5 +13,5 @@ enum class SceneSystemPhase {
     Fixed,
 
     /** Run once for every rendered frame. Use for cameras, transforms, rendering, and UI-adjacent drivers. */
-    Frame
+    Frame,
 }

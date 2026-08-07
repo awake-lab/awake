@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 import io.github.ronjunevaldoz.awake.core.graphics.createBitmap
 import io.github.ronjunevaldoz.awake.core.graphics.toRgba8Bytes
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.boundingCenter
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfMesh
@@ -19,10 +18,16 @@ import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.scene.components.*
+import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
+import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.*
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.Modifier
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.camera
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.meshRenderer
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.scene
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.transform
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /**
  * Real glTF viewer -- loads Khronos's own `Duck.gltf` reference sample.
@@ -128,7 +133,7 @@ internal object GltfViewerDemo {
                 cameraEntity = cameraEntity!!,
                 targetEntity = fte,
                 panningEntity = panningEntity,
-                onPanningEntityCreated = { panningEntity = it }
+                onPanningEntityCreated = { panningEntity = it },
             )
 
             if (showAimMarkers) {
@@ -143,7 +148,7 @@ internal object GltfViewerDemo {
                 markers += LineSegment(ft, ft + Vec3(0f, 0f, 0.1f), floatArrayOf(1f, 1f, 0f, 1f))
                 renderer.drawDebugLines(markers)
             }
-        }
+        },
     )
 
     private fun ensureSpawned(runtime: SceneGameRuntime) {
@@ -161,9 +166,9 @@ internal object GltfViewerDemo {
                     // rather than a fixed 10 -- that was ~10x too far and read as "zoomed out".
                     lens = CoreCamera.perspective(
                         eye = Vec3(modelCenter.x, modelCenter.y, modelCenter.z + FRAMING_DISTANCE_RADII),
-                        center = modelCenter
-                    )
-                )
+                        center = modelCenter,
+                    ),
+                ),
             )
 
             duckEntity = entity("Duck", Modifier().transform().meshRenderer(mesh!!, material!!))
@@ -177,8 +182,8 @@ internal object GltfViewerDemo {
             MeshGeometry(
                 normalizedInterleaved!!,
                 loadedMesh!!.indices,
-                format = VertexFormat.PositionNormalColorUv
-            )
+                format = VertexFormat.PositionNormalColorUv,
+            ),
         )
 
     private const val TEXTURED_VERTEX_STRIDE_COMPONENTS = 11

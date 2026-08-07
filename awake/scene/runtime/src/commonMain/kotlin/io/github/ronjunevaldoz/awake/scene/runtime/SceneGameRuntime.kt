@@ -29,24 +29,24 @@ import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
  * Orchestrates a single 3D scene session.
  */
 class SceneGameRuntime internal constructor(
-    val spec: SceneGameSpec
+    val spec: SceneGameSpec,
 ) : Game {
     private val fixedTimestepLoop = FixedTimestepLoop()
-    
+
     /** All systems indexed by their handle. */
     private val registeredSystems = linkedMapOf<SceneSystemHandle<out System>, System>()
-    
+
     /** Systems that run during fixed-timestep simulation steps. */
     private val fixedSystems = mutableListOf<System>()
-    
+
     /** Systems that run once per rendered frame. */
     private val frameSystems = mutableListOf<System>()
-    
+
     lateinit var world: World
         private set
     lateinit var renderer: Renderer
         private set
-        
+
     private var assetLibrary: SceneAssetLibrary? = null
 
     val uiContext = UiContext()
@@ -67,7 +67,7 @@ class SceneGameRuntime internal constructor(
 
     val fps: Float
         get() = averageFrameTimeMs.takeIf { it > 0f }?.let { 1000f / it } ?: 0f
-    
+
     val sceneName: String
         get() = spec.sceneName ?: "scene"
 
@@ -82,12 +82,12 @@ class SceneGameRuntime internal constructor(
 
     override suspend fun ready(renderer: Renderer) {
         this.renderer = renderer
-        
+
         // 1. Instantiate systems (after renderer is available)
         spec.systems.forEach { registration ->
             val system = registration.factory(this)
             registeredSystems[registration.handle] = system
-            
+
             // Sort into execution buckets owned by the scene runtime, not the system object.
             when (registration.phase) {
                 SceneSystemPhase.Fixed -> fixedSystems.add(system)
@@ -100,7 +100,7 @@ class SceneGameRuntime internal constructor(
 
         // 3. Initial sync pass for all frame-rate systems
         frameSystems.forEach { it.update(world, 0f) }
-        
+
         spec.onReadyBlock(this)
     }
 
@@ -114,7 +114,7 @@ class SceneGameRuntime internal constructor(
             screenWidth = viewportWidth,
             screenHeight = viewportHeight,
             inputState = snapshot.toUiInputState(),
-            deltaSeconds = delta
+            deltaSeconds = delta,
         )
         spec.overlayBlock(this, viewportWidth, viewportHeight)
         val uiFrame = uiContext.finishFrame()
@@ -127,15 +127,15 @@ class SceneGameRuntime internal constructor(
         // 3. Simulation & Infrastructure Pump
         fixedTimestepLoop.advance(
             frameDelta = delta,
-            fixedUpdate = { step -> 
+            fixedUpdate = { step ->
                 fixedSystems.forEach { it.update(world, step) }
-                spec.updateBlock(this, step, snapshot) 
+                spec.updateBlock(this, step, snapshot)
             },
             render = {
                 frameSystems.forEach { it.update(world, delta) }
-            }
+            },
         )
-        
+
         // 4. Sync UI focus state back to session input.
         input.textInputFocused = uiFrame.effects.requestKeyboard
     }
@@ -180,8 +180,8 @@ class SceneGameRuntime internal constructor(
                     DrawCall(
                         mesh = renderers[index].mesh,
                         material = renderers[index].material,
-                        model = transforms[index].worldMatrix
-                    )
+                        model = transforms[index].worldMatrix,
+                    ),
                 )
                 index += 1
             }
@@ -198,7 +198,7 @@ class SceneGameRuntime internal constructor(
 
     fun system(name: String): System =
         registeredSystems.entries.firstOrNull { it.key.name == name }?.value
-        ?: error("System $name not found")
+            ?: error("System $name not found")
 
     fun <T : System> update(handle: SceneSystemHandle<T>, delta: Float) {
         val system = system(handle)

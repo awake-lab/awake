@@ -175,11 +175,11 @@ class Mat4ProjectionTest {
     fun aSymmetricFrustumIsExactlyTheEquivalentPerspectiveMatrix() {
         assertMat4(
             perspective(HALF_PI, 1f),
-            Mat4.frustum(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.Vulkan)
+            Mat4.frustum(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.Vulkan),
         )
         assertMat4(
             Mat4.perspective(HALF_PI, 1f, 1f, 100f, ClipSpace.OpenGl),
-            Mat4.frustum(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.OpenGl)
+            Mat4.frustum(-1f, 1f, -1f, 1f, 1f, 100f, ClipSpace.OpenGl),
         )
     }
 

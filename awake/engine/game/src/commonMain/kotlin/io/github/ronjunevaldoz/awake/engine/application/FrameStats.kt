@@ -6,7 +6,7 @@ class FrameStats(
     private val sampleWindowSeconds: Float = 1f,
     // Rolling window for percentile tracking (independent of sampleWindowSeconds's fps-publish
     // cadence) -- 120 frames is ~2s at 60fps, enough to catch a spike without unbounded memory.
-    private val percentileWindowSize: Int = 120
+    private val percentileWindowSize: Int = 120,
 ) {
     var fps: Float = 0f
         private set

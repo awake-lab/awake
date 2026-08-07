@@ -34,8 +34,8 @@ import platform.QuartzCore.CADisplayLink
 import platform.UIKit.UIScreen
 import platform.UIKit.UIWindow
 
-
-class GameView(frame: CValue<CGRect>, val renderer: Application) : GLKView(frame),
+class GameView(frame: CValue<CGRect>, val renderer: Application) :
+    GLKView(frame),
     GLKViewDelegateProtocol {
 
     private var displayLink: CADisplayLink? = null
@@ -131,7 +131,6 @@ class GameView(frame: CValue<CGRect>, val renderer: Application) : GLKView(frame
         }
     }
 
-
     private fun startRenderLoop() {
         fpsCallback = { fps ->
             Time.FpsString = "$fps"
@@ -141,7 +140,7 @@ class GameView(frame: CValue<CGRect>, val renderer: Application) : GLKView(frame
             renderer.resume()
             displayLink = UIScreen.mainScreen.displayLinkWithTarget(
                 this,
-                NSSelectorFromString("update:")
+                NSSelectorFromString("update:"),
             )?.apply {
                 preferredFramesPerSecond = AwakeContext.config.fps.toLong()
                 addToRunLoop(NSRunLoop.currentRunLoop, NSRunLoopCommonModes)
@@ -157,7 +156,6 @@ class GameView(frame: CValue<CGRect>, val renderer: Application) : GLKView(frame
         displayLink = null
         fpsCallback = null
     }
-
 
     override fun glkView(view: GLKView, drawInRect: CValue<CGRect>) {
         renderer.update(Time.Delta.toFloat())

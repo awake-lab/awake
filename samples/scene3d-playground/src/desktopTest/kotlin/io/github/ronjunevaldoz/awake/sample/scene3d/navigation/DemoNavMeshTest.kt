@@ -24,14 +24,14 @@ class DemoNavMeshTest {
 
         assertTrue(
             path.isNotEmpty(),
-            "Expected a real path between two points on opposite sides of the obstacle."
+            "Expected a real path between two points on opposite sides of the obstacle.",
         )
         val maxAbsZ = path.maxOf { abs(it.z) }
         assertTrue(
             maxAbsZ > 0.6f,
             "Expected the path to bend around the cube obstacle (footprint |z| <= 0.5), " +
                 "but max |z| across waypoints was only $maxAbsZ -- looks like a straight " +
-                "line through it, meaning the obstacle wasn't actually carved out."
+                "line through it, meaning the obstacle wasn't actually carved out.",
         )
     }
 

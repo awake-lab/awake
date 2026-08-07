@@ -3,26 +3,15 @@
 package io.github.ronjunevaldoz.awake.ecs.benchmark
 
 import com.artemis.Aspect
-import com.artemis.Component as ArtemisComponent
-import com.artemis.World as ArtemisWorld
 import com.artemis.WorldConfigurationBuilder
-import com.badlogic.ashley.core.Component as AshleyComponent
-import com.badlogic.ashley.core.Engine as AshleyEngine
-import com.badlogic.ashley.core.Entity as AshleyEntity
-import com.badlogic.ashley.core.Family as AshleyFamily
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
-import com.github.quillraven.fleks.Entity as FleksEntity
 import com.github.quillraven.fleks.IntervalSystem
-import com.github.quillraven.fleks.World as FleksWorld
 import com.github.quillraven.fleks.configureWorld
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.ecs.ComponentTypeId
-import io.github.ronjunevaldoz.awake.ecs.Entity as AwakeEntity
-import io.github.ronjunevaldoz.awake.ecs.Family2 as AwakeFamily2
-import io.github.ronjunevaldoz.awake.ecs.World as AwakeWorld
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
@@ -34,6 +23,17 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import sun.misc.Unsafe
+import com.artemis.Component as ArtemisComponent
+import com.artemis.World as ArtemisWorld
+import com.badlogic.ashley.core.Component as AshleyComponent
+import com.badlogic.ashley.core.Engine as AshleyEngine
+import com.badlogic.ashley.core.Entity as AshleyEntity
+import com.badlogic.ashley.core.Family as AshleyFamily
+import com.github.quillraven.fleks.Entity as FleksEntity
+import com.github.quillraven.fleks.World as FleksWorld
+import io.github.ronjunevaldoz.awake.ecs.Entity as AwakeEntity
+import io.github.ronjunevaldoz.awake.ecs.Family2 as AwakeFamily2
+import io.github.ronjunevaldoz.awake.ecs.World as AwakeWorld
 
 @State(Scope.Benchmark)
 open class AwakeQueryState {
@@ -89,7 +89,7 @@ open class ArtemisQueryState {
         transformMapper = world.getMapper(ArtemisTransform::class.java)
         meshMapper = world.getMapper(ArtemisMeshRenderer::class.java)
         subscription = world.aspectSubscriptionManager.get(
-            Aspect.all(ArtemisTransform::class.java, ArtemisMeshRenderer::class.java)
+            Aspect.all(ArtemisTransform::class.java, ArtemisMeshRenderer::class.java),
         )
         repeat(entityCount) {
             val entity = world.create()
@@ -194,7 +194,7 @@ open class ArtemisFamilyChurnState {
         transformMapper = world.getMapper(ArtemisTransform::class.java)
         val meshMapper = world.getMapper(ArtemisMeshRenderer::class.java)
         subscription = world.aspectSubscriptionManager.get(
-            Aspect.all(ArtemisTransform::class.java, ArtemisMeshRenderer::class.java)
+            Aspect.all(ArtemisTransform::class.java, ArtemisMeshRenderer::class.java),
         )
         entities = IntArray(entityCount) {
             val entity = world.create()
@@ -255,9 +255,7 @@ open class AwakeHierarchyState {
         }
     }
 
-    fun lastTransform(): Transform {
-        return world.get(lastEntity, Transform::class) ?: error("Missing last transform.")
-    }
+    fun lastTransform(): Transform = world.get(lastEntity, Transform::class) ?: error("Missing last transform.")
 }
 
 @State(Scope.Benchmark)
@@ -380,7 +378,7 @@ open class AshleyHierarchyState {
 
 class ArtemisTransformSystem(
     private val world: ArtemisWorld,
-    private val mapper: com.artemis.ComponentMapper<ArtemisTransform>
+    private val mapper: com.artemis.ComponentMapper<ArtemisTransform>,
 ) {
     // Reused across calls -- see AshleyHierarchyState's identical comment.
     private val visited = mutableSetOf<Int>()
@@ -424,14 +422,12 @@ class ArtemisTransform : ArtemisComponent() {
     var parent: Int = -1
     var worldMatrix: Mat4 = Mat4()
 
-    fun localMatrix(): Mat4 {
-        return Mat4()
-            .translate(position.x, position.y, position.z)
-            .rotateZ(rotation.z)
-            .rotateY(rotation.y)
-            .rotateX(rotation.x)
-            .scale(scale.x, scale.y, scale.z)
-    }
+    fun localMatrix(): Mat4 = Mat4()
+        .translate(position.x, position.y, position.z)
+        .rotateZ(rotation.z)
+        .rotateY(rotation.y)
+        .rotateX(rotation.x)
+        .scale(scale.x, scale.y, scale.z)
 }
 
 class ArtemisMeshRenderer : ArtemisComponent() {
@@ -444,21 +440,19 @@ data class AshleyTransform(
     var rotation: Vec3 = Vec3(0f, 0f, 0f),
     var scale: Vec3 = Vec3(1f, 1f, 1f),
     var parent: AshleyEntity? = null,
-    var worldMatrix: Mat4 = Mat4()
+    var worldMatrix: Mat4 = Mat4(),
 ) : AshleyComponent {
-    fun localMatrix(): Mat4 {
-        return Mat4()
-            .translate(position.x, position.y, position.z)
-            .rotateZ(rotation.z)
-            .rotateY(rotation.y)
-            .rotateX(rotation.x)
-            .scale(scale.x, scale.y, scale.z)
-    }
+    fun localMatrix(): Mat4 = Mat4()
+        .translate(position.x, position.y, position.z)
+        .rotateZ(rotation.z)
+        .rotateY(rotation.y)
+        .rotateX(rotation.x)
+        .scale(scale.x, scale.y, scale.z)
 }
 
 data class AshleyMeshRenderer(
     val mesh: Mesh,
-    val material: Material
+    val material: Material,
 ) : AshleyComponent
 
 data class FleksTransform(
@@ -466,25 +460,23 @@ data class FleksTransform(
     var rotation: Vec3 = Vec3(0f, 0f, 0f),
     var scale: Vec3 = Vec3(1f, 1f, 1f),
     var parent: FleksEntity? = null,
-    var worldMatrix: Mat4 = Mat4()
+    var worldMatrix: Mat4 = Mat4(),
 ) : Component<FleksTransform> {
     override fun type(): ComponentType<FleksTransform> = FleksTransform
 
-    fun localMatrix(): Mat4 {
-        return Mat4()
-            .translate(position.x, position.y, position.z)
-            .rotateZ(rotation.z)
-            .rotateY(rotation.y)
-            .rotateX(rotation.x)
-            .scale(scale.x, scale.y, scale.z)
-    }
+    fun localMatrix(): Mat4 = Mat4()
+        .translate(position.x, position.y, position.z)
+        .rotateZ(rotation.z)
+        .rotateY(rotation.y)
+        .rotateX(rotation.x)
+        .scale(scale.x, scale.y, scale.z)
 
     companion object : ComponentType<FleksTransform>()
 }
 
 data class FleksMeshRenderer(
     val mesh: Mesh,
-    val material: Material
+    val material: Material,
 ) : Component<FleksMeshRenderer> {
     override fun type(): ComponentType<FleksMeshRenderer> = FleksMeshRenderer
 
@@ -493,6 +485,7 @@ data class FleksMeshRenderer(
 
 class FleksTransformSystem : IntervalSystem() {
     private val family = world.family { all(FleksTransform) }
+
     // Reused across calls -- see AshleyHierarchyState's identical comment.
     private val transforms = linkedMapOf<FleksEntity, FleksTransform>()
     private val visited = mutableSetOf<FleksEntity>()
@@ -544,7 +537,5 @@ private object UnsafeAllocator {
         .apply { isAccessible = true }
         .get(null) as Unsafe
 
-    fun <T : Any> allocate(type: Class<T>): T {
-        return type.cast(unsafe.allocateInstance(type))
-    }
+    fun <T : Any> allocate(type: Class<T>): T = type.cast(unsafe.allocateInstance(type))
 }

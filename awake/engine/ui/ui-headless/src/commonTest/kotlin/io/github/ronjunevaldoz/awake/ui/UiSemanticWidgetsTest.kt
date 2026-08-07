@@ -8,14 +8,13 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.headless.button
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.button
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -31,7 +30,7 @@ class UiSemanticWidgetsTest {
         context.createAbsolute(x = 20f, y = 20f).button(
             id = "primary-action",
             modifier = Modifier.width(180f.px).height(44f.px),
-            label = "Awake Button"
+            label = "Awake Button",
         )
 
         val semantics = context.semanticNodes()
@@ -56,7 +55,7 @@ class UiSemanticWidgetsTest {
             label = "This label is intentionally too wide for the slot",
             slot = UiBounds(12f, 12f, 80f, 16f),
             overflow = UiTextOverflow.Ellipsis,
-            semanticId = "truncated.copy"
+            semanticId = "truncated.copy",
         )
 
         val semantics = context.semanticNodes()

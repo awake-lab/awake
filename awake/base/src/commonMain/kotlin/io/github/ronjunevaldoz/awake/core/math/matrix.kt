@@ -7,7 +7,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.tan
 
-
 class Mat4 {
     val data: FloatArray = FloatArray(16)
 
@@ -150,9 +149,7 @@ class Mat4 {
         return this
     }
 
-    fun scale(value: Float): Mat4 {
-        return scale(value, value, value)
-    }
+    fun scale(value: Float): Mat4 = scale(value, value, value)
 
     fun scale(x: Float, y: Float, z: Float): Mat4 {
         val scale = Mat4()
@@ -263,7 +260,7 @@ class Mat4 {
             top: Float,
             near: Float,
             far: Float,
-            clipSpace: ClipSpace
+            clipSpace: ClipSpace,
         ): Mat4 {
             val width = right - left
             val height = top - bottom
@@ -306,7 +303,7 @@ class Mat4 {
             top: Float,
             near: Float,
             far: Float,
-            clipSpace: ClipSpace
+            clipSpace: ClipSpace,
         ): Mat4 {
             val width = right - left
             val height = top - bottom
@@ -358,40 +355,38 @@ class Mat4 {
             centerZ: Float,
             upX: Float,
             upY: Float,
-            upZ: Float
-        ): Mat4 {
-            return setLookAt(
-                Vec3(eyeX, eyeY, eyeZ),
-                Vec3(centerX, centerY, centerZ),
-                Vec3(upX, upY, upZ)
-            )
-        }
+            upZ: Float,
+        ): Mat4 = setLookAt(
+            Vec3(eyeX, eyeY, eyeZ),
+            Vec3(centerX, centerY, centerZ),
+            Vec3(upX, upY, upZ),
+        )
 
         fun setLookAt(
-            eye: Vec3, center: Vec3, up: Vec3
-        ): Mat4 {
-            return Mat4().apply {
-                val f = (center - eye).normalized() // forward
-                val s = f.cross(up).normalized() // side
-                val u = s.cross(f) // up
+            eye: Vec3,
+            center: Vec3,
+            up: Vec3,
+        ): Mat4 = Mat4().apply {
+            val f = (center - eye).normalized() // forward
+            val s = f.cross(up).normalized() // side
+            val u = s.cross(f) // up
 
-                // Rotation goes in ROWS, matching the row-form translation below. Writing it
-                // into columns instead transposes (and for an orthonormal basis, inverts) the
-                // rotation, which is invisible whenever the basis happens to be the identity
-                // -- eye on +Z looking down -Z -- and mirrors the view everywhere else.
-                m00 = s.x
-                m01 = s.y
-                m02 = s.z
-                m10 = u.x
-                m11 = u.y
-                m12 = u.z
-                m20 = -f.x
-                m21 = -f.y
-                m22 = -f.z
-                m03 = -s.dot(eye)
-                m13 = -u.dot(eye)
-                m23 = f.dot(eye)
-            }
+            // Rotation goes in ROWS, matching the row-form translation below. Writing it
+            // into columns instead transposes (and for an orthonormal basis, inverts) the
+            // rotation, which is invisible whenever the basis happens to be the identity
+            // -- eye on +Z looking down -Z -- and mirrors the view everywhere else.
+            m00 = s.x
+            m01 = s.y
+            m02 = s.z
+            m10 = u.x
+            m11 = u.y
+            m12 = u.z
+            m20 = -f.x
+            m21 = -f.y
+            m22 = -f.z
+            m03 = -s.dot(eye)
+            m13 = -u.dot(eye)
+            m23 = f.dot(eye)
         }
 
         /** Standard T * R * S composition -- glTF node transforms (and any other TRS-driven
@@ -401,10 +396,22 @@ class Mat4 {
         fun fromTrs(translation: Vec3, rotation: Quat, scale: Vec3): Mat4 {
             val r = rotation.toMat4()
             return Mat4().apply {
-                m00 = r.m00 * scale.x; m10 = r.m10 * scale.x; m20 = r.m20 * scale.x; m30 = 0f
-                m01 = r.m01 * scale.y; m11 = r.m11 * scale.y; m21 = r.m21 * scale.y; m31 = 0f
-                m02 = r.m02 * scale.z; m12 = r.m12 * scale.z; m22 = r.m22 * scale.z; m32 = 0f
-                m03 = translation.x; m13 = translation.y; m23 = translation.z; m33 = 1f
+                m00 = r.m00 * scale.x
+                m10 = r.m10 * scale.x
+                m20 = r.m20 * scale.x
+                m30 = 0f
+                m01 = r.m01 * scale.y
+                m11 = r.m11 * scale.y
+                m21 = r.m21 * scale.y
+                m31 = 0f
+                m02 = r.m02 * scale.z
+                m12 = r.m12 * scale.z
+                m22 = r.m22 * scale.z
+                m32 = 0f
+                m03 = translation.x
+                m13 = translation.y
+                m23 = translation.z
+                m33 = 1f
             }
         }
 
@@ -428,17 +435,13 @@ class Mat4 {
         }
     }
 
-
-    override fun toString(): String {
-        return buildString {
-            append("| $m00 $m01 $m02 $m03 |\n")
-            append("| $m10 $m11 $m12 $m13 |\n")
-            append("| $m20 $m21 $m22 $m23 |\n")
-            append("| $m30 $m31 $m32 $m33 |")
-        }
+    override fun toString(): String = buildString {
+        append("| $m00 $m01 $m02 $m03 |\n")
+        append("| $m10 $m11 $m12 $m13 |\n")
+        append("| $m20 $m21 $m22 $m23 |\n")
+        append("| $m30 $m31 $m32 $m33 |")
     }
 }
-
 
 operator fun Mat4.get(i: Int, buffer: FloatBuf) {
     for (j in 0 until 16) {

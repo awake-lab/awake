@@ -17,7 +17,7 @@ import kotlin.math.sqrt
  * player in the direction the camera is looking (projected onto the horizontal plane).
  */
 class MatrixRelativeMovementSystem(
-    private val speed: Float = 5f
+    private val speed: Float = 5f,
 ) : System {
     // Scratch vectors reused every frame -- this runs once per frame forever, so allocating
     // a fresh basis here would be pure garbage.
@@ -48,11 +48,11 @@ class MatrixRelativeMovementSystem(
         // 2. Apply to entities with Transform and MovementControl
         world.queryEach(Transform::class, MovementControl::class) { _, transform, control ->
             if (control.moveX == 0f && control.moveZ == 0f) return@queryEach
-            
+
             // Transform camera-relative movement into world-space movement
             val worldMoveX = right.x * control.moveX + forward.x * control.moveZ
             val worldMoveZ = right.z * control.moveX + forward.z * control.moveZ
-            
+
             transform.position.x += worldMoveX * speed * delta
             transform.position.z += worldMoveZ * speed * delta
         }

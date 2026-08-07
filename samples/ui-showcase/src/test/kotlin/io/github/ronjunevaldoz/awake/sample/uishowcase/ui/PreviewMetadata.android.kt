@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 
 internal actual fun previewMetadataFor(
     entry: AwakeUiPreviewEntry,
-    reportScale: Int
+    reportScale: Int,
 ): AwakeUiPreviewMetadata {
     val annotation = requireNotNull(entry.javaClass.getAnnotation(AwakeUiPreview::class.java)) {
         "missing @AwakeUiPreview on ${entry.javaClass.name}"
@@ -20,6 +20,6 @@ internal actual fun previewMetadataFor(
         summary = annotation.summary,
         width = annotation.width,
         height = annotation.height,
-        reportScale = reportScale
+        reportScale = reportScale,
     )
 }

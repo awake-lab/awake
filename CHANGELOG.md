@@ -47,6 +47,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   add-on component carrying a GPU-skinned mesh's joint palette. `OrbitCameraDemoRig`
   gained a public `entity` accessor so a demo can attach these to its placement entity.
 
+- Real-time shadow mapping for the directional scene light: a depth pre-pass renders
+  shadow casters from the light's point of view into a `ShadowMap`, and the lit pipeline
+  compares against it with manual PCF (this repo's `VkSamplerCreateInfo` binding has no
+  `compareEnable`/`compareOp`, so hardware Dref sampling isn't available). Runtime-gated by
+  `Renderer.shadowsEnabled`.
+- `Renderer.wireframe` mesh view mode. Vulkan uses a `VK_POLYGON_MODE_LINE` companion
+  pipeline sharing the fill pipeline's loaded shaders; WebGPU has no polygon-mode
+  equivalent, so it derives a line-index buffer from the triangle indices and draws
+  `LineList` topology instead.
+- Web (wasmJs) bitmap decoding, via `createImageBitmap()` plus an offscreen-canvas
+  readback. `Bitmap` creation became `suspend` across all four platform actuals as a
+  result — decoding in the browser is inherently asynchronous.
+- A build gate (`verifyShaderBinaries`) that fails `check` when a GLSL source drifts from
+  its checked-in `.spv`. Vulkan loads the compiled binaries at runtime, never the adjacent
+  sources, so a stale binary silently ignores shader edits — this was found the hard way
+  after 7 of 10 checked-in binaries turned out to already be stale.
+
 ### Removed
 
 - Legacy camera systems and controllers: `OrbitCameraController`, `OrbitCameraSystem`,
@@ -117,6 +134,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   structural cleanup (see Phase 1c in `docs/MVP_PLAN.md` for the full rationale).
 - `awake-ecs` component stores now use primitive sparse/dense arrays instead of
   `MutableList` storage, reducing structural add/remove overhead in the benchmark harness.
+- Glyph coverage-alpha now gets stem darkening (`pow(alpha, 1/1.45)`) on both backends.
+  `SwapchainManager` deliberately picks a `_UNORM` (not `_SRGB`) format because authored
+  colors are already sRGB-encoded bytes, which means all alpha blending happens on
+  gamma-encoded values and text rendered visibly too thin. Darkening the stems is what
+  FreeType/Skia do when linear blending isn't available.
+- Icon centering offsets snap to whole pixels, matching what text already did via
+  `resolveGlyphPx`. An odd width difference otherwise landed a whole glyph on a
+  half-pixel, blurring every edge.
+- Shadow lookups use a slope-scaled bias (`max(0.0090 * (1 - dot(N,L)), 0.0015)`) instead
+  of one constant. A single constant can't serve both face-on and grazing surfaces: large
+  enough to stop grazing-angle acne means detaching face-on contact shadows.
+- `VulkanGameApplication` takes one `additionalPipelines: Map<VertexFormat, GameShaderSet>`
+  instead of paired `skinnedShaderSet`/`skinnedVertexFormat`/`texturedShaderSet`/
+  `texturedVertexFormat` parameters, so adding a fourth vertex format no longer means
+  adding a fifth and sixth constructor parameter.
+- `VulkanGameApplication` no longer builds a whole `Material` purely to borrow its
+  descriptor-set layout — a half-constructed instance that `createResources` had to never
+  be called on, and that teardown had to partially destroy. `Material.createDescriptorSetLayout`
+  is now a companion function and only the layout handle is held.
+- Dark-theme `card` and `sidebar` colors corrected to oklch lightness 0.205, matching the
+  published shadcn spec (they were 0.168 and 0.158).
 
 ## [1.0.0-SNAPSHOT] - YYYY-MM-DD
 

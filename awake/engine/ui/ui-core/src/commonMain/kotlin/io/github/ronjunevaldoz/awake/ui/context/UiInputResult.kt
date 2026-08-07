@@ -10,5 +10,5 @@ data class UiInputResult(
     val isCaptured: Boolean = false,
     val isOverScrollable: Boolean = false,
     val isScrollConsumed: Boolean = false,
-    val isTextInputFocused: Boolean = false
+    val isTextInputFocused: Boolean = false,
 )

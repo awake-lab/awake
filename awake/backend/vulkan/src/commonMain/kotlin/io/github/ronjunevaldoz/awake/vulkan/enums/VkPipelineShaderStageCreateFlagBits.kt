@@ -8,7 +8,8 @@ enum class VkPipelineShaderStageCreateFlagBits(val value: Int) {
     ALLOW_VARYING_SUBGROUP_SIZE(0x00000001),
     REQUIRE_FULL_SUBGROUPS(0x00000002),
     ALLOW_VARYING_SUBGROUP_SIZE_EXT(ALLOW_VARYING_SUBGROUP_SIZE.value),
-    REQUIRE_FULL_SUBGROUPS_EXT(REQUIRE_FULL_SUBGROUPS.value);
+    REQUIRE_FULL_SUBGROUPS_EXT(REQUIRE_FULL_SUBGROUPS.value),
+    ;
 
     companion object {
         fun fromValue(value: Int) =
@@ -17,4 +18,4 @@ enum class VkPipelineShaderStageCreateFlagBits(val value: Int) {
     }
 }
 
-typealias VkPipelineShaderStageCreateFlags = VkFlags//<VkPipelineShaderStageCreateFlagBits>
+typealias VkPipelineShaderStageCreateFlags = VkFlags // <VkPipelineShaderStageCreateFlagBits>

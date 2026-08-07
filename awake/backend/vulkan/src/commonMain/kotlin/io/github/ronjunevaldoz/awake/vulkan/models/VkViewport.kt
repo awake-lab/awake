@@ -8,5 +8,5 @@ data class VkViewport(
     val width: Float = 0.0f,
     val height: Float = 0.0f,
     val minDepth: Float = 0.0f,
-    val maxDepth: Float = 1.0f
+    val maxDepth: Float = 1.0f,
 )

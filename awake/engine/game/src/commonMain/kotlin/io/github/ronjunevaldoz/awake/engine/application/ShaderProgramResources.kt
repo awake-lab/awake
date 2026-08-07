@@ -4,12 +4,12 @@ package io.github.ronjunevaldoz.awake.engine.application
 
 data class ShaderStageResource(
     val resourcePath: String,
-    val entryPoint: String
+    val entryPoint: String,
 )
 
 data class ShaderProgramResources(
     val vertex: ShaderStageResource,
-    val fragment: ShaderStageResource
+    val fragment: ShaderStageResource,
 ) {
     val vertexResourcePath: String
         get() = vertex.resourcePath
@@ -26,42 +26,40 @@ data class ShaderProgramResources(
 
 data class GameShaderSet(
     val vulkan: ShaderProgramResources,
-    val webGpu: ShaderProgramResources
+    val webGpu: ShaderProgramResources,
 )
 
 fun gameShaderSet(
     vulkan: ShaderProgramResources,
-    webGpu: ShaderProgramResources
+    webGpu: ShaderProgramResources,
 ): GameShaderSet = GameShaderSet(
     vulkan = vulkan,
-    webGpu = webGpu
+    webGpu = webGpu,
 )
 
 fun gameShaderSet(
     name: String,
     vulkanDirectory: String = "assets/shader/vulkan",
-    webGpuDirectory: String = "assets/shader/webgpu"
-): GameShaderSet {
-    return GameShaderSet(
-        vulkan = ShaderProgramResources(
-            vertex = ShaderStageResource(
-                resourcePath = "$vulkanDirectory/$name.vert.spv",
-                entryPoint = "vertexMain"
-            ),
-            fragment = ShaderStageResource(
-                resourcePath = "$vulkanDirectory/$name.frag.spv",
-                entryPoint = "fragmentMain"
-            )
+    webGpuDirectory: String = "assets/shader/webgpu",
+): GameShaderSet = GameShaderSet(
+    vulkan = ShaderProgramResources(
+        vertex = ShaderStageResource(
+            resourcePath = "$vulkanDirectory/$name.vert.spv",
+            entryPoint = "vertexMain",
         ),
-        webGpu = ShaderProgramResources(
-            vertex = ShaderStageResource(
-                resourcePath = "$webGpuDirectory/$name.wgsl",
-                entryPoint = "vertexMain"
-            ),
-            fragment = ShaderStageResource(
-                resourcePath = "$webGpuDirectory/$name.wgsl",
-                entryPoint = "fragmentMain"
-            )
-        )
-    )
-}
+        fragment = ShaderStageResource(
+            resourcePath = "$vulkanDirectory/$name.frag.spv",
+            entryPoint = "fragmentMain",
+        ),
+    ),
+    webGpu = ShaderProgramResources(
+        vertex = ShaderStageResource(
+            resourcePath = "$webGpuDirectory/$name.wgsl",
+            entryPoint = "vertexMain",
+        ),
+        fragment = ShaderStageResource(
+            resourcePath = "$webGpuDirectory/$name.wgsl",
+            entryPoint = "fragmentMain",
+        ),
+    ),
+)

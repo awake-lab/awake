@@ -3,23 +3,23 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.clickable
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.resolveClickable
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text as drawText
-import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text as drawText
 
 /**
  * Real shadcn's `Breadcrumb`: a trail of muted links with a separator glyph between each,
@@ -30,10 +30,10 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 fun ColumnScope.shadcnBreadcrumb(
     modifier: UiModifier = Modifier,
     height: Dp = 20f.dp,
-    content: RowScope.() -> Unit
+    content: RowScope.() -> Unit,
 ): UiBounds = row(
     horizontalArrangement = Arrangement.spacedBy(6f.dp),
-    modifier = modifier.height(height.toDimension())
+    modifier = modifier.height(height.toDimension()),
 ) {
     content()
 }
@@ -43,7 +43,7 @@ fun ColumnScope.shadcnBreadcrumb(
     items: List<String>,
     modifier: UiModifier = Modifier,
     separator: String = "/",
-    height: Dp = 20f.dp
+    height: Dp = 20f.dp,
 ): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
     return shadcnBreadcrumb(modifier = modifier, height = height) {
@@ -54,7 +54,7 @@ fun ColumnScope.shadcnBreadcrumb(
                 style = Style {
                     foreground(if (isCurrent) shadcnTheme.colors.foreground else shadcnTheme.colors.mutedForeground)
                     textSize(shadcnTheme.typography.caption)
-                }
+                },
             )
             if (!isCurrent) {
                 text(
@@ -62,7 +62,7 @@ fun ColumnScope.shadcnBreadcrumb(
                     style = Style {
                         foreground(shadcnTheme.colors.mutedForeground)
                         textSize(shadcnTheme.typography.caption)
-                    }
+                    },
                 )
             }
         }
@@ -80,7 +80,7 @@ fun RowScope.shadcnBreadcrumbLink(
     text: String,
     onClick: () -> Unit,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
     val id = "breadcrumb-link:$text"
@@ -91,7 +91,7 @@ fun RowScope.shadcnBreadcrumbLink(
         style = Style {
             foreground(shadcnTheme.colors.mutedForeground)
             textSize(shadcnTheme.typography.caption)
-        } then style
+        } then style,
     )
     resolveClickable(id = id, slot = bounds, modifier = resolvedModifier)
     return bounds
@@ -101,7 +101,7 @@ fun RowScope.shadcnBreadcrumbLink(
 fun RowScope.shadcnBreadcrumbPage(
     text: String,
     modifier: UiModifier = Modifier,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
     return drawText(
@@ -110,7 +110,7 @@ fun RowScope.shadcnBreadcrumbPage(
         style = Style {
             foreground(shadcnTheme.colors.foreground)
             textSize(shadcnTheme.typography.caption)
-        } then style
+        } then style,
     )
 }
 
@@ -118,7 +118,7 @@ fun RowScope.shadcnBreadcrumbPage(
  * the [shadcnBreadcrumb] string-list overload already uses. */
 fun RowScope.shadcnBreadcrumbSeparator(
     modifier: UiModifier = Modifier,
-    glyph: String = "/"
+    glyph: String = "/",
 ): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
     return drawText(
@@ -127,7 +127,7 @@ fun RowScope.shadcnBreadcrumbSeparator(
         style = Style {
             foreground(shadcnTheme.colors.mutedForeground)
             textSize(shadcnTheme.typography.caption)
-        }
+        },
     )
 }
 
@@ -141,6 +141,6 @@ fun RowScope.shadcnBreadcrumbEllipsis(modifier: UiModifier = Modifier): UiBounds
         style = Style {
             foreground(shadcnTheme.colors.mutedForeground)
             textSize(shadcnTheme.typography.caption)
-        }
+        },
     )
 }

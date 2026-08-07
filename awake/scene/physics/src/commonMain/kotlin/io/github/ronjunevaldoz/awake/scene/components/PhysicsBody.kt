@@ -20,5 +20,5 @@ import io.github.ronjunevaldoz.awake.physics.PhysicsShape
 data class PhysicsBody(
     val shape: PhysicsShape,
     val motionType: MotionType,
-    var handle: BodyHandle? = null
+    var handle: BodyHandle? = null,
 )

@@ -16,7 +16,7 @@ object ShadcnStyles {
 
     internal fun button(
         theme: ShadcnResolvedTheme,
-        variant: ShadcnButtonVariant
+        variant: ShadcnButtonVariant,
     ): Style = when (variant) {
         ShadcnButtonVariant.Primary -> Style {
             background(theme.palette.primary, tokenId = "primary")
@@ -91,7 +91,7 @@ object ShadcnStyles {
 
     internal fun badge(
         theme: ShadcnResolvedTheme,
-        variant: ShadcnBadgeVariant
+        variant: ShadcnBadgeVariant,
     ): Style = when (variant) {
         ShadcnBadgeVariant.Primary -> Style {
             background(theme.palette.primary, tokenId = "primary")
@@ -134,7 +134,7 @@ object ShadcnStyles {
 
     internal fun surface(
         theme: ShadcnResolvedTheme,
-        variant: ShadcnSurfaceVariant
+        variant: ShadcnSurfaceVariant,
     ): Style = when (variant) {
         ShadcnSurfaceVariant.Muted -> Style {
             background(theme.palette.muted, tokenId = "muted")

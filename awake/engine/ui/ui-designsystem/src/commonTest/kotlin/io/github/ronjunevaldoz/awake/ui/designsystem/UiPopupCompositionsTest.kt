@@ -3,11 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiAlertDialogResult
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
@@ -17,24 +15,26 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAler
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class UiPopupCompositionsTest {
 
@@ -49,7 +49,7 @@ class UiPopupCompositionsTest {
             result = shadcnTooltipText(
                 anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(48f, 24f, 96f, 28f),
                 visible = true,
-                text = "Helpful hint"
+                text = "Helpful hint",
             )
         }
 
@@ -74,7 +74,7 @@ class UiPopupCompositionsTest {
                 anchorSlot = anchor,
                 expanded = true,
                 items = listOf(UiDropdownMenuItem("Open"), UiDropdownMenuItem("Delete", destructive = true)),
-                style = Style.Companion { contentPadding(0f.dp) }
+                style = Style.Companion { contentPadding(0f.dp) },
             )
         }
         ui.endFrame()
@@ -87,7 +87,7 @@ class UiPopupCompositionsTest {
                 anchorSlot = anchor,
                 expanded = true,
                 items = listOf(UiDropdownMenuItem("Open"), UiDropdownMenuItem("Delete", destructive = true)),
-                style = Style.Companion { contentPadding(0f.dp) }
+                style = Style.Companion { contentPadding(0f.dp) },
             )
         }
         ui.endFrame()
@@ -112,9 +112,9 @@ class UiPopupCompositionsTest {
                 items = listOf(
                     UiDropdownMenuItem("Pinned", enabled = false),
                     UiDropdownMenuSeparator,
-                    UiDropdownMenuItem("Delete", destructive = true, trailingLabel = "Del")
+                    UiDropdownMenuItem("Delete", destructive = true, trailingLabel = "Del"),
                 ),
-                style = Style.Companion { contentPadding(0f.dp) }
+                style = Style.Companion { contentPadding(0f.dp) },
             )
         }
         ui.endFrame()
@@ -128,9 +128,9 @@ class UiPopupCompositionsTest {
                 items = listOf(
                     UiDropdownMenuItem("Pinned", enabled = false),
                     UiDropdownMenuSeparator,
-                    UiDropdownMenuItem("Delete", destructive = true, trailingLabel = "Del")
+                    UiDropdownMenuItem("Delete", destructive = true, trailingLabel = "Del"),
                 ),
-                style = Style.Companion { contentPadding(0f.dp) }
+                style = Style.Companion { contentPadding(0f.dp) },
             )
         }
 
@@ -159,14 +159,14 @@ class UiPopupCompositionsTest {
                 items = items,
                 // 10 items * 32px = 320px of content, well beyond this 96px-tall menu.
                 height = Dimension.Fixed(96f.px),
-                style = Style.Companion { contentPadding(0f.dp) }
+                style = Style.Companion { contentPadding(0f.dp) },
             )
         }
         val frame = ui.finishFrame()
 
         assertTrue(
             frame.primitives.filterIsInstance<UiDrawPrimitive.ClipPush>().isNotEmpty(),
-            "a height-constrained menu with overflowing items must clip its viewport"
+            "a height-constrained menu with overflowing items must clip its viewport",
         )
         // The menu surface itself must stay pinned to the constrained height, not grow to fit
         // all 10 items -- proof the container is actually height-bounded, not silently
@@ -202,7 +202,7 @@ class UiPopupCompositionsTest {
                 height = Dimension.Fixed(80f.px),
                 header = {
                     text("Confirm")
-                }
+                },
             ) {
                 text("Delete file?")
             }
@@ -235,11 +235,11 @@ class UiPopupCompositionsTest {
                 id = "confirm",
                 expanded = true,
                 title = "Delete",
-                message = "Delete this scene?"
+                message = "Delete this scene?",
             )
         }
         val confirmBounds = assertNotNull(
-            ui.finishFrame().semantics.firstOrNull { it.id == "confirm.confirm" }
+            ui.finishFrame().semantics.firstOrNull { it.id == "confirm.confirm" },
         ).bounds
         val clickX = confirmBounds.x + confirmBounds.width / 2f
         val clickY = confirmBounds.y + confirmBounds.height / 2f
@@ -250,7 +250,7 @@ class UiPopupCompositionsTest {
                 id = "confirm",
                 expanded = true,
                 title = "Delete",
-                message = "Delete this scene?"
+                message = "Delete this scene?",
             )
         }
         ui.endFrame()
@@ -261,7 +261,7 @@ class UiPopupCompositionsTest {
                 id = "confirm",
                 expanded = true,
                 title = "Delete",
-                message = "Delete this scene?"
+                message = "Delete this scene?",
             )
         }
         ui.endFrame()
@@ -281,7 +281,7 @@ class UiPopupCompositionsTest {
                 id = "measure-only-dialog",
                 expanded = true,
                 title = "Delete this scene?",
-                message = "The dialog should not affect the parent column height while measuring."
+                message = "The dialog should not affect the parent column height while measuring.",
             )
             text("Footer")
         }
@@ -294,12 +294,12 @@ class UiPopupCompositionsTest {
     fun dialogUsesNeutralDarkScrimByDefault() {
         val ui = UiContext()
         ui.pushFont(UiFonts.bitmap())
-        ui.beginFrame(320f, 240f,  testSnapshot())
+        ui.beginFrame(320f, 240f, testSnapshot())
 
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(240f.dp)) {
             shadcnDialog(
                 id = "dialog",
-                expanded = true
+                expanded = true,
             ) {
                 text("Dialog body")
             }
@@ -309,7 +309,7 @@ class UiPopupCompositionsTest {
         assertEquals(
             Color.Black.withAlpha(0.48f),
             scrim?.color,
-            "dialogs should default to a neutral dark scrim so light themes do not wash the scene out"
+            "dialogs should default to a neutral dark scrim so light themes do not wash the scene out",
         )
     }
 
@@ -335,27 +335,27 @@ class UiPopupCompositionsTest {
                     UiDropdownMenuItem(
                         label = "Duplicate panel",
                         trailingLabel = "Cmd+D",
-                        shadcnSupportingText = "Secondary action metadata sits on the trailing edge."
-                    )
+                        shadcnSupportingText = "Secondary action metadata sits on the trailing edge.",
+                    ),
                 ),
-                style = Style.Companion { contentPadding(0f.dp) }
+                style = Style.Companion { contentPadding(0f.dp) },
             )
         }
 
         val semantics = ui.finishFrame().semantics
         val label = assertNotNull(semantics.firstOrNull { it.label == "Duplicate panel" })
         val supporting = assertNotNull(
-            semantics.firstOrNull { it.label == "Secondary action metadata sits on the trailing edge." }
+            semantics.firstOrNull { it.label == "Secondary action metadata sits on the trailing edge." },
         )
         val trailing = assertNotNull(semantics.firstOrNull { it.label == "Cmd+D" })
 
         assertTrue(
             label.bounds.y + label.bounds.height <= supporting.bounds.y + 1f,
-            "item label must sit above its own supporting text, not overlap it"
+            "item label must sit above its own supporting text, not overlap it",
         )
         assertTrue(
             trailing.bounds.x >= label.bounds.x + label.bounds.width,
-            "trailing shortcut must sit to the right of the label, not overlap it"
+            "trailing shortcut must sit to the right of the label, not overlap it",
         )
     }
 
@@ -377,11 +377,11 @@ class UiPopupCompositionsTest {
                 items = listOf(
                     UiDropdownMenuItem(
                         label = "With icon",
-                        icon = { text("*") }
+                        icon = { text("*") },
                     ),
-                    UiDropdownMenuItem(label = "No icon")
+                    UiDropdownMenuItem(label = "No icon"),
                 ),
-                style = Style.Companion { contentPadding(0f.dp) }
+                style = Style.Companion { contentPadding(0f.dp) },
             )
         }
 
@@ -392,16 +392,16 @@ class UiPopupCompositionsTest {
 
         assertTrue(
             icon.bounds.x + icon.bounds.width <= iconLabel.bounds.x + 1f,
-            "leading icon must sit to the left of its own item's label, not overlap it"
+            "leading icon must sit to the left of its own item's label, not overlap it",
         )
         assertEquals(
             anchor.x + 8f,
             plainLabel.bounds.x,
-            "an icon-less item's label start must match shadcn px-2 horizontal padding (8dp)"
+            "an icon-less item's label start must match shadcn px-2 horizontal padding (8dp)",
         )
         assertTrue(
             iconLabel.bounds.x > plainLabel.bounds.x,
-            "an icon-bearing item's label must shift right to make room for its icon"
+            "an icon-bearing item's label must shift right to make room for its icon",
         )
     }
 
@@ -426,7 +426,7 @@ class UiPopupCompositionsTest {
                 shadcnButton(
                     id = "confirm.action",
                     variant = ShadcnButtonVariant.Primary,
-                    modifier = Modifier.width(88f.dp)
+                    modifier = Modifier.width(88f.dp),
                 ) {
                     text("Confirm")
                 }
@@ -440,7 +440,7 @@ class UiPopupCompositionsTest {
             assertEquals(
                 primaryForeground,
                 glyph.color,
-                "dialog action button's slot content should inherit the button's resolved themed foreground, not the ambient page color"
+                "dialog action button's slot content should inherit the button's resolved themed foreground, not the ambient page color",
             )
         }
     }
@@ -462,13 +462,13 @@ class UiPopupCompositionsTest {
                 expanded = true,
                 width = Dimension.Fixed(200f.px),
                 height = Dimension.Fixed(120f.px),
-                showCloseButton = true
+                showCloseButton = true,
             ) {
                 text("Dialog with a close affordance")
             }
         }
         val closeBounds = assertNotNull(
-            ui.finishFrame().semantics.firstOrNull { it.id == "closable.close" }
+            ui.finishFrame().semantics.firstOrNull { it.id == "closable.close" },
         ).bounds
         val clickX = closeBounds.x + closeBounds.width / 2f
         val clickY = closeBounds.y + closeBounds.height / 2f
@@ -480,7 +480,7 @@ class UiPopupCompositionsTest {
                 expanded = true,
                 width = Dimension.Fixed(200f.px),
                 height = Dimension.Fixed(120f.px),
-                showCloseButton = true
+                showCloseButton = true,
             ) {
                 text("Dialog with a close affordance")
             }
@@ -494,7 +494,7 @@ class UiPopupCompositionsTest {
                 expanded = true,
                 width = Dimension.Fixed(200f.px),
                 height = Dimension.Fixed(120f.px),
-                showCloseButton = true
+                showCloseButton = true,
             ) {
                 text("Dialog with a close affordance")
             }
@@ -520,7 +520,7 @@ class UiPopupCompositionsTest {
                     shadcnButton(id = "unsaved.save", label = "Save", modifier = Modifier.width(80f.dp))
                     shadcnButton(id = "unsaved.discard", label = "Discard", modifier = Modifier.width(80f.dp))
                     shadcnButton(id = "unsaved.cancel", label = "Cancel", modifier = Modifier.width(80f.dp))
-                }
+                },
             ) {
                 text("You have unsaved changes.")
             }

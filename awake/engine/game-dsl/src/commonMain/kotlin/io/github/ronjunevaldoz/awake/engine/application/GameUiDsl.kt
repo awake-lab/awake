@@ -2,15 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.application
 
-import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 typealias GameUiOverlayBlock = GameUiRuntime.() -> Unit
 typealias GameUiReadyBlock = suspend GameUiRuntime.() -> Unit
 typealias GameUiDisposeBlock = GameUiRuntime.() -> Unit
-
 
 fun GameSpecDsl.ui(block: GameUiDsl.() -> Unit) {
     install(gameUi(block))
@@ -20,9 +19,7 @@ fun GameSpecDsl.ui(spec: GameUiSpec) {
     install(spec)
 }
 
-fun gameUi(block: GameUiDsl.() -> Unit): GameUiSpec {
-    return GameUiDsl().apply(block).build()
-}
+fun gameUi(block: GameUiDsl.() -> Unit): GameUiSpec = GameUiDsl().apply(block).build()
 
 class GameUiDsl internal constructor() {
     private var defaultTheme: UiTheme = UiDefaultTheme

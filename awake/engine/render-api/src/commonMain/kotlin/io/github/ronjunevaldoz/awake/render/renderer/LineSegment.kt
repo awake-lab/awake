@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 data class LineSegment(
     val start: Vec3,
     val end: Vec3,
-    val color: FloatArray
+    val color: FloatArray,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

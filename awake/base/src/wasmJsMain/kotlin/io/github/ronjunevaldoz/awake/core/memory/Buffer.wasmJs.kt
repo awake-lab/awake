@@ -16,6 +16,7 @@ class WasmJsByteBuffer(private val data: ByteArray) : ByteBuf {
     }
     override val size: Int = data.size
     override fun clear() = data.fill(0)
+
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = data as B
 }
@@ -32,6 +33,7 @@ class WasmJsShortBuffer(private val data: ShortArray) : ShortBuf {
     }
     override val size: Int = data.size
     override fun clear() = data.fill(0)
+
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = data as B
 }
@@ -48,6 +50,7 @@ class WasmJsIntBuffer(private val data: IntArray) : IntBuf {
     }
     override val size: Int = data.size
     override fun clear() = data.fill(0)
+
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = data as B
 }
@@ -64,6 +67,7 @@ class WasmJsFloatBuffer(private val data: FloatArray) : FloatBuf {
     }
     override val size: Int = data.size
     override fun clear() = data.fill(0f)
+
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = data as B
 }

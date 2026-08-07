@@ -70,9 +70,7 @@ data class Vec3(var x: Float = 1f, var y: Float = 1f, var z: Float = 1f) {
     /**
      * sqrt(x * x + y * y + z * z)
      */
-    fun length3(): Float {
-        return sqrt(x * x + y * y + z * z)
-    }
+    fun length3(): Float = sqrt(x * x + y * y + z * z)
 
     /**
      * Scales this vector to unit length **in place**. A zero-length vector is left alone
@@ -94,37 +92,27 @@ data class Vec3(var x: Float = 1f, var y: Float = 1f, var z: Float = 1f) {
      * unchanged. Dropping the result of this call is always a no-op bug. */
     fun normalized(): Vec3 = Vec3(x, y, z).normalize()
 
-    fun dot(other: Vec3): Float {
-        return x * other.x + y * other.y + z * other.z
-    }
+    fun dot(other: Vec3): Float = x * other.x + y * other.y + z * other.z
 
-    fun cross(other: Vec3): Vec3 {
-        return Vec3(
-            x = y * other.z - z * other.y,
-            y = z * other.x - x * other.z,
-            z = x * other.y - y * other.x
-        )
-    }
+    fun cross(other: Vec3): Vec3 = Vec3(
+        x = y * other.z - z * other.y,
+        y = z * other.x - x * other.z,
+        z = x * other.y - y * other.x,
+    )
 
-    operator fun minus(other: Vec3): Vec3 {
-        return Vec3(
-            x - other.x,
-            y - other.y,
-            z - other.z,
-        )
-    }
+    operator fun minus(other: Vec3): Vec3 = Vec3(
+        x - other.x,
+        y - other.y,
+        z - other.z,
+    )
 
-    operator fun plus(other: Vec3): Vec3 {
-        return Vec3(
-            x + other.x,
-            y + other.y,
-            z + other.z,
-        )
-    }
+    operator fun plus(other: Vec3): Vec3 = Vec3(
+        x + other.x,
+        y + other.y,
+        z + other.z,
+    )
 
-    operator fun times(scalar: Float): Vec3 {
-        return Vec3(x * scalar, y * scalar, z * scalar)
-    }
+    operator fun times(scalar: Float): Vec3 = Vec3(x * scalar, y * scalar, z * scalar)
 
     /**
      * Awake's world-space direction convention. Each is a `get()` property rather than a
@@ -156,34 +144,22 @@ data class Vec4(var x: Float = 1f, var y: Float = 1f, var z: Float = 1f, var w: 
         this.w = w
     }
 
-    fun dot(other: Vec4): Float {
-        return x * other.x + y * other.y + z * other.z + w * other.w
-    }
+    fun dot(other: Vec4): Float = x * other.x + y * other.y + z * other.z + w * other.w
 
-    operator fun minus(other: Vec4): Vec4 {
-        return Vec4(x - other.x, y - other.y, z - other.z, w - other.w)
-    }
+    operator fun minus(other: Vec4): Vec4 = Vec4(x - other.x, y - other.y, z - other.z, w - other.w)
 
-    operator fun times(other: Mat4): Vec4 {
-        return Vec4(
-            x * other.m00 + y * other.m10 + z * other.m20 + w * other.m30,
-            x * other.m01 + y * other.m11 + z * other.m21 + w * other.m31,
-            x * other.m02 + y * other.m12 + z * other.m22 + w * other.m32,
-            x * other.m03 + y * other.m13 + z * other.m23 + w * other.m33
-        )
-    }
+    operator fun times(other: Mat4): Vec4 = Vec4(
+        x * other.m00 + y * other.m10 + z * other.m20 + w * other.m30,
+        x * other.m01 + y * other.m11 + z * other.m21 + w * other.m31,
+        x * other.m02 + y * other.m12 + z * other.m22 + w * other.m32,
+        x * other.m03 + y * other.m13 + z * other.m23 + w * other.m33,
+    )
 
-    operator fun times(scalar: Float): Vec4 {
-        return Vec4(x * scalar, y * scalar, z * scalar, w * scalar)
-    }
+    operator fun times(scalar: Float): Vec4 = Vec4(x * scalar, y * scalar, z * scalar, w * scalar)
 
-    operator fun plus(other: Vec4): Vec4 {
-        return Vec4(x + other.x, y + other.y, z + other.z, w + other.w)
-    }
+    operator fun plus(other: Vec4): Vec4 = Vec4(x + other.x, y + other.y, z + other.z, w + other.w)
 
-    fun length3(): Float {
-        return sqrt(x * x + y * y + z * z)
-    }
+    fun length3(): Float = sqrt(x * x + y * y + z * z)
 
     fun pixelCoords(screenWidth: Int, screenHeight: Int): Vec2 {
         // Convert clip coordinates to normalized device coordinates (NDC)

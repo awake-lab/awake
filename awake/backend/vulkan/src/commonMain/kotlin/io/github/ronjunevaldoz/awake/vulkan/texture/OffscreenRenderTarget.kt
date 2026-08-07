@@ -45,7 +45,7 @@ class OffscreenRenderTarget(
     private val renderPass: Long,
     override val width: Int,
     override val height: Int,
-    colorFormat: Int
+    colorFormat: Int,
 ) : RenderTarget {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -76,18 +76,18 @@ class OffscreenRenderTarget(
                 format = colorFormat,
                 usage = VkImageUsageFlagBits2.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT or
                     VkImageUsageFlagBits2.VK_IMAGE_USAGE_SAMPLED_BIT or
-                    VkImageUsageFlagBits2.VK_IMAGE_USAGE_TRANSFER_SRC_BIT
-            )
+                    VkImageUsageFlagBits2.VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+            ),
         )
         val colorRequirements = VulkanImages.vkGetImageMemoryRequirements(device, colorImage)
         val colorMemoryTypeIndex = VulkanBuffers.findMemoryType(
             physicalDevice,
             colorRequirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         )
         colorImageMemory = VulkanBuffers.vkAllocateMemory(
             device,
-            VkMemoryAllocateInfo(allocationSize = colorRequirements.size, memoryTypeIndex = colorMemoryTypeIndex)
+            VkMemoryAllocateInfo(allocationSize = colorRequirements.size, memoryTypeIndex = colorMemoryTypeIndex),
         )
         VulkanImages.vkBindImageMemory(device, colorImage, colorImageMemory, 0)
         colorImageView = Vulkan.vkCreateImageView(
@@ -101,9 +101,9 @@ class OffscreenRenderTarget(
                     baseMipLevel = 0,
                     levelCount = 1,
                     baseArrayLayer = 0,
-                    layerCount = 1
-                )
-            )
+                    layerCount = 1,
+                ),
+            ),
         )
         sampler = VulkanImages.vkCreateSampler(device, VkSamplerCreateInfo())
 
@@ -113,18 +113,18 @@ class OffscreenRenderTarget(
                 width = width,
                 height = height,
                 format = VkFormat.VK_FORMAT_D32_SFLOAT.value,
-                usage = VkImageUsageFlagBits2.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
-            )
+                usage = VkImageUsageFlagBits2.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            ),
         )
         val depthRequirements = VulkanImages.vkGetImageMemoryRequirements(device, depthImage)
         val depthMemoryTypeIndex = VulkanBuffers.findMemoryType(
             physicalDevice,
             depthRequirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         )
         depthImageMemory = VulkanBuffers.vkAllocateMemory(
             device,
-            VkMemoryAllocateInfo(allocationSize = depthRequirements.size, memoryTypeIndex = depthMemoryTypeIndex)
+            VkMemoryAllocateInfo(allocationSize = depthRequirements.size, memoryTypeIndex = depthMemoryTypeIndex),
         )
         VulkanImages.vkBindImageMemory(device, depthImage, depthImageMemory, 0)
         depthImageView = Vulkan.vkCreateImageView(
@@ -138,9 +138,9 @@ class OffscreenRenderTarget(
                     baseMipLevel = 0,
                     levelCount = 1,
                     baseArrayLayer = 0,
-                    layerCount = 1
-                )
-            )
+                    layerCount = 1,
+                ),
+            ),
         )
 
         framebuffer = Vulkan.vkCreateFramebuffer(
@@ -150,8 +150,8 @@ class OffscreenRenderTarget(
                 pAttachments = arrayOf(colorImageView, depthImageView),
                 width = width,
                 height = height,
-                layers = 1
-            )
+                layers = 1,
+            ),
         )
     }
 
@@ -164,7 +164,7 @@ class OffscreenRenderTarget(
             commandBuffer,
             colorImage,
             VkImageLayout2.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-            VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+            VkImageLayout2.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
         )
     }
 

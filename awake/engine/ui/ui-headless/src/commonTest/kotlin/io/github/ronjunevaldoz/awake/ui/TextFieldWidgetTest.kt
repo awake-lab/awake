@@ -6,12 +6,11 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.TextEditAction
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.textField
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.textField
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -110,13 +109,13 @@ class TextFieldWidgetTest {
         input.setPointer(down = false, x = 100f, y = 20f)
         ui.beginFrame(200f, 100f, input.updateSnapshot().toUiInputState())
         ui.pushFont(BitmapFont())
-            value = ui.createAbsolute(x = 20f, y = 20f)
+        value = ui.createAbsolute(x = 20f, y = 20f)
             .textField("field", value, modifier = Modifier.width(80f.px).height(36f.px))
         val glyphCount = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size
         assertEquals(
             longValue.length,
             glyphCount,
-            "every character of a scrolled-past-view value must still be laid out, not clipped away by truncation"
+            "every character of a scrolled-past-view value must still be laid out, not clipped away by truncation",
         )
     }
 

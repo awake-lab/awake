@@ -56,7 +56,7 @@ class ShadowRenderPipeline(
     vertexFormat: VertexFormat,
     mapSize: Int,
     vertexEntryPoint: String = "main",
-    fragmentEntryPoint: String = "main"
+    fragmentEntryPoint: String = "main",
 ) {
     private val device = graphicsDevice.device
 
@@ -73,13 +73,13 @@ class ShadowRenderPipeline(
             VkPipelineShaderStageCreateInfo(
                 stage = VkShaderStageFlagBits.FRAGMENT,
                 module = fragShaderModule,
-                pName = fragmentEntryPoint
+                pName = fragmentEntryPoint,
             ),
             VkPipelineShaderStageCreateInfo(
                 stage = VkShaderStageFlagBits.VERTEX,
                 module = vertShaderModule,
-                pName = vertexEntryPoint
-            )
+                pName = vertexEntryPoint,
+            ),
         )
 
         val vertexInputInfo = arrayOf(
@@ -88,31 +88,31 @@ class ShadowRenderPipeline(
                     VkVertexInputBindingDescription(
                         binding = 0,
                         stride = vertexFormat.strideBytes,
-                        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX
-                    )
+                        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX,
+                    ),
                 ),
                 pVertexAttributeDescriptions = vertexFormat.entries.map { entry ->
                     VkVertexInputAttributeDescription(
                         location = entry.attribute.location,
                         binding = 0,
                         format = entry.attribute.format.toVkFormat(),
-                        offset = entry.offsetBytes
+                        offset = entry.offsetBytes,
                     )
-                }.toTypedArray()
-            )
+                }.toTypedArray(),
+            ),
         )
 
         val dynamicInfo = arrayOf(
             VkPipelineDynamicStateCreateInfo(
-                pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)
-            )
+                pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR),
+            ),
         )
 
         val viewportInfo = arrayOf(
             VkPipelineViewportStateCreateInfo(
                 pViewports = arrayOf(VkViewport(width = mapSize.toFloat(), height = mapSize.toFloat())),
-                pScissors = arrayOf(VkRect2D(offset = VkOffset2D(), extent = VkExtent2D(mapSize, mapSize)))
-            )
+                pScissors = arrayOf(VkRect2D(offset = VkOffset2D(), extent = VkExtent2D(mapSize, mapSize))),
+            ),
         )
 
         val depthStencil = arrayOf(VkPipelineDepthStencilStateCreateInfo())
@@ -120,21 +120,21 @@ class ShadowRenderPipeline(
         val inputAssemblyInfo = arrayOf(
             VkPipelineInputAssemblyStateCreateInfo(
                 topology = VkPrimitiveTopology.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                primitiveRestartEnable = false
-            )
+                primitiveRestartEnable = false,
+            ),
         )
         val rasterizationInfo = arrayOf(
             VkPipelineRasterizationStateCreateInfo(
                 cullMode = VkCullModeFlagBits.VK_CULL_MODE_NONE.value,
-                lineWidth = 1f
-            )
+                lineWidth = 1f,
+            ),
         )
         // No color attachments in ShadowMap's render pass, so no blend attachments either.
         val colorBlendInfo = arrayOf(VkPipelineColorBlendStateCreateInfo(pAttachments = arrayOf()))
 
         pipelineLayout = Vulkan.vkCreatePipelineLayout(
             device,
-            VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout.handle))
+            VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout.handle)),
         )
 
         val createInfos = arrayOf(
@@ -152,8 +152,8 @@ class ShadowRenderPipeline(
                 renderPass = renderPass,
                 subpass = 0,
                 basePipelineHandle = 0,
-                basePipelineIndex = -1
-            )
+                basePipelineIndex = -1,
+            ),
         )
         pipelineCache = Vulkan.vkCreatePipelineCache(device, VkPipelineCacheCreateInfo())
         graphicsPipeline = Vulkan.vkCreateGraphicsPipelines(device, pipelineCache, createInfos)

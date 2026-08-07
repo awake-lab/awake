@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.state
 internal enum class UiShowcaseThemeMode(val label: String) {
     Auto("Auto"),
     Light("Light"),
-    Dark("Dark")
+    Dark("Dark"),
 }
 
 internal expect fun platformPrefersDarkTheme(): Boolean

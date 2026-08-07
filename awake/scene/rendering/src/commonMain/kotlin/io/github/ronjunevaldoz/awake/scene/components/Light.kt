@@ -19,10 +19,10 @@ data class Light(
     val color: Vec3 = Vec3(1f, 1f, 1f),
     val intensity: Float = 1f,
     val type: Type = Type.Directional,
-    val direction: Vec3 = Vec3(DEFAULT_DIRECTION_X, DEFAULT_DIRECTION_Y, DEFAULT_DIRECTION_Z)
+    val direction: Vec3 = Vec3(DEFAULT_DIRECTION_X, DEFAULT_DIRECTION_Y, DEFAULT_DIRECTION_Z),
 ) {
     enum class Type {
         Directional,
-        Point
+        Point,
     }
 }

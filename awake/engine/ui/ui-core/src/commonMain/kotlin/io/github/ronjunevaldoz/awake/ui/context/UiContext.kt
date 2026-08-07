@@ -31,7 +31,7 @@ import io.github.ronjunevaldoz.awake.ui.withTransform
  */
 class UiContext internal constructor(
     private val measuring: Boolean = false,
-    private val stateStore: UiStateStore = UiStateStore()
+    private val stateStore: UiStateStore = UiStateStore(),
 ) {
     constructor() : this(measuring = false)
 
@@ -73,7 +73,7 @@ class UiContext internal constructor(
             screenWidth = frame.viewportWidth,
             screenHeight = frame.viewportHeight,
             inputState = frame.input,
-            deltaSeconds = frame.deltaSeconds
+            deltaSeconds = frame.deltaSeconds,
         )
         measurement.beginFrame()
     }
@@ -82,22 +82,22 @@ class UiContext internal constructor(
         message = "Use beginFrame(UiFrameInput(...)) to keep the frame lifecycle input bundled as a single value.",
         replaceWith = ReplaceWith(
             "beginFrame(UiFrameInput(viewportWidth = screenWidth, viewportHeight = screenHeight, input = inputState, deltaSeconds = deltaSeconds))",
-            imports = ["io.github.ronjunevaldoz.awake.ui.context.UiFrameInput"]
-        )
+            imports = ["io.github.ronjunevaldoz.awake.ui.context.UiFrameInput"],
+        ),
     )
     fun beginFrame(
         screenWidth: Float,
         screenHeight: Float,
         inputState: UiInputState,
-        deltaSeconds: Float = 1f / 60f
+        deltaSeconds: Float = 1f / 60f,
     ) {
         beginFrame(
             UiFrameInput(
                 viewportWidth = screenWidth,
                 viewportHeight = screenHeight,
                 input = inputState,
-                deltaSeconds = deltaSeconds
-            )
+                deltaSeconds = deltaSeconds,
+            ),
         )
     }
 
@@ -112,7 +112,7 @@ class UiContext internal constructor(
         hasBoundedFillHeight: Boolean = height != null,
         overlayOnly: Boolean = false,
         plannedSlots: List<UiBounds>? = null,
-        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
+        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     ): ColumnScope = layouts.createColumn(
         x = x,
         y = y,
@@ -121,7 +121,7 @@ class UiContext internal constructor(
         verticalArrangement = verticalArrangement,
         tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
         plannedSlots = plannedSlots,
-        horizontalAlignment = horizontalAlignment
+        horizontalAlignment = horizontalAlignment,
     )
 
     fun createColumn(
@@ -133,28 +133,28 @@ class UiContext internal constructor(
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
         plannedSlots: List<UiBounds>? = null,
-        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start
+        horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     ): ColumnScope = layouts.createColumn(
         slot = slot,
         insets = insets,
         verticalArrangement = verticalArrangement,
         tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
         plannedSlots = plannedSlots,
-        horizontalAlignment = horizontalAlignment
+        horizontalAlignment = horizontalAlignment,
     )
 
     fun createAbsolute(
         x: Float,
         y: Float,
         testTag: String? = null,
-        overlayOnly: Boolean = false
+        overlayOnly: Boolean = false,
     ): AbsoluteScope = layouts.createAbsolute(x, y, testTag, overlayOnly)
 
     fun createAbsolute(
         slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         testTag: String? = null,
-        overlayOnly: Boolean = false
+        overlayOnly: Boolean = false,
     ): AbsoluteScope = layouts.createAbsolute(slot, insets, testTag, overlayOnly)
 
     fun createRow(
@@ -168,7 +168,7 @@ class UiContext internal constructor(
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
         plannedSlots: List<UiBounds>? = null,
-        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
+        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     ): RowScope = layouts.createRow(
         x = x,
         y = y,
@@ -177,7 +177,7 @@ class UiContext internal constructor(
         horizontalArrangement = horizontalArrangement,
         tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
         plannedSlots = plannedSlots,
-        verticalAlignment = verticalAlignment
+        verticalAlignment = verticalAlignment,
     )
 
     fun createRow(
@@ -189,14 +189,14 @@ class UiContext internal constructor(
         hasBoundedFillHeight: Boolean = true,
         overlayOnly: Boolean = false,
         plannedSlots: List<UiBounds>? = null,
-        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top
+        verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     ): RowScope = layouts.createRow(
         slot = slot,
         insets = insets,
         horizontalArrangement = horizontalArrangement,
         tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
         plannedSlots = plannedSlots,
-        verticalAlignment = verticalAlignment
+        verticalAlignment = verticalAlignment,
     )
 
     fun createBox(
@@ -208,14 +208,14 @@ class UiContext internal constructor(
         testTag: String? = null,
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = true,
-        overlayOnly: Boolean = false
+        overlayOnly: Boolean = false,
     ): BoxScope = layouts.createBox(
         x = x,
         y = y,
         width = width,
         height = height,
         contentAlignment = contentAlignment,
-        tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly)
+        tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
     )
 
     fun createBox(
@@ -225,12 +225,12 @@ class UiContext internal constructor(
         testTag: String? = null,
         hasBoundedFillWidth: Boolean = true,
         hasBoundedFillHeight: Boolean = true,
-        overlayOnly: Boolean = false
+        overlayOnly: Boolean = false,
     ): BoxScope = layouts.createBox(
         slot = slot,
         insets = insets,
         contentAlignment = contentAlignment,
-        tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly)
+        tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
     )
 
     fun column(
@@ -238,13 +238,13 @@ class UiContext internal constructor(
         insets: UiInsets = UiInsets.Zero,
         verticalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
-        content: ColumnScope.() -> Unit
+        content: ColumnScope.() -> Unit,
     ) {
         createColumn(
             slot = slot,
             insets = insets,
             verticalArrangement = verticalArrangement,
-            testTag = testTag
+            testTag = testTag,
         ).content()
     }
 
@@ -253,13 +253,13 @@ class UiContext internal constructor(
         insets: UiInsets = UiInsets.Zero,
         horizontalArrangement: Arrangement = defaultArrangement(),
         testTag: String? = null,
-        content: RowScope.() -> Unit
+        content: RowScope.() -> Unit,
     ) {
         createRow(
             slot = slot,
             insets = insets,
             horizontalArrangement = horizontalArrangement,
-            testTag = testTag
+            testTag = testTag,
         ).content()
     }
 
@@ -268,13 +268,13 @@ class UiContext internal constructor(
         insets: UiInsets = UiInsets.Zero,
         contentAlignment: UiAlignment = UiAlignment.TopStart,
         testTag: String? = null,
-        content: BoxScope.() -> Unit
+        content: BoxScope.() -> Unit,
     ) {
         createBox(
             slot = slot,
             insets = insets,
             contentAlignment = contentAlignment,
-            testTag = testTag
+            testTag = testTag,
         ).content()
     }
 
@@ -282,22 +282,22 @@ class UiContext internal constructor(
         slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         testTag: String? = null,
-        content: AbsoluteScope.() -> Unit
+        content: AbsoluteScope.() -> Unit,
     ) {
         createAbsolute(
             slot = slot,
             insets = insets,
-            testTag = testTag
+            testTag = testTag,
         ).content()
     }
 
     @Deprecated(
-        message = "Use finishFrame().ownership instead of reading intermediate input ownership directly from UiContext."
+        message = "Use finishFrame().ownership instead of reading intermediate input ownership directly from UiContext.",
     )
     fun inputResult(): UiInputResult = runtime.inputResult()
 
     @Deprecated(
-        message = "Use finishFrame().primitives as the single public frame result."
+        message = "Use finishFrame().primitives as the single public frame result.",
     )
     fun endFrame(): List<UiDrawPrimitive> = runtime.endFrame()
 
@@ -308,7 +308,7 @@ class UiContext internal constructor(
     }
 
     @Deprecated(
-        message = "Scrollable widget ownership should be coordinated from UiScope helpers, not public UiContext."
+        message = "Scrollable widget ownership should be coordinated from UiScope helpers, not public UiContext.",
     )
     fun onOverScrollable() = onOverScrollableInternal()
 
@@ -317,12 +317,12 @@ class UiContext internal constructor(
     }
 
     @Deprecated(
-        message = "Scrollable widget ownership should be coordinated from UiScope helpers, not public UiContext."
+        message = "Scrollable widget ownership should be coordinated from UiScope helpers, not public UiContext.",
     )
     fun onScrollConsumed() = onScrollConsumedInternal()
 
     @Deprecated(
-        message = "Use finishFrame().semantics as the single public frame result."
+        message = "Use finishFrame().semantics as the single public frame result.",
     )
     fun semanticNodes(): List<UiSemanticNode> = runtime.semanticNodes()
 
@@ -404,21 +404,21 @@ class UiContext internal constructor(
     internal fun pushClipInternal(rect: UiBounds, overlay: Boolean = false): UiBounds = runtime.pushClip(rect, overlay)
 
     @Deprecated(
-        message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly."
+        message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly.",
     )
     fun pushClip(rect: UiBounds): UiBounds = pushClipInternal(rect)
 
     internal fun popClipInternal(overlay: Boolean = false): UiBounds = runtime.popClip(overlay)
 
     @Deprecated(
-        message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly."
+        message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly.",
     )
     fun popClip(): UiBounds = popClipInternal()
 
     internal fun pointerDownEdgeInternal(): Boolean = runtime.pointerDownEdge()
 
     @Deprecated(
-        message = "Pointer edge state should be read from UiScope helpers inside composition."
+        message = "Pointer edge state should be read from UiScope helpers inside composition.",
     )
     fun pointerDownEdge(): Boolean = pointerDownEdgeInternal()
 
@@ -427,38 +427,38 @@ class UiContext internal constructor(
     }
 
     @Deprecated(
-        message = "Active-state mutation belongs to widgets and scopes, not public UiContext callers."
+        message = "Active-state mutation belongs to widgets and scopes, not public UiContext callers.",
     )
     fun setActive(id: String?) {
         setActiveInternal(id)
     }
 
     @Deprecated(
-        message = "Focus queries should go through UiScope helpers inside composition."
+        message = "Focus queries should go through UiScope helpers inside composition.",
     )
     fun isFocused(id: String): Boolean = isFocusedInternal(id)
 
     @Deprecated(
-        message = "Focus mutation should go through UiScope helpers inside composition."
+        message = "Focus mutation should go through UiScope helpers inside composition.",
     )
     fun requestFocus(id: String) = requestFocusInternal(id)
 
     @Deprecated(
-        message = "Focus mutation should go through UiScope helpers inside composition."
+        message = "Focus mutation should go through UiScope helpers inside composition.",
     )
     fun clearFocusIfMatches(id: String) = clearFocusIfMatchesInternal(id)
 
     internal fun frameDeltaSecondsInternal(): Float = runtime.frameDeltaSeconds
 
     @Deprecated(
-        message = "Frame metrics should be read from UiScope helpers inside composition."
+        message = "Frame metrics should be read from UiScope helpers inside composition.",
     )
     fun frameDeltaSeconds(): Float = frameDeltaSecondsInternal()
 
     internal fun frameBoundsInternal(): UiBounds = runtime.fullFrameRect
 
     @Deprecated(
-        message = "Frame metrics should be read from UiScope helpers inside composition."
+        message = "Frame metrics should be read from UiScope helpers inside composition.",
     )
     fun frameBounds(): UiBounds = frameBoundsInternal()
 
@@ -472,7 +472,7 @@ class UiContext internal constructor(
     internal fun stateStoreInternal(): UiStateStore = stateStore
 
     @Deprecated(
-        message = "Measurement mode is engine plumbing; prefer UiScope/layout helpers instead of branching on UiContext."
+        message = "Measurement mode is engine plumbing; prefer UiScope/layout helpers instead of branching on UiContext.",
     )
     fun isMeasuring(): Boolean = isMeasuringInternal()
 
@@ -513,14 +513,14 @@ class UiContext internal constructor(
     internal fun recordMeasuredSlot(
         slot: UiBounds,
         contributesToWrapWidth: Boolean = true,
-        contributesToWrapHeight: Boolean = true
+        contributesToWrapHeight: Boolean = true,
     ) {
         if (measuring && wrapContributionSuppressionDepth == 0) {
             measurement.record(
                 slot,
                 contributesToWrapWidth,
                 contributesToWrapHeight,
-                contributesToChildList = recordingSuppressionDepth == 0
+                contributesToChildList = recordingSuppressionDepth == 0,
             )
         }
     }
@@ -574,31 +574,31 @@ class UiContext internal constructor(
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
         height: Float = 100_000f,
-        content: ColumnScope.(slot: UiBounds) -> Unit
+        content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measurement.measureColumnContent(
         width = width,
         gap = gap,
         insets = insets,
         height = height,
         sourceContext = this,
-        content = content
+        content = content,
     )
 
     @Deprecated(
-        message = "Measurement should be coordinated from UiScope/layout helpers, not from the public UiContext surface."
+        message = "Measurement should be coordinated from UiScope/layout helpers, not from the public UiContext surface.",
     )
     fun measureColumnContent(
         width: Float,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
         height: Float = 100_000f,
-        content: ColumnScope.(slot: UiBounds) -> Unit
+        content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measureColumnContentInternal(
         width = width,
         gap = gap,
         insets = insets,
         height = height,
-        content = content
+        content = content,
     )
 
     internal fun measureRowContentInternal(
@@ -606,31 +606,31 @@ class UiContext internal constructor(
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
         width: Float = 100_000f,
-        content: RowScope.(slot: UiBounds) -> Unit
+        content: RowScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measurement.measureRowContent(
         height = height,
         gap = gap,
         insets = insets,
         width = width,
         sourceContext = this,
-        content = content
+        content = content,
     )
 
     @Deprecated(
-        message = "Measurement should be coordinated from UiScope/layout helpers, not from the public UiContext surface."
+        message = "Measurement should be coordinated from UiScope/layout helpers, not from the public UiContext surface.",
     )
     fun measureRowContent(
         height: Float,
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
         width: Float = 100_000f,
-        content: RowScope.(slot: UiBounds) -> Unit
+        content: RowScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measureRowContentInternal(
         height = height,
         gap = gap,
         insets = insets,
         width = width,
-        content = content
+        content = content,
     )
 
     internal fun pointerXInternal(): Float = runtime.inputState.pointerX
@@ -638,17 +638,17 @@ class UiContext internal constructor(
     internal fun pointerDownInternal(): Boolean = runtime.inputState.pointerDown
 
     @Deprecated(
-        message = "Pointer coordinates should be read from UiScope helpers inside composition."
+        message = "Pointer coordinates should be read from UiScope helpers inside composition.",
     )
     fun pointerX(): Float = pointerXInternal()
 
     @Deprecated(
-        message = "Pointer coordinates should be read from UiScope helpers inside composition."
+        message = "Pointer coordinates should be read from UiScope helpers inside composition.",
     )
     fun pointerY(): Float = pointerYInternal()
 
     @Deprecated(
-        message = "Pointer state should be read from UiScope helpers inside composition."
+        message = "Pointer state should be read from UiScope helpers inside composition.",
     )
     fun pointerDown(): Boolean = pointerDownInternal()
 }

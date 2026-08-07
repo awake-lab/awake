@@ -22,7 +22,7 @@ class UiTutorialDocsTest {
                 width = scene.width,
                 height = scene.height,
                 background = scene.background,
-                font = scene.font
+                font = scene.font,
             )
         }
     }

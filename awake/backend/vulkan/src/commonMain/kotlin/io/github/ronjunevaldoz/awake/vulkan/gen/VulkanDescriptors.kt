@@ -27,7 +27,7 @@ expect object VulkanDescriptors {
         dstSet: Long,
         dstBinding: Int,
         descriptorType: Int,
-        bufferInfo: VkDescriptorBufferInfo
+        bufferInfo: VkDescriptorBufferInfo,
     )
 
     fun vkUpdateDescriptorSetImage(
@@ -35,13 +35,13 @@ expect object VulkanDescriptors {
         dstSet: Long,
         dstBinding: Int,
         descriptorType: Int,
-        imageInfo: VkDescriptorImageInfo
+        imageInfo: VkDescriptorImageInfo,
     )
 
     fun vkCmdBindDescriptorSet(
         commandBuffer: Long,
         pipelineLayout: Long,
         firstSet: Int,
-        descriptorSet: Long
+        descriptorSet: Long,
     )
 }

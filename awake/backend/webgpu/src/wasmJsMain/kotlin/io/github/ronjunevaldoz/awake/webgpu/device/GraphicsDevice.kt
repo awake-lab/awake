@@ -41,7 +41,7 @@ class GraphicsDevice {
             ?: error(
                 "GraphicsDevice.create expects a pre-resolved WGPUContext on wasmJs " +
                     "(canvasContextRenderer() + surface.configure() must run in the " +
-                    "caller's own coroutine first -- see this class's doc comment), got $window"
+                    "caller's own coroutine first -- see this class's doc comment), got $window",
             )
         device = WebGpuHandles.register(wgpuContext.device)
     }

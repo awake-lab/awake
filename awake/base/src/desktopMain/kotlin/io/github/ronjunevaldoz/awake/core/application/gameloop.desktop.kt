@@ -12,7 +12,6 @@ object DesktopGameLoop : GameLoop {
     private var frames = 0
     private var fps = 0
 
-
     override fun startLoop(onUpdate: (deltaTime: Double) -> Unit) {
         // Measure the current time using nanoseconds
         val currentFrameTime = System.nanoTime()

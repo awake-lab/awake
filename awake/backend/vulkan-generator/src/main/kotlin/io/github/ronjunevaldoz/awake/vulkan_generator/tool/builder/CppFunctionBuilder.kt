@@ -11,7 +11,7 @@ class CppFunctionBuilder(
     private val indent: Int = 1,
     private val className: String,
     private val disableClass: Boolean,
-    private val withInterface: Boolean
+    private val withInterface: Boolean,
 ) {
     private var parameters: List<Pair<String, String>> = emptyList()
     private val functionBody = StringBuilder()

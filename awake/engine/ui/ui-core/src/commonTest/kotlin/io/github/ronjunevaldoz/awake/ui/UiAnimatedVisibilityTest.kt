@@ -73,7 +73,7 @@ class UiAnimatedVisibilityTest {
 
         assertTrue(
             lastFramePrimitives.isEmpty(),
-            "once the exit tween has settled at zero alpha, content must really stop being emitted"
+            "once the exit tween has settled at zero alpha, content must really stop being emitted",
         )
     }
 
@@ -94,7 +94,7 @@ class UiAnimatedVisibilityTest {
         assertTrue(
             resumedAlpha > midFadeAlpha,
             "re-triggering visible=true mid-fade must resume climbing back toward opaque from the " +
-                "current alpha, not jump or restart from zero"
+                "current alpha, not jump or restart from zero",
         )
         assertFalse(resumedAlpha == 0f, "resuming visibility must not have snapped back to invisible")
     }

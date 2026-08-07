@@ -12,7 +12,7 @@ import platform.UIKit.UIView
 fun UIView.syncAwakePointerInput(
     touches: Set<*>,
     down: Boolean,
-    input: Input
+    input: Input,
 ): Boolean {
     val touch = touches.firstOrNull() as? UITouch ?: return false
     val scale = contentScaleFactor.toFloat()

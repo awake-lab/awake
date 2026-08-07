@@ -34,7 +34,7 @@ fun UiScope.shimmerBand(id: String, slot: UiBounds, durationMs: Float = 1200f): 
         initialValue = 0f,
         targetValue = 1f,
         durationMs = durationMs,
-        repeatMode = RepeatMode.Restart
+        repeatMode = RepeatMode.Restart,
     )
     val width = (slot.width * 1.5f).coerceAtLeast(160f)
     val x = slot.x - width + (slot.width + width) * phase
@@ -57,7 +57,7 @@ fun UiScope.emitShimmerOverlay(
     shapeSpec: UiShapeSpec? = null,
     radiusPx: Float = 0f,
     highlightColor: Color = Color.White.withAlpha(0.6f),
-    durationMs: Float = 1200f
+    durationMs: Float = 1200f,
 ) {
     val band = shimmerBand(id, slot, durationMs)
     clip(shapeSpec ?: UiShapeSpec.RoundedRectangle(radiusPx.px), slot) {
@@ -67,8 +67,8 @@ fun UiScope.emitShimmerOverlay(
                 topLeft = Color.Transparent,
                 topRight = highlightColor,
                 bottomRight = highlightColor,
-                bottomLeft = Color.Transparent
-            )
+                bottomLeft = Color.Transparent,
+            ),
         )
     }
 }

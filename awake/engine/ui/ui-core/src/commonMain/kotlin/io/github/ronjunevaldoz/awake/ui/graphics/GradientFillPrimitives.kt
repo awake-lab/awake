@@ -1,3 +1,5 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.graphics
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -8,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 fun UiScope.gradientRect(
     slot: UiBounds,
     gradient: UiLinearGradient,
-    overlay: Boolean = false
+    overlay: Boolean = false,
 ) {
     emitPrimitive(
         UiDrawPrimitive.GradientQuad(
@@ -16,8 +18,8 @@ fun UiScope.gradientRect(
             y = slot.y,
             w = slot.width,
             h = slot.height,
-            gradient = gradient
+            gradient = gradient,
         ),
-        overlay
+        overlay,
     )
 }

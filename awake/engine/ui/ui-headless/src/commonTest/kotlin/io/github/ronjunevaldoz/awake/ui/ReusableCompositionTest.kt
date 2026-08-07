@@ -5,23 +5,22 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
+import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
-import io.github.ronjunevaldoz.awake.ui.style.*
-import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 
 class ReusableCompositionTest {
 
@@ -64,21 +63,21 @@ class ReusableCompositionTest {
             modifier = Modifier.width(180f.px).height(40f.px),
             style = Style {
                 contentPadding(start = 12f.dp, top = 0f.dp, end = 12f.dp, bottom = 0f.dp)
-            }
+            },
         ) { slot ->
             text(
                 label = ">",
                 slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(slot.x, slot.y, 12f, slot.height),
                 font = font,
                 centered = false,
-                verticallyCentered = true
+                verticallyCentered = true,
             )
             text(
                 label = "Launch",
                 slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(slot.x + 18f, slot.y, 72f, slot.height),
                 font = font,
                 centered = false,
-                verticallyCentered = true
+                verticallyCentered = true,
             )
         }
 
@@ -97,7 +96,7 @@ private fun UiScope.badge(
     emphasized: Boolean,
     width: Float = 100f,
     height: Float = 28f,
-    style: Style = Style.Empty
+    style: Style = Style.Empty,
 ) {
     val slot = claimSlot(width.toDimension(), height.toDimension())
     val hovered = hitTest(slot)
@@ -115,14 +114,14 @@ private fun UiScope.badge(
             hovered { background(theme.colors.muted) }
             state(BadgeToneKey, true) { borderWidth(2f.dp) }
         },
-        state = MutableStyleState(hovered = hovered, active = active).set(BadgeToneKey, emphasized)
+        state = MutableStyleState(hovered = hovered, active = active).set(BadgeToneKey, emphasized),
     )
     emitFillAndBorder(
         slot = slot,
         fillColor = resolved.background ?: Color.Transparent,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.colors.border
+        borderColor = resolved.borderColor ?: theme.colors.border,
     )
     if (font != null) {
         text(label, slot, font = font, color = resolved.foreground ?: theme.colors.foreground, centered = true)
@@ -134,7 +133,7 @@ private class DiagonalScope(
     private val startX: Float,
     private val startY: Float,
     private val stepX: Float,
-    private val stepY: Float
+    private val stepY: Float,
 ) : io.github.ronjunevaldoz.awake.ui.layouts.AbstractUiScope(context) {
     private var index = 0
 
@@ -143,7 +142,7 @@ private class DiagonalScope(
             x = startX + stepX * index,
             y = startY + stepY * index,
             width = resolve(width, fallback = 100f),
-            height = resolve(height, fallback = 30f)
+            height = resolve(height, fallback = 30f),
         )
         index++
         return slot

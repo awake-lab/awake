@@ -36,7 +36,7 @@ class PhysicsSystemTest {
             shape: PhysicsShape,
             position: Vec3,
             rotation: Vec3,
-            motionType: MotionType
+            motionType: MotionType,
         ): BodyHandle {
             createBodyCallCount++
             return BodyHandle(nextHandleId++)
@@ -85,7 +85,7 @@ class PhysicsSystemTest {
         assertEquals(handle, physicsBody.handle)
 
         physicsWorld.scriptedTransforms = listOf(
-            BodyTransform(handle = handle, position = Vec3(1f, 2f, 3f), rotation = Vec3(0f, 0.5f, 0f))
+            BodyTransform(handle = handle, position = Vec3(1f, 2f, 3f), rotation = Vec3(0f, 0.5f, 0f)),
         )
         system.update(world, 1f / 60f)
 
@@ -103,7 +103,7 @@ class PhysicsSystemTest {
         world.add(entity, PhysicsBody(shape = SphereShape(radius = 1f), motionType = MotionType.STATIC))
         val physicsWorld = FakePhysicsWorld()
         physicsWorld.scriptedTransforms = listOf(
-            BodyTransform(handle = BodyHandle(999L), position = Vec3(5f, 5f, 5f), rotation = Vec3(0f, 0f, 0f))
+            BodyTransform(handle = BodyHandle(999L), position = Vec3(5f, 5f, 5f), rotation = Vec3(0f, 0f, 0f)),
         )
         val system = PhysicsSystem(physicsWorld)
 

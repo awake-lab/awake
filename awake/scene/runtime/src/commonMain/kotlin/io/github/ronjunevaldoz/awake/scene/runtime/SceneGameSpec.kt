@@ -17,7 +17,7 @@ class SceneGameSpec(
     val overlayBlock: SceneOverlayBlock,
     val onReadyBlock: SceneReadyBlock,
     val onDisposeBlock: SceneDisposeBlock,
-    internal val serviceRegistrations: List<SceneServiceRegistration<*>>
+    internal val serviceRegistrations: List<SceneServiceRegistration<*>>,
 ) : GameModule {
     override fun install(into: GameSpecBuilder) {
         installInto(into)
@@ -42,7 +42,7 @@ class SceneGameSpec(
 
 class SceneServiceRegistration<T : Any>(
     val type: KClass<T>,
-    val factory: SceneGameRuntime.() -> T
+    val factory: SceneGameRuntime.() -> T,
 ) {
     fun install(into: GameSpecBuilder, runtime: SceneGameRuntime) {
         into.service(type, runtime.factory())

@@ -43,7 +43,7 @@ fun ColumnScope.shadcnTabs(
     items: List<ShadcnTabItem>,
     selected: String,
     modifier: UiModifier = Modifier,
-    height: Dp = 32f.dp
+    height: Dp = 32f.dp,
 ): String {
     var resolved = selected
     val shadcnTheme = theme.asShadcnTheme()
@@ -66,17 +66,17 @@ fun ColumnScope.shadcnTabs(
         id = "$id.track",
         modifier = (modifier).copy(
             widthDimension = modifier.widthDimension ?: Dimension.WrapContent,
-            heightDimension = Dimension.Fixed(height)
+            heightDimension = Dimension.Fixed(height),
         ),
         style = Style {
             shape(shadcnTheme.radii.md)
             background(shadcnTheme.palette.muted, tokenId = "muted")
             contentPadding(trackInset)
-        }
+        },
     ) {
         row(
             horizontalArrangement = Arrangement.spacedBy(2f.dp),
-            modifier = Modifier.height(Dimension.FillMax)
+            modifier = Modifier.height(Dimension.FillMax),
         ) {
             items.forEachIndexed { index, item ->
                 val active = item.value == selected
@@ -91,7 +91,7 @@ fun ColumnScope.shadcnTabs(
                 val tabWidthPx = context.currentFont.measureTextWidth(item.label, glyphPx) + horizontalPaddingPx
                 val tabModifier = UiModifier(
                     widthDimension = Dimension.Fixed(tabWidthPx.px),
-                    heightDimension = Dimension.FillMax
+                    heightDimension = Dimension.FillMax,
                 )
                 // UiButtonVariant.Ghost's resolveFill hardcodes fill to transparent unless
                 // hovered/active, ignoring any style override -- so the active tab (which must
@@ -104,7 +104,7 @@ fun ColumnScope.shadcnTabs(
                     label = item.label,
                     modifier = tabModifier,
                     variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
-                    style = tabStyle
+                    style = tabStyle,
                 )
                 if (clicked) resolved = item.value
             }
@@ -121,7 +121,7 @@ fun ColumnScope.shadcnTabs(
     tabs: List<String>,
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
-    height: Dp = 32f.dp
+    height: Dp = 32f.dp,
 ): Int {
     val items = tabs.map { ShadcnTabItem(value = it, label = it) }
     val selectedValue = tabs.getOrNull(selectedIndex) ?: tabs.firstOrNull() ?: ""
@@ -130,7 +130,7 @@ fun ColumnScope.shadcnTabs(
         items = items,
         selected = selectedValue,
         modifier = modifier,
-        height = height
+        height = height,
     )
     return tabs.indexOf(resolvedValue).takeIf { it >= 0 } ?: selectedIndex
 }

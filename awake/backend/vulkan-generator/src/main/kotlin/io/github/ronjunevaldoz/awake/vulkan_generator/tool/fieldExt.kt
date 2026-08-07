@@ -29,12 +29,10 @@ enum class JNIType(val value: String) {
     JDoubleArray("jdoubleArray"),
     JFloatArray("jfloatArray"),
     JStringArray("jstringArray"),
-    JObjectArray("jobjectArray")
+    JObjectArray("jobjectArray"),
     ;
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }
 
 fun Field.javaTypeSuffix() = when {
@@ -47,12 +45,14 @@ fun Field.javaTypeSuffix() = when {
 fun Field.primitiveTypeIsNull(): Boolean {
     // when a primitive become null, the value of isPrimitive became false
     return !type.isPrimitive &&
-            (type.simpleName.contains("int", true) ||
-                    type.simpleName.contains("long", true) ||
-                    type.simpleName.contains("short", true) ||
-                    type.simpleName.contains("byte", true) ||
-                    type.simpleName.contains("double", true) ||
-                    type.simpleName.contains("float", true))
+        (
+            type.simpleName.contains("int", true) ||
+                type.simpleName.contains("long", true) ||
+                type.simpleName.contains("short", true) ||
+                type.simpleName.contains("byte", true) ||
+                type.simpleName.contains("double", true) ||
+                type.simpleName.contains("float", true)
+            )
 }
 
 fun Class<*>.toVulkanType(): String {
@@ -105,7 +105,7 @@ fun Field.toVulkanType(useVector: Boolean = true): String {
     }
     val type = type.toVulkanType()
     return if (isPrimitiveArray) {
-        "std::vector<${type}>"
+        "std::vector<$type>"
     } else if (isArray) {
         return if (this.isVkHandle()) {
             "std::vector<${this.getVkHandle().name}>"
@@ -130,13 +130,9 @@ fun Field.toJavaTypeArray(): JNIType {
     return type.toJavaType(true)
 }
 
-fun Field.getArrayElementJavaType(): JNIType {
-    return type.componentType.toJavaType()
-}
+fun Field.getArrayElementJavaType(): JNIType = type.componentType.toJavaType()
 
-fun Field.toJavaType(): JNIType {
-    return type.toJavaType()
-}
+fun Field.toJavaType(): JNIType = type.toJavaType()
 
 fun Class<*>.toJavaType(includeArray: Boolean = false): JNIType {
     if (isArray && includeArray) {
@@ -178,7 +174,7 @@ fun Class<*>?.toTypeName(): String {
         Float::class.javaPrimitiveType to "Float",
         Char::class.javaPrimitiveType to "Char",
         String::class.java to "Object",
-        Boolean::class.javaPrimitiveType to "Boolean"
+        Boolean::class.javaPrimitiveType to "Boolean",
     )
 
     return typeMapping[this] ?: "Object"
@@ -207,16 +203,14 @@ fun Class<*>.getObjectJavaValue(obj: String, sig: String): String {
     return "env->GetMethodID(env->GetObjectClass($obj), \"${type.lowercase()}Value\", \"()$sig\")"
 }
 
-fun Field.getArrayElement(list: String, index: String): String {
-    return when (type.componentType) {
-        String::class.javaPrimitiveType, java.lang.String::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"
-        Object::class.javaPrimitiveType, java.lang.Object::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"
-        else -> {
-            if (type.simpleName.startsWith("vk", true)) {
-                "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"
-            } else {
-                throw RuntimeException("getArrayElement not supported (use getArrayRegion instead) ${type.simpleName}")
-            }
+fun Field.getArrayElement(list: String, index: String): String = when (type.componentType) {
+    String::class.javaPrimitiveType, java.lang.String::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"
+    Object::class.javaPrimitiveType, java.lang.Object::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"
+    else -> {
+        if (type.simpleName.startsWith("vk", true)) {
+            "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"
+        } else {
+            throw RuntimeException("getArrayElement not supported (use getArrayRegion instead) ${type.simpleName}")
         }
     }
 }
@@ -225,7 +219,7 @@ fun Field.setArrayRegion(
     list: String,
     index: String,
     size: String = "1",
-    outElement: String
+    outElement: String,
 ): String {
     val prefix = "Set"
     val arrayRegionConstructor = "($list, $index, $size, $outElement);"
@@ -254,7 +248,7 @@ fun Field.getArrayRegion(
     list: String,
     index: String,
     size: String = "1",
-    outElement: String
+    outElement: String,
 ): String {
     val arrayRegionConstructor = "($list, $index, $size, $outElement);"
     return when (type.componentType) {
@@ -278,32 +272,31 @@ fun Field.getArrayRegion(
     }
 }
 
-fun Field.toJavaSignature(element: Boolean = false): String {
-    return when (val javaTypeName =
-        if (element) type.componentType.simpleName.lowercase() else type.name) {
-        "boolean" -> "Z"
-        "byte" -> "B"
-        "char" -> "C"
-        "short" -> "S"
-        "int" -> "I"
-        "long" -> "J"
-        "float" -> "F"
-        "double" -> "D"
-        "void" -> "V"
-        else -> {
-            if (javaTypeName.startsWith("[")) {
-                // Array types
-                javaTypeName
-            } else if (javaTypeName.startsWith("L") && javaTypeName.endsWith(";")) {
-                // Object types
-                "L" + javaTypeName.substring(1, javaTypeName.length - 1) + ";"
-            } else {
-                "L$javaTypeName;"
-            }
+fun Field.toJavaSignature(element: Boolean = false): String = when (
+    val javaTypeName =
+        if (element) type.componentType.simpleName.lowercase() else type.name
+) {
+    "boolean" -> "Z"
+    "byte" -> "B"
+    "char" -> "C"
+    "short" -> "S"
+    "int" -> "I"
+    "long" -> "J"
+    "float" -> "F"
+    "double" -> "D"
+    "void" -> "V"
+    else -> {
+        if (javaTypeName.startsWith("[")) {
+            // Array types
+            javaTypeName
+        } else if (javaTypeName.startsWith("L") && javaTypeName.endsWith(";")) {
+            // Object types
+            "L" + javaTypeName.substring(1, javaTypeName.length - 1) + ";"
+        } else {
+            "L$javaTypeName;"
         }
-    }.replace(".", "/")
-}
-
+    }
+}.replace(".", "/")
 
 // vulkan extensions
 
@@ -315,9 +308,7 @@ fun Field.isVkHandle(): Boolean {
     return false
 }
 
-fun Field.getVkHandle(): VkHandleRef {
-    return getDeclaredAnnotation(VkHandleRef::class.java)
-}
+fun Field.getVkHandle(): VkHandleRef = getDeclaredAnnotation(VkHandleRef::class.java)
 
 fun Field.isVkPointer(): Boolean {
     if (isAnnotationPresent(VkPointer::class.java)) {
@@ -332,7 +323,6 @@ fun Field.isVkConstArray(): Boolean {
     }
     return false
 }
-
 
 fun Field.getVkConstArray(): VkConstArray? {
     if (isAnnotationPresent(VkConstArray::class.java)) {
@@ -351,10 +341,10 @@ fun Field.getVkArray(): VkArray? {
 fun Field.cast(value: String): String {
     val type = toJavaType()
     return if (this.type.isEnum) {
-        "enum_utils::setEnumFromVulkan(env, static_cast<jint>(source.${name}), \"${
+        "enum_utils::setEnumFromVulkan(env, static_cast<jint>(source.$name), \"${
             this.type.name.replace(
                 ".",
-                "/"
+                "/",
             )
         }\")"
     } else {

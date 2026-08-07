@@ -13,7 +13,5 @@ class CppFunctionBodyBuilder(private val indent: Int) {
         bodyContent.append("$indentation$line\n")
     }
 
-    fun build(): String {
-        return bodyContent.toString()
-    }
+    fun build(): String = bodyContent.toString()
 }

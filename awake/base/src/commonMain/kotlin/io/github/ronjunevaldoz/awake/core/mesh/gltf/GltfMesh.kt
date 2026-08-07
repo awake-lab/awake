@@ -24,7 +24,7 @@ data class GltfMesh(
     val indices: IntArray,
     val jointIndices: IntArray? = null,
     val jointWeights: FloatArray? = null,
-    val baseColorImageBytes: ByteArray? = null
+    val baseColorImageBytes: ByteArray? = null,
 ) {
     val vertexCount: Int get() = positions.size / POSITION_COMPONENTS
 

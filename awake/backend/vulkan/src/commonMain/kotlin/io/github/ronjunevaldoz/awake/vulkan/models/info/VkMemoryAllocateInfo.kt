@@ -10,5 +10,5 @@ import io.github.ronjunevaldoz.awake.vulkan.VkDeviceSize
  */
 class VkMemoryAllocateInfo(
     val allocationSize: VkDeviceSize,
-    val memoryTypeIndex: Int
+    val memoryTypeIndex: Int,
 )

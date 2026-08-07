@@ -12,16 +12,14 @@ data class Transform(
     var rotation: Vec3 = Vec3(0f, 0f, 0f),
     var scale: Vec3 = Vec3(1f, 1f, 1f),
     var parent: Entity? = null,
-    var worldMatrix: Mat4 = Mat4()
+    var worldMatrix: Mat4 = Mat4(),
 ) : Poolable {
-    fun localMatrix(): Mat4 {
-        return Mat4()
-            .translate(position.x, position.y, position.z)
-            .rotateZ(rotation.z)
-            .rotateY(rotation.y)
-            .rotateX(rotation.x)
-            .scale(scale.x, scale.y, scale.z)
-    }
+    fun localMatrix(): Mat4 = Mat4()
+        .translate(position.x, position.y, position.z)
+        .rotateZ(rotation.z)
+        .rotateY(rotation.y)
+        .rotateX(rotation.x)
+        .scale(scale.x, scale.y, scale.z)
 
     override fun reset() {
         position.x = 0f

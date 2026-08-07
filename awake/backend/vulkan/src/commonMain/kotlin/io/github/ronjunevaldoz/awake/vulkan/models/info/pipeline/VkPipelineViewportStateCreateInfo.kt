@@ -15,7 +15,7 @@ class VkPipelineViewportStateCreateInfo(
     @VkArray(sizeAlias = "viewportCount")
     val pViewports: Array<VkViewport>? = null,
     @VkArray(sizeAlias = "scissorCount")
-    val pScissors: Array<VkRect2D>? = null
+    val pScissors: Array<VkRect2D>? = null,
 )
 
 typealias VkPipelineViewportStateCreateFlags = VkFlags

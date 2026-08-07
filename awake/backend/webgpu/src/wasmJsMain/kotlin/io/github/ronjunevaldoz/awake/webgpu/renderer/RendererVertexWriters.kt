@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.renderer
 
-import io.github.ronjunevaldoz.awake.core.colors.Color as AwakeColor
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
+import io.github.ronjunevaldoz.awake.core.colors.Color as AwakeColor
 
 /** Pure vertex-buffer writers -- no `Renderer` state, just packing one vertex's floats into
  * an offset in a shared `FloatArray`. Extracted verbatim, package-visible (not `Renderer`
@@ -47,7 +47,7 @@ internal fun writeGlyphVertex(
     u: Float,
     v: Float,
     color: AwakeColor,
-    transform: UiPrimitiveTransform? = null
+    transform: UiPrimitiveTransform? = null,
 ) {
     out[offset] = x
     out[offset + 1] = y
@@ -77,7 +77,7 @@ internal fun writeRoundedQuadVertex(
     halfH: Float,
     radius: Float,
     color: AwakeColor,
-    transform: UiPrimitiveTransform? = null
+    transform: UiPrimitiveTransform? = null,
 ) {
     out[offset] = x
     out[offset + 1] = y

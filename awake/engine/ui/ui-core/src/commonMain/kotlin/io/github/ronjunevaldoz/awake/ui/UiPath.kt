@@ -14,51 +14,51 @@ import kotlin.math.sin
 
 enum class UiFillRule {
     NonZero,
-    EvenOdd
+    EvenOdd,
 }
 
 enum class UiStrokeCap {
     Butt,
     Round,
-    Square
+    Square,
 }
 
 enum class UiStrokeJoin {
     Miter,
     Round,
-    Bevel
+    Bevel,
 }
 
 data class UiStroke(
     val width: Dp = 1f.dp,
     val cap: UiStrokeCap = UiStrokeCap.Butt,
-    val join: UiStrokeJoin = UiStrokeJoin.Miter
+    val join: UiStrokeJoin = UiStrokeJoin.Miter,
 )
 
 data class UiPoint(
     val x: Float,
-    val y: Float
+    val y: Float,
 )
 
 data class UiPathContour(
     val points: List<UiPoint>,
-    val closed: Boolean
+    val closed: Boolean,
 )
 
 data class UiTriangleMesh(
     val points: List<UiPoint>,
-    val indices: IntArray
+    val indices: IntArray,
 )
 
 data class UiTexturedVertex(
     val position: UiPoint,
     val u: Float,
-    val v: Float
+    val v: Float,
 )
 
 data class UiTexturedTriangleMesh(
     val vertices: List<UiTexturedVertex>,
-    val indices: IntArray
+    val indices: IntArray,
 )
 
 /** Per-vertex-colored analog of [UiTexturedVertex]/[UiTexturedTriangleMesh] -- backs
@@ -66,12 +66,12 @@ data class UiTexturedTriangleMesh(
  * interpolates u/v across a clipped edge, but interpolates [Color] instead). */
 data class UiColoredVertex(
     val position: UiPoint,
-    val color: Color
+    val color: Color,
 )
 
 data class UiColoredTriangleMesh(
     val vertices: List<UiColoredVertex>,
-    val indices: IntArray
+    val indices: IntArray,
 )
 
 sealed interface UiPathCommand {
@@ -84,7 +84,7 @@ sealed interface UiPathCommand {
         val c2x: Float,
         val c2y: Float,
         val x: Float,
-        val y: Float
+        val y: Float,
     ) : UiPathCommand
 
     /**
@@ -98,7 +98,7 @@ sealed interface UiPathCommand {
         val right: Float,
         val bottom: Float,
         val startDegrees: Float,
-        val sweepDegrees: Float
+        val sweepDegrees: Float,
     ) : UiPathCommand
 
     data object Close : UiPathCommand
@@ -106,7 +106,7 @@ sealed interface UiPathCommand {
 
 data class UiPath(
     val fillRule: UiFillRule = UiFillRule.NonZero,
-    val commands: List<UiPathCommand>
+    val commands: List<UiPathCommand>,
 ) {
     companion object {
         fun build(fillRule: UiFillRule = UiFillRule.NonZero, block: UiPathBuilder.() -> Unit): UiPath =
@@ -115,7 +115,7 @@ data class UiPath(
 }
 
 class UiPathBuilder internal constructor(
-    private val fillRule: UiFillRule
+    private val fillRule: UiFillRule,
 ) {
     private val commands = ArrayList<UiPathCommand>()
 
@@ -233,23 +233,23 @@ fun UiPath.transform(
     scaleX: Float = 1f,
     scaleY: Float = 1f,
     translateX: Float = 0f,
-    translateY: Float = 0f
+    translateY: Float = 0f,
 ): UiPath = copy(
     commands = commands.map { command ->
         when (command) {
             is UiPathCommand.MoveTo -> UiPathCommand.MoveTo(
                 x = command.x * scaleX + translateX,
-                y = command.y * scaleY + translateY
+                y = command.y * scaleY + translateY,
             )
             is UiPathCommand.LineTo -> UiPathCommand.LineTo(
                 x = command.x * scaleX + translateX,
-                y = command.y * scaleY + translateY
+                y = command.y * scaleY + translateY,
             )
             is UiPathCommand.QuadTo -> UiPathCommand.QuadTo(
                 cx = command.cx * scaleX + translateX,
                 cy = command.cy * scaleY + translateY,
                 x = command.x * scaleX + translateX,
-                y = command.y * scaleY + translateY
+                y = command.y * scaleY + translateY,
             )
             is UiPathCommand.CubicTo -> UiPathCommand.CubicTo(
                 c1x = command.c1x * scaleX + translateX,
@@ -257,7 +257,7 @@ fun UiPath.transform(
                 c2x = command.c2x * scaleX + translateX,
                 c2y = command.c2y * scaleY + translateY,
                 x = command.x * scaleX + translateX,
-                y = command.y * scaleY + translateY
+                y = command.y * scaleY + translateY,
             )
             is UiPathCommand.ArcTo -> UiPathCommand.ArcTo(
                 left = command.left * scaleX + translateX,
@@ -265,16 +265,16 @@ fun UiPath.transform(
                 right = command.right * scaleX + translateX,
                 bottom = command.bottom * scaleY + translateY,
                 startDegrees = command.startDegrees,
-                sweepDegrees = command.sweepDegrees
+                sweepDegrees = command.sweepDegrees,
             )
             UiPathCommand.Close -> UiPathCommand.Close
         }
-    }
+    },
 )
 
 fun UiPath.flattenContours(
     curveSteps: Int = 8,
-    arcStepDegrees: Float = 15f
+    arcStepDegrees: Float = 15f,
 ): List<UiPathContour> {
     if (commands.isEmpty()) return emptyList()
 
@@ -318,8 +318,8 @@ fun UiPath.flattenContours(
                     appendPoint(
                         UiPoint(
                             x = oneMinusT * oneMinusT * start.x + 2f * oneMinusT * t * command.cx + t * t * command.x,
-                            y = oneMinusT * oneMinusT * start.y + 2f * oneMinusT * t * command.cy + t * t * command.y
-                        )
+                            y = oneMinusT * oneMinusT * start.y + 2f * oneMinusT * t * command.cy + t * t * command.y,
+                        ),
                     )
                 }
             }
@@ -339,8 +339,8 @@ fun UiPath.flattenContours(
                             y = oneMinusT * oneMinusT * oneMinusT * start.y +
                                 3f * oneMinusT * oneMinusT * t * command.c1y +
                                 3f * oneMinusT * t * t * command.c2y +
-                                t * t * t * command.y
-                        )
+                                t * t * t * command.y,
+                        ),
                     )
                 }
             }
@@ -358,8 +358,8 @@ fun UiPath.flattenContours(
                     appendPoint(
                         UiPoint(
                             x = centerX + cos(angleRadians) * radiusX,
-                            y = centerY + sin(angleRadians) * radiusY
-                        )
+                            y = centerY + sin(angleRadians) * radiusY,
+                        ),
                     )
                 }
             }
@@ -397,7 +397,10 @@ fun UiPath.tessellateFill(): UiTriangleMesh {
         // circle/pill/cut-corner) since they're always convex.
         var centroidX = 0f
         var centroidY = 0f
-        polygon.forEach { centroidX += it.x; centroidY += it.y }
+        polygon.forEach {
+            centroidX += it.x
+            centroidY += it.y
+        }
         centroidX /= polygon.size
         centroidY /= polygon.size
 
@@ -454,7 +457,10 @@ fun UiPath.tessellateFillAa(color: Color, fringePx: Float = AA_FRINGE_PX): UiCol
         // why centroid, not vertex 0), full-alpha color throughout.
         var centroidX = 0f
         var centroidY = 0f
-        polygon.forEach { centroidX += it.x; centroidY += it.y }
+        polygon.forEach {
+            centroidX += it.x
+            centroidY += it.y
+        }
         centroidX /= polygon.size
         centroidY /= polygon.size
 
@@ -613,7 +619,7 @@ private fun UiTriangleMesh.clipToConvexContour(clipContour: List<UiPoint>): UiTr
         val triangle = listOf(
             points[indices[index]],
             points[indices[index + 1]],
-            points[indices[index + 2]]
+            points[indices[index + 2]],
         )
         val clippedPolygon = clipPolygonToConvexContour(triangle, clipContour)
         if (clippedPolygon.size >= 3) {
@@ -640,7 +646,7 @@ private fun UiTexturedTriangleMesh.clipToConvexContour(clipContour: List<UiPoint
         val triangle = listOf(
             vertices[indices[index]],
             vertices[indices[index + 1]],
-            vertices[indices[index + 2]]
+            vertices[indices[index + 2]],
         )
         val clippedPolygon = clipTexturedPolygonToConvexContour(triangle, clipContour)
         if (clippedPolygon.size >= 3) {
@@ -667,7 +673,7 @@ private fun UiColoredTriangleMesh.clipToConvexContour(clipContour: List<UiPoint>
         val triangle = listOf(
             vertices[indices[index]],
             vertices[indices[index + 1]],
-            vertices[indices[index + 2]]
+            vertices[indices[index + 2]],
         )
         val clippedPolygon = clipColoredPolygonToConvexContour(triangle, clipContour)
         if (clippedPolygon.size >= 3) {
@@ -725,8 +731,11 @@ private fun isConvex(points: List<UiPoint>): Boolean {
         val cross = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x)
         if (cross == 0f) continue
         val currentSign = if (cross > 0f) 1 else -1
-        if (sign == 0) sign = currentSign
-        else if (sign != currentSign) return false
+        if (sign == 0) {
+            sign = currentSign
+        } else if (sign != currentSign) {
+            return false
+        }
     }
     return sign != 0
 }
@@ -859,7 +868,7 @@ private fun lineIntersection(p1: UiTexturedVertex, p2: UiTexturedVertex, a: UiPo
     return UiTexturedVertex(
         position = intersection,
         u = p1.u + (p2.u - p1.u) * t,
-        v = p1.v + (p2.v - p1.v) * t
+        v = p1.v + (p2.v - p1.v) * t,
     )
 }
 
@@ -874,7 +883,7 @@ private fun lineIntersection(p1: UiColoredVertex, p2: UiColoredVertex, a: UiPoin
     }.coerceIn(0f, 1f)
     return UiColoredVertex(
         position = intersection,
-        color = p1.color.lerp(p2.color, t)
+        color = p1.color.lerp(p2.color, t),
     )
 }
 
@@ -916,7 +925,7 @@ private fun circlePath(bounds: UiBounds, fillRule: UiFillRule): UiPath {
     return roundedRectanglePath(
         bounds = UiBounds(bounds.x + insetX, bounds.y + insetY, diameter, diameter),
         radius = (diameter / 2f).px,
-        fillRule = fillRule
+        fillRule = fillRule,
     )
 }
 

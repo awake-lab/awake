@@ -1,30 +1,29 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless.input
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.font
-import io.github.ronjunevaldoz.awake.ui.pointerDown
-import io.github.ronjunevaldoz.awake.ui.pointerX
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.interact
 import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.pointerDown
+import io.github.ronjunevaldoz.awake.ui.pointerX
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 // Dp, not raw px: added to/subtracted from `slot`/`trackSlot` coordinates that are already
 // density-scaled, so a raw literal would render half-size at 2x.
@@ -39,12 +38,12 @@ fun UiScope.slider(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     enabled: Boolean = true,
-    showKnob: Boolean = true
+    showKnob: Boolean = true,
 ): Float {
     val interaction = interact(
         id = id,
         modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(20f.dp)),
-        enabled = enabled
+        enabled = enabled,
     )
     val slot = interaction.slot
     val trackHeightPx = SLIDER_TRACK_HEIGHT.toPx()
@@ -63,13 +62,17 @@ fun UiScope.slider(
     // never does while `enabled` is false -- same single-gate shape as `interact()`'s own doc,
     // no separate `enabled` check needed to suppress dragging.
     val dragging = isActive(id) && pointerDown
-    val newValue = if (dragging) sliderValueFromPointerX(
-        pointerX(),
-        trackX,
-        trackWidth,
-        min,
-        max
-    ) else value
+    val newValue = if (dragging) {
+        sliderValueFromPointerX(
+            pointerX(),
+            trackX,
+            trackWidth,
+            min,
+            max,
+        )
+    } else {
+        value
+    }
     releaseActiveIfMatches(id)
 
     val surface = resolveInteractiveSurface(
@@ -77,13 +80,13 @@ fun UiScope.slider(
         modifier = modifier,
         style = style,
         defaults = theme.components.slider,
-        focused = false
+        focused = false,
     )
     val trackSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         trackX,
         slot.y + (slot.height - trackHeightPx) / 2f,
         trackWidth,
-        trackHeightPx
+        trackHeightPx,
     )
     val fraction = ((newValue - min) / (max - min)).coerceIn(0f, 1f)
     val handleWidth = (trackSlot.width * fraction).coerceAtLeast(0f)
@@ -93,17 +96,16 @@ fun UiScope.slider(
     withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
         paintSurface(
             slot = trackSlot,
-            resolved = surface.resolved.copy(shapeSpec = UiShapeSpec.Pill)
+            resolved = surface.resolved.copy(shapeSpec = UiShapeSpec.Pill),
         )
         if (handleWidth > 0f) {
             emitFillAndBorder(
-                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(trackSlot.x, trackSlot.y, handleWidth, trackSlot.height)
-                    ,
+                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(trackSlot.x, trackSlot.y, handleWidth, trackSlot.height),
                 fillColor = theme.colors.primary,
                 radiusPx = 0f,
                 borderWidth = UiShape.none,
                 borderColor = Color.Transparent,
-                shapeSpec = UiShapeSpec.Pill
+                shapeSpec = UiShapeSpec.Pill,
             )
         }
         if (showKnob) {
@@ -112,14 +114,14 @@ fun UiScope.slider(
                     knobCenterX - knobDiameterPx / 2f,
                     slot.y + (slot.height - knobDiameterPx) / 2f,
                     knobDiameterPx,
-                    knobDiameterPx
+                    knobDiameterPx,
                 ),
                 resolved = surface.resolved.copy(
                     borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
-                    shapeSpec = UiShapeSpec.Pill
+                    shapeSpec = UiShapeSpec.Pill,
                 ),
                 fillColor = theme.colors.background,
-                borderColor = theme.colors.primary
+                borderColor = theme.colors.primary,
             )
         }
     }
@@ -128,12 +130,16 @@ fun UiScope.slider(
         id = id,
         label = label,
         bounds = slot,
-        contentBounds = if (handleWidth > 0f) UiBounds(
-            slot.x,
-            slot.y,
-            handleWidth,
-            slot.height
-        ) else null
+        contentBounds = if (handleWidth > 0f) {
+            UiBounds(
+                slot.x,
+                slot.y,
+                handleWidth,
+                slot.height,
+            )
+        } else {
+            null
+        },
     )
     return newValue
 }

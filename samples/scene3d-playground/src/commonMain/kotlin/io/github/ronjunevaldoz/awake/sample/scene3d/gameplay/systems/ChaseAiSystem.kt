@@ -25,7 +25,7 @@ class ChaseAiSystem(
     private val navMesh: NavMesh,
     private val speed: Float = DEFAULT_SPEED,
     private val repathInterval: Float = DEFAULT_REPATH_INTERVAL,
-    private val waypointRadius: Float = DEFAULT_WAYPOINT_RADIUS
+    private val waypointRadius: Float = DEFAULT_WAYPOINT_RADIUS,
 ) : System {
     private var path: List<Vec3> = emptyList()
     private var waypointIndex = 0

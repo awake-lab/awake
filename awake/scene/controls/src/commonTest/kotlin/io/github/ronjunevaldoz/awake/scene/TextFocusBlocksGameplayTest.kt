@@ -31,7 +31,7 @@ class TextFocusBlocksGameplayTest {
         assertTrue(UiInputOwnership(isCaptured = true).blocksGameplayKeys)
         assertTrue(UiInputOwnership(isTextInputFocused = true).blocksGameplayKeys)
         assertTrue(
-            UiInputOwnership(isCaptured = true, isTextInputFocused = true).blocksGameplayKeys
+            UiInputOwnership(isCaptured = true, isTextInputFocused = true).blocksGameplayKeys,
         )
     }
 
@@ -43,7 +43,7 @@ class TextFocusBlocksGameplayTest {
 
         PlayerInputSystem(
             inputProvider = { snapshotWith(Key.W) },
-            uiResultProvider = { UiInputOwnership(isTextInputFocused = true) }
+            uiResultProvider = { UiInputOwnership(isTextInputFocused = true) },
         ).update(world, DELTA)
 
         val control = world.get(subject, MovementControl::class)!!
@@ -59,7 +59,7 @@ class TextFocusBlocksGameplayTest {
 
         PlayerInputSystem(
             inputProvider = { snapshotWith(Key.W) },
-            uiResultProvider = { UiInputOwnership() }
+            uiResultProvider = { UiInputOwnership() },
         ).update(world, DELTA)
 
         assertEquals(1f, world.get(subject, MovementControl::class)!!.moveZ)
@@ -74,7 +74,7 @@ class TextFocusBlocksGameplayTest {
         val input = Input()
         val system = CameraInputSystem(
             inputProvider = { input.currentSnapshot },
-            uiResultProvider = { UiInputOwnership(isTextInputFocused = focused) }
+            uiResultProvider = { UiInputOwnership(isTextInputFocused = focused) },
         )
 
         input.setKeyDown(Key.F2, down = true)
@@ -116,7 +116,7 @@ class TextFocusBlocksGameplayTest {
         keysPressed = keys.toSet(),
         keysReleased = emptySet(),
         typedText = "",
-        editActions = emptyList()
+        editActions = emptyList(),
     )
 
     private companion object {

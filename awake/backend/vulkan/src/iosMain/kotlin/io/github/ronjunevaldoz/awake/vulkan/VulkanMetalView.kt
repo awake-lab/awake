@@ -30,8 +30,9 @@ class VulkanMetalView(
     private val onUpdate: (deltaSeconds: Float) -> Unit,
     private val onResize: (width: Int, height: Int) -> Unit,
     private val onPause: () -> Unit,
-    private val onResume: () -> Unit
-) : UIView(frame), UIKeyInputProtocol {
+    private val onResume: () -> Unit,
+) : UIView(frame),
+    UIKeyInputProtocol {
 
     val metalLayer = CAMetalLayer()
 
@@ -101,7 +102,7 @@ class VulkanMetalView(
         previousTimestamp = 0.0
         displayLink = UIScreen.mainScreen.displayLinkWithTarget(
             this,
-            NSSelectorFromString("tick:")
+            NSSelectorFromString("tick:"),
         )?.apply {
             addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoopCommonModes)
         }

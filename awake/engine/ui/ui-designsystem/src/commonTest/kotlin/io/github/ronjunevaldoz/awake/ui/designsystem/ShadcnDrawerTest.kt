@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import kotlin.test.Test
 import kotlin.test.assertFalse
 
@@ -25,7 +25,7 @@ class ShadcnDrawerTest {
                 id = "drawer-1",
                 expanded = true,
                 onDismissRequest = { dismissed = true },
-                header = { text("Settings Drawer") }
+                header = { text("Settings Drawer") },
             ) {
                 text("Drawer Content")
             }

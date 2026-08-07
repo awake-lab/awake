@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorComponentFlags
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkLogicOp
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkStructureType
 
-
 class VkPipelineColorBlendAttachmentState(
     val blendEnable: VkBool32 = false,
     val srcColorBlendFactor: VkBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ONE,
@@ -22,7 +21,7 @@ class VkPipelineColorBlendAttachmentState(
     val srcAlphaBlendFactor: VkBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ONE,
     val dstAlphaBlendFactor: VkBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ZERO,
     val alphaBlendOp: VkBlendOp = VkBlendOp.VK_BLEND_OP_ADD,
-    val colorWriteMask: VkColorComponentFlags = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value
+    val colorWriteMask: VkColorComponentFlags = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value,
 )
 
 class VkPipelineColorBlendStateCreateInfo(
@@ -34,7 +33,7 @@ class VkPipelineColorBlendStateCreateInfo(
     @field:VkArray("attachmentCount")
     val pAttachments: Array<VkPipelineColorBlendAttachmentState>? = null,
     @VkConstArray
-    val blendConstants: FloatArray = floatArrayOf(0.0f, 0.0f, 0.0f, 0.0f)
+    val blendConstants: FloatArray = floatArrayOf(0.0f, 0.0f, 0.0f, 0.0f),
 )
 
 typealias VkPipelineColorBlendStateCreateFlags = VkFlags

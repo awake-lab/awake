@@ -37,7 +37,7 @@ fun <T> UiContext.withGraphicsLayerScale(
     scaleY: Float = scaleX,
     pivotX: Float = 0f,
     pivotY: Float = 0f,
-    block: () -> T
+    block: () -> T,
 ): T {
     pushGraphicsLayerScaleInternal(UiPrimitiveTransform(scaleX, scaleY, pivotX, pivotY))
     try {
@@ -52,7 +52,7 @@ fun <T> UiScope.withGraphicsLayerScale(
     scaleY: Float = scaleX,
     pivotX: Float = 0f,
     pivotY: Float = 0f,
-    block: () -> T
+    block: () -> T,
 ): T = context.withGraphicsLayerScale(scaleX, scaleY, pivotX, pivotY, block)
 
 /**
@@ -72,14 +72,14 @@ fun UiScope.animatedVisibility(
     visible: Boolean,
     durationMs: Float = 200f,
     easing: Easing = LinearEasing,
-    content: UiScope.() -> Unit
+    content: UiScope.() -> Unit,
 ) {
     val alpha = animateFloatTween(
         id = "__animated_visibility__$id",
         target = if (visible) 1f else 0f,
         initial = if (visible) 1f else 0f,
         durationMs = durationMs,
-        easing = easing
+        easing = easing,
     )
     // Keep rendering through the exit fade -- only actually stop calling content() once the tween
     // has settled at zero, so the subtree really unmounts (freeing up layout/hit-test cost)

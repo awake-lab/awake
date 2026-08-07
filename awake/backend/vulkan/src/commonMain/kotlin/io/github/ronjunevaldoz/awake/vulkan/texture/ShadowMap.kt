@@ -22,13 +22,13 @@ import io.github.ronjunevaldoz.awake.vulkan.models.VkSubpassDependency
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFilter
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkFramebufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageCreateInfo
+import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageSubresourceRange
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageUsageFlagBits2
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageViewCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerAddressMode
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSamplerCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageSubresourceRange
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
 
 /**
@@ -47,7 +47,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
  */
 class ShadowMap(
     graphicsDevice: GraphicsDevice,
-    val size: Int = DEFAULT_SIZE
+    val size: Int = DEFAULT_SIZE,
 ) {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -73,18 +73,18 @@ class ShadowMap(
                 height = size,
                 format = DEPTH_FORMAT.value,
                 usage = VkImageUsageFlagBits2.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT or
-                    VkImageUsageFlagBits2.VK_IMAGE_USAGE_SAMPLED_BIT
-            )
+                    VkImageUsageFlagBits2.VK_IMAGE_USAGE_SAMPLED_BIT,
+            ),
         )
         val requirements = VulkanImages.vkGetImageMemoryRequirements(device, image)
         val memoryTypeIndex = VulkanBuffers.findMemoryType(
             graphicsDevice.physicalDevice,
             requirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         )
         imageMemory = VulkanBuffers.vkAllocateMemory(
             device,
-            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex)
+            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex),
         )
         VulkanImages.vkBindImageMemory(device, image, imageMemory, 0)
         imageView = Vulkan.vkCreateImageView(
@@ -98,9 +98,9 @@ class ShadowMap(
                     baseMipLevel = 0,
                     levelCount = 1,
                     baseArrayLayer = 0,
-                    layerCount = 1
-                )
-            )
+                    layerCount = 1,
+                ),
+            ),
         )
         sampler = VulkanImages.vkCreateSampler(
             device,
@@ -109,8 +109,8 @@ class ShadowMap(
                 minFilter = VkFilter.VK_FILTER_NEAREST,
                 addressModeU = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
                 addressModeV = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-                addressModeW = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE
-            )
+                addressModeW = VkSamplerAddressMode.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            ),
         )
         framebuffer = Vulkan.vkCreateFramebuffer(
             device,
@@ -119,8 +119,8 @@ class ShadowMap(
                 pAttachments = arrayOf(imageView),
                 width = size,
                 height = size,
-                layers = 1
-            )
+                layers = 1,
+            ),
         )
     }
 
@@ -136,8 +136,8 @@ class ShadowMap(
                     // transition implicitly at render-pass end, so the main pass can sample
                     // this image the instant this pass's fence is signaled -- no manual
                     // barrier call needed (unlike OffscreenRenderTarget's color image).
-                    finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-                )
+                    finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                ),
             ),
             pSubpasses = arrayOf(
                 VkSubpassDescription(
@@ -145,10 +145,10 @@ class ShadowMap(
                     pDepthStencilAttachment = arrayOf(
                         VkAttachmentReference(
                             attachment = 0,
-                            layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-                        )
-                    )
-                )
+                            layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                        ),
+                    ),
+                ),
             ),
             pDependencies = arrayOf(
                 VkSubpassDependency(
@@ -159,10 +159,10 @@ class ShadowMap(
                     srcAccessMask = 0,
                     dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT.value or
                         VkPipelineStageFlagBits.VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT.value,
-                    dstAccessMask = VkAccessFlagBits.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT.value
-                )
-            )
-        )
+                    dstAccessMask = VkAccessFlagBits.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT.value,
+                ),
+            ),
+        ),
     )
 
     fun destroy() {

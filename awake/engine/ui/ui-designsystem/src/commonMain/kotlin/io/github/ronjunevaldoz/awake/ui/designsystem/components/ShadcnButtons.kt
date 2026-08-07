@@ -2,23 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.style.*
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 private fun UiModifier.withShadcnSize(size: ShadcnButtonSize): UiModifier =
     if (heightDimension == null) height(size.heightDp.dp) else this
@@ -26,10 +26,10 @@ private fun UiModifier.withShadcnSize(size: ShadcnButtonSize): UiModifier =
 private fun shadcnButtonStyle(
     theme: UiTheme,
     variant: ShadcnButtonVariant,
-    style: Style
+    style: Style,
 ): Style = ShadcnStyles.button(theme.asShadcnTheme(), variant) then style
 
-/** 
+/**
  * Shadcn button with a simple text label.
  * Returns true if clicked this frame (standard IMGUI pattern).
  */
@@ -43,7 +43,7 @@ fun UiScope.shadcnButton(
     centered: Boolean = true,
     verticallyCentered: Boolean = centered,
     enabled: Boolean = true,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
 ): Boolean {
     val clicked = buttonSlot(
         id = id,
@@ -54,13 +54,13 @@ fun UiScope.shadcnButton(
         radius = theme.asShadcnTheme().radii.lg,
         centered = centered,
         verticallyCentered = verticallyCentered,
-        enabled = enabled
+        enabled = enabled,
     ).clicked
     if (clicked) onClick?.invoke()
     return clicked
 }
 
-/** 
+/**
  * Shadcn button with a Compose-style Slot API.
  * The [content] lambda receives a [BoxScope], allowing arbitrary layouts inside the button.
  */
@@ -74,7 +74,7 @@ fun UiScope.shadcnButton(
     verticallyCentered: Boolean = centered,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
-    content: BoxScope.(slot: UiBounds) -> Unit
+    content: BoxScope.(slot: UiBounds) -> Unit,
 ): Boolean {
     val buttonStyle = shadcnButtonStyle(theme, variant, style)
     val result = buttonSlot(
@@ -83,7 +83,7 @@ fun UiScope.shadcnButton(
         style = buttonStyle,
         variant = variant.toUiButtonVariant(),
         radius = theme.asShadcnTheme().radii.lg,
-        enabled = enabled
+        enabled = enabled,
     ) { contentSlot ->
         val alignment = when {
             centered && verticallyCentered -> UiAlignment.Center

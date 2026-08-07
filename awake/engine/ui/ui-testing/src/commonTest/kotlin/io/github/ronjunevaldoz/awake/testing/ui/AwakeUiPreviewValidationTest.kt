@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -23,13 +23,13 @@ class AwakeUiPreviewValidationTest {
                 group = "Tests",
                 summary = "No semantics",
                 width = 120,
-                height = 48
+                height = 48,
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = emptyList(),
                 background = Color.Black,
-                font = BitmapFont()
-            )
+                font = BitmapFont(),
+            ),
         )
 
         assertFalse(report.isClean)
@@ -45,7 +45,7 @@ class AwakeUiPreviewValidationTest {
                 group = "Tests",
                 summary = "Allowed text truncation",
                 width = 160,
-                height = 48
+                height = 48,
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = listOf(
@@ -55,8 +55,8 @@ class AwakeUiPreviewValidationTest {
                         w = 160f,
                         h = 48f,
                         radius = 8f,
-                        color = Color.Black
-                    )
+                        color = Color.Black,
+                    ),
                 ),
                 background = Color.Black,
                 font = BitmapFont(),
@@ -68,13 +68,13 @@ class AwakeUiPreviewValidationTest {
                         bounds = UiBounds(0f, 0f, 160f, 48f),
                         contentBounds = UiBounds(12f, 12f, 120f, 16f),
                         clippedBounds = UiBounds(12f, 12f, 120f, 16f),
-                        truncated = true
-                    )
-                )
+                        truncated = true,
+                    ),
+                ),
             ),
             config = AwakeUiPreviewValidationConfig(
-                allowTruncatedTextIds = setOf("headline")
-            )
+                allowTruncatedTextIds = setOf("headline"),
+            ),
         )
 
         assertTrue(report.isClean, report.summary())
@@ -89,7 +89,7 @@ class AwakeUiPreviewValidationTest {
                 group = "Tests",
                 summary = "Overlap regression",
                 width = 280,
-                height = 64
+                height = 64,
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = emptyList(),
@@ -99,23 +99,23 @@ class AwakeUiPreviewValidationTest {
                     UiSemanticNode(
                         role = UiSemanticRole.Dropdown,
                         id = "left",
-                        bounds = UiBounds(0f, 0f, 160f, 40f)
+                        bounds = UiBounds(0f, 0f, 160f, 40f),
                     ),
                     UiSemanticNode(
                         role = UiSemanticRole.Dropdown,
                         id = "right",
-                        bounds = UiBounds(120f, 0f, 160f, 40f)
-                    )
-                )
+                        bounds = UiBounds(120f, 0f, 160f, 40f),
+                    ),
+                ),
             ),
             config = AwakeUiPreviewValidationConfig(
                 overlapRules = listOf(
                     AwakeUiPreviewOverlapRule(
                         label = "toolbar controls",
-                        nodeIds = setOf("left", "right")
-                    )
-                )
-            )
+                        nodeIds = setOf("left", "right"),
+                    ),
+                ),
+            ),
         )
 
         assertFalse(report.isClean)

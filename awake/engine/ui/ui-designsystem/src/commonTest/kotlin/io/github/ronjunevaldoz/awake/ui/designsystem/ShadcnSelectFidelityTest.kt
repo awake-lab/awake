@@ -40,7 +40,7 @@ class ShadcnSelectFidelityTest {
                 id = "select-fidelity",
                 options = listOf("Option 1", "Option 2"),
                 selectedIndex = 0,
-                modifier = Modifier.testTag("select-trigger").width(200f.dp).height(40f.dp)
+                modifier = Modifier.testTag("select-trigger").width(200f.dp).height(40f.dp),
             )
             val frameOutput = ui.finishFrame()
 
@@ -49,9 +49,9 @@ class ShadcnSelectFidelityTest {
                     AwakeUiPreviewTokenRule(
                         nodeId = "select-fidelity.trigger",
                         expectedBackgroundToken = "background",
-                        expectedBorderToken = "input"
-                    )
-                )
+                        expectedBorderToken = "input",
+                    ),
+                ),
             )
 
             validateAwakeUiPreview(
@@ -61,15 +61,15 @@ class ShadcnSelectFidelityTest {
                     group = "Select",
                     summary = "Select trigger fidelity check [${config.id}]",
                     width = (300 * config.scale.scale).toInt(),
-                    height = (100 * config.scale.scale).toInt()
+                    height = (100 * config.scale.scale).toInt(),
                 ),
                 frame = AwakeUiPreviewFrame(
                     primitives = frameOutput.primitives,
                     background = ui.currentTheme.colors.background,
                     font = ui.currentFont,
-                    semantics = frameOutput.semantics
+                    semantics = frameOutput.semantics,
                 ),
-                config = validationConfig
+                config = validationConfig,
             )
         }
 

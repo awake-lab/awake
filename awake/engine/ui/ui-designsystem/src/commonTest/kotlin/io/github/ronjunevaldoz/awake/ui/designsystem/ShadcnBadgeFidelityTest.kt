@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -36,7 +35,7 @@ class ShadcnBadgeFidelityTest {
         ui.createAbsolute(slot = ui.frameBounds()).shadcnBadge(
             label = "BETA",
             variant = ShadcnBadgeVariant.Primary,
-            modifier = Modifier.testTag("badge-fidelity")
+            modifier = Modifier.testTag("badge-fidelity"),
         )
         val frameOutput = ui.finishFrame()
 
@@ -45,9 +44,9 @@ class ShadcnBadgeFidelityTest {
                 AwakeUiPreviewTokenRule(
                     nodeId = "badge-fidelity",
                     expectedBackgroundToken = "primary",
-                    expectedForegroundToken = "primary-foreground"
-                )
-            )
+                    expectedForegroundToken = "primary-foreground",
+                ),
+            ),
         )
 
         val report = validateAwakeUiPreview(
@@ -57,15 +56,15 @@ class ShadcnBadgeFidelityTest {
                 group = "Badge",
                 summary = "Primary fidelity check",
                 width = 200,
-                height = 80
+                height = 80,
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ui.currentTheme.colors.background,
                 font = ui.currentFont,
-                semantics = frameOutput.semantics
+                semantics = frameOutput.semantics,
             ),
-            config = config
+            config = config,
         )
         if (!report.isClean) {
             println("REPORT: ${report.summary()}")

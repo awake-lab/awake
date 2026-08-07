@@ -24,21 +24,17 @@ object BufferUtils {
     fun allocateFloat(data: FloatArray): FloatBuf = createFloatBuffer(data)
 }
 
-fun Buffer.toUType(): Int {
-    return when (this) {
-        is ByteBuf -> CommonGL.GL_UNSIGNED_BYTE
-        is IntBuf -> CommonGL.GL_UNSIGNED_INT
-        is ShortBuf -> CommonGL.GL_UNSIGNED_SHORT
-        else -> throw Exception("Unsupported buffer type")
-    }
+fun Buffer.toUType(): Int = when (this) {
+    is ByteBuf -> CommonGL.GL_UNSIGNED_BYTE
+    is IntBuf -> CommonGL.GL_UNSIGNED_INT
+    is ShortBuf -> CommonGL.GL_UNSIGNED_SHORT
+    else -> throw Exception("Unsupported buffer type")
 }
 
-fun Buffer.sizeBytes(): Int {
-    return when (this) {
-        is ByteBuf -> Byte.SIZE_BYTES
-        is IntBuf -> Int.SIZE_BYTES
-        is ShortBuf -> Short.SIZE_BYTES
-        is FloatBuf -> Float.SIZE_BYTES
-        else -> throw Exception("Unsupported buffer type")
-    }
+fun Buffer.sizeBytes(): Int = when (this) {
+    is ByteBuf -> Byte.SIZE_BYTES
+    is IntBuf -> Int.SIZE_BYTES
+    is ShortBuf -> Short.SIZE_BYTES
+    is FloatBuf -> Float.SIZE_BYTES
+    else -> throw Exception("Unsupported buffer type")
 }

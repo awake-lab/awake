@@ -68,7 +68,7 @@ internal object RotatingCubeDemo {
                 id = "cube-controls-display",
                 expanded = displayGroupExpanded,
                 onExpandedChange = { displayGroupExpanded = it },
-                header = { text("Display", verticallyCentered = true) }
+                header = { text("Display", verticallyCentered = true) },
             ) {
                 wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
                 timeController.autoPlay = shadcnSwitch(id = "cube-auto-spin", checked = timeController.autoPlay, label = "Auto-spin")
@@ -78,7 +78,7 @@ internal object RotatingCubeDemo {
                     min = 0f,
                     max = ManualTimeController.HOURS_PER_CYCLE,
                     value = timeController.hours,
-                    enabled = !timeController.autoPlay
+                    enabled = !timeController.autoPlay,
                 )
                 text(label = "Turn off Auto-spin to freeze the cube at an exact time (0-24h = one full turn).")
             }
@@ -105,15 +105,20 @@ internal object RotatingCubeDemo {
             groundEntity = ground
 
             val cam = world.create()
-            world.add(cam, Camera(io.github.ronjunevaldoz.awake.core.math.Camera(
-                eye = Vec3(0f, 5f, 10f),
-                center = cubeWorldPosition(),
-                fovYRadians = 45f * (PI / 180.0).toFloat(),
-                near = 0.1f,
-                far = 100f
-            )))
+            world.add(
+                cam,
+                Camera(
+                    io.github.ronjunevaldoz.awake.core.math.Camera(
+                        eye = Vec3(0f, 5f, 10f),
+                        center = cubeWorldPosition(),
+                        fovYRadians = 45f * (PI / 180.0).toFloat(),
+                        near = 0.1f,
+                        far = 100f,
+                    ),
+                ),
+            )
             cameraEntity = cam
-            
+
             lightEntity = world.create().also { world.add(it, Light()) }
         },
         onDeactivate = { world ->
@@ -149,7 +154,7 @@ internal object RotatingCubeDemo {
                 cameraEntity = cameraEntity!!,
                 targetEntity = cubeEntity!!,
                 panningEntity = panningEntity,
-                onPanningEntityCreated = { panningEntity = it }
+                onPanningEntityCreated = { panningEntity = it },
             )
 
             if (showAimMarkers) {
@@ -160,7 +165,7 @@ internal object RotatingCubeDemo {
                 markers += LineSegment(cpos, cpos + Vec3(0f, 0f, 0.1f), AXIS_COLOR_Z)
                 renderer.drawDebugLines(markers)
             }
-        }
+        },
     )
 
     private fun cubeWorldPosition(): Vec3 = Vec3(0f, CUBE_REST_HEIGHT, 0f)

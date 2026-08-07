@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.layout.*
 
 /**
  * Everything a [io.github.ronjunevaldoz.awake.ui.UiScope] needs except `claimSlot` -- shared once here instead of repeated per
@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
  */
 abstract class AbstractUiScope(
     final override val context: UiContext,
-    private val emitToOverlay: Boolean = false
+    private val emitToOverlay: Boolean = false,
 ) : io.github.ronjunevaldoz.awake.ui.UiScope {
     final override val emitsToOverlay: Boolean = emitToOverlay
     final override fun hitTest(slot: UiBounds) =
@@ -29,9 +29,13 @@ abstract class AbstractUiScope(
         context.releaseActiveIfMatchesInternal(id)
 
     final override fun emit(primitive: io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive) =
-        if (emitToOverlay) context.emitOverlayInternal(primitive) else context.emitInternal(
-            primitive
-        )
+        if (emitToOverlay) {
+            context.emitOverlayInternal(primitive)
+        } else {
+            context.emitInternal(
+                primitive,
+            )
+        }
 
     final override fun emitOverlay(primitive: io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive) =
         context.emitOverlayInternal(primitive)

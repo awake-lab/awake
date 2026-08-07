@@ -50,7 +50,7 @@ expect object VulkanBuffers {
         commandBuffer: Long,
         firstBinding: Int,
         buffers: LongArray,
-        offsets: LongArray
+        offsets: LongArray,
     )
 
     /** `indexType` uses the plain-`Int` [io.github.ronjunevaldoz.awake.vulkan.models.info.VkIndexType] values. */
@@ -68,7 +68,7 @@ expect object VulkanBuffers {
         instanceCount: Int,
         firstIndex: Int,
         vertexOffset: Int,
-        firstInstance: Int
+        firstInstance: Int,
     )
 
     /** Blocks until all queues on [device] are idle. Used to fully serialize frames so a

@@ -13,10 +13,10 @@ class VkPresentInfoKHR(
     val pNext: Any? = null,
     @field:VkHandleRef("VkSemaphore")
     @VkArray("waitSemaphoreCount")
-    val pWaitSemaphores: Array<VkHandle>? = null,      // Use LongArray for Vulkan handles
+    val pWaitSemaphores: Array<VkHandle>? = null, // Use LongArray for Vulkan handles
     @field:VkHandleRef("VkSwapchainKHR")
     @VkArray("swapchainCount")
-    val pSwapchains: Array<VkHandle>? = null,          // Use LongArray for Vulkan handles
+    val pSwapchains: Array<VkHandle>? = null, // Use LongArray for Vulkan handles
     val pImageIndices: IntArray? = null,
-    val pResults: Array<VkResult>? = null               // Use IntArray for VkResult
+    val pResults: Array<VkResult>? = null, // Use IntArray for VkResult
 )

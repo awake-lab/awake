@@ -19,9 +19,7 @@ internal class EntityIndexMap {
      * Deliberately not `sparse.getOrNull(id) ?: ABSENT` -- [IntArray.getOrNull] boxes to
      * `Int?` on every call, which profiling showed as the single largest cost (36% of CPU
      * samples) in family-cache churn, since this runs on every add/remove. */
-    fun get(id: Int): Int {
-        return if (id >= 0 && id < sparse.size) sparse[id] else ABSENT
-    }
+    fun get(id: Int): Int = if (id >= 0 && id < sparse.size) sparse[id] else ABSENT
 
     /** Records that [id] now lives at [denseIndex] in the caller's dense storage. */
     fun set(id: Int, denseIndex: Int) {

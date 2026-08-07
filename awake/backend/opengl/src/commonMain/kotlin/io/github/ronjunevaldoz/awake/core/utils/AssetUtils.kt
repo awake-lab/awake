@@ -17,10 +17,8 @@ object TextureLoader {
         textures[textureName] = Texture.load(bitmap)
     }
 
-    fun get(textureName: String): Int {
-        return checkNotNull(textures[textureName]?.id) {
-            "Texture name `$textureName` not found."
-        }
+    fun get(textureName: String): Int = checkNotNull(textures[textureName]?.id) {
+        "Texture name `$textureName` not found."
     }
 
     fun remove(textureName: String) {

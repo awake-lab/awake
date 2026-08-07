@@ -19,14 +19,14 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 
 internal fun ColumnScope.renderCameraModeToggle(
     mode: CameraMode,
-    onModeChange: (CameraMode) -> Unit
+    onModeChange: (CameraMode) -> Unit,
 ) {
     shadcnToggleGroup(
         id = "camera-mode-toggle",
         options = listOf("1st Person", "3rd Person", "Cinematic", "Top-Down"),
         selectedIndex = mode.ordinal,
         modifier = Modifier.fillMaxWidth().height(32f.dp),
-        onIndexChange = { onModeChange(CameraMode.entries[it]) }
+        onIndexChange = { onModeChange(CameraMode.entries[it]) },
     )
 }
 
@@ -39,7 +39,7 @@ internal fun updateDemoCamera(
     targetEntity: Entity, // The character/object being followed
     panningEntity: Entity?, // Entity used for Top-Down panning
     onPanningEntityCreated: (Entity) -> Unit,
-    defaultMode: CameraMode = CameraMode.ThirdPerson
+    defaultMode: CameraMode = CameraMode.ThirdPerson,
 ) {
     // Ensure this camera entity has the ActiveCamera tag
     if (!world.has(cameraEntity, ActiveCamera::class)) {
@@ -56,9 +56,12 @@ internal fun updateDemoCamera(
     // other mode moves the subject itself.
     val driver = if (config.mode == CameraMode.TopDown) {
         panningEntity ?: world.create().also { created ->
-            world.add(created, Transform().apply {
-                world.get<Transform>(targetEntity)?.let { position.set(it.position) }
-            })
+            world.add(
+                created,
+                Transform().apply {
+                    world.get<Transform>(targetEntity)?.let { position.set(it.position) }
+                },
+            )
             onPanningEntityCreated(created)
         }
     } else {

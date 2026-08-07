@@ -20,7 +20,7 @@ fun main() {
     check(window != 0L) { "glfwCreateWindow returned null" }
     val w = VulkanWindow.glfwGetFramebufferWidth(window)
     val h = VulkanWindow.glfwGetFramebufferHeight(window)
-    println("AWAKE_VERIFY framebuffer size: ${w}x${h}")
+    println("AWAKE_VERIFY framebuffer size: ${w}x$h")
 
     // MoltenVK conforms to the Vulkan Portability spec: vkCreateInstance requires both
     // the VK_KHR_portability_enumeration extension AND the
@@ -34,8 +34,8 @@ fun main() {
         VkInstanceCreateInfo(
             flags = 0x00000001, // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
             pApplicationInfo = arrayOf(appInfo),
-            ppEnabledExtensionNames = requiredExtensions
-        )
+            ppEnabledExtensionNames = requiredExtensions,
+        ),
     )
     check(instance != 0L) { "vkCreateInstance returned null" }
     println("AWAKE_VERIFY instance handle: $instance")

@@ -4,16 +4,15 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.headless.components.icon
+import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.components.icon
+import io.github.ronjunevaldoz.awake.ui.style.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import io.github.ronjunevaldoz.awake.ui.layout.*
-import io.github.ronjunevaldoz.awake.ui.style.*
 
 class IconWidgetsTest {
 
@@ -25,7 +24,7 @@ class IconWidgetsTest {
         ui.createAbsolute(x = 10f, y = 12f).icon(
             imageVector = squareVector,
             modifier = Modifier.width(Dimension.Fixed(16f.px)).height(Dimension.Fixed(16f.px)),
-            tint = Color(0.8f, 0.2f, 0.1f, 1f)
+            tint = Color(0.8f, 0.2f, 0.1f, 1f),
         )
 
         val primitive = ui.endFrame().single()
@@ -37,9 +36,9 @@ class IconWidgetsTest {
                 UiPathCommand.LineTo(26f, 12f),
                 UiPathCommand.LineTo(26f, 28f),
                 UiPathCommand.LineTo(10f, 28f),
-                UiPathCommand.Close
+                UiPathCommand.Close,
             ),
-            path.path.commands
+            path.path.commands,
         )
     }
 
@@ -59,7 +58,7 @@ class IconWidgetsTest {
             defaultWidth = 16f.dp,
             defaultHeight = 16f.dp,
             viewportWidth = 16f,
-            viewportHeight = 16f
+            viewportHeight = 16f,
         ) {
             path {
                 moveTo(0f, 0f)
@@ -74,7 +73,7 @@ class IconWidgetsTest {
             defaultWidth = 12f.dp,
             defaultHeight = 12f.dp,
             viewportWidth = 12f,
-            viewportHeight = 12f
+            viewportHeight = 12f,
         ) {
             path(fill = Color(0.2f, 0.7f, 0.3f, 1f)) {
                 moveTo(0f, 0f)

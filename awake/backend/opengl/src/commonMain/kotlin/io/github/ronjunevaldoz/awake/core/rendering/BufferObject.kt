@@ -24,7 +24,7 @@ data class VertexBufferData(
     val size: Int,
     val data: List<Float>,
     val stride: Int,
-    val offset: Int
+    val offset: Int,
 )
 
 /**
@@ -52,7 +52,7 @@ fun VertexArrayData.addVertexBuffer(
     size: Int,
     data: FloatArray,
     stride: Int = 0,
-    offset: Int = 0
+    offset: Int = 0,
 ) {
     vertexBuffer.add(
         VertexBufferObject(
@@ -61,9 +61,9 @@ fun VertexArrayData.addVertexBuffer(
                 size,
                 data.toList(),
                 stride,
-                offset
-            )
-        )
+                offset,
+            ),
+        ),
     )
 }
 
@@ -102,9 +102,7 @@ fun ElementBufferObject.build(block: () -> Unit) {
 //    unbind()
 }
 
-fun createVAO(block: VertexArrayData.() -> Unit): VertexArrayObject {
-    return VertexArrayObject().apply(block).build()
-}
+fun createVAO(block: VertexArrayData.() -> Unit): VertexArrayObject = VertexArrayObject().apply(block).build()
 
 fun BufferObject.use(block: () -> Unit) {
     bind()

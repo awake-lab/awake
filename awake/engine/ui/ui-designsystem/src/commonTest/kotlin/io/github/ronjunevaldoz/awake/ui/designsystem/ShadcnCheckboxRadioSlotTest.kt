@@ -2,20 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -39,13 +39,13 @@ class ShadcnCheckboxRadioSlotTest {
                 id = "select-all",
                 checked = false,
                 indeterminate = true,
-                modifier = Modifier.width(20f.dp).height(20f.dp)
+                modifier = Modifier.width(20f.dp).height(20f.dp),
             )
 
         val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>()
         assertTrue(
             quads.any { it.w > it.h * 2f },
-            "indeterminate checkbox should draw a wide dash mark, not a checkmark-shaped accent"
+            "indeterminate checkbox should draw a wide dash mark, not a checkmark-shaped accent",
         )
     }
 
@@ -73,7 +73,7 @@ class ShadcnCheckboxRadioSlotTest {
         assertNotNull(semantics.firstOrNull { it.label == "Pro plan" }, "content slot's title row should render")
         assertNotNull(
             semantics.firstOrNull { it.label == "Billed monthly, cancel anytime" },
-            "content slot's description line should render"
+            "content slot's description line should render",
         )
         assertNotNull(semantics.firstOrNull { it.id == "plan.a" }, "bare radio button should render its own semantic node")
     }

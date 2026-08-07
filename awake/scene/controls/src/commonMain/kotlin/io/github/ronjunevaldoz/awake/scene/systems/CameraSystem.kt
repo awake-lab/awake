@@ -28,7 +28,7 @@ import kotlin.math.sin
  */
 class CameraSystem(
     private val inputProvider: () -> InputSnapshot,
-    private val uiResultProvider: () -> UiInputOwnership
+    private val uiResultProvider: () -> UiInputOwnership,
 ) : System {
     private var lastPointerX = 0f
     private var lastPointerY = 0f
@@ -103,7 +103,7 @@ class CameraSystem(
                     camera.camera.eye.set(
                         target.position.x + CINEMATIC_OFFSET,
                         target.position.y + CINEMATIC_HEIGHT,
-                        target.position.z + CINEMATIC_OFFSET
+                        target.position.z + CINEMATIC_OFFSET,
                     )
                 }
             }
@@ -118,7 +118,7 @@ class CameraSystem(
         config: CameraComponent,
         camera: Camera,
         target: Transform?,
-        dt: Float
+        dt: Float,
     ) {
         // Every mode aims at a target; without one there is no pose to compute.
         if (target == null) return

@@ -37,7 +37,7 @@ class GeometryTest {
         val positions = floatArrayOf(
             3f, 4f, 12f, // 13
             1f, 0f, 0f, // 1
-            0f, 2f, 0f // 2
+            0f, 2f, 0f, // 2
         )
 
         assertEquals(13f, boundingRadius(positions), TOLERANCE)
@@ -55,7 +55,7 @@ class GeometryTest {
     fun radiusOfAUnitCubeCornerIsTheBodyDiagonal() {
         val positions = floatArrayOf(
             -1f, -1f, -1f, 1f, -1f, -1f, 1f, 1f, -1f, -1f, 1f, -1f,
-            -1f, -1f, 1f, 1f, -1f, 1f, 1f, 1f, 1f, -1f, 1f, 1f
+            -1f, -1f, 1f, 1f, -1f, 1f, 1f, 1f, 1f, -1f, 1f, 1f,
         )
 
         assertEquals(1.7320508f, boundingRadius(positions), TOLERANCE) // sqrt(3)
@@ -66,7 +66,7 @@ class GeometryTest {
             "positions[i + 1] / positions[i + 2], so a ragged array (length not a multiple of 3, " +
             "e.g. a truncated glTF accessor) reads past the end. boundingCenter guards the same " +
             "case correctly with `while (i + 2 < positions.size)`. Un-@Ignore once the two guards " +
-            "agree."
+            "agree.",
     )
     @Test
     fun radiusIgnoresATrailingPartialVertexTheWayBoundingCenterDoes() {
@@ -95,8 +95,12 @@ class GeometryTest {
     @Test
     fun centreOfASymmetricCloudIsTheOrigin() {
         val positions = floatArrayOf(
-            -1f, -2f, -3f,
-            1f, 2f, 3f
+            -1f,
+            -2f,
+            -3f,
+            1f,
+            2f,
+            3f,
         )
 
         assertVec3(Vec3(0f, 0f, 0f), boundingCenter(positions))
@@ -105,8 +109,12 @@ class GeometryTest {
     @Test
     fun centreOfAnAsymmetricCloudIsTheBoxMidpoint() {
         val positions = floatArrayOf(
-            0f, 0f, 0f,
-            10f, 4f, -6f
+            0f,
+            0f,
+            0f,
+            10f,
+            4f,
+            -6f,
         )
 
         assertVec3(Vec3(5f, 2f, -3f), boundingCenter(positions))
@@ -115,8 +123,12 @@ class GeometryTest {
     @Test
     fun centreIsPerAxisSoOneStretchedAxisDoesNotMoveTheOthers() {
         val positions = floatArrayOf(
-            -100f, 1f, 1f,
-            100f, 1f, 1f
+            -100f,
+            1f,
+            1f,
+            100f,
+            1f,
+            1f,
         )
 
         assertVec3(Vec3(0f, 1f, 1f), boundingCenter(positions))
@@ -146,8 +158,12 @@ class GeometryTest {
     @Test
     fun centreHandlesACloudEntirelyOnOneSideOfTheOrigin() {
         val positions = floatArrayOf(
-            5f, 5f, 5f,
-            7f, 9f, 11f
+            5f,
+            5f,
+            5f,
+            7f,
+            9f,
+            11f,
         )
 
         assertVec3(Vec3(6f, 7f, 8f), boundingCenter(positions))

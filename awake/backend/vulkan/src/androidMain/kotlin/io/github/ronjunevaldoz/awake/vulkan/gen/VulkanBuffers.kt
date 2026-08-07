@@ -11,7 +11,7 @@ actual object VulkanBuffers {
     actual external fun vkDestroyBuffer(device: Long, buffer: Long)
     actual external fun vkGetBufferMemoryRequirements(
         device: Long,
-        buffer: Long
+        buffer: Long,
     ): VkMemoryRequirements
 
     actual external fun findMemoryType(physicalDevice: Long, typeFilter: Int, properties: Int): Int
@@ -21,35 +21,35 @@ actual object VulkanBuffers {
         device: Long,
         buffer: Long,
         memory: Long,
-        memoryOffset: Long
+        memoryOffset: Long,
     )
 
     actual external fun writeBufferMemoryFloats(
         device: Long,
         memory: Long,
         offset: Long,
-        data: FloatArray
+        data: FloatArray,
     )
 
     actual external fun writeBufferMemoryBytes(
         device: Long,
         memory: Long,
         offset: Long,
-        data: ByteArray
+        data: ByteArray,
     )
 
     actual external fun readBufferMemoryBytes(
         device: Long,
         memory: Long,
         offset: Long,
-        size: Int
+        size: Int,
     ): ByteArray
 
     actual external fun vkCmdBindVertexBuffers(
         commandBuffer: Long,
         firstBinding: Int,
         buffers: LongArray,
-        offsets: LongArray
+        offsets: LongArray,
     )
 
     actual external fun vkCmdBindIndexBuffer(commandBuffer: Long, buffer: Long, offset: Long, indexType: Int)
@@ -60,7 +60,7 @@ actual object VulkanBuffers {
         instanceCount: Int,
         firstIndex: Int,
         vertexOffset: Int,
-        firstInstance: Int
+        firstInstance: Int,
     )
 
     actual external fun vkDeviceWaitIdle(device: Long)

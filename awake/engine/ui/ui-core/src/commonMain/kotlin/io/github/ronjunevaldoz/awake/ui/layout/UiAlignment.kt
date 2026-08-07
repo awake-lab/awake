@@ -18,7 +18,8 @@ enum class UiAlignment {
     CenterEnd,
     BottomStart,
     BottomCenter,
-    BottomEnd;
+    BottomEnd,
+    ;
 
     /** Cross-axis-only vertical component, matching Jetpack Compose's `Alignment.Vertical` --
      * this is what [io.github.ronjunevaldoz.awake.ui.layouts.Row]'s container-level
@@ -60,7 +61,7 @@ fun UiBounds.place(
     alignment: UiAlignment = UiAlignment.TopStart,
     insets: UiInsets = UiInsets.Zero,
     offsetX: Float = 0f,
-    offsetY: Float = 0f
+    offsetY: Float = 0f,
 ): UiBounds {
     val content = inset(insets)
     val resolvedWidth = width.coerceIn(0f, content.width)

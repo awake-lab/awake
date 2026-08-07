@@ -7,16 +7,13 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
-import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -40,7 +37,7 @@ class ShadcnCardVariantTest {
 
         assertTrue(
             quadCount(ShadcnCardVariant.Elevated) > quadCount(ShadcnCardVariant.Default),
-            "Elevated should draw the two extra shadow strips the Default variant doesn't"
+            "Elevated should draw the two extra shadow strips the Default variant doesn't",
         )
     }
 
@@ -56,7 +53,7 @@ class ShadcnCardVariantTest {
                 size = size,
                 modifier = Modifier.height(Dimension.WrapContent),
                 header = { text("Title") },
-                footer = { text("Footer") }
+                footer = { text("Footer") },
             ) {
                 text("Body")
             }
@@ -65,7 +62,7 @@ class ShadcnCardVariantTest {
 
         assertTrue(
             cardHeight(ShadcnCardSize.Compact) < cardHeight(ShadcnCardSize.Default),
-            "Compact card should be shorter than Default given identical content"
+            "Compact card should be shorter than Default given identical content",
         )
     }
 }

@@ -2,17 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.mesh
 
-import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.handles.BufferHandle
 import io.github.ronjunevaldoz.awake.webgpu.handles.DeviceMemoryHandle
-import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
-import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
 import io.ygdrasil.webgpu.GPUIndexFormat
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
 
 /**
  * Phase 2.5 milestone 2 slice 1 (see docs/MVP_PLAN.md): real wgpu4k implementation.
@@ -40,7 +40,7 @@ class Mesh(
     runOneTimeCommands: ((commandBuffer: Long) -> Unit) -> Unit,
     vertices: FloatArray,
     indices: IntArray,
-    override val format: VertexFormat = VertexFormat.PositionColorUv
+    override val format: VertexFormat = VertexFormat.PositionColorUv,
 ) : RenderMesh {
     var vertexBuffer: BufferHandle
     var vertexBufferMemory: DeviceMemoryHandle
@@ -56,8 +56,8 @@ class Mesh(
         val rawVertexBuffer: GPUBuffer = device.createBuffer(
             BufferDescriptor(
                 size = (vertices.size * Float.SIZE_BYTES).toULong(),
-                usage = GPUBufferUsage.Vertex or GPUBufferUsage.CopyDst
-            )
+                usage = GPUBufferUsage.Vertex or GPUBufferUsage.CopyDst,
+            ),
         )
         device.queue.writeBuffer(rawVertexBuffer, 0uL, fastArrayBufferOf(vertices))
         val vertexHandle = WebGpuHandles.register(rawVertexBuffer)
@@ -67,8 +67,8 @@ class Mesh(
         val rawIndexBuffer: GPUBuffer = device.createBuffer(
             BufferDescriptor(
                 size = (indices.size * Int.SIZE_BYTES).toULong(),
-                usage = GPUBufferUsage.Index or GPUBufferUsage.CopyDst
-            )
+                usage = GPUBufferUsage.Index or GPUBufferUsage.CopyDst,
+            ),
         )
         device.queue.writeBuffer(rawIndexBuffer, 0uL, fastArrayBufferOf(indices))
         val indexHandle = WebGpuHandles.register(rawIndexBuffer)
@@ -80,8 +80,8 @@ class Mesh(
         val rawLineIndexBuffer: GPUBuffer = device.createBuffer(
             BufferDescriptor(
                 size = (lineIndices.size * Int.SIZE_BYTES).toULong(),
-                usage = GPUBufferUsage.Index or GPUBufferUsage.CopyDst
-            )
+                usage = GPUBufferUsage.Index or GPUBufferUsage.CopyDst,
+            ),
         )
         device.queue.writeBuffer(rawLineIndexBuffer, 0uL, fastArrayBufferOf(lineIndices))
         lineIndexBuffer = BufferHandle(WebGpuHandles.register(rawLineIndexBuffer))

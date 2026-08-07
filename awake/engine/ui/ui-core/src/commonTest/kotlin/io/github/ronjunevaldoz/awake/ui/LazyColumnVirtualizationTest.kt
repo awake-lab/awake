@@ -3,17 +3,17 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.layouts.lazyColumn
 import io.github.ronjunevaldoz.awake.ui.layouts.lazyRow
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.horizontalScroll
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.UiShape
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -38,9 +38,15 @@ class LazyColumnVirtualizationTest {
             id = "list",
             itemCount = 10_000,
             itemHeight = 20f.dp,
-            modifier = Modifier.height(300f.dp).verticalScroll(state)
+            modifier = Modifier.height(300f.dp).verticalScroll(state),
         ) { index, _ ->
-            surface(id = "row-$index", style = Style { background(Color.White); shape(UiShape.none) }) {}
+            surface(
+                id = "row-$index",
+                style = Style {
+                    background(Color.White)
+                    shape(UiShape.none)
+                },
+            ) {}
         }
 
         val primitives = ui.endFrame()
@@ -50,7 +56,7 @@ class LazyColumnVirtualizationTest {
         // -> at most 19 composed items near the top of an unscrolled list, vs. 10,000 total.
         assertTrue(
             quadCount in 1..25,
-            "expected roughly the visible window (~15-19) of 10,000 items to be composed, got $quadCount"
+            "expected roughly the visible window (~15-19) of 10,000 items to be composed, got $quadCount",
         )
         assertTrue(quadCount < 10_000, "virtualization defeated: composed close to every item")
     }
@@ -67,9 +73,15 @@ class LazyColumnVirtualizationTest {
             id = "list",
             itemCount = 10_000,
             itemHeight = 20f.dp,
-            modifier = Modifier.height(300f.dp).verticalScroll(state)
+            modifier = Modifier.height(300f.dp).verticalScroll(state),
         ) { index, _ ->
-            surface(id = "row-$index", style = Style { background(Color.White); shape(UiShape.none) }) {}
+            surface(
+                id = "row-$index",
+                style = Style {
+                    background(Color.White)
+                    shape(UiShape.none)
+                },
+            ) {}
         }
 
         val primitives = ui.endFrame()
@@ -87,9 +99,15 @@ class LazyColumnVirtualizationTest {
             id = "row-list",
             itemCount = 10_000,
             itemWidth = 20f.dp,
-            modifier = Modifier.width(300f.dp).horizontalScroll(state)
+            modifier = Modifier.width(300f.dp).horizontalScroll(state),
         ) { index, _ ->
-            surface(id = "col-$index", style = Style { background(Color.White); shape(UiShape.none) }) {}
+            surface(
+                id = "col-$index",
+                style = Style {
+                    background(Color.White)
+                    shape(UiShape.none)
+                },
+            ) {}
         }
 
         val primitives = ui.endFrame()
@@ -110,7 +128,7 @@ class LazyColumnVirtualizationTest {
             itemCount = 5,
             itemHeight = 20f.dp,
             modifier = Modifier.height(100f.dp).verticalScroll(state),
-            key = { index -> "item-$index" }
+            key = { index -> "item-$index" },
         ) { index, key ->
             seenKeys += key
             surface(id = "row-$key") {}

@@ -36,7 +36,7 @@ class RowColumnWeightCacheTest {
         fun draw(): UiBounds = ui.createColumn(x = 0f, y = 0f, width = 400f, height = 400f).column(
             id = "outer",
             modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(120f.px)),
-            cacheKey = "stable"
+            cacheKey = "stable",
         ) {
             row(modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(30f.px))) { }
         }
@@ -59,7 +59,7 @@ class RowColumnWeightCacheTest {
         assertTrue(
             secondFrameTrials < firstFrameTrials,
             "second frame with the same id/cacheKey should skip the hasWeightedChild trial " +
-                "entirely (cache hit) -- first=$firstFrameTrials second=$secondFrameTrials"
+                "entirely (cache hit) -- first=$firstFrameTrials second=$secondFrameTrials",
         )
         assertEquals(firstSlot, secondSlot, "cache hit must not change resulting layout")
     }
@@ -72,7 +72,7 @@ class RowColumnWeightCacheTest {
             val slots = mutableListOf<UiBounds>()
             ui.createColumn(x = 0f, y = 0f, width = 400f, height = 400f).column(
                 id = "outer",
-                modifier = Modifier.width(Dimension.Fixed(300f.px)).height(Dimension.Fixed(120f.px))
+                modifier = Modifier.width(Dimension.Fixed(300f.px)).height(Dimension.Fixed(120f.px)),
             ) {
                 // The cache must live on the row() that directly owns the weight()-tagged
                 // child -- weighted-ness is a DIRECT-children-only signal, so caching it on the
@@ -81,7 +81,7 @@ class RowColumnWeightCacheTest {
                 row(
                     id = "inner-row",
                     cacheKey = cacheKey,
-                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(30f.px))
+                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(30f.px)),
                 ) {
                     // weight() lives on the column() wrapper, not directly on a composite
                     // surface() -- matches TrialMeasureScalingTest's fixture shape and avoids
@@ -93,7 +93,7 @@ class RowColumnWeightCacheTest {
                             Modifier.weight(1f).height(Dimension.Fixed(30f.px))
                         } else {
                             Modifier.width(Dimension.Fixed(50f.px)).height(Dimension.Fixed(30f.px))
-                        }
+                        },
                     ) { }
                     slots += column(id = "b", modifier = Modifier.width(Dimension.Fixed(50f.px)).height(Dimension.Fixed(30f.px))) { }
                 }
@@ -114,7 +114,7 @@ class RowColumnWeightCacheTest {
         assertTrue(
             weighted[0].width > unweighted[0].width,
             "cacheKey change must re-trial and pick up the new weighted-child answer -- " +
-                "unweighted first child width=${unweighted[0].width} weighted=${weighted[0].width}"
+                "unweighted first child width=${unweighted[0].width} weighted=${weighted[0].width}",
         )
     }
 
@@ -125,7 +125,7 @@ class RowColumnWeightCacheTest {
         fun draw(useWeight: Boolean) {
             ui.createColumn(x = 0f, y = 0f, width = 400f, height = 400f).column(
                 id = "outer",
-                modifier = Modifier.width(Dimension.Fixed(300f.px)).height(Dimension.Fixed(120f.px))
+                modifier = Modifier.width(Dimension.Fixed(300f.px)).height(Dimension.Fixed(120f.px)),
             ) {
                 row(
                     id = "inner-row",
@@ -134,7 +134,7 @@ class RowColumnWeightCacheTest {
                     // names. This must be on the row that owns the weighted child (see
                     // cacheKeyChangePicksUpNewWeightedChildAnswer's comment on why).
                     cacheKey = "same-key-both-frames",
-                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(30f.px))
+                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(30f.px)),
                 ) {
                     surface(
                         id = "a",
@@ -142,7 +142,7 @@ class RowColumnWeightCacheTest {
                             Modifier.weight(1f).height(Dimension.Fixed(30f.px))
                         } else {
                             Modifier.width(Dimension.Fixed(50f.px)).height(Dimension.Fixed(30f.px))
-                        }
+                        },
                     ) { }
                 }
             }

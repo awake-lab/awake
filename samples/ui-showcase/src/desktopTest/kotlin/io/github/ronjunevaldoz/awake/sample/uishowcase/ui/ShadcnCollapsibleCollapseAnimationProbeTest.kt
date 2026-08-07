@@ -45,7 +45,7 @@ class ShadcnCollapsibleCollapseAnimationProbeTest {
             id = "ui-showcase-sidebar",
             modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden))
                 .width(264f.dp)
-                .height(Dimension.FillMax)
+                .height(Dimension.FillMax),
         ) {
             drawUiShowcaseSidebar(compact = false)
         }

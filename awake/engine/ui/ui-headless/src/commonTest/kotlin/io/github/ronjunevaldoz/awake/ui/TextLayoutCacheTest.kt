@@ -4,12 +4,9 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.font.GlyphRect
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -57,7 +54,7 @@ class TextLayoutCacheTest {
         val callsAfterFirstFrame = font.advanceForCalls
         assertTrue(
             callsAfterFirstFrame > expectedDrawPassCallsPerFrame,
-            "first frame must pay both the layout walk and the draw pass, not just the draw floor"
+            "first frame must pay both the layout walk and the draw pass, not just the draw floor",
         )
 
         ui.beginFrame(400f, 200f, testSnapshot())
@@ -69,7 +66,7 @@ class TextLayoutCacheTest {
             font.advanceForCalls - callsAfterFirstFrame,
             "second frame with identical label/glyphPx/width/font must hit the layout cache: " +
                 "its advanceFor delta over frame 1 should be exactly the unavoidable draw-pass " +
-                "cost, with zero added for layoutBitmapText's wrap/measure walk"
+                "cost, with zero added for layoutBitmapText's wrap/measure walk",
         )
     }
 
@@ -90,7 +87,7 @@ class TextLayoutCacheTest {
         assertTrue(
             font.advanceForCalls > callsAfterFirstFrame,
             "a different label must miss the cache and re-walk the string, not silently reuse " +
-                "the previous label's cached layout"
+                "the previous label's cached layout",
         )
     }
 }

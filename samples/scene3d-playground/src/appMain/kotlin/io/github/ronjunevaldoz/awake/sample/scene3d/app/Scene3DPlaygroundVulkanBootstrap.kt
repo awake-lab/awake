@@ -17,17 +17,15 @@ private val Scene3DPlaygroundTexturedShaders = gameShaderSet("textured")
 private val Scene3DPlaygroundShadowShaders = gameShaderSet("shadow_depth")
 
 fun createScene3DPlaygroundVulkanApplication(
-    game: AwakeGame = scene3DPlayground()
-): VulkanGameApplication {
-    return VulkanGameApplication(
-        shaderSet = Scene3DPlaygroundShaders,
-        vertexFormat = VertexFormat.PositionNormalColor,
-        game = game,
-        additionalPipelines = mapOf(
-            VertexFormat.PositionNormalColorSkin to Scene3DPlaygroundSkinnedShaders,
-            VertexFormat.PositionNormalColorUv to Scene3DPlaygroundTexturedShaders
-        ),
-        wireframeSupport = true,
-        shadowShaderSet = Scene3DPlaygroundShadowShaders
-    )
-}
+    game: AwakeGame = scene3DPlayground(),
+): VulkanGameApplication = VulkanGameApplication(
+    shaderSet = Scene3DPlaygroundShaders,
+    vertexFormat = VertexFormat.PositionNormalColor,
+    game = game,
+    additionalPipelines = mapOf(
+        VertexFormat.PositionNormalColorSkin to Scene3DPlaygroundSkinnedShaders,
+        VertexFormat.PositionNormalColorUv to Scene3DPlaygroundTexturedShaders,
+    ),
+    wireframeSupport = true,
+    shadowShaderSet = Scene3DPlaygroundShadowShaders,
+)

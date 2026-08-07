@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.vulkan.VkHandle
 import io.github.ronjunevaldoz.awake.vulkan.VkHandleRef
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkStructureType
 
-
 class VkSubmitInfo(
     val sType: VkStructureType = VkStructureType.VK_STRUCTURE_TYPE_SUBMIT_INFO,
     val pNext: Any? = null,
@@ -20,5 +19,5 @@ class VkSubmitInfo(
     val pCommandBuffers: Array<VkHandle>? = null,
     @field:VkHandleRef("VkSemaphore")
     @field:VkArray("signalSemaphoreCount")
-    val pSignalSemaphores: Array<VkHandle>? = null
+    val pSignalSemaphores: Array<VkHandle>? = null,
 )

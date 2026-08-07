@@ -14,7 +14,7 @@ import kotlin.reflect.KProperty
 
 class Uniform(
     private val name: String = "",
-    private val prefix: String = "u_"
+    private val prefix: String = "u_",
 ) : ReadWriteProperty<DefaultShader, Any> {
     override fun getValue(thisRef: DefaultShader, property: KProperty<*>): Any {
         val variableName = name.ifEmpty { property.name }

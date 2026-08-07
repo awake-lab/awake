@@ -86,7 +86,7 @@ class UiShowcaseLayoutCostTest {
             val delta = before - after
             appendLine(
                 "  delta: $delta fewer trial passes/frame" +
-                    if (before > 0) " (${"%.1f".format(delta * 100.0 / before)}% reduction)" else ""
+                    if (before > 0) " (${"%.1f".format(delta * 100.0 / before)}% reduction)" else "",
             )
         }
         println(report)
@@ -137,7 +137,7 @@ class UiShowcaseLayoutCostTest {
         val trialNanos: Long,
         val trialCount: Int,
         val primitiveCount: Int,
-        val ctorNanos: Long = 0L
+        val ctorNanos: Long = 0L,
     ) {
         fun describe(label: String): String {
             val totalMs = totalNanos / 1_000_000.0
@@ -158,7 +158,7 @@ class UiShowcaseLayoutCostTest {
     private fun measureOneFrame(
         pageId: String,
         warmupFrames: Int = 5,
-        measuredFrames: Int = 5
+        measuredFrames: Int = 5,
     ): FrameCost {
         val previewScale = 1
         val previousScale = UiDensity.scale
@@ -183,7 +183,7 @@ class UiShowcaseLayoutCostTest {
                 ui.beginFrame(
                     1440f,
                     900f,
-                    input.updateSnapshot().toUiInputState()
+                    input.updateSnapshot().toUiInputState(),
                 )
                 ui.pushTheme(theme)
                 // Seed the same "ui-showcase-page" state key drawUiShowcaseSidebar/
@@ -215,7 +215,7 @@ class UiShowcaseLayoutCostTest {
                 trialNanos = trialNanos / measuredFrames,
                 trialCount = trialCount / measuredFrames,
                 primitiveCount = primitiveCount,
-                ctorNanos = ctorNanos / measuredFrames
+                ctorNanos = ctorNanos / measuredFrames,
             )
         } finally {
             UiDensity.scale = previousScale
@@ -247,24 +247,24 @@ class UiShowcaseLayoutCostTest {
             id = if (cacheShellRow) "ui-showcase-shell-row" else null,
             cacheKey = if (cacheShellRow) "static" else null,
             horizontalArrangement = Arrangement.spacedBy(railGap),
-            modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax)
+            modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax),
         ) {
             shadcnSidebar(
                 id = "ui-showcase-sidebar",
                 style = Style { shape(16f.dp) },
-                modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).width(sidebarWidth).height(Dimension.FillMax)
+                modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).width(sidebarWidth).height(Dimension.FillMax),
             ) {
                 drawUiShowcaseSidebar(compact = false)
             }
 
             column(
                 id = "ui-showcase-content-viewport",
-                modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax)
+                modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax),
             ) {
                 shadcnSurface(
                     id = "ui-showcase-content",
                     style = Style { shape(16f.dp) },
-                    modifier = Modifier.height(Dimension.WrapContent)
+                    modifier = Modifier.height(Dimension.WrapContent),
                 ) {
                     drawUiShowcasePageContent(state, showInlineMenu = false)
                 }

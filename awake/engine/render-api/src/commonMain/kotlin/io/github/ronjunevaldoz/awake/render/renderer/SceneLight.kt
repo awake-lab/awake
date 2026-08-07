@@ -12,5 +12,5 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
  * scene's `Light` entity. */
 data class SceneLight(
     val direction: Vec3,
-    val color: Vec3
+    val color: Vec3,
 )
