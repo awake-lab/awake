@@ -10,27 +10,32 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /**
  * Row of pressable toggles with independent multi-select state (e.g. bold+italic both active
  * at once). Index-based (not shadcn's string-keyed `Set<String>`) to match this module's
  * existing [toggle]/index convention.
  *
- * Missing vs real shadcn's `ToggleGroup`: that one wraps the row in a single bordered/rounded
- * container with only the outer corners rounded and one shared divider between segments.
- * Attempted and reverted -- painting a filled container underneath makes [toggle]'s own
- * unchecked label (resolved internally from `mutedForeground`, tuned for a transparent
- * background) unreadable, and a caller-supplied `style` does not win over that internal
- * resolution. Doing this properly needs [toggle] to expose its label color independently of
- * its surface resolution first; until then the group stays visually flat but readable.
+ * Stays visually flat: the bordered container is shadcn's look, so it lives in
+ * [io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup].
+ * [itemStyle] is how that wrapper retints the segments to stay readable on its background.
  */
-fun UiScope.toggleGroup(id: String, options: List<String>, selectedIndices: Set<Int>, modifier: UiModifier = Modifier, onSelectedIndicesChange: (Set<Int>) -> Unit = {}) {
+fun UiScope.toggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndices: Set<Int>,
+    modifier: UiModifier = Modifier,
+    itemStyle: Style = Style.Empty,
+    onSelectedIndicesChange: (Set<Int>) -> Unit = {},
+) {
     row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(0f.dp)) {
         options.forEachIndexed { index, option ->
             toggle(
                 id = "$id.$index",
                 checked = index in selectedIndices,
                 label = option,
+                style = itemStyle,
                 // toggle()'s own default height (40dp) doesn't stretch to the row's actual
                 // height on its own -- a caller-supplied shorter row (e.g. 32dp) left every
                 // unchecked segment silently overflowing by the same amount, invisible only
@@ -50,11 +55,19 @@ fun UiScope.toggleGroup(id: String, options: List<String>, selectedIndices: Set<
 
 /** Single-select convenience wrapper over the multi-select [toggleGroup] above; clicking the
  * already-selected option is a no-op (mirrors [io.github.ronjunevaldoz.awake.ui.headless.input.selection.radioGroup]). */
-fun UiScope.toggleGroup(id: String, options: List<String>, selectedIndex: Int, modifier: UiModifier = Modifier, onIndexChange: (Int) -> Unit = {}) = toggleGroup(
+fun UiScope.toggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    modifier: UiModifier = Modifier,
+    itemStyle: Style = Style.Empty,
+    onIndexChange: (Int) -> Unit = {},
+) = toggleGroup(
     id = id,
     options = options,
     selectedIndices = setOf(selectedIndex),
     modifier = modifier,
+    itemStyle = itemStyle,
     onSelectedIndicesChange = { indices ->
         (indices - selectedIndex).firstOrNull()?.let(onIndexChange)
     },
