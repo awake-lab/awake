@@ -23,11 +23,18 @@ value class Angle(private val value: Float) {
     fun toRadians(): Float = value * DEGREES_TO_RADIANS
 }
 
+/** Reads a degree literal as degrees. Identity -- present so call sites can state the unit. */
 val Int.angleDeg: Float
     get() = Angle(this.toFloat()).toDegrees()
+
+/** Converts a degree literal to radians, e.g. `45.angleRad`. */
 val Int.angleRad: Float
-    get() = Angle(this.toFloat()).toDegrees()
+    get() = Angle(this.toFloat()).toRadians()
+
+/** Reads a degree literal as degrees. Identity -- present so call sites can state the unit. */
 val Float.angleDeg: Float
     get() = Angle(this).toDegrees()
+
+/** Converts a degree literal to radians, e.g. `45f.angleRad`. */
 val Float.angleRad: Float
-    get() = Angle(this).toDegrees()
+    get() = Angle(this).toRadians()

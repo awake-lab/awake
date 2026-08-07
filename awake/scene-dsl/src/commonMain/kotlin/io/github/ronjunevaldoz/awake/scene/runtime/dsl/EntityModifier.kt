@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Transform
-import kotlin.math.PI
 import kotlin.reflect.KClass
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
@@ -105,18 +104,7 @@ fun EntityModifier.camera(
     this.setup()
 }
 
-private fun defaultLens() = CoreCamera(
-    eye = Vec3(0f, 0f, DEFAULT_EYE_DISTANCE),
-    center = Vec3(0f, 0f, 0f),
-    fovYRadians = (DEFAULT_FOV_DEGREES * PI / 180.0).toFloat(),
-    near = DEFAULT_NEAR,
-    far = DEFAULT_FAR
-)
-
-private const val DEFAULT_EYE_DISTANCE = 5f
-private const val DEFAULT_FOV_DEGREES = 45.0
-private const val DEFAULT_NEAR = 0.1f
-private const val DEFAULT_FAR = 100f
+private fun defaultLens() = CoreCamera.perspective()
 
 /**
  * Configures a [MeshRenderer] component.

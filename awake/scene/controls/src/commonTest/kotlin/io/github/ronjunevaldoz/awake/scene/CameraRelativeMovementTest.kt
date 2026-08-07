@@ -9,7 +9,6 @@ import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MovementControl
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import io.github.ronjunevaldoz.awake.scene.systems.MatrixRelativeMovementSystem
-import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -63,13 +62,7 @@ class CameraRelativeMovementTest {
         world.add(
             cameraEntity,
             Camera(
-                CoreCamera(
-                    eye = eye,
-                    center = Vec3(0f, 0f, 0f),
-                    fovYRadians = (45.0 * PI / 180.0).toFloat(),
-                    near = 0.1f,
-                    far = 100f
-                )
+                CoreCamera.perspective(eye = eye, center = Vec3.ZERO)
             )
         )
         world.add(cameraEntity, ActiveCamera())

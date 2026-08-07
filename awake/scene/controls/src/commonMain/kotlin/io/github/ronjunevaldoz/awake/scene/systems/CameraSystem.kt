@@ -61,7 +61,10 @@ class CameraSystem(
 
             // Only accumulate an axis the current mode actually reads -- see CameraMode.
             if (config.mode.usesYaw) {
-                config.yaw -= dx * LOOK_SENSITIVITY
+                // `+`, not `-`: with yaw 0 facing -Z and +Y up, screen-right is +X, and
+                // forward.x is sin(yaw). Subtracting here turned the view left when the
+                // pointer moved right.
+                config.yaw += dx * LOOK_SENSITIVITY
             }
             if (config.mode.usesPitch) {
                 config.pitch = (config.pitch - dy * LOOK_SENSITIVITY)

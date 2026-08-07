@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.boundingCenter
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
@@ -26,7 +27,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFiel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import kotlin.math.PI
 
 /**
  * Real GPU-skinned glTF viewer.
@@ -179,13 +179,7 @@ internal object SkinnedMeshDemo {
                 "Camera",
                 Modifier().camera(
                     target = null,
-                    lens = io.github.ronjunevaldoz.awake.core.math.Camera(
-                        eye = Vec3(0f, 5f, 10f),
-                        center = modelCenter,
-                        fovYRadians = 45f * (PI / 180.0).toFloat(),
-                        near = 0.1f,
-                        far = 100f
-                    )
+                    lens = CoreCamera.perspective(eye = Vec3(0f, 5f, 10f), center = modelCenter)
                 )
             )
 

@@ -126,11 +126,25 @@ data class Vec3(var x: Float = 1f, var y: Float = 1f, var z: Float = 1f) {
         return Vec3(x * scalar, y * scalar, z * scalar)
     }
 
+    /**
+     * Awake's world-space direction convention. Each is a `get()` property rather than a
+     * stored `val`, so every read hands back a **fresh** vector: [Vec3] is mutable, and a
+     * shared instance could be aliased into a [set]/[add] chain and silently corrupt the
+     * constant for every other caller in the process.
+     *
+     * Right-handed, Y-up, facing -Z -- the same convention `CameraSystem` builds its aim from
+     * (yaw 0 looks along [FORWARD], +yaw turns toward [RIGHT], +pitch tilts toward [UP]).
+     */
     companion object {
-        /** A fresh world-up vector. Deliberately a function, not a `val` constant: [Vec3] is
-         * mutable, so a shared instance could be aliased into a [set]/[add] chain and corrupt
-         * world-up for every other caller. */
-        fun up(): Vec3 = Vec3(0f, 1f, 0f)
+        val ZERO: Vec3 get() = Vec3(0f, 0f, 0f)
+        val ONE: Vec3 get() = Vec3(1f, 1f, 1f)
+
+        val UP: Vec3 get() = Vec3(0f, 1f, 0f)
+        val DOWN: Vec3 get() = Vec3(0f, -1f, 0f)
+        val RIGHT: Vec3 get() = Vec3(1f, 0f, 0f)
+        val LEFT: Vec3 get() = Vec3(-1f, 0f, 0f)
+        val FORWARD: Vec3 get() = Vec3(0f, 0f, -1f)
+        val BACK: Vec3 get() = Vec3(0f, 0f, 1f)
     }
 }
 

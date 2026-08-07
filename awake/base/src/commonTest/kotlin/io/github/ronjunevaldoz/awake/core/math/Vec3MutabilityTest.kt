@@ -65,10 +65,12 @@ class Vec3MutabilityTest {
 
     @Test
     fun upIsAFreshInstanceSoCallersCannotCorruptWorldUp() {
-        val first = Vec3.up()
+        val first = Vec3.UP
         first.set(9f, 9f, 9f)
 
-        assertEquals(1f, Vec3.up().y, TOLERANCE)
+        assertEquals(1f, Vec3.UP.y, TOLERANCE)
+        assertEquals(-1f, Vec3.FORWARD.z, TOLERANCE)
+        assertEquals(1f, Vec3.RIGHT.x, TOLERANCE)
     }
 
     private companion object {

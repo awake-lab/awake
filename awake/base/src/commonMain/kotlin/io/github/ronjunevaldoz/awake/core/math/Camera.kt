@@ -37,4 +37,37 @@ class Camera(
         }
         return view * projection
     }
+
+    companion object {
+        /**
+         * The standard perspective lens, in the units people actually think in: field of view
+         * in **degrees**, not radians.
+         *
+         * Exists because every call site was hand-writing `45f * (PI / 180.0).toFloat()` and
+         * repeating the same near/far pair. Prefer this over the raw constructor unless you
+         * genuinely need a non-default clip-space convention.
+         */
+        fun perspective(
+            eye: Vec3 = Vec3(0f, 0f, DEFAULT_EYE_DISTANCE),
+            center: Vec3 = Vec3.ZERO,
+            up: Vec3 = Vec3.UP,
+            fovYDegrees: Float = DEFAULT_FOV_DEGREES,
+            near: Float = DEFAULT_NEAR,
+            far: Float = DEFAULT_FAR,
+            flipYForClipSpace: Boolean = true
+        ): Camera = Camera(
+            eye = eye,
+            center = center,
+            up = up,
+            fovYRadians = fovYDegrees.angleRad,
+            near = near,
+            far = far,
+            flipYForClipSpace = flipYForClipSpace
+        )
+
+        const val DEFAULT_FOV_DEGREES = 45f
+        const val DEFAULT_NEAR = 0.1f
+        const val DEFAULT_FAR = 100f
+        private const val DEFAULT_EYE_DISTANCE = 5f
+    }
 }

@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 import io.github.ronjunevaldoz.awake.core.graphics.createBitmap
 import io.github.ronjunevaldoz.awake.core.graphics.toRgba8Bytes
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.boundingCenter
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfMesh
@@ -22,7 +23,6 @@ import io.github.ronjunevaldoz.awake.scene.components.*
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.dsl.*
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
-import kotlin.math.PI
 
 /**
  * Real glTF viewer -- loads Khronos's own `Duck.gltf` reference sample.
@@ -159,13 +159,7 @@ internal object GltfViewerDemo {
                 "Camera",
                 Modifier().camera(
                     target = null,
-                    lens = io.github.ronjunevaldoz.awake.core.math.Camera(
-                        eye = Vec3(0f, 0f, 10f),
-                        center = modelCenter,
-                        fovYRadians = 45f * (PI / 180.0).toFloat(),
-                        near = 0.1f,
-                        far = 100f
-                    )
+                    lens = CoreCamera.perspective(eye = Vec3(0f, 0f, 10f), center = modelCenter)
                 )
             )
 
