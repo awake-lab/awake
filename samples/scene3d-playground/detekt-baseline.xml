@@ -18,7 +18,7 @@
     <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$0.36f</ID>
     <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$1.4f</ID>
     <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$28f</ID>
-    <ID>MagicNumber:OrbitCameraControlsPanel.kt$180.0</ID>
+    <ID>MagicNumber:ProjectionControlsPanel.kt$180.0</ID>
     <ID>MagicNumber:ReferenceGrid.kt$0.15f</ID>
     <ID>MagicNumber:ReferenceGrid.kt$0.35f</ID>
     <ID>MagicNumber:ReferenceGrid.kt$0.55f</ID>
@@ -50,7 +50,6 @@
     <ID>MagicNumber:RotatingCubeMesh.kt$7</ID>
     <ID>MagicNumber:RotatingCubeMesh.kt$8</ID>
     <ID>MagicNumber:RotatingCubeMesh.kt$9</ID>
-    <ID>MagicNumber:RotatingCubeSimplified.kt$RotatingCubeSimplified$1.5f</ID>
     <ID>MagicNumber:Scene3DPlaygroundFeature.kt$0.14f</ID>
     <ID>MagicNumber:Scene3DPlaygroundFeature.kt$0.16f</ID>
     <ID>MagicNumber:Scene3DPlaygroundGame.kt$1600</ID>
@@ -64,23 +63,18 @@
     <ID>MagicNumber:SkinnedMeshDemo.kt$SkinnedMeshDemo$0.9f</ID>
     <ID>MagicNumber:SkinnedMeshDemo.kt$SkinnedMeshDemo$10f</ID>
     <ID>MagicNumber:SkinnedMeshDemo.kt$SkinnedMeshDemo$5f</ID>
-    <ID>MaxLineLength:GltfViewerDemo.kt$GltfViewerDemo$moveTargetWithWASD = scope.shadcnSwitch(id = "gltf-move-target", checked = moveTargetWithWASD, label = "WASD moves model", enabled = config?.mode == CameraMode.Cinematic)</ID>
     <ID>MaxLineLength:GltfViewerDemo.kt$GltfViewerDemo$showAimMarkers = scope.shadcnSwitch(id = "gltf-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")</ID>
-    <ID>MaxLineLength:OrbitCameraControlsPanel.kt$core.far = shadcnFieldSliderWithValue(id = "$idPrefix-far", label = "Far", min = 10f, max = 1000f, value = core.far)</ID>
-    <ID>MaxLineLength:OrbitCameraControlsPanel.kt$core.near = shadcnFieldSliderWithValue(id = "$idPrefix-near", label = "Near", min = 0.01f, max = 5f, value = core.near)</ID>
-    <ID>MaxLineLength:OrbitCameraControlsPanel.kt$val newFovDeg = shadcnFieldSliderWithValue(id = "$idPrefix-fov", label = "FOV", min = 10f, max = 120f, value = fovDeg)</ID>
-    <ID>MaxLineLength:RotatingCubeDemo.kt$RotatingCubeDemo$moveTargetWithWASD = scope.shadcnSwitch(id = "cube-move-target", checked = moveTargetWithWASD, label = "WASD moves target", enabled = config?.mode == CameraMode.Cinematic)</ID>
+    <ID>MaxLineLength:ProjectionControlsPanel.kt$core.far = shadcnFieldSliderWithValue(id = "$idPrefix-far", label = "Far", min = 10f, max = 1000f, value = core.far)</ID>
+    <ID>MaxLineLength:ProjectionControlsPanel.kt$core.near = shadcnFieldSliderWithValue(id = "$idPrefix-near", label = "Near", min = 0.01f, max = 5f, value = core.near)</ID>
+    <ID>MaxLineLength:ProjectionControlsPanel.kt$val newFovDeg = shadcnFieldSliderWithValue(id = "$idPrefix-fov", label = "FOV", min = 10f, max = 120f, value = fovDeg)</ID>
     <ID>MaxLineLength:RotatingCubeDemo.kt$RotatingCubeDemo$showAimMarkers = scope.shadcnSwitch(id = "cube-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")</ID>
     <ID>MaxLineLength:RotatingCubeDemo.kt$RotatingCubeDemo$timeController.autoPlay = shadcnSwitch(id = "cube-auto-spin", checked = timeController.autoPlay, label = "Auto-spin")</ID>
-    <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$moveTargetWithWASD = scope.shadcnSwitch(id = "skinned-move-target", checked = moveTargetWithWASD, label = "WASD moves model", enabled = config?.mode == CameraMode.Cinematic)</ID>
     <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$showAimMarkers = scope.shadcnSwitch(id = "skinned-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")</ID>
     <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$skinnedEntity?.let { world.get&lt;SkinnedPose>(it)?.jointPalette = currentPlayer.jointPalette(currentSkin) }</ID>
     <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$timeController.autoPlay = shadcnSwitch(id = "skinned-auto-play", checked = timeController.autoPlay, label = "Auto-play")</ID>
     <ID>MaxLineLength:SkinnedMeshDemo.kt$SkinnedMeshDemo$val timeSeconds = if (duration > 0f) (timeController.hours / ManualTimeController.HOURS_PER_CYCLE) * duration else 0f</ID>
     <ID>NestedBlockDepth:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$@Test fun headlessRotatingCubeRenderMatchesBaselines()</ID>
     <ID>ReturnCount:SkinnedMeshDemo.kt$SkinnedMeshDemo$private fun ensureSpawned(runtime: SceneGameRuntime)</ID>
-    <ID>UnusedPrivateMember:SkinnedMeshDemo.kt$SkinnedMeshDemo$private fun cubeWorldPosition(): Vec3</ID>
-    <ID>UnusedPrivateProperty:GltfViewerDemo.kt$GltfViewerDemo$private var autoRotate = true</ID>
     <ID>WildcardImport:GltfViewerDemo.kt$import io.github.ronjunevaldoz.awake.scene.components.*</ID>
     <ID>WildcardImport:GltfViewerDemo.kt$import io.github.ronjunevaldoz.awake.scene.runtime.dsl.*</ID>
     <ID>WildcardImport:SkinnedMeshDemo.kt$import io.github.ronjunevaldoz.awake.scene.components.*</ID>

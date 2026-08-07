@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
 import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
-import io.github.ronjunevaldoz.awake.scene.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.components.Light
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.SpinControl
@@ -34,9 +33,7 @@ internal object RotatingCubeDemo {
     private var wireframe = false
     private var spinRadians = 0f
 
-    private var followTargetEntity: Entity? = null
     private var panningEntity: Entity? = null
-    private var moveTargetWithWASD = false
     private var showAimMarkers = false
 
     private val timeController = ManualTimeController()
@@ -59,7 +56,6 @@ internal object RotatingCubeDemo {
                 scope.renderCameraModeToggle(config.mode) { config.mode = it }
             }
             cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "cube") }
-            moveTargetWithWASD = scope.shadcnSwitch(id = "cube-move-target", checked = moveTargetWithWASD, label = "WASD moves target", enabled = config?.mode == CameraMode.Cinematic)
             showAimMarkers = scope.shadcnSwitch(id = "cube-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
             scope.shadcnCollapsibleCard(
                 id = "cube-controls-display",
@@ -108,8 +104,6 @@ internal object RotatingCubeDemo {
             cubeEntity = null
             lightEntity?.let { world.destroy(it) }
             lightEntity = null
-            followTargetEntity?.let { world.destroy(it) }
-            followTargetEntity = null
             panningEntity?.let { world.destroy(it) }
             panningEntity = null
             cameraEntity?.let { world.destroy(it) }
@@ -146,10 +140,6 @@ internal object RotatingCubeDemo {
                 markers += LineSegment(cpos, cpos + Vec3(0.1f, 0f, 0f), AXIS_COLOR_X)
                 markers += LineSegment(cpos, cpos + Vec3(0f, 0.1f, 0f), AXIS_COLOR_Y)
                 markers += LineSegment(cpos, cpos + Vec3(0f, 0f, 0.1f), AXIS_COLOR_Z)
-                val ft = followTargetEntity?.let { world.get<Transform>(it)?.position } ?: cubeWorldPosition()
-                markers += LineSegment(ft, ft + Vec3(0.1f, 0f, 0f), floatArrayOf(1f, 1f, 0f, 1f))
-                markers += LineSegment(ft, ft + Vec3(0f, 0.1f, 0f), floatArrayOf(1f, 1f, 0f, 1f))
-                markers += LineSegment(ft, ft + Vec3(0f, 0f, 0.1f), floatArrayOf(1f, 1f, 0f, 1f))
                 renderer.drawDebugLines(markers)
             }
         }

@@ -46,7 +46,6 @@ internal object SkinnedMeshDemo {
 
     private var followTargetEntity: Entity? = null
     private var panningEntity: Entity? = null
-    private var moveTargetWithWASD = false
     private var showAimMarkers = false
 
     private val timeController = ManualTimeController()
@@ -86,7 +85,6 @@ internal object SkinnedMeshDemo {
                 scope.renderCameraModeToggle(config.mode) { config.mode = it }
             }
             cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "skinned") }
-            moveTargetWithWASD = scope.shadcnSwitch(id = "skinned-move-target", checked = moveTargetWithWASD, label = "WASD moves model", enabled = config?.mode == CameraMode.Cinematic)
             showAimMarkers = scope.shadcnSwitch(id = "skinned-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
             scope.shadcnCollapsibleCard(
                 id = "skinned-controls-display",
@@ -189,8 +187,6 @@ internal object SkinnedMeshDemo {
         
         spawned = true
     }
-
-    private fun cubeWorldPosition(): Vec3 = modelCenter
 
     private const val SKINNED_UNIFORM_FLOAT_COUNT = 16 + 64 * 16
 }

@@ -32,18 +32,12 @@ internal object GltfViewerDemo {
     private var duckEntity: Entity? = null
 
     private var loadedMesh: GltfMesh? = null
-    private var autoRotate = true
 
     private var followTargetEntity: Entity? = null
     private var panningEntity: Entity? = null
-    private var moveTargetWithWASD = false
     private var showAimMarkers = false
 
-    private var rawInterleaved: FloatArray? = null
     private var normalizedInterleaved: FloatArray? = null
-    private var normalizeScale = true
-    private var scaleMultiplier = 1f
-    private var meshIsNormalized: Boolean? = null
     private var modelRadius = 1f
     private var modelCenter: Vec3 = Vec3(0f, 0f, 0f)
     private var textureAsset: TextureAsset? = null
@@ -58,8 +52,8 @@ internal object GltfViewerDemo {
         val gltfMesh = GltfParser.parse(bytes.decodeToString())
         loadedMesh = gltfMesh
         modelRadius = boundingRadius(gltfMesh.positions)
-        rawInterleaved = gltfMesh.toInterleavedPositionNormalColorUv()
-        normalizedInterleaved = scalePositions(rawInterleaved!!, 1f / modelRadius)
+        normalizedInterleaved =
+            scalePositions(gltfMesh.toInterleavedPositionNormalColorUv(), 1f / modelRadius)
 
         modelCenter = boundingCenter(gltfMesh.positions)
 
@@ -90,7 +84,6 @@ internal object GltfViewerDemo {
                 scope.renderCameraModeToggle(config.mode) { config.mode = it }
             }
             cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "gltf") }
-            moveTargetWithWASD = scope.shadcnSwitch(id = "gltf-move-target", checked = moveTargetWithWASD, label = "WASD moves model", enabled = config?.mode == CameraMode.Cinematic)
             showAimMarkers = scope.shadcnSwitch(id = "gltf-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
         },
         onActivate = { ensureSpawned(this) },
@@ -107,16 +100,7 @@ internal object GltfViewerDemo {
         },
         onUpdate = { delta ->
             ensureSpawned(this)
-            if (mesh != null && meshIsNormalized != normalizeScale) rebindMesh(this)
-            
-            // Write the scale into Transform, not worldMatrix: Mat4.scale returns a NEW matrix
-            // (so mutating in place was a no-op), and TransformSystem recomposes worldMatrix
-            // from position/rotation/scale afterwards anyway.
-            val worldScale = if (normalizeScale) scaleMultiplier else 1f
-            duckEntity?.let {
-                world.get<Transform>(it)?.scale?.set(worldScale, worldScale, worldScale)
-            }
-            
+
             renderer.drawReferenceGrid()
 
             val fte = followTargetEntity ?: world.create().also {
@@ -150,9 +134,8 @@ internal object GltfViewerDemo {
     private fun ensureSpawned(runtime: SceneGameRuntime) {
         if (spawned) return
         if (loadedMesh == null) return
-        mesh = createMeshForCurrentScaleMode(runtime)
+        mesh = createNormalizedMesh(runtime)
         material = runtime.renderer.createMaterial(texture = textureAsset)
-        meshIsNormalized = normalizeScale
 
         runtime.world.scene {
             cameraEntity = entity(
@@ -169,17 +152,10 @@ internal object GltfViewerDemo {
         spawned = true
     }
 
-    private fun rebindMesh(runtime: SceneGameRuntime) {
-        mesh?.destroy()
-        mesh = createMeshForCurrentScaleMode(runtime)
-        meshIsNormalized = normalizeScale
-        duckEntity?.let { runtime.world.add(it, MeshRenderer(mesh!!, material!!)) }
-    }
-
-    private fun createMeshForCurrentScaleMode(runtime: SceneGameRuntime) =
+    private fun createNormalizedMesh(runtime: SceneGameRuntime) =
         runtime.renderer.createMesh(
             MeshGeometry(
-                if (normalizeScale) normalizedInterleaved!! else rawInterleaved!!,
+                normalizedInterleaved!!,
                 loadedMesh!!.indices,
                 format = VertexFormat.PositionNormalColorUv
             )

@@ -53,9 +53,8 @@ class GltfViewerScalePositionsTest {
 
     @Test
     fun neverMutatesTheSourceArray() {
-        // Both rawInterleaved and normalizedInterleaved need to stay independently valid for as
-        // long as normalizeScale can still be toggled back -- see scalePositions's own doc
-        // comment for why an in-place scale would silently break that.
+        // Callers must be free to keep using the array they passed in -- see scalePositions's
+        // own doc comment for why an in-place scale would silently break that.
         val source = floatArrayOf(10f, 10f, 10f, 0f, 1f, 0f, 1f, 1f, 1f, 0.5f, 0.5f)
         val sourceCopyForComparison = source.copyOf()
 
