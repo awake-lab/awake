@@ -44,19 +44,20 @@ fn vertexMain(
 }
 
 const AMBIENT_STRENGTH : f32 = 0.35;
-// Constant depth bias only (no slope-scaled term): the demo cube's winding isn't guaranteed
-// outward-consistent (see RenderPipeline.kt's own cullMode comment), which rules out
-// front-face culling as an acne fix here, and a single tuned constant is simpler to reason
-// about than a slope term that can under/over-correct together with it.
-// ponytail: fixed bias, no slope term -- revisit with slope-scaled bias if grazing-angle
-// acne shows up on steeper geometry than this demo's cube/ground.
-const SHADOW_BIAS : f32 = 0.0025;
+// Slope-scaled bias. A single constant can't cover both face-on and grazing surfaces: the
+// depth gradient across one shadow texel grows as the surface tilts away from the light, so a
+// constant large enough to stop grazing-angle acne detaches face-on contact shadows. Scaling by
+// 1-dot(N,L) spends the bias only where it's needed. Front-face culling would fix acne
+// structurally but this demo's cube winding isn't guaranteed outward-consistent (see
+// ShadowRenderPipeline's cullMode comment), so it isn't available here.
+const SHADOW_BIAS_MIN : f32 = 0.0015;
+const SHADOW_BIAS_MAX : f32 = 0.0090;
 const PCF_RADIUS : i32 = 1;
 
 // Vulkan/WebGPU NDC depth is already 0..1 (ClipSpace.depthZeroToOne), so shadowPos.z after the
 // perspective divide is directly comparable to the shadow map's stored depth -- no OpenGL-style
 // *0.5+0.5 remap needed.
-fn sampleShadow(shadowPos : vec4f) -> f32 {
+fn sampleShadow(shadowPos : vec4f, nDotL : f32) -> f32 {
   if (shadowPos.w <= 0.0) {
     return 1.0;
   }
@@ -65,6 +66,7 @@ fn sampleShadow(shadowPos : vec4f) -> f32 {
   if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0 || ndc.z < 0.0 || ndc.z > 1.0) {
     return 1.0;
   }
+  let bias = max(SHADOW_BIAS_MAX * (1.0 - nDotL), SHADOW_BIAS_MIN);
   let texSize = vec2f(textureDimensions(shadowMap));
   let texel = 1.0 / texSize;
   var shadow = 0.0;
@@ -78,7 +80,7 @@ fn sampleShadow(shadowPos : vec4f) -> f32 {
       // Explicit LOD (not textureSample): implicit-derivative sampling inside a loop is the
       // kind of non-uniform control flow WGSL/SPIR-V leaves undefined.
       let closestDepth = textureSampleLevel(shadowMap, shadowMapSampler, uv + offset, 0.0).r;
-      shadow = shadow + select(1.0, 0.0, ndc.z - SHADOW_BIAS > closestDepth);
+      shadow = shadow + select(1.0, 0.0, ndc.z - bias > closestDepth);
       samples = samples + 1.0;
     }
   }
@@ -94,7 +96,7 @@ fn fragmentMain(
   let n = normalize(normal);
   let l = normalize(uniforms.lightDirection.xyz);
   let diffuse = max(dot(n, l), 0.0);
-  let shadowFactor = sampleShadow(shadowPos);
+  let shadowFactor = sampleShadow(shadowPos, diffuse);
   let shade = AMBIENT_STRENGTH + (1.0 - AMBIENT_STRENGTH) * diffuse * shadowFactor;
   return vec4f(color * shade * uniforms.lightColor.xyz, 1.0);
 }

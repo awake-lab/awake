@@ -56,7 +56,11 @@ internal object GltfViewerDemo {
         normalizedInterleaved =
             scalePositions(gltfMesh.toInterleavedPositionNormalColorUv(), 1f / modelRadius)
 
-        modelCenter = boundingCenter(gltfMesh.positions)
+        // Scaled by the same 1/modelRadius the vertices were: boundingCenter measures the
+        // ORIGINAL positions, so leaving it unscaled aimed the camera at a point far outside
+        // the normalized mesh.
+        val center = boundingCenter(gltfMesh.positions)
+        modelCenter = Vec3(center.x / modelRadius, center.y / modelRadius, center.z / modelRadius)
 
         val imageBytes = requireNotNull(gltfMesh.baseColorImageBytes)
         val bitmap = createBitmap(imageBytes)
@@ -84,7 +88,9 @@ internal object GltfViewerDemo {
             if (config != null) {
                 scope.renderCameraModeToggle(config.mode) { config.mode = it }
             }
-            cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "gltf") }
+            // Switches before the projection sliders: the controls column scrolls, and three
+            // label+slider+value rows pushed these below the fold, so the view-mode toggles read
+            // as missing entirely ("I cannot verify the wireframe, there is no controls").
             showAimMarkers = scope.shadcnSwitch(id = "gltf-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
             wireframeEnabled = scope.shadcnSwitch(id = "gltf-wireframe", checked = wireframeEnabled, label = "Wireframe")
             // Affects the shared Renderer used by every demo in this sample app (see
@@ -92,6 +98,7 @@ internal object GltfViewerDemo {
             // the Rotating cube demo's ground plane, since this demo's own duck draws through
             // the textured pipeline (no lighting/shadowing at all yet).
             renderer.shadowsEnabled = scope.shadcnSwitch(id = "gltf-shadows", checked = renderer.shadowsEnabled, label = "Shadows")
+            cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "gltf") }
         },
         onActivate = { ensureSpawned(this) },
         onDeactivate = { world ->
@@ -150,7 +157,12 @@ internal object GltfViewerDemo {
                 "Camera",
                 Modifier().camera(
                     target = null,
-                    lens = CoreCamera.perspective(eye = Vec3(0f, 0f, 10f), center = modelCenter)
+                    // The mesh is normalized to unit radius above, so frame it at a few radii
+                    // rather than a fixed 10 -- that was ~10x too far and read as "zoomed out".
+                    lens = CoreCamera.perspective(
+                        eye = Vec3(modelCenter.x, modelCenter.y, modelCenter.z + FRAMING_DISTANCE_RADII),
+                        center = modelCenter
+                    )
                 )
             )
 
@@ -170,4 +182,8 @@ internal object GltfViewerDemo {
         )
 
     private const val TEXTURED_VERTEX_STRIDE_COMPONENTS = 11
+
+    /** Camera distance in model radii. The mesh is normalized to unit radius, so ~3 fills the
+     * viewport without clipping at the default 45-degree FOV. */
+    private const val FRAMING_DISTANCE_RADII = 3f
 }
