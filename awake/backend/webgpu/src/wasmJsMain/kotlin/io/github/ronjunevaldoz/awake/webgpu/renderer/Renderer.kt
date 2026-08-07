@@ -104,6 +104,11 @@ class Renderer(
 
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
 
+    // This backend has no shadow-map implementation yet (see docs/MVP_PLAN.md) -- a stored,
+    // otherwise-unused property purely to satisfy the shared interface, same "compile-only
+    // stub" posture as this file's own Material.
+    override var shadowsEnabled: Boolean = true
+
     /** [clearColor] converted to this backend's clear-value type -- see the Vulkan `Renderer`'s
      * own `clearColorValue` for why this is a fresh-read `get()`, not a cached field. */
     internal val clearColorValue: GpuColor

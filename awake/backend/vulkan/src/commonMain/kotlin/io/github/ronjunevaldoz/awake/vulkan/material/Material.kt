@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutBin
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.texture.ShadowMap
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 
 /**
@@ -44,7 +45,15 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
  */
 class Material(
     graphicsDevice: GraphicsDevice,
-    private val uniformFloatCount: Int = DEFAULT_UNIFORM_FLOAT_COUNT
+    private val uniformFloatCount: Int = DEFAULT_UNIFORM_FLOAT_COUNT,
+    /** Non-null only for a [io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer] built with
+     * shadow support (see that class's own `shadowMap` doc comment) -- when present, every
+     * material gets 2 extra descriptor bindings (3: shadow depth image, 4: its sampler) bound
+     * to this SAME shared [ShadowMap], same "every material gets it whether or not its own
+     * shader samples it" reasoning the base-color texture bindings (1/2) already use. `null`
+     * (default) keeps every existing Material caller's descriptor-set layout/uniform buffer
+     * exactly as it was before shadows existed. */
+    private val shadowMap: ShadowMap? = null
 ) : RenderMaterial {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
@@ -72,42 +81,55 @@ class Material(
         private set
 
     init {
+        val bindings = mutableListOf(
+            VkDescriptorSetLayoutBinding(
+                binding = 0,
+                descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                // MVP matrix is read in the vertex shader; lightDirection/
+                // lightColor (appended to this same uniform buffer for the
+                // lighting feature) are read in the fragment shader -- both stage
+                // bits are required or vkCreateGraphicsPipelines fails validation
+                // (VUID-VkGraphicsPipelineCreateInfo-layout-07988) the moment a
+                // shader stage reads a binding this layout didn't declare for it.
+                stageFlags = VkShaderStageFlagBits.VERTEX.value or VkShaderStageFlagBits.FRAGMENT.value
+            ),
+            // Two separate bindings (image + sampler), not one combined-image-
+            // sampler -- WGSL has no combined-sampler type at all, so naga always
+            // compiles a `texture_2d` + `sampler` pair to two separate SPIR-V
+            // bindings (confirmed via spirv-dis on textured.wgsl's own output).
+            // Every material gets both regardless of whether its own shader
+            // actually samples a texture (triangle.wgsl/skinned.wgsl's pipeline
+            // layouts simply never read them) -- one shared Material shape is
+            // simpler than a per-shader descriptor-layout variant.
+            VkDescriptorSetLayoutBinding(
+                binding = 1,
+                descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+            ),
+            VkDescriptorSetLayoutBinding(
+                binding = 2,
+                descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
+                stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+            )
+        )
+        if (shadowMap != null) {
+            // Bindings 3/4: the shadow depth map, same image+sampler split as 1/2 above --
+            // see this class's constructor doc comment for why every material gets these.
+            bindings += VkDescriptorSetLayoutBinding(
+                binding = 3,
+                descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+            )
+            bindings += VkDescriptorSetLayoutBinding(
+                binding = 4,
+                descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
+                stageFlags = VkShaderStageFlagBits.FRAGMENT.value
+            )
+        }
         descriptorSetLayout = DescriptorSetLayoutHandle(
             VulkanDescriptors.vkCreateDescriptorSetLayout(
                 device,
-                VkDescriptorSetLayoutCreateInfo(
-                    pBindings = arrayOf(
-                        VkDescriptorSetLayoutBinding(
-                            binding = 0,
-                            descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                            // MVP matrix is read in the vertex shader; lightDirection/
-                            // lightColor (appended to this same uniform buffer for the
-                            // lighting feature) are read in the fragment shader -- both stage
-                            // bits are required or vkCreateGraphicsPipelines fails validation
-                            // (VUID-VkGraphicsPipelineCreateInfo-layout-07988) the moment a
-                            // shader stage reads a binding this layout didn't declare for it.
-                            stageFlags = VkShaderStageFlagBits.VERTEX.value or VkShaderStageFlagBits.FRAGMENT.value
-                        ),
-                        // Two separate bindings (image + sampler), not one combined-image-
-                        // sampler -- WGSL has no combined-sampler type at all, so naga always
-                        // compiles a `texture_2d` + `sampler` pair to two separate SPIR-V
-                        // bindings (confirmed via spirv-dis on textured.wgsl's own output).
-                        // Every material gets both regardless of whether its own shader
-                        // actually samples a texture (triangle.wgsl/skinned.wgsl's pipeline
-                        // layouts simply never read them) -- one shared Material shape is
-                        // simpler than a per-shader descriptor-layout variant.
-                        VkDescriptorSetLayoutBinding(
-                            binding = 1,
-                            descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-                            stageFlags = VkShaderStageFlagBits.FRAGMENT.value
-                        ),
-                        VkDescriptorSetLayoutBinding(
-                            binding = 2,
-                            descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
-                            stageFlags = VkShaderStageFlagBits.FRAGMENT.value
-                        )
-                    )
-                )
+                VkDescriptorSetLayoutCreateInfo(pBindings = bindings.toTypedArray())
             )
         )
     }
@@ -143,7 +165,7 @@ class Material(
             graphicsDevice,
             uniformFloatCount
         )
-        val rawDescriptorPool = createMaterialDescriptorPool(device)
+        val rawDescriptorPool = createMaterialDescriptorPool(device, shadowMap != null)
         val rawDescriptorSet = createMaterialDescriptorSet(
             device = device,
             descriptorPool = rawDescriptorPool,
@@ -152,7 +174,9 @@ class Material(
                 uniformBuffer = rawUniformBuffer,
                 uniformFloatCount = uniformFloatCount,
                 sampler = samplerHandle,
-                imageView = imageViewHandle
+                imageView = imageViewHandle,
+                shadowSampler = shadowMap?.sampler,
+                shadowImageView = shadowMap?.imageView
             )
         )
         return UniformSlot(
@@ -259,7 +283,7 @@ private fun createMaterialUniformBuffer(graphicsDevice: GraphicsDevice, uniformF
     return rawUniformBuffer to rawUniformBufferMemory
 }
 
-private fun createMaterialDescriptorPool(device: Long): Long = VulkanDescriptors.vkCreateDescriptorPool(
+private fun createMaterialDescriptorPool(device: Long, hasShadowMap: Boolean): Long = VulkanDescriptors.vkCreateDescriptorPool(
     device,
     VkDescriptorPoolCreateInfo(
         maxSets = 1,
@@ -270,11 +294,11 @@ private fun createMaterialDescriptorPool(device: Long): Long = VulkanDescriptors
             ),
             VkDescriptorPoolSize(
                 type = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-                descriptorCount = 1
+                descriptorCount = if (hasShadowMap) 2 else 1
             ),
             VkDescriptorPoolSize(
                 type = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
-                descriptorCount = 1
+                descriptorCount = if (hasShadowMap) 2 else 1
             )
         )
     )
@@ -323,6 +347,22 @@ private fun createMaterialDescriptorSet(
             imageView = 0L
         )
     )
+    if (bindings.shadowImageView != null && bindings.shadowSampler != null) {
+        VulkanDescriptors.vkUpdateDescriptorSetImage(
+            device,
+            rawDescriptorSet,
+            3,
+            VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+            VkDescriptorImageInfo(sampler = 0L, imageView = bindings.shadowImageView)
+        )
+        VulkanDescriptors.vkUpdateDescriptorSetImage(
+            device,
+            rawDescriptorSet,
+            4,
+            VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
+            VkDescriptorImageInfo(sampler = bindings.shadowSampler, imageView = 0L)
+        )
+    }
     return rawDescriptorSet
 }
 
@@ -331,5 +371,7 @@ private data class MaterialDescriptorSetBindings(
     val uniformBuffer: Long,
     val uniformFloatCount: Int,
     val sampler: Long,
-    val imageView: Long
+    val imageView: Long,
+    val shadowSampler: Long? = null,
+    val shadowImageView: Long? = null
 )

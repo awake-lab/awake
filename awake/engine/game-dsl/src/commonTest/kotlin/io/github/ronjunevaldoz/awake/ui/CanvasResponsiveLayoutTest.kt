@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.*
 private object TestDummyRenderer : io.github.ronjunevaldoz.awake.render.renderer.Renderer {
     override val clipSpace: ClipSpace = ClipSpace.WebGpu
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
+    override var shadowsEnabled: Boolean = true
     override fun createMesh(geometry: io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry): io.github.ronjunevaldoz.awake.render.mesh.Mesh = object : io.github.ronjunevaldoz.awake.render.mesh.Mesh {
         override val format: io.github.ronjunevaldoz.awake.render.mesh.VertexFormat = geometry.format
         override fun bind(commandBuffer: Long) = Unit

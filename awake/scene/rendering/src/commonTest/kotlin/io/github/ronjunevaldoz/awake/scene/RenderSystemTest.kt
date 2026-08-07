@@ -36,6 +36,7 @@ class RenderSystemTest {
         var lastLight: SceneLight? = null
         override val clipSpace: ClipSpace = ClipSpace.WebGpu
         override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
+        override var shadowsEnabled: Boolean = true
         override fun createMesh(geometry: MeshGeometry): Mesh = error("not needed for this test")
         override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): Material =
             error("not needed for this test")

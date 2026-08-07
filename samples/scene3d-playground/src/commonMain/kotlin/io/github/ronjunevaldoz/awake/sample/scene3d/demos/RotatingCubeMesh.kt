@@ -61,6 +61,21 @@ private val cubeIndices = intArrayOf(
 /** Unit cube (-0.5..0.5 on every axis). */
 internal val rotatingCubeGeometry = MeshGeometry(cubeVertices, cubeIndices, format = VertexFormat.PositionNormalColor)
 
+// Flat, lit ground quad -- same GRID_SIZE the debug-line reference grid already draws
+// (ReferenceGrid.kt), but an actual shaded mesh: debug lines aren't fragment-shaded, so they
+// can't show a shadow landing on them. Gives the shadow pass a real surface to receive onto.
+private const val GROUND_PLANE_HALF_SIZE = 5f
+private val groundPlaneVertices = floatArrayOf(
+    -GROUND_PLANE_HALF_SIZE, 0f, -GROUND_PLANE_HALF_SIZE, 0f, 1f, 0f, 0.5f, 0.5f, 0.55f,
+    GROUND_PLANE_HALF_SIZE, 0f, -GROUND_PLANE_HALF_SIZE, 0f, 1f, 0f, 0.5f, 0.5f, 0.55f,
+    GROUND_PLANE_HALF_SIZE, 0f, GROUND_PLANE_HALF_SIZE, 0f, 1f, 0f, 0.5f, 0.5f, 0.55f,
+    -GROUND_PLANE_HALF_SIZE, 0f, GROUND_PLANE_HALF_SIZE, 0f, 1f, 0f, 0.5f, 0.5f, 0.55f,
+)
+private val groundPlaneIndices = intArrayOf(0, 1, 2, 2, 3, 0)
+
+internal val rotatingGroundPlaneGeometry =
+    MeshGeometry(groundPlaneVertices, groundPlaneIndices, format = VertexFormat.PositionNormalColor)
+
 /** Local-space corners of the cube, in the same winding order [RotatingCubeDemo] uses to build
  * wireframe [io.github.ronjunevaldoz.awake.render.renderer.LineSegment] edges when its
  * "Wireframe" switch is on -- kept as the 8 unique geometric corners (not [cubeVertices]' 24

@@ -238,6 +238,7 @@ class GameDslTest {
 private object FakeRenderer : Renderer {
     override val clipSpace: ClipSpace = ClipSpace.WebGpu
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
+    override var shadowsEnabled: Boolean = true
 
     override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
         override val format: io.github.ronjunevaldoz.awake.render.mesh.VertexFormat = geometry.format

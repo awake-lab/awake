@@ -85,6 +85,11 @@ internal object GltfViewerDemo {
             }
             cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "gltf") }
             showAimMarkers = scope.shadcnSwitch(id = "gltf-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
+            // Affects the shared Renderer used by every demo in this sample app (see
+            // Renderer.shadowsEnabled's own doc comment) -- toggle it here, see the effect on
+            // the Rotating cube demo's ground plane, since this demo's own duck draws through
+            // the textured pipeline (no lighting/shadowing at all yet).
+            renderer.shadowsEnabled = scope.shadcnSwitch(id = "gltf-shadows", checked = renderer.shadowsEnabled, label = "Shadows")
         },
         onActivate = { ensureSpawned(this) },
         onDeactivate = { world ->

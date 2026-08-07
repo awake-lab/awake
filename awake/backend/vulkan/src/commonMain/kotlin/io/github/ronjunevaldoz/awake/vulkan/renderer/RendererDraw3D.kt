@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Mat4
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
@@ -30,6 +31,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
+import kotlin.math.abs
 
 /** The 3D frame path -- [Renderer.draw]'s whole-frame orchestration (wait/acquire -> update
  * uniforms -> record -> submit -> present), the shared per-draw-call recording loop, the
@@ -61,8 +63,17 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     // Debug lines are already in world space (no per-line model matrix), so their MVP
     // is exactly this frame's viewProjection.
     lineRenderPipeline.writeMvp(currentFrame, viewProjection.data)
+    val lightViewProjection = if (shadowMap != null) lightViewProjection(light) else null
     val materialUsage = mutableMapOf<RenderMaterial, Int>()
-    val preparedDrawCalls = prepareDrawCalls(currentFrame, viewProjection, drawCalls, light, materialUsage)
+    val preparedDrawCalls =
+        prepareDrawCalls(currentFrame, viewProjection, drawCalls, light, lightViewProjection, materialUsage)
+
+    // Runs BEFORE the swapchain command buffer is recorded: the main pass's fragment shader
+    // samples this frame's shadow map, so its depth content must already be complete (the
+    // fence wait inside runOffscreenCommands guarantees that) by the time recordCommandBuffer
+    // binds the primary pipeline below. Skipped (not just a no-op render) whenever shadows
+    // aren't supported/enabled -- see performShadowPass's own doc comment.
+    performShadowPass(preparedDrawCalls)
 
     Vulkan.vkResetCommandBuffer(commandBuffers[currentFrame], 0)
     recordCommandBuffer(commandBuffers[currentFrame], currentFrame, imageIndex, preparedDrawCalls)
@@ -327,12 +338,20 @@ internal data class PreparedDrawCall(
  * [light] only reaches [drawCall]s resolved to [Renderer.renderPipeline] itself (the primary/
  * lit format) -- every other resolved pipeline gets [DrawCall.extraUniformFloats] instead
  * (e.g. a skinned mesh's joint palette), exactly matching what each format's own shader
- * expects (`triangle.wgsl` reads light; `textured.wgsl`/`skinned.wgsl` don't). */
+ * expects (`triangle.wgsl` reads light; `textured.wgsl`/`skinned.wgsl` don't).
+ *
+ * [lightViewProjection] is `null` for every [Renderer] not built with shadow support (see
+ * [Renderer.shadowMap]'s doc comment) -- in that case the written uniform buffer is byte-for-
+ * byte identical to before shadows existed (mvp + 8 light floats). Non-null only appends 16
+ * more floats (`drawCall.model * lightViewProjection`, same "Kotlin order gives the
+ * conventional product" convention as `mvp` itself) for [Renderer.renderPipeline]-resolved
+ * calls, matching `lit_shadow.wgsl`'s `Uniforms.lightMvp`. */
 internal fun Renderer.prepareDrawCalls(
     frameIndex: Int,
     viewProjection: Mat4,
     drawCalls: List<DrawCall>,
     light: SceneLight,
+    lightViewProjection: Mat4? = null,
     materialUsage: MutableMap<RenderMaterial, Int> = mutableMapOf()
 ): List<PreparedDrawCall> {
     val prepared = ArrayList<PreparedDrawCall>(drawCalls.size)
@@ -354,7 +373,15 @@ internal fun Renderer.prepareDrawCalls(
             // Camera.viewProjectionMatrix's docs), so `model * viewProjection` (Kotlin
             // order) gives the conventional `projection * view * model`.
             val mvp = drawCall.model * viewProjection
-            val extraFloats = if (pipeline === renderPipeline) lightFloats else drawCall.extraUniformFloats
+            val extraFloats = if (pipeline === renderPipeline) {
+                if (lightViewProjection != null) {
+                    lightFloats + (drawCall.model * lightViewProjection).data
+                } else {
+                    lightFloats
+                }
+            } else {
+                drawCall.extraUniformFloats
+            }
             material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + extraFloats)
             prepared += PreparedDrawCall(drawCall, pipeline, material, frameIndex, uniformSlotIndex)
         }
@@ -368,6 +395,78 @@ private fun MutableMap<RenderMaterial, Int>.nextSlot(material: RenderMaterial): 
     this[material] = slot + 1
     return slot
 }
+
+/** The directional light's own view-projection, built the same "view * projection" (Kotlin
+ * operator order) way [Camera.viewProjectionMatrix] builds a real camera's -- an orthographic
+ * projection instead of a perspective one (correct for a directional/parallel-rays light, and
+ * simpler than fitting a perspective frustum to one). The box is a FIXED size centered on the
+ * world origin, not derived from actual scene bounds or the active camera's frustum.
+ * ponytail: fixed shadow-box centered at the origin, not scene/camera-fit; upgrade path is a
+ * per-frame bounding-box (or camera-frustum) fit once a demo's content moves far from origin. */
+private fun Renderer.lightViewProjection(light: SceneLight): Mat4 {
+    val direction = light.direction.normalized()
+    val eye = direction * SHADOW_LIGHT_DISTANCE
+    val up = if (abs(direction.y) > 0.99f) Vec3(0f, 0f, 1f) else Vec3(0f, 1f, 0f)
+    val view = Mat4.setLookAt(eye = eye, center = Vec3.ZERO, up = up)
+    val projection = Mat4.orthographic(
+        left = -SHADOW_ORTHO_HALF_SIZE,
+        right = SHADOW_ORTHO_HALF_SIZE,
+        bottom = -SHADOW_ORTHO_HALF_SIZE,
+        top = SHADOW_ORTHO_HALF_SIZE,
+        near = SHADOW_NEAR,
+        far = SHADOW_FAR,
+        clipSpace = clipSpace
+    )
+    if (clipSpace.flipY) projection.m11 *= -1f
+    return view * projection
+}
+
+/** The shadow depth pre-pass -- renders every [drawCalls] entry resolved to
+ * [Renderer.renderPipeline] (the primary/lit format; nothing else casts a shadow today) from
+ * the light's own point of view into [Renderer.shadowMap], reusing [runOffscreenCommands]
+ * (the same one-time-command path [Renderer.renderToTexture] already uses) rather than a
+ * second command-buffer/fence scheme. A no-op whenever shadows aren't supported
+ * ([Renderer.shadowMap] is `null`) or are runtime-disabled ([Renderer.shadowsEnabled]).
+ *
+ * Binds each [PreparedDrawCall.material]'s own descriptor set (already written with
+ * `lightMvp` by [prepareDrawCalls]) against [Renderer.shadowRenderPipeline]'s layout instead
+ * of building a second per-draw uniform scheme -- see that pipeline's own doc comment for why
+ * the two layouts are binding-compatible. */
+internal fun Renderer.performShadowPass(drawCalls: List<PreparedDrawCall>) {
+    val map = shadowMap ?: return
+    val pipeline = shadowRenderPipeline ?: return
+    if (!shadowsEnabled) return
+    runOffscreenCommands { commandBuffer ->
+        val renderPassInfo = VkRenderPassBeginInfo(
+            renderPass = map.renderPass,
+            framebuffer = map.framebuffer,
+            renderArea = VkRect2D(extent = VkExtent2D(map.size, map.size)),
+            pClearValues = arrayOf(Renderer.clearDepthValue)
+        )
+        Vulkan.vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
+        pipeline.bind(commandBuffer)
+        val viewport = VkViewport(width = map.size.toFloat(), height = map.size.toFloat())
+        Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
+        val scissor = VkRect2D(extent = VkExtent2D(map.size, map.size))
+        Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+        var drawIndex = 0
+        while (drawIndex < drawCalls.size) {
+            val prepared = drawCalls[drawIndex]
+            if (prepared.pipeline === renderPipeline) {
+                prepared.drawCall.mesh.bind(commandBuffer)
+                prepared.material.bind(commandBuffer, pipeline.pipelineLayout, prepared.frameIndex, prepared.uniformSlotIndex)
+                prepared.drawCall.mesh.draw(commandBuffer)
+            }
+            drawIndex += 1
+        }
+        Vulkan.vkCmdEndRenderPass(commandBuffer)
+    }
+}
+
+private const val SHADOW_LIGHT_DISTANCE = 15f
+private const val SHADOW_ORTHO_HALF_SIZE = 12f
+private const val SHADOW_NEAR = 0.1f
+private const val SHADOW_FAR = 40f
 
 /** [Renderer.renderToTexture]/[Renderer.readPixels]'s own one-time-command runner -- see
  * [Renderer.offscreenCommandBuffer]'s doc comment for why this doesn't use
