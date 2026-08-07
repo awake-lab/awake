@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textarea
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.textarea
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 /** Real shadcn's `Textarea`: a multi-line text field. Delegates entirely to [textarea],

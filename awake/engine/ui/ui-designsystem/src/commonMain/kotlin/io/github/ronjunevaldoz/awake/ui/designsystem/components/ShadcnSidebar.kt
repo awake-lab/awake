@@ -31,9 +31,9 @@ import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.SeparatorOrientation
-import io.github.ronjunevaldoz.awake.ui.unstyled.separator
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.SeparatorOrientation
+import io.github.ronjunevaldoz.awake.ui.headless.separator
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 
 /** Visual style for real shadcn's `Sidebar`: dedicated sidebar background/border tokens.
  * Content padding is 8dp (p-2 spec) matching real shadcn sidebar layout. */

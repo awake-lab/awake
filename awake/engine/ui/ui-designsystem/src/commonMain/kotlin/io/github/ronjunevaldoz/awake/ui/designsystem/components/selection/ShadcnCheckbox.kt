@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.checkbox
+import io.github.ronjunevaldoz.awake.ui.headless.input.selection.checkbox
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 private fun shadcnCheckboxStyle(theme: UiTheme, style: Style): Style =

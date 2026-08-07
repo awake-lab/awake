@@ -24,7 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.requestFocus
 import io.github.ronjunevaldoz.awake.ui.style.*
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 /**
  * Real 1:1 shadcn/ui `InputOTP`: a segmented One-Time Password / PIN code digit entry row

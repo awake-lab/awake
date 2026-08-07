@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
+import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

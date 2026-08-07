@@ -65,7 +65,7 @@ import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.math.abs
 import kotlin.test.Test

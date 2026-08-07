@@ -26,7 +26,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 
 private val DetachedPopupAnchor = UiBounds(-1f, -1f, 0f, 0f)

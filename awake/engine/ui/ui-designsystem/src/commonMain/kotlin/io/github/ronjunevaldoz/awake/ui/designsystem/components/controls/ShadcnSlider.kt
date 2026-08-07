@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
+import io.github.ronjunevaldoz.awake.ui.headless.input.slider
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 internal fun shadcnSliderStyle(theme: UiTheme, style: Style): Style =

@@ -33,7 +33,7 @@ flowchart TD
     physicsApi["awake:physics:api"]
     jolt["awake:backend:jolt"]
     uiCore["awake:engine:ui:ui-core"]
-    uiWidgets["awake:engine:ui:ui-unstyled"]
+    uiWidgets["awake:engine:ui:ui-headless"]
     ui["awake:engine:ui"]
     uiDs["awake:engine:ui:ui-designsystem"]
     vulkan["awake:backend:vulkan"]
@@ -106,7 +106,7 @@ flowchart TD
 | `:awake-physics:api` | Backend-agnostic physics contracts: `PhysicsWorld`, `BodyHandle`, `BodyTransform`, `PhysicsShape`, `MotionType`, `RaycastHit` | not published |
 | `:awake-backend:jolt` | Jolt Physics binding (JNI on desktop/Android via `jolt-jni`, JoltC cinterop on iOS) implementing `awake:physics:api` | not published |
 | `:awake-engine:ui:ui-core` | Foundational UI drawing and layout primitives | not published |
-| `:awake-engine:ui:ui-unstyled` | Reusable widget-level primitives built on `ui-core` | not published |
+| `:awake-engine:ui:ui-headless` | Reusable widget-level primitives built on `ui-core` | not published |
 | `:awake-engine:ui` | Style-agnostic UI composition templates and DSL surfaces | not published |
 | `:awake-engine:ui:ui-designsystem` | Branded or strongly opinionated UI recipes | not published |
 | `:samples:*` | Sample applications and demos | sample-only |

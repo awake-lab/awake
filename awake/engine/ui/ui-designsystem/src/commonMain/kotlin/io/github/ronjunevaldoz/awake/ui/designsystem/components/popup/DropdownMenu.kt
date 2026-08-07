@@ -29,13 +29,13 @@ import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
-import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.layoutBitmapText
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.unstyled.separator
+import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.layoutBitmapText
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 

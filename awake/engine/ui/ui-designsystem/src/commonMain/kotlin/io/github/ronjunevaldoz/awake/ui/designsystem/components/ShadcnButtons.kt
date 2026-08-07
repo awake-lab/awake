@@ -15,8 +15,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
-import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 

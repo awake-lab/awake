@@ -49,12 +49,12 @@ tasks.register("developerDocs") {
         ":awake:engine:render-api:dokkaGeneratePublicationHtml",
         ":awake:engine:ui:ui-core:dokkaGeneratePublicationHtml",
         ":awake:engine:ui:ui-designsystem:dokkaGeneratePublicationHtml",
-        ":awake:engine:ui:ui-unstyled:dokkaGeneratePublicationHtml",
+        ":awake:engine:ui:ui-headless:dokkaGeneratePublicationHtml",
         ":awake:physics:api:dokkaGeneratePublicationHtml",
         ":awake:scene:dokkaGeneratePublicationHtml",
-        ":awake:engine:ui:ui-unstyled:desktopTest",
-        ":awake:engine:ui:ui-unstyled:uiSnapshotReport",
-        ":awake:engine:ui:ui-unstyled:uiTutorialDocsReport",
+        ":awake:engine:ui:ui-headless:desktopTest",
+        ":awake:engine:ui:ui-headless:uiSnapshotReport",
+        ":awake:engine:ui:ui-headless:uiTutorialDocsReport",
         ":samples:ui-showcase:desktopTest",
         ":samples:ui-showcase:uiShowcasePreviewReport",
         "uiComponentLookupReport",
@@ -70,27 +70,27 @@ tasks.register<Exec>("syncFigma") {
 
 // A single, searchable component lookup that merges the ui-showcase page-level preview
 // gallery (samples/ui-showcase's UiShowcasePreviewDocsTest -> previews.tsv + PNGs) with the
-// ui-unstyled bare-widget snapshot gallery (ui-unstyled's UiSnapshotTest -> loose PNGs, no
-// manifest). Lives at the root project, not inside either module: ui-unstyled cannot depend on
+// ui-headless bare-widget snapshot gallery (ui-headless's UiSnapshotTest -> loose PNGs, no
+// manifest). Lives at the root project, not inside either module: ui-headless cannot depend on
 // samples/ui-showcase (module graph flows the other way -- see docs/architecture.md's Module
 // Graph), so a cross-module Kotlin test dependency would be a layering violation. Reading each
 // module's already-generated build output after the fact avoids that entirely and keeps both
 // existing report tasks untouched.
 tasks.register("uiComponentLookupReport") {
     group = "documentation"
-    description = "Generate one searchable HTML component lookup across the ui-showcase preview gallery and the ui-unstyled snapshot gallery."
+    description = "Generate one searchable HTML component lookup across the ui-showcase preview gallery and the ui-headless snapshot gallery."
     mustRunAfter(
         ":samples:ui-showcase:uiShowcasePreviewReport",
-        ":awake:engine:ui:ui-unstyled:uiSnapshotReport"
+        ":awake:engine:ui:ui-headless:uiSnapshotReport"
     )
     val previewManifestFile = project(":samples:ui-showcase").layout.buildDirectory.file("ui-previews/previews.tsv")
     val previewImagesDir = project(":samples:ui-showcase").layout.buildDirectory.dir("ui-previews")
-    val snapshotImagesDir = project(":awake:engine:ui:ui-unstyled").layout.buildDirectory.dir("ui-snapshots")
+    val snapshotImagesDir = project(":awake:engine:ui:ui-headless").layout.buildDirectory.dir("ui-snapshots")
     val reportFile = layout.buildDirectory.file("reports/ui-component-lookup/index.html")
     doLast {
         // Rows use the same plain List<String> shape ([id, title, group, summary, source,
         // width, height, imagePath]) as the TSV rows the sibling report tasks in
-        // samples/ui-showcase/build.gradle.kts and ui-unstyled/build.gradle.kts already parse
+        // samples/ui-showcase/build.gradle.kts and ui-headless/build.gradle.kts already parse
         // -- not a data class, which trips a Kotlin JVM IR backend crash ("Exception while
         // generating code for") when declared locally inside a Gradle Kotlin DSL script's
         // doLast block here.
@@ -148,7 +148,7 @@ tasks.register("uiComponentLookupReport") {
                 }
         }
 
-        // Source 2: ui-unstyled's bare-widget snapshots -- filename only, no manifest, so
+        // Source 2: ui-headless's bare-widget snapshots -- filename only, no manifest, so
         // title/group/dimensions are derived here instead of assumed to exist.
         val snapshotRoot = snapshotImagesDir.get().asFile
         snapshotRoot.listFiles { file -> file.isFile && file.extension == "png" }
@@ -165,7 +165,7 @@ tasks.register("uiComponentLookupReport") {
                     titleCase(id),
                     titleCase(id.substringBefore('-')),
                     "",
-                    "ui-unstyled",
+                    "ui-headless",
                     (dimensions?.width ?: 0).toString(),
                     (dimensions?.height ?: 0).toString(),
                     png.absolutePath
@@ -205,7 +205,7 @@ tasks.register("uiComponentLookupReport") {
         val body = if (entries.isEmpty()) {
             """
             <p>No components recorded yet.</p>
-            <p>Run <code>./gradlew :samples:ui-showcase:desktopTest :awake:engine:ui:ui-unstyled:desktopTest uiComponentLookupReport</code> to regenerate.</p>
+            <p>Run <code>./gradlew :samples:ui-showcase:desktopTest :awake:engine:ui:ui-headless:desktopTest uiComponentLookupReport</code> to regenerate.</p>
             """.trimIndent()
         } else {
             sections
@@ -222,7 +222,7 @@ tasks.register("uiComponentLookupReport") {
                 <h1 style="margin-bottom:0.25rem">Awake UI Component Lookup</h1>
                 <p style="color:#a1a1aa;margin-top:0">
                     ${entries.size} components across <code>ui-showcase</code> (page-level previews) and
-                    <code>ui-unstyled</code> (bare-widget snapshots). Generated from tests, not curated by hand.
+                    <code>ui-headless</code> (bare-widget snapshots). Generated from tests, not curated by hand.
                 </p>
                 <input
                     id="lookup-search"

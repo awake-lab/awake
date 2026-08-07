@@ -16,11 +16,11 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.checkbox
+import io.github.ronjunevaldoz.awake.ui.headless.input.selection.checkbox
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 // Real shadcn's RadioGroup item is a circular checkbox.checkbox() -- same box/inset-dot
-// mechanics, just a Circle shapeSpec instead of a rounded square. No separate ui-unstyled
+// mechanics, just a Circle shapeSpec instead of a rounded square. No separate ui-headless
 // primitive needed for that alone.
 internal fun shadcnRadioStyle(theme: UiTheme, style: Style): Style =
     ShadcnStyles.checkbox(theme.asShadcnTheme()) then Style { shape(UiShapeSpec.Circle) } then style

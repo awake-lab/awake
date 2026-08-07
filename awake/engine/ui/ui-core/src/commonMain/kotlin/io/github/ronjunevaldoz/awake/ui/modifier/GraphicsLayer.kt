@@ -10,7 +10,7 @@ package io.github.ronjunevaldoz.awake.ui.modifier
  *
  * `ui-core` only owns this contract and does not know how to draw any effect; concrete effects
  * (e.g. a shimmer sweep) are shadcn-compose-style extensions layered on top -- see
- * `StyleModifiers.kt`'s `shadcnShimmer` -- and base components in `ui-unstyled` interpret them
+ * `StyleModifiers.kt`'s `shadcnShimmer` -- and base components in `ui-headless` interpret them
  * during their own glyph/fill emission. This must not be confused with `Canvas`/`CanvasScope`,
  * which is an app-level escape hatch, not a base-component implementation path.
  */

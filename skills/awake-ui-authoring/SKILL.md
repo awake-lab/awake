@@ -1,6 +1,6 @@
 ---
 name: awake-ui-authoring
-description: Which UI layer to write in - ui-core vs ui-unstyled vs ui-designsystem - and the size/spacing rules that keep them separate. Read before adding or changing any UI widget, before adding a `.dp` or pixel constant to a widget, and before naming a new primitive. Trigger keywords - ui-core, ui-unstyled, ui-designsystem, shadcn, widget, primitive, component, padding, spacing, size, theme token, UiComponentStyles, Modifier, headless, unstyled.
+description: Which UI layer to write in - ui-core vs ui-headless vs ui-designsystem - and the size/spacing rules that keep them separate. Read before adding or changing any UI widget, before adding a `.dp` or pixel constant to a widget, and before naming a new primitive. Trigger keywords - ui-core, ui-headless, ui-designsystem, shadcn, widget, primitive, component, padding, spacing, size, theme token, UiComponentStyles, Modifier, headless, headless.
 ---
 
 # Authoring UI in Awake
@@ -12,15 +12,15 @@ else's design language.
 | Layer | Owns | Never contains |
 |---|---|---|
 | `ui-core` | Geometry, layout, slots, drawing, anchoring, clipping, modifiers, the theme *contract* | Any widget; any brand name |
-| `ui-unstyled` | Widget **behaviour** and structure -- what a checkbox *is* and does | Any size or colour it cannot derive; any design language's vocabulary |
+| `ui-headless` | Widget **behaviour** and structure -- what a checkbox *is* and does | Any size or colour it cannot derive; any design language's vocabulary |
 | `ui-designsystem` | The shadcn **look** -- sizes, colours, radii, variants | Behaviour that another skin would also need |
 
 Decide with one question: **"would a differently-skinned product still need this code?"** Yes ->
-`ui-unstyled`. No -> `ui-designsystem`.
+`ui-headless`. No -> `ui-designsystem`.
 
 ## The size rule (this is the one that bites)
 
-> A `ui-unstyled` widget may only fall back to a size it can derive from **its own content**,
+> A `ui-headless` widget may only fall back to a size it can derive from **its own content**,
 > **its own font/vector metrics**, or a **physical constraint** (1 device pixel). Any size it
 > cannot derive must come from `UiTheme`.
 
@@ -34,13 +34,13 @@ correct under any theme. Copy that shape.
 
 ### Why this matters more than it looks
 
-A Material-flavoured `40.dp` button fallback sat in `ui-unstyled`. Nothing overrode it, so it
+A Material-flavoured `40.dp` button fallback sat in `ui-headless`. Nothing overrode it, so it
 became the de-facto default -- and then it propagated **upward**: `ShadcnButtonSize.Md` was set
 to `40f` to match, and shadcn's real button is `h-9` = **36px**. The comment in
 `ShadcnAvatars.kt` says the quiet part out loud -- the avatar size was chosen to match "this
 module's pre-existing 40dp default", not to match shadcn (`size-8` = 32px).
 
-An unstyled default is not a neutral placeholder. It becomes the spec.
+An headless default is not a neutral placeholder. It becomes the spec.
 
 Sizes belong in `UiComponentStyles` (`ui-core`), which already carries a per-component slot for
 button, toggle, checkbox, slider, dropdown, surface, textField and avatar. `CoreUiComponentStyles`
@@ -89,7 +89,7 @@ invention and a good one; keep them consistent.
 ## Behaviour belongs underneath, even when only one skin exists today
 
 If a component owns real structure -- measurement, selection resolution, open/close state,
-traversal -- that behaviour belongs in `ui-unstyled` even if `ui-designsystem` is its only
+traversal -- that behaviour belongs in `ui-headless` even if `ui-designsystem` is its only
 current caller. Several components (Tabs, Collapsible, Dialog, DropdownMenu) were built
 styled-first and now own behaviour that cannot be reused or reskinned without dragging shadcn
 in. That is a debt, not a pattern to copy.
@@ -97,22 +97,22 @@ in. That is a debt, not a pattern to copy.
 The exception is genuine *composition*: a branded arrangement of existing primitives with no new
 behaviour is correctly design-system-only.
 
-## Theme access from `ui-unstyled` is correct, and not a layering violation
+## Theme access from `ui-headless` is correct, and not a layering violation
 
-`UiTheme` lives in `ui-core`, one layer *below* unstyled -- reading it is depending downward on
+`UiTheme` lives in `ui-core`, one layer *below* headless -- reading it is depending downward on
 an injected abstraction. `?: theme.colors.foreground` fallbacks are sanctioned and there are
 ~45 of them; leave them alone.
 
-The violation is different: unstyled deciding *which* semantic token carries meaning (choosing
+The violation is different: headless deciding *which* semantic token carries meaning (choosing
 `secondary` to mean "checked"), or baking in decoration such as a border width. That is a design
 decision wearing a theme lookup's clothing.
 
 ## Checklist
 
 - [ ] Would another skin need this code? If yes it is not design-system code.
-- [ ] Every size in an unstyled widget is content-derived, metric-derived, a physical minimum,
+- [ ] Every size in an headless widget is content-derived, metric-derived, a physical minimum,
       or read from `UiTheme`.
 - [ ] No raw-pixel `Float` constants; authored values are `Dp`, converted at use.
-- [ ] No decoration (border width, chosen semantic colour) in `ui-unstyled`.
+- [ ] No decoration (border width, chosen semantic colour) in `ui-headless`.
 - [ ] Name matches the Radix concept; file name matches what the file exports.
-- [ ] New behaviour landed in `ui-unstyled`, not in the `shadcn*` wrapper.
+- [ ] New behaviour landed in `ui-headless`, not in the `shadcn*` wrapper.

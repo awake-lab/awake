@@ -20,8 +20,8 @@ import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*

@@ -16,7 +16,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":awake:base"))
             api(project(":awake:engine:ui:ui-core"))
-            api(project(":awake:engine:ui:ui-unstyled"))
+            api(project(":awake:engine:ui:ui-headless"))
         }
         commonTest.dependencies {
             implementation(project(":awake:base"))

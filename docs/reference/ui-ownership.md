@@ -13,7 +13,7 @@ These are placement rules, not style preferences.
 
 1. `awake:engine:ui:ui-core` may expose only geometry, drawing, anchoring, clipping, slot,
    style primitives, theme contracts, and at most a neutral fallback theme.
-2. `awake:engine:ui:ui-unstyled` may expose only generic leaf widgets built on `ui-core`. It
+2. `awake:engine:ui:ui-headless` may expose only generic leaf widgets built on `ui-core`. It
    must not own property-form, inspector, or tooling-shell composition.
 3. `awake:engine:ui:ui-designsystem` owns branded or strongly opinionated recipes and every
    named authored theme intended for direct app/sample use.
@@ -47,32 +47,32 @@ These are placement rules, not style preferences.
    reaching for `.copy()`. Existing `.copy(widthDimension = ...)` call sites from before this
    fix were not swept to chained calls in this pass (mechanical follow-up, not yet scoped).
 
-## Unstyled/Designsystem Content Pairing
+## headless/Designsystem Content Pairing
 
 Concrete rule for what belongs in each module, beyond "generic" vs "branded":
 
-- Every reusable leaf widget in `ui-unstyled` gets a bare, unbranded name (`checkbox`, `button`,
+- Every reusable leaf widget in `ui-headless` gets a bare, unbranded name (`checkbox`, `button`,
   `slider`, `dropdown`, ...) and carries zero style opinion -- callers must supply a `Style`/theme
   for it to look like anything.
-- `ui-designsystem` provides exactly one themed wrapper per `ui-unstyled` widget it recipes,
+- `ui-designsystem` provides exactly one themed wrapper per `ui-headless` widget it recipes,
   named `shadcn<Widget>` (brand prefix + the same widget name, e.g. `checkbox` ->
   `shadcnCheckbox`). That wrapper's only job is supplying the brand's `Style`/theme
-  defaults on top of the existing `ui-unstyled` widget -- it must not add new structural or
+  defaults on top of the existing `ui-headless` widget -- it must not add new structural or
   behavioral logic the underlying widget doesn't already have. If a wrapper needs real new
-  logic, that logic belongs in `ui-unstyled` (generic) -- see the note on neutral
+  logic, that logic belongs in `ui-headless` (generic) -- see the note on neutral
   composition below.
 - `ui-designsystem` may also own branded *compositions* that don't map to a single
-  `ui-unstyled` widget (`shadcnDialog`, `shadcnDropdownMenu`, `shadcnAlertDialog`,
+  `ui-headless` widget (`shadcnDialog`, `shadcnDropdownMenu`, `shadcnAlertDialog`,
   `shadcnTabs`, `shadcnPropertyDropdown`, ...) when the composition itself is
   brand-opinionated. Every `ui-designsystem` export is `shadcn`-prefixed, including these --
   there is no unprefixed variant.
 
 **Neutral composition currently has no dedicated module.** `awake:engine:ui-dsl` used to be
 that home but was deleted 2026-07-24 -- it had accumulated zero production code (every real
-composition had already migrated into `ui-unstyled`/`ui-designsystem`/`game-dsl` over time,
+composition had already migrated into `ui-headless`/`ui-designsystem`/`game-dsl` over time,
 leaving only stray test files behind). If a genuinely neutral (unbranded) composition need
 comes up again, don't default to recreating a `ui-dsl`-shaped module reflexively -- place it in
-`ui-unstyled` if it's still widget-shaped, or scope a new module deliberately if it's large
+`ui-headless` if it's still widget-shaped, or scope a new module deliberately if it's large
 enough to need one. Treat "we need a neutral composition layer" as a real decision to make at
 the time, not a foregone conclusion.
 
@@ -81,7 +81,7 @@ the time, not a foregone conclusion.
 | Module | Responsibility | Examples |
 |---|---|---|
 | `awake:engine:ui:ui-core` | Foundational drawing, layout, and surface primitives | low-level layout, drawing, clipping, slots, style plumbing, `UiTheme`, `CoreUiTheme` |
-| `awake:engine:ui:ui-unstyled` | Reusable widget primitives built on `ui-core` | button, checkbox, text field, slider, primitive panels |
+| `awake:engine:ui:ui-headless` | Reusable widget primitives built on `ui-core` | button, checkbox, text field, slider, primitive panels |
 | `awake:engine:ui:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
 | `samples:*` or game modules | Sample/game adapters and authored usage | scene inspector bindings, demo-specific overlays, debug HUD wiring |
 
@@ -116,7 +116,7 @@ Text ownership rule:
   string convenience.** If the only entry point takes a raw string and renders it internally
   with a hardcoded widget call, the widget is coupled to that specific content widget and
   cannot be reused with an icon, multiple lines, or anything else. Found and fixed 2026-07-24:
-  `avatarFallback` (`ui-unstyled/Avatar.kt`) only took `initials: String` and called `text(...)`
+  `avatarFallback` (`ui-headless/Avatar.kt`) only took `initials: String` and called `text(...)`
   internally with no slot alternative -- added a `content: BoxScope.(slot) -> Unit` primary
   overload (draws the circle only) with the string form as a convenience wrapper over it.
 
@@ -127,10 +127,10 @@ Where a color/token comes from depends on the module:
 - `ui-core` owns the *contract* only -- `UiColorTokens` (the interface), `UiTheme`, and
   `CoreUiTheme` (the one neutral fallback instance, generic gray/white values). No named or
   branded token values live here.
-- `ui-unstyled` must never call `Color(...)` directly or hardcode a token value.
+- `ui-headless` must never call `Color(...)` directly or hardcode a token value.
   Widgets read colors exclusively through the ambient theme (`theme.tokens.background`,
   `theme.tokens.primary`, etc.) or a resolved `Style` built from those tokens. This is already
-  true in practice -- `ui-unstyled` has zero raw `Color(...)` call sites.
+  true in practice -- `ui-headless` has zero raw `Color(...)` call sites.
 - `ui-designsystem` owns every named/branded theme and is the only module allowed to hardcode
   `Color(...)`/`Color.fromOklch(...)` literals, and only inside theme-definition files
   (`ShadcnTheme.kt`, `PresetUiThemes.kt`, `OklchColor.kt`) -- not inside individual
@@ -143,9 +143,9 @@ Where a color/token comes from depends on the module:
 | API shape | Correct home | Why |
 |---|---|---|
 | `UiSlot.anchored(anchor, width, height, margin)` | `ui-core` | pure placement math returning a slot |
-| `button`, `checkbox`, `slider` | `ui-unstyled` | generic reusable leaf widgets |
+| `button`, `checkbox`, `slider` | `ui-headless` | generic reusable leaf widgets |
 | `CoreUiTheme`, `UiTheme`, `UiColorTokens` | `ui-core` | theme contract and neutral fallback only |
-| `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-unstyled` (or a scoped-for-purpose new module, see Neutral composition note above) | reusable compositions of primitives/widgets |
+| `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-headless` (or a scoped-for-purpose new module, see Neutral composition note above) | reusable compositions of primitives/widgets |
 | `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme` | `ui-designsystem` | named authored themes belong above engine core |
 | `ShadcnPanelStyle`, branded variants | `ui-designsystem` | visual opinion, not engine primitive |
 | hardcoded `Color(...)` token values | `ui-designsystem` theme-definition files only | everywhere else reads `theme.tokens.*` |
@@ -156,14 +156,14 @@ These API shapes are specifically discouraged in reusable UI modules:
 - `anchoredColumn(...)`
 - `anchoredRow(...)`
 - `anchoredPanel(...)`
-- `propertyRow(...)` in `ui-unstyled`
-- `propertyCheckbox(...)` in `ui-unstyled`
+- `propertyRow(...)` in `ui-headless`
+- `propertyCheckbox(...)` in `ui-headless`
 - `ShadcnDefaultTheme` in `ui-core`
 - `DarkUiTheme` in `ui-core`
 - `LightUiTheme` in `ui-core`
 - `HelloCube*`
 - helpers that know `SceneGameRuntime`, ECS `World`, demo modes, or sample debug state
-- raw `Color(...)` literals in `ui-unstyled`, or in `ui-designsystem` component files
+- raw `Color(...)` literals in `ui-headless`, or in `ui-designsystem` component files
   outside its theme-definition files
 
 Rule of thumb: if the API name bakes in both a placement concern and a concrete container,
@@ -186,7 +186,7 @@ should not author visual values in pixels.
 ## What Must Stay Out Of Reusable UI Modules
 
 If a UI component knows about any of these directly, it likely belongs in a sample or game
-adapter layer instead of `ui-core`, `ui-unstyled`, or `ui`:
+adapter layer instead of `ui-core`, `ui-headless`, or `ui`:
 
 - `SceneGameRuntime`
 - ECS `World` or direct system access
@@ -202,7 +202,7 @@ Theme rule:
   and do not treat it as the authored app theme.
 - named shipped themes for apps, demos, docs, and samples belong in `ui-designsystem`
 - property-form rows, checkbox rows, and inspector-style control groupings are neutral
-  composition -- see the note under Unstyled/Designsystem Content Pairing above
+  composition -- see the note under headless/Designsystem Content Pairing above
 
 ## Folder Structure And File Naming (2026-07-24)
 
@@ -217,13 +217,13 @@ this rule, only new/moved files must comply.
 - Public types in `ui-core` are `Ui`-prefixed (`UiModifier`, `UiBounds`, `UiAnchor`, ...) -- the
   prefix signals "engine contract type" the way it already does today.
 
-**`ui-unstyled`**
+**`ui-headless`**
 - No `Ui`-prefix requirement -- the module name already scopes these as generic widgets
   (`Buttons.kt`, `Surface.kt`, `Spinner.kt`).
 - Subfolder by interaction category: anything that takes user input goes under `input/`
   (further split by kind where it already exists: `input/text/`, `input/selection/`,
   `input/toggle/`); everything display-only (`Surface`, `Spinner`, `Separator`, `Avatar`,
-  `Skeleton`) stays at the top level of `unstyled/`.
+  `Skeleton`) stays at the top level of `headless/`.
 
 **`ui-designsystem`**
 - Every component file is prefixed with its brand name (`Shadcn*` today). Components
@@ -257,8 +257,8 @@ Before adding a new UI type, ask:
 
 Use the answers like this:
 
-- foundational + generic -> `ui-core` or `ui-unstyled`
-- compositional + generic -> `ui-unstyled` (or a scoped-for-purpose new module -- see the
+- foundational + generic -> `ui-core` or `ui-headless`
+- compositional + generic -> `ui-headless` (or a scoped-for-purpose new module -- see the
   Neutral composition note above; there is no default composition-only module anymore)
 - branded/opinionated -> `ui-designsystem`
 - sample/runtime-bound -> sample or game module
@@ -294,12 +294,12 @@ natural stopping point.
 This policy is build-enforced in Awake's reusable UI modules.
 
 - `:awake:engine:ui:ui-core:check`
-- `:awake:engine:ui:ui-unstyled:check`
+- `:awake:engine:ui:ui-headless:check`
 
 run a `verifyUiOwnership` task that rejects:
 
 - container-bound anchored helper names such as `anchoredColumn`
-- `propertyRow` and `propertyCheckbox` in `ui-core`/`ui-unstyled`
+- `propertyRow` and `propertyCheckbox` in `ui-core`/`ui-headless`
 - `ShadcnDefaultTheme`, `DarkUiTheme`, and `LightUiTheme` in `ui-core`
 - direct sample/runtime-bound references such as `SceneGameRuntime` or `HelloCube*`
 
@@ -308,7 +308,7 @@ policy grows, expand the canonical doc first, then update the check.
 
 Awake also build-enforces authored-unit usage in:
 
-- `:awake:engine:ui:ui-unstyled`
+- `:awake:engine:ui:ui-headless`
 - `:awake:engine:ui:ui-designsystem`
 - `:awake:engine:game-dsl`
 - `:samples:ui-showcase`

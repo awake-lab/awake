@@ -15,8 +15,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 

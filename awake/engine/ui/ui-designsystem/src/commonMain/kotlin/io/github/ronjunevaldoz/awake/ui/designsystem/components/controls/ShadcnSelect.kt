@@ -17,8 +17,8 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.drawDropdownTriggerContent
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.input.drawDropdownTriggerContent
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 

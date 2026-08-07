@@ -134,7 +134,7 @@ animated content, no opinion on background/border), and build the card-flavored 
 function (`shadcnCollapsibleCard`) that composes `shadcnCard` (visual) with `animatedHeight`
 (behavior, the same low-level primitive `shadcnCollapsible` itself uses) directly -- neither
 primitive ends up knowing the other exists. When a request sounds like "component A styled like
-component B," check whether A already exposes its own unstyled/primary form before adding B's
+component B," check whether A already exposes its own headless/primary form before adding B's
 styling logic into A's own file.
 
 ---
@@ -172,17 +172,17 @@ visibly *finish* wants `animateFloatTween`.
 
 ---
 
-## Icon registry: `HeroIcons` (data) -> `UiIcons` (unstyled default) -> `ShadcnIcons` (overridable)
+## Icon registry: `HeroIcons` (data) -> `UiIcons` (headless default) -> `ShadcnIcons` (overridable)
 
 Three layers, each with one job:
 
-- **`HeroIcons`** (`ui-unstyled`) -- the actual vector path data, hand-transcribed from
+- **`HeroIcons`** (`ui-headless`) -- the actual vector path data, hand-transcribed from
   Heroicons' published SVGs (no SVG-import pipeline exists in this engine). Nested one object per
   real Heroicons style+size tier (`Solid20Mini`, etc.) -- Heroicons ships genuinely different path
   data per size, not the same path rescaled, so there's no single correct glyph per name. No
   `Outline` tier exists yet: `UiImageVector`/`icon()` only fill paths, no stroke-width primitive.
-- **`UiIcons`** (`ui-unstyled`) -- plain delegating pointers (`val chevronDown =
-  HeroIcons.Solid20Mini.chevronDown`) for unstyled widgets (`dropdown`, etc.) that need a glyph
+- **`UiIcons`** (`ui-headless`) -- plain delegating pointers (`val chevronDown =
+  HeroIcons.Solid20Mini.chevronDown`) for headless widgets (`dropdown`, etc.) that need a glyph
   without being shadcn-aware.
 - **`ShadcnIcons`** (`ui-designsystem`) -- `var`, not `val`, fields defaulting to the same
   `HeroIcons` tier. Every `shadcn*` component should read from here, not inline a `UiImageVector`
@@ -191,7 +191,7 @@ Three layers, each with one job:
 
 Adding a new glyph: put the real vector data in `HeroIcons` (correct tier), add a delegating field
 in `ShadcnIcons` if any `shadcn*` component needs it, and only add it to `UiIcons` too if an
-unstyled widget also needs the same glyph. Don't build out `Solid24`/`Solid16Micro`/`Outline`
+headless widget also needs the same glyph. Don't build out `Solid24`/`Solid16Micro`/`Outline`
 tiers ahead of an icon that actually needs them.
 
 ---

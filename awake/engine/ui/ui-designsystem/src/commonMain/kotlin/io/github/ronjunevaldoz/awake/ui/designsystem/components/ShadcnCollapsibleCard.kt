@@ -22,7 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
+import io.github.ronjunevaldoz.awake.ui.headless.components.icon
 
 /**
  * The "card-collapsible" shape (shadcn.io's own example: a rounded card whose header is the

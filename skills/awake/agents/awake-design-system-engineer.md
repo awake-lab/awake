@@ -27,7 +27,7 @@ You work on Awake's shared design-system surface. Read
 
 ## Does Not Own
 
-- low-level layout/input/text engine mechanics in `ui-core`, `ui-unstyled`, or `ui-dsl`
+- low-level layout/input/text engine mechanics in `ui-core`, `ui-headless`, or `ui-dsl`
 - sample-local one-off styling that should not become shared design language
 - rendering backend internals
 - UI verification strategy and regression-gate policy

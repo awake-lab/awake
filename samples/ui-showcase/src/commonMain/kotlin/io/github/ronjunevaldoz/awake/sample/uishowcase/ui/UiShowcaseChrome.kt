@@ -31,8 +31,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
 
 internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
     var selectedPage by rememberStateValue("ui-showcase-page", "entry") {

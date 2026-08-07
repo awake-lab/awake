@@ -54,9 +54,9 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.style.*
-import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
-import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.UiIcons
+import io.github.ronjunevaldoz.awake.ui.headless.components.icon
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 internal fun ColumnScope.drawUiShowcaseButtonPreview() {
     shadcnSupportingText("Figma Component Layout: Hero interactive card, 2x2 variant matrix grid, and dynamic token inspector.")

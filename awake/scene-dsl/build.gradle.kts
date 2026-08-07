@@ -28,7 +28,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(project(":awake:base"))
-            implementation(project(":awake:engine:ui:ui-unstyled"))
+            implementation(project(":awake:engine:ui:ui-headless"))
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }

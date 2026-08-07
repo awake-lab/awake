@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlin.math.PI
 
 /**

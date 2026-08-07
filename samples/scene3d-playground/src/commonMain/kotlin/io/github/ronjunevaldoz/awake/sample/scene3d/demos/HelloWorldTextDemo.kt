@@ -20,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 /** Simplest possible playground entry -- proves the menu/viewport/controls wiring with plain
  * 2D text instead of any real 3D content. Every other demo in this package follows this same

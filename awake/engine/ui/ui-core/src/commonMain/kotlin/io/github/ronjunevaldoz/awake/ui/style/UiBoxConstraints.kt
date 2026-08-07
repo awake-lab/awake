@@ -10,7 +10,7 @@ enum class UiWidthSizeClass {
 
 /** Responsive breakpoint data for a viewport-rooted layout -- lives in `ui-core` (not
  * `ui-dsl`) since it only depends on [UiDensity] and is a pure sizing concept any layer of
- * the UI stack (including `ui-unstyled`) could consume, not something specific to authored
+ * the UI stack (including `ui-headless`) could consume, not something specific to authored
  * DSL composition. */
 data class UiBoxConstraints(
     val maxWidthPx: Float,

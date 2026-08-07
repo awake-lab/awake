@@ -55,9 +55,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
-import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -68,11 +68,11 @@ import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.switch
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textarea
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
+import io.github.ronjunevaldoz.awake.ui.headless.input.slider
+import io.github.ronjunevaldoz.awake.ui.headless.input.selection.switch
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.textField
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.textarea
+import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
 import kotlin.test.Test
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -336,7 +336,7 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
     id = "awake-radiogroup-light",
     title = "Awake RadioGroup (light)",
     group = "Shadcn Parity",
-    summary = "New component -- circular checkbox() reused via a Circle shapeSpec, single-select logic composed on top, no new ui-unstyled primitive.",
+    summary = "New component -- circular checkbox() reused via a Circle shapeSpec, single-select logic composed on top, no new ui-headless primitive.",
     width = 200,
     height = 108
 )

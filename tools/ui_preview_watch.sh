@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # Near-real-time UI preview loop: Gradle --continuous regenerates the unified, searchable UI
-# component lookup (merging the ui-showcase page-level preview gallery and the ui-unstyled
+# component lookup (merging the ui-showcase page-level preview gallery and the ui-headless
 # bare-widget snapshot gallery -- see the "uiComponentLookupReport" task in the root
 # build.gradle.kts) on source change, scoped to the two narrow preview/snapshot-writing test
 # classes rather than either module's whole desktopTest suite. A tiny static server auto-reloads
@@ -17,7 +17,7 @@ REPORT_DIR="build/reports/ui-component-lookup"
 
 ./gradlew \
     :samples:ui-showcase:desktopTest --tests "*UiShowcasePreviewDocsTest*" \
-    :awake:engine:ui:ui-unstyled:desktopTest --tests "*UiSnapshotTest*" \
+    :awake:engine:ui:ui-headless:desktopTest --tests "*UiSnapshotTest*" \
     uiComponentLookupReport \
     --continuous -q &
 GRADLE_PID=$!

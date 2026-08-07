@@ -38,7 +38,7 @@ should live outside the core engine layer.
 flowchart LR
     B["awake:base"]
     UC["awake:engine:ui:ui-core"]
-    UW["awake:engine:ui:ui-unstyled"]
+    UW["awake:engine:ui:ui-headless"]
     UD["awake:engine:ui:ui-designsystem"]
     RA["awake:engine:render-api"]
     S["samples / tools / editor"]
@@ -83,7 +83,7 @@ Rules:
 - no sample/editor-specific widgets
 - no backend implementation details
 
-### `:awake:engine:ui:ui-unstyled`
+### `:awake:engine:ui:ui-headless`
 
 Owns Awake's generic widget library built on `ui-core`.
 
@@ -139,20 +139,20 @@ Examples:
 
 Rules:
 
-- depends on `ui-unstyled`
+- depends on `ui-headless`
 - can be opinionated
 - can evolve faster than engine core
 
 ### Transitional Note: keep `:awake:engine:ui` as a facade first
 
 To avoid a large one-shot break, the first split should keep `:awake:engine:ui` as a
-compatibility facade that re-exports `ui-core` and `ui-unstyled`.
+compatibility facade that re-exports `ui-core` and `ui-headless`.
 
 Recommended migration shape:
 
 1. create `ui-core`
 2. move core/runtime files there
-3. create `ui-unstyled`
+3. create `ui-headless`
 4. move built-in widgets/theme there
 5. keep `awake:engine:ui` as thin forwarding module
 6. later deprecate direct use once downstream code is moved
@@ -197,7 +197,7 @@ Answer:
 Recommended placement:
 
 - `Style` lives in `ui-core`
-- `ButtonStyle`/`PanelStyle`-style wrappers live in `ui-unstyled`
+- `ButtonStyle`/`PanelStyle`-style wrappers live in `ui-headless`
 - branded `PrimaryButtonStyle`/`EditorPanelStyle` live in `ui-designsystem`
 
 That gives us:
@@ -299,7 +299,7 @@ Once path/vector exists:
 - `Style.kt`
 - `font/BitmapFont.kt` if it stays renderer-neutral
 
-### Move next to `ui-unstyled`
+### Move next to `ui-headless`
 
 - `UiTheme.kt`
 - `UiButtonVariant.kt`
@@ -320,7 +320,7 @@ and therefore depends on the current UI module.
 After the split:
 
 - `render-api` should depend on `ui-core`
-- `render-api` should not depend on `ui-unstyled`
+- `render-api` should not depend on `ui-headless`
 - backend renderers should only need core UI primitives, not widget recipes
 
 This is one of the strongest reasons to put `UiDrawPrimitive` and future path/vector
@@ -332,7 +332,7 @@ primitives in `ui-core`.
 2. Create `:awake:engine:ui:ui-core`.
 3. Move runtime/style/layout primitives into `ui-core`.
 4. Point `render-api` at `ui-core`.
-5. Create `:awake:engine:ui:ui-unstyled`.
+5. Create `:awake:engine:ui:ui-headless`.
 6. Move built-in widgets and generic theme there.
 7. Keep `:awake:engine:ui` as a compatibility facade.
 8. Add shape/path primitives in `ui-core`.

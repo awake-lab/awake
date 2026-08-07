@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.unstyled.skeleton
+import io.github.ronjunevaldoz.awake.ui.headless.skeleton
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 private fun shadcnSkeletonStyle(theme: UiTheme, style: Style): Style {

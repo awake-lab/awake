@@ -13,7 +13,7 @@ val forbiddenUiDeclarationNames = when (project.path) {
         "DebugOverlay",
         "HudOverlay"
     )
-    ":awake:engine:ui:ui-unstyled" -> listOf(
+    ":awake:engine:ui:ui-headless" -> listOf(
         "anchoredColumn",
         "anchoredRow",
         "anchoredPanel",
@@ -29,7 +29,7 @@ val forbiddenUiDeclarationNames = when (project.path) {
 
 val forbiddenUiTypeReferences = when (project.path) {
     ":awake:engine:ui:ui-core",
-    ":awake:engine:ui:ui-unstyled" -> listOf(
+    ":awake:engine:ui:ui-headless" -> listOf(
         "SceneGameRuntime",
         "HelloCubeRuntimeState",
         "HelloCubeDebugController",

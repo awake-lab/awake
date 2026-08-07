@@ -20,7 +20,7 @@ Awake's reusable UI is only considered done when it has machine-checkable proof 
 Any change to shared UI in:
 
 - `awake:engine:ui:ui-core`
-- `awake:engine:ui:ui-unstyled`
+- `awake:engine:ui:ui-headless`
 - `awake:engine:ui-dsl`
 - `awake:engine:ui:ui-designsystem`
 - shared showcase or docs previews that demonstrate those modules
@@ -190,7 +190,7 @@ done:
 
 ```bash
 ./gradlew :awake:engine:ui:ui-testing:commonTest
-./gradlew :awake:engine:ui:ui-unstyled:desktopTest
+./gradlew :awake:engine:ui:ui-headless:desktopTest
 ./gradlew :samples:ui-showcase:desktopTest
 ```
 

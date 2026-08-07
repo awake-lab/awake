@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.px
  * The moving diagonal-free horizontal band a shimmer sweeps -- [x]/[width] are already in the
  * same pixel space as the [UiBounds] the shimmer plays over, [phase] is the raw 0..1 sweep
  * fraction (see [shimmerBand]) exposed for callers that need to derive their own per-sample
- * falloff, the way [io.github.ronjunevaldoz.awake.ui.unstyled.input.text.renderTextBlock]'s
+ * falloff, the way [io.github.ronjunevaldoz.awake.ui.headless.input.text.renderTextBlock]'s
  * per-glyph 3-point lerp does.
  */
 data class ShimmerBand(val x: Float, val width: Float, val phase: Float)
@@ -23,7 +23,7 @@ data class ShimmerBand(val x: Float, val width: Float, val phase: Float)
 /**
  * Widget-agnostic shimmer phase/band math -- the part of a shimmer effect that has nothing to do
  * with what's being drawn under it. Any widget (skeleton, card, avatar, or
- * [io.github.ronjunevaldoz.awake.ui.unstyled.input.text.renderTextBlock]'s own glyph sweep) can
+ * [io.github.ronjunevaldoz.awake.ui.headless.input.text.renderTextBlock]'s own glyph sweep) can
  * drive its own draw pass off this. One-directional sweep loop (0 -> 1, snap back to 0, repeat)
  * -- not a ping-pong bounce -- via [RepeatMode.Restart]; see `UiAnimationTest.kt`'s
  * `shimmerSweepPhaseIsAOneDirectionalLoopNotAPingPongBounce`.

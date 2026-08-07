@@ -43,7 +43,7 @@ artifact has shipped yet. Build from source.
 | [`awake:backend:jolt`](awake/backend/jolt) | `0.1.0-SNAPSHOT` | ![Active](https://img.shields.io/badge/status-active-brightgreen) | **Alpha** | Android, iOS, Desktop, Web | Jolt Physics implementation of `awake:physics:api` |
 | [`awake:backend:webgpu`](awake/backend/webgpu) | `0.1.0-SNAPSHOT` | ![Experimental](https://img.shields.io/badge/status-experimental-orange) | **Dev** | Web | WebGPU renderer for Web/Wasm (In-progress spike) |
 | [`awake:backend:opengl`](awake/backend/opengl) | `0.1.0-SNAPSHOT` | ![Frozen](https://img.shields.io/badge/status-frozen-blue) | **Legacy** | Android, iOS, Desktop | Legacy OpenGL backend (Maintenance only) |
-| [`awake:engine:ui`](awake/engine/ui) | `0.1.0-SNAPSHOT` | ![Active](https://img.shields.io/badge/status-active-brightgreen) | **Alpha** | Android, iOS, Desktop, Web | Immediate-mode UI stack (core, unstyled, designsystem) |
+| [`awake:engine:ui`](awake/engine/ui) | `0.1.0-SNAPSHOT` | ![Active](https://img.shields.io/badge/status-active-brightgreen) | **Alpha** | Android, iOS, Desktop, Web | Immediate-mode UI stack (core, headless, designsystem) |
 
 ### Features Supported
 
@@ -72,9 +72,9 @@ artifact has shipped yet. Build from source.
   ./gradlew developerDocs
   ```
 - UI tutorial output lands at
-  `awake/engine/ui/ui-unstyled/build/reports/ui-tutorials/index.html`
+  `awake/engine/ui/ui-headless/build/reports/ui-tutorials/index.html`
   and the broader visual snapshot gallery lands at
-  `awake/engine/ui/ui-unstyled/build/reports/ui-snapshots/index.html`
+  `awake/engine/ui/ui-headless/build/reports/ui-snapshots/index.html`
 
 ### Running the Demos
 

@@ -49,7 +49,7 @@ smaller design rather than folding into the existing opt-in mechanism.
 
 ## Proposed shape
 
-Add an internal memoization cache inside `ui-unstyled`'s text module, transparent to every call
+Add an internal memoization cache inside `ui-headless`'s text module, transparent to every call
 site (no API change, no new parameters on `renderTextBlock`/`Text`/`shadcnLabel`/etc.):
 
 ```kotlin
@@ -83,7 +83,7 @@ private val layoutCache = LruCache<TextLayoutCacheKey, UiBitmapTextLayout>(maxSi
 - **Not** per-frame (zero benefit) and **not** per-`UiContext` state store (`rememberStateValue`'s
   store is keyed by caller-supplied `id`, which text widgets don't currently have/require -- adding
   that requirement would turn this into another opt-in migration, defeating the point). Instead: a
-  **module-level, size-bounded LRU** living in `ui-unstyled`'s text file, scoped to process
+  **module-level, size-bounded LRU** living in `ui-headless`'s text file, scoped to process
   lifetime (survives across `UiContext` recreations, which is fine and desirable -- the cached
   value only depends on the pure inputs in the key, not on which `UiContext` asked for it).
 - Bounded (LRU, not unbounded `HashMap`) because `label` is an open string -- a chat log, a search
@@ -117,7 +117,7 @@ debug-mode consistency check the way the row/column cache does.
 
 ## Verification of correctness
 
-- New `TextLayoutCacheTest.kt` (`ui-unstyled/commonTest`, sibling to `RowColumnWeightCacheTest.kt`
+- New `TextLayoutCacheTest.kt` (`ui-headless/commonTest`, sibling to `RowColumnWeightCacheTest.kt`
   in spirit but a different risk shape per above):
   1. Cache-hit test: call `layoutBitmapText` twice with identical arguments, confirm the second
      call's result is `==` the first (trivial, since it's a pure function) **and** that a call

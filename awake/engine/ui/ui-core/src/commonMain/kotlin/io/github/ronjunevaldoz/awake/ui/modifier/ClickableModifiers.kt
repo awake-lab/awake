@@ -27,7 +27,7 @@ fun UiModifier.clickable(enabled: Boolean = true, onClick: () -> Unit): UiModifi
  * [slot], using [id] as the active-state key. Built entirely on the existing
  * `hitTest`/`tryClaimActive`/`isActive`/`releaseActiveIfMatches` mechanism -- the same
  * press-inside, release-inside "must stay hovered through the whole press" semantics
- * `ui-unstyled`'s `interact()` (see `Buttons.kt`'s call chain) already uses for `button`/
+ * `ui-headless`'s `interact()` (see `Buttons.kt`'s call chain) already uses for `button`/
  * `checkbox`/etc., just generalized to any widget that owns a stable `id` and a claimed slot,
  * not a parallel input pipeline. No-op if `modifier.clickAction` is null. */
 fun UiScope.resolveClickable(id: String, slot: UiBounds, modifier: UiModifier) {

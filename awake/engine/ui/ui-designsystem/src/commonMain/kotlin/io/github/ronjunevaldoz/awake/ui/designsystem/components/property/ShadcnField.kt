@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.separator
+import io.github.ronjunevaldoz.awake.ui.headless.separator
 
 /**
  * Matches real shadcn-compose's `Field` orientation switch -- [Vertical] stacks label above

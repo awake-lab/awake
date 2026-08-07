@@ -42,7 +42,7 @@ widget that could be styled to look similar."
 | Chip | ✗ |
 | TextField | ✓ `shadcnInput` (built this session -- see gaps above) |
 | Text | ✓ `shadcnBodyText`/`Headline`/`SectionTitle`/`SupportingText` |
-| Icon | ✓ `icon()` (ui-unstyled, theme-agnostic; no shadcn-specific auto-tint wrapper) |
+| Icon | ✓ `icon()` (ui-headless, theme-agnostic; no shadcn-specific auto-tint wrapper) |
 
 ### Forms & inputs (12)
 
@@ -65,9 +65,9 @@ widget that could be styled to look similar."
 
 | Component | Status |
 |---|---|
-| Avatar | ~ partial -- `shadcnAvatar` (new `avatarFallback()` primitive, `ui-unstyled`) is fallback-only (initials on a muted circle); no image-loading pipeline wired into this rasterizer yet, so the actual image slot doesn't exist |
+| Avatar | ~ partial -- `shadcnAvatar` (new `avatarFallback()` primitive, `ui-headless`) is fallback-only (initials on a muted circle); no image-loading pipeline wired into this rasterizer yet, so the actual image slot doesn't exist |
 | AspectRatio | ✗ |
-| Separator | ✓ `separator()` (ui-unstyled; no shadcn-specific style wrapper, but themeable via the caller) |
+| Separator | ✓ `separator()` (ui-headless; no shadcn-specific style wrapper, but themeable via the caller) |
 | Kbd | ✓ `shadcnKbd` |
 | Item/ItemGroup | ✗ |
 | Empty | ✗ |
@@ -77,9 +77,9 @@ widget that could be styled to look similar."
 | Component | Status |
 |---|---|
 | Alert | ✓ `shadcnAlert` (Default/Destructive) |
-| Progress | ✓ `shadcnProgress` (new `progressBar()` primitive in `ui-unstyled`, reuses `slider()`'s track/fill painting minus the knob/drag handling) |
-| Skeleton | ✓ `shadcnSkeleton` (new `skeleton()` primitive, `ui-unstyled`, real per-widget opacity pulse -- not a static box) |
-| Spinner | ~ partial -- `shadcnSpinner` (new `spinner()` primitive, `ui-unstyled`): an orbiting-dots loader, a real animation, approximating shadcn's CSS-rotated Lucide icon which this engine has no SVG-rotation pipeline to reproduce exactly |
+| Progress | ✓ `shadcnProgress` (new `progressBar()` primitive in `ui-headless`, reuses `slider()`'s track/fill painting minus the knob/drag handling) |
+| Skeleton | ✓ `shadcnSkeleton` (new `skeleton()` primitive, `ui-headless`, real per-widget opacity pulse -- not a static box) |
+| Spinner | ~ partial -- `shadcnSpinner` (new `spinner()` primitive, `ui-headless`): an orbiting-dots loader, a real animation, approximating shadcn's CSS-rotated Lucide icon which this engine has no SVG-rotation pipeline to reproduce exactly |
 | Toast/Toaster | ✗ |
 
 ### Disclosure & navigation (4)
@@ -180,7 +180,7 @@ components, not all at once up front.
    doesn't explicitly set, so both new variants leaked a border until `borderWidth(UiShape.none)`
    was added explicitly.
 6. ~~Build `Alert`~~ -- done: `shadcnAlert` (Default/Destructive), composed entirely from
-   existing primitives (`panel`, `shadcnBodyText`/`SupportingText`), no new ui-unstyled
+   existing primitives (`panel`, `shadcnBodyText`/`SupportingText`), no new ui-headless
    work needed. Verified visually against
    `docs/reference/awake-previews/awake-alert-variants-light.png`.
 7. ~~Build `RadioGroup`~~ -- done: `shadcnRadioGroup`, reusing `checkbox()` with a
@@ -188,18 +188,18 @@ components, not all at once up front.
    composed on top (clicking the already-selected item is a no-op, matching real radio
    semantics). Verified visually against
    `docs/reference/awake-previews/awake-radiogroup-light.png`.
-8. ~~Build `Progress`~~ -- done: `progressBar()` (new primitive, `ui-unstyled`) +
-   `shadcnProgress` -- the one component this round that needed real `ui-unstyled` work
+8. ~~Build `Progress`~~ -- done: `progressBar()` (new primitive, `ui-headless`) +
+   `shadcnProgress` -- the one component this round that needed real `ui-headless` work
    rather than pure composition, since nothing existing painted a static (non-interactive,
    non-min/max) fraction bar. Verified visually against
    `docs/reference/awake-previews/awake-progress-light.png`.
-9. ~~Build `Avatar`~~ -- done, partially: `avatarFallback()` (new primitive, `ui-unstyled`) +
+9. ~~Build `Avatar`~~ -- done, partially: `avatarFallback()` (new primitive, `ui-headless`) +
    `shadcnAvatar`. Fallback-only (initials on a muted circle) -- no image-loading
    pipeline exists yet for the actual image slot, a real gap not a corner cut silently.
    Verified visually against `docs/reference/awake-previews/awake-avatar-light.png`.
 10. ~~Build `Kbd`, `Skeleton`, `Tabs`~~ -- done. `Kbd`: pure composition (`shadcnKbd`),
     same measure-and-draw recipe as `shadcnBadge`. `Skeleton`: new `skeleton()` primitive
-    (`ui-unstyled`) with a real per-widget sine-wave opacity pulse over elapsed time, not a
+    (`ui-headless`) with a real per-widget sine-wave opacity pulse over elapsed time, not a
     static box. `Tabs`: `shadcnTabs` composes `shadcnButton` per tab -- caught and
     fixed a real bug in the process: `UiButtonVariant.Ghost`'s `resolveFill` hardcodes fill to
     transparent unless hovered/active, silently ignoring any style background override, so the
@@ -211,7 +211,7 @@ components, not all at once up front.
     composition (row of text + separator glyph). `Collapsible`: header toggle + conditional
     content lay-out, no animation. `Accordion`: caller-composed from multiple `Collapsible`s
     (marked partial -- no dedicated single-open helper). `Spinner`: new `spinner()` primitive
-    (`ui-unstyled`), an orbiting-dots loader (marked partial -- approximates shadcn's rotated
+    (`ui-headless`), an orbiting-dots loader (marked partial -- approximates shadcn's rotated
     icon, no SVG-rotation pipeline exists to match exactly). Verified visually against
     `docs/reference/awake-previews/awake-breadcrumb-light.png`,
     `awake-collapsible-light.png`, `awake-spinner-light.png` -- caught and fixed a real bug:

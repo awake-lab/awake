@@ -20,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.align
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.avatarFallback
+import io.github.ronjunevaldoz.awake.ui.headless.avatarFallback
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
@@ -50,7 +50,7 @@ private fun UiModifier.withAvatarSize(size: ShadcnAvatarSize): UiModifier =
     if (widthDimension != null || heightDimension != null) this else this.size(size.boxSize, size.boxSize)
 
 /** Structure only (the circle) -- content is caller-supplied, e.g. a custom icon avatar
- * instead of initials text. See [io.github.ronjunevaldoz.awake.ui.unstyled.avatarFallback]. */
+ * instead of initials text. See [io.github.ronjunevaldoz.awake.ui.headless.avatarFallback]. */
 fun UiScope.shadcnAvatar(
     modifier: UiModifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,

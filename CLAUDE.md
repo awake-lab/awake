@@ -33,6 +33,6 @@ Mandatory for the domain you are touching — each encodes a bug this repo actua
   ownership on teardown, and `@DslMarker` on nested builders.
 - `skills/awake-ecs-scene-runtime/SKILL.md` — consuming the scene runtime from a sample/demo.
 - `skills/awake-ui-authoring/SKILL.md` — before adding or changing any UI widget, adding a
-  size/spacing constant, or naming a primitive. Covers which of `ui-core`/`ui-unstyled`/
-  `ui-designsystem` owns what, the derivable-size rule (an unstyled default becomes the spec),
+  size/spacing constant, or naming a primitive. Covers which of `ui-core`/`ui-headless`/
+  `ui-designsystem` owns what, the derivable-size rule (an headless default becomes the spec),
   Dp-not-pixels, and the Radix-canonical naming policy.

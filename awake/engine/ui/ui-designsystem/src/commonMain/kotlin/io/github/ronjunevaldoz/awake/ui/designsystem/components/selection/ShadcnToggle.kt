@@ -10,9 +10,9 @@ import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggleSlot
+import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
+import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggleSlot
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 private fun ShadcnToggleVariant.toUiButtonVariant(): UiButtonVariant = when (this) {

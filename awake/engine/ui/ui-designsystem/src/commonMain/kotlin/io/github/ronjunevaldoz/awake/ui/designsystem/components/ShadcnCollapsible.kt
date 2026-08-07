@@ -19,8 +19,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.components.icon
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 /**
  * Real shadcn's `Collapsible` (and `Accordion`, a group of these with only one open at a

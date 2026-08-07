@@ -24,10 +24,10 @@ import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.uiPath
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.dropdown
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
+import io.github.ronjunevaldoz.awake.ui.headless.input.dropdown
+import io.github.ronjunevaldoz.awake.ui.headless.input.slider
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
 import kotlin.test.Test
 import io.github.ronjunevaldoz.awake.ui.style.*
 

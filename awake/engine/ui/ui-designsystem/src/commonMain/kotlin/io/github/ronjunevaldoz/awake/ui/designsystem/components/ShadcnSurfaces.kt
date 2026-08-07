@@ -31,9 +31,9 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.separator
+import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -101,7 +101,7 @@ private fun UiScope.emitCardElevationShadow(slot: UiBounds) {
 /** Real shadcn's `Surface`: a contained region (Card, Popover, Dialog) that owns its
  * background, border, and content padding. Composed from the [surface] primitive. */
 @Deprecated(
-    message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
+    message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
     replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
 )
 fun UiScope.shadcnSurface(
@@ -118,7 +118,7 @@ fun UiScope.shadcnSurface(
 )
 
 @Deprecated(
-    message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
+    message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
     replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
 )
 fun ColumnScope.shadcnSurface(
@@ -135,7 +135,7 @@ fun ColumnScope.shadcnSurface(
 )
 
 @Deprecated(
-    message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
+    message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
     replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
 )
 fun RowScope.shadcnSurface(
@@ -152,7 +152,7 @@ fun RowScope.shadcnSurface(
 )
 
 @Deprecated(
-    message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
+    message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
     replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface")
 )
 fun BoxScope.shadcnSurface(

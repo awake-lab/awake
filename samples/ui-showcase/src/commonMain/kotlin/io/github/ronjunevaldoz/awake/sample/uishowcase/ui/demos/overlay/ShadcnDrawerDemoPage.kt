@@ -19,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 internal fun ColumnScope.drawShadcnDrawerDemoPreview() {
     val bottomDrawerState = context.rememberPopupState("showcase-drawer-bottom")

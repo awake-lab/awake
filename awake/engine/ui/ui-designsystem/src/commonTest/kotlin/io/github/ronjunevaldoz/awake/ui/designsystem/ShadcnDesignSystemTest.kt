@@ -40,7 +40,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -686,7 +686,7 @@ class ShadcnDesignSystemTest {
         // Reproduces samples/scene3d-playground's live shell bug: a row of
         // shadcnSidebar(fixed) | column(weight(1f)) | shadcnSurface(fixed), where the fixed
         // siblings are real shadcn composite widgets with actual content (not raw claimSlot()
-        // calls, and not plain unstyled column()/row() -- see RowColumnWeightCacheTest /
+        // calls, and not plain headless column()/row() -- see RowColumnWeightCacheTest /
         // LayoutTest's existing weight() coverage for those simpler shapes). Root cause: the
         // shared ui-core surface() widget (which shadcnSidebar/shadcnSurface/shadcnCard all
         // route through) didn't suppress its own children's claimSlot() recording during its

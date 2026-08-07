@@ -24,7 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 
 /** shadcn-compose's own library default is dark = true; every other Awake sample (ui-showcase)
  * explicitly opts into light instead of inheriting that default. The per-frame ambient theme

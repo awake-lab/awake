@@ -32,7 +32,7 @@ Still open:
 Validation snapshot:
 
 - `:awake:engine:ui:ui-core:compileKotlinDesktop` passes
-- `:awake:engine:ui:ui-unstyled:compileKotlinDesktop` passes
+- `:awake:engine:ui:ui-headless:compileKotlinDesktop` passes
 - `:awake:engine:game-dsl:compileKotlinDesktop` passes
 - `:awake:scene:compileKotlinDesktop` passes
 - `:awake:scene-dsl:compileTestKotlinDesktop` still fails, but the remaining failures are
@@ -294,7 +294,7 @@ competing split.
 ## Validation
 
 - `:awake:engine:ui:ui-core:commonTest`
-- `:awake:engine:ui:ui-unstyled:commonTest`
+- `:awake:engine:ui:ui-headless:commonTest`
 - `:awake:engine:ui-dsl:commonTest`
 - `:awake:engine:ui:ui-designsystem:commonTest`
 - `:awake:engine:game-dsl:commonTest`

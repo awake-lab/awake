@@ -24,9 +24,9 @@ This currently builds:
 - the UI DSL tutorial guide at
   `awake/engine/ui-dsl/build/reports/ui-dsl-tutorials/index.html`
 - the UI snapshot gallery at
-  `awake/engine/ui/ui-unstyled/build/reports/ui-snapshots/index.html`
+  `awake/engine/ui/ui-headless/build/reports/ui-snapshots/index.html`
 - the curated UI tutorial guide at
-  `awake/engine/ui/ui-unstyled/build/reports/ui-tutorials/index.html`
+  `awake/engine/ui/ui-headless/build/reports/ui-tutorials/index.html`
 
 The rollout tracker for module-by-module coverage lives in
 `docs/reference/tutorial-coverage.md`.
@@ -107,24 +107,24 @@ signature?"
 
 ## Unified UI Component Lookup
 
-`samples/ui-showcase`'s page-level preview gallery and `ui-unstyled`'s bare-widget snapshot
+`samples/ui-showcase`'s page-level preview gallery and `ui-headless`'s bare-widget snapshot
 gallery are two separate Gradle report tasks (they live in different modules on opposite sides
 of the module graph -- see `docs/architecture.md`'s Module Graph -- so merging them into one
 Kotlin test would require an illegal cross-module dependency). Instead, a root-level task reads
 both modules' already-generated output after the fact and writes one merged, searchable page:
 
 ```bash
-./gradlew :samples:ui-showcase:desktopTest :awake:engine:ui:ui-unstyled:desktopTest uiComponentLookupReport
+./gradlew :samples:ui-showcase:desktopTest :awake:engine:ui:ui-headless:desktopTest uiComponentLookupReport
 ```
 
 This regenerates `build/reports/ui-component-lookup/index.html`: every card is tagged with its
-source module (`ui-showcase` or `ui-unstyled`) for correct attribution, and a plain-JS text
+source module (`ui-showcase` or `ui-headless`) for correct attribution, and a plain-JS text
 filter (`oninput` substring match against id/title/group/source, no search backend or index
 library) narrows the list as you type a component name.
 
 ## Live Preview Loop
 
-For fast iteration on `samples/ui-showcase` pages, `ui-unstyled` widgets, or the
+For fast iteration on `samples/ui-showcase` pages, `ui-headless` widgets, or the
 `ui-designsystem` components either renders, don't run the full `desktopTest` suite for either
 module -- it runs every test, including unrelated pre-existing failures. Instead, scope to the
 two narrow test classes that write the preview/snapshot galleries, then regenerate the merged
@@ -133,13 +133,13 @@ lookup:
 ```bash
 ./gradlew \
     :samples:ui-showcase:desktopTest --tests "*UiShowcasePreviewDocsTest*" \
-    :awake:engine:ui:ui-unstyled:desktopTest --tests "*UiSnapshotTest*" \
+    :awake:engine:ui:ui-headless:desktopTest --tests "*UiSnapshotTest*" \
     uiComponentLookupReport \
     --continuous
 ```
 
 `--continuous` is Gradle's own file-watch mode: it watches the inputs of every task in the
-graph (so edits to `ui-designsystem`/`ui-unstyled` sources that either gallery depends on
+graph (so edits to `ui-designsystem`/`ui-headless` sources that either gallery depends on
 trigger a rebuild too, not just edits inside the two test classes themselves) and reruns the
 whole requested task graph on change -- regenerating both source reports and then
 `build/reports/ui-component-lookup/index.html` in a few seconds per change, since
@@ -212,7 +212,7 @@ so it works identically on both.
 
 1. Add or update a curated test in either:
   - `awake/engine/ui-dsl/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiDslTutorialDocsTest.kt`
-   - `awake/engine/ui/ui-unstyled/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiTutorialDocsTest.kt`
+   - `awake/engine/ui/ui-headless/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/ui/snapshot/UiTutorialDocsTest.kt`
 2. Render the example with `saveUiTutorialSnapshot(...)`
 3. Keep the title and summary short and tutorial-oriented
 4. Add machine-checkable validation for semantics, text fit, clipping, and state coverage per

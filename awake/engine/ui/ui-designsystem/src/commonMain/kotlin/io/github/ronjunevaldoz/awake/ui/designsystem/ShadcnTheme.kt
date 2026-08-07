@@ -21,7 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 /**
  * A neutral-first, shadcn-inspired design-system theme that lives OUTSIDE the engine core.
  * It proves Awake's public UI API is enough to host a branded layer without modifying
- * `ui-core` or `ui-unstyled`.
+ * `ui-core` or `ui-headless`.
  *
  * The default singleton still exists for authored samples, while [shadcnTheme] lets
  * callers select a runtime style preset, base palette family, and accent override.

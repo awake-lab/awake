@@ -23,7 +23,7 @@ This makes the code harder to teach, harder to evolve, and too easy to use in th
 
 - `ui-core` already owns the right primitives: `Dp`, `Sp`, `Dimension`, `UiModifier`,
   `Style`, `UiTheme`, drawing primitives, popup contracts, and font/runtime pieces.
-- `ui-unstyled` is mostly in the right place as a generic leaf-widget layer.
+- `ui-headless` is mostly in the right place as a generic leaf-widget layer.
 - `ui-dsl` owns the right category of APIs, but its surface is too broad.
 - `ui-designsystem` owns the right category of APIs, but it still duplicates too many
   wrapper entry points and still tolerates raw-float authored sizing.
@@ -38,7 +38,7 @@ Three different things, easy to conflate under "get rid of slots":
   type.** Components take their content as lambda parameters -- a trailing `content: Scope.()
   -> Unit`, or named slots like `shadcnSectionHeader(title = { ... }, description = { ...
   })`. This is unrelated to the `UiSlot` class; it's about *how content is composed into a
-  component*, the same shape as Compose's slot API. `ui-unstyled`/`ui-designsystem` base
+  component*, the same shape as Compose's slot API. `ui-headless`/`ui-designsystem` base
   components must **not** be decoupled from this -- don't replace slot-lambda composition with
   something else (e.g. don't collapse a `title`/`description` slot pair into a single
   `label: String` param just to shrink the signature -- see the button-label bug, which is
@@ -53,7 +53,7 @@ Three different things, easy to conflate under "get rid of slots":
   something -- must go through `UiModifier` (`.offset()`, `.width()`, `.height()`, `.padding()`,
   arrangement instead of `gap: Float`) or `Style` (`shape()`, `borderWidth()` instead of a
   parallel `radius`/`borderWidth` param). Applies at every layer: root `UiContext.column/row/
-  box/absolute` calls, base-component widget signatures in `ui-unstyled`/`ui-designsystem`, and
+  box/absolute` calls, base-component widget signatures in `ui-headless`/`ui-designsystem`, and
   `ui-core`'s own public surface (`surface()`'s `radius`/`borderWidth` were the same mistake one
   layer down -- see the Core-UI audit finding below).
 
@@ -83,7 +83,7 @@ data, not something a caller constructs by hand at the root.
 - [x] Migrate every root-level `column(slot = UiSlot(...))` / `createColumn(x, y, width)` /
   `createAbsolute(x, y)` / `createBox(x, y, w, h)` call site onto `modifier = Modifier
   .offset(x.dp, y.dp).width(w.dp).height(h.dp)` across `ui-dsl`, `ui-designsystem`,
-  `ui-unstyled`, and `samples:ui-showcase` (~80 call sites, ~20 files). Verified pixel/geometry
+  `ui-headless`, and `samples:ui-showcase` (~80 call sites, ~20 files). Verified pixel/geometry
   parity per site (offset+TopStart reproduces the old `UiSlot` exactly) and confirmed zero
   regressions against `main` via `git stash` diffing at every batch.
 - [x] Fixed `ui-designsystem`, which did not compile on `main` at all — 3 test files called a
@@ -103,14 +103,14 @@ data, not something a caller constructs by hand at the root.
   consume a slot measured by a parent, not hand-authored magic numbers, matching the
   measured-output carve-out above.
 - [x] **Core-UI audit (2026-07-24), found by manual review after the first pass** — the
-  base-component sweep above (step 8) only covered `ui-unstyled`/`ui-designsystem` call sites,
+  base-component sweep above (step 8) only covered `ui-headless`/`ui-designsystem` call sites,
   not `ui-core` itself, where `surface()` actually lives. `layouts/ext/Surface.kt`'s 5
   `surface()` overloads (plus their `UiLegacyCompat.kt` mirror) took `radius: Dp` and
   `borderWidth: Dp` as separate authored params *alongside* `style: Style`, even though `Style`
   already has `shape()`/`borderWidth()` builders for exactly this — two ways to author the same
   value. `rawSurface()` had `gap: Float` instead of `verticalArrangement: Arrangement`. Fixed:
   removed `radius`/`borderWidth` from all 10 signatures, hardcoded the old
-  `UiShape.md`/`UiShape.none` defaults into the merged style so unstyled callers are unaffected;
+  `UiShape.md`/`UiShape.none` defaults into the merged style so headless callers are unaffected;
   migrated `rawSurface`'s `gap` to `verticalArrangement`. Migrated the 8 real external
   overriding call sites (`PanelTest.kt`, `UiSnapshotFixtures.kt`, `UiDslTutorialDocsTest.kt`,
   `ShadcnFields.kt`, `tooltip.kt`, `dropdownMenu.kt`, `Column.kt`) onto
@@ -122,7 +122,7 @@ data, not something a caller constructs by hand at the root.
 `Canvas.kt`'s `canvas { }` / `CanvasScope` (raw `drawRect`/`nested`/path drawing) is an escape
 hatch for app-level custom graphics (see `UiDslTest.canvasExposesResponsiveWidthClassesAndAlignment`
 for the intended shape: width-class-aware custom layout, not a widget). It must not be used to
-implement base/reusable components in `ui-unstyled`/`ui-designsystem` — those go through the
+implement base/reusable components in `ui-headless`/`ui-designsystem` — those go through the
 normal widget/modifier pipeline (`Style`, `UiModifier`, the shared draw-primitive emitters) so
 they get shape/border/clip/scroll/semantics for free and stay theme-able. `Canvas` bypasses all
 of that. Track the proper fix as a future feature: a real graphics-layer modifier (Jetpack
@@ -133,7 +133,7 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 ## Other Known Issues
 
 - [x] Button label not displayed on dialog and dropdown menu. Root cause: `buttonSlotInternal`
-  (`ui-unstyled/Buttons.kt`) resolved a themed `Style` but never pushed its foreground into the
+  (`ui-headless/Buttons.kt`) resolved a themed `Style` but never pushed its foreground into the
   ambient text-style stack before composing Slot-API content, so labels rendered inside slot
   buttons (dialog/dropdown-menu actions) fell back to the surrounding page's ambient color. Fixed
   by pushing `resolved.textStyle then TextStyle(color = resolved.foreground)` before
@@ -156,10 +156,10 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 - [ ] Keep `CoreUiTheme` only as the neutral fallback theme.
 - [ ] Do not move named authored themes into `ui-core`.
 
-### `awake:engine:ui:ui-unstyled`
+### `awake:engine:ui:ui-headless`
 
 - [ ] Keep only generic leaf widgets and generic containers.
-- [x] Deprecate authored convenience overloads that take width/height as raw `Float`. Deleted outright (button/buttonSlot/toggle/checkbox/dropdown/slider/textureQuad in ui-unstyled, plus the mirrored copies in ui-dsl's `UiDslControls.kt`) rather than deprecated, since this API isn't published yet -- migrated all 51 real call sites onto modifier-based sizing.
+- [x] Deprecate authored convenience overloads that take width/height as raw `Float`. Deleted outright (button/buttonSlot/toggle/checkbox/dropdown/slider/textureQuad in ui-headless, plus the mirrored copies in ui-dsl's `UiDslControls.kt`) rather than deprecated, since this API isn't published yet -- migrated all 51 real call sites onto modifier-based sizing.
 - [x] Prefer modifier-first sizing on public entry points. Byproduct of the Float-overload deletion above -- every remaining public widget entry point is modifier-based only.
 - [ ] Add slot-based variants only where content structure genuinely matters.
 - [ ] Keep simple `label`/`title` params on leaf widgets when that is still the cleanest API.
@@ -200,12 +200,12 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 
 ### Delete
 
-- [x] Duplicate convenience wrappers whose only work is `Float -> .px -> modifier`. Deleted across ui-unstyled, ui-dsl, and ui-designsystem (badges/buttons/fields/property controls) rather than deprecated, since this API isn't published yet.
+- [x] Duplicate convenience wrappers whose only work is `Float -> .px -> modifier`. Deleted across ui-headless, ui-dsl, and ui-designsystem (badges/buttons/fields/property controls) rather than deprecated, since this API isn't published yet.
 - [x] Extra placement helpers that only rename corner anchoring patterns already expressible by existing primitives. `OverlayShellScope`'s `topLeftSlot`/`topRight`/`bottomLeftPane`/etc. deprecated in favor of the generic `slot`/`place`/`pane(UiAnchor, ...)`.
 
 ### Deprecate
 
-- [x] Raw `Float` authored sizing in public DSL and design-system APIs. Deleted outright rather than deprecated (unpublished API) across ui-unstyled/ui-dsl/ui-designsystem; zero raw-`Float` sizing overloads remain.
+- [x] Raw `Float` authored sizing in public DSL and design-system APIs. Deleted outright rather than deprecated (unpublished API) across ui-headless/ui-dsl/ui-designsystem; zero raw-`Float` sizing overloads remain.
 - [ ] Composition APIs that tightly own both structure and all displayed text when slots are the better contract.
 - [x] Sample usage patterns that teach `.px` first instead of `Dp` or `UiModifier`. All 23 `.px` authored-sizing call sites in `samples:ui-showcase` converted to `.dp`.
 
@@ -213,7 +213,7 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 
 - [ ] Raw pixels for layout/runtime internals.
 - [ ] `UiModifier`, `Dimension`, `Dp`, `Sp`, popup primitives, and scroll primitives.
-- [ ] Neutral engine contracts in `ui-core`, generic widgets in `ui-unstyled`, generic compositions in `ui-dsl`, branded recipes in `ui-designsystem`.
+- [ ] Neutral engine contracts in `ui-core`, generic widgets in `ui-headless`, generic compositions in `ui-dsl`, branded recipes in `ui-designsystem`.
 - [ ] `Canvas`/`CanvasScope` scoped to app-level custom graphics only -- never used to implement base/reusable components (see "Known Constraint" above).
 
 ## Implementation Order
@@ -227,7 +227,7 @@ directly into `ui-core` and instead compose the same way `Canvas` content does t
 7. Root-level `UiSlot`-as-authored-input cleanup (see "UiSlot As Root Authored Input" above).
    **(done)**
 8. Base-component `x`/`y`/`width`/`height`/`insets`/`gap`-as-authored-input cleanup in
-   `ui-unstyled`/`ui-designsystem` widget signatures, per the Slot-API-vs-Modifier-first policy
+   `ui-headless`/`ui-designsystem` widget signatures, per the Slot-API-vs-Modifier-first policy
    above. **(done)** -- audit found the surface was already nearly clean; only remaining
    offender was `UiLegacyCompat.kt`'s deprecated `ColumnScope.row(height, width, gap: Float,
    modifier, content)`, migrated its 9 call sites onto `horizontalArrangement =

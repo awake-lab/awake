@@ -26,7 +26,7 @@ Every public-facing module should eventually have:
 | `awake:engine:ui-dsl` | Dokka + `awake/engine/ui-dsl/README.md` | Partial | UI DSL tutorial snapshots | In progress | Expand authored UI cookbook and custom component examples |
 | `awake:engine:render-api` | Dokka | Not yet | Compileable sample | Planned | Add mesh/material/renderer usage guide |
 | `awake:engine:ui:ui-core` | Dokka | Partial | UI tutorial snapshots | In progress | Add path/style/shape guide |
-| `awake:engine:ui:ui-unstyled` | Dokka | Partial | UI tutorial snapshots | In progress | Expand widget cookbook |
+| `awake:engine:ui:ui-headless` | Dokka | Partial | UI tutorial snapshots | In progress | Expand widget cookbook |
 | `awake:engine:ui:ui-designsystem` | Dokka | Not yet | UI tutorial snapshots | Planned | Add design-system styling guide |
 | `awake:scene` | Dokka + `awake/scene/README.md` | Partial | Sample scene runtime | Partial | Add scene JSON + runtime tutorial |
 | `awake:scene-dsl` | Dokka + `awake/scene-dsl/README.md` | Partial | `gameModule { ecs(...) }` composition proof | In progress | Expand scene authoring cookbook |
@@ -49,8 +49,8 @@ Current implementation:
 
 - `./gradlew developerDocs`
 - `awake/engine/ui-dsl/build/reports/ui-dsl-tutorials/index.html`
-- `awake/engine/ui/ui-unstyled/build/reports/ui-tutorials/index.html`
-- `awake/engine/ui/ui-unstyled/build/reports/ui-snapshots/index.html`
+- `awake/engine/ui/ui-headless/build/reports/ui-tutorials/index.html`
+- `awake/engine/ui/ui-headless/build/reports/ui-snapshots/index.html`
 
 ### Non-Visual APIs
 
@@ -70,7 +70,7 @@ Acceptable proof includes:
 
 ## Rollout Order
 
-1. `ui-core`, `ui-unstyled`, `ui-designsystem`
+1. `ui-core`, `ui-headless`, `ui-designsystem`
 2. `engine:game`, `scene`, `render-api`
 3. `ecs`, `base`, `physics:api`
 4. backend-specific guides

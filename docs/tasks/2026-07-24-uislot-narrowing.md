@@ -18,11 +18,11 @@ Split into two types:
 ## Contract audit (completed 2026-07-24)
 
 Audited every downstream read (not construction) of `UiSlot` outside `ui-core`, across
-ui-unstyled, ui-dsl, ui-designsystem, engine/ui/ui-testing, game-dsl, samples, and backends.
+ui-headless, ui-dsl, ui-designsystem, engine/ui/ui-testing, game-dsl, samples, and backends.
 
 - Overwhelming majority: `.x` / `.y` / `.width` / `.height` reads only.
 - `.place(...)` -- exactly 1 downstream call site (`game-dsl/GameUiRuntime.kt:113`).
-- `.inset(...)` -- used only inside `ui-unstyled` (`Surface.kt`, `Text.kt`, `Textarea.kt`).
+- `.inset(...)` -- used only inside `ui-headless` (`Surface.kt`, `Text.kt`, `Textarea.kt`).
 - No downstream code reads a `gap` field off `UiSlot` -- the "gaps on components" symptom is local
   spacing constants (`CHECKBOX_LABEL_GAP`, `TOGGLE_LABEL_GAP`, line-height gap in `Textarea`)
   combined with `.width`/`.height`/`.x` reads, e.g. `Checkbox.kt:65`, `Switch.kt:67,72`,
@@ -33,7 +33,7 @@ ui-unstyled, ui-dsl, ui-designsystem, engine/ui/ui-testing, game-dsl, samples, a
   migrate onto `UiBounds(...)`/`.copy(...)` too.
 
 **Conclusion:** `UiBounds(x, y, width, height)` plus a `place(...)` extension covers every
-downstream module except ui-unstyled, which also needs `.inset(...)`. Since ui-unstyled is a
+downstream module except ui-headless, which also needs `.inset(...)`. Since ui-headless is a
 separate module from ui-core, `.inset(...)` must ship on `UiBounds`, not stay ui-core-internal.
 
 ## Implementation Order (batched, 2026-07-24)
@@ -44,7 +44,7 @@ into batches, each independently compilable/testable/committable:
 **Batch 1 -- `anchorSlot` params (in progress).** The narrowest, most self-contained slice:
 `popup(anchorSlot: UiSlot, ...)` (`ui-core/UiPopup.kt`) and its downstream `anchorSlot: UiSlot`
 params on `shadcnTooltip`, `shadcnTooltipText`, `shadcnDropdownMenu`
-(`ui-designsystem/components/popup/`). ~20 call sites across ui-unstyled, ui-designsystem,
+(`ui-designsystem/components/popup/`). ~20 call sites across ui-headless, ui-designsystem,
 samples, and tests (several tests construct `UiSlot(...)` directly as the arg).
 1. Add `UiBounds` (`ui-core`, `layout` package) with `x`/`y`/`width`/`height` -- start minimal
    (just the fields), add `.place(...)`/`.inset(...)` ports only if this batch's call sites
@@ -69,7 +69,7 @@ lets Batch 1's callers drop their explicit `.toBounds()` calls (the value is alr
 by the time it reaches them).
 
 **Full audit (2026-07-24) found this is much larger than the original ~166-site estimate
-implied:** in `ui-unstyled`/`ui-designsystem` `commonMain` alone -- not counting ui-core-internal
+implied:** in `ui-headless`/`ui-designsystem` `commonMain` alone -- not counting ui-core-internal
 call sites, game-dsl, samples, or test files -- there are 29 public `UiSlot` return types, 79
 public `UiSlot` param types (mostly the content-lambda pattern above), and 5 data classes with a
 `UiSlot` field (`Buttons.kt`, `Interaction.kt`, `Surface.kt`, `DropdownMenu.kt`,
@@ -78,12 +78,12 @@ surface, not a contained slice. Treat this as its own dedicated session, not a c
 Batch 1 -- do a fresh, file-by-file inventory of all ~113+ commonMain sites before starting (the
 counts above are from grep, not yet triaged into "must convert" vs "internal, leave as UiSlot"),
 then apply the same compile-iterate-to-convergence technique, heaviest-consumer-first module
-order (ui-unstyled, then ui-designsystem, engine/ui/ui-testing, game-dsl, samples, backends).
+order (ui-headless, then ui-designsystem, engine/ui/ui-testing, game-dsl, samples, backends).
 
 **Batch 3 -- lock it down (not started).**
 1. Mark `UiSlot`'s constructor/class `internal` to `ui-core` once no downstream file references it.
 2. Enforce mechanically: add `"UiSlot"` to `forbiddenUiTypeReferences` for
-   `:awake:engine:ui:ui-unstyled` in
+   `:awake:engine:ui:ui-headless` in
    `build-logic/src/main/kotlin/awake.ui-ownership-convention.gradle.kts` (the existing
    `verifyUiOwnership` check already supports this via `forbiddenTypeReferences`). Do this only
    once Batch 2 has zero remaining downstream `UiSlot` references, or `check` fails immediately.

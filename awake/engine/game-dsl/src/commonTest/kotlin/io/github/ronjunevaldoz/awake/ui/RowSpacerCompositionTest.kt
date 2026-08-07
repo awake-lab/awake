@@ -12,8 +12,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonResult
-import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.UiButtonResult
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

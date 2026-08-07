@@ -16,8 +16,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.clickable
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.resolveClickable
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text as drawText
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text as drawText
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 

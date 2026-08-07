@@ -18,9 +18,9 @@ import kotlin.test.assertEquals
 /**
  * Pilots `Modifier.clickable(enabled, onClick)` on the plain [io.github.ronjunevaldoz.awake.ui.layouts.surface]
  * widget -- `surface()` has no click semantics of its own (unlike `button`/`checkbox`, which
- * hand-roll their own `interact()` call in `ui-unstyled`), so it's the clearest proof that the
+ * hand-roll their own `interact()` call in `ui-headless`), so it's the clearest proof that the
  * modifier-attached handler works standalone. Two-frame press-then-release sequence mirrors
- * `ui-unstyled`'s `CheckboxTest`/`UiTestHarness.simulateClick`, since `ui-core` has no shared
+ * `ui-headless`'s `CheckboxTest`/`UiTestHarness.simulateClick`, since `ui-core` has no shared
  * harness of its own yet.
  */
 class SurfaceClickableTest {

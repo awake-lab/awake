@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.unstyled.spinner
+import io.github.ronjunevaldoz.awake.ui.headless.spinner
 import io.github.ronjunevaldoz.awake.ui.style.*
 
 private fun shadcnSpinnerStyle(theme: UiTheme, style: Style): Style {

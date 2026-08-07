@@ -1,7 +1,7 @@
 ---
 name: awake-ui-systems-engineer
 description: >
-  Use this agent for work on Awake's immediate-mode UI stack — `ui-core`, `ui-unstyled`,
+  Use this agent for work on Awake's immediate-mode UI stack — `ui-core`, `ui-headless`,
   `ui-dsl`, visual tutorial mechanics, text/layout/input behavior, animation plumbing, and
   reusable UI composition boundaries. Reach for it when the task is about shared UI
   primitives and systems, not design-language decisions or sample-local one-off composition.
@@ -21,7 +21,7 @@ You work on Awake's shared UI mechanics. Read
 ## Owns
 
 - `awake:engine:ui:ui-core`
-- `awake:engine:ui:ui-unstyled`
+- `awake:engine:ui:ui-headless`
 - `awake:engine:ui-dsl`
 - low-level layout, text, input, clipping, and animation behavior
 
