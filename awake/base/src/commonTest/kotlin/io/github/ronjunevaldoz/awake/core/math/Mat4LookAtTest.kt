@@ -74,56 +74,6 @@ class Mat4LookAtTest {
         assertVec4(Vec4(0f, 0f, -eye.length3(), 1f), view.applyToColumnVector(0f, 0f, 0f))
     }
 
-    /**
-     * Characterises a real defect, it is not an endorsement. `setLookAt` writes the side/up/
-     * -forward basis into the matrix's **columns** (`m00, m10, m20 = s`), but a view matrix needs
-     * them in its **rows** (`m00, m01, m02 = s`) -- the rotation block comes out transposed, i.e.
-     * inverted, while the translation column (`m03, m13, m23`) is written in the correct,
-     * row-form convention. Compare GLM's `lookAtRH`, whose `Result[0][0], Result[1][0],
-     * Result[2][0]` (column-major indices, so row 0) are `s.x, s.y, s.z`.
-     *
-     * The two halves therefore disagree, and the matrix stops being a view matrix as soon as the
-     * camera is not axis-aligned. See `viewMatrixShouldMapTheCameraPositionToTheOrigin`.
-     */
-    @Test
-    fun viewMatrixCurrentlyStoresTheBasisAsColumnsInsteadOfRows() {
-        val eye = Vec3(5f, 0f, 0f)
-        val view = Mat4.setLookAt(eye = eye, center = Vec3(0f, 0f, 0f), up = Vec3.UP)
-
-        val forward = Vec3(-1f, 0f, 0f)
-        val side = forward.cross(Vec3.UP).normalized() // (0, 0, -1)
-        val cameraUp = side.cross(forward) // (0, 1, 0)
-
-        // The side vector lands in column 0 ...
-        assertEquals(side.x, view.m00, TOLERANCE)
-        assertEquals(side.y, view.m10, TOLERANCE)
-        assertEquals(side.z, view.m20, TOLERANCE)
-        // ... so row 0 ends up holding one component of each basis vector, instead of the whole
-        // side vector a view matrix needs there.
-        assertEquals(side.x, view.m00, TOLERANCE)
-        assertEquals(cameraUp.x, view.m01, TOLERANCE)
-        assertEquals(-forward.x, view.m02, TOLERANCE)
-    }
-
-    /** The visible consequence of the above: the camera is not at the view-space origin. */
-    @Test
-    fun aNonAxisAlignedCameraCurrentlyDoesNotMapItselfToTheViewSpaceOrigin() {
-        val eye = Vec3(5f, 0f, 0f)
-        val view = Mat4.setLookAt(eye = eye, center = Vec3(0f, 0f, 0f), up = Vec3.UP)
-
-        // Should be (0, 0, 0, 1); the transposed rotation puts it twice as far back instead.
-        assertVec4(Vec4(0f, 0f, -10f, 1f), view.applyToColumnVector(eye.x, eye.y, eye.z))
-    }
-
-    /** And the world axes come out mirrored, so surrounding geometry is oriented wrongly. */
-    @Test
-    fun aNonAxisAlignedCameraCurrentlyMirrorsTheViewSpaceXAxis() {
-        val view = Mat4.setLookAt(eye = Vec3(5f, 0f, 0f), center = Vec3(0f, 0f, 0f), up = Vec3.UP)
-
-        // Camera right is world -Z, so world (0, 0, -1) must appear to the right (view x > 0).
-        assertEquals(-1f, view.applyToColumnVector(0f, 0f, -1f).x, TOLERANCE)
-    }
-
     @Ignore(
         "DEFECT: Mat4.setLookAt writes the side/up/-forward basis into the matrix's columns " +
             "while writing the translation in row form, so the rotation block is transposed " +
@@ -141,7 +91,6 @@ class Mat4LookAtTest {
         }
     }
 
-    @Ignore("DEFECT: see viewMatrixShouldMapTheCameraPositionToTheOrigin.")
     @Test
     fun viewMatrixShouldHoldTheSideVectorInItsFirstRow() {
         val eye = Vec3(5f, 0f, 0f)
@@ -153,7 +102,6 @@ class Mat4LookAtTest {
         assertEquals(side.z, view.m02, TOLERANCE)
     }
 
-    @Ignore("DEFECT: see viewMatrixShouldMapTheCameraPositionToTheOrigin.")
     @Test
     fun viewMatrixShouldPutGeometryOnTheCamerasRightAtPositiveViewX() {
         val view = Mat4.setLookAt(eye = Vec3(5f, 0f, 0f), center = Vec3(0f, 0f, 0f), up = Vec3.UP)
@@ -174,15 +122,15 @@ class Mat4LookAtTest {
         val view = Mat4.setLookAt(eye = Vec3(0f, 0f, 0f), center = Vec3(0f, 1f, 0f), up = Vec3.UP)
 
         assertTrue(view.data.none { it.isNaN() }, "expected no NaNs, got ${view.data.toList()}")
-        // The side and up basis vectors both collapsed to zero.
+        // Side (row 0) and up (row 1) both collapsed to zero.
         assertEquals(0f, view.m00, TOLERANCE)
-        assertEquals(0f, view.m10, TOLERANCE)
-        assertEquals(0f, view.m20, TOLERANCE)
         assertEquals(0f, view.m01, TOLERANCE)
+        assertEquals(0f, view.m02, TOLERANCE)
+        assertEquals(0f, view.m10, TOLERANCE)
         assertEquals(0f, view.m11, TOLERANCE)
-        assertEquals(0f, view.m21, TOLERANCE)
-        // Only -forward survives.
-        assertEquals(-1f, view.m12, TOLERANCE)
+        assertEquals(0f, view.m12, TOLERANCE)
+        // Only -forward survives, in row 2.
+        assertEquals(-1f, view.m21, TOLERANCE)
     }
 
     @Test
@@ -191,7 +139,7 @@ class Mat4LookAtTest {
 
         assertTrue(view.data.none { it.isNaN() }, "expected no NaNs, got ${view.data.toList()}")
         assertEquals(0f, view.m00, TOLERANCE)
-        assertEquals(1f, view.m12, TOLERANCE)
+        assertEquals(1f, view.m21, TOLERANCE)
     }
 
     @Test
@@ -204,7 +152,7 @@ class Mat4LookAtTest {
 
         assertTrue(view.data.none { it.isNaN() }, "expected no NaNs, got ${view.data.toList()}")
         // The side vector recovers to a unit vector even from a nearly-degenerate cross product.
-        assertEquals(1f, Vec3(view.m00, view.m10, view.m20).length3(), TOLERANCE)
+        assertEquals(1f, Vec3(view.m00, view.m01, view.m02).length3(), TOLERANCE)
     }
 
     @Test

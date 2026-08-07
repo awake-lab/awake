@@ -253,6 +253,7 @@ class Mat4 {
          * @param top    The top coordinate of the projection volume.
          * @param near   The distance to the near plane of the projection volume.
          * @param far    The distance to the far plane of the projection volume.
+         * @param clipSpace The target API's NDC convention -- supplies the depth range.
          * @return The orthographic projection matrix.
          */
         fun orthographic(
@@ -261,7 +262,8 @@ class Mat4 {
             bottom: Float,
             top: Float,
             near: Float,
-            far: Float
+            far: Float,
+            clipSpace: ClipSpace
         ): Mat4 {
             val width = right - left
             val height = top - bottom
@@ -269,15 +271,14 @@ class Mat4 {
 
             val tx = -(right + left) / width
             val ty = -(top + bottom) / height
-            val tz = -(far + near) / depth
 
             return Mat4().apply {
                 m00 = 2f / width
                 m11 = 2f / height
-                m22 = -2f / depth
+                m22 = if (clipSpace.depthZeroToOne) -1f / depth else -2f / depth
                 m03 = tx
                 m13 = ty
-                m23 = tz
+                m23 = if (clipSpace.depthZeroToOne) -near / depth else -(far + near) / depth
             }
         }
 
@@ -295,6 +296,7 @@ class Mat4 {
          * @param top    The top coordinate of the frustum.
          * @param near   The distance to the near plane of the frustum.
          * @param far    The distance to the far plane of the frustum.
+         * @param clipSpace The target API's NDC convention -- supplies the depth range.
          * @return The frustum projection matrix.
          */
         fun frustum(
@@ -303,7 +305,8 @@ class Mat4 {
             bottom: Float,
             top: Float,
             near: Float,
-            far: Float
+            far: Float,
+            clipSpace: ClipSpace
         ): Mat4 {
             val width = right - left
             val height = top - bottom
@@ -313,9 +316,9 @@ class Mat4 {
                 m11 = 2.0f * near / height
                 m02 = (right + left) / width
                 m12 = (top + bottom) / height
-                m22 = -(far + near) / depth
+                m22 = if (clipSpace.depthZeroToOne) -far / depth else -(far + near) / depth
                 m32 = -1.0f
-                m23 = -2.0f * far * near / depth
+                m23 = if (clipSpace.depthZeroToOne) -far * near / depth else -2.0f * far * near / depth
                 m33 = 0f
             }
         }
@@ -329,18 +332,19 @@ class Mat4 {
          * @param aspect The aspect ratio of the projection volume (width / height).
          * @param near   The distance to the near plane of the projection volume.
          * @param far    The distance to the far plane of the projection volume.
+         * @param clipSpace The target API's NDC convention -- supplies the depth range.
          * @return The perspective projection matrix.
          */
-        fun perspective(fovY: Float, aspect: Float, near: Float, far: Float): Mat4 {
+        fun perspective(fovY: Float, aspect: Float, near: Float, far: Float, clipSpace: ClipSpace): Mat4 {
             val tanHalfFovY = tan(fovY / 2f)
             val scaleY = 1f / tanHalfFovY
             val rangeInv = near - far
             return Mat4().apply {
                 m00 = scaleY / aspect
                 m11 = scaleY
-                m22 = (near + far) / rangeInv
+                m22 = if (clipSpace.depthZeroToOne) far / rangeInv else (near + far) / rangeInv
                 m32 = -1f
-                m23 = 2f * near * far / rangeInv
+                m23 = if (clipSpace.depthZeroToOne) near * far / rangeInv else 2f * near * far / rangeInv
                 m33 = 0f
             }
         }
@@ -371,14 +375,18 @@ class Mat4 {
                 val s = f.cross(up).normalized() // side
                 val u = s.cross(f) // up
 
+                // Rotation goes in ROWS, matching the row-form translation below. Writing it
+                // into columns instead transposes (and for an orthonormal basis, inverts) the
+                // rotation, which is invisible whenever the basis happens to be the identity
+                // -- eye on +Z looking down -Z -- and mirrors the view everywhere else.
                 m00 = s.x
-                m10 = s.y
-                m20 = s.z
-                m01 = u.x
+                m01 = s.y
+                m02 = s.z
+                m10 = u.x
                 m11 = u.y
-                m21 = u.z
-                m02 = -f.x
-                m12 = -f.y
+                m12 = u.z
+                m20 = -f.x
+                m21 = -f.y
                 m22 = -f.z
                 m03 = -s.dot(eye)
                 m13 = -u.dot(eye)
