@@ -24,22 +24,3 @@ fun UiScope.shadcnMetaText(
     overflow = UiTextOverflow.Ellipsis,
     maxLines = maxLines
 )
-
-@Deprecated(
-    message = "Use shadcnMetaText for UI design system typography functions",
-    replaceWith = ReplaceWith("shadcnMetaText(label, modifier, style, maxLines)")
-)
-fun UiScope.metaText(
-    label: String,
-    modifier: UiModifier = Modifier,
-    style: Style = Style.Companion {
-        foreground(theme.colors.mutedForeground)
-        textSize(theme.typography.caption)
-    },
-    maxLines: Int = 1
-): UiBounds = shadcnMetaText(
-    label = label,
-    modifier = modifier,
-    style = style,
-    maxLines = maxLines
-)

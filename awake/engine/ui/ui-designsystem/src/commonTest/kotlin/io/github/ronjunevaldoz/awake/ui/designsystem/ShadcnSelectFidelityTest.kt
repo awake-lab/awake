@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -37,7 +36,7 @@ class ShadcnSelectFidelityTest {
             ui.pushTheme(theme)
 
             ui.beginFrame(300f * config.scale.scale, 100f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
-            ui.createAbsolute().shadcnSelect(
+            ui.createAbsolute(slot = ui.frameBounds()).shadcnSelect(
                 id = "select-fidelity",
                 options = listOf("Option 1", "Option 2"),
                 selectedIndex = 0,

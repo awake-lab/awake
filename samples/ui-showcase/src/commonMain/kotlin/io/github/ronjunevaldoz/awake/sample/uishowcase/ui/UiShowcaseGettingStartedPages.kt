@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
@@ -46,7 +46,7 @@ internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
     shadcnBodyText("Dedicated sample route")
     shadcnSupportingText("This page shell exists so the design system is judged as a product surface, not just as loose demo widgets.")
     spacer(Modifier.height(8f.dp))
-    supportingLines(
+    shadcnSupportingLines(
         listOf(
             "Stable chrome on top, grouped navigation on the left, one detail page in the content pane.",
             "The starter sample stays a starter sample; docs and polish move here.",
@@ -67,7 +67,7 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
             shadcnSectionTitle("Official cues")
             shadcnSupportingText("The reference we keep checking against.")
             spacer(Modifier.height(8f.dp))
-            supportingLines(
+            shadcnSupportingLines(
                 listOf(
                     "Controls feel closer to 36px than 44px.",
                     "Dropdown content is a popover, not a bare button stack.",

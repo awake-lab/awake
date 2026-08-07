@@ -2,7 +2,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -32,7 +32,7 @@ class UiTypographyTest {
             surface(id = "copy", modifier = Modifier.height(Dimension.WrapContent)) { slot ->
                 panelSlot = slot
                 text("Copy")
-                supportingText(
+                shadcnSupportingText(
                     "Shared supporting copy should wrap cleanly and grow the panel instead of spilling outside its bounds.",
                     maxLines = 4
                 )

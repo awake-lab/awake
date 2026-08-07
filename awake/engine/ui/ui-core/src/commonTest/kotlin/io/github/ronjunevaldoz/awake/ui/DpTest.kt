@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -66,7 +67,9 @@ class DpTest {
         val ui = UiContext()
         ui.beginFrame(120f, 80f, testSnapshot())
 
-        val glyphPx = ui.createAbsolute(font = font, theme = UiDefaultTheme).resolveGlyphPx(
+        ui.pushFont(font)
+        ui.pushTheme(UiDefaultTheme)
+        val glyphPx = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f)).resolveGlyphPx(
             font = font,
             textStyle = TextStyle(size = 10.sp)
         )
@@ -82,7 +85,9 @@ class DpTest {
         val ui = UiContext()
         ui.beginFrame(120f, 80f, testSnapshot())
 
-        val glyphPx = ui.createAbsolute(font = font, theme = UiDefaultTheme).resolveGlyphPx(
+        ui.pushFont(font)
+        ui.pushTheme(UiDefaultTheme)
+        val glyphPx = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f)).resolveGlyphPx(
             font = font,
             textStyle = TextStyle(size = 13f.sp)
         )

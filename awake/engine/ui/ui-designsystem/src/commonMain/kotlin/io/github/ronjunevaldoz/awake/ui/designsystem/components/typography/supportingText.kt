@@ -26,22 +26,3 @@ fun UiScope.shadcnSupportingText(
     overflow = UiTextOverflow.Ellipsis,
     maxLines = maxLines
 )
-
-@Deprecated(
-    message = "Use shadcnSupportingText for UI design system typography functions",
-    replaceWith = ReplaceWith("shadcnSupportingText(label, modifier, style, maxLines)")
-)
-fun UiScope.supportingText(
-    label: String,
-    modifier: UiModifier = Modifier,
-    style: Style = Style.Companion {
-        foreground(theme.colors.mutedForeground)
-        textSize(theme.typography.caption)
-    },
-    maxLines: Int = Int.MAX_VALUE
-): UiBounds = shadcnSupportingText(
-    label = label,
-    modifier = modifier,
-    style = style,
-    maxLines = maxLines
-)

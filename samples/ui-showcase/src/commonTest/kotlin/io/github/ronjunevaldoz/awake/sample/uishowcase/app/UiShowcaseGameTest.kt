@@ -39,7 +39,6 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPathCommand
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
@@ -317,11 +316,9 @@ class UiShowcaseGameTest {
         selectedPage = "theming"
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
-        ui.createColumn(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(720f.dp).height(516f.dp),
-            font = BitmapFont(),
-            theme = state.showcaseTheme()
-        ).run {
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(state.showcaseTheme())
+        ui.createColumn(x = 24f, y = 24f, width = 720f, height = 516f).run {
             column(
                 id = "ui-showcase-content-viewport",
                 modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.Fixed(320f.px))) {
@@ -360,11 +357,9 @@ class UiShowcaseGameTest {
         val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side")
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
-        ui.createColumn(
-            modifier = Modifier.width(1440f.dp).height(900f.dp),
-            font = BitmapFont(),
-            theme = shadcnTheme(dark = false)
-        ).run {
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(shadcnTheme(dark = false))
+        ui.createColumn(x = 0f, y = 0f, width = 1440f, height = 900f).run {
             row(
                 horizontalArrangement = Arrangement.spacedBy(20f.dp),
                 modifier = (Modifier.fillMaxSize().padding(24f.dp)).width(Dimension.FillMax).height(Dimension.Fixed(900f.px))) {
@@ -416,11 +411,9 @@ class UiShowcaseGameTest {
         fun renderSidebar() {
             // Large deltaSeconds lets the collapsible's height animation converge in one frame.
             ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState(), deltaSeconds = 5f)
-            ui.createColumn(
-                modifier = Modifier.width(264f.dp).height(900f.dp),
-                font = BitmapFont(),
-                theme = shadcnTheme(dark = false)
-            ).run {
+            ui.pushFont(BitmapFont())
+            ui.pushTheme(shadcnTheme(dark = false))
+            ui.createColumn(x = 0f, y = 0f, width = 264f, height = 900f).run {
                 drawUiShowcaseSidebar(compact = false)
             }
             ui.endFrame()
@@ -456,11 +449,9 @@ class UiShowcaseGameTest {
         val input = Input()
 
         ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState(), deltaSeconds = 5f)
-        ui.createColumn(
-            modifier = Modifier.width(264f.dp).height(900f.dp),
-            font = BitmapFont(),
-            theme = shadcnTheme(dark = false)
-        ).run {
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(shadcnTheme(dark = false))
+        ui.createColumn(x = 0f, y = 0f, width = 264f, height = 900f).run {
             drawUiShowcaseSidebar(compact = false)
         }
         val primitives = ui.endFrame()
@@ -578,11 +569,9 @@ private fun renderSidebarSurfaceColor(theme: UiTheme): Color {
         240f,
         io.github.ronjunevaldoz.awake.core.input.Input().updateSnapshot().toUiInputState()
     )
-    ui.createColumn(
-        modifier = Modifier.offset(24f.dp, 24f.dp).width(264f.dp).height(180f.dp),
-        font = BitmapFont(),
-        theme = theme
-    ).run {
+    ui.pushFont(BitmapFont())
+    ui.pushTheme(theme)
+    ui.createColumn(x = 24f, y = 24f, width = 264f, height = 180f).run {
         shadcnSidebar(
             id = "sidebar-probe",
             style = Style { shape(16f.dp) },

@@ -25,23 +25,3 @@ fun UiScope.shadcnSupportingLines(
         maxLines = maxLines
     )
 }
-
-@Deprecated(
-    message = "Use shadcnSupportingLines for UI design system typography functions",
-    replaceWith = ReplaceWith("shadcnSupportingLines(lines, modifier, style, maxLines)")
-)
-fun UiScope.supportingLines(
-    lines: Iterable<String>,
-    modifier: UiModifier = Modifier,
-    style: Style = Style.Companion {
-        foreground(theme.colors.mutedForeground)
-    },
-    maxLines: Int = Int.MAX_VALUE
-) {
-    shadcnSupportingLines(
-        lines = lines,
-        modifier = modifier,
-        style = style,
-        maxLines = maxLines
-    )
-}

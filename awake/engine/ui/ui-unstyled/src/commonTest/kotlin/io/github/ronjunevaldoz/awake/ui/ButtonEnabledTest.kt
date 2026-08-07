@@ -22,7 +22,7 @@ class ButtonEnabledTest {
         val ui = UiContext()
         var clicked = false
         ui.simulateClick(x = 100f, y = 40f, screenHeight = 100f) {
-            if (ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+            if (ui.createAbsolute(x = 20f, y = 20f)
                     .button("btn", "Go", modifier = Modifier.width(160f.px).height(40f.px))
             ) clicked = true
         }
@@ -34,7 +34,7 @@ class ButtonEnabledTest {
         val ui = UiContext()
         var clicked = false
         ui.simulateClick(x = 100f, y = 40f, screenHeight = 100f) {
-            if (ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+            if (ui.createAbsolute(x = 20f, y = 20f)
                     .button("btn", "Go", modifier = Modifier.width(160f.px).height(40f.px), enabled = false)
             ) clicked = true
         }

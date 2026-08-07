@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -29,7 +28,7 @@ class ShadcnSelectGenericTest {
 
         fun frame(x: Float, y: Float, down: Boolean) {
             ui.beginFrame(300f, 200f, testSnapshot(x = x, y = y, down = down))
-            ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp)).shadcnSelect(
+            ui.createAbsolute(x = 20f, y = 20f).shadcnSelect(
                 id = "fruit",
                 value = picked,
                 options = Fruit.entries,

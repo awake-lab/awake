@@ -335,7 +335,7 @@ class UiPopupCompositionsTest {
                     UiDropdownMenuItem(
                         label = "Duplicate panel",
                         trailingLabel = "Cmd+D",
-                        supportingText = "Secondary action metadata sits on the trailing edge."
+                        shadcnSupportingText = "Secondary action metadata sits on the trailing edge."
                     )
                 ),
                 style = Style.Companion { contentPadding(0f.dp) }

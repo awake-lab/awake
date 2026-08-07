@@ -24,15 +24,15 @@ class SliderEnabledTest {
         val input = Input()
         var value = 0f
         simulateFrame(pointerDown = true, x = 20f, y = 36f, input = input) {
-            value = createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+            value = createAbsolute(x = 20f, y = 20f)
                 .slider("sl", min = 0f, max = 100f, value = value, modifier = Modifier.width(160f.px).height(32f.px), enabled = enabled)
         }
         simulateFrame(pointerDown = true, x = 180f, y = 36f, input = input) {
-            value = createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+            value = createAbsolute(x = 20f, y = 20f)
                 .slider("sl", min = 0f, max = 100f, value = value, modifier = Modifier.width(160f.px).height(32f.px), enabled = enabled)
         }
         simulateFrame(pointerDown = false, x = 180f, y = 36f, input = input) {
-            value = createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+            value = createAbsolute(x = 20f, y = 20f)
                 .slider("sl", min = 0f, max = 100f, value = value, modifier = Modifier.width(160f.px).height(32f.px), enabled = enabled)
         }
         return value

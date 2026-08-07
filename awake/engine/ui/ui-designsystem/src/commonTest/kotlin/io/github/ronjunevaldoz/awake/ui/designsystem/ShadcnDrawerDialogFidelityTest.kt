@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDrawerPosition
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -37,7 +36,7 @@ class ShadcnDrawerDialogFidelityTest {
             ui.pushTheme(theme)
 
             ui.beginFrame(400f * config.scale.scale, 500f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
-            ui.createAbsolute().shadcnDrawer(
+            ui.createAbsolute(slot = ui.frameBounds()).shadcnDrawer(
                 id = "drawer-fidelity",
                 expanded = true,
                 onDismissRequest = {},

@@ -24,7 +24,7 @@ class SwitchEnabledTest {
         // The switch's own slot is offset(20dp,20dp) sized width(40px) x height(22px) --
         // click inside that box (not CheckboxTest's whole-row target), so (30, 30).
         ui.simulateClick(x = 30f, y = 30f, screenHeight = 100f) {
-            checked = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+            checked = ui.createAbsolute(x = 20f, y = 20f)
                 .switch("sw", checked, modifier = Modifier.width(40f.px).height(22f.px))
         }
         assertTrue(checked, "an otherwise-valid press+release must still flip the switch when enabled (the default)")
@@ -35,7 +35,7 @@ class SwitchEnabledTest {
         val ui = UiContext()
         var checked = false
         ui.simulateClick(x = 30f, y = 30f, screenHeight = 100f) {
-            checked = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+            checked = ui.createAbsolute(x = 20f, y = 20f)
                 .switch("sw", checked, modifier = Modifier.width(40f.px).height(22f.px), enabled = false)
         }
         assertFalse(checked, "enabled = false must suppress the flip even on an otherwise valid press+release")

@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -30,7 +29,7 @@ class ShadcnInputIconSelectPlaceholderTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(300f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        ui.createAbsolute(x = 20f, y = 20f)
             .shadcnInput(
                 id = "search",
                 value = "hello",
@@ -57,7 +56,7 @@ class ShadcnInputIconSelectPlaceholderTest {
         ui.beginFrame(300f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
         val real = "secret"
-        val returned = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        val returned = ui.createAbsolute(x = 20f, y = 20f)
             .shadcnInput(
                 id = "password",
                 value = real,
@@ -82,7 +81,7 @@ class ShadcnInputIconSelectPlaceholderTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        ui.createAbsolute(x = 20f, y = 20f)
             .shadcnSelect(
                 id = "fruit",
                 options = listOf("Apple", "Banana"),

@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
@@ -35,7 +34,7 @@ class ShadcnCheckboxRadioSlotTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        ui.createAbsolute(x = 20f, y = 20f)
             .shadcnCheckbox(
                 id = "select-all",
                 checked = false,

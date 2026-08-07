@@ -164,7 +164,7 @@ private fun ColumnScope.dropdownMenuItem(
     val bodyWidth = (width - 16f.dp.toPx() - trailingWidth - iconSlotWidth).coerceAtLeast(glyphPx)
 
     val lineGap = glyphPx * 0.25f
-    val supportingLayout = item.supportingText?.takeIf { it.isNotBlank() }?.let {
+    val supportingLayout = item.shadcnSupportingText?.takeIf { it.isNotBlank() }?.let {
         layoutBitmapText(
             label = it,
             glyphPx = glyphPx,
@@ -264,7 +264,7 @@ private fun ColumnScope.dropdownMenuItem(
                 // even though text()'s own layout pass measured it correctly. `.px` keeps this
                 // offset in the same already-scaled unit space as computedHeight.
                 text(
-                    label = item.supportingText!!,
+                    label = item.shadcnSupportingText!!,
                     modifier = Modifier.padding(start = 8f.dp, top = (8f + glyphPx + 4f).px, end = 8f.dp, bottom = 0f.dp).align(UiAlignment.TopStart),
                     color = if (selected) theme.colors.accentForeground.withAlpha(0.82f) else theme.colors.mutedForeground,
                     font = resolvedFont,
@@ -290,7 +290,7 @@ data class UiDropdownMenuItem(
     val label: String,
     val destructive: Boolean = false,
     val enabled: Boolean = true,
-    val supportingText: String? = null,
+    val shadcnSupportingText: String? = null,
     val trailingLabel: String? = null,
     val icon: (BoxScope.() -> Unit)? = null
 ) : UiDropdownMenuEntry

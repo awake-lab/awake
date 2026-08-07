@@ -22,7 +22,7 @@ class IconWidgetsTest {
         val ui = UiContext()
         ui.beginFrame(100f, 100f, testSnapshot())
 
-        ui.createAbsolute(modifier = Modifier.offset(10f.dp, 12f.dp)).icon(
+        ui.createAbsolute(x = 10f, y = 12f).icon(
             imageVector = squareVector,
             modifier = Modifier.width(Dimension.Fixed(16f.px)).height(Dimension.Fixed(16f.px)),
             tint = Color(0.8f, 0.2f, 0.1f, 1f)
@@ -48,7 +48,7 @@ class IconWidgetsTest {
         val ui = UiContext()
         ui.beginFrame(100f, 100f, testSnapshot())
 
-        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp)).icon(multicolorVector, tint = Color(1f, 0f, 0f, 1f))
+        ui.createAbsolute(x = 0f, y = 0f).icon(multicolorVector, tint = Color(1f, 0f, 0f, 1f))
 
         val fill = assertIs<UiDrawPrimitive.FilledPath>(ui.endFrame().single())
         assertEquals(Color(0.2f, 0.7f, 0.3f, 1f), fill.color)

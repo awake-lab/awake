@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -64,7 +64,7 @@ internal fun ColumnScope.drawUiShowcaseTypographySpecimenPreview() {
 
 internal fun ColumnScope.drawUiShowcaseFontsPreview() {
     shadcnBadge("TYPOGRAPHY", variant = ShadcnBadgeVariant.Outline)
-    supportingLines(
+    shadcnSupportingLines(
         listOf(
             "The same specimen rendered through each Awake UI font path so we can judge edge quality and spacing directly."
         )
@@ -104,7 +104,7 @@ internal fun ColumnScope.drawUiShowcaseFontsPreview() {
         }
     }
     spacer(Modifier.height(8f.dp))
-    supportingLines(
+    shadcnSupportingLines(
         listOf(
             "Bitmap stays closer to the authored pixel grid and remains useful for low-fi or debug surfaces.",
             "True Font uses real outline-derived glyphs, so spacing and letterforms stop fighting the renderer."

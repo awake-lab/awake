@@ -4,8 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createColumn
-import io.github.ronjunevaldoz.awake.ui.createRow
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnAvatarSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatarBadge
@@ -31,7 +29,7 @@ class ShadcnAvatarTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(200f, 200f, testSnapshot())
 
-        ui.createColumn().shadcnAvatar("A", size = ShadcnAvatarSize.Sm)
+        ui.createColumn(slot = ui.frameBounds()).shadcnAvatar("A", size = ShadcnAvatarSize.Sm)
 
         val output = ui.finishFrame()
         val circle = output.primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().first()
@@ -45,7 +43,7 @@ class ShadcnAvatarTest {
             ui.pushFont(BitmapFont())
             ui.pushTheme(ShadcnTheme)
             ui.beginFrame(200f, 200f, testSnapshot())
-            ui.createColumn().shadcnAvatar("A", size = size)
+            ui.createColumn(slot = ui.frameBounds()).shadcnAvatar("A", size = size)
             return ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().first().h
         }
 
@@ -62,7 +60,7 @@ class ShadcnAvatarTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(200f, 200f, testSnapshot())
 
-        ui.createColumn().shadcnAvatar(modifier = Modifier, size = ShadcnAvatarSize.Default) {
+        ui.createColumn(slot = ui.frameBounds()).shadcnAvatar(modifier = Modifier, size = ShadcnAvatarSize.Default) {
             shadcnAvatarBadge()
         }
 
@@ -87,7 +85,7 @@ class ShadcnAvatarTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(300f, 200f, testSnapshot())
 
-        ui.createRow().shadcnAvatarGroup(initials = listOf("A", "B", "C"))
+        ui.createRow(slot = ui.frameBounds()).shadcnAvatarGroup(initials = listOf("A", "B", "C"))
 
         val semantics = ui.finishFrame().semantics
         val a = assertNotNull(semantics.firstOrNull { it.label == "A" })

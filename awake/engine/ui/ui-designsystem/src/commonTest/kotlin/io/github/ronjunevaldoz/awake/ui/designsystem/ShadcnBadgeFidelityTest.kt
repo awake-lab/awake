@@ -9,7 +9,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -34,7 +33,7 @@ class ShadcnBadgeFidelityTest {
         ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute().shadcnBadge(
+        ui.createAbsolute(slot = ui.frameBounds()).shadcnBadge(
             label = "BETA",
             variant = ShadcnBadgeVariant.Primary,
             modifier = Modifier.testTag("badge-fidelity")

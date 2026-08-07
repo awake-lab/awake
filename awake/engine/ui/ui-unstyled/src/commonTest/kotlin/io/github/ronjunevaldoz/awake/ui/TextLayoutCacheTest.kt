@@ -34,7 +34,8 @@ class TextLayoutCacheTest {
     }
 
     private fun renderOnce(ui: UiContext, font: UiFont, label: String, slotWidth: Float = 200f) {
-        val scope = ui.createAbsolute(modifier = Modifier, font = font)
+        ui.pushFont(font)
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
         scope.text(label = label, slot = UiBounds(0f, 0f, slotWidth, 12f), font = font)
     }
 

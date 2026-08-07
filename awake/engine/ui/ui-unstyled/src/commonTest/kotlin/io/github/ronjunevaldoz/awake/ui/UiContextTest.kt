@@ -27,12 +27,7 @@ class UiContextTest {
         // Frame 1: pointer moves over the button, not yet pressed.
         var checked = false
         ui.simulateFrame(pointerDown = false, x = 60f, y = 40f, screenHeight = 100f) {
-            checked = ui.createAbsolute(
-                modifier = Modifier.offset(
-                    20f.dp,
-                    20f.dp
-                )
-            ).toggle(
+            checked = ui.createAbsolute(x = 20f, y = 20f).toggle(
                 "t",
                 checked,
                 modifier = Modifier.width(
@@ -44,12 +39,7 @@ class UiContextTest {
 
         // Press+release while hovered -- click fires on the release frame.
         ui.simulateClick(x = 60f, y = 40f, screenHeight = 100f) {
-            checked = ui.createAbsolute(
-                modifier = Modifier.offset(
-                    20f.dp,
-                    20f.dp
-                )
-            ).toggle(
+            checked = ui.createAbsolute(x = 20f, y = 20f).toggle(
                 "t",
                 checked,
                 modifier = Modifier.width(
@@ -65,12 +55,7 @@ class UiContextTest {
         val ui = UiContext()
         var clicked = false
         ui.simulateClick(x = 5f, y = 5f, screenHeight = 100f) {
-            clicked = ui.createAbsolute(
-                modifier = Modifier.offset(
-                    20f.dp,
-                    20f.dp
-                )
-            ).button(
+            clicked = ui.createAbsolute(x = 20f, y = 20f).button(
                 "b",
                 modifier = Modifier.width(120f.px).height(40f.px)
             )
@@ -116,12 +101,7 @@ class UiContextTest {
         // Press inside the slider's track -- latches activeId, no drag yet on this frame's
         // pointer position (matches button's own press-edge semantics).
         ui.beginFrame(200f, 100f, testSnapshot(x = 20f, y = 30f, down = true))
-        var value = ui.createAbsolute(
-            modifier = Modifier.offset(
-                20f.dp,
-                20f.dp
-            )
-        ).slider(
+        var value = ui.createAbsolute(x = 20f, y = 20f).slider(
             "vol",
             min = 0f,
             max = 10f,
@@ -134,12 +114,7 @@ class UiContextTest {
 
         // Drag to the track's midpoint while still held.
         ui.beginFrame(200f, 100f, testSnapshot(x = 70f, y = 30f, down = true))
-        value = ui.createAbsolute(
-            modifier = Modifier.offset(
-                20f.dp,
-                20f.dp
-            )
-        ).slider(
+        value = ui.createAbsolute(x = 20f, y = 20f).slider(
             "vol",
             min = 0f,
             max = 10f,
@@ -153,12 +128,7 @@ class UiContextTest {
 
         // Release -- value should hold at whatever it last was.
         ui.beginFrame(200f, 100f, testSnapshot(x = 70f, y = 30f, down = false))
-        value = ui.createAbsolute(
-            modifier = Modifier.offset(
-                20f.dp,
-                20f.dp
-            )
-        ).slider(
+        value = ui.createAbsolute(x = 20f, y = 20f).slider(
             "vol",
             min = 0f,
             max = 10f,
@@ -175,12 +145,7 @@ class UiContextTest {
     fun dropdownCanUseModifierSizingAsPrimaryApi() {
         val ui = UiContext()
         ui.beginFrame(220f, 160f, testSnapshot(x = 0f, y = 0f, down = false))
-        val column = ui.createColumn(
-            modifier = Modifier.offset(
-                20f.dp,
-                20f.dp
-            ).width(160f.dp)
-        )
+        val column = ui.createColumn(x = 20f, y = 20f, width = 160f)
         val expandedState = column.widgetState("dd")
         expandedState.set("expanded", true)
 
@@ -214,12 +179,7 @@ class UiContextTest {
         // emitOverlay() rather than emit().
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot(x = 0f, y = 0f, down = false))
-        val column = ui.createColumn(
-            modifier = Modifier.offset(
-                20f.dp,
-                20f.dp
-            ).width(160f.dp)
-        )
+        val column = ui.createColumn(x = 20f, y = 20f, width = 160f)
 
         // Expand the dropdown first (simulating it was already expanded from a prior frame).
         val expandedState = column.widgetState("dd")
@@ -290,12 +250,7 @@ class UiContextTest {
         // Matches Compose's DropdownMenu/Popup: clicking anywhere outside the open dropdown
         // dismisses it, without needing to click the header again.
         val ui = UiContext()
-        val column = ui.createColumn(
-            modifier = Modifier.offset(
-                20f.dp,
-                20f.dp
-            ).width(160f.dp)
-        )
+        val column = ui.createColumn(x = 20f, y = 20f, width = 160f)
 
         ui.simulateFrame(pointerDown = false, x = 0f, y = 0f) {
             column.widgetState("dd").set("expanded", true)
@@ -334,12 +289,7 @@ class UiContextTest {
     @Test
     fun dropdownStaysOpenWhenClickLandsOnOneOfItsOwnOptions() {
         val ui = UiContext()
-        val column = ui.createColumn(
-            modifier = Modifier.offset(
-                20f.dp,
-                20f.dp
-            ).width(160f.dp)
-        )
+        val column = ui.createColumn(x = 20f, y = 20f, width = 160f)
 
         ui.simulateFrame(pointerDown = false, x = 0f, y = 0f) {
             column.widgetState("dd").set("expanded", true)

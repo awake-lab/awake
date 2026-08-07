@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInputOTP
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -33,7 +32,7 @@ class ShadcnInputOTPFidelityTest {
         ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(400f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute().shadcnInputOTP(
+        ui.createAbsolute(slot = ui.frameBounds()).shadcnInputOTP(
             id = "otp",
             value = "123",
             length = 4,

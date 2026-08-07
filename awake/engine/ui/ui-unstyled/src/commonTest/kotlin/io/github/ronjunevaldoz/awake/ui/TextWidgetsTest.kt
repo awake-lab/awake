@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -27,7 +28,8 @@ class TextWidgetsTest {
     fun ellipsisClampsGlyphsInsideTheSlotWidth() {
         val font = BitmapFont()
         val ui = UiContext()
-        val scope = ui.createAbsolute(modifier = Modifier.offset((10f).dp, (20f).dp), font = font)
+        ui.pushFont(font)
+        val scope = ui.createAbsolute(x = 10f, y = 20f)
         // BitmapFont is true monospace (every glyph advances a full glyphPx, see
         // GlyphAtlasSource.advanceFor) -- the slot must be wide enough to fit the 3-dot
         // ellipsis itself (3 * glyphPx) plus at least one real character, or there's no
@@ -125,7 +127,8 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(200f, 80f, testSnapshot())
-        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font).text(
+        ui.pushFont(font)
+        ui.createAbsolute(x = 0f, y = 0f).text(
             label = "BUTTON",
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 20f, 160f, 40f),
             font = font,
@@ -147,7 +150,8 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(180f, 80f, testSnapshot())
-        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font).text(
+        ui.pushFont(font)
+        ui.createAbsolute(x = 0f, y = 0f).text(
             label = "Title",
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(16f, 24f, 120f, 20f),
             font = font
@@ -166,7 +170,8 @@ class TextWidgetsTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(220f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = font).button(
+        ui.pushFont(font)
+        ui.createAbsolute(x = 0f, y = 0f).button(
             id = "nav",
             modifier = Modifier.width(180f.px).height(36f.px),
             label = "Overview",

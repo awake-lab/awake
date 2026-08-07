@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -42,7 +41,7 @@ class ShadcnCardFidelityTest {
             val cardHeight = 180f * config.scale.scale
 
             ui.beginFrame(400f * config.scale.scale, 300f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
-            ui.createAbsolute().shadcnCard(
+            ui.createAbsolute(slot = ui.frameBounds()).shadcnCard(
                 id = "card-fidelity",
                 modifier = Modifier.testTag("card-fidelity").width(cardWidth.dp).height(cardHeight.dp),
                 header = { text("Card Title") }

@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.ShadcnTabItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -35,7 +34,7 @@ class ShadcnTabsFidelityTest {
             ui.pushTheme(theme)
 
             ui.beginFrame(400f * config.scale.scale, 200f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
-            ui.createColumn().shadcnTabs(
+            ui.createColumn(slot = ui.frameBounds()).shadcnTabs(
                 id = "tabs-fidelity",
                 items = listOf(
                     ShadcnTabItem("account", "Account"),

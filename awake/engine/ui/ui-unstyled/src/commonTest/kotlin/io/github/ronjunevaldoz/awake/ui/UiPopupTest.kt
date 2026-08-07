@@ -22,7 +22,7 @@ class UiPopupTest {
     fun popupPositionsBelowAnchorByDefault() {
         val ui = UiContext()
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
             anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f),
@@ -41,7 +41,7 @@ class UiPopupTest {
     fun popupDismissesOnOutsidePointerPress() {
         val ui = UiContext()
         ui.beginFrame(300f, 200f, testSnapshot(x = 280f, y = 180f, down = true))
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
             anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f),
@@ -61,7 +61,7 @@ class UiPopupTest {
         // `if (!expanded) return UiPopupResult(slot = null, ...)` instantly on the very frame
         // expanded flips false. It must now keep drawing (dimmed) through the exit fade instead.
         val ui = UiContext()
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
         val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f)
 
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
@@ -93,7 +93,7 @@ class UiPopupTest {
     @Test
     fun popupReallyStopsRenderingOnceItsExitFadeSettles() {
         val ui = UiContext()
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
         val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f)
 
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
@@ -127,18 +127,18 @@ class UiPopupTest {
     @Test
     fun dropdownUsesSharedPopupAndClosesAfterPickingOption() {
         val ui = UiContext()
-        ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").set("expanded", true)
+        ui.createColumn(x = 20f, y = 20f, width = 160f).widgetState("dd").set("expanded", true)
 
         ui.beginFrame(240f, 200f, testSnapshot(x = 30f, y = 60f, down = true))
-        var picked = ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = Modifier.width(160f.px).height(32f.px))
+        var picked = ui.createColumn(x = 20f, y = 20f, width = 160f).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = Modifier.width(160f.px).height(32f.px))
         ui.endFrame()
         assertEquals(null, picked)
 
         ui.beginFrame(240f, 200f, testSnapshot(x = 30f, y = 60f, down = false))
-        picked = ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = Modifier.width(160f.px).height(32f.px))
+        picked = ui.createColumn(x = 20f, y = 20f, width = 160f).dropdown("dd", listOf("A", "B"), selectedIndex = 0, modifier = Modifier.width(160f.px).height(32f.px))
         ui.endFrame()
 
         assertEquals(0, picked)
-        assertFalse(ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(160f.dp)).widgetState("dd").get("expanded", true))
+        assertFalse(ui.createColumn(x = 20f, y = 20f, width = 160f).widgetState("dd").get("expanded", true))
     }
 }

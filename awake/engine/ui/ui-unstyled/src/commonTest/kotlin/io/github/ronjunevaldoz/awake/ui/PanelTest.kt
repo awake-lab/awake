@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,7 +22,7 @@ class PanelTest {
     @Test
     fun panelDoesNotDisturbParentLayoutCursor() {
         val ui = UiContext()
-        val column = ui.createColumn(modifier = Modifier.offset((10f).dp, (20f).dp).width((200f).dp))
+        val column = ui.createColumn(x = 10f, y = 20f, width = 200f)
 
         val panelSlot = column.surface("p", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px))) { }
         val next = column.claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(30f.px))
@@ -36,7 +37,7 @@ class PanelTest {
     @Test
     fun contentLambdaScopeStartsAtPanelContentInset() {
         val ui = UiContext()
-        val column = ui.createColumn(modifier = Modifier.offset((10f).dp, (20f).dp).width((200f).dp))
+        val column = ui.createColumn(x = 10f, y = 20f, width = 200f)
 
         var firstChildSlot: UiBounds? = null
         column.surface("p", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px))) { slot ->
@@ -51,7 +52,7 @@ class PanelTest {
     @Test
     fun zeroRadiusEmitsPlainQuad() {
         val ui = UiContext()
-        val column = ui.createColumn(modifier = Modifier.offset((0f).dp, (0f).dp).width((200f).dp))
+        val column = ui.createColumn(x = 0f, y = 0f, width = 200f)
         column.surface("p", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px)), style = Style {
             shape(UiShape.none)
         }) { }
@@ -63,7 +64,7 @@ class PanelTest {
     @Test
     fun nonZeroRadiusEmitsRoundedQuad() {
         val ui = UiContext()
-        val column = ui.createColumn(modifier = Modifier.offset((0f).dp, (0f).dp).width((200f).dp))
+        val column = ui.createColumn(x = 0f, y = 0f, width = 200f)
         column.surface("p", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px))) { }
         val primitives = ui.endFrame()
         assertTrue(primitives.isNotEmpty())
@@ -74,7 +75,8 @@ class PanelTest {
     fun wrapContentHeightTracksChildContent() {
         val ui = UiContext()
         val font = io.github.ronjunevaldoz.awake.ui.font.BitmapFont()
-        val column = ui.createColumn(modifier = Modifier.offset((0f).dp, (0f).dp).width((220f).dp), font = font)
+        ui.pushFont(font)
+        val column = ui.createColumn(x = 0f, y = 0f, width = 220f)
 
         val panelSlot = column.surface(
             id = "wrap-height", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.WrapContent)) {
@@ -89,7 +91,8 @@ class PanelTest {
     fun wrapContentWidthTracksChildContent() {
         val ui = UiContext()
         val font = io.github.ronjunevaldoz.awake.ui.font.BitmapFont()
-        val column = ui.createColumn(modifier = Modifier.offset((0f).dp, (0f).dp).width((220f).dp), font = font)
+        ui.pushFont(font)
+        val column = ui.createColumn(x = 0f, y = 0f, width = 220f)
 
         val panelSlot = column.surface(
             id = "wrap-width", modifier = Modifier.width(Dimension.WrapContent).height(Dimension.WrapContent)) {

@@ -26,8 +26,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.verifyAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.column
-import io.github.ronjunevaldoz.awake.ui.createColumn
+import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
@@ -149,8 +148,7 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            modifier = Modifier.offset(30f.dp, 45f.dp).width(600f.dp)
-                .height((metadata.height.toFloat() - 45f).dp),
+            x = 30f, y = 45f, width = 600f, height = metadata.height.toFloat() - 45f,
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ).row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
                 shadcnButton(
@@ -216,8 +214,7 @@ internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            modifier = Modifier.offset(30f.dp, 42f.dp).width(420f.dp)
-                .height((metadata.height.toFloat() - 42f).dp),
+            x = 30f, y = 42f, width = 420f, height = metadata.height.toFloat() - 42f,
             verticalArrangement = Arrangement.spacedBy(10f.dp)
         ).row( horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(30f.dp.toDimension())) {
                 shadcnBadge(
@@ -864,8 +861,7 @@ internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(120f.dp)
-                .height((metadata.height.toFloat() - 24f).dp)
+            x = 24f, y = 24f, width = 120f, height = metadata.height.toFloat() - 24f
         ).row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
             shadcnCheckbox("parity-checkbox-unchecked", checked = false, modifier = Modifier.width(20f.dp).height(20f.dp))
             shadcnCheckbox("parity-checkbox-checked", checked = true, modifier = Modifier.width(20f.dp).height(20f.dp))

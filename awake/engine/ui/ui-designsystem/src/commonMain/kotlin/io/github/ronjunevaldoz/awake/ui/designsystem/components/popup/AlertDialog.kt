@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
@@ -142,7 +142,7 @@ fun UiScope.shadcnAlertDialog(
     properties = properties,
     style = style
 ) {
-    supportingText(message)
+    shadcnSupportingText(message)
 }
 
 data class UiAlertDialogResult(

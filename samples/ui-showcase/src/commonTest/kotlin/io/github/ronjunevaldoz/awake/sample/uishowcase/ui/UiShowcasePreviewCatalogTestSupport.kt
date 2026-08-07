@@ -97,19 +97,19 @@ private val PreviewOverlayMenuItems = listOf(
     UiDropdownMenuItem(
         label = "Pinned action",
         enabled = false,
-        supportingText = "Disabled rows stay visible in the popover."
+        shadcnSupportingText = "Disabled rows stay visible in the popover."
     ),
     UiDropdownMenuSeparator,
     UiDropdownMenuItem(
         label = "Duplicate panel",
         trailingLabel = "Cmd+D",
-        supportingText = "Secondary action metadata sits on the trailing edge."
+        shadcnSupportingText = "Secondary action metadata sits on the trailing edge."
     ),
     UiDropdownMenuItem(
         label = "Delete scene",
         destructive = true,
         trailingLabel = "Del",
-        supportingText = "Destructive actions use the red foreground treatment."
+        shadcnSupportingText = "Destructive actions use the red foreground treatment."
     )
 )
 

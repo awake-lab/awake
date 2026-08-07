@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumb
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumbEllipsis
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumbLink
@@ -28,7 +27,7 @@ class ShadcnBreadcrumbTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(300f, 60f, testSnapshot())
 
-        ui.createColumn().shadcnBreadcrumb {
+        ui.createColumn(slot = ui.frameBounds()).shadcnBreadcrumb {
             shadcnBreadcrumbLink("Home", onClick = {})
             shadcnBreadcrumbSeparator()
             shadcnBreadcrumbEllipsis()
@@ -53,7 +52,7 @@ class ShadcnBreadcrumbTest {
             val input = Input()
             input.setPointer(down, x, y)
             ui.beginFrame(300f, 60f, input.updateSnapshot().toUiInputState())
-            ui.createColumn().shadcnBreadcrumb {
+            ui.createColumn(slot = ui.frameBounds()).shadcnBreadcrumb {
                 shadcnBreadcrumbLink("Home", onClick = { clicked = true })
             }
             ui.finishFrame()
@@ -65,7 +64,7 @@ class ShadcnBreadcrumbTest {
         ui2.pushFont(BitmapFont())
         ui2.pushTheme(ShadcnTheme)
         ui2.beginFrame(300f, 60f, testSnapshot())
-        ui2.createColumn().shadcnBreadcrumb { shadcnBreadcrumbLink("Home", onClick = {}) }
+        ui2.createColumn(slot = ui2.frameBounds()).shadcnBreadcrumb { shadcnBreadcrumbLink("Home", onClick = {}) }
         val bounds = assertNotNull(ui2.finishFrame().semantics.firstOrNull { it.label == "Home" }).bounds
         val cx = bounds.x + bounds.width / 2f
         val cy = bounds.y + bounds.height / 2f

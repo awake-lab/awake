@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
@@ -32,7 +31,7 @@ class ShadcnCardVariantTest {
             ui.pushFont(BitmapFont())
             ui.pushTheme(ShadcnTheme)
             ui.beginFrame(200f, 200f, testSnapshot())
-            ui.createColumn(modifier = Modifier.offset(10f.dp, 10f.dp).width(120f.dp))
+            ui.createColumn(x = 10f, y = 10f, width = 120f)
                 .shadcnCard(id = "card", variant = variant, modifier = Modifier.height(Dimension.WrapContent)) {
                     // no body content needed
                 }
@@ -52,7 +51,7 @@ class ShadcnCardVariantTest {
             ui.pushFont(BitmapFont())
             ui.pushTheme(ShadcnTheme)
             ui.beginFrame(280f, 260f, testSnapshot())
-            ui.createColumn(modifier = Modifier.offset(10f.dp, 10f.dp).width(200f.dp)).shadcnCard(
+            ui.createColumn(x = 10f, y = 10f, width = 200f).shadcnCard(
                 id = "card",
                 size = size,
                 modifier = Modifier.height(Dimension.WrapContent),

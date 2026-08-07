@@ -15,8 +15,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMen
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.textLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnTextLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -87,7 +87,7 @@ internal fun ColumnScope.drawUiShowcasePageContent(
             style = Style { shape(14f.dp) }
         , modifier = Modifier.height(Dimension.WrapContent)) {
             shadcnSectionTitle("Notes")
-            supportingLines(page.notes)
+            shadcnSupportingLines(page.notes)
         }
     }
 }
@@ -193,7 +193,7 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
 }
 
 private fun ColumnScope.drawUiShowcaseCodeBlock(code: String) {
-    textLines(
+    shadcnTextLines(
         lines = code.trimIndent().lines(),
         style = Style {
             foreground(theme.colors.foreground)

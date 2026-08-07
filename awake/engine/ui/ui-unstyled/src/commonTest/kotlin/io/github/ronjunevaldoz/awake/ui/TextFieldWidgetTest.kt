@@ -25,13 +25,15 @@ class TextFieldWidgetTest {
         val input = Input()
         var value = ""
         ui.simulateClick(x = 100f, y = 20f, screenHeight = 100f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
         }
         assertTrue(ui.isFocused("field"), "clicking a text field must grant it focus")
 
         input.pushTypedText("abc")
         ui.simulateFrame(pointerDown = false, x = 100f, y = 20f, screenHeight = 100f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
         }
         assertEquals("abc", value, "typed text must insert while the field is focused")
     }
@@ -42,12 +44,14 @@ class TextFieldWidgetTest {
         val input = Input()
         var value = "abc"
         ui.simulateClick(x = 100f, y = 20f, screenHeight = 100f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
         }
 
         input.pushEditAction(TextEditAction.Backspace)
         ui.simulateFrame(pointerDown = false, x = 100f, y = 20f, screenHeight = 100f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
         }
         assertEquals("ab", value, "backspace must remove the character immediately before the cursor")
     }
@@ -58,18 +62,21 @@ class TextFieldWidgetTest {
         val input = Input()
         var value = "hello"
         ui.simulateClick(x = 100f, y = 20f, screenHeight = 200f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
         }
         assertTrue(ui.isFocused("field"))
 
         ui.simulateClick(x = 100f, y = 150f, screenHeight = 200f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
         }
         assertFalse(ui.isFocused("field"), "a fresh click outside every focusable widget must clear focus")
 
         input.pushTypedText("ignored")
         ui.simulateFrame(pointerDown = false, x = 100f, y = 150f, screenHeight = 200f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
         }
         assertEquals("hello", value, "typed text must be ignored once focus has moved elsewhere")
     }
@@ -85,12 +92,14 @@ class TextFieldWidgetTest {
         var value = ""
         val longValue = "abcdefghijklmnopqrstuvwxyz0123456789"
         ui.simulateClick(x = 100f, y = 20f, screenHeight = 100f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f)
                 .textField("field", value, modifier = Modifier.width(80f.px).height(36f.px))
         }
         input.pushTypedText(longValue)
         ui.simulateFrame(pointerDown = false, x = 100f, y = 20f, screenHeight = 100f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f)
                 .textField("field", value, modifier = Modifier.width(80f.px).height(36f.px))
         }
         assertEquals(longValue, value, "typed characters past the visible field width must not be lost")
@@ -100,7 +109,8 @@ class TextFieldWidgetTest {
         // fit the field's own narrow width.
         input.setPointer(down = false, x = 100f, y = 20f)
         ui.beginFrame(200f, 100f, input.updateSnapshot().toUiInputState())
-        value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+        ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f)
             .textField("field", value, modifier = Modifier.width(80f.px).height(36f.px))
         val glyphCount = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size
         assertEquals(
@@ -116,13 +126,15 @@ class TextFieldWidgetTest {
         val input = Input()
         var value = "ac"
         ui.simulateClick(x = 176f, y = 20f, screenHeight = 100f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
         }
 
         input.pushEditAction(TextEditAction.ArrowLeft)
         input.pushTypedText("b")
         ui.simulateFrame(pointerDown = false, x = 176f, y = 20f, screenHeight = 100f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f).textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
         }
         assertEquals("abc", value, "ArrowLeft must move the cursor back one position before the next insert")
     }

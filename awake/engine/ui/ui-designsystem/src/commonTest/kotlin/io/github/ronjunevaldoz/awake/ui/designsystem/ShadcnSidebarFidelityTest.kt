@@ -9,7 +9,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -34,7 +33,7 @@ class ShadcnSidebarFidelityTest {
         val sidebarWidth = 240f
 
         ui.beginFrame(400f, 600f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute().shadcnSidebar(
+        ui.createAbsolute(slot = ui.frameBounds()).shadcnSidebar(
             id = "sidebar",
             modifier = Modifier.width(sidebarWidth.dp)
         ) {

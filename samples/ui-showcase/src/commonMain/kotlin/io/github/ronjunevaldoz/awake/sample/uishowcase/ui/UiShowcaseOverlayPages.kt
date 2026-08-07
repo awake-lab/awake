@@ -46,19 +46,19 @@ private val ShowcaseActionMenuItems = listOf(
     UiDropdownMenuItem(
         label = "Pinned action",
         enabled = false,
-        supportingText = "Disabled actions stay visible without becoming clickable."
+        shadcnSupportingText = "Disabled actions stay visible without becoming clickable."
     ),
     UiDropdownMenuSeparator,
     UiDropdownMenuItem(
         label = "Duplicate panel",
         trailingLabel = "Cmd+D",
-        supportingText = "Example of a richer menu row with trailing metadata."
+        shadcnSupportingText = "Example of a richer menu row with trailing metadata."
     ),
     UiDropdownMenuItem(
         label = "Delete scene",
         destructive = true,
         trailingLabel = "Del",
-        supportingText = "Routes into the alert dialog flow instead of doing anything immediately."
+        shadcnSupportingText = "Routes into the alert dialog flow instead of doing anything immediately."
     )
 )
 

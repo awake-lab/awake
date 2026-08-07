@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.unstyled.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
+import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -53,7 +54,7 @@ class ClipAndBorderTest {
     fun clipStackResolvesNestedIntersection() {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         scope.clip(UiBounds(0f, 0f, 100f, 100f)) {
             scope.clip(UiBounds(20f, 20f, 200f, 200f)) {
@@ -72,7 +73,7 @@ class ClipAndBorderTest {
     fun clipStackPopRestoresParentRect() {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         scope.clip(UiBounds(0f, 0f, 100f, 100f)) {
             scope.clip(UiBounds(20f, 20f, 50f, 50f)) { }
@@ -89,7 +90,7 @@ class ClipAndBorderTest {
     fun borderEmitsFourQuadsMatchingSlotGeometry() {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
         val slot = UiBounds(10f, 10f, 100f, 50f)
         val color = Color(1f, 0f, 0f, 1f)
 
@@ -107,7 +108,7 @@ class ClipAndBorderTest {
     fun zeroWidthBorderEmitsNothing() {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
         scope.border(UiBounds(0f, 0f, 100f, 100f), width = UiShape.none)
         assertEquals(0, ui.endFrame().size)
     }
@@ -116,7 +117,7 @@ class ClipAndBorderTest {
     fun styleShapeOverridesButtonSlotRadiusParam() {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
         scope.buttonSlot("b", modifier = Modifier.width(100f.px).height(40f.px), style = Style {
             shape(
                 UiShape.md
@@ -130,7 +131,7 @@ class ClipAndBorderTest {
     fun styleBorderOverridesVariantDefault() {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
         val customColor = Color(1f, 0f, 0f, 1f)
         scope.buttonSlot(
             "b",
@@ -147,7 +148,7 @@ class ClipAndBorderTest {
     fun cutCornerShapeSpecEmitsPathPrimitives() {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
         val customBorder = Color(1f, 0f, 0f, 1f)
 
         scope.buttonSlot(
@@ -168,7 +169,7 @@ class ClipAndBorderTest {
     fun circleShapeSpecOnNonSquareSlotUsesPathLane() {
         val ui = UiContext()
         ui.beginFrame(200f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         scope.buttonSlot(
             "circle",
@@ -184,7 +185,7 @@ class ClipAndBorderTest {
     fun shapeClipEmitsClipPathPushWithResolvedBounds() {
         val ui = UiContext()
         ui.beginFrame(100f, 100f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         scope.clip(UiShapeSpec.CutCorner(8f.dp), UiBounds(10f, 10f, 40f, 30f)) { }
 
@@ -229,7 +230,7 @@ class ClipAndBorderTest {
     fun panelClipContentEmitsShapeClip() {
         val ui = UiContext()
         ui.beginFrame(120f, 120f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         scope.surface(
             id = "panel",

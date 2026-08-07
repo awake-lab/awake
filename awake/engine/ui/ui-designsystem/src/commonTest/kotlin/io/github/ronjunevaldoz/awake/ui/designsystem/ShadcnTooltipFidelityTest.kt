@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
@@ -34,7 +33,7 @@ class ShadcnTooltipFidelityTest {
 
             ui.beginFrame(300f * config.scale.scale, 150f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
             val anchor = UiBounds(x = 100f, y = 50f, width = 100f, height = 30f)
-            ui.createAbsolute().shadcnTooltipText(
+            ui.createAbsolute(slot = ui.frameBounds()).shadcnTooltipText(
                 anchorSlot = anchor,
                 visible = true,
                 text = "Tooltip Info",

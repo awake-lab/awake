@@ -27,7 +27,8 @@ class TextareaWidgetTest {
         val input = Input()
         var value = ""
         ui.simulateClick(x = 100f, y = 20f, screenHeight = 200f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f)
                 .textarea("notes", value, modifier = Modifier.width(160f.px).height(60f.px), minLines = 3)
         }
 
@@ -35,7 +36,8 @@ class TextareaWidgetTest {
         repeat(6) { input.pushEditAction(TextEditAction.Enter) }
         input.pushTypedText("last line")
         ui.simulateFrame(pointerDown = false, x = 100f, y = 20f, screenHeight = 200f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f)
                 .textarea("notes", value, modifier = Modifier.width(160f.px).height(60f.px), minLines = 3)
         }
         assertEquals(7, value.count { it == '\n' } + 1, "every typed newline must land in the value")
@@ -45,7 +47,8 @@ class TextareaWidgetTest {
         // not left clipped out by a box that never scrolled to follow it.
         input.setPointer(down = false, x = 100f, y = 20f)
         ui.beginFrame(200f, 200f, input.updateSnapshot().toUiInputState())
-        value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+        ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f)
             .textarea("notes", value, modifier = Modifier.width(160f.px).height(60f.px), minLines = 3)
         val glyphCount = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size
         assertEquals(
@@ -61,13 +64,15 @@ class TextareaWidgetTest {
         val input = Input()
         var value = ""
         ui.simulateClick(x = 42f, y = 28f, screenHeight = 180f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f)
                 .textarea("notes", value, modifier = Modifier.width(96f.px).height(80f.px), minLines = 3)
         }
 
         input.pushTypedText("ANTIDISESTABLISHMENTARIANISM_ANTIDISESTABLISHMENTARIANISM")
         ui.simulateFrame(pointerDown = false, x = 42f, y = 28f, screenHeight = 180f, input = input) {
-            value = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont())
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f)
                 .textarea("notes", value, modifier = Modifier.width(96f.px).height(80f.px), minLines = 3)
         }
 

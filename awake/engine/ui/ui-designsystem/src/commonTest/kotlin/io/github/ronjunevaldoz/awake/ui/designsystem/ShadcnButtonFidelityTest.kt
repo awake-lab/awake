@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -38,7 +37,7 @@ class ShadcnButtonFidelityTest {
         val btnHeight = 40f
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute().shadcnButton(
+        ui.createAbsolute(slot = ui.frameBounds()).shadcnButton(
             id = "btn-fidelity",
             label = "FIDELITY",
             variant = ShadcnButtonVariant.Primary,
@@ -96,7 +95,7 @@ class ShadcnButtonFidelityTest {
         val btnHeight = 40f
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute().shadcnButton(
+        ui.createAbsolute(slot = ui.frameBounds()).shadcnButton(
             id = "btn-outline",
             label = "OUTLINE",
             variant = ShadcnButtonVariant.Outline,

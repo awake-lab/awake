@@ -5,8 +5,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
-import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -34,7 +32,7 @@ class ShadcnToggleSlotAndGroupTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(200f, 80f, testSnapshot())
 
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        ui.createAbsolute(x = 20f, y = 20f)
             .shadcnToggle(
                 id = "bold",
                 checked = true,

@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.supportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
@@ -111,7 +111,7 @@ internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
         }
     }
     spacer(Modifier.height(8f.dp))
-    supportingLines(
+    shadcnSupportingLines(
         listOf(
             "The scroll thumb only appears when content actually exceeds the viewport.",
             "The widget-level preview report keeps a static clipped state around so we can catch scrollbar and clipping drift without manual scrolling."
@@ -138,7 +138,7 @@ internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
         }
     }
     spacer(Modifier.height(8f.dp))
-    supportingLines(
+    shadcnSupportingLines(
         listOf(
             "The header glow, clipped badge, and nested chart all come from the same CanvasScope without opening a separate renderer API.",
             "This is the intended authoring path for custom HUDs, diagnostics, vector ornaments, and design-system art."

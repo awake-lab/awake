@@ -25,7 +25,8 @@ class ScrollContainersTest {
     fun hoveredScrollConsumesDeltaAndMovesState() {
         val ui = UiContext()
         val state = UiScrollState()
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = UiFonts.default())
+        ui.pushFont(UiFonts.default())
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         ui.simulateScrollFrame(x = 20f, y = 20f, scrollDeltaY = -1f) {
             scope.scrollPanel(
@@ -51,7 +52,8 @@ class ScrollContainersTest {
     fun nonHoveredScrollLeavesDeltaForOtherConsumers() {
         val ui = UiContext()
         val state = UiScrollState()
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = UiFonts.default())
+        ui.pushFont(UiFonts.default())
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         ui.simulateScrollFrame(x = 180f, y = 180f, scrollDeltaY = -1f) {
             scope.scrollPanel(
@@ -79,7 +81,8 @@ class ScrollContainersTest {
     fun scrollPanelEmitsViewportClipAndScrollbarThumb() {
         val ui = UiContext()
         ui.beginFrame(220f, 200f, testSnapshot())
-        val scope = ui.createAbsolute(modifier = Modifier.offset(0f.dp, 0f.dp), font = UiFonts.default())
+        ui.pushFont(UiFonts.default())
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.scrollPanel(
                 id = "scroll",

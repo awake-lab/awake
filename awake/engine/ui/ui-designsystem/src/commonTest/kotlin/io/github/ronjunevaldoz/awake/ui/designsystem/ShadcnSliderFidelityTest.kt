@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -39,7 +38,7 @@ class ShadcnSliderFidelityTest {
         val sliderWidth = 240f
 
         ui.beginFrame(400f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute().shadcnSlider(
+        ui.createAbsolute(slot = ui.frameBounds()).shadcnSlider(
             id = "test-slider",
             min = 0f,
             max = 100f,
@@ -95,7 +94,7 @@ class ShadcnSliderFidelityTest {
         ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(400f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute().column(modifier = Modifier.width(300f.dp)) {
+        ui.createAbsolute(slot = ui.frameBounds()).column(modifier = Modifier.width(300f.dp)) {
             shadcnFieldSliderWithValue(
                 id = "field-slider-test",
                 label = "Exposure",

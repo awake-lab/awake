@@ -26,7 +26,7 @@ class CheckboxTest {
         // Whole row is the hit target, not just the small box -- click somewhere in the
         // middle of the row (x=100), not at the box's own tiny x=0..16 range.
         ui.simulateClick(x = 100f, y = 20f, screenHeight = 100f) {
-            checked = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp)).checkbox("cb", checked, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
+            checked = ui.createAbsolute(x = 20f, y = 20f).checkbox("cb", checked, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
         }
         assertTrue(checked, "clicking anywhere in the row must flip the checkbox, same as a real checkbox's clickable row")
     }
@@ -35,7 +35,8 @@ class CheckboxTest {
     fun checkboxEmitsASeparateBoxAndLabelNotOneBigFill() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).checkbox("cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
+        ui.pushFont(BitmapFont())
+        ui.createAbsolute(x = 20f, y = 20f).checkbox("cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
         val primitives = ui.endFrame()
 
         val quads = primitives.filterIsInstance<UiDrawPrimitive.Quad>()
@@ -50,7 +51,8 @@ class CheckboxTest {
     fun checkboxCanUseModifierSizingAsPrimaryApi() {
         val ui = UiContext()
         ui.beginFrame(220f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = BitmapFont()).checkbox(
+        ui.pushFont(BitmapFont())
+        ui.createAbsolute(x = 20f, y = 20f).checkbox(
             id = "cb",
             checked = false,
             label = "ENABLED",
@@ -66,7 +68,7 @@ class CheckboxTest {
     fun checkedBoxAddsAnInsetAccentQuad() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp)).checkbox("cb", checked = true, modifier = Modifier.width(160f.px).height(40f.px))
+        ui.createAbsolute(x = 20f, y = 20f).checkbox("cb", checked = true, modifier = Modifier.width(160f.px).height(40f.px))
         val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
         assertEquals(6, quads.size, "checked state adds one inset accent quad on top of the box quad plus its 4 border edge quads")
     }
@@ -75,7 +77,7 @@ class CheckboxTest {
     fun styleShapeMakesTheBoxARoundedQuad() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp)).checkbox(
+        ui.createAbsolute(x = 20f, y = 20f).checkbox(
             "cb",
             checked = false,
             modifier = Modifier.width(160f.px).height(40f.px),
@@ -90,7 +92,8 @@ class CheckboxTest {
         val font = UiFonts.trueSans()
         val ui = UiContext()
         ui.beginFrame(220f, 100f, testSnapshot())
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp), font = font).checkbox("cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
+        ui.pushFont(font)
+        ui.createAbsolute(x = 20f, y = 20f).checkbox("cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
 
         val glyphBounds = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>().glyphBounds()
         val rowCenterY = 40f

@@ -28,25 +28,3 @@ fun UiScope.shadcnTextLines(
         )
     }
 }
-
-@Deprecated(
-    message = "Use shadcnTextLines for UI design system typography functions",
-    replaceWith = ReplaceWith("shadcnTextLines(lines, modifier, style, wrap, overflow, maxLines)")
-)
-fun UiScope.textLines(
-    lines: Iterable<String>,
-    modifier: UiModifier = Modifier,
-    style: Style = Style.Empty,
-    wrap: UiTextWrap = UiTextWrap.None,
-    overflow: UiTextOverflow = if (wrap == UiTextWrap.None) UiTextOverflow.Ellipsis else UiTextOverflow.Clip,
-    maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE
-) {
-    shadcnTextLines(
-        lines = lines,
-        modifier = modifier,
-        style = style,
-        wrap = wrap,
-        overflow = overflow,
-        maxLines = maxLines
-    )
-}

@@ -5,8 +5,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.createAbsolute
-import io.github.ronjunevaldoz.awake.ui.createColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
@@ -114,7 +112,7 @@ class ShadcnDesignSystemTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        ui.createAbsolute(x = 20f, y = 20f)
             .shadcnBadge(label = "BETA", variant = ShadcnBadgeVariant.Primary)
 
         val primitives = ui.endFrame()
@@ -133,7 +131,7 @@ class ShadcnDesignSystemTest {
         ui.pushTheme(theme)
         ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        ui.createAbsolute(x = 20f, y = 20f)
             .shadcnBadge(label = "LIVE", variant = ShadcnBadgeVariant.Primary)
 
         val firstQuad = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>().first()
@@ -148,7 +146,7 @@ class ShadcnDesignSystemTest {
         ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(200f, 80f, testSnapshot(x = 40f, y = 30f, down = true))
-        clicked = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        clicked = ui.createAbsolute(x = 20f, y = 20f)
             .shadcnButton(
                 id = "save",
                 label = "SAVE",
@@ -159,7 +157,7 @@ class ShadcnDesignSystemTest {
         assertTrue(!clicked)
 
         ui.beginFrame(200f, 80f, testSnapshot(x = 40f, y = 30f, down = false))
-        clicked = ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        clicked = ui.createAbsolute(x = 20f, y = 20f)
             .shadcnButton(
                 id = "save",
                 label = "SAVE",
@@ -178,7 +176,7 @@ class ShadcnDesignSystemTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(240f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createColumn(modifier = Modifier.offset(20f.dp, 20f.dp).width(200f.dp))
+        ui.createColumn(x = 20f, y = 20f, width = 200f)
             .shadcnSurface("surface", modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(100f.px))) {
                 shadcnBadge(label = "READY", modifier = Modifier.width(Dimension.Fixed(80f.px)))
             }
@@ -352,7 +350,7 @@ class ShadcnDesignSystemTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(240f, 120f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        ui.createAbsolute(x = 20f, y = 20f)
             .shadcnBadge(
                 label = "LIVE"
             )
@@ -374,7 +372,7 @@ class ShadcnDesignSystemTest {
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(modifier = Modifier.offset(20f.dp, 20f.dp))
+        ui.createAbsolute(x = 20f, y = 20f)
             .shadcnButton(
                 id = "test-btn",
                 variant = ShadcnButtonVariant.Primary,
@@ -598,13 +596,13 @@ class ShadcnDesignSystemTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(320f, 240f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        val anchorSlot = ui.createAbsolute(modifier = Modifier.offset(40f.dp, 40f.dp))
+        val anchorSlot = ui.createAbsolute(x = 40f, y = 40f)
             .shadcnSurface(
                 id = "trigger",
                 modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px))
             ) { }
 
-        val result = ui.createAbsolute()
+        val result = ui.createAbsolute(slot = ui.frameBounds())
             .shadcnPopover(
                 id = "popover",
                 anchorSlot = anchorSlot,
@@ -630,13 +628,13 @@ class ShadcnDesignSystemTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(320f, 240f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        val anchorSlot = ui.createAbsolute(modifier = Modifier.offset(40f.dp, 40f.dp))
+        val anchorSlot = ui.createAbsolute(x = 40f, y = 40f)
             .shadcnSurface(
                 id = "trigger",
                 modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px))
             ) { }
 
-        val result = ui.createAbsolute()
+        val result = ui.createAbsolute(slot = ui.frameBounds())
             .shadcnPopover(
                 id = "popover",
                 anchorSlot = anchorSlot,
@@ -659,12 +657,12 @@ class ShadcnDesignSystemTest {
 
         fun frame(pointerX: Float, pointerY: Float, down: Boolean) = run {
             ui.beginFrame(320f, 240f, testSnapshot(x = pointerX, y = pointerY, down = down))
-            val anchorSlot = ui.createAbsolute(modifier = Modifier.offset(40f.dp, 40f.dp))
+            val anchorSlot = ui.createAbsolute(x = 40f, y = 40f)
                 .shadcnSurface(
                     id = "trigger",
                     modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px))
                 ) { }
-            val result = ui.createAbsolute()
+            val result = ui.createAbsolute(slot = ui.frameBounds())
                 .shadcnPopover(
                     id = "popover",
                     anchorSlot = anchorSlot,
