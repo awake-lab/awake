@@ -9,13 +9,14 @@ import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
-import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
 import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -37,16 +38,14 @@ class SceneRouterDslTest {
             scenes {
                 initial("overview")
                 route("overview", label = "Overview") {
-                    cameraEntity("camera", camera = { primary(true) })
-                    meshEntity("cube", "cube", "default")
+                    cameraEntity("camera")
                     assets {
                         mesh("cube") { renderer.createMesh(RouterGeometry) }
                         material("default") { renderer.createMaterial() }
                     }
                 }
                 route("editor", label = "Editor") {
-                    cameraEntity("camera", camera = { primary(true) })
-                    meshEntity("cube", "cube", "default", transform = { scale(2f, 2f, 2f) })
+                    cameraEntity("camera")
                     assets {
                         mesh("cube") { renderer.createMesh(RouterGeometry) }
                         material("default") { renderer.createMaterial() }
@@ -75,10 +74,10 @@ class SceneRouterDslTest {
         val game = game {
             scenes {
                 route("overview") {
-                    cameraEntity("camera", camera = { primary(true) })
+                    cameraEntity("camera")
                 }
                 route("editor") {
-                    cameraEntity("camera", camera = { primary(true) })
+                    cameraEntity("camera")
                 }
             }
             ui {
@@ -108,6 +107,7 @@ private class RouterRecordingRenderer : Renderer {
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
 
     override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
+        override val format: VertexFormat = geometry.format
         override fun bind(commandBuffer: Long) = Unit
         override fun draw(commandBuffer: Long) = Unit
         override fun destroy() = Unit
@@ -125,7 +125,7 @@ private class RouterRecordingRenderer : Renderer {
         override fun destroy() = Unit
     }
 
-    override fun draw(camera: Camera, drawCalls: List<DrawCall>) = Unit
+    override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) = Unit
 
     override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
 

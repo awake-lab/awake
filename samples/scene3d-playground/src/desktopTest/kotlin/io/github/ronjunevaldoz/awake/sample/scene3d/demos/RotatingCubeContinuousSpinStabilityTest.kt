@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
-import io.github.ronjunevaldoz.awake.core.math.OrbitCameraController
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
@@ -19,6 +19,9 @@ import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import kotlinx.coroutines.runBlocking
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -49,6 +52,30 @@ import kotlin.test.assertEquals
  * even 1px at either resolution, in any of the 300 frames -- a genuine vertical translation would
  * move both edges together, not just one. Both signals point the same way: not a real bug. */
 class RotatingCubeContinuousSpinStabilityTest {
+
+    private fun computeOrbitCamera(
+        target: Vec3,
+        orbitDegrees: Float,
+        pitchDegrees: Float,
+        zoom: Float,
+        elevation: Float
+    ): CoreCamera {
+        val orbitRad = orbitDegrees * (PI / 180.0).toFloat()
+        val pitchRad = pitchDegrees * (PI / 180.0).toFloat()
+        val cp = cos(pitchRad)
+        val eye = Vec3(
+            target.x + zoom * cp * sin(orbitRad),
+            elevation + zoom * sin(pitchRad),
+            target.z + zoom * cp * cos(orbitRad)
+        )
+        return CoreCamera(
+            eye = eye,
+            center = target,
+            fovYRadians = 45f * (PI / 180.0).toFloat(),
+            near = 0.1f,
+            far = 100f
+        )
+    }
 
     @Test
     fun cubeTopEdgeDoesNotDriftDuringContinuousAutoSpin() {
@@ -108,9 +135,6 @@ class RotatingCubeContinuousSpinStabilityTest {
             // screen-space silhouette height has no legitimate reason to change at all -- this is
             // the actual invariant worth asserting, and the one that matches what a user watching
             // the live app's default view would see.
-            val camera = OrbitCameraController(zoom = 15f, zoomMin = 2f, zoomMax = 15f).apply {
-                elevation = 2.2f
-            }
             val cubeWorldPosition = Vec3(0f, CUBE_REST_HEIGHT, 0f)
 
             val timeController = ManualTimeController().apply { autoPlay = true }
@@ -124,9 +148,17 @@ class RotatingCubeContinuousSpinStabilityTest {
                 val spinRadians = timeController.hours * HOURS_TO_DEGREES * DEGREES_TO_RADIANS
                 val cubeModel = Mat4().translate(0f, CUBE_REST_HEIGHT, 0f).rotateY(spinRadians)
 
+                val camera = computeOrbitCamera(
+                    target = cubeWorldPosition,
+                    orbitDegrees = 0f,
+                    pitchDegrees = 0f,
+                    zoom = 15f,
+                    elevation = 2.2f
+                )
+
                 renderer.renderToTexture(
                     target,
-                    camera.computeCamera(cubeWorldPosition),
+                    camera,
                     listOf(DrawCall(createdMesh, createdMaterial, cubeModel))
                 )
                 val pixels = runBlocking { renderer.readPixels(target) }

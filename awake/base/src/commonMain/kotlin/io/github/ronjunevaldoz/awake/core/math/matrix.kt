@@ -172,7 +172,7 @@ class Mat4 {
 
     fun rotate(angle: Float, axis: Vec3): Mat4 {
         val rotationMatrix = Mat4()
-        val normalizedAxis = axis.normalize()
+        val normalizedAxis = axis.normalized()
 
         val cosTheta = cos(angle)
         val sinTheta = sin(angle)
@@ -367,8 +367,8 @@ class Mat4 {
             eye: Vec3, center: Vec3, up: Vec3
         ): Mat4 {
             return Mat4().apply {
-                val f = (center - eye).normalize() // forward
-                val s = f.cross(up).normalize() // side
+                val f = (center - eye).normalized() // forward
+                val s = f.cross(up).normalized() // side
                 val u = s.cross(f) // up
 
                 m00 = s.x

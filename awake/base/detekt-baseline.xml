@@ -11,7 +11,12 @@
     <ID>MagicNumber:Bitmap.kt$4</ID>
     <ID>MagicNumber:Bitmap.kt$8</ID>
     <ID>MagicNumber:Color.kt$Color$3</ID>
+    <ID>MagicNumber:Color.kt$Color.Companion$16</ID>
+    <ID>MagicNumber:Color.kt$Color.Companion$255f</ID>
     <ID>MagicNumber:Color.kt$Color.Companion$3</ID>
+    <ID>MagicNumber:Color.kt$Color.Companion$4</ID>
+    <ID>MagicNumber:Color.kt$Color.Companion$6</ID>
+    <ID>MagicNumber:Color.kt$Color.Companion$8</ID>
     <ID>MagicNumber:EngineConfig.kt$EngineConfig$30.0</ID>
     <ID>MagicNumber:Frustum.kt$Frustum$3</ID>
     <ID>MagicNumber:Frustum.kt$Frustum$4</ID>
@@ -33,9 +38,6 @@
     <ID>MagicNumber:GltfParser.kt$GltfParser$3</ID>
     <ID>MagicNumber:GltfParser.kt$GltfParser$4</ID>
     <ID>MagicNumber:GltfParser.kt$GltfParser$8</ID>
-    <ID>MagicNumber:OrbitCameraController.kt$OrbitCameraController$0.1f</ID>
-    <ID>MagicNumber:OrbitCameraController.kt$OrbitCameraController$100f</ID>
-    <ID>MagicNumber:OrbitCameraController.kt$OrbitCameraController$45f</ID>
     <ID>MagicNumber:PixelProbe.kt$4</ID>
     <ID>MagicNumber:Pixmap.kt$4</ID>
     <ID>MagicNumber:Pixmap.kt$Pixmap$0xFF</ID>
@@ -93,6 +95,7 @@
     <ID>ReturnCount:AndroidInputBridge.kt$fun MotionEvent.syncAwakePointerInput(input: Input): Boolean</ID>
     <ID>ReturnCount:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$private fun sampleChannel(sampler: LoadedAnimationSampler, timeSeconds: Float): FloatArray</ID>
     <ID>TooManyFunctions:GltfParser.kt$GltfParser</ID>
+    <ID>TooManyFunctions:vector.kt$Vec3</ID>
     <ID>UnusedPrivateProperty:Bitmap.kt$val bytesPerRow = CGImageGetBytesPerRow(cgImage)</ID>
   </CurrentIssues>
 </SmellBaseline>

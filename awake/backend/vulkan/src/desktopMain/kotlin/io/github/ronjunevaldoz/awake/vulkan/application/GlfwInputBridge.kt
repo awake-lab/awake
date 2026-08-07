@@ -7,7 +7,11 @@ import io.github.ronjunevaldoz.awake.core.input.Key
 
 private const val GLFW_KEY_SPACE = 32
 private const val GLFW_KEY_ESCAPE = 256
+private const val GLFW_KEY_F1 = 290
+private const val GLFW_KEY_F2 = 291
 private const val GLFW_KEY_F3 = 292
+private const val GLFW_KEY_F4 = 293
+private const val GLFW_KEY_F5 = 294
 private const val GLFW_KEY_RIGHT = 262
 private const val GLFW_KEY_LEFT = 263
 private const val GLFW_KEY_DOWN = 264
@@ -29,7 +33,11 @@ val DefaultGlfwGameplayKeys: Map<Int, Key> = linkedMapOf(
     GLFW_KEY_RIGHT to Key.ArrowRight,
     GLFW_KEY_SPACE to Key.Space,
     GLFW_KEY_ESCAPE to Key.Escape,
-    GLFW_KEY_F3 to Key.F3
+    GLFW_KEY_F1 to Key.F1,
+    GLFW_KEY_F2 to Key.F2,
+    GLFW_KEY_F3 to Key.F3,
+    GLFW_KEY_F4 to Key.F4,
+    GLFW_KEY_F5 to Key.F5
 )
 
 /**

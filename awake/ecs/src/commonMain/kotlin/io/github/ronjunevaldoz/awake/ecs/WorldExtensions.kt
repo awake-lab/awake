@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ecs
 
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
+
 /**
  * Replaces the component of type [T] on [entity]. If it exists, it's recycled.
  * Returns the new component instance.
@@ -38,3 +41,26 @@ inline fun <reified T : Any> World.toggle(entity: Entity, enabled: Boolean, fact
         remove<T>(entity)
     }
 }
+
+/**
+ * Property delegate that fetches a component on demand from the ECS world.
+ */
+class ComponentDelegate<T : Any>(
+    @PublishedApi internal val world: World,
+    @PublishedApi internal val entity: Entity,
+    @PublishedApi internal val type: KClass<T>
+) {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        return world.get(entity, type) ?: error("Component ${type.simpleName} missing on $entity!")
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        world.add(entity, type, value)
+    }
+}
+
+/**
+ * Property delegate that fetches a component on demand from the ECS world.
+ */
+inline fun <reified T : Any> World.component(entity: Entity): ComponentDelegate<T> =
+    ComponentDelegate(this, entity, T::class)

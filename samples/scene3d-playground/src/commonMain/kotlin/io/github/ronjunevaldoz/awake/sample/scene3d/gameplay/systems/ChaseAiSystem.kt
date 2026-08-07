@@ -12,8 +12,8 @@ import io.github.ronjunevaldoz.awake.scene.navigation.NavMesh
  * scene3d's first ECS-coupled AI behavior (see docs/MMORPG_ROADMAP.md): [npcTransform] chases
  * [targetTransform] by periodically re-querying [navMesh] for a path and steering
  * kinematically toward the next waypoint -- same "deliberately simple, no physics" bar as
- * [PlayerMovementSystem]. Chase only, not chase-*and*-avoid; dodge/avoid behavior is a
- * follow-up, not required to prove the navmesh pipeline works.
+ * the player's own kinematic movement path. Chase only, not chase-*and*-avoid; dodge/avoid
+ * behavior is a follow-up, not required to prove the navmesh pipeline works.
  *
  * Re-paths every [repathInterval] seconds rather than every frame -- `recast4j`'s
  * `findPath`/`findStraightPath` aren't cheap enough to redo at 60Hz for a single NPC, let

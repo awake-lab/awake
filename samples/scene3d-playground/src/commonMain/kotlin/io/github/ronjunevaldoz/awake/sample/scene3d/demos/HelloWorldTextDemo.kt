@@ -42,13 +42,13 @@ internal object HelloWorldTextDemo {
     val entry = Scene3DDemo(
         id = "hello-world-text",
         title = "Hello world text",
-        renderViewport = {
+        renderViewport = { scope ->
             // The text's own modifier only sizes/centers it HORIZONTALLY within this row --
             // without an outer box, it always sat at the column's top edge instead of the
             // viewport's vertical center (the reported bug). Centering the whole
             // fillMaxWidth-sized text block inside a fillMaxHeight box fixes the vertical axis
             // without touching the existing `centered` switch's horizontal behavior.
-            box(modifier = Modifier.fillMaxWidth().fillMaxHeight(), contentAlignment = UiAlignment.Center) {
+            scope.box(modifier = Modifier.fillMaxWidth().fillMaxHeight(), contentAlignment = UiAlignment.Center) {
                 text(
                     label = "Hello, Awake!",
                     modifier = Modifier.fillMaxWidth().height((fontSizeDp * 1.4f).dp),
@@ -64,8 +64,8 @@ internal object HelloWorldTextDemo {
                 )
             }
         },
-        renderControls = {
-            shadcnSurface(id = "hello-world-controls-panel", modifier = Modifier.fillMaxWidth()) {
+        renderControls = { scope ->
+            scope.shadcnSurface(id = "hello-world-controls-panel", modifier = Modifier.fillMaxWidth()) {
                 fontSizeDp = shadcnFieldSliderWithValue(
                     id = "hello-world-font-size",
                     label = "Font size",

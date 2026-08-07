@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
-import io.github.ronjunevaldoz.awake.core.math.OrbitCameraController
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
@@ -25,6 +25,8 @@ import kotlinx.coroutines.runBlocking
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -55,19 +57,19 @@ import kotlin.test.assertTrue
  * that DSL against a no-op recording `Renderer` test double, never a real backend -- there's no
  * existing proof the full DSL round-trip is even exercised against a real GPU anywhere in this
  * repo yet. So: reuse the *real* [rotatingCubeGeometry] (this demo's actual mesh data, not a
- * hand-copied duplicate) and the real [OrbitCameraController]/[ManualTimeController] (this
+ * hand-copied duplicate) and the real [ManualTimeController] (this
  * demo's actual camera/spin logic), but drive them straight against the raw [Renderer] API the
  * same way [RendererHeadlessPixelBaselineTest] does -- smaller, more maintainable diff, and it
  * still catches the actual regression class this test exists for (bad per-vertex normals on
  * this exact mesh).
  *
  * The camera intentionally does NOT use [RotatingCubeDemo]'s own on-screen-default
- * `OrbitCameraController(zoom = 15f, ...)` framing: at that distance (with the default 45-degree
+ * framing: at that distance (with the default 45-degree
  * FOV) the unit cube covers only ~8% of the frame's height -- fine for a live, freely-orbitable
  * viewport a person can zoom into, useless for a fixed 128x128 pixel-diff baseline where the
  * warping bug needs to be visible in a meaningful number of pixels. [TEST_ZOOM]/[TEST_ORBIT_DEG]/
  * [TEST_PITCH_DEG] are tuned instead to frame three cube faces at a healthy size, still going
- * through the real [OrbitCameraController.computeCamera] codepath (not a hand-built [Camera]).
+ * through the same orbit math.
  *
  * The baseline (`src/desktopTest/resources/baselines/rotating-cube-headless.rgba`) was generated
  * by a one-time run of this exact test/render path on real hardware (Vulkan-over-MoltenVK,
@@ -100,6 +102,30 @@ private fun writeRgbaPng(pixels: ByteArray, width: Int, height: Int, file: File)
 private data class CubeFrameCase(val hours: Float, val baselineResourcePath: String, val failureDirName: String)
 
 class RotatingCubePixelBaselineTest {
+
+    private fun computeOrbitCamera(
+        target: Vec3,
+        orbitDegrees: Float,
+        pitchDegrees: Float,
+        zoom: Float,
+        elevation: Float
+    ): CoreCamera {
+        val orbitRad = orbitDegrees * DEGREES_TO_RADIANS
+        val pitchRad = pitchDegrees * DEGREES_TO_RADIANS
+        val cp = cos(pitchRad)
+        val eye = Vec3(
+            target.x + zoom * cp * sin(orbitRad),
+            elevation + zoom * sin(pitchRad),
+            target.z + zoom * cp * cos(orbitRad)
+        )
+        return CoreCamera(
+            eye = eye,
+            center = target,
+            fovYRadians = 45f * DEGREES_TO_RADIANS,
+            near = 0.1f,
+            far = 100f
+        )
+    }
 
     /** Both known frames in one test, sharing a single headless [GraphicsDevice]/[Renderer]
      * rather than one `@Test` per frame -- creating a second headless [GraphicsDevice] in the
@@ -194,11 +220,13 @@ class RotatingCubePixelBaselineTest {
                 val cubeModel = Mat4().translate(0f, CUBE_REST_HEIGHT, 0f).rotateY(spinRadians)
                 val cubeWorldPosition = Vec3(0f, CUBE_REST_HEIGHT, 0f)
 
-                val camera = OrbitCameraController(zoom = TEST_ZOOM, zoomMin = 2f, zoomMax = 15f).apply {
-                    orbitDegrees = TEST_ORBIT_DEG
-                    pitchDegrees = TEST_PITCH_DEG
+                val camera = computeOrbitCamera(
+                    target = cubeWorldPosition,
+                    orbitDegrees = TEST_ORBIT_DEG,
+                    pitchDegrees = TEST_PITCH_DEG,
+                    zoom = TEST_ZOOM,
                     elevation = CUBE_REST_HEIGHT
-                }.computeCamera(cubeWorldPosition)
+                )
 
                 renderer.renderToTexture(target, camera, listOf(DrawCall(createdMesh, createdMaterial, cubeModel)))
                 val pixels = runBlocking { renderer.readPixels(target) }
@@ -257,7 +285,7 @@ class RotatingCubePixelBaselineTest {
 
         // Same constants RotatingCubeDemo/ManualTimeController use, re-stated here since
         // they're private to those types -- see this class's own doc comment for why this test
-        // still goes through the real OrbitCameraController/ManualTimeController *classes*
+        // still goes through the real core.math.Camera/ManualTimeController *classes*
         // rather than hand-rolling their math too.
         const val CUBE_REST_HEIGHT = 0.5f
         const val HOURS_TO_DEGREES = 360f / 24f

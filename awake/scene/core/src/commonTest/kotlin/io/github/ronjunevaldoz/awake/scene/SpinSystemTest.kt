@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene
 
-import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.components.Transform
@@ -17,20 +16,18 @@ import kotlin.test.assertEquals
  * system only composes [Transform.worldMatrix] from whatever [SpinControl] already holds. */
 class SpinSystemTest {
     @Test
-    fun composesWorldMatrixFromOffsetAndRadians() {
+    fun composesWorldMatrixFromTransformPositionAndRadians() {
         val world = World()
         val entity = world.create()
-        world.add(entity, Transform())
-        world.add(entity, SpinControl().apply {
-            offset = Vec3(0f, 2f, 0f)
-            radians = (PI / 2).toFloat()
-        })
+        // Placement belongs to Transform; SpinSystem only writes the rotation.
+        world.add(entity, Transform().apply { position.set(0f, 2f, 0f) })
+        world.add(entity, SpinControl().apply { radians = (PI / 2).toFloat() })
 
         SpinSystem().update(world, 1f / 60f)
         TransformSystem().update(world, 1f / 60f)
 
         val worldMatrix = world.get(entity, Transform::class)!!.worldMatrix
-        // translate(0, 2, 0) * rotateY(90deg) -- translation column carries the offset,
+        // translate(0, 2, 0) * rotateY(90deg) -- translation column carries the position,
         // untouched by the rotation composed after it.
         assertEquals(0f, worldMatrix.m03, ABSOLUTE_TOLERANCE)
         assertEquals(2f, worldMatrix.m13, ABSOLUTE_TOLERANCE)

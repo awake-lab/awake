@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.GltfViewerDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.HelloWorldTextDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
+import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeSimplified
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -24,8 +25,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 internal data class Scene3DDemo(
     val id: String,
     val title: String,
-    val renderViewport: ColumnScope.() -> Unit,
-    val renderControls: ColumnScope.() -> Unit,
+    val renderViewport: SceneGameRuntime.(ColumnScope) -> Unit,
+    val renderControls: SceneGameRuntime.(ColumnScope) -> Unit,
     val onActivate: SceneGameRuntime.() -> Unit = {},
     val onDeactivate: (World) -> Unit = {},
     val onUpdate: SceneGameRuntime.(delta: Float) -> Unit = {}
@@ -37,6 +38,7 @@ internal data class Scene3DDemo(
 internal val Scene3DDemos: List<Scene3DDemo> = listOf(
     HelloWorldTextDemo.entry,
     RotatingCubeDemo.entry,
+    RotatingCubeSimplified.entry,
     GltfViewerDemo.entry,
     SkinnedMeshDemo.entry,
 )

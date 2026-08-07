@@ -8,7 +8,7 @@ package io.github.ronjunevaldoz.awake.core.input
 enum class Key {
     W, A, S, D,
     ArrowUp, ArrowDown, ArrowLeft, ArrowRight,
-    Space, Escape, F3
+    Space, Escape, F1, F2, F3, F4, F5
 }
 
 /**

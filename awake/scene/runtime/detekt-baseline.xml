@@ -2,7 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LongParameterList:SceneGameSpec.kt$SceneGameSpec$( val sceneDocument: SceneDocument, val renderableFactory: SceneRenderableFactory, internal val assetLibraryFactory: (() -> SceneAssetLibrary)?, internal val systems: List&lt;SceneSystemRegistration>, val updateBlock: SceneUpdateBlock, val overlayBlock: SceneOverlayBlock, val onReadyBlock: SceneReadyBlock, val onDisposeBlock: SceneDisposeBlock, internal val serviceRegistrations: List&lt;SceneServiceRegistration&lt;*>> )</ID>
+    <ID>LongParameterList:SceneGameSpec.kt$SceneGameSpec$( val sceneName: String?, val systems: List&lt;SceneSystemRegistration>, // Delayed setup mechanism for entities val scenePopulationBlock: SceneGameRuntime.() -> Unit, val renderableFactory: SceneRenderableFactory, internal val assetLibraryFactory: (() -> SceneAssetLibrary)?, val updateBlock: SceneUpdateBlock, val overlayBlock: SceneOverlayBlock, val onReadyBlock: SceneReadyBlock, val onDisposeBlock: SceneDisposeBlock, internal val serviceRegistrations: List&lt;SceneServiceRegistration&lt;*>> )</ID>
     <ID>MagicNumber:SceneDocument.kt$SceneCamera$5f</ID>
     <ID>MagicNumber:SceneGameFrame.kt$10f</ID>
     <ID>MagicNumber:SceneGameFrame.kt$SceneFrameStats$100</ID>

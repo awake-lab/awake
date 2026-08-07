@@ -11,8 +11,10 @@ import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.scene
-import io.github.ronjunevaldoz.awake.scene.systems.FollowCameraSystem
-import io.github.ronjunevaldoz.awake.scene.systems.LookAtCameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.cameraInputSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.cameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.matrixRelativeMovementSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.playerInputSystem
 import io.github.ronjunevaldoz.awake.scene.systems.SpinSystem
 
 /** The whole app -- this module's `app/Main.kt`/`app/main.kt` platform entry points install
@@ -54,18 +56,23 @@ internal fun scene3DPlaygroundModule(): GameModule {
                 val runtime = this
                 Scene3DDemoDriverSystem(runtime, state)
             }
+            // Dedicated systems for handling user input and mapping it to control intent
+            // components. These are the ONLY systems that should read hardware snapshots.
+            playerInputSystem()
+            cameraInputSystem()
+
             // Registered once, permanently -- dormant whenever no active demo's entity carries
             // a SpinControl (RotatingCubeDemo is currently the only one that does), same
-            // register-once/query-only-active-entities shape FollowCameraSystem/OrbitCameraSystem
-            // already use for their own control components. Runs after demo-driver so it composes
+            // register-once/query-only-matching-entities shape the other control systems here
+            // use for their own components. Runs after demo-driver so it composes
             // worldMatrix from whichever SpinControl.radians the active demo just set this frame,
             // not last frame's stale value.
             frameSystem("spin") { SpinSystem() }
-            // Same register-once/dormant-by-component-presence shape as "spin" above --
-            // RotatingCubeDemo's camera-mode toggle attaches FollowControl/LookAtControl to its
-            // camera entity only in Follow/Look-at mode, otherwise these no-op every frame.
-            frameSystem("followCamera") { FollowCameraSystem() }
-            frameSystem("lookAtCamera") { LookAtCameraSystem() }
+
+            // Movement and Camera systems
+            matrixRelativeMovementSystem()
+            cameraSystem()
+
             // The scene DSL appends its built-in transform/render infrastructure systems at
             // build time, after this demo-driver. Do not register another RenderSystem here:
             // doing so submits/presents the same frame twice, which shows up as scene3d UI

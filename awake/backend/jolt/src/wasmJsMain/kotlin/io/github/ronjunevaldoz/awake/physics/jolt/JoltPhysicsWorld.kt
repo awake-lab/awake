@@ -337,7 +337,7 @@ class JoltPhysicsWorld private constructor(private val world: JsAny) : PhysicsWo
     }
 
     override fun raycast(origin: Vec3, direction: Vec3, maxDistance: Float): RaycastHit? {
-        val normalizedDirection = direction.normalize()
+        val normalizedDirection = direction.normalized()
         val castVector = Vec3(
             normalizedDirection.x * maxDistance,
             normalizedDirection.y * maxDistance,

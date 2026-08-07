@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.systems
 
-import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.SpinControl
@@ -14,13 +13,12 @@ import io.github.ronjunevaldoz.awake.scene.components.Transform
  * portal) always needs, generalized out of duplicating this exact matrix build in every demo
  * that wants it. Doesn't read `delta` itself: [SpinControl.radians] is expected to already be
  * current (whoever owns the spin rate -- auto-play clock, UI scrub slider, gameplay code --
- * advances it before this system runs), matching [io.github.ronjunevaldoz.awake.scene.systems
- * .FollowCameraSystem]'s "control carries state, system only composes" shape.
+ * advances it before this system runs), matching a standard "control carries state, system
+ * only composes" shape.
  */
 class SpinSystem : System {
     override fun update(world: World, delta: Float) {
         world.queryEach(Transform::class, SpinControl::class) { _, transform, spin ->
-            transform.position = spin.offset
             transform.rotation.y = spin.radians
         }
     }

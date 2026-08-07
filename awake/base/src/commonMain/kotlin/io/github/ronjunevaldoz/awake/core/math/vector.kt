@@ -8,29 +8,63 @@ data class Vec2(var x: Float, var y: Float) {
     constructor(x: Int, y: Int) : this(x.toFloat(), y.toFloat())
 }
 
+/**
+ * A mutable 3-component vector.
+ *
+ * Naming contract -- every member here follows it, and so should anything added later:
+ * - **Bare imperative verb** ([set], [add], [sub], [scale], [lerp], [normalize]) **mutates
+ *   `this`** and returns `this` so calls can be chained. Nothing is allocated.
+ * - **`-ed` suffix** ([normalized]) and the **operators** ([plus], [minus], [times]) are
+ *   pure: they allocate a new [Vec3] and leave the receiver untouched.
+ * - **Products and queries** ([dot], [cross], [length3]) are pure by nature -- they answer a
+ *   question about two vectors rather than transforming one.
+ *
+ * The mutating forms exist so per-frame systems can do vector math without allocating; the
+ * pure forms exist so expression-style code reads naturally. Picking the wrong one is a
+ * silent bug in one direction (`v.normalized()` whose result is dropped does nothing), so
+ * prefer the mutating form inside `System.update` and the pure form everywhere else.
+ */
 data class Vec3(var x: Float = 1f, var y: Float = 1f, var z: Float = 1f) {
-    fun set(x: Float, y: Float, z: Float) {
+    fun set(x: Float, y: Float, z: Float): Vec3 {
         this.x = x
         this.y = y
         this.z = z
+        return this
     }
 
-    fun set(other: Vec3) {
+    fun set(other: Vec3): Vec3 {
         this.x = other.x
         this.y = other.y
         this.z = other.z
+        return this
     }
 
-    fun add(other: Vec3) {
+    fun add(other: Vec3): Vec3 {
         this.x += other.x
         this.y += other.y
         this.z += other.z
+        return this
     }
 
-    fun lerp(target: Vec3, factor: Float) {
+    fun sub(other: Vec3): Vec3 {
+        this.x -= other.x
+        this.y -= other.y
+        this.z -= other.z
+        return this
+    }
+
+    fun scale(scalar: Float): Vec3 {
+        this.x *= scalar
+        this.y *= scalar
+        this.z *= scalar
+        return this
+    }
+
+    fun lerp(target: Vec3, factor: Float): Vec3 {
         this.x += (target.x - this.x) * factor
         this.y += (target.y - this.y) * factor
         this.z += (target.z - this.z) * factor
+        return this
     }
 
     /**
@@ -40,17 +74,25 @@ data class Vec3(var x: Float = 1f, var y: Float = 1f, var z: Float = 1f) {
         return sqrt(x * x + y * y + z * z)
     }
 
+    /**
+     * Scales this vector to unit length **in place**. A zero-length vector is left alone
+     * rather than producing NaN. Returns `this`, so `dir.normalize()` on its own line is a
+     * complete, meaningful statement -- see [normalized] for the allocating variant.
+     */
     fun normalize(): Vec3 {
-        return Vec3(x, y, z).apply {
-            val length = length3()
-            if (length != 0.0f) {
-                val invLength = 1.0f / length
-                x *= invLength
-                y *= invLength
-                z *= invLength
-            }
+        val length = length3()
+        if (length != 0.0f) {
+            val invLength = 1.0f / length
+            x *= invLength
+            y *= invLength
+            z *= invLength
         }
+        return this
     }
+
+    /** Allocating counterpart of [normalize]: returns a new unit-length copy, leaving `this`
+     * unchanged. Dropping the result of this call is always a no-op bug. */
+    fun normalized(): Vec3 = Vec3(x, y, z).normalize()
 
     fun dot(other: Vec3): Float {
         return x * other.x + y * other.y + z * other.z
@@ -85,7 +127,10 @@ data class Vec3(var x: Float = 1f, var y: Float = 1f, var z: Float = 1f) {
     }
 
     companion object {
-        val UP = Vec3(0f, 1f, 0f)
+        /** A fresh world-up vector. Deliberately a function, not a `val` constant: [Vec3] is
+         * mutable, so a shared instance could be aliased into a [set]/[add] chain and corrupt
+         * world-up for every other caller. */
+        fun up(): Vec3 = Vec3(0f, 1f, 0f)
     }
 }
 

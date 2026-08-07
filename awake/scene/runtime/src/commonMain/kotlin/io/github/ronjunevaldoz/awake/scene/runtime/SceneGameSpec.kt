@@ -2,16 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime
 
-import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.engine.application.GameModule
 import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
 import kotlin.reflect.KClass
 
 class SceneGameSpec(
-    val sceneDocument: SceneDocument,
+    val sceneName: String?,
+    val systems: List<SceneSystemRegistration>,
+    // Delayed setup mechanism for entities
+    val scenePopulationBlock: SceneGameRuntime.() -> Unit,
     val renderableFactory: SceneRenderableFactory,
     internal val assetLibraryFactory: (() -> SceneAssetLibrary)?,
-    internal val systems: List<SceneSystemRegistration>,
     val updateBlock: SceneUpdateBlock,
     val overlayBlock: SceneOverlayBlock,
     val onReadyBlock: SceneReadyBlock,

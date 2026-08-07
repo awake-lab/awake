@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
-import io.github.ronjunevaldoz.awake.core.math.OrbitCameraController
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
@@ -24,6 +24,9 @@ import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import kotlinx.coroutines.runBlocking
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -56,6 +59,31 @@ import kotlin.test.assertEquals
  * without needing to reproduce a subtle "only while rotating" symptom by eye.
  */
 class GltfViewerDeterminismTest {
+
+    private fun computeOrbitCamera(
+        target: Vec3,
+        orbitDegrees: Float,
+        pitchDegrees: Float,
+        zoom: Float,
+        elevation: Float,
+        far: Float
+    ): CoreCamera {
+        val orbitRad = orbitDegrees * (PI / 180.0).toFloat()
+        val pitchRad = pitchDegrees * (PI / 180.0).toFloat()
+        val cp = cos(pitchRad)
+        val eye = Vec3(
+            target.x + zoom * cp * sin(orbitRad),
+            elevation + zoom * sin(pitchRad),
+            target.z + zoom * cp * cos(orbitRad)
+        )
+        return CoreCamera(
+            eye = eye,
+            center = target,
+            fovYRadians = 45f * (PI / 180.0).toFloat(),
+            near = 0.1f,
+            far = far
+        )
+    }
 
     @Test
     fun duckRenderIsDeterministicNormalizedAndRaw() {
@@ -116,10 +144,14 @@ class GltfViewerDeterminismTest {
             fun renderOnce(normalizeScale: Boolean): TextureAsset {
                 val effectiveScale = if (normalizeScale) 1f / modelRadius else 1f
                 val duckModel = Mat4().scale(effectiveScale, effectiveScale, effectiveScale)
-                val camera = OrbitCameraController(zoom = if (normalizeScale) 6f else modelRadius * 2.5f, zoomMin = 2f, zoomMax = 15f).apply {
-                    orbitDegrees = 20f
+                val camera = computeOrbitCamera(
+                    target = Vec3(0f, 0f, 0f),
+                    orbitDegrees = 20f,
+                    pitchDegrees = 0f,
+                    zoom = if (normalizeScale) 6f else modelRadius * 2.5f,
+                    elevation = 0f,
                     far = if (normalizeScale) 100f else modelRadius * 40f
-                }.computeCamera(Vec3(0f, 0f, 0f))
+                )
                 renderer.renderToTexture(target, camera, listOf(DrawCall(createdMesh, createdMaterial, duckModel)))
                 return runBlocking { renderer.readPixels(target) }
             }

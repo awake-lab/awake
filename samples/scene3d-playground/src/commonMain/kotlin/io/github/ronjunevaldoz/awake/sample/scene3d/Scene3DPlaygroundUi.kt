@@ -79,7 +79,7 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
                     id = "scene3d-viewport",
                     modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)
                 ) {
-                    activeDemo.renderViewport(this)
+                    activeDemo.renderViewport(runtime, this)
                 }
                 val stats = runtime.frameStats()
                 text(
@@ -98,7 +98,7 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
                     .padding(8.dp)
                     .verticalScroll(controlsScroll)
             ) {
-                activeDemo.renderControls(this)
+                activeDemo.renderControls(runtime, this)
             }
         }
     }

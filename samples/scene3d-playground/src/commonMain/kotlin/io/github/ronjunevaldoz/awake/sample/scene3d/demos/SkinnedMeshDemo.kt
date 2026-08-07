@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
-import io.github.ronjunevaldoz.awake.core.math.OrbitCameraController
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.boundingCenter
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedAnimation
@@ -12,41 +12,28 @@ import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedSkinnedScene
 import io.github.ronjunevaldoz.awake.core.mesh.gltf.SkinnedAnimationPlayer
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
+import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
-import io.github.ronjunevaldoz.awake.scene.components.SkinnedPose
-import io.github.ronjunevaldoz.awake.scene.controls.OrbitCameraDemoRig
+import io.github.ronjunevaldoz.awake.scene.components.*
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.*
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import kotlin.math.PI
 
 /**
- * Real GPU-skinned glTF viewer -- loads Khronos's `CesiumMan.gltf` reference sample (`assets/
- * models/CesiumMan.gltf`, downloaded from `KhronosGroup/glTF-Sample-Assets`, see that file's
- * sibling `CesiumMan-LICENSE.md`) via [GltfParser.parseSkinned]. 19 joints, one walk-cycle
- * animation, no `COLOR_0` (renders flat white, same convention [io.github.ronjunevaldoz.awake
- * .core.mesh.gltf.GltfMesh.toInterleavedPositionNormalColor] already uses) and no texture
- * (out of scope -- see the skinning implementation plan's Context section).
- *
- * Renders through the ordinary [MeshRenderer]/[io.github.ronjunevaldoz.awake.scene.systems
- * .RenderSystem] path, same as every other demo -- [rig]'s placement entity carries
- * [MeshRenderer] plus [SkinnedPose] (the joint palette [RenderSystem][io.github
- * .ronjunevaldoz.awake.scene.systems.RenderSystem] reads into that entity's `DrawCall
- * .extraUniformFloats` every frame), its mesh's own [VertexFormat.PositionNormalColorSkin]
- * resolving to the `skinned.wgsl` pipeline via `Renderer.pipelinesByFormat`.
- *
- * `Renderer.drawSkinnedMesh` (the bypass this demo used before `RenderSystem` supported more
- * than one vertex format) is gone now that nothing needs it.
+ * Real GPU-skinned glTF viewer.
  */
 internal object SkinnedMeshDemo {
-    private val rig = OrbitCameraDemoRig(OrbitCameraController())
-    private val camera get() = rig.camera
+    private var cameraEntity: Entity? = null
+    private var skinnedEntity: Entity? = null
 
     private var scene: LoadedSkinnedScene? = null
     private var player: SkinnedAnimationPlayer? = null
@@ -55,6 +42,12 @@ internal object SkinnedMeshDemo {
     private var meshVertices: FloatArray? = null
     private var meshIndices: IntArray? = null
     private var modelRadius = 1f
+    private var modelCenter: Vec3 = Vec3(0f, 0f, 0f)
+
+    private var followTargetEntity: Entity? = null
+    private var panningEntity: Entity? = null
+    private var moveTargetWithWASD = false
+    private var showAimMarkers = false
 
     private val timeController = ManualTimeController()
     private var displayGroupExpanded = false
@@ -63,16 +56,12 @@ internal object SkinnedMeshDemo {
     private var mesh: Mesh? = null
     private var material: Material? = null
 
-    init {
-        camera.orbitDegrees = 20f
-    }
-
     suspend fun preload() {
         if (scene != null) return
         val bytes = readResourceBytes("assets/models/CesiumMan.gltf")
         val loaded = GltfParser.parseSkinned(bytes.decodeToString())
         val skinnedNodeIndex = loaded.nodes.indexOfFirst { it.mesh != null && it.skin != null }
-        require(skinnedNodeIndex >= 0) { "CesiumMan.gltf has no node with both a mesh and a skin." }
+        require(skinnedNodeIndex >= 0)
         val node = loaded.nodes[skinnedNodeIndex]
         val gltfMesh = loaded.meshes[node.mesh!!]
 
@@ -84,24 +73,22 @@ internal object SkinnedMeshDemo {
         meshIndices = gltfMesh.indices
         modelRadius = boundingRadius(gltfMesh.positions)
 
-        camera.zoomMin = modelRadius * 0.5f
-        camera.zoomMax = modelRadius * 20f
-        camera.zoom = modelRadius * 2.5f
-        camera.panRange = modelRadius * 2f
-        camera.far = camera.zoomMax * 2f
+        modelCenter = boundingCenter(gltfMesh.positions)
     }
 
     val entry = Scene3DDemo(
         id = "skinned-mesh",
         title = "Skinned mesh",
-        renderViewport = {
-            // Real geometry is drawn by RenderSystem via this demo's own ECS entity (see
-            // onActivate/onUpdate below) -- this viewport column only needs to exist so the
-            // shell lays out a center pane for it.
-        },
-        renderControls = {
-            renderOrbitCameraControls(camera, idPrefix = "skinned", targetLabel = "model")
-            shadcnCollapsibleCard(
+        renderViewport = { },
+        renderControls = { scope ->
+            val config = cameraEntity?.let { world.get<CameraComponent>(it) }
+            if (config != null) {
+                scope.renderCameraModeToggle(config.mode) { config.mode = it }
+            }
+            cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "skinned") }
+            moveTargetWithWASD = scope.shadcnSwitch(id = "skinned-move-target", checked = moveTargetWithWASD, label = "WASD moves model", enabled = config?.mode == CameraMode.Cinematic)
+            showAimMarkers = scope.shadcnSwitch(id = "skinned-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
+            scope.shadcnCollapsibleCard(
                 id = "skinned-controls-display",
                 expanded = displayGroupExpanded,
                 onExpandedChange = { displayGroupExpanded = it },
@@ -121,7 +108,14 @@ internal object SkinnedMeshDemo {
         },
         onActivate = { ensureSpawned(this) },
         onDeactivate = { world ->
-            rig.destroy(world)
+            cameraEntity?.let { world.destroy(it) }
+            cameraEntity = null
+            skinnedEntity?.let { world.destroy(it) }
+            skinnedEntity = null
+            followTargetEntity?.let { world.destroy(it) }
+            followTargetEntity = null
+            panningEntity?.let { world.destroy(it) }
+            panningEntity = null
             spawned = false
         },
         onUpdate = { delta ->
@@ -136,9 +130,36 @@ internal object SkinnedMeshDemo {
                 currentPlayer.sample(currentAnimation, timeSeconds)
             }
             if (currentSkin != null && currentPlayer != null) {
-                rig.entity?.let { world.get<SkinnedPose>(it)?.jointPalette = currentPlayer.jointPalette(currentSkin) }
+                skinnedEntity?.let { world.get<SkinnedPose>(it)?.jointPalette = currentPlayer.jointPalette(currentSkin) }
             }
-            rig.refresh(world, MODEL_CENTER)
+
+            renderer.drawReferenceGrid()
+
+            val fte = followTargetEntity ?: world.create().also {
+                followTargetEntity = it
+                world.add(it, Transform().apply { position.set(modelCenter) })
+            }
+
+            updateDemoCamera(
+                world = world,
+                cameraEntity = cameraEntity!!,
+                targetEntity = fte,
+                panningEntity = panningEntity,
+                onPanningEntityCreated = { panningEntity = it }
+            )
+
+            if (showAimMarkers) {
+                val markers = mutableListOf<LineSegment>()
+                val mc = modelCenter
+                markers += LineSegment(mc, mc + Vec3(0.1f, 0f, 0f), floatArrayOf(0.9f, 0.15f, 0.15f, 1f))
+                markers += LineSegment(mc, mc + Vec3(0f, 0.1f, 0f), floatArrayOf(0.15f, 0.75f, 0.15f, 1f))
+                markers += LineSegment(mc, mc + Vec3(0f, 0f, 0.1f), floatArrayOf(0.15f, 0.35f, 0.9f, 1f))
+                val ft = world.get<Transform>(fte)?.position ?: modelCenter
+                markers += LineSegment(ft, ft + Vec3(0.1f, 0f, 0f), floatArrayOf(1f, 1f, 0f, 1f))
+                markers += LineSegment(ft, ft + Vec3(0f, 0.1f, 0f), floatArrayOf(1f, 1f, 0f, 1f))
+                markers += LineSegment(ft, ft + Vec3(0f, 0f, 0.1f), floatArrayOf(1f, 1f, 0f, 1f))
+                renderer.drawDebugLines(markers)
+            }
         }
     )
 
@@ -146,26 +167,36 @@ internal object SkinnedMeshDemo {
         if (spawned) return
         val vertices = meshVertices ?: return
         val indices = meshIndices ?: return
-        val currentSkin = requireNotNull(skin) { "SkinnedMeshDemo.preload() must resolve skin before ensureSpawned." }
-        val currentPlayer = requireNotNull(player) {
-            "SkinnedMeshDemo.preload() must resolve player before ensureSpawned."
-        }
+        val currentSkin = requireNotNull(skin)
+        val currentPlayer = requireNotNull(player)
         mesh = runtime.renderer.createMesh(
             MeshGeometry(vertices, indices, format = VertexFormat.PositionNormalColorSkin)
         )
         material = runtime.renderer.createMaterial(uniformFloatCount = SKINNED_UNIFORM_FLOAT_COUNT)
-        rig.spawn(runtime.world, MODEL_CENTER)
-        val entity = rig.entity!!
-        runtime.world.add(entity, MeshRenderer(mesh!!, material!!))
-        runtime.world.add(entity, SkinnedPose(currentPlayer.jointPalette(currentSkin)))
+        
+        runtime.world.scene {
+            cameraEntity = entity(
+                "Camera",
+                Modifier().camera(
+                    target = null,
+                    lens = io.github.ronjunevaldoz.awake.core.math.Camera(
+                        eye = Vec3(0f, 5f, 10f),
+                        center = modelCenter,
+                        fovYRadians = 45f * (PI / 180.0).toFloat(),
+                        near = 0.1f,
+                        far = 100f
+                    )
+                )
+            )
+
+            skinnedEntity = entity("SkinnedMesh", Modifier().transform().meshRenderer(mesh!!, material!!))
+            runtime.world.add(skinnedEntity!!, SkinnedPose(currentPlayer.jointPalette(currentSkin)))
+        }
+        
         spawned = true
     }
 
-    private val MODEL_CENTER = Vec3(0f, 0f, 0f)
+    private fun cubeWorldPosition(): Vec3 = modelCenter
 
-    /** `16` (MVP) + `64` joints * `16` floats/matrix -- matches `skinned.wgsl`'s fixed
-     * `MAX_JOINTS` uniform-array size (WGSL/SPIR-V uniform blocks can't be dynamically sized,
-     * so the buffer must be allocated for the shader's declared max regardless of how many
-     * joints [skin] actually has -- CesiumMan's 19 leaves the rest of the array simply unread). */
     private const val SKINNED_UNIFORM_FLOAT_COUNT = 16 + 64 * 16
 }

@@ -4,8 +4,11 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.engine.application.GameSpecDsl
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneDocumentDsl
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneNodeDsl
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.AwakeSceneDsl
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.EntityModifier
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.Modifier
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneBuilder
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.scene
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.installInfrastructureSystems
 import kotlin.reflect.KClass
 
@@ -39,8 +42,16 @@ fun sceneGame(block: SceneGameDsl.() -> Unit): SceneGameSpec {
     return SceneGameDsl().apply(block).build()
 }
 
+/**
+ * Marked with [AwakeSceneDsl] so the enclosing `GameSpecDsl` receiver is hidden inside this
+ * block. Without it, a `scene(name) { ... }` call here silently resolves to the outer
+ * `GameSpecDsl.scene` extension and installs a whole second scene module -- two `World`s, two
+ * render callbacks, and a `requireService<SceneGameRuntime>()` that returns the wrong one.
+ */
+@AwakeSceneDsl
 class SceneGameDsl internal constructor() {
-    private var sceneDocumentDsl: SceneDocumentDsl = SceneDocumentDsl(null)
+    private var sceneName: String? = null
+    private var scenePopulationBlock: SceneGameRuntime.() -> Unit = {}
     private var renderableFactory: SceneRenderableFactory = {
         error("ecs { assets { ... } } or ecs { renderables { ... } } must resolve scene mesh/material requests.")
     }
@@ -52,22 +63,48 @@ class SceneGameDsl internal constructor() {
     private val onDisposeBlocks = mutableListOf<SceneDisposeBlock>()
     private val serviceRegistrations = mutableListOf<SceneServiceRegistration<*>>()
 
-    fun scene(
-        name: String? = null,
-        block: SceneDocumentDsl.() -> Unit
-    ) {
-        sceneDocumentDsl = SceneDocumentDsl(name).apply(block)
-    }
-
     fun name(value: String?) {
-        sceneDocumentDsl.name(value)
+        this.sceneName = value
     }
 
+    /**
+     * Captures the declarative entity layout block without running it yet.
+     * It delays execution until the actual runtime engine assigns a World.
+     */
+    fun scene(name: String? = null, block: SceneBuilder.() -> Unit) {
+        if (name != null) {
+            this.sceneName = name
+        }
+        this.scenePopulationBlock = {
+            world.scene(block)
+        }
+    }
+
+    /**
+     * Integrates an existing [SceneDocument] into the population block.
+     */
+    fun scene(document: SceneDocument) {
+        this.sceneName = document.name
+        this.scenePopulationBlock = {
+            val scene = document.instantiate(flipYForClipSpace = renderer.flipYForClipSpace, world = world)
+            scene.attachRenderableComponents { request -> spec.renderableFactory(this, request) }
+        }
+    }
+
+    /**
+     * Shortcut to spawn a root-level entity cleanly without nesting.
+     */
     fun entity(
         name: String? = null,
-        block: SceneNodeDsl.() -> Unit
+        modifier: EntityModifier = Modifier(),
+        block: SceneBuilder.() -> Unit = {}
     ) {
-        sceneDocumentDsl.entity(name, block)
+        // Since we want to preserve the population block, we append to it.
+        val previous = scenePopulationBlock
+        scenePopulationBlock = {
+            previous()
+            SceneBuilder(world).entity(name, modifier, block)
+        }
     }
 
     fun assets(block: SceneAssetsDsl.() -> Unit) {
@@ -138,10 +175,11 @@ class SceneGameDsl internal constructor() {
         installInfrastructureSystems()
 
         return SceneGameSpec(
-            sceneDocument = sceneDocumentDsl.build(),
+            sceneName = sceneName,
+            systems = systemsDsl.build(),
+            scenePopulationBlock = scenePopulationBlock,
             renderableFactory = renderableFactory,
             assetLibraryFactory = assetLibraryFactory,
-            systems = systemsDsl.build(),
             updateBlock = updateBlock,
             overlayBlock = overlayBlock,
             onReadyBlock = { onReadyBlocks.forEach { it(this) } },

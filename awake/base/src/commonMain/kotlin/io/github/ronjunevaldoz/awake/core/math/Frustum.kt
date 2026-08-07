@@ -12,8 +12,8 @@ import kotlin.math.tan
  */
 object Frustum {
     fun corners(camera: Camera, aspect: Float): List<Vec3> {
-        val forward = (camera.center - camera.eye).normalize()
-        val right = forward.cross(camera.up).normalize()
+        val forward = (camera.center - camera.eye).normalized()
+        val right = forward.cross(camera.up).normalized()
         val up = right.cross(forward)
 
         val nearHalfHeight = tan(camera.fovYRadians / 2f) * camera.near

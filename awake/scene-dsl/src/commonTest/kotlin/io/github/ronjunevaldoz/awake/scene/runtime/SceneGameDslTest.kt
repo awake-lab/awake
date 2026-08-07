@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.engine.application.game
@@ -13,15 +15,19 @@ import io.github.ronjunevaldoz.awake.engine.application.requireService
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.entities.meshEntity
-import io.github.ronjunevaldoz.awake.scene.runtime.systems.freeFlyCameraSystem
-import io.github.ronjunevaldoz.awake.scene.runtime.systems.orbitCameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.systems.cameraSystem
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.Modifier
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.camera
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.transform
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -45,16 +51,9 @@ class SceneGameDslTest {
         val game = game {
             ecs {
                 name("runtime-proof")
-                entity("camera") {
-                    camera {
-                        primary(true)
-                    }
-                }
-                entity("cube") {
-                    transform {
-                        position(0f, 0f, 0f)
-                    }
-                    meshRenderer(mesh = "cube", material = "default")
+                scene {
+                    entity("camera", Modifier().camera())
+                    entity("cube", Modifier().transform())
                 }
                 assets {
                     mesh("cube") { recordingRenderer.createMesh(EmptyGeometry) }
@@ -94,15 +93,9 @@ class SceneGameDslTest {
         val game = game {
             ecs {
                 name("before-replace")
-                entity("ignored") {
-                    camera { primary(true) }
-                }
+                entity("ignored")
                 scene("after-replace") {
-                    entity("camera") {
-                        camera {
-                            primary(true)
-                        }
-                    }
+                    entity("camera", Modifier().camera())
                 }
             }
         }
@@ -120,28 +113,18 @@ class SceneGameDslTest {
         val recordingRenderer = RecordingRenderer()
         val game = game {
             scene("facade-proof") {
-                cameraEntity(
-                    name = "camera",
-                    transform = { position(0f, 1f, 5f) },
-                    camera = { primary(true) }
-                )
+                cameraEntity("camera", Modifier().transform(y = 1f, z = 5f))
                 meshEntity(
-                    name = "cube",
-                    mesh = "cube",
-                    material = "default",
-                    transform = { scale(2f, 2f, 2f) }
+                    "cube",
+                    recordingRenderer.createMesh(EmptyGeometry),
+                    recordingRenderer.createMaterial(),
+                    Modifier().transform(sx = 2f, sy = 2f, sz = 2f)
                 )
                 assets {
                     mesh("cube") { recordingRenderer.createMesh(EmptyGeometry) }
                     material("default") { recordingRenderer.createMaterial() }
                 }
-                orbitCameraSystem(
-                    target = "cube",
-                    camera = "camera",
-                    initialDistance = 8f,
-                    initialPitch = 0.2f
-                )
-                freeFlyCameraSystem(camera = "camera")
+                cameraSystem()
             }
         }
 
@@ -153,8 +136,7 @@ class SceneGameDslTest {
         assertNotNull(runtime.findEntity("cube"))
         assertNotNull(runtime.findTransform("cube"))
         assertNotNull(runtime.findCamera("camera"))
-        assertTrue(runtime.system("orbit") is io.github.ronjunevaldoz.awake.scene.systems.OrbitCameraSystem)
-        assertTrue(runtime.system("freeFly") is io.github.ronjunevaldoz.awake.scene.systems.FreeFlyCameraSystem)
+        assertTrue(runtime.system("camera") is io.github.ronjunevaldoz.awake.scene.systems.CameraSystem)
     }
 
     @Test
@@ -162,12 +144,8 @@ class SceneGameDslTest {
         val renderer = RecordingRenderer()
         val module = gameModule {
             scene("module-scene") {
-                cameraEntity("camera", camera = { primary(true) })
-                meshEntity(
-                    name = "cube",
-                    mesh = "cube",
-                    material = "default"
-                )
+                cameraEntity("camera")
+                meshEntity("cube", renderer.createMesh(EmptyGeometry), renderer.createMaterial())
                 assets {
                     mesh("cube") { renderer.createMesh(EmptyGeometry) }
                     material("default") { renderer.createMaterial() }
@@ -199,7 +177,7 @@ class SceneGameDslTest {
         val renderer = RecordingRenderer()
         val game = game {
             scene("ordered-scene") {
-                cameraEntity("camera", camera = { primary(true) })
+                cameraEntity("camera")
                 overlay { width, height ->
                     frame(width, height) {
                         text("ordered")
@@ -221,7 +199,7 @@ class SceneGameDslTest {
         lateinit var frameHandle: SceneSystemHandle<RecordingSystem>
         val game = game {
             scene("phase-proof") {
-                cameraEntity("camera", camera = { primary(true) })
+                cameraEntity("camera")
                 fixedHandle = fixedSystem("fixed") { RecordingSystem() }
                 frameHandle = frameSystem("frame") { RecordingSystem() }
             }
@@ -277,6 +255,7 @@ private class RecordingRenderer : Renderer {
     override fun createMesh(geometry: MeshGeometry): Mesh {
         meshCreateCount += 1
         return object : Mesh {
+            override val format: VertexFormat = geometry.format
             override fun bind(commandBuffer: Long) = Unit
             override fun draw(commandBuffer: Long) = Unit
 
@@ -304,7 +283,7 @@ private class RecordingRenderer : Renderer {
         override fun destroy() = Unit
     }
 
-    override fun draw(camera: Camera, drawCalls: List<DrawCall>) {
+    override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) {
         frameCalls += "draw"
     }
 

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.components
 
-import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.Poolable
 
 /**
@@ -13,11 +12,11 @@ import io.github.ronjunevaldoz.awake.ecs.Poolable
  * directly every frame it wants a new angle; [SpinSystem] only composes the matrix.
  */
 class SpinControl : Poolable {
-    var offset: Vec3 = Vec3(0f, 0f, 0f)
     var radians: Float = 0f
+    var speed: Float = 1f
 
     override fun reset() {
-        offset = Vec3(0f, 0f, 0f)
         radians = 0f
+        speed = 1f
     }
 }

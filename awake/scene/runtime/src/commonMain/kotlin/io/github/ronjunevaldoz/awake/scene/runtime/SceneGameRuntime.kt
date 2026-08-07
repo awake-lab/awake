@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.core.application.FixedTimestepLoop
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
@@ -19,18 +18,18 @@ import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.Transform
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.toUiInputState
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /**
  * Orchestrates a single 3D scene session.
  */
 class SceneGameRuntime internal constructor(
-    private val spec: SceneGameSpec
+    val spec: SceneGameSpec
 ) : Game {
     private val fixedTimestepLoop = FixedTimestepLoop()
     
@@ -68,10 +67,9 @@ class SceneGameRuntime internal constructor(
 
     val fps: Float
         get() = averageFrameTimeMs.takeIf { it > 0f }?.let { 1000f / it } ?: 0f
-    val sceneDocument: SceneDocument
-        get() = spec.sceneDocument
+    
     val sceneName: String
-        get() = sceneDocument.name ?: "scene"
+        get() = spec.sceneName ?: "scene"
 
     private lateinit var services: GameServiceLookup
 
@@ -97,10 +95,9 @@ class SceneGameRuntime internal constructor(
             }
         }
 
-        // 2. Instantiate document entities
-        val scene = spec.sceneDocument.instantiate(flipYForClipSpace = renderer.flipYForClipSpace, world = world)
-        scene.attachRenderableComponents { request -> spec.renderableFactory(this, request) }
-        
+        // 2. RUN THE SCENE BUILDER BLUEPRINT (Delayed Execution)
+        spec.scenePopulationBlock(this)
+
         // 3. Initial sync pass for all frame-rate systems
         frameSystems.forEach { it.update(world, 0f) }
         

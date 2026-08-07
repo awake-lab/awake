@@ -2,29 +2,26 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime.entities
 
+import io.github.ronjunevaldoz.awake.render.material.Material
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameDsl
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneCameraDsl
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.SceneTransformDsl
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.EntityModifier
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.Modifier
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.camera
+import io.github.ronjunevaldoz.awake.scene.runtime.dsl.meshRenderer
 
 fun SceneGameDsl.cameraEntity(
     name: String,
-    transform: SceneTransformDsl.() -> Unit = {},
-    camera: SceneCameraDsl.() -> Unit = {}
+    modifier: EntityModifier = Modifier()
 ) {
-    entity(name) {
-        transform(transform)
-        camera(camera)
-    }
+    entity(name, modifier.camera())
 }
 
 fun SceneGameDsl.meshEntity(
     name: String,
-    mesh: String,
-    material: String,
-    transform: SceneTransformDsl.() -> Unit = {}
+    mesh: Mesh,
+    material: Material,
+    modifier: EntityModifier = Modifier()
 ) {
-    entity(name) {
-        transform(transform)
-        meshRenderer(mesh = mesh, material = material)
-    }
+    entity(name, modifier.meshRenderer(mesh, material))
 }

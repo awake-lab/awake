@@ -4,10 +4,12 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.UiStroke
 
 data class UiVectorPath(
     val path: UiPath,
-    val fill: Color? = null
+    val fill: Color? = null,
+    val stroke: UiStroke? = null
 )
 
 data class UiImageVector(

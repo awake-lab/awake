@@ -23,4 +23,35 @@ fun boundingRadius(positions: FloatArray): Float {
     return if (maxDistanceSquared > 0f) sqrt(maxDistanceSquared) else 1f
 }
 
+/**
+ * Midpoint of the axis-aligned bounding box around [positions] (a flat `x, y, z, x, y, z...`
+ * array). Returns the origin for an empty array.
+ *
+ * This is the point a camera should orbit or aim at: unlike averaging the vertices, it is not
+ * pulled toward whichever region of the model happens to be most densely tessellated.
+ */
+fun boundingCenter(positions: FloatArray): Vec3 {
+    if (positions.size < POSITION_COMPONENTS) return Vec3(0f, 0f, 0f)
+    var minX = Float.POSITIVE_INFINITY
+    var minY = Float.POSITIVE_INFINITY
+    var minZ = Float.POSITIVE_INFINITY
+    var maxX = Float.NEGATIVE_INFINITY
+    var maxY = Float.NEGATIVE_INFINITY
+    var maxZ = Float.NEGATIVE_INFINITY
+    var i = 0
+    while (i + 2 < positions.size) {
+        val x = positions[i]
+        val y = positions[i + 1]
+        val z = positions[i + 2]
+        if (x < minX) minX = x
+        if (y < minY) minY = y
+        if (z < minZ) minZ = z
+        if (x > maxX) maxX = x
+        if (y > maxY) maxY = y
+        if (z > maxZ) maxZ = z
+        i += POSITION_COMPONENTS
+    }
+    return Vec3((minX + maxX) / 2f, (minY + maxY) / 2f, (minZ + maxZ) / 2f)
+}
+
 private const val POSITION_COMPONENTS = 3

@@ -160,7 +160,7 @@ class JoltPhysicsWorld(gravity: Vec3 = Vec3(0f, -9.81f, 0f)) : PhysicsWorld {
     }
 
     override fun raycast(origin: Vec3, direction: Vec3, maxDistance: Float): RaycastHit? {
-        val normalizedDirection = direction.normalize()
+        val normalizedDirection = direction.normalized()
         val castVector = com.github.stephengold.joltjni.Vec3(
             normalizedDirection.x * maxDistance,
             normalizedDirection.y * maxDistance,
