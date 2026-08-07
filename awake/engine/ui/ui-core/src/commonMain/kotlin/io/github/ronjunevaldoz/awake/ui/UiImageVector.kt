@@ -29,9 +29,13 @@ class UiImageVectorBuilder internal constructor(
 ) {
     private val paths = ArrayList<UiVectorPath>()
 
-    fun path(fill: Color? = null, block: UiPathBuilder.() -> Unit) {
+    fun path(
+        fill: Color? = null,
+        fillRule: UiFillRule = UiFillRule.NonZero,
+        block: UiPathBuilder.() -> Unit,
+    ) {
         paths += UiVectorPath(
-            path = uiPath(block = block),
+            path = uiPath(fillRule = fillRule, block = block),
             fill = fill,
         )
     }

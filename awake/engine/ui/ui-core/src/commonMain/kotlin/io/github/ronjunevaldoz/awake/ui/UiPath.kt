@@ -376,44 +376,236 @@ fun UiPath.flattenContours(
     return contours
 }
 
+/**
+ * A fill contour plus the hole contours cut out of it. [holes] points are already oriented
+ * opposite to [outer] (see [resolveFillGroups]) so winding-derived math (the AA fringe's
+ * outward normal) lands on the correct side without re-checking.
+ */
+private class UiFillGroup(
+    val outer: List<UiPoint>,
+    val holes: List<List<UiPoint>>,
+)
+
+/**
+ * Groups a path's closed contours into fill-outers and the holes nested inside them, honoring
+ * [UiPath.fillRule]:
+ * - [UiFillRule.EvenOdd]: a contour contained in an odd number of other contours is a hole
+ *   (SVG icon sources -- e.g. Heroicons' clock/camera glyphs -- express holes this way).
+ * - [UiFillRule.NonZero]: a nested contour is a hole only when it winds opposite to its
+ *   containing contour; same-winding nested contours keep filling (per the winding rule).
+ * Open contours and contours under 3 points are returned as plain hole-less groups, matching
+ * their previous behavior. Containment is tested with one representative vertex per contour --
+ * exact-touching contours may misclassify, and then the triangulation falls back to the old
+ * independent-fill rendering rather than crashing.
+ */
+private fun resolveFillGroups(contours: List<UiPathContour>, fillRule: UiFillRule): List<UiFillGroup> {
+    val closed = ArrayList<UiPathContour>()
+    val simple = ArrayList<UiFillGroup>()
+    contours.forEach { contour ->
+        if (contour.closed && contour.points.size >= 3) closed += contour
+        else if (contour.points.size >= 3) simple += UiFillGroup(contour.points, emptyList())
+    }
+    if (closed.size <= 1) {
+        closed.forEach { simple += UiFillGroup(it.points, emptyList()) }
+        return simple
+    }
+
+    val areas = closed.map { polygonSignedArea(it.points) }
+    // containers[i] = indices of contours containing contour i's first vertex.
+    val containers = closed.indices.map { i ->
+        val probe = closed[i].points.first()
+        closed.indices.filter { j -> j != i && closed[j].windingContribution(probe.x, probe.y) != 0 }
+    }
+    val isHole = BooleanArray(closed.size)
+    for (i in closed.indices) {
+        val depth = containers[i].size
+        if (depth == 0) continue
+        val parent = containers[i].minByOrNull { abs(areas[it]) } ?: continue
+        isHole[i] = when (fillRule) {
+            UiFillRule.EvenOdd -> depth % 2 == 1
+            UiFillRule.NonZero -> areas[i] * areas[parent] < 0f
+        }
+    }
+
+    val groups = ArrayList<UiFillGroup>(simple)
+    for (i in closed.indices) {
+        if (isHole[i]) continue
+        val holes = closed.indices
+            .filter { h ->
+                isHole[h] && i == containers[h].filter { !isHole[it] }.minByOrNull { abs(areas[it]) }
+            }
+            .map { h ->
+                // Orient each hole opposite its outer so winding math (scanline fill, the AA
+                // fringe's outward normal) is uniform.
+                if (areas[h] * areas[i] > 0f) closed[h].points.asReversed() else closed[h].points
+            }
+        groups += UiFillGroup(closed[i].points, holes)
+    }
+    return groups
+}
+
+/**
+ * Scanline-trapezoid triangulation over a set of contours, honoring [fillRule] -- the general
+ * fill for anything a centroid fan can't do: concave contours, nested holes, and multiple
+ * islands, with NO hole-bridging step. (An ear-clipping + zero-width-bridge reduction was tried
+ * first and is a known trap: on the weakly simple polygon bridging produces, an "ear" can cross
+ * the zero-width corridor without containing any vertex, mis-filling hole icons like Heroicons'
+ * clock/camera.) Slabs are cut at every distinct vertex y, so no edge starts or ends strictly
+ * inside a slab; each slab's crossings are sorted at the slab's midline (which never passes
+ * through a vertex) and inside spans become two triangles each.
+ */
+// ponytail: emits ~4 vertices per span per slab with no sharing -- a few hundred vertices for a
+// typical icon, an order more than ear clipping would; fine for icon/UI paths, revisit with a
+// real polygon triangulator if fills ever get huge or per-frame tessellation shows up in traces.
+private fun scanlineFillTriangulation(
+    contours: List<List<UiPoint>>,
+    fillRule: UiFillRule,
+): Pair<List<UiPoint>, IntArray> {
+    class Edge(val x0: Float, val y0: Float, val x1: Float, val y1: Float, val dir: Int)
+
+    val edges = ArrayList<Edge>()
+    contours.forEach { polygon ->
+        for (i in polygon.indices) {
+            val a = polygon[i]
+            val b = polygon[(i + 1) % polygon.size]
+            if (a.y == b.y) continue
+            edges += if (a.y < b.y) Edge(a.x, a.y, b.x, b.y, 1) else Edge(b.x, b.y, a.x, a.y, -1)
+        }
+    }
+    if (edges.isEmpty()) return emptyList<UiPoint>() to IntArray(0)
+
+    fun xAt(edge: Edge, y: Float): Float =
+        edge.x0 + (edge.x1 - edge.x0) * (y - edge.y0) / (edge.y1 - edge.y0)
+
+    val ys = edges.flatMap { listOf(it.y0, it.y1) }.distinct().sorted()
+    val points = ArrayList<UiPoint>()
+    val indices = ArrayList<Int>()
+    for (s in 0 until ys.size - 1) {
+        val yTop = ys[s]
+        val yBottom = ys[s + 1]
+        if (yBottom <= yTop) continue
+        val midY = (yTop + yBottom) / 2f
+        val active = edges.filter { it.y0 <= yTop && it.y1 >= yBottom }.sortedBy { xAt(it, midY) }
+        var winding = 0
+        var crossings = 0
+        var openEdge: Edge? = null
+        active.forEach { edge ->
+            val wasInside = when (fillRule) {
+                UiFillRule.NonZero -> winding != 0
+                UiFillRule.EvenOdd -> crossings % 2 == 1
+            }
+            winding += edge.dir
+            crossings += 1
+            val isInside = when (fillRule) {
+                UiFillRule.NonZero -> winding != 0
+                UiFillRule.EvenOdd -> crossings % 2 == 1
+            }
+            if (!wasInside && isInside) {
+                openEdge = edge
+            } else if (wasInside && !isInside) {
+                val left = openEdge ?: return@forEach
+                openEdge = null
+                val leftTopX = xAt(left, yTop)
+                val rightTopX = xAt(edge, yTop)
+                val leftBottomX = xAt(left, yBottom)
+                val rightBottomX = xAt(edge, yBottom)
+                if (rightTopX <= leftTopX && rightBottomX <= leftBottomX) return@forEach
+                val base = points.size
+                points += UiPoint(leftTopX, yTop)
+                points += UiPoint(rightTopX, yTop)
+                points += UiPoint(rightBottomX, yBottom)
+                points += UiPoint(leftBottomX, yBottom)
+                indices += base
+                indices += base + 1
+                indices += base + 2
+                indices += base + 2
+                indices += base + 3
+                indices += base
+            }
+        }
+    }
+    return points to indices.toIntArray()
+}
+
 fun UiPath.tessellateFill(): UiTriangleMesh {
     val contours = flattenContours()
     if (contours.isEmpty()) return UiTriangleMesh(emptyList(), IntArray(0))
 
     val points = ArrayList<UiPoint>()
     val indices = ArrayList<Int>()
-    contours.forEach { contour ->
-        val polygon = contour.points
-        if (polygon.size < 3) return@forEach
-        // Fan from the polygon's centroid rather than vertex 0: for wide, shallow convex
-        // shapes (e.g. a 600x36 rounded-rect button), a vertex-0 fan produces near-degenerate
-        // sliver triangles between points on the far side of the shape (e.g. two points a few
-        // tenths of a pixel apart in y but ~600px apart in x, both opposite the fan origin).
-        // The rasterizer's edge function subtracts products of that huge x-span against a
-        // tiny y-span, and float32 catastrophic cancellation flips the inside/outside test for
-        // pixels near that sliver -- visible as a seam/gap along the top edge on the side far
-        // from vertex 0. A centroid fan keeps every triangle's extent close to the shape's own
-        // size, avoiding the cancellation. Safe for all current callers (rect/rounded-rect/
-        // circle/pill/cut-corner) since they're always convex.
-        var centroidX = 0f
-        var centroidY = 0f
-        polygon.forEach {
-            centroidX += it.x
-            centroidY += it.y
-        }
-        centroidX /= polygon.size
-        centroidY /= polygon.size
-
-        val base = points.size
-        points += UiPoint(centroidX, centroidY)
-        points += polygon
-        for (i in 0 until polygon.size) {
-            indices += base
-            indices += base + 1 + i
-            indices += base + 1 + (i + 1) % polygon.size
-        }
+    resolveFillGroups(contours, fillRule).forEach { group ->
+        appendGroupFill(group, onTriangulated = { meshPoints, meshIndices ->
+            val base = points.size
+            points += meshPoints
+            meshIndices.forEach { indices += base + it }
+        }, onFanned = { polygon ->
+            appendCentroidFan(polygon, points, indices)
+        })
     }
     return UiTriangleMesh(points, indices.toIntArray())
+}
+
+/**
+ * Shared interior-triangulation strategy for [tessellateFill]/[tessellateFillAa]:
+ * centroid-fan convex hole-less contours (the hot path -- buttons, cards, every rounded rect),
+ * scanline-triangulate everything else (concave contours, groups with holes). [onTriangulated]
+ * receives a self-contained (points, indices) mesh; [onFanned] receives the raw polygon.
+ */
+private inline fun appendGroupFill(
+    group: UiFillGroup,
+    onTriangulated: (List<UiPoint>, IntArray) -> Unit,
+    onFanned: (List<UiPoint>) -> Unit,
+) {
+    if (group.holes.isEmpty() && isConvex(group.outer)) {
+        onFanned(group.outer)
+        return
+    }
+    // Concave contour (e.g. a chevron icon) or holes (e.g. a clock glyph): a centroid fan is
+    // invalid here -- the centroid can sit outside the polygon (overfilling a chevron's notch)
+    // and fans know nothing about holes. resolveFillGroups already oriented holes opposite
+    // their outer, so NonZero winding cancels inside them regardless of the source fill rule.
+    val (meshPoints, meshIndices) = scanlineFillTriangulation(
+        contours = listOf(group.outer) + group.holes,
+        fillRule = UiFillRule.NonZero,
+    )
+    if (meshIndices.isEmpty() && group.holes.isEmpty()) {
+        // Degenerate (e.g. zero-area) contour: keep the old fan behavior rather than dropping it.
+        onFanned(group.outer)
+    } else {
+        onTriangulated(meshPoints, meshIndices)
+    }
+}
+
+private fun appendCentroidFan(polygon: List<UiPoint>, points: ArrayList<UiPoint>, indices: ArrayList<Int>) {
+    if (polygon.size < 3) return
+    // Fan from the polygon's centroid rather than vertex 0: for wide, shallow convex
+    // shapes (e.g. a 600x36 rounded-rect button), a vertex-0 fan produces near-degenerate
+    // sliver triangles between points on the far side of the shape (e.g. two points a few
+    // tenths of a pixel apart in y but ~600px apart in x, both opposite the fan origin).
+    // The rasterizer's edge function subtracts products of that huge x-span against a
+    // tiny y-span, and float32 catastrophic cancellation flips the inside/outside test for
+    // pixels near that sliver -- visible as a seam/gap along the top edge on the side far
+    // from vertex 0. A centroid fan keeps every triangle's extent close to the shape's own
+    // size, avoiding the cancellation. Valid for convex contours only (rect/rounded-rect/
+    // circle/pill/cut-corner); concave/holed groups scanline-triangulate in appendGroupFill and
+    // only fall through here on degenerate (zero-area) input.
+    var centroidX = 0f
+    var centroidY = 0f
+    polygon.forEach {
+        centroidX += it.x
+        centroidY += it.y
+    }
+    centroidX /= polygon.size
+    centroidY /= polygon.size
+
+    val base = points.size
+    points += UiPoint(centroidX, centroidY)
+    points += polygon
+    for (i in 0 until polygon.size) {
+        indices += base
+        indices += base + 1 + i
+        indices += base + 1 + (i + 1) % polygon.size
+    }
 }
 
 /** Default AA fringe width in pixels for [tessellateFillAa] -- ~1px matches the rounded-quad
@@ -449,30 +641,53 @@ fun UiPath.tessellateFillAa(color: Color, fringePx: Float = AA_FRINGE_PX): UiCol
     val indices = ArrayList<Int>()
     val transparent = color.withAlpha(0f)
 
-    contours.forEach { contour ->
-        val polygon = contour.points
-        if (polygon.size < 3) return@forEach
+    resolveFillGroups(contours, fillRule).forEach { group ->
+        // Interior -- same triangulation strategy as tessellateFill (scanline for concave/holed
+        // groups, centroid fan for convex; see its doc comments), full-alpha color throughout.
+        appendGroupFill(group, onTriangulated = { meshPoints, meshIndices ->
+            val base = vertices.size
+            meshPoints.forEach { vertices += UiColoredVertex(it, color) }
+            meshIndices.forEach { indices += base + it }
+        }, onFanned = { polygon ->
+            var centroidX = 0f
+            var centroidY = 0f
+            polygon.forEach {
+                centroidX += it.x
+                centroidY += it.y
+            }
+            centroidX /= polygon.size
+            centroidY /= polygon.size
 
-        // Interior fan -- same centroid-fan shape as tessellateFill (see its doc comment for
-        // why centroid, not vertex 0), full-alpha color throughout.
-        var centroidX = 0f
-        var centroidY = 0f
-        polygon.forEach {
-            centroidX += it.x
-            centroidY += it.y
+            val fanBase = vertices.size
+            vertices += UiColoredVertex(UiPoint(centroidX, centroidY), color)
+            polygon.forEach { vertices += UiColoredVertex(it, color) }
+            for (i in polygon.indices) {
+                indices += fanBase
+                indices += fanBase + 1 + i
+                indices += fanBase + 1 + (i + 1) % polygon.size
+            }
+        })
+
+        // Fringe every boundary of the group -- the outer contour fringes outward as before;
+        // hole contours were re-oriented opposite the outer in resolveFillGroups, so the same
+        // winding-derived normal lands their fringe on the hole's (non-filled) side.
+        (listOf(group.outer) + group.holes).forEach { polygon ->
+            appendBoundaryFringe(polygon, color, transparent, fringePx, vertices, indices)
         }
-        centroidX /= polygon.size
-        centroidY /= polygon.size
+    }
+    return UiColoredTriangleMesh(vertices, indices.toIntArray())
+}
 
-        val fanBase = vertices.size
-        vertices += UiColoredVertex(UiPoint(centroidX, centroidY), color)
-        polygon.forEach { vertices += UiColoredVertex(it, color) }
-        for (i in polygon.indices) {
-            indices += fanBase
-            indices += fanBase + 1 + i
-            indices += fanBase + 1 + (i + 1) % polygon.size
-        }
-
+private fun appendBoundaryFringe(
+    polygon: List<UiPoint>,
+    color: Color,
+    transparent: Color,
+    fringePx: Float,
+    vertices: ArrayList<UiColoredVertex>,
+    indices: ArrayList<Int>,
+) {
+    if (polygon.size < 3) return
+    run {
         // Fringe ring -- one quad per edge, offset outward along that edge's normal, alpha
         // fading from color's own alpha (at the true polygon boundary) to fully transparent
         // (at the offset outer edge). Per-edge (not mitered) normals leave an invisible
@@ -515,7 +730,6 @@ fun UiPath.tessellateFillAa(color: Color, fringePx: Float = AA_FRINGE_PX): UiCol
             indices += base
         }
     }
-    return UiColoredTriangleMesh(vertices, indices.toIntArray())
 }
 
 fun UiPath.tessellateStroke(stroke: UiStroke): UiTriangleMesh {

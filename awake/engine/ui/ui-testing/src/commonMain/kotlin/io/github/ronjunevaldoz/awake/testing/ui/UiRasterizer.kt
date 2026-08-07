@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.tessellateFill
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
+import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -284,8 +285,13 @@ fun List<UiDrawPrimitive>.rasterize(
     fun fillTriangle(ax: Float, ay: Float, bx: Float, by: Float, cx: Float, cy: Float, color: Color) {
         val minX = max(min(ax, min(bx, cx)), clipX0).toInt().coerceIn(0, width)
         val minY = max(min(ay, min(by, cy)), clipY0).toInt().coerceIn(0, height)
-        val maxX = min(max(ax, max(bx, cx)), clipX1).toInt().coerceIn(0, width)
-        val maxY = min(max(ay, max(by, cy)), clipY1).toInt().coerceIn(0, height)
+        // Ceil the exclusive max bounds: plain toInt() truncation dropped the triangle's last
+        // pixel row/column (sample centers between trunc(max) and max never tested). Invisible
+        // on one-fan-per-shape meshes (outermost boundary only), but the scanline-trapezoid
+        // fill emits a triangle pair per slab, and a dropped row at every slab edge rendered
+        // as horizontal banding through hole/concave glyphs.
+        val maxX = ceil(min(max(ax, max(bx, cx)), clipX1)).toInt().coerceIn(0, width)
+        val maxY = ceil(min(max(ay, max(by, cy)), clipY1)).toInt().coerceIn(0, height)
         val r = (color[0] * 255).toInt().coerceIn(0, 255)
         val g = (color[1] * 255).toInt().coerceIn(0, 255)
         val b = (color[2] * 255).toInt().coerceIn(0, 255)
