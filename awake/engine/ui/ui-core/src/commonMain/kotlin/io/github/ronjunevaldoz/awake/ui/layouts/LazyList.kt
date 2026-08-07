@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -83,7 +82,7 @@ fun UiScope.lazyColumn(
         contentHeight = contentHeightPx
     )
 
-    recordSemantic(role = UiSemanticRole.ScrollPanel, id = id, bounds = slot.toBounds())
+    recordSemantic(role = UiSemanticRole.ScrollPanel, id = id, bounds = slot)
 
     if (hitTest(slot)) {
         onOverScrollable()
@@ -154,7 +153,7 @@ fun UiScope.lazyRow(
         contentHeight = slot.height
     )
 
-    recordSemantic(role = UiSemanticRole.ScrollPanel, id = id, bounds = slot.toBounds())
+    recordSemantic(role = UiSemanticRole.ScrollPanel, id = id, bounds = slot)
 
     if (hitTest(slot)) {
         onOverScrollable()

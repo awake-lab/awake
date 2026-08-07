@@ -17,7 +17,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.layout.toSlot
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -131,9 +130,9 @@ internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
         recordSemantic(
             role = UiSemanticRole.Panel,
             id = "showcase-canvas-root",
-            bounds = slot.toSlot()
+            bounds = slot
         )
-        canvas(slot.toSlot()) {
+        canvas(slot) {
             drawShowcaseCanvasScene()
         }
     }

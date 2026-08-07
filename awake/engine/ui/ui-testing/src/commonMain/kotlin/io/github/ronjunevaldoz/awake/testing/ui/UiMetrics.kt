@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.testing.ui
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.abs
@@ -79,7 +78,7 @@ fun measureUiFrame(
     return UiFrameMetrics(
         frame = frame,
         primitiveCounts = counts,
-        contentBounds = contentBounds?.toBounds()
+        contentBounds = contentBounds
     )
 }
 

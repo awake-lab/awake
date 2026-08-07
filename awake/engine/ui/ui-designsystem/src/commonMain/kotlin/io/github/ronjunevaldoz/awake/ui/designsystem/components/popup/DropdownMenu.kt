@@ -132,7 +132,7 @@ fun UiScope.shadcnDropdownMenu(
         }
     }
     return UiDropdownMenuResult(
-        slot = popupResult.slot?.toBounds(),
+        slot = popupResult.slot,
         selectedIndex = picked,
         dismissed = popupResult.dismissed
     )
@@ -207,7 +207,7 @@ private fun ColumnScope.dropdownMenuItem(
         val trailingAlignment = if (supportingLayout == null) UiAlignment.CenterEnd else UiAlignment.TopEnd
 
         // Use a relative child box to anchor content correctly within the button
-        val box = childBox(contentSlot.toSlot())
+        val box = childBox(contentSlot)
 
         box.apply {
             // --- 1. Label (Primary text) ---
@@ -232,7 +232,7 @@ private fun ColumnScope.dropdownMenuItem(
                 val iconBounds = UiBounds(
                     contentSlot.x + 12f, contentSlot.y, glyphPx, contentSlot.height
                 )
-                childBox(iconBounds.toSlot(), contentAlignment = UiAlignment.Center).iconContent()
+                childBox(iconBounds, contentAlignment = UiAlignment.Center).iconContent()
             }
 
             // --- 2. Trailing Shortcut ---

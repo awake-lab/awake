@@ -12,8 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.inset
-import io.github.ronjunevaldoz.awake.ui.layout.toBounds
-import io.github.ronjunevaldoz.awake.ui.layout.toSlot
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -100,7 +98,7 @@ fun UiScope.text(
     semanticRole: UiSemanticRole = UiSemanticRole.Text,
     shimmer: Boolean = false
 ): UiBounds {
-    val slotAsSlot = slot.toSlot()
+    val slotAsSlot = slot
     val theme = context.currentTheme
     val resolved = resolveStyle(
         style = style,
@@ -128,7 +126,7 @@ fun UiScope.text(
         semanticId = semanticId,
         semanticRole = semanticRole,
         shimmer = shimmer
-    ).toBounds()
+    )
 }
 
 /**
@@ -267,5 +265,5 @@ fun UiScope.text(
         semanticId = resolvedSemanticId,
         semanticRole = semanticRole,
         shimmer = modifier.shimmer
-    ).toBounds()
+    )
 }

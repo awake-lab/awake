@@ -77,7 +77,7 @@ fun UiScope.rangeSlider(
             boxSlot.y + (boxSlot.height - RANGE_SLIDER_TRACK_HEIGHT_PX) / 2f,
             (boxSlot.width - trackInsetPx * 2f).coerceAtLeast(0f),
             RANGE_SLIDER_TRACK_HEIGHT_PX
-        ).toSlot()
+        )
 
         val startFraction = ((valueStart - min) / (max - min)).coerceIn(0f, 1f)
         val endFraction = ((valueEnd - min) / (max - min)).coerceIn(0f, 1f)
@@ -146,7 +146,7 @@ fun UiScope.rangeSlider(
             )
             if (fillWidth > 0f) {
                 emitFillAndBorder(
-                    slot = UiBounds(fillX, trackSlot.y, fillWidth, trackSlot.height).toSlot(),
+                    slot = UiBounds(fillX, trackSlot.y, fillWidth, trackSlot.height),
                     fillColor = theme.colors.primary,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
@@ -161,7 +161,7 @@ fun UiScope.rangeSlider(
                         boxSlot.y + (boxSlot.height - RANGE_SLIDER_KNOB_DIAMETER_PX) / 2f,
                         RANGE_SLIDER_KNOB_DIAMETER_PX,
                         RANGE_SLIDER_KNOB_DIAMETER_PX
-                    ).toSlot(),
+                    ),
                     resolved = surface.resolved.copy(
                         borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
                         shapeSpec = UiShapeSpec.Pill
@@ -176,7 +176,7 @@ fun UiScope.rangeSlider(
             role = UiSemanticRole.Slider,
             id = id,
             label = label,
-            bounds = boxSlot.toBounds(),
+            bounds = boxSlot,
             contentBounds = if (fillWidth > 0f) UiBounds(fillX, trackSlot.y, fillWidth, trackSlot.height) else null
         )
     }

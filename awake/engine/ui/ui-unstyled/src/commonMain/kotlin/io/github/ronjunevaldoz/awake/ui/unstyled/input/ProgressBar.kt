@@ -46,7 +46,7 @@ fun UiScope.progressBar(
     if (fillWidth > 0f) {
         emitFillAndBorder(
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(surface.slot.x, surface.slot.y, fillWidth, surface.slot.height)
-                .toSlot(),
+                ,
             fillColor = surface.resolved.foreground ?: theme.colors.primary,
             radiusPx = 0f,
             borderWidth = UiShape.none,
@@ -58,6 +58,6 @@ fun UiScope.progressBar(
         role = UiSemanticRole.Text,
         id = id,
         label = "${(fraction * 100).toInt()}%",
-        bounds = surface.slot.toBounds()
+        bounds = surface.slot
     )
 }

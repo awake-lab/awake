@@ -138,7 +138,7 @@ fun UiScope.popup(
     val popupWidth = resolvePopupDimension(width, measured?.width?.plus(insets.horizontalPx()), windowBounds.width)
     val popupHeight = resolvePopupDimension(height, measured?.height?.plus(insets.verticalPx()), windowBounds.height)
     val resolvedSize = UiPopupSize(popupWidth, popupHeight)
-    val anchorBoundsSlot = anchorSlot.toSlot()
+    val anchorBoundsSlot = anchorSlot
     val placedSlot = positionProvider.calculatePosition(anchorBoundsSlot, windowBounds, resolvedSize)
     val popupSlot = if (properties.clippingEnabled) {
         placedSlot.clampWithin(windowBounds)

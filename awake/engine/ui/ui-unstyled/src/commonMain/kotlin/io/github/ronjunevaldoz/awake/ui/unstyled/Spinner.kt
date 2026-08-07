@@ -61,7 +61,7 @@ fun UiScope.spinner(
                 dotY - dotDiameter / 2f,
                 dotDiameter,
                 dotDiameter
-            ).toSlot(),
+            ),
             fillColor = dotColor.withAlpha(dotColor.a * alpha),
             radiusPx = 0f,
             borderWidth = UiShape.none,
@@ -73,6 +73,6 @@ fun UiScope.spinner(
     recordSemantic(
         role = UiSemanticRole.Spinner,
         id = id,
-        bounds = slot.toBounds()
+        bounds = slot
     )
 }

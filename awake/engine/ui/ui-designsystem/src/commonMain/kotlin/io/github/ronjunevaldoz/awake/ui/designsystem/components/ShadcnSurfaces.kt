@@ -114,8 +114,8 @@ fun UiScope.shadcnSurface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = { slot -> content(slot.toBounds()) }
-).toBounds()
+    content = { slot -> content(slot) }
+)
 
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
@@ -131,8 +131,8 @@ fun ColumnScope.shadcnSurface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = { slot -> content(slot.toBounds()) }
-).toBounds()
+    content = { slot -> content(slot) }
+)
 
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
@@ -148,8 +148,8 @@ fun RowScope.shadcnSurface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = { slot -> content(slot.toBounds()) }
-).toBounds()
+    content = { slot -> content(slot) }
+)
 
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use unstyled surface() from ui-layouts for unstyled container panels, or shadcnCard() for Card panels.",
@@ -165,8 +165,8 @@ fun BoxScope.shadcnSurface(
     id = id,
     modifier = modifier,
     style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
-    content = { slot -> content(slot.toBounds()) }
-).toBounds()
+    content = { slot -> content(slot) }
+)
 
 /** Real shadcn's `Card`: a dedicated header/body/footer composition, not just a
  * background/border flavor of [shadcnSurface]. Header and footer are optional slots
@@ -189,8 +189,8 @@ fun UiScope.shadcnCard(
         id = id,
         modifier = modifier,
         style = theme.asShadcnTheme().components.surface then style,
-        content = { slot -> shadcnCardContent(slot.toBounds(), size, header, footer, body) }
-    ).toBounds()
+        content = { slot -> shadcnCardContent(slot, size, header, footer, body) }
+    )
     if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
     return bounds
 }
@@ -210,8 +210,8 @@ fun ColumnScope.shadcnCard(
         id = id,
         modifier = modifier,
         style = theme.asShadcnTheme().components.surface then style,
-        content = { slot -> shadcnCardContent(slot.toBounds(), size, header, footer, body) }
-    ).toBounds()
+        content = { slot -> shadcnCardContent(slot, size, header, footer, body) }
+    )
     if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
     return bounds
 }
@@ -231,8 +231,8 @@ fun RowScope.shadcnCard(
         id = id,
         modifier = modifier,
         style = theme.asShadcnTheme().components.surface then style,
-        content = { slot -> shadcnCardContent(slot.toBounds(), size, header, footer, body) }
-    ).toBounds()
+        content = { slot -> shadcnCardContent(slot, size, header, footer, body) }
+    )
     if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
     return bounds
 }
@@ -252,8 +252,8 @@ fun BoxScope.shadcnCard(
         id = id,
         modifier = modifier,
         style = theme.asShadcnTheme().components.surface then style,
-        content = { slot -> shadcnCardContent(slot.toBounds(), size, header, footer, body) }
-    ).toBounds()
+        content = { slot -> shadcnCardContent(slot, size, header, footer, body) }
+    )
     if (variant == ShadcnCardVariant.Elevated) emitCardElevationShadow(bounds)
     return bounds
 }
@@ -318,8 +318,8 @@ fun UiScope.shadcnPopover(
             id = "$id.content",
             style = popoverStyle(resolvedTheme) then style,
             modifier = Modifier.width(Dimension.Fixed(popupSlot.width.px)).height(height),
-            content = { slot -> content(slot.toBounds()) }
+            content = { slot -> content(slot) }
         )
     }
-    return UiPopoverResult(slot = popupResult.slot?.toBounds(), dismissed = popupResult.dismissed)
+    return UiPopoverResult(slot = popupResult.slot, dismissed = popupResult.dismissed)
 }

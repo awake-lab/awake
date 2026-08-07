@@ -78,9 +78,9 @@ internal fun UiScope.renderTextBlock(
         role = semanticRole,
         id = semanticId,
         label = label,
-        bounds = slot.toBounds(),
-        contentBounds = contentBounds.toBounds(),
-        clippedBounds = clippedBounds.toBounds(),
+        bounds = slot,
+        contentBounds = contentBounds,
+        clippedBounds = clippedBounds,
         truncated = layout.truncated,
         lineCount = layout.lines.size,
         foregroundColor = textColor,
@@ -221,7 +221,7 @@ private fun resolveTextContentBounds(
         y = top,
         width = (right - left).coerceAtLeast(0f),
         height = blockHeight.coerceAtLeast(0f)
-    ).toSlot()
+    )
 }
 
 /**

@@ -162,7 +162,7 @@ fun UiScope.shadcnLabel(
                 }
             )
         }
-    }.toBounds()
+    }
 }
 
 /** Common section header layout (title + optional description). */

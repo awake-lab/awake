@@ -32,7 +32,7 @@ fun ColumnScope.shadcnAlert(
     style = ShadcnStyles.alert(theme.asShadcnTheme(), variant) then style
 ) {
     content()
-}.toBounds()
+}
 
 /** [shadcnAlert] convenience with plain string title/description. */
 fun ColumnScope.shadcnAlert(

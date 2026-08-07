@@ -35,5 +35,5 @@ fun UiScope.icon(
             emit(UiDrawPrimitive.FilledPath(vectorPath.path, fillColor))
         }
     }
-    return slot.toBounds()
+    return slot
 }

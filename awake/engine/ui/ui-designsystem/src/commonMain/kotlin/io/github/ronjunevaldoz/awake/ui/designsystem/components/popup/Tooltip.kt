@@ -50,6 +50,6 @@ fun UiScope.shadcnTooltip(
         style = Style { shape(UiShape.sm) } then theme.components.surface then style,
         modifier = Modifier.width(width).height(height)
     ) { slot ->
-        content(slot.toBounds())
+        content(slot)
     }
 }

@@ -36,7 +36,7 @@ fun ColumnScope.shadcnBreadcrumb(
     modifier = modifier.height(height.toDimension())
 ) {
     content()
-}.toBounds()
+}
 
 /** [shadcnBreadcrumb] convenience with a plain string trail. */
 fun ColumnScope.shadcnBreadcrumb(

@@ -229,7 +229,7 @@ fun UiScope.textarea(
         if (displayed.isNotEmpty()) {
             text(
                 label = displayed,
-                slot = drawSlot.toBounds(),
+                slot = drawSlot,
                 font = resolvedFont,
                 color = if (showingPlaceholder) theme.colors.mutedForeground else (resolvedWithInteraction.foreground
                     ?: theme.colors.foreground),
@@ -261,7 +261,7 @@ fun UiScope.textarea(
                         caretPos.second,
                         TEXT_FIELD_CARET_WIDTH_PX,
                         glyphPx
-                    ).toSlot(),
+                    ),
                     fillColor = resolvedWithInteraction.foreground ?: theme.colors.foreground,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
@@ -275,8 +275,8 @@ fun UiScope.textarea(
         role = UiSemanticRole.Text,
         id = id,
         label = nextValue.ifEmpty { placeholder },
-        bounds = interaction.slot.toBounds(),
-        contentBounds = contentSlot.toBounds(),
+        bounds = interaction.slot,
+        contentBounds = contentSlot,
         selected = focused,
         lineCount = currentLayout.lines.size
     )

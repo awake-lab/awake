@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.testing.ui
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.toSlot
 import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layout.intersect
@@ -50,7 +49,7 @@ fun inspectUiFrame(
     frame: UiBounds,
     font: UiFont? = null
 ): UiInspectionReport {
-    val frameSlot = frame.toSlot()
+    val frameSlot = frame
     val issues = ArrayList<UiInspectionIssue>()
     val clipStack = ArrayDeque<io.github.ronjunevaldoz.awake.ui.layout.UiBounds>()
 

@@ -53,7 +53,7 @@ fun UiScope.checkbox(
         surface.interaction.slot.y + (surface.interaction.slot.height - boxPx) / 2f,
         boxPx,
         boxPx
-    ).toSlot()
+    )
     paintSurface(slot = boxSlot, resolved = surface.resolved)
     // Mirrors real shadcn's triStateToggleable: clicking an Indeterminate box always lands
     // on checked=true, same as clicking an Off box -- only an On box flips to false.
@@ -74,10 +74,10 @@ fun UiScope.checkbox(
             surface.interaction.slot.y,
             surface.interaction.slot.width - boxPx - gapPx,
             surface.interaction.slot.height
-        ).toSlot()
+        )
         text(
             label,
-            slot = labelSlot.toBounds(),
+            slot = labelSlot,
             font = resolvedFont,
             color = surface.resolved.foreground ?: theme.colors.foreground,
             centered = false,
@@ -91,8 +91,8 @@ fun UiScope.checkbox(
         role = UiSemanticRole.Checkbox,
         id = id,
         label = label,
-        bounds = surface.interaction.slot.toBounds(),
-        contentBounds = boxSlot.toBounds(),
+        bounds = surface.interaction.slot,
+        contentBounds = boxSlot,
         selected = newChecked
     )
     return newChecked

@@ -118,13 +118,13 @@ fun UiScope.textField(
         val iconBounds = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
             contentSlot.x, contentSlot.y, iconSlotWidth, contentSlot.height
         )
-        childBox(iconBounds.toSlot(), contentAlignment = UiAlignment.Center).leadingIcon()
+        childBox(iconBounds, contentAlignment = UiAlignment.Center).leadingIcon()
     }
     if (trailingIcon != null) {
         val iconBounds = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
             contentSlot.x + contentSlot.width - iconSlotWidth, contentSlot.y, iconSlotWidth, contentSlot.height
         )
-        childBox(iconBounds.toSlot(), contentAlignment = UiAlignment.Center).trailingIcon()
+        childBox(iconBounds, contentAlignment = UiAlignment.Center).trailingIcon()
     }
 
     val cursorState = widgetState(id)
@@ -242,7 +242,7 @@ fun UiScope.textField(
                         textContentSlot.y,
                         TEXT_FIELD_CARET_WIDTH.toPx(),
                         textContentSlot.height
-                    ).toSlot(),
+                    ),
                     fillColor = surface.resolved.foreground ?: theme.colors.foreground,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
@@ -256,8 +256,8 @@ fun UiScope.textField(
         role = UiSemanticRole.Text,
         id = id,
         label = if (nextValue.isEmpty()) placeholder else nextValue,
-        bounds = surface.interaction.slot.toBounds(),
-        contentBounds = contentSlot.toBounds(),
+        bounds = surface.interaction.slot,
+        contentBounds = contentSlot,
         selected = focused
     )
     return nextValue

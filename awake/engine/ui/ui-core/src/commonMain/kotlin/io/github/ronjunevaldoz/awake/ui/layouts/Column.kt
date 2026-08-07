@@ -215,7 +215,7 @@ private fun UiScope.resolveMeasuredColumn(
         recordSemantic(
             role = role,
             id = id,
-            bounds = rawSlot.toBounds(),
+            bounds = rawSlot,
             backgroundColor = resolved.background,
             backgroundToken = resolved.backgroundToken,
             foregroundColor = resolved.foreground,

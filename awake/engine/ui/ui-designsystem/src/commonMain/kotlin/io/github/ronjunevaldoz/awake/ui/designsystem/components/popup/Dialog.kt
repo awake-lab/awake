@@ -24,7 +24,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.styleable
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.popup
-import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -86,7 +85,7 @@ fun UiScope.shadcnDialog(
                 .styleable(theme.components.surface then Style { shape(UiShape.md) } then properties.surfaceStyle),
             clipContent = true
         ) { slot ->
-            val boundsSlot = slot.toBounds()
+            val boundsSlot = slot
             if (showCloseButton) {
                 row(
                     modifier = Modifier.width(Dimension.FillMax),
@@ -109,7 +108,7 @@ fun UiScope.shadcnDialog(
                     modifier = Modifier.width(Dimension.FillMax).height(36f.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) { actionSlot ->
-                    actions(actionSlot.toBounds())
+                    actions(actionSlot)
                 }
             }
         }

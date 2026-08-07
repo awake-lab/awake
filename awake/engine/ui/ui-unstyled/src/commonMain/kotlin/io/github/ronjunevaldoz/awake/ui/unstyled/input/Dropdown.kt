@@ -129,7 +129,7 @@ fun UiScope.drawDropdownTriggerContent(
     val theme = context.currentTheme
     val resolvedFont = context.currentFont
     val resolved = resolveStyle(defaults = style, state = MutableStyleState(
-            hovered = hitTest(slot.toSlot()),
+            hovered = hitTest(slot),
             active = expanded
         )
     )
@@ -165,7 +165,7 @@ fun UiScope.drawDropdownTriggerContent(
         y = slot.y + (slot.height - chevronSize) / 2f,
         width = chevronSize,
         height = chevronSize
-    ).toSlot()
+    )
     val chevronColor = textColor.withAlpha(0.5f)
     UiIcons.chevronDown.fitTo(chevronSlot).forEach { vectorPath ->
         emit(UiDrawPrimitive.FilledPath(vectorPath.path, vectorPath.fill ?: chevronColor))

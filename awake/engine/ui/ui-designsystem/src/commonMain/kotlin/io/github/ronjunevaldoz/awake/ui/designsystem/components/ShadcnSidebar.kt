@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
@@ -69,8 +68,8 @@ fun UiScope.shadcnSidebar(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
-).toBounds()
+    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) }
+)
 
 /** [shadcnSidebar] override for [ColumnScope]. */
 fun ColumnScope.shadcnSidebar(
@@ -85,8 +84,8 @@ fun ColumnScope.shadcnSidebar(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
-).toBounds()
+    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) }
+)
 
 /** [shadcnSidebar] override for [RowScope]. */
 fun RowScope.shadcnSidebar(
@@ -101,8 +100,8 @@ fun RowScope.shadcnSidebar(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
-).toBounds()
+    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) }
+)
 
 /** [shadcnSidebar] override for [BoxScope]. */
 fun BoxScope.shadcnSidebar(
@@ -117,8 +116,8 @@ fun BoxScope.shadcnSidebar(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }
-).toBounds()
+    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) }
+)
 
 /** A labeled section within a [shadcnSidebar]'s body, matching real shadcn's `SidebarGroup`. */
 fun ColumnScope.shadcnSidebarGroup(

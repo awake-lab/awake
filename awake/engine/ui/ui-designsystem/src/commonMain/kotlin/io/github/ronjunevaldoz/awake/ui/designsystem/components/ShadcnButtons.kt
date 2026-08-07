@@ -91,7 +91,7 @@ fun UiScope.shadcnButton(
             verticallyCentered -> UiAlignment.CenterStart
             else -> UiAlignment.TopStart
         }
-        val box = childBox(contentSlot.toSlot(), contentAlignment = alignment)
+        val box = childBox(contentSlot, contentAlignment = alignment)
         box.content(contentSlot)
     }
     if (result.clicked) onClick?.invoke()

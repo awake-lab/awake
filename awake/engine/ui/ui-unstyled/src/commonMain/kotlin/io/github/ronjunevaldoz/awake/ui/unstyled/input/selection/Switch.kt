@@ -59,7 +59,7 @@ fun UiScope.switch(
         y = surface.interaction.slot.y + (surface.interaction.slot.height - TOGGLE_HEIGHT_PX.dp.toPx()) / 2f,
         width = TOGGLE_WIDTH_PX.dp.toPx(),
         height = TOGGLE_HEIGHT_PX.dp.toPx()
-    ).toSlot()
+    )
     val newChecked = if (surface.interaction.clicked) !checked else checked
     // Both states are hardcoded tokens, not resolved.background -- a Switch's on/off track
     // color is structural to what a switch communicates, not something a caller-supplied
@@ -90,7 +90,7 @@ fun UiScope.switch(
         }
         emitFillAndBorder(
             slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, trackSlot.y + knobInsetPx, knobDiameter, knobDiameter)
-                .toSlot(),
+                ,
             fillColor = theme.colors.background,
             radiusPx = 0f,
             borderWidth = UiShape.none,
@@ -134,7 +134,7 @@ fun UiScope.switch(
         role = UiSemanticRole.Switch,
         id = id,
         label = label,
-        bounds = surface.interaction.slot.toBounds(),
+        bounds = surface.interaction.slot,
         truncated = false,
         selected = newChecked
     )

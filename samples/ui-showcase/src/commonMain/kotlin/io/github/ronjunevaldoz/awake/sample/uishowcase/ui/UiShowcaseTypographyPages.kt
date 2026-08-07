@@ -26,7 +26,6 @@ import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
@@ -147,7 +146,7 @@ private fun ColumnScope.drawUiShowcaseFontSpecimen(
     )
     specimenScope.text(
         label = detail,
-        slot = specimenScope.claimSlot(Dimension.FillMax, Dimension.Fixed(44f.dp)).toBounds(),
+        slot = specimenScope.claimSlot(Dimension.FillMax, Dimension.Fixed(44f.dp)),
         color = theme.colors.mutedForeground,
         wrap = UiTextWrap.Word,
         overflow = UiTextOverflow.Ellipsis,

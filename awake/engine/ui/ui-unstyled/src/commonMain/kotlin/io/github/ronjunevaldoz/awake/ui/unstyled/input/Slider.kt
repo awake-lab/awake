@@ -84,7 +84,7 @@ fun UiScope.slider(
         slot.y + (slot.height - trackHeightPx) / 2f,
         trackWidth,
         trackHeightPx
-    ).toSlot()
+    )
     val fraction = ((newValue - min) / (max - min)).coerceIn(0f, 1f)
     val handleWidth = (trackSlot.width * fraction).coerceAtLeast(0f)
     val knobCenterX = trackSlot.x + handleWidth
@@ -98,7 +98,7 @@ fun UiScope.slider(
         if (handleWidth > 0f) {
             emitFillAndBorder(
                 slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(trackSlot.x, trackSlot.y, handleWidth, trackSlot.height)
-                    .toSlot(),
+                    ,
                 fillColor = theme.colors.primary,
                 radiusPx = 0f,
                 borderWidth = UiShape.none,
@@ -113,7 +113,7 @@ fun UiScope.slider(
                     slot.y + (slot.height - knobDiameterPx) / 2f,
                     knobDiameterPx,
                     knobDiameterPx
-                ).toSlot(),
+                ),
                 resolved = surface.resolved.copy(
                     borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
                     shapeSpec = UiShapeSpec.Pill
@@ -127,7 +127,7 @@ fun UiScope.slider(
         role = UiSemanticRole.Slider,
         id = id,
         label = label,
-        bounds = slot.toBounds(),
+        bounds = slot,
         contentBounds = if (handleWidth > 0f) UiBounds(
             slot.x,
             slot.y,

@@ -38,7 +38,7 @@ class ScrollContainersTest {
             ) {
                 repeat(8) { index ->
                     val row = claimSlot(Dimension.FillMax, 20f.toDimension())
-                    text("Row $index", slot = row.toBounds())
+                    text("Row $index", slot = row)
                 }
             }
         }
@@ -65,7 +65,7 @@ class ScrollContainersTest {
             ) {
                 repeat(8) { index ->
                     val row = claimSlot(Dimension.FillMax, 20f.toDimension())
-                    text("Row $index", slot = row.toBounds())
+                    text("Row $index", slot = row)
                 }
             }
         }
@@ -93,7 +93,7 @@ class ScrollContainersTest {
         ) {
             repeat(8) { index ->
                 val row = claimSlot(Dimension.FillMax, 20f.toDimension())
-                text("Row $index", slot = row.toBounds())
+                text("Row $index", slot = row)
             }
         }
         val primitives = ui.endFrame()

@@ -37,7 +37,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.toSlot
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 
@@ -325,7 +324,7 @@ private fun ColumnScope.drawShowcaseGradientChrome(
         end = tokens.accent.withAlpha(0.12f)
     )
 
-    canvas(slot.toSlot()) {
+    canvas(slot) {
         // Inherit shape from surface stack if available, otherwise fallback to sharp corners
         val clipSpec = context.currentShapeSpec
             ?: io.github.ronjunevaldoz.awake.ui.UiShapeSpec.RoundedRectangle(0f.dp)

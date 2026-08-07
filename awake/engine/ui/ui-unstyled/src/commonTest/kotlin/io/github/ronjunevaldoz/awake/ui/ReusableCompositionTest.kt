@@ -125,7 +125,7 @@ private fun UiScope.badge(
         borderColor = resolved.borderColor ?: theme.colors.border
     )
     if (font != null) {
-        text(label, slot.toBounds(), font = font, color = resolved.foreground ?: theme.colors.foreground, centered = true)
+        text(label, slot, font = font, color = resolved.foreground ?: theme.colors.foreground, centered = true)
     }
 }
 

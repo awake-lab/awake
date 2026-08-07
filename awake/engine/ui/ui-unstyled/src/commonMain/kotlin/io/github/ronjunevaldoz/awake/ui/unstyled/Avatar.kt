@@ -54,7 +54,7 @@ fun UiScope.avatarFallback(
         borderColor = resolved.borderColor ?: theme.colors.border,
         shapeSpec = UiShapeSpec.Circle
     )
-    childBox(slot).content(slot.toBounds())
+    childBox(slot).content(slot)
 }
 
 /**

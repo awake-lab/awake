@@ -14,9 +14,6 @@ fun UiBounds.intersect(other: UiBounds): UiBounds {
     return UiBounds(left, top, (right - left).coerceAtLeast(0f), (bottom - top).coerceAtLeast(0f))
 }
 
-fun UiBounds.toBounds(): UiBounds = this
-fun UiBounds.toSlot(): UiBounds = this
-
 /** True when [other] lies entirely within this rect (on-edge counts as contained) -- backs
  * the backend "safe interior" skip-check for exact convex-path clipping (see
  * `RendererDrawUi.kt`'s `stage*Run` helpers): a primitive whose own bounds are contained in a

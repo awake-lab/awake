@@ -46,5 +46,5 @@ fun UiScope.separator(
             emit(UiDrawPrimitive.Quad(lineX, pixelPerfectPixel(slot.y), lineWidth, pixelPerfectPixel(slot.height).coerceAtLeast(1f), color))
         }
     }
-    return slot.toBounds()
+    return slot
 }

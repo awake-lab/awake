@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnToggleVariant
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.toSlot
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiButtonVariant
@@ -43,7 +42,7 @@ fun UiScope.shadcnToggle(
     variant = variant.toUiButtonVariant(),
     onCheckedChange = onCheckedChange
 ) { contentSlot ->
-    childBox(contentSlot.toSlot(), contentAlignment = UiAlignment.Center).content(contentSlot)
+    childBox(contentSlot, contentAlignment = UiAlignment.Center).content(contentSlot)
 }
 
 /** Convenience wrapper over the [content]-slot [shadcnToggle] above for the common plain-text

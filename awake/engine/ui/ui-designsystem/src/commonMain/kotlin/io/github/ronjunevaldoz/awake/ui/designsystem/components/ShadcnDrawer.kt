@@ -14,7 +14,6 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
@@ -74,7 +73,7 @@ fun UiScope.shadcnDrawer(
         properties = UiPopupProperties(dismissOnClickOutside = true)
     ) { slot ->
         val resolvedTheme = theme.asShadcnTheme()
-        val bounds = slot.toBounds()
+        val bounds = slot
         surface(
             id = id,
             modifier = modifier.width(Dimension.Fixed(bounds.width.dp)).height(Dimension.Fixed(bounds.height.dp)),
@@ -154,5 +153,5 @@ fun UiScope.shadcnDrawer(
         onDismissRequest()
     }
 
-    return UiPopupResult(slot = popupResult.slot?.toBounds(), dismissed = popupResult.dismissed)
+    return UiPopupResult(slot = popupResult.slot, dismissed = popupResult.dismissed)
 }

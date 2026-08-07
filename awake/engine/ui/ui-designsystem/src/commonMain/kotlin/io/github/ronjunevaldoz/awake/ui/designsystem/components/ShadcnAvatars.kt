@@ -111,7 +111,7 @@ fun RowScope.shadcnAvatarGroup(
     modifier: UiModifier = Modifier,
     horizontalArrangement: Arrangement = defaultArrangement(),
     content: RowScope.() -> Unit
-): UiBounds = row(modifier = modifier, horizontalArrangement = horizontalArrangement) { content() }.toBounds()
+): UiBounds = row(modifier = modifier, horizontalArrangement = horizontalArrangement) { content() }
 
 /** [shadcnAvatarGroup] convenience that overlaps a plain initials list automatically -- each
  * avatar after the first shifted left by [overlap] and ringed in the page background so it

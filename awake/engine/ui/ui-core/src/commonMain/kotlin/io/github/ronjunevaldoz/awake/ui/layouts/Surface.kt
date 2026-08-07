@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
-import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -189,7 +188,7 @@ fun UiScope.surface(
     recordSemantic(
         role = UiSemanticRole.Panel,
         id = id,
-        bounds = slot.toBounds(),
+        bounds = slot,
         backgroundColor = resolved.background,
         backgroundToken = resolved.backgroundToken,
         foregroundColor = resolved.foreground,

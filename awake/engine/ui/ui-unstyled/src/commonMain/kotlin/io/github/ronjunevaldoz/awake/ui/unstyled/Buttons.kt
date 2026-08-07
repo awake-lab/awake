@@ -81,8 +81,8 @@ private inline fun UiScope.buttonSlotInternal(
         role = UiSemanticRole.Button,
         id = id,
         label = semanticLabel,
-        bounds = surface.interaction.slot.toBounds(),
-        contentBounds = surface.contentSlot.toBounds(),
+        bounds = surface.interaction.slot,
+        contentBounds = surface.contentSlot,
         backgroundColor = fillColor,
         backgroundToken = surface.resolved.backgroundToken,
         foregroundColor = surface.resolved.foreground,
@@ -92,7 +92,7 @@ private inline fun UiScope.buttonSlotInternal(
         borderRadius = surface.resolved.shape.toPx(),
         textStyleToken = surface.resolved.textStyleToken
     )
-    return UiButtonResult(surface.interaction.clicked, surface.interaction.slot.toBounds())
+    return UiButtonResult(surface.interaction.clicked, surface.interaction.slot)
 }
 
 fun UiScope.button(
@@ -140,7 +140,7 @@ fun UiScope.buttonSlot(
             val theme = context.currentTheme
             text(
                 label = label,
-                slot = contentSlot.toBounds(),
+                slot = contentSlot,
                 font = context.currentFont,
                 color = resolved.foreground ?: theme.colors.foreground,
                 centered = centered,
@@ -169,7 +169,7 @@ fun UiScope.buttonSlot(
     radius = radius,
     enabled = enabled
 ) { contentSlot, _ ->
-    content(contentSlot.toBounds())
+    content(contentSlot)
 }
 
 fun UiScope.button(

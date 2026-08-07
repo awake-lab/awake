@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.toBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -74,8 +73,8 @@ private inline fun UiScope.toggleInternal(
         role = UiSemanticRole.Toggle,
         id = id,
         label = semanticLabel,
-        bounds = interaction.slot.toBounds(),
-        contentBounds = surface.contentSlot.toBounds(),
+        bounds = interaction.slot,
+        contentBounds = surface.contentSlot,
         selected = newChecked
     )
 
@@ -108,7 +107,7 @@ fun UiScope.toggle(
     if (label != null) {
         text(
             label = label,
-            slot = contentSlot.toBounds(),
+            slot = contentSlot,
             font = context.currentFont,
             color = resolved.foreground ?: context.currentTheme.colors.foreground,
             centered = true,
