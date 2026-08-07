@@ -148,12 +148,19 @@ internal fun Renderer.recordCommandBuffer(
     )
 
     // Grouped by resolved pipeline (see prepareDrawCalls) instead of 3 hardcoded blocks --
-    // the primary group is drawn first (even if empty, renderPipeline is still bound first,
+    // the primary group is drawn first (even if empty, its pipeline is still bound first,
     // matching this method's old unconditional bind-before-anything-else behavior), then
     // debug lines, then every other format's group -- same relative draw order this method
     // always had, now generalized to however many pipelines pipelinesByFormat actually holds.
+    // "Primary" is resolved via pipelineFor (not always identically `renderPipeline`): when
+    // `wireframe` is on and a wireframe variant exists for renderPipeline's own format, THAT
+    // must be what's bound/drawn first -- binding the wrong pipeline object here would put the
+    // primary group in the "every other format" loop below instead, drawing it AFTER the
+    // debug lines and breaking their real depth-test against scene geometry (see that
+    // comment).
     val groupedDrawCalls = drawCalls.groupBy { it.pipeline }
-    renderPipeline.bind(commandBuffer)
+    val primaryPipeline = pipelineFor(renderPipeline.vertexFormat) ?: renderPipeline
+    primaryPipeline.bind(commandBuffer)
     val viewport = VkViewport(
         width = swapchainManager.extent.width.toFloat(),
         height = swapchainManager.extent.height.toFloat(),
@@ -163,7 +170,7 @@ internal fun Renderer.recordCommandBuffer(
         extent = swapchainManager.extent
     )
     Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
-    recordDrawCalls(commandBuffer, groupedDrawCalls[renderPipeline] ?: emptyList())
+    recordDrawCalls(commandBuffer, groupedDrawCalls[primaryPipeline] ?: emptyList())
 
     // Debug lines (e.g. a frustum wireframe), same render pass/depth attachment as
     // the 3D draw calls above -- real depth-testing against scene geometry, not an
@@ -173,7 +180,7 @@ internal fun Renderer.recordCommandBuffer(
     lineMesh.draw(frameIndex, commandBuffer)
 
     groupedDrawCalls.forEach { (pipeline, group) ->
-        if (pipeline === renderPipeline) return@forEach
+        if (pipeline === primaryPipeline) return@forEach
         pipeline.bind(commandBuffer)
         recordDrawCalls(commandBuffer, group)
     }
@@ -346,7 +353,11 @@ internal fun Renderer.prepareDrawCalls(
     var drawIndex = 0
     while (drawIndex < drawCalls.size) {
         val drawCall = drawCalls[drawIndex]
-        val pipeline = pipelinesByFormat[drawCall.mesh.format]
+        // pipelineFor, not a direct pipelinesByFormat lookup: swaps in this format's
+        // VK_POLYGON_MODE_LINE variant when Renderer.wireframe is on and one was built for
+        // it (see that function's doc comment) -- an unregistered format still resolves to
+        // null and is skipped below, same as before this parameter existed.
+        val pipeline = pipelineFor(drawCall.mesh.format)
         if (pipeline != null) {
             val material = drawCall.material as Material
             val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)
@@ -354,7 +365,12 @@ internal fun Renderer.prepareDrawCalls(
             // Camera.viewProjectionMatrix's docs), so `model * viewProjection` (Kotlin
             // order) gives the conventional `projection * view * model`.
             val mvp = drawCall.model * viewProjection
-            val extraFloats = if (pipeline === renderPipeline) lightFloats else drawCall.extraUniformFloats
+            // Compared by FORMAT, not pipeline identity: wireframe's `pipelineFor` can
+            // resolve the primary lit format to a different pipeline OBJECT than
+            // `renderPipeline` itself, but it's still the primary format's draw call and
+            // still expects light floats, not DrawCall.extraUniformFloats.
+            val extraFloats =
+                if (drawCall.mesh.format == renderPipeline.vertexFormat) lightFloats else drawCall.extraUniformFloats
             material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + extraFloats)
             prepared += PreparedDrawCall(drawCall, pipeline, material, frameIndex, uniformSlotIndex)
         }

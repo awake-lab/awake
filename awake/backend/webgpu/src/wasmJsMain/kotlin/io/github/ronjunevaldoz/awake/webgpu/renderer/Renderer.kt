@@ -95,7 +95,13 @@ class Renderer(
     internal val uiTextureShaderCode: ByteArray,
     internal val uiRoundedQuadShaderCode: ByteArray,
     commandPool: Long,
-    maxFramesInFlight: Int
+    maxFramesInFlight: Int,
+    /** A `GPUPrimitiveTopology.LineList` companion of [renderPipeline] (same shader/vertex
+     * layout, drawn via each mesh's own derived [io.github.ronjunevaldoz.awake.webgpu.mesh
+     * .Mesh.lineIndexBuffer] instead of its triangle index buffer) -- see [wireframe]'s doc
+     * comment for the "why LineList, not a barycentric shader" rationale. `null` (default)
+     * for every game that doesn't opt into `WebGpuGameApplication`'s `wireframeSupport`. */
+    internal val wireframeRenderPipeline: RenderPipeline? = null
 ) : RenderRenderer {
     // WebGPU's NDC has +Y up -- confirmed by this module's own ui_quad.wgsl comment
     // ("pixel-space is Y-down, NDC is Y-up") -- so unlike Vulkan (+Y down NDC) no flip is
@@ -103,6 +109,18 @@ class Renderer(
     override val clipSpace: ClipSpace = ClipSpace.WebGpu
 
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
+
+    /** See [wireframeRenderPipeline]'s doc comment. `false` by default -- and a no-op even
+     * when set `true` if [wireframeRenderPipeline] was never built (this backend's
+     * `wireframeSupport` opt-out), same "flag with nothing to switch to just stays filled"
+     * shape as Vulkan's `Renderer.pipelineFor`. WebGPU has no `VK_POLYGON_MODE_LINE`
+     * equivalent -- topology is fixed per pipeline, not a per-draw-call rasterizer setting --
+     * so this backend swaps the whole bound pipeline (`renderPipeline` <-> [wireframeRenderPipeline])
+     * and each mesh's index buffer (triangle indices <-> its own derived line-index buffer,
+     * see `mesh.Mesh`'s doc comment) instead of a barycentric-coordinate fragment shader, which
+     * would need every mesh re-authored with a duplicated, non-indexed vertex buffer just to
+     * carry a per-vertex barycentric attribute. */
+    override var wireframe: Boolean = false
 
     /** [clearColor] converted to this backend's clear-value type -- see the Vulkan `Renderer`'s
      * own `clearColorValue` for why this is a fresh-read `get()`, not a cached field. */
@@ -115,6 +133,15 @@ class Renderer(
 
     internal var uniformBuffer: GPUBuffer? = null
     internal var uniformBindGroup: GPUBindGroup? = null
+
+    /** [wireframeRenderPipeline]'s own uniform buffer/bind group -- kept separate from
+     * [uniformBuffer]/[uniformBindGroup], not shared: WebGPU's "auto" pipeline layout derives
+     * a fresh, pipeline-specific `GPUBindGroupLayout` per `createRenderPipeline` call, even
+     * when two pipelines share identical WGSL source, and a bind group is only valid against
+     * the exact layout it was created from -- see [ensureWireframeUniformResources]'s doc
+     * comment ([RendererUiPipelines.kt]). */
+    internal var wireframeUniformBuffer: GPUBuffer? = null
+    internal var wireframeUniformBindGroup: GPUBindGroup? = null
 
     // Lazily built on the first drawUi() call of any kind (uiRenderPipeline) and on the
     // first call that passes a non-null font (uiGlyphRenderPipeline) -- see
@@ -346,6 +373,9 @@ class Renderer(
         uniformBuffer?.close()
         uniformBuffer = null
         uniformBindGroup = null
+        wireframeUniformBuffer?.close()
+        wireframeUniformBuffer = null
+        wireframeUniformBindGroup = null
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
         uiTextureRenderPipeline?.destroy()

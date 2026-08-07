@@ -83,3 +83,30 @@ internal fun Renderer.ensureUniformResources(pipeline: GPURenderPipeline) {
         )
     )
 }
+
+/** [Renderer.wireframeRenderPipeline]'s own uniform buffer/bind group -- a near-duplicate of
+ * [ensureUniformResources], not a shared/generalized version of it: WebGPU's "auto" pipeline
+ * layout mode derives a fresh `GPUBindGroupLayout` per `createRenderPipeline` call (even for
+ * two pipelines built from identical WGSL source), and `setBindGroup` validates the bound
+ * group against the CURRENTLY BOUND pipeline's own layout -- a bind group built from
+ * [Renderer.renderPipeline]'s layout is invalid WebGPU state once [pipeline] (the wireframe
+ * one) is bound instead. */
+internal fun Renderer.ensureWireframeUniformResources(pipeline: GPURenderPipeline) {
+    if (wireframeUniformBuffer != null) return
+    val device = graphicsDevice.wgpuContext.device
+    val buffer = device.createBuffer(
+        BufferDescriptor(
+            size = (UNIFORM_FLOAT_COUNT * Float.SIZE_BYTES).toULong(),
+            usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst
+        )
+    )
+    wireframeUniformBuffer = buffer
+    wireframeUniformBindGroup = device.createBindGroup(
+        BindGroupDescriptor(
+            layout = pipeline.getBindGroupLayout(0u),
+            entries = listOf(
+                BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = buffer))
+            )
+        )
+    )
+}

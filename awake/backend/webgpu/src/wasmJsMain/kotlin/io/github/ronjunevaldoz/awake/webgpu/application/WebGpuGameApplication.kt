@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.renderer.Renderer
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
+import io.ygdrasil.webgpu.GPUPrimitiveTopology
 
 /**
  * Reusable WebGPU game bootstrap -- wasmJs counterpart to `VulkanGameApplication`
@@ -32,7 +33,12 @@ class WebGpuGameApplication(
     vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
     game: Game,
     private val vertexShaderEntryPoint: String = DEFAULT_VERTEX_SHADER_ENTRY_POINT,
-    private val fragmentShaderEntryPoint: String = DEFAULT_FRAGMENT_SHADER_ENTRY_POINT
+    private val fragmentShaderEntryPoint: String = DEFAULT_FRAGMENT_SHADER_ENTRY_POINT,
+    /** Builds a `GPUPrimitiveTopology.LineList` companion of the primary pipeline, reusing the
+     * exact same loaded shader source/vertex layout -- toggled on/off per frame via
+     * `Renderer.wireframe`. `false` by default so a game that never uses it doesn't pay for
+     * the extra pipeline object, mirroring `VulkanGameApplication`'s `wireframeSupport`. */
+    private val wireframeSupport: Boolean = false
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -42,19 +48,22 @@ class WebGpuGameApplication(
     constructor(
         shaderSet: GameShaderSet,
         vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
-        game: Game
+        game: Game,
+        wireframeSupport: Boolean = false
     ) : this(
         vertexShaderResourcePath = shaderSet.webGpu.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.webGpu.fragmentResourcePath,
         vertexFormat = vertexFormat,
         game = game,
         vertexShaderEntryPoint = shaderSet.webGpu.vertexEntryPoint,
-        fragmentShaderEntryPoint = shaderSet.webGpu.fragmentEntryPoint
+        fragmentShaderEntryPoint = shaderSet.webGpu.fragmentEntryPoint,
+        wireframeSupport = wireframeSupport
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
     private lateinit var swapchainManager: SwapchainManager
     private lateinit var renderPipeline: RenderPipeline
+    private var wireframeRenderPipeline: RenderPipeline? = null
     private lateinit var lineRenderPipeline: LineRenderPipeline
 
     override suspend fun createBackendResources(window: Any): BackendResources {
@@ -62,16 +71,32 @@ class WebGpuGameApplication(
         graphicsDevice.create(window)
         swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
         swapchainManager.create()
+        val vertShaderCode = readResourceBytes(vertexShaderResourcePath)
         renderPipeline = RenderPipeline(
             graphicsDevice,
             swapchainManager,
             DescriptorSetLayoutHandle(0),
-            readResourceBytes(vertexShaderResourcePath),
+            vertShaderCode,
             ByteArray(0),
             vertexFormat.strideBytes,
             vertexShaderEntryPoint,
             fragmentShaderEntryPoint
         )
+        wireframeRenderPipeline = if (wireframeSupport) {
+            RenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                DescriptorSetLayoutHandle(0),
+                vertShaderCode,
+                ByteArray(0),
+                vertexFormat.strideBytes,
+                vertexShaderEntryPoint,
+                fragmentShaderEntryPoint,
+                topology = GPUPrimitiveTopology.LineList
+            )
+        } else {
+            null
+        }
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
@@ -88,7 +113,8 @@ class WebGpuGameApplication(
             readResourceBytes(UI_TEXTURE_SHADER_RESOURCE_PATH),
             readResourceBytes(UI_ROUNDED_QUAD_SHADER_RESOURCE_PATH),
             0L,
-            MAX_FRAMES_IN_FLIGHT
+            MAX_FRAMES_IN_FLIGHT,
+            wireframeRenderPipeline
         )
 
         return BackendResources(
@@ -104,6 +130,7 @@ class WebGpuGameApplication(
         renderer.destroy()
         swapchainManager.destroy()
         renderPipeline.destroy()
+        wireframeRenderPipeline?.destroy()
         lineRenderPipeline.destroy()
         graphicsDevice.destroy()
     }

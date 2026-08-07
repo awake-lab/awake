@@ -22,6 +22,18 @@ import io.ygdrasil.webgpu.GPUIndexFormat
  * equivalent (buffer memory is managed internally, no separate allocation object to hold a
  * handle to) and just mirror their buffer's handle. [runOneTimeCommands] is unused for the
  * same reason.
+ *
+ * [lineIndexBuffer]/[lineIndexCount] are a second, `LineList`-topology index buffer derived
+ * from [indices] -- each triangle's 3 edges become 2-index line entries (shared edges between
+ * adjacent triangles are emitted twice, same overdraw a Vulkan `VK_POLYGON_MODE_LINE` pipeline
+ * already produces for the same reason: no half-edge/adjacency structure is built to dedupe
+ * them). `Renderer.wireframe`'s WebGPU implementation binds these instead of [indexBuffer]
+ * against a `LineList` pipeline -- see that class's own doc comment for why this approach (not
+ * a barycentric-coordinate fragment shader) was chosen: WebGPU has no polygon-mode-line
+ * equivalent, and this reuses the exact same vertex buffer/shader, only the index buffer and
+ * pipeline topology differ. Built unconditionally (like [indexBuffer] itself), not lazily on
+ * first wireframe use -- keeps this class's resource lifecycle a single, unconditional init
+ * block instead of a second lazy-build path a mesh's caller would need to remember to trigger.
  */
 class Mesh(
     graphicsDevice: GraphicsDevice,
@@ -35,6 +47,8 @@ class Mesh(
     var indexBuffer: BufferHandle
     var indexBufferMemory: DeviceMemoryHandle
     val indexCount: Int = indices.size
+    var lineIndexBuffer: BufferHandle
+    val lineIndexCount: Int
 
     init {
         val device = graphicsDevice.wgpuContext.device
@@ -60,6 +74,17 @@ class Mesh(
         val indexHandle = WebGpuHandles.register(rawIndexBuffer)
         indexBuffer = BufferHandle(indexHandle)
         indexBufferMemory = DeviceMemoryHandle(indexHandle)
+
+        val lineIndices = triangleIndicesToLineIndices(indices)
+        lineIndexCount = lineIndices.size
+        val rawLineIndexBuffer: GPUBuffer = device.createBuffer(
+            BufferDescriptor(
+                size = (lineIndices.size * Int.SIZE_BYTES).toULong(),
+                usage = GPUBufferUsage.Index or GPUBufferUsage.CopyDst
+            )
+        )
+        device.queue.writeBuffer(rawLineIndexBuffer, 0uL, fastArrayBufferOf(lineIndices))
+        lineIndexBuffer = BufferHandle(WebGpuHandles.register(rawLineIndexBuffer))
     }
 
     override fun bind(commandBuffer: Long) {
@@ -73,7 +98,31 @@ class Mesh(
     override fun destroy() {
         WebGpuHandles.release(vertexBuffer.handle)
         WebGpuHandles.release(indexBuffer.handle)
+        WebGpuHandles.release(lineIndexBuffer.handle)
     }
+}
+
+/** One (start, end) index pair per triangle edge, 3 edges per triangle -- see [Mesh]'s own
+ * `lineIndexBuffer` doc comment for the overdraw/no-dedup rationale. */
+internal fun triangleIndicesToLineIndices(indices: IntArray): IntArray {
+    val triangleCount = indices.size / 3
+    val lineIndices = IntArray(triangleCount * 6)
+    var triangle = 0
+    while (triangle < triangleCount) {
+        val base = triangle * 3
+        val i0 = indices[base]
+        val i1 = indices[base + 1]
+        val i2 = indices[base + 2]
+        val out = triangle * 6
+        lineIndices[out] = i0
+        lineIndices[out + 1] = i1
+        lineIndices[out + 2] = i1
+        lineIndices[out + 3] = i2
+        lineIndices[out + 4] = i2
+        lineIndices[out + 5] = i0
+        triangle += 1
+    }
+    return lineIndices
 }
 
 // Referenced by Renderer.kt (same source set) -- GPUIndexFormat isn't derivable from an

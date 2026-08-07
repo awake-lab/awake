@@ -36,6 +36,7 @@ internal object GltfViewerDemo {
     private var followTargetEntity: Entity? = null
     private var panningEntity: Entity? = null
     private var showAimMarkers = false
+    private var wireframeEnabled = false
 
     private var normalizedInterleaved: FloatArray? = null
     private var modelRadius = 1f
@@ -85,6 +86,7 @@ internal object GltfViewerDemo {
             }
             cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "gltf") }
             showAimMarkers = scope.shadcnSwitch(id = "gltf-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
+            wireframeEnabled = scope.shadcnSwitch(id = "gltf-wireframe", checked = wireframeEnabled, label = "Wireframe")
         },
         onActivate = { ensureSpawned(this) },
         onDeactivate = { world ->
@@ -101,6 +103,7 @@ internal object GltfViewerDemo {
         onUpdate = { delta ->
             ensureSpawned(this)
 
+            renderer.wireframe = wireframeEnabled
             renderer.drawReferenceGrid()
 
             val fte = followTargetEntity ?: world.create().also {

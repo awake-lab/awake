@@ -12,6 +12,7 @@ fun createScene3DPlaygroundWebGpuApplication(): WebGpuGameApplication {
     return WebGpuGameApplication(
         shaderSet = Scene3DPlaygroundShaders,
         vertexFormat = VertexFormat.PositionNormalColor,
-        game = scene3DPlayground()
+        game = scene3DPlayground(),
+        wireframeSupport = true
     )
 }
