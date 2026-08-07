@@ -23,7 +23,9 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 
 private const val TOGGLE_WIDTH_PX = 44f
 private const val TOGGLE_HEIGHT_PX = 24f
-private const val TOGGLE_KNOB_INSET_PX = 2f
+// Dp, not raw px: added to/subtracted from `trackSlot` coordinates that are already
+// density-scaled, so a raw literal would render a half-size inset at 2x.
+private val TOGGLE_KNOB_INSET = 2f.dp
 // Dp, not raw px: it is added to `trackSlot`/`surface.interaction.slot` coordinates that are
 // already density-scaled, so a raw literal would render a half-size gap at 2x.
 private val TOGGLE_LABEL_GAP = 8f.dp
@@ -79,14 +81,15 @@ fun UiScope.switch(
             borderColor = surface.resolved.borderColor ?: theme.colors.border,
             shapeSpec = UiShapeSpec.Pill
         )
-        val knobDiameter = trackSlot.height - TOGGLE_KNOB_INSET_PX * 2f
+        val knobInsetPx = TOGGLE_KNOB_INSET.toPx()
+        val knobDiameter = trackSlot.height - knobInsetPx * 2f
         val knobX = if (newChecked) {
-            trackSlot.x + trackSlot.width - TOGGLE_KNOB_INSET_PX - knobDiameter
+            trackSlot.x + trackSlot.width - knobInsetPx - knobDiameter
         } else {
-            trackSlot.x + TOGGLE_KNOB_INSET_PX
+            trackSlot.x + knobInsetPx
         }
         emitFillAndBorder(
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, trackSlot.y + TOGGLE_KNOB_INSET_PX, knobDiameter, knobDiameter)
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, trackSlot.y + knobInsetPx, knobDiameter, knobDiameter)
                 .toSlot(),
             fillColor = theme.colors.background,
             radiusPx = 0f,

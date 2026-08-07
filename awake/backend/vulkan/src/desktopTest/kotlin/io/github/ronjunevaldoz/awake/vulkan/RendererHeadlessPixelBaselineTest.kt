@@ -131,25 +131,29 @@ class RendererHeadlessPixelBaselineTest {
             renderer.renderToTexture(target, camera, listOf(DrawCall(createdMesh, createdMaterial)))
             val pixels = runBlocking { renderer.readPixels(target) }
 
-            val baseline = runBlocking { readResourceBytes(BASELINE_RESOURCE_PATH) }
-            val result = comparePixels(pixels.data, baseline)
-            if (!result.matches) {
-                // Dump both PNGs next to the test's own failure output so a developer can
-                // actually look at what rendered, instead of only reading a diff-pixel count --
-                // findable from the assertion message below without digging through Gradle's
-                // build directory structure.
-                val failureDir = File("build/test-failures/RendererHeadlessPixelBaselineTest").apply { mkdirs() }
-                val actualPngFile = File(failureDir, "actual.png")
-                val baselinePngFile = File(failureDir, "baseline.png")
-                writeRgbaPng(pixels.data, TARGET_SIZE, TARGET_SIZE, actualPngFile)
-                writeRgbaPng(baseline, TARGET_SIZE, TARGET_SIZE, baselinePngFile)
-                assertTrue(
-                    false,
-                    "Headless cube render diverged from baseline: ${result.diffPixelCount} pixels differ " +
-                        "(max channel diff ${result.maxChannelDiff}). Compare ${actualPngFile.absolutePath} " +
-                        "against ${baselinePngFile.absolutePath}. Re-record $BASELINE_RESOURCE_PATH if this " +
-                    "divergence is an intentional rendering change."
-                )
+            if (System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.toBoolean() == true) {
+                File("src/desktopTest/resources/$BASELINE_RESOURCE_PATH").writeBytes(pixels.data)
+            } else {
+                val baseline = runBlocking { readResourceBytes(BASELINE_RESOURCE_PATH) }
+                val result = comparePixels(pixels.data, baseline)
+                if (!result.matches) {
+                    // Dump both PNGs next to the test's own failure output so a developer can
+                    // actually look at what rendered, instead of only reading a diff-pixel count --
+                    // findable from the assertion message below without digging through Gradle's
+                    // build directory structure.
+                    val failureDir = File("build/test-failures/RendererHeadlessPixelBaselineTest").apply { mkdirs() }
+                    val actualPngFile = File(failureDir, "actual.png")
+                    val baselinePngFile = File(failureDir, "baseline.png")
+                    writeRgbaPng(pixels.data, TARGET_SIZE, TARGET_SIZE, actualPngFile)
+                    writeRgbaPng(baseline, TARGET_SIZE, TARGET_SIZE, baselinePngFile)
+                    assertTrue(
+                        false,
+                        "Headless cube render diverged from baseline: ${result.diffPixelCount} pixels differ " +
+                            "(max channel diff ${result.maxChannelDiff}). Compare ${actualPngFile.absolutePath} " +
+                            "against ${baselinePngFile.absolutePath}. Re-record $BASELINE_RESOURCE_PATH if this " +
+                        "divergence is an intentional rendering change."
+                    )
+                }
             }
 
             // Regression coverage for DrawCall's documented "mesh/material may be shared"

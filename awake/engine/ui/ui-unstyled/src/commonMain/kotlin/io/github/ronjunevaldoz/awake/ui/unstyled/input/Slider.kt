@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.pointerDown
 import io.github.ronjunevaldoz.awake.ui.pointerX
@@ -25,8 +26,10 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.*
 import io.github.ronjunevaldoz.awake.ui.style.*
 
-private const val SLIDER_TRACK_HEIGHT_PX = 6f
-private const val SLIDER_KNOB_DIAMETER_PX = 20f
+// Dp, not raw px: added to/subtracted from `slot`/`trackSlot` coordinates that are already
+// density-scaled, so a raw literal would render half-size at 2x.
+private val SLIDER_TRACK_HEIGHT = 6f.dp
+private val SLIDER_KNOB_DIAMETER = 20f.dp
 fun UiScope.slider(
     id: String,
     min: Float,
@@ -44,6 +47,8 @@ fun UiScope.slider(
         enabled = enabled
     )
     val slot = interaction.slot
+    val trackHeightPx = SLIDER_TRACK_HEIGHT.toPx()
+    val knobDiameterPx = SLIDER_KNOB_DIAMETER.toPx()
     val pointerDown = pointerDown()
     // Track (and thus the knob's travel range) is inset by half the knob's own diameter on
     // each side -- a knob centered at fraction 0 or 1 on a *full-width* track would extend
@@ -51,7 +56,7 @@ fun UiScope.slider(
     // parent that clips content (a real reported bug: "knob cut when reach start or end").
     // Drag mapping below uses this same inset range so the pointer-to-value conversion matches
     // where the knob is actually drawn.
-    val trackInsetPx = if (showKnob) SLIDER_KNOB_DIAMETER_PX / 2f else 0f
+    val trackInsetPx = if (showKnob) knobDiameterPx / 2f else 0f
     val trackX = slot.x + trackInsetPx
     val trackWidth = (slot.width - trackInsetPx * 2f).coerceAtLeast(0f)
     // `isActive(id)` can only ever be true here if `interact()` above claimed it, which it
@@ -76,9 +81,9 @@ fun UiScope.slider(
     )
     val trackSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         trackX,
-        slot.y + (slot.height - SLIDER_TRACK_HEIGHT_PX) / 2f,
+        slot.y + (slot.height - trackHeightPx) / 2f,
         trackWidth,
-        SLIDER_TRACK_HEIGHT_PX
+        trackHeightPx
     ).toSlot()
     val fraction = ((newValue - min) / (max - min)).coerceIn(0f, 1f)
     val handleWidth = (trackSlot.width * fraction).coerceAtLeast(0f)
@@ -104,10 +109,10 @@ fun UiScope.slider(
         if (showKnob) {
             paintSurface(
                 slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-                    knobCenterX - SLIDER_KNOB_DIAMETER_PX / 2f,
-                    slot.y + (slot.height - SLIDER_KNOB_DIAMETER_PX) / 2f,
-                    SLIDER_KNOB_DIAMETER_PX,
-                    SLIDER_KNOB_DIAMETER_PX
+                    knobCenterX - knobDiameterPx / 2f,
+                    slot.y + (slot.height - knobDiameterPx) / 2f,
+                    knobDiameterPx,
+                    knobDiameterPx
                 ).toSlot(),
                 resolved = surface.resolved.copy(
                     borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,

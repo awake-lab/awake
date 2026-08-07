@@ -231,25 +231,29 @@ class RotatingCubePixelBaselineTest {
                 renderer.renderToTexture(target, camera, listOf(DrawCall(createdMesh, createdMaterial, cubeModel)))
                 val pixels = runBlocking { renderer.readPixels(target) }
 
-                val baseline = runBlocking { readResourceBytes(case.baselineResourcePath) }
-                val result = comparePixels(pixels.data, baseline)
-                if (!result.matches) {
-                    // Same "dump both PNGs" convenience RendererHeadlessPixelBaselineTest's own
-                    // failure branch uses -- findable from the assertion message without digging
-                    // through Gradle's build directory structure.
-                    val failureDir = File("build/test-failures/${case.failureDirName}").apply { mkdirs() }
-                    val actualPngFile = File(failureDir, "actual.png")
-                    val baselinePngFile = File(failureDir, "baseline.png")
-                    writeRgbaPng(pixels.data, TARGET_SIZE, TARGET_SIZE, actualPngFile)
-                    writeRgbaPng(baseline, TARGET_SIZE, TARGET_SIZE, baselinePngFile)
-                    assertTrue(
-                        false,
-                        "Headless rotating-cube render (hours=${case.hours}) diverged from baseline: " +
-                            "${result.diffPixelCount} pixels differ (max channel diff ${result.maxChannelDiff}). " +
-                            "Compare ${actualPngFile.absolutePath} against ${baselinePngFile.absolutePath}. " +
-                            "Re-record ${case.baselineResourcePath} if this divergence is an intentional " +
-                            "rendering change."
-                    )
+                if (System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.toBoolean() == true) {
+                    File("src/desktopTest/resources/${case.baselineResourcePath}").writeBytes(pixels.data)
+                } else {
+                    val baseline = runBlocking { readResourceBytes(case.baselineResourcePath) }
+                    val result = comparePixels(pixels.data, baseline)
+                    if (!result.matches) {
+                        // Same "dump both PNGs" convenience RendererHeadlessPixelBaselineTest's own
+                        // failure branch uses -- findable from the assertion message without digging
+                        // through Gradle's build directory structure.
+                        val failureDir = File("build/test-failures/${case.failureDirName}").apply { mkdirs() }
+                        val actualPngFile = File(failureDir, "actual.png")
+                        val baselinePngFile = File(failureDir, "baseline.png")
+                        writeRgbaPng(pixels.data, TARGET_SIZE, TARGET_SIZE, actualPngFile)
+                        writeRgbaPng(baseline, TARGET_SIZE, TARGET_SIZE, baselinePngFile)
+                        assertTrue(
+                            false,
+                            "Headless rotating-cube render (hours=${case.hours}) diverged from baseline: " +
+                                "${result.diffPixelCount} pixels differ (max channel diff ${result.maxChannelDiff}). " +
+                                "Compare ${actualPngFile.absolutePath} against ${baselinePngFile.absolutePath}. " +
+                                "Re-record ${case.baselineResourcePath} if this divergence is an intentional " +
+                                "rendering change."
+                        )
+                    }
                 }
             }
         } finally {

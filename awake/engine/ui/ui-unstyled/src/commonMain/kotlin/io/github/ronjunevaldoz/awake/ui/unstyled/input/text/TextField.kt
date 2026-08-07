@@ -35,7 +35,9 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 
 
 private const val TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS = 1f
-private const val TEXT_FIELD_CARET_WIDTH_PX = 1.5f
+// Dp, not raw px: used as the caret rect's width against `textContentSlot`, which is already
+// density-scaled, so a raw literal would render a half-size caret at 2x.
+private val TEXT_FIELD_CARET_WIDTH = 1.5f.dp
 
 /**
  * Single-line text input -- immediate-mode like every other widget here: caller passes the
@@ -238,7 +240,7 @@ fun UiScope.textField(
                     slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
                         caretX,
                         textContentSlot.y,
-                        TEXT_FIELD_CARET_WIDTH_PX,
+                        TEXT_FIELD_CARET_WIDTH.toPx(),
                         textContentSlot.height
                     ).toSlot(),
                     fillColor = surface.resolved.foreground ?: theme.colors.foreground,
