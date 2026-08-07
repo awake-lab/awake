@@ -34,7 +34,13 @@ internal fun SceneGameRuntime.drawStudioShell(store: StudioStore, viewportWidth:
             horizontalArrangement = Arrangement.spacedBy(0f.dp),
             modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax).padding(8.dp),
         ) {
-            drawIconRail()
+            drawIconRail(
+                activeTool = store.state.value.toolRail.activeTool,
+                onSelectTool = { store.dispatch(StudioContract.Intent.SelectTool(it)) },
+                // Re-selecting the active example queues LoadExample, which tears the scene
+                // down and re-instantiates it -- reset without a dedicated intent.
+                onResetExample = { store.dispatch(StudioContract.Intent.SelectExample(store.state.value.examples.activeExampleId)) },
+            )
             drawExampleRail(
                 activeExampleId = store.state.value.examples.activeExampleId,
                 onSelectExample = { store.dispatch(StudioContract.Intent.SelectExample(it)) },

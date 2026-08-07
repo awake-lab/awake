@@ -34,6 +34,17 @@ class StudioStoreTest {
     }
 
     @Test
+    fun selectToolUpdatesRailStateWithoutQueuingAnEffect() {
+        val store = StudioStore()
+        assertEquals(StudioContract.Tool.Layers, store.state.value.toolRail.activeTool)
+
+        store.dispatch(StudioContract.Intent.SelectTool(StudioContract.Tool.History))
+
+        assertEquals(StudioContract.Tool.History, store.state.value.toolRail.activeTool)
+        assertTrue(store.drainEffects().isEmpty())
+    }
+
+    @Test
     fun selectEntityUpdatesInspectorStateWithoutQueuingAnEffect() {
         val store = StudioStore()
 

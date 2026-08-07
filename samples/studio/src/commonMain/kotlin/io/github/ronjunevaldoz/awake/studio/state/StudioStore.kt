@@ -24,6 +24,10 @@ internal class StudioStore {
             is StudioContract.Intent.SelectEntity -> {
                 _state.update { it.copy(inspector = it.inspector.copy(selectedEntityId = intent.id)) }
             }
+
+            is StudioContract.Intent.SelectTool -> {
+                _state.update { it.copy(toolRail = it.toolRail.copy(activeTool = intent.tool)) }
+            }
         }
     }
 
