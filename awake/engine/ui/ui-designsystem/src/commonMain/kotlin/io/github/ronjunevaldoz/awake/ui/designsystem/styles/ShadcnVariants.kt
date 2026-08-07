@@ -13,12 +13,14 @@ enum class ShadcnButtonVariant {
 
 // Mirrors real shadcn's ButtonSize axis (Xs/Sm/Md/Lg/Icon). Height only -- width still
 // comes from the caller's modifier or content, same as every other Awake button call site.
+// Md/Lg/Icon match shadcn's own h-9/h-10/size-9 (36/40/36px) -- Xs/Sm have no direct shadcn
+// counterpart and are kept as this module's existing custom scale.
 enum class ShadcnButtonSize(val heightDp: Float) {
     Xs(28f),
     Sm(32f),
-    Md(40f),
-    Lg(44f),
-    Icon(40f)
+    Md(36f),
+    Lg(40f),
+    Icon(36f)
 }
 
 enum class ShadcnBadgeVariant {

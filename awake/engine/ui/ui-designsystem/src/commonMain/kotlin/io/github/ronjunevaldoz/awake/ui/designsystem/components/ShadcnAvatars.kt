@@ -27,12 +27,11 @@ import io.github.ronjunevaldoz.awake.ui.style.*
 /** Mirrors real shadcn-compose's `ShadcnAvatarSize` (`Sm`/`Default`/`Lg`): drives both the
  * avatar's box diameter AND its [shadcnAvatarBadge]/initials text size together, so a caller
  * picking `Lg` gets bigger initials automatically instead of a bigger circle with the same
- * tiny text. [boxSize] matches this module's pre-existing 40dp default avatar diameter for
- * [Default] so callers that don't opt into a size see no visual change. */
+ * tiny text. [boxSize] matches shadcn's own `size-6`/`size-8`/`size-10` (24/32/40px). */
 enum class ShadcnAvatarSize(val boxSize: Dp, val textSize: Sp, val badgeSize: Dp) {
     Sm(24f.dp, ShadcnTheme.typography.caption, 8f.dp),
-    Default(40f.dp, ShadcnTheme.typography.label, 10f.dp),
-    Lg(56f.dp, ShadcnTheme.typography.body, 12f.dp)
+    Default(32f.dp, ShadcnTheme.typography.label, 10f.dp),
+    Lg(40f.dp, ShadcnTheme.typography.body, 12f.dp)
 }
 
 private fun shadcnAvatarStyle(theme: UiTheme, size: ShadcnAvatarSize, style: Style): Style {

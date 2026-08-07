@@ -39,7 +39,7 @@ fun UiScope.shadcnSelect(
     val triggerStyle = shadcnFieldStyle(theme, style)
     val trigger = buttonSlot(
         id = "$id.trigger",
-        modifier = modifier.height(40f.dp),
+        modifier = modifier.height(36f.dp),
         style = triggerStyle
     ) { }
     if (trigger.clicked) {
