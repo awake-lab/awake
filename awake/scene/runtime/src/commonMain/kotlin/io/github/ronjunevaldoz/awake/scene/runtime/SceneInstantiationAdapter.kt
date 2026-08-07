@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.components.Light
 import io.github.ronjunevaldoz.awake.scene.components.Name
 import io.github.ronjunevaldoz.awake.scene.components.PbrMaterial
+import io.github.ronjunevaldoz.awake.scene.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.components.Transform
 import kotlin.math.PI
 import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
@@ -49,6 +50,7 @@ class AwakeWorldSceneAdapter(
             is SceneCamera -> world.add(node, component.toComponent())
             is SceneLight -> world.add(node, component.toComponent())
             is ScenePbrMaterial -> world.add(node, component.toComponent())
+            is SceneSpinControl -> world.add(node, component.toComponent())
             // Mesh and material are live GPU handles the loader can't build; the caller resolves
             // these against its own renderer (see SceneRenderableRequest).
             is SceneMeshRenderer -> {
@@ -96,6 +98,11 @@ internal fun ScenePbrMaterial.toComponent(): PbrMaterial = PbrMaterial(
     metallic = metallic,
     roughness = roughness,
 )
+
+internal fun SceneSpinControl.toComponent(): SpinControl = SpinControl().also {
+    it.radians = radians
+    it.speed = speed
+}
 
 internal fun SceneVec3.toVec3(): Vec3 = Vec3(x, y, z)
 

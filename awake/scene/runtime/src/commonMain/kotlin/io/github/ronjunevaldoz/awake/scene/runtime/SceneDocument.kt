@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 
 /** Bumped whenever a change to this model can't be read by the previous loader. Adding a new
  * [SceneComponent] does NOT need a bump: unknown entries are rejected loudly by
@@ -52,6 +54,12 @@ data class SceneVec3(
  * Closed polymorphism, so kotlinx resolves it at compile time with no `SerializersModule`.
  */
 @Serializable
+// "component", not the default "type": SceneLight already has its own `type` field, and
+// kotlinx refuses to serialize a subclass whose property collides with the discriminator.
+// Renaming that one field would only defer the clash to the next component with a `type`.
+// Declared on the type rather than in SceneJson so a caller-supplied Json still round-trips.
+@OptIn(ExperimentalSerializationApi::class)
+@JsonClassDiscriminator("component")
 sealed interface SceneComponent
 
 @Serializable
@@ -88,6 +96,13 @@ data class SceneLight(
 data class SceneMeshRenderer(
     val mesh: String,
     val material: String,
+) : SceneComponent
+
+@Serializable
+@SerialName("spinControl")
+data class SceneSpinControl(
+    val radians: Float = 0f,
+    val speed: Float = 1f,
 ) : SceneComponent
 
 @Serializable

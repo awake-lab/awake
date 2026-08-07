@@ -52,24 +52,40 @@ files still load.
 
 Adding a new `SceneComponent` does not need a bump.
 
+## Discriminator
+
+`SceneComponent` sets `@JsonClassDiscriminator("component")`. The kotlinx default is
+`type`, which `SceneLight.type` collides with — kotlinx refuses to serialize a subclass
+whose property shadows the discriminator. Renaming that one field would only defer the
+clash to the next component with a `type`. It's declared on the type, not in `SceneJson`,
+so a caller-supplied `Json` still round-trips.
+
+## The rotating cube loads from a file (done)
+
+`assets/scenes/rotating-cube.scene.json` describes the camera, cube, ground, and light.
+`RotatingCubeDemo.onActivate` calls `SceneLoader.instantiate`, resolves renderables through
+`SceneAssetLibrary`, and looks its entities up by name. Procedural geometry works unchanged:
+`assets { mesh("cube") { ... } }` registers a factory, so the file references `"cube"` the
+same way it would reference a model.
+
+The document is loaded in the scene DSL's `onReady` because `readResourceBytes` is suspend
+and `onActivate` is not — the same reason `Duck.gltf` preloads there.
+
 ## What's still missing
 
-**1. Component coverage.** `SpinControl` and `CameraComponent`'s mode still have no
-`SceneComponent`. `PbrMaterial` now does.
+**1. Camera mode.** `CameraComponent` lives in `:awake:scene:controls`, which
+`:awake:scene:runtime` does not depend on. Serializing it would invert that layering, so it
+needs a decision rather than a quick field.
 
-**2. No demo loads from a document.** Every one builds entities imperatively in
-`onActivate`. `SceneLoader.instantiate` has no production caller.
+**2. The other two demos** still build entities imperatively.
 
 **3. No save path.** `encode` exists, but nothing writes a file — there's no
-platform-neutral file-write in `awake:base`, only `readResourceBytes`.
+platform-neutral file-write in `awake:base`, only `readResourceBytes`. Deliberately not
+built yet: nothing calls it until there's an editor to save from.
 
 ## Order to build the rest
 
-1. **Add the remaining components** as `SceneComponent` subtypes. Each is now additive: a
-   new subtype plus an adapter branch the compiler demands.
-2. **Migrate one demo** — the rotating cube uses `Transform`, `MeshRenderer`,
-   `SpinControl`, `PbrMaterial`, `Camera`, and `Light`, so it exercises everything at once.
-   Keep the imperative path until the loaded scene matches it visually, then delete it.
-3. **Add a write path** to `awake:base` (`expect fun writeFile`). Desktop first; web needs
-   a download or origin-private-filesystem shim.
-4. **Migrate the rest** and make the demo registry a list of scene files.
+1. **Migrate the remaining demos**, then make the demo registry a list of scene files.
+2. **Decide camera mode's home** — either move `CameraComponent` down into
+   `:awake:scene:rendering`, or let the sample own that component's serialization.
+3. **Add a write path** when an editor needs one, not before.

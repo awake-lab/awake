@@ -98,6 +98,12 @@ object SceneValidator {
                 }
             }
 
+            is SceneSpinControl -> {
+                if (component.speed < 0f) {
+                    issues += SceneValidationIssue(path, "spinControl.speed must not be negative")
+                }
+            }
+
             is SceneLight -> Unit
         }
     }

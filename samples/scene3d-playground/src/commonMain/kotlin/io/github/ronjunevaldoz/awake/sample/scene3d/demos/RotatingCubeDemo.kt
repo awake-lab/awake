@@ -5,17 +5,13 @@ package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.ecs.Entity
-import io.github.ronjunevaldoz.awake.render.material.Material
-import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
-import io.github.ronjunevaldoz.awake.scene.components.Light
-import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.components.SpinControl
-import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneDocument
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
@@ -30,7 +26,7 @@ internal object RotatingCubeDemo {
     private var cameraEntity: Entity? = null
 
     private var wireframe = false
-    private val cubeMaterialParams = PbrMaterial()
+    private var cubeMaterialParams: PbrMaterial? = null
     private var spinRadians = 0f
 
     private var panningEntity: Entity? = null
@@ -39,19 +35,22 @@ internal object RotatingCubeDemo {
     private val timeController = ManualTimeController()
     private var displayGroupExpanded = false
 
-    private var cubeMesh: Mesh? = null
-    private var material: Material? = null
     private var cubeEntity: Entity? = null
     private var lightEntity: Entity? = null
 
-    private var groundMesh: Mesh? = null
     private var groundEntity: Entity? = null
 
     private const val CUBE_REST_HEIGHT = 0.5f
 
     /** mvp(16) + lightDirection(4) + lightColor(4) + lightMvp(16) + model(16) +
      * cameraPosition(4) + material(4). Must match `lit_shadow.wgsl`'s Uniforms field order. */
-    private const val LIT_SHADOW_UNIFORM_FLOAT_COUNT = 64
+    private var document: SceneDocument? = null
+
+    /** The scene document's byte load is suspend, so it happens once in the scene DSL's
+     * onReady rather than in the per-frame [Scene3DDemo.onActivate] hook. */
+    suspend fun preload() {
+        if (document == null) document = SceneLoader.loadFromResource("assets/scenes/rotating-cube.scene.json")
+    }
 
     val entry = Scene3DDemo(
         id = "rotating-cube",
@@ -81,60 +80,42 @@ internal object RotatingCubeDemo {
                     enabled = !timeController.autoPlay,
                 )
                 text(label = "Turn off Auto-spin to freeze the cube at an exact time (0-24h = one full turn).")
-                cubeMaterialParams.metallic = shadcnFieldSliderWithValue(
-                    id = "cube-metallic",
-                    label = "Metallic",
-                    min = 0f,
-                    max = 1f,
-                    value = cubeMaterialParams.metallic,
-                )
-                cubeMaterialParams.roughness = shadcnFieldSliderWithValue(
-                    id = "cube-roughness",
-                    label = "Roughness",
-                    min = 0f,
-                    max = 1f,
-                    value = cubeMaterialParams.roughness,
-                )
+                cubeMaterialParams?.let { pbr ->
+                    pbr.metallic = shadcnFieldSliderWithValue(
+                        id = "cube-metallic",
+                        label = "Metallic",
+                        min = 0f,
+                        max = 1f,
+                        value = pbr.metallic,
+                    )
+                    pbr.roughness = shadcnFieldSliderWithValue(
+                        id = "cube-roughness",
+                        label = "Roughness",
+                        min = 0f,
+                        max = 1f,
+                        value = pbr.roughness,
+                    )
+                }
             }
         },
         onActivate = {
-            if (cubeMesh == null) cubeMesh = renderer.createMesh(rotatingCubeGeometry)
-            if (groundMesh == null) groundMesh = renderer.createMesh(rotatingGroundPlaneGeometry)
-            // Shared by both the cube and the ground plane -- Material already supports
-            // multiple draw calls per frame (see its own uniformSlotsByFrame/materialUsage
-            // doc comments), so one lit+shadow material covers every primary-format entity
-            // this demo draws.
-            if (material == null) material = renderer.createMaterial(uniformFloatCount = LIT_SHADOW_UNIFORM_FLOAT_COUNT)
             spinRadians = 0f
             timeController.reset()
-            val cube = world.create()
-            world.add(cube, Transform().apply { position.set(cubeWorldPosition()) })
-            world.add(cube, SpinControl().apply { radians = spinRadians })
-            world.add(cube, MeshRenderer(cubeMesh!!, material!!))
-            world.add(cube, cubeMaterialParams)
-            cubeEntity = cube
 
-            val ground = world.create()
-            world.add(ground, Transform())
-            world.add(ground, MeshRenderer(groundMesh!!, material!!))
-            groundEntity = ground
+            val instance = SceneLoader.instantiate(requireNotNull(document), world)
+            val library = requireAssetLibrary()
+            instance.renderableRequests.forEach { request ->
+                world.add(request.entity, library.resolve(this, request))
+            }
 
-            val cam = world.create()
-            world.add(
-                cam,
-                Camera(
-                    io.github.ronjunevaldoz.awake.core.math.Camera(
-                        eye = Vec3(0f, 5f, 10f),
-                        center = cubeWorldPosition(),
-                        fovYRadians = 45f * (PI / 180.0).toFloat(),
-                        near = 0.1f,
-                        far = 100f,
-                    ),
-                ),
-            )
-            cameraEntity = cam
-
-            lightEntity = world.create().also { world.add(it, Light()) }
+            val byName = instance.roots.associateBy { it.name }
+            cubeEntity = byName.getValue("cube").entity
+            groundEntity = byName.getValue("ground").entity
+            cameraEntity = byName.getValue("camera").entity
+            lightEntity = byName.getValue("light").entity
+            // The sliders drive the component the document produced, so edits and the file
+            // stay the same object rather than two copies that can disagree.
+            cubeMaterialParams = world.get<PbrMaterial>(cubeEntity!!)
         },
         onDeactivate = { world ->
             cubeEntity?.let { world.destroy(it) }
@@ -185,3 +166,7 @@ internal object RotatingCubeDemo {
     private const val DEGREES_TO_RADIANS = (PI / 180.0).toFloat()
     private const val HOURS_TO_DEGREES = 360f / 24f
 }
+
+/** mvp(16) + lightDirection(4) + lightColor(4) + lightMvp(16) + model(16) + cameraPosition(4)
+ * + material(4). Must match `lit_shadow.wgsl`'s Uniforms field order. */
+internal const val LIT_SHADOW_UNIFORM_FLOAT_COUNT = 64

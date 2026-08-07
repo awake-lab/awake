@@ -8,7 +8,7 @@
       },
       "components": [
         {
-          "type": "camera",
+          "component": "camera",
           "eye": { "x": 0.0, "y": 0.0, "z": 5.0 },
           "center": { "x": 0.0, "y": 0.0, "z": 0.0 },
           "up": { "x": 0.0, "y": 1.0, "z": 0.0 },
@@ -28,12 +28,12 @@
       },
       "components": [
         {
-          "type": "meshRenderer",
+          "component": "meshRenderer",
           "mesh": "cube",
           "material": "textured-default"
         },
         {
-          "type": "pbrMaterial",
+          "component": "pbrMaterial",
           "metallic": 0.0,
           "roughness": 0.35
         }

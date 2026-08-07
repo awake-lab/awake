@@ -7,8 +7,11 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.engine.application.GameModule
 import io.github.ronjunevaldoz.awake.engine.application.gameModule
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.GltfViewerDemo
+import io.github.ronjunevaldoz.awake.sample.scene3d.demos.LIT_SHADOW_UNIFORM_FLOAT_COUNT
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
+import io.github.ronjunevaldoz.awake.sample.scene3d.demos.rotatingCubeGeometry
+import io.github.ronjunevaldoz.awake.sample.scene3d.demos.rotatingGroundPlaneGeometry
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.scene
 import io.github.ronjunevaldoz.awake.scene.runtime.systems.cameraInputSystem
@@ -81,7 +84,16 @@ internal fun scene3DPlaygroundModule(): GameModule {
             // regardless of which demo page is active at startup, so GltfViewerDemo.onActivate
             // (a plain non-suspend per-frame hook) only ever touches the already-parsed scene.
             // CesiumMan.gltf's own preload follows the exact same reason.
+            // Registered by name so a scene file can reference procedural geometry the same way
+            // it references a model file -- SceneAssetLibrary caches per name, so the cube and
+            // the ground share one material instance exactly as the imperative version did.
+            assets {
+                mesh("cube") { renderer.createMesh(rotatingCubeGeometry) }
+                mesh("ground") { renderer.createMesh(rotatingGroundPlaneGeometry) }
+                material("lit-shadow") { renderer.createMaterial(uniformFloatCount = LIT_SHADOW_UNIFORM_FLOAT_COUNT) }
+            }
             onReady {
+                RotatingCubeDemo.preload()
                 GltfViewerDemo.preload()
                 SkinnedMeshDemo.preload()
             }

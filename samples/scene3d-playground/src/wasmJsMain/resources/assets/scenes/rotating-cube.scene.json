@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "name": "rotating-cube",
+  "nodes": [
+    {
+      "name": "camera",
+      "components": [
+        {
+          "component": "camera",
+          "eye": { "x": 0.0, "y": 5.0, "z": 10.0 },
+          "center": { "x": 0.0, "y": 0.5, "z": 0.0 },
+          "fovYDegrees": 45.0,
+          "near": 0.1,
+          "far": 100.0,
+          "primary": true
+        }
+      ]
+    },
+    {
+      "name": "cube",
+      "transform": { "position": { "x": 0.0, "y": 0.5, "z": 0.0 } },
+      "components": [
+        { "component": "meshRenderer", "mesh": "cube", "material": "lit-shadow" },
+        { "component": "spinControl" },
+        { "component": "pbrMaterial", "metallic": 0.0, "roughness": 0.5 }
+      ]
+    },
+    {
+      "name": "ground",
+      "components": [
+        { "component": "meshRenderer", "mesh": "ground", "material": "lit-shadow" }
+      ]
+    },
+    {
+      "name": "light",
+      "components": [
+        { "component": "light", "type": "Directional" }
+      ]
+    }
+  ]
+}

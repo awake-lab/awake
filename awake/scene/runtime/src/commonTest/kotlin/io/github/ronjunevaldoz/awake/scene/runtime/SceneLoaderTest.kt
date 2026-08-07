@@ -121,6 +121,28 @@ class SceneLoaderTest {
     }
 
     @Test
+    fun everyComponentTypeSurvivesARoundTrip() {
+        // SceneLight in particular: its own `type` field collides with kotlinx's default
+        // polymorphic discriminator, which is why SceneComponent declares a custom one.
+        val document = SceneDocument(
+            nodes = listOf(
+                SceneNode(
+                    name = "all",
+                    components = listOf(
+                        SceneCamera(fovYDegrees = 50f),
+                        SceneLight(type = SceneLight.Type.Directional, intensity = 0.75f),
+                        SceneMeshRenderer(mesh = "m", material = "mat"),
+                        ScenePbrMaterial(metallic = 1f, roughness = 0.2f),
+                        SceneSpinControl(radians = 1.5f, speed = 2f),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(document, SceneLoader.decode(SceneLoader.encode(document)))
+    }
+
+    @Test
     fun decodeRejectsADocumentFromANewerSchema() {
         val future = SceneLoader.encode(SceneDocument(version = SCENE_SCHEMA_VERSION + 1))
 
