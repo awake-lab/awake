@@ -16,9 +16,11 @@ import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.surfaceFramebufferExtent
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
+import io.github.ronjunevaldoz.awake.vulkan.texture.ShadowMap
 
 /**
  * Reusable Vulkan game bootstrap (see docs/MVP_PLAN.md's Decision Log: "reusable-Application
@@ -55,7 +57,15 @@ class VulkanGameApplication(
      * [skinnedShaderSet]/[texturedShaderSet]. Requires the device's `fillModeNonSolid`
      * feature -- see `RenderPipeline`'s own `polygonMode` doc comment for why that's already
      * satisfied whenever the GPU supports it, no extra wiring needed here. */
-    private val wireframeSupport: Boolean = false
+    private val wireframeSupport: Boolean = false,
+    /** Opts into the shadow depth pre-pass (see `ShadowMap`/`ShadowRenderPipeline`/
+     * `Renderer.shadowMap`'s own doc comments) -- `null` (default) is the "shadows never
+     * existed" path: no `ShadowMap` is built, [Material]'s descriptor set layout stays its
+     * original 3-binding shape, and [primaryVertexFormat]'s uniform buffer stays 24 floats.
+     * The vertex-shader entry point here must read the SAME [vertexFormat] vertex attributes
+     * as [vertexShaderResourcePath] itself (see `shadow_depth.wgsl`), since both draw the
+     * exact same meshes. */
+    private val shadowShaderSet: GameShaderSet? = null
 ) : GenericGameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -70,7 +80,8 @@ class VulkanGameApplication(
         skinnedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorSkin,
         texturedShaderSet: GameShaderSet? = null,
         texturedVertexFormat: VertexFormat = VertexFormat.PositionNormalColorUv,
-        wireframeSupport: Boolean = false
+        wireframeSupport: Boolean = false,
+        shadowShaderSet: GameShaderSet? = null
     ) : this(
         vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
@@ -82,7 +93,8 @@ class VulkanGameApplication(
         skinnedVertexFormat = skinnedVertexFormat,
         texturedShaderSet = texturedShaderSet,
         texturedVertexFormat = texturedVertexFormat,
-        wireframeSupport = wireframeSupport
+        wireframeSupport = wireframeSupport,
+        shadowShaderSet = shadowShaderSet
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -95,6 +107,8 @@ class VulkanGameApplication(
     private var wireframeTexturedRenderPipeline: RenderPipeline? = null
     private lateinit var lineRenderPipeline: LineRenderPipeline
     private lateinit var transferContext: TransferContext
+    private var shadowMap: ShadowMap? = null
+    private var shadowRenderPipeline: ShadowRenderPipeline? = null
 
     /** Only its [Material.descriptorSetLayout] is ever used -- needed to build
      * [renderPipeline]'s pipeline layout before any real material exists. `createResources`
@@ -113,7 +127,12 @@ class VulkanGameApplication(
             surfaceExtentProvider = { surfaceFramebufferExtent(window) }
         )
         swapchainManager.create()
-        pipelineLayoutMaterial = Material(graphicsDevice)
+        // Built before pipelineLayoutMaterial/renderPipeline: both need this ShadowMap's
+        // existence (not its content -- the shadow pass hasn't run its first frame yet) to
+        // decide whether their shared descriptor set layout declares the extra shadow
+        // bindings (see Material.kt's own shadowMap doc comment).
+        shadowMap = shadowShaderSet?.let { ShadowMap(graphicsDevice) }
+        pipelineLayoutMaterial = Material(graphicsDevice, shadowMap = shadowMap)
 
         // fillPipeline(shaders, format) builds the normal pipeline plus, when wireframeSupport
         // is on, a VK_POLYGON_MODE_LINE companion sharing the exact same loaded ShaderPair --
@@ -186,7 +205,20 @@ class VulkanGameApplication(
             texturedRenderPipeline = texturedFill
             wireframeTexturedRenderPipeline = texturedWireframe
         }
-
+        shadowRenderPipeline = shadowMap?.let { map ->
+            val shaderSet = requireNotNull(shadowShaderSet)
+            ShadowRenderPipeline(
+                graphicsDevice,
+                map.renderPass,
+                pipelineLayoutMaterial.descriptorSetLayout,
+                loadShaderPair(shaderSet.vulkan.vertexResourcePath, shaderSet.vulkan.fragmentResourcePath),
+                // Same vertex layout as the primary pipeline -- it draws the same meshes.
+                vertexFormat,
+                map.size,
+                shaderSet.vulkan.vertexEntryPoint,
+                shaderSet.vulkan.fragmentEntryPoint
+            )
+        }
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
@@ -216,7 +248,9 @@ class VulkanGameApplication(
             loadShaderPair(UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH, UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH),
             loadShaderPair(UI_ROUNDED_QUAD_VERTEX_SHADER_RESOURCE_PATH, UI_ROUNDED_QUAD_FRAGMENT_SHADER_RESOURCE_PATH),
             MAX_FRAMES_IN_FLIGHT,
-            wireframePipelinesByFormat
+            wireframePipelinesByFormat,
+            shadowMap,
+            shadowRenderPipeline
         )
         swapchainManager.createSyncObjects()
 
@@ -249,6 +283,8 @@ class VulkanGameApplication(
         wireframeRenderPipeline?.destroy()
         wireframeSkinnedRenderPipeline?.destroy()
         wireframeTexturedRenderPipeline?.destroy()
+        shadowRenderPipeline?.destroy()
+        shadowMap?.destroy()
         lineRenderPipeline.destroy()
         graphicsDevice.destroy()
     }

@@ -67,6 +67,15 @@ interface Renderer {
      * over a barycentric-coordinate fragment shader. */
     var wireframe: Boolean
 
+    /** Whether the shadow depth pre-pass runs before [draw]'s main pass -- a backend/bootstrap
+     * with no shadow support at all (every backend's default construction path today) simply
+     * ignores this: it exists so a game can offer a "Shadows" toggle without depending on a
+     * concrete backend type. Defaults to `true` so a backend that DOES support shadows shows
+     * them the moment it opts in, matching how a new [Renderer] capability elsewhere in this
+     * interface (e.g. [drawDebugLines]) is on by default rather than requiring an extra call
+     * to enable. */
+    var shadowsEnabled: Boolean
+
     /** Uploads [geometry] as a GPU mesh, on demand -- a game calls this itself for whatever
      * assets it wants, whenever it wants (not something the render bootstrap decides upfront
      * from a constructor-supplied asset list). */

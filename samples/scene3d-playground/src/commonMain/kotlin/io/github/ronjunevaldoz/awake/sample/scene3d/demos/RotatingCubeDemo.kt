@@ -44,7 +44,16 @@ internal object RotatingCubeDemo {
     private var cubeEntity: Entity? = null
     private var lightEntity: Entity? = null
 
+    private var groundMesh: Mesh? = null
+    private var groundEntity: Entity? = null
+
     private const val CUBE_REST_HEIGHT = 0.5f
+
+    /** mvp(16) + lightDirection(4) + lightColor(4) + lightMvp(16) -- see `lit_shadow.wgsl`'s
+     * own Uniforms struct doc comment for why lightMvp is appended last. Only needed by demos
+     * whose entities draw through the primary (shadow-casting/receiving) pipeline -- this is
+     * the only demo in this sample app that does. */
+    private const val LIT_SHADOW_UNIFORM_FLOAT_COUNT = 40
 
     val entry = Scene3DDemo(
         id = "rotating-cube",
@@ -78,7 +87,12 @@ internal object RotatingCubeDemo {
         },
         onActivate = {
             if (cubeMesh == null) cubeMesh = renderer.createMesh(rotatingCubeGeometry)
-            if (material == null) material = renderer.createMaterial()
+            if (groundMesh == null) groundMesh = renderer.createMesh(rotatingGroundPlaneGeometry)
+            // Shared by both the cube and the ground plane -- Material already supports
+            // multiple draw calls per frame (see its own uniformSlotsByFrame/materialUsage
+            // doc comments), so one lit+shadow material covers every primary-format entity
+            // this demo draws.
+            if (material == null) material = renderer.createMaterial(uniformFloatCount = LIT_SHADOW_UNIFORM_FLOAT_COUNT)
             spinRadians = 0f
             timeController.reset()
             val cube = world.create()
@@ -86,7 +100,12 @@ internal object RotatingCubeDemo {
             world.add(cube, SpinControl().apply { radians = spinRadians })
             if (!wireframe) world.add(cube, MeshRenderer(cubeMesh!!, material!!))
             cubeEntity = cube
-            
+
+            val ground = world.create()
+            world.add(ground, Transform())
+            world.add(ground, MeshRenderer(groundMesh!!, material!!))
+            groundEntity = ground
+
             val cam = world.create()
             world.add(cam, Camera(io.github.ronjunevaldoz.awake.core.math.Camera(
                 eye = Vec3(0f, 5f, 10f),
@@ -102,6 +121,8 @@ internal object RotatingCubeDemo {
         onDeactivate = { world ->
             cubeEntity?.let { world.destroy(it) }
             cubeEntity = null
+            groundEntity?.let { world.destroy(it) }
+            groundEntity = null
             lightEntity?.let { world.destroy(it) }
             lightEntity = null
             panningEntity?.let { world.destroy(it) }

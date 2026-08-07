@@ -7,9 +7,14 @@ import io.github.ronjunevaldoz.awake.engine.application.gameShaderSet
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
 
-private val Scene3DPlaygroundShaders = gameShaderSet("triangle")
+// "lit_shadow", not "triangle": this Vulkan-only bootstrap uses the shadow-sampling variant
+// of the scene lit shader (see samples/scene3d-playground/src/commonMain/shaders/
+// lit_shadow.wgsl's own doc comment for why it's a separate file rather than a triangle.wgsl
+// edit -- WebGPU's own bootstrap keeps using "triangle" unmodified).
+private val Scene3DPlaygroundShaders = gameShaderSet("lit_shadow")
 private val Scene3DPlaygroundSkinnedShaders = gameShaderSet("skinned")
 private val Scene3DPlaygroundTexturedShaders = gameShaderSet("textured")
+private val Scene3DPlaygroundShadowShaders = gameShaderSet("shadow_depth")
 
 fun createScene3DPlaygroundVulkanApplication(
     game: AwakeGame = scene3DPlayground()
@@ -20,6 +25,7 @@ fun createScene3DPlaygroundVulkanApplication(
         game = game,
         skinnedShaderSet = Scene3DPlaygroundSkinnedShaders,
         texturedShaderSet = Scene3DPlaygroundTexturedShaders,
-        wireframeSupport = true
+        wireframeSupport = true,
+        shadowShaderSet = Scene3DPlaygroundShadowShaders
     )
 }

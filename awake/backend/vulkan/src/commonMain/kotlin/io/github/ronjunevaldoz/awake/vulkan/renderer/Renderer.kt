@@ -44,8 +44,10 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.texture.OffscreenRenderTarget
+import io.github.ronjunevaldoz.awake.vulkan.texture.ShadowMap
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.vulkan.ui.DynamicMesh
 import io.github.ronjunevaldoz.awake.vulkan.ui.UiGlyphRenderPipeline
@@ -112,9 +114,28 @@ class Renderer(
      * unchanged. A format with no wireframe entry here just keeps drawing filled even with
      * [wireframe] on (see [pipelineFor]) -- it is never skipped the way an unknown-format
      * mesh is. */
-    wireframePipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap()
+    wireframePipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
+    /** Non-null only when the app's bootstrap opted into shadows (see
+     * `VulkanGameApplication`'s own `shadowShaderSet` doc comment) -- both this and
+     * [shadowRenderPipeline] are built once, before this `Renderer`, by whoever constructs it
+     * (mirrors how [renderPipeline] itself is built externally). `null` (default) is the
+     * "shadows never existed" path: every material built by this instance keeps its original
+     * 3-binding descriptor set layout, and [prepareDrawCalls] keeps writing the exact same
+     * 8-float light block it always did -- zero behavior change for every caller that doesn't
+     * opt in. */
+    internal val shadowMap: ShadowMap? = null,
+    internal val shadowRenderPipeline: ShadowRenderPipeline? = null
 ) : RenderRenderer {
     override val clipSpace: ClipSpace = ClipSpace.Vulkan
+
+    /** Whether the shadow depth pre-pass actually runs this frame -- only meaningful when
+     * [shadowMap] is non-null. Toggling this off leaves the shadow map holding whatever depth
+     * it last rendered (or its cleared default of 1.0, "nothing occludes", if never rendered)
+     * instead of re-clearing it -- a frozen last-good shadow rather than a flicker to "always
+     * lit" for one frame.
+     * ponytail: freezes stale shadow content instead of clearing on disable; revisit if that
+     * staleness is ever visible (e.g. toggling off then moving the light). */
+    override var shadowsEnabled: Boolean = true
 
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
 
@@ -320,7 +341,7 @@ class Renderer(
         uniformFloatCount: Int
     ): RenderMaterial {
         require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
-        val material = Material(graphicsDevice, uniformFloatCount)
+        val material = Material(graphicsDevice, uniformFloatCount, shadowMap)
         if (renderTarget != null) {
             val offscreen = renderTarget as OffscreenRenderTarget
             material.createResourcesFromRenderTarget(offscreen.sampler, offscreen.colorImageView)
