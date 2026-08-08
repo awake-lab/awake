@@ -25,6 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /** [shadcnSectionTitle] with Shadcn tokens. */
@@ -61,12 +62,19 @@ fun ColumnScope.shadcnHeadline(
     } then style,
 )
 
-/**Standard body text using Shadcn tokens. */
+/**
+ * Standard body text using Shadcn tokens. Defaults to word-wrap (`text()`'s own default is
+ * single-line `UiTextWrap.None`, sized to the label's full unwrapped width) -- body copy is
+ * prose, not a label, and callers (e.g. `shadcnAccordion`'s per-item content) already constrain
+ * it with `Modifier.fillMaxWidth()` expecting it to wrap into that width rather than claim a
+ * slot far wider than its column and spill into whatever sits next to it.
+ */
 fun ColumnScope.shadcnBodyText(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     maxLines: Int = Int.MAX_VALUE,
+    wrap: UiTextWrap = UiTextWrap.Word,
 ): UiBounds = text(
     label = label,
     modifier = modifier,
@@ -78,6 +86,7 @@ fun ColumnScope.shadcnBodyText(
         textSize(shadcnTheme.typography.body)
     } then style,
     maxLines = maxLines,
+    wrap = wrap,
 )
 
 /** Muted caption/supporting text using Shadcn tokens. */
