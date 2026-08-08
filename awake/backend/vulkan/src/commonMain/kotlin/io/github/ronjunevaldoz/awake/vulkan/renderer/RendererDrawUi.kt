@@ -88,11 +88,9 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
     var glyphRunCount = 0
     val activePathClips = ArrayList<UiPath>()
     val clipKindStack = ArrayDeque<ClipKind>()
-    // Per active ClipPathPush, the running intersection of every active clip's OWN
-    // safeInteriorRect -- null means "at least one active clip has no known safe interior"
-    // (e.g. pushed via the raw path-only `clip()` overload), so the exact-clip fast path
-    // must always run for the whole stack, same as before this optimization existed. See
-    // canSkipExactClip's doc comment for how this is consumed per primitive.
+    // Running intersection of every active clip's safeInteriorRect; null means at least one
+    // active clip has no known safe interior, forcing the exact-clip fast path for the whole
+    // stack. See canSkipExactClip.
     val safeInteriorRectStack = ArrayDeque<UiBounds?>()
     var index = 0
     while (index < primitives.size) {
@@ -104,16 +102,9 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
         val safeInteriorRect = safeInteriorRectStack.lastOrNull()
         when (first) {
             is UiDrawPrimitive.Quad -> {
-                // Chunk by actual vertex/index budget under exact-clip (a clip-cut corner can
-                // add vertices beyond the fixed 4-per-quad the fast path assumes), else by
-                // primitive count -- mirrors the RoundedQuad/GradientQuad/FilledPath fix below
-                // and the pre-existing Glyph/StrokedPath fix. Real crash this guards against:
-                // "UI rounded-quad-clipped run vertex count (1026) exceeds DynamicMesh capacity
-                // (1024 vertices)" from 10 shadcn sliders' rounded-track quads inside one
-                // rounded-clip container -- the identical unchunked assumption applied here too.
-                // slice only contains elements matching `first`'s runtime class (grouped by
-                // the primitives[index]::class == first::class scan above), and `first` was
-                // just smart-cast to UiDrawPrimitive.Quad by this `when` branch.
+                // Chunk by actual vertex/index budget under exact-clip (a clip-cut corner can add
+                // vertices beyond the fixed 4-per-quad the fast path assumes), else by primitive
+                // count. Mirrors the RoundedQuad/GradientQuad/FilledPath branches below.
                 @Suppress("UNCHECKED_CAST")
                 val quadSlice = slice as List<UiDrawPrimitive.Quad>
                 if (canExactClip(activePathClips)) {
@@ -185,15 +176,9 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 }
             }
             is UiDrawPrimitive.RoundedQuad -> {
-                // Real crash this branch guards against: "UI rounded-quad-clipped run vertex
-                // count (1026) exceeds DynamicMesh capacity (1024 vertices)" -- 10 shadcn
-                // slider controls' rounded tracks landing inside one rounded-clip container
-                // pushed this exact-clip tessellated run over one DynamicMesh's budget. Chunk
-                // by actual vertex/index budget here (tessellateFillAa's AA fringe ring adds a
-                // variable vertex count per quad, same as FilledPath below), and the SDF fast
-                // path (no active clip) by primitive count -- it previously had neither.
-                // slice only contains elements matching `first`'s runtime class (see the Quad
-                // branch above); `first` was just smart-cast to RoundedQuad by this branch.
+                // Chunk by actual vertex/index budget: tessellateFillAa's AA fringe ring adds a
+                // variable vertex count per quad (same as FilledPath below), so a fixed-size
+                // chunk of primitives can still overflow one DynamicMesh's budget.
                 @Suppress("UNCHECKED_CAST")
                 val roundedSlice = slice as List<UiDrawPrimitive.RoundedQuad>
                 if (canExactClip(activePathClips)) {
@@ -221,11 +206,8 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 }
             }
             is UiDrawPrimitive.FilledPath -> {
-                // Path tessellation always produces a variable vertex count (unlike Quad's
-                // fixed 4), so this needs vertex-budget chunking regardless of whether a clip
-                // is active -- see the RoundedQuad branch's doc comment above.
-                // slice only contains elements matching `first`'s runtime class (see the Quad
-                // branch above); `first` was just smart-cast to FilledPath by this branch.
+                // Path tessellation always produces a variable vertex count (unlike Quad's fixed
+                // 4), so this needs vertex-budget chunking regardless of whether a clip is active.
                 @Suppress("UNCHECKED_CAST")
                 val pathSlice = slice as List<UiDrawPrimitive.FilledPath>
                 val tessellated = pathSlice.map { primitive ->
@@ -240,16 +222,9 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "filled-path")
             }
             is UiDrawPrimitive.StrokedPath -> {
-                // Chunk by actual vertex/index budget, not primitive count -- mirrors the
-                // Glyph branch above (and the identical WebGPU-backend fix). Stroke
-                // tessellation produces a variable vertex count per primitive (depends on
-                // stroke width and path point count), so a fixed-size chunk of primitives can
-                // still overflow DynamicMesh's capacity -- confirmed by a real crash from the
-                // F3 debug wireframe overlay (UiDebugOverlayColors, 3 stroked rects per
-                // semantic node) on a content-heavy page: "UI stroked-path run vertex count
-                // (4192) exceeds DynamicMesh capacity (1024 vertices)".
-                // slice only contains elements matching `first`'s runtime class (see the Quad
-                // branch above); `first` was just smart-cast to StrokedPath by this branch.
+                // Chunk by actual vertex/index budget, not primitive count: stroke width and
+                // path point count both vary the vertex count per primitive, so a fixed-size
+                // chunk of primitives can still overflow DynamicMesh's capacity.
                 @Suppress("UNCHECKED_CAST")
                 val strokedSlice = slice as List<UiDrawPrimitive.StrokedPath>
                 val tessellated = strokedSlice.map { tessellateStrokedPath(it, activePathClips, safeInteriorRect) }
@@ -261,17 +236,9 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 @Suppress("UNCHECKED_CAST")
                 val glyphSlice = slice as List<UiDrawPrimitive.Glyph>
                 if (canExactClip(activePathClips)) {
-                    // Clipping a glyph quad against a convex path can add vertices beyond the
-                    // fixed 4-per-glyph the fast path below assumes (e.g. a corner cut
-                    // introduces a new vertex at the intersection) -- chunking by raw glyph
-                    // count alone (as the fast path does) can overflow DynamicMesh capacity
-                    // once enough glyphs land inside a clipped/rounded surface (real crash:
-                    // "glyph run vertex count (1134) exceeds DynamicMesh capacity (1024)").
-                    // Clip once, then bin into chunks by the actual resulting vertex/index
-                    // budget instead of glyph count. Glyphs whose own bounds are already
-                    // safely inside every active clip's safeInteriorRect skip the polygon
-                    // clip entirely (see canSkipExactClip) -- their quad always stays the
-                    // fixed 4 vertices, same as the un-clipped fast path below.
+                    // Clip once, then bin into chunks by the actual resulting vertex/index budget
+                    // (not glyph count): clipping a glyph quad against a convex path can add
+                    // vertices beyond the fixed 4-per-glyph the fast path assumes.
                     val clipped = glyphSlice.map { glyph ->
                         val raw = texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1)
                         val mesh = if (canSkipExactClip(safeInteriorRect, glyph.x, glyph.y, glyph.w, glyph.h)) {

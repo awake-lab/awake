@@ -51,7 +51,7 @@ enum class ShadcnCardVariant {
     Elevated,
 }
 
-/** Mirrors real shadcn-compose's `CardSize` -- controls header/footer divider spacing only,
+/** Mirrors shadcn-compose's `CardSize` -- controls header/footer divider spacing only,
  * everything else about a card's own layout is unaffected. */
 enum class ShadcnCardSize(val dividerGapDp: Float) {
     Compact(2f),

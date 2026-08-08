@@ -29,7 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.theme
  * Includes animated height transition.
  *
  * Primary Slot API form -- [trigger] receives `(isOpen, toggle)` and renders the *entire*
- * trigger, matching real shadcn-compose's `trigger: @Composable (isOpen, toggle) -> Unit`
+ * trigger, matching shadcn-compose's `trigger: @Composable (isOpen, toggle) -> Unit`
  * shape (not just a header label plugged into a fixed internal button, which is what this
  * function used to do). This lets a caller render any real interactive widget as the
  * trigger -- a `shadcnButton(variant = Outline)`, an icon-only button, anything -- by calling

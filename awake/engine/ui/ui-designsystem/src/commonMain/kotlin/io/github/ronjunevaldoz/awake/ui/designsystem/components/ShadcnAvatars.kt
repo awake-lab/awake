@@ -25,7 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
-/** Mirrors real shadcn-compose's `ShadcnAvatarSize` (`Sm`/`Default`/`Lg`): drives both the
+/** Mirrors shadcn-compose's `ShadcnAvatarSize` (`Sm`/`Default`/`Lg`): drives both the
  * avatar's box diameter AND its [shadcnAvatarBadge]/initials text size together, so a caller
  * picking `Lg` gets bigger initials automatically instead of a bigger circle with the same
  * tiny text. [boxSize] matches shadcn's own `size-6`/`size-8`/`size-10` (24/32/40px). */

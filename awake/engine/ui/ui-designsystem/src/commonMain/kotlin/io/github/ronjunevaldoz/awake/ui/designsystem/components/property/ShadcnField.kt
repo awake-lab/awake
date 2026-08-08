@@ -21,7 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 
 /**
- * Matches real shadcn-compose's `Field` orientation switch -- [Vertical] stacks label above
+ * Matches shadcn-compose's `Field` orientation switch -- [Vertical] stacks label above
  * control above description/error (a plain column); [Horizontal] places them side by side (a
  * plain row). Neither branch does any width negotiation; that's the whole point of this
  * rebuild -- see [shadcnField].

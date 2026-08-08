@@ -195,12 +195,9 @@ internal fun Renderer.recordCommandBuffer(
 
     Vulkan.vkCmdEndRenderPass(commandBuffer)
 
-    // Second pass, same command buffer, drawn on top of the 3D pass's output (that
-    // pass's finalLayout leaves the image in COLOR_ATTACHMENT_OPTIMAL specifically so
-    // this pass can pick up from there -- see RenderPipeline.kt's createRenderPass).
-    // Only recorded once drawUi() has actually built a UI pipeline at least once (a game
-    // that never calls drawUi never pays for this pass at all) -- mirrors WebGPU's
-    // Renderer.draw()'s equivalent `uiMesh.drawIndexCount > 0` guard.
+    // Second pass, same command buffer, on top of the 3D output: the 3D pass's finalLayout
+    // leaves the image in COLOR_ATTACHMENT_OPTIMAL for this pass to pick up. Only recorded
+    // once drawUi() has built a UI pipeline; mirrors WebGPU's equivalent guard.
     val uiPipeline = uiRenderPipeline
     if (uiPipeline != null) {
         val uiRenderPassInfo = VkRenderPassBeginInfo(
@@ -212,12 +209,9 @@ internal fun Renderer.recordCommandBuffer(
         Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
         Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
 
-        // Walk this frame's runs (staged by drawUi(), see UiRun's doc comment) in
-        // original paint order, switching pipeline at each run boundary -- this is what
-        // makes a dropdown's overlay quad draw after a sibling button's OWN label glyph
-        // when it comes later in the primitive list, instead of a fixed "all quads, then
-        // all glyphs, then all textures" pass order always drawing every glyph on top of
-        // every quad regardless of source order.
+        // Walk this frame's runs in original paint order, switching pipeline at each run
+        // boundary -- lets e.g. a dropdown's overlay quad draw after a sibling button's own
+        // label glyph, instead of a fixed "all quads, then all glyphs" pass order.
         val glyphPipeline = uiGlyphRenderPipeline
         val texturePipeline = uiTextureRenderPipeline
         val roundedQuadPipeline = uiRoundedQuadRenderPipeline
@@ -388,11 +382,8 @@ internal fun Renderer.prepareDrawCalls(
             // Camera.viewProjectionMatrix's docs), so `model * viewProjection` (Kotlin
             // order) gives the conventional `projection * view * model`.
             val mvp = drawCall.model * viewProjection
-            // Compared by FORMAT, not pipeline identity: wireframe's `pipelineFor` can
-            // resolve the primary lit format to a different pipeline OBJECT than
-            // `renderPipeline` itself, but it's still the primary format's draw call and
-            // still expects light floats (plus the light-space matrix when shadows are on),
-            // not DrawCall.extraUniformFloats.
+            // Compared by FORMAT, not pipeline identity: wireframe's pipelineFor can resolve the
+            // primary lit format to a different pipeline object than renderPipeline itself.
             val extraFloats =
                 if (drawCall.mesh.format == renderPipeline.vertexFormat) {
                     if (lightViewProjection != null) {

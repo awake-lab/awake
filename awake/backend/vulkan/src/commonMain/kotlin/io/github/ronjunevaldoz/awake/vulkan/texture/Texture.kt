@@ -190,11 +190,9 @@ class Texture(
             ),
         )
 
-        // minLod/maxLod always reflect this texture's own real mip count, overriding
-        // whatever the caller passed -- the caller can't know the chain length in advance
-        // (it depends on width/height, resolved above), and a mismatched maxLod either
-        // clamps sampling to level 0 (wasting the chain we just uploaded) or references
-        // levels that don't exist.
+        // minLod/maxLod always reflect this texture's own real mip count, overriding whatever
+        // the caller passed -- the caller can't know the chain length in advance (it depends on
+        // width/height, resolved above).
         sampler = SamplerHandle(
             VulkanImages.vkCreateSampler(
                 device,

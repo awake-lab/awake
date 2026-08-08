@@ -103,11 +103,8 @@ class GraphicsDevice {
         // MoltenVK (desktop macOS) conforms to the Vulkan Portability spec: vkCreateInstance
         // requires both VK_KHR_portability_enumeration enabled AND
         // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR set, or it fails with
-        // VK_ERROR_INCOMPATIBLE_DRIVER. Detected via the loader's OWN globally-queried instance
-        // extension list (baseExtProperties) reporting VK_KHR_portability_enumeration as
-        // available -- not GLFW's required-extensions list (which needs glfwInit() to have run,
-        // unavailable to [createHeadless]) -- since the loader already reports this whenever a
-        // portability-subset ICD (MoltenVK) is registered, GLFW or not.
+        // VK_ERROR_INCOMPATIBLE_DRIVER. Detected via baseExtProperties (available even to
+        // createHeadless, unlike GLFW's required-extensions list) reporting the extension.
         val onMoltenVk = "VK_KHR_portability_enumeration" in baseExtProperties
         val portabilityExtension = if (onMoltenVk) listOf("VK_KHR_portability_enumeration") else emptyList()
         val instanceFlags = if (onMoltenVk) 0x00000001 else 0 // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR

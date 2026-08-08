@@ -54,7 +54,7 @@ fun UiScope.shadcnRadioButton(
 /**
  * Real shadcn's `ShadcnRadioGroup`: caller composes each item's whole row (icon, label,
  * description, anything) via [content], placing a [shadcnRadioButton] wherever the
- * indicator belongs -- mirrors real shadcn-compose's `RadioGroup + RadioGroupItem` split
+ * indicator belongs -- mirrors shadcn-compose's `RadioGroup + RadioGroupItem` split
  * instead of a monolithic "options list" API. See the `List<String>` overload below for the
  * previous fixed-row behavior, now expressed as a convenience wrapper over this primary form.
  *

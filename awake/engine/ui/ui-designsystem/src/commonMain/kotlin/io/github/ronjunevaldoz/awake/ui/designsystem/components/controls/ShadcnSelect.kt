@@ -99,7 +99,7 @@ fun UiScope.shadcnSelect(
     return result.selectedIndex
 }
 
-/** Generic-`T` shape matching real shadcn-compose's `ShadcnSelect<T>` (callback-driven, not
+/** Generic-`T` shape matching shadcn-compose's `ShadcnSelect<T>` (callback-driven, not
  * return-value -- the reference always resolves a picked [T] through [onValueChange], never a
  * raw index). Wraps the [List]<String>/`Int?` overload above rather than duplicating the
  * trigger/popup wiring: maps [value] -> index via [options].indexOf on the way in, and the
