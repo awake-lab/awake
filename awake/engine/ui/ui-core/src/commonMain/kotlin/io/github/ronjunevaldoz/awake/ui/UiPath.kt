@@ -534,8 +534,7 @@ private fun resolveFillGroups(contours: List<UiPathContour>, fillRule: UiFillRul
     val areas = closed.map { polygonSignedArea(it.points) }
     // containers[i] = indices of contours containing contour i's first vertex.
     val containers = closed.indices.map { i ->
-        val probe = closed[i].points.first()
-        closed.indices.filter { j -> j != i && closed[j].windingContribution(probe.x, probe.y) != 0 }
+        closed.indices.filter { j -> j != i && closed[j].containsContour(closed[i]) }
     }
     val isHole = BooleanArray(closed.size)
     for (i in closed.indices) {
@@ -1095,6 +1094,47 @@ fun UiPath.containsPoint(x: Float, y: Float): Boolean {
 }
 
 private fun UiPathContour.containsPoint(x: Float, y: Float): Boolean = windingContribution(x, y) != 0
+
+/**
+ * Whether [inner] sits inside this contour, judged from a point genuinely interior to [inner]
+ * rather than from one of its vertices.
+ *
+ * Probing a vertex is what a first cut does, and it fails on real icon data: Heroicons'
+ * `arrow-down-on-square-stack` has two subpaths whose first vertices are the *same* point, so a
+ * vertex probe lands exactly on both boundaries, where the winding number is undefined -- the
+ * arrow was then mis-classified against the square it cuts out of, and the glyph rendered as a
+ * bare hook. Edge midpoints nudged along the edge normal give points off both boundaries;
+ * several are tried because any one can still land on a coincident edge where contours touch.
+ */
+private val NORMAL_SIDES = floatArrayOf(-1f, 1f)
+
+private fun UiPathContour.containsContour(inner: UiPathContour): Boolean {
+    val nudge = 0.01f
+    var tried = 0
+    for (index in inner.points.indices) {
+        val a = inner.points[index]
+        val b = inner.points[(index + 1) % inner.points.size]
+        var dx = b.x - a.x
+        var dy = b.y - a.y
+        val length = hypot(dx, dy)
+        if (length <= 0f) continue
+        dx /= length
+        dy /= length
+        val midX = (a.x + b.x) / 2f
+        val midY = (a.y + b.y) / 2f
+        // Try both normals: this contour's winding direction is not known here.
+        for (side in NORMAL_SIDES) {
+            val px = midX + dy * nudge * side
+            val py = midY - dx * nudge * side
+            // Only trust a probe that is unambiguously inside `inner` itself.
+            if (inner.windingContribution(px, py) == 0) continue
+            return windingContribution(px, py) != 0
+        }
+        tried += 1
+        if (tried >= 32) break
+    }
+    return false
+}
 
 private fun UiPathContour.windingContribution(x: Float, y: Float): Int {
     val polygon = points

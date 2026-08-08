@@ -404,3 +404,47 @@ class UiColoredMeshSplitTest {
         assertEquals(corners(original), pieces.flatMap(::corners))
     }
 }
+
+/**
+ * Two evenodd subpaths that share a vertex: Heroicons' `arrow-down-on-square-stack` starts both
+ * its square and its arrow cutout at exactly (9.75, 6.75). Containment used to be probed from a
+ * contour's first vertex, which lands on both boundaries where winding is undefined, so the
+ * cutout was mis-classified and the glyph rendered as a bare hook.
+ */
+class UiPathCoincidentVertexHoleTest {
+
+    /** Outer box and an inner box that begin at the same corner. */
+    private fun sharedVertexPath(): UiPath = uiPath(UiFillRule.EvenOdd) {
+        moveTo(10f, 10f)
+        lineTo(0f, 10f)
+        lineTo(0f, 0f)
+        lineTo(20f, 0f)
+        lineTo(20f, 20f)
+        lineTo(0f, 20f)
+        lineTo(0f, 10f)
+        close()
+        // Starts at the same point the outer contour did.
+        moveTo(10f, 10f)
+        lineTo(15f, 10f)
+        lineTo(15f, 15f)
+        lineTo(10f, 15f)
+        close()
+    }
+
+    @Test
+    fun sharedStartVertexStillResolvesTheInnerContourAsAHole() {
+        val mesh = sharedVertexPath().tessellateFill()
+        assertFalse(
+            trianglesCover(mesh.points, mesh.indices, 12.5f, 12.5f),
+            "inner contour must be cut out even though it starts on the outer contour's vertex",
+        )
+        assertTrue(
+            trianglesCover(mesh.points, mesh.indices, 3f, 3f),
+            "the outer contour must still fill",
+        )
+        assertTrue(
+            trianglesCover(mesh.points, mesh.indices, 18f, 18f),
+            "the outer contour must still fill away from the cutout",
+        )
+    }
+}
