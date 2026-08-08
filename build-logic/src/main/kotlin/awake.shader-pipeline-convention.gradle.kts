@@ -42,10 +42,16 @@ tasks.named("check").configure {
     dependsOn(validateAwakeShaders)
 }
 
-tasks.matching { it.name.endsWith("ProcessResources") }.configureEach {
+// Both spellings exist: KMP targets register *ProcessResources, the Android plugin registers
+// process*JavaRes -- and both consume src/appMain/resources, which syncAwakeShaders writes
+// into. Missing the Android one tripped Gradle's implicit-dependency validation.
+tasks.matching { it.name.endsWith("ProcessResources") || (it.name.startsWith("process") && it.name.endsWith("JavaRes")) }.configureEach {
     dependsOn(syncAwakeShaders)
 }
 
-tasks.matching { it.name == "detekt" || it.name == "detektBaseline" }.configureEach {
+// Ordering-only consumers of src/: they scan the tree syncAwakeShaders writes into but don't
+// need it to have run -- mustRunAfter satisfies Gradle's implicit-dependency validation
+// without making lint depend on shader tooling.
+tasks.matching { it.name == "detekt" || it.name == "detektBaseline" || it.name == "verifyUiAuthoredUnits" }.configureEach {
     mustRunAfter(syncAwakeShaders)
 }

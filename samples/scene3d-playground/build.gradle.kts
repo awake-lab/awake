@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library.kmp)
     id("awake.shader-pipeline-convention")
+    id("awake.test-resources-convention")
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
@@ -149,6 +150,12 @@ kotlin {
             }
             resources.srcDir(project(":awake:backend:webgpu").file("src/wasmJsMain/resources"))
         }
+
+        named("wasmJsTest") {
+            // The browser test loads the same scene documents the app does; only wasmJs source
+            // sets' resources reach the karma server, and appMain's live outside them.
+            resources.srcDir(layout.projectDirectory.dir("src/appMain/resources"))
+        }
     }
 }
 
@@ -202,4 +209,22 @@ tasks.named<Test>("desktopTest") {
     // classes once both run in this task's single default JVM -- forkEvery=1 gives every test
     // class a fresh JVM instead of chasing a fix in GraphicsDevice's own teardown.
     forkEvery = 1
+}
+
+awakeTestResources {
+    roots.from(layout.projectDirectory.dir("src/appMain/resources"))
+}
+
+// appMain/resources also holds syncAwakeShaders' generated SPIR-V output, so the convention's
+// copy consumes that task's output and must order after it.
+tasks.named("copyIosSimulatorTestResources") { dependsOn("syncAwakeShaders") }
+tasks.named("generateAwakeKarmaTestResources") { dependsOn("syncAwakeShaders") }
+
+// The playground shell test preloads GltfViewerDemo, whose android actual decodes textures via
+// BitmapFactory -- on the host JVM that's android.jar's stub, which throws "not mocked" (and
+// returnDefaultValues would only trade the throw for an NPE on the decoded bitmap). The same
+// test runs for real on desktop, iOS simulator, and wasm browser; host-side android coverage
+// for it would need Robolectric, which nothing else here justifies.
+tasks.matching { it.name == "testAndroidHostTest" }.configureEach {
+    (this as? Test)?.filter?.excludeTestsMatching("*Scene3DPlaygroundUiTest")
 }

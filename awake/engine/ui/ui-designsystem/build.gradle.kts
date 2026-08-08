@@ -5,6 +5,7 @@ plugins {
     id("awake.detekt-convention")
     id("awake.spotless-convention")
     id("awake.ui-authored-units-convention")
+    id("awake.test-resources-convention")
 }
 
 kotlin {
@@ -25,4 +26,8 @@ kotlin {
             implementation(kotlin("test"))
         }
     }
+}
+
+awakeTestResources {
+    roots.from(layout.projectDirectory.dir("src/commonMain/resources"))
 }

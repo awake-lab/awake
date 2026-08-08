@@ -31,3 +31,4 @@ shared/shared.podspec
 .playwright-mcp/
 .webui_secret_key
 /third_party/
+karma.config.d/awake-serve-test-resources.js

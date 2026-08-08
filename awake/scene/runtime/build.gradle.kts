@@ -4,6 +4,7 @@ plugins {
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
+    id("awake.test-resources-convention")
 }
 
 kotlin {
@@ -30,4 +31,8 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
         }
     }
+}
+
+awakeTestResources {
+    roots.from(layout.projectDirectory.dir("src/commonTest/resources"))
 }
