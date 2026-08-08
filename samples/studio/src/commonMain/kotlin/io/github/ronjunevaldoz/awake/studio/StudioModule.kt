@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio
 
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.engine.application.GameModule
 import io.github.ronjunevaldoz.awake.engine.application.gameModule
+import io.github.ronjunevaldoz.awake.scene.components.Camera
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.scene
 import io.github.ronjunevaldoz.awake.studio.examples.ExampleLoader
@@ -14,6 +16,7 @@ import io.github.ronjunevaldoz.awake.studio.examples.SkinnedExampleDriver
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import io.github.ronjunevaldoz.awake.studio.examples.studioCubeGeometry
 import io.github.ronjunevaldoz.awake.studio.examples.studioGroundGeometry
+import io.github.ronjunevaldoz.awake.studio.state.CameraPresetMath
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.studio.ui.drawStudioShell
@@ -59,6 +62,9 @@ private class StudioExampleDriverSystem(
     private val store: StudioStore,
     private val loader: ExampleLoader,
 ) : System {
+    // Reused every frame -- CameraPresetMath.applyPreset never allocates (core-math skill Rule 2).
+    private val cameraForward = Vec3()
+
     override fun update(world: World, delta: Float) {
         store.drainEffects().forEach { effect ->
             when (effect) {
@@ -67,5 +73,31 @@ private class StudioExampleDriverSystem(
         }
         val activeId = store.state.value.examples.activeExampleId
         StudioExamples.first { it.id == activeId }.driver?.invoke(runtime, delta)
+        applyCameraPreset(world)
+    }
+
+    private fun applyCameraPreset(world: World) {
+        val core = primaryCamera(world)?.camera ?: return
+        CameraPresetMath.applyPreset(
+            state = store.state.value.camera,
+            target = core.center,
+            eyeOut = core.eye,
+            upOut = core.up,
+            forwardScratch = cameraForward,
+        )
+    }
+
+    /** Mirrors `RenderSystem.primaryCamera` -- the camera entity is recreated on every
+     * `LoadExample`, so this looks it up fresh each frame rather than caching an `Entity`. */
+    private fun primaryCamera(world: World): Camera? {
+        val family = world.family<Camera>()
+        val cameras = family.components()
+        var index = 0
+        while (index < family.size) {
+            val camera = cameras[index]
+            if (camera.isPrimary) return camera
+            index += 1
+        }
+        return null
     }
 }

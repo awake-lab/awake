@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
@@ -13,6 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -20,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.paddingEnd
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
@@ -42,11 +45,13 @@ private val RailTools = listOf(
 /** Floating tool rail (Modly-style): a rounded card hugging its icon stack, vertically
  * centered with a margin from the window edge rather than a full-height docked strip.
  * Top group selects a tool (state in [StudioContract.ToolRailState]); bottom group holds
- * actions -- reset reloads the active example, camera is not implemented yet. */
+ * actions -- reset reloads the active example, camera opens the mode/projection menu. */
 internal fun RowScope.drawIconRail(
     activeTool: StudioContract.Tool,
     onSelectTool: (StudioContract.Tool) -> Unit,
     onResetExample: () -> Unit,
+    onSelectCameraMode: (StudioContract.CameraPresetMode) -> Unit,
+    onSelectCameraProjection: (StudioContract.Projection) -> Unit,
 ) {
     column(
         id = "studio-icon-rail",
@@ -73,12 +78,43 @@ internal fun RowScope.drawIconRail(
                 active = false,
                 onClick = onResetExample,
             )
-            railButton(
-                id = "studio-tool-camera",
-                glyph = HeroIcons.Solid20Mini.camera,
-                active = false,
-                onClick = null,
+            cameraRailButton(
+                onSelectMode = onSelectCameraMode,
+                onSelectProjection = onSelectCameraProjection,
             )
+        }
+    }
+}
+
+/** Opens the camera-mode/projection menu anchored to this button -- the same list the
+ * viewport's right-click menu shows (see CameraMenu.kt). */
+private fun UiScope.cameraRailButton(
+    onSelectMode: (StudioContract.CameraPresetMode) -> Unit,
+    onSelectProjection: (StudioContract.Projection) -> Unit,
+) {
+    val popup = rememberPopupState("studio-tool-camera-menu")
+    var anchor = UiBounds(0f, 0f, 0f, 0f)
+    shadcnButton(
+        id = "studio-tool-camera",
+        modifier = Modifier.width(RailButtonSize),
+        variant = ShadcnButtonVariant.Ghost,
+        size = ShadcnButtonSize.Icon,
+        onClick = { popup.toggle() },
+    ) { slot ->
+        anchor = slot
+        icon(HeroIcons.Solid20Mini.camera, tint = theme.colors.foreground)
+    }
+    if (popup.expanded) {
+        val result = shadcnDropdownMenu(
+            id = "studio-tool-camera-menu.dropdown",
+            anchorSlot = anchor,
+            expanded = true,
+            items = CameraMenuItems,
+            width = Dimension.WrapContent,
+        )
+        if (result.dismissed || result.selectedIndex != null) popup.close()
+        result.selectedIndex?.let { index ->
+            dispatchCameraMenuPick(index, onSelectMode, onSelectProjection)
         }
     }
 }

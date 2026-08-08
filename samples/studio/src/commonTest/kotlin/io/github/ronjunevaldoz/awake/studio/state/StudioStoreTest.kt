@@ -53,4 +53,47 @@ class StudioStoreTest {
         assertEquals(42, store.state.value.inspector.selectedEntityId)
         assertTrue(store.drainEffects().isEmpty())
     }
+
+    @Test
+    fun setCameraModeUpdatesStateWithoutQueuingAnEffect() {
+        val store = StudioStore()
+        assertEquals(StudioContract.CameraPresetMode.Orbit, store.state.value.camera.mode)
+
+        store.dispatch(StudioContract.Intent.SetCameraMode(StudioContract.CameraPresetMode.Front))
+
+        assertEquals(StudioContract.CameraPresetMode.Front, store.state.value.camera.mode)
+        assertTrue(store.drainEffects().isEmpty())
+    }
+
+    @Test
+    fun orbitByAccumulatesYawAndClampsPitchAtThePoles() {
+        val store = StudioStore()
+
+        store.dispatch(StudioContract.Intent.OrbitBy(deltaYaw = 0.4f, deltaPitch = 0.1f))
+        store.dispatch(StudioContract.Intent.OrbitBy(deltaYaw = 0.4f, deltaPitch = 0.1f))
+
+        assertEquals(0.8f, store.state.value.camera.yaw, ORBIT_TOLERANCE)
+        assertEquals(0.2f, store.state.value.camera.pitch, ORBIT_TOLERANCE)
+
+        // A single huge drag would blow well past the pole -- pitch must clamp, not wrap.
+        store.dispatch(StudioContract.Intent.OrbitBy(deltaYaw = 0f, deltaPitch = 10f))
+
+        assertEquals(StudioContract.PITCH_LIMIT_RADIANS, store.state.value.camera.pitch, ORBIT_TOLERANCE)
+    }
+
+    @Test
+    fun setProjectionFlipsProjection() {
+        val store = StudioStore()
+        assertEquals(StudioContract.Projection.Perspective, store.state.value.camera.projection)
+
+        store.dispatch(StudioContract.Intent.SetProjection(StudioContract.Projection.Orthographic))
+        assertEquals(StudioContract.Projection.Orthographic, store.state.value.camera.projection)
+
+        store.dispatch(StudioContract.Intent.SetProjection(StudioContract.Projection.Perspective))
+        assertEquals(StudioContract.Projection.Perspective, store.state.value.camera.projection)
+    }
+
+    private companion object {
+        const val ORBIT_TOLERANCE = 1e-4f
+    }
 }
