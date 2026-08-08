@@ -715,7 +715,7 @@ internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
         "'Airplane Mode' label to each switch, which is real shadcn switch demo content but not what the reference " +
         "screenshot shows, so the two were never comparable content. Dropped the label and laid the two switches " +
         "out side by side (off, on) to match the reference's own row exactly.",
-    width = 68,
+    width = 128,
     height = 20,
 )
 internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
@@ -727,12 +727,13 @@ internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = Modifier.offset(2f.dp, 2f.dp).width(64f.dp)
+            modifier = Modifier.offset(2f.dp, 2f.dp).width(126f.dp)
                 .height((metadata.height.toFloat() - 2f).dp),
         ) {
             row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
                 shadcnSwitch("parity-switch-off", checked = false)
                 shadcnSwitch("parity-switch-on", checked = true)
+                shadcnSwitch("parity-switch-disabled", checked = false, enabled = false)
             }
         }
         return AwakeUiPreviewFrame(

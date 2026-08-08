@@ -6,6 +6,9 @@ import { Switch } from "./ui/switch"
 import { Input } from "./ui/input"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 import { Slider } from "./ui/slider"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
+import { Label } from "./ui/label"
 
 /**
  * The reference cases. Each id is the single source of truth shared with the Awake side:
@@ -88,6 +91,34 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
       <div className="w-64">
         <Slider defaultValue={[50]} max={100} step={1} />
       </div>
+    ),
+  },
+  "select-closed": {
+    render: () => (
+      <Select>
+        <SelectTrigger className="w-[172px]">
+          <SelectValue placeholder="Select a fruit" />
+        </SelectTrigger>
+        <SelectContent>
+          {["Apple", "Banana", "Blueberry", "Grapes", "Pineapple"].map((f) => (
+            <SelectItem key={f} value={f.toLowerCase()}>{f}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    ),
+  },
+  "card-login": {
+    render: () => (
+      <Card className="w-[288px]">
+        <CardHeader>
+          <CardTitle>Login to your account</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" placeholder="Email" />
+          <Button className="w-full">Login</Button>
+        </CardContent>
+      </Card>
     ),
   },
   "badge-variants": {

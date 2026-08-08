@@ -36,6 +36,14 @@
     {
       "id": "slider-states",
       "why": "A single-thumb slider at 50, for the knob-size gap the harness measured."
+    },
+    {
+      "id": "select-closed",
+      "why": "Closed trigger showing its placeholder, matching our select preview."
+    },
+    {
+      "id": "card-login",
+      "why": "The login card our card preview renders: title, label, input, full-width button."
     }
   ]
 }
