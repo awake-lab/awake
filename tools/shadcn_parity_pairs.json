@@ -9,7 +9,7 @@
     {"name": "select", "awake": "awake-select-closed-light", "reference": "select_closed_light.png"},
     {"name": "tabs", "awake": "awake-tabs-light", "reference": "tabs_states_light.png"},
     {"name": "card", "awake": "awake-card-light", "reference": "card_states_light.png"},
-    {"name": "slider", "awake": "awake-slider-matrix-light-default", "reference": "slider_states_light.png"},
+    {"name": "slider", "awake": "awake-slider-light", "reference": "slider_states_light.png"},
     {"name": "tooltip", "awake": "awake-tooltip-trigger-light", "reference": "tooltip_trigger_light.png"},
     {"name": "dialog", "awake": "awake-dialog-states-light", "reference": "dialog_states_light.png"}
   ]

@@ -69,9 +69,11 @@ private fun comparisonTestSnapshot(): UiInputState {
     id = "awake-card-light",
     title = "Awake Card (light)",
     group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/card_states_light.png's login-card arrangement (header/body/footer) for a direct side-by-side.",
-    width = 320,
-    height = 300,
+    summary = "Matches docs/reference/shadcn-previews/card_states_light.png's login-card arrangement (header/body/footer) for a direct side-by-side. " +
+        "Canvas hugs the card's own bounding box instead of the old 320x300 canvas (content was already 272x276, " +
+        "close to the full canvas -- this pair was already the harness's one 'good' crop, tightened further here).",
+    width = 288,
+    height = 292,
 )
 internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -82,8 +84,8 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(272f.dp)
-                .height((metadata.height.toFloat() - 48f).dp),
+            modifier = Modifier.offset(8f.dp, 8f.dp).width(272f.dp)
+                .height((metadata.height.toFloat() - 16f).dp),
         ) {
             shadcnCard(
                 id = "parity-card",
@@ -232,7 +234,7 @@ class ShadcnReferenceComparisonTest {
             AwakeSelectClosedLightPreview,
             AwakeTabsLightPreview,
             AwakeCardLightPreview,
-            AwakeSliderMatrixLightPreview,
+            AwakeSliderLightPreview,
             AwakeTooltipTriggerLightPreview,
             AwakeDialogStatesLightPreview,
         ).forEach { entry -> renderAnnotatedUiPreviews(entry).forEach { saveAwakeUiPreview(it) } }

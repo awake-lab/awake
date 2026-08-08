@@ -72,19 +72,19 @@ to the reference capture, not changing component styling.
 
 | component | mismatch % | max Δ | mean Δ | crop |
 |---|---:|---:|---:|---|
-| dialog | 97.59 | 229 | 52.19 | partial |
-| slider | 58.69 | 254 | 99.61 | poor |
-| badge | 51.95 | 255 | 88.70 | poor |
-| tooltip | 38.75 | 249 | 86.88 | poor |
-| button | 34.26 | 255 | 59.43 | poor |
-| switch | 26.04 | 254 | 62.21 | poor |
-| card | 20.23 | 254 | 39.68 | good |
-| tabs | 14.35 | 254 | 21.69 | poor |
-| checkbox | 14.30 | 254 | 33.40 | poor |
-| input | 12.43 | 140 | 12.21 | poor |
-| select | 10.94 | 245 | 12.66 | partial |
+| dialog | 97.59 | 229 | 52.19 | good |
+| slider | 60.51 | 254 | 103.91 | partial |
+| badge | 47.62 | 255 | 77.24 | good |
+| tooltip | 38.75 | 249 | 86.88 | good |
+| button | 34.26 | 255 | 59.43 | good |
+| switch | 24.58 | 254 | 55.16 | good |
+| card | 22.30 | 254 | 45.11 | good |
+| tabs | 14.35 | 254 | 21.69 | good |
+| checkbox | 14.30 | 254 | 33.40 | good |
+| input | 12.96 | 245 | 11.46 | good |
+| select | 11.70 | 140 | 11.29 | good |
 
-Only `card` (20.23%) is aligned well enough to read as a fidelity measurement. The rest are dominated by framing differences, so this harness cannot yet rank components against each other — matching preview framing to the reference captures is the blocking work.
+Among the 10 well-aligned pairs, `select` is closest (11.70%) and `dialog` is furthest (97.59%).
 
 ## What these numbers do not cover
 

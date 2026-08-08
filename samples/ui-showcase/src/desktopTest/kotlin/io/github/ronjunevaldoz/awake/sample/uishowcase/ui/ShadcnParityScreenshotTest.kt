@@ -70,6 +70,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.forceFocus
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
@@ -110,6 +111,7 @@ class ShadcnParityScreenshotTest {
             AwakeCollapsibleLightPreview,
             AwakeSpinnerLightPreview,
             AwakeSliderMatrixLightPreview,
+            AwakeSliderLightPreview,
             AwakeTextareaMatrixLightPreview,
             AwakeToggleMatrixLightPreview,
             AwakeTextFieldMatrixLightPreview,
@@ -135,9 +137,15 @@ class ShadcnParityScreenshotTest {
     id = "awake-button-variants-light",
     title = "Awake Button Variants (light)",
     group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/button_variants_light.png's arrangement for a direct side-by-side.",
-    width = 661,
-    height = 132,
+    summary = "Matches docs/reference/shadcn-previews/button_variants_light.png's arrangement for a direct side-by-side. " +
+        "Canvas is hugged to the row's own bounding box (see docs/reference/ui-validation.md's parity-harness note) -- " +
+        "the old 661x132 canvas left ~70% of its area as unused background, which crop_quality (comparedSize/awakeSize) " +
+        "read as an unmeasurable framing sliver rather than a fidelity signal. Canvas is exactly the row's own bounding " +
+        "box (no margin) -- checked this doesn't clip anything: the same flat-cap-glyph look on bold white-on-dark " +
+        "labels ('Default', 'Destructive') is already present in the previous 661x132 golden with 44px of surrounding " +
+        "margin, so it's a font-rasterization characteristic at this size, not frame-edge clipping introduced here.",
+    width = 560,
+    height = 42,
 )
 internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -148,10 +156,10 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            x = 30f,
-            y = 45f,
-            width = 600f,
-            height = metadata.height.toFloat() - 45f,
+            x = 0f,
+            y = 1f,
+            width = 560f,
+            height = metadata.height.toFloat() - 1f,
             verticalArrangement = Arrangement.spacedBy(10f.dp),
         ).row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
             shadcnButton(
@@ -204,9 +212,14 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
     id = "awake-badge-variants-light",
     title = "Awake Badge Variants (light)",
     group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/badge_variants_light.png's arrangement for a direct side-by-side.",
-    width = 479,
-    height = 116,
+    summary = "Matches docs/reference/shadcn-previews/badge_variants_light.png's arrangement for a direct side-by-side. " +
+        "Badges are no longer forced to arbitrary preview-chosen pixel widths -- they self-size from their own " +
+        "contentPadding like real shadcn badges do, and the fifth 'Ghost' swatch was dropped: real shadcn/ui's Badge " +
+        "only has Default/Secondary/Destructive/Outline (ShadcnBadgeVariant.Ghost has no shadcn counterpart, so " +
+        "including it compared against nothing in the reference capture). Same flat-cap-glyph check as the button " +
+        "entry above -- the look is pre-existing font rasterization, not clipping from this tight canvas.",
+    width = 260,
+    height = 22,
 )
 internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -217,37 +230,16 @@ internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            x = 30f,
-            y = 42f,
-            width = 420f,
-            height = metadata.height.toFloat() - 42f,
+            x = 2f,
+            y = 2f,
+            width = 256f,
+            height = metadata.height.toFloat() - 2f,
             verticalArrangement = Arrangement.spacedBy(10f.dp),
-        ).row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(30f.dp.toDimension())) {
-            shadcnBadge(
-                "Default",
-                modifier = Modifier.width(72f.px).height(30f.px),
-                variant = ShadcnBadgeVariant.Primary,
-            )
-            shadcnBadge(
-                "Secondary",
-                modifier = Modifier.width(90f.px).height(30f.px),
-                variant = ShadcnBadgeVariant.Secondary,
-            )
-            shadcnBadge(
-                "Destructive",
-                modifier = Modifier.width(100f.px).height(30f.px),
-                variant = ShadcnBadgeVariant.Danger,
-            )
-            shadcnBadge(
-                "Outline",
-                modifier = Modifier.width(80f.px).height(30f.px),
-                variant = ShadcnBadgeVariant.Outline,
-            )
-            shadcnBadge(
-                "Ghost",
-                modifier = Modifier.width(70f.px).height(30f.px),
-                variant = ShadcnBadgeVariant.Ghost,
-            )
+        ).row(horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
+            shadcnBadge("Default", variant = ShadcnBadgeVariant.Primary)
+            shadcnBadge("Secondary", variant = ShadcnBadgeVariant.Secondary)
+            shadcnBadge("Destructive", variant = ShadcnBadgeVariant.Danger)
+            shadcnBadge("Outline", variant = ShadcnBadgeVariant.Outline)
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
@@ -262,9 +254,13 @@ internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
     id = "awake-textfield-states-light",
     title = "Awake TextField States (light)",
     group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/text-field_states_light.png's arrangement -- all 5 real shadcn states now exist.",
-    width = 296,
-    height = 400,
+    summary = "Matches docs/reference/shadcn-previews/text-field_states_light.png's arrangement -- the reference only " +
+        "shows 2 states (default, focused; tools/capture_shadcn_reference.py's capture_input hovers/clicks a bare " +
+        "input twice), so this parity entry mirrors exactly those 2 states instead of Awake's fuller 5-state matrix " +
+        "(filled/ghost/error/disabled still exist and are exercised by the Component Matrix group's own preview and " +
+        "by ShadcnParityScreenshotTest's other entries, just not compared against this particular reference image).",
+    width = 256,
+    height = 100,
 )
 internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -275,15 +271,12 @@ internal object AwakeTextFieldStatesLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(248f.dp)
-                .height((metadata.height.toFloat() - 48f).dp),
+            modifier = Modifier.offset(4f.dp, 4f.dp).width(248f.dp)
+                .height((metadata.height.toFloat() - 4f).dp),
             verticalArrangement = Arrangement.spacedBy(16f.dp),
         ) {
-            shadcnInput("parity-field-1", value = "", placeholder = "Default", modifier = Modifier.width(248f.px).height(40f.px))
-            shadcnInput("parity-field-2", value = "", placeholder = "Filled", variant = ShadcnTextFieldVariant.Filled, modifier = Modifier.width(248f.px).height(40f.px))
-            shadcnInput("parity-field-3", value = "", placeholder = "Ghost", variant = ShadcnTextFieldVariant.Ghost, modifier = Modifier.width(248f.px).height(40f.px))
-            shadcnInput("parity-field-4", value = "Invalid value", modifier = Modifier.width(248f.px).height(40f.px), isError = true)
-            shadcnInput("parity-field-5", value = "", placeholder = "Disabled", modifier = Modifier.width(248f.px).height(40f.px), enabled = false)
+            shadcnInput("parity-field-1", value = "", placeholder = "Enter text", modifier = Modifier.width(248f.px).height(36f.px))
+            shadcnInput("parity-field-2", value = "", placeholder = "Enter text", modifier = Modifier.width(248f.px).height(36f.px).forceFocus())
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
@@ -514,9 +507,10 @@ internal object AwakeSkeletonLightPreview : AwakeUiPreviewEntry {
     id = "awake-tabs-light",
     title = "Awake Tabs (light)",
     group = "Shadcn Parity",
-    summary = "New component -- shadcnTabs composes shadcnButton (Ghost variant) per tab inside a muted track, same reuse-existing-variant approach as shadcnRadioGroup.",
-    width = 320,
-    height = 80,
+    summary = "New component -- shadcnTabs composes shadcnButton (Ghost variant) per tab inside a muted track, same reuse-existing-variant approach as shadcnRadioGroup. " +
+        "Canvas hugs the tab list's own bounding box instead of the old 320x80 canvas (content was only 164x32).",
+    width = 172,
+    height = 40,
 )
 internal object AwakeTabsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -527,8 +521,8 @@ internal object AwakeTabsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(280f.dp)
-                .height((metadata.height.toFloat() - 48f).dp),
+            modifier = Modifier.offset(4f.dp, 4f.dp).width(164f.dp)
+                .height((metadata.height.toFloat() - 4f).dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
             shadcnTabs(
@@ -682,9 +676,14 @@ internal object AwakeTextareaStatesLightPreview : AwakeUiPreviewEntry {
     id = "awake-switch-variants-light",
     title = "Awake Switch Variants (light)",
     group = "Shadcn Parity",
-    summary = "Pill-shaped boolean switch, matches real shadcn Switch.",
-    width = 200,
-    height = 100,
+    summary = "Pill-shaped boolean switch, matches real shadcn Switch. " +
+        "docs/reference/shadcn-previews/switch_states_light.png's capture (tools/capture_shadcn_reference.py's " +
+        "capture_switch) grabs the bare [role=\"switch\"] element with no label -- this preview used to attach an " +
+        "'Airplane Mode' label to each switch, which is real shadcn switch demo content but not what the reference " +
+        "screenshot shows, so the two were never comparable content. Dropped the label and laid the two switches " +
+        "out side by side (off, on) to match the reference's own row exactly.",
+    width = 68,
+    height = 20,
 )
 internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -695,12 +694,13 @@ internal object AwakeSwitchVariantsLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(152f.dp)
-                .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(12f.dp),
+            modifier = Modifier.offset(2f.dp, 2f.dp).width(64f.dp)
+                .height((metadata.height.toFloat() - 2f).dp),
         ) {
-            shadcnSwitch("parity-switch-off", checked = false, label = "Airplane Mode")
-            shadcnSwitch("parity-switch-on", checked = true, label = "Airplane Mode")
+            row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
+                shadcnSwitch("parity-switch-off", checked = false)
+                shadcnSwitch("parity-switch-on", checked = true)
+            }
         }
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
@@ -764,6 +764,40 @@ internal object AwakeSliderMatrixLightPreview : AwakeUiPreviewEntry {
     }
 
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame = error("Use renderSamples")
+}
+
+@AwakeUiPreview(
+    id = "awake-slider-light",
+    title = "Awake Slider (light)",
+    group = "Shadcn Parity",
+    summary = "Matches docs/reference/shadcn-previews/slider_states_light.png's arrangement for a direct side-by-side. " +
+        "Dedicated tight preview, not a crop of the Component Matrix's 'default' sample (that sample lives in a " +
+        "320x240 canvas sized for the full 4-state matrix, which left the slider's real 300x20 content as a sliver " +
+        "of unused space) -- canvas here hugs the track+knob exactly. Ceiling on how tight this can read is real, " +
+        "not a framing bug: SLIDER_KNOB_DIAMETER (ui-headless Slider.kt) is 20dp, real shadcn's thumb is visibly " +
+        "smaller (~12px after trim), so even a pixel-perfect crop compares a 20px-tall Awake knob against a 12px " +
+        "reference -- report this size delta rather than shrinking the knob to make the number better.",
+    width = 300,
+    height = 20,
+)
+internal object AwakeSliderLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = shadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+        ui.pushFont(font)
+        ui.pushTheme(theme)
+        ui.column(modifier = Modifier.width(300f.dp).height(20f.dp)) {
+            slider("parity-slider", 0f, 100f, 50f, modifier = Modifier.width(300f.px))
+        }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.colors.background,
+            font = font,
+            semantics = ui.semanticNodes(),
+        )
+    }
 }
 
 @AwakeUiPreview(
@@ -854,9 +888,10 @@ internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
     id = "awake-checkbox-states-light",
     title = "Awake Checkbox States (light)",
     group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/checkbox_states_light.png's arrangement for a direct side-by-side.",
-    width = 160,
-    height = 70,
+    summary = "Matches docs/reference/shadcn-previews/checkbox_states_light.png's arrangement for a direct side-by-side. " +
+        "Canvas hugs the checkbox pair's own bounding box instead of the old 160x70 canvas (content was only 52x16).",
+    width = 54,
+    height = 18,
 )
 internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -867,10 +902,10 @@ internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.createColumn(
-            x = 24f,
-            y = 24f,
-            width = 120f,
-            height = metadata.height.toFloat() - 24f,
+            x = 2f,
+            y = 0f,
+            width = 52f,
+            height = metadata.height.toFloat(),
         ).row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
             shadcnCheckbox("parity-checkbox-unchecked", checked = false, modifier = Modifier.width(20f.dp).height(20f.dp))
             shadcnCheckbox("parity-checkbox-checked", checked = true, modifier = Modifier.width(20f.dp).height(20f.dp))
@@ -888,9 +923,15 @@ internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
     id = "awake-select-closed-light",
     title = "Awake Select Closed (light)",
     group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/select_closed_light.png's arrangement for a direct side-by-side.",
-    width = 220,
-    height = 70,
+    summary = "Matches docs/reference/shadcn-previews/select_closed_light.png's arrangement for a direct side-by-side. " +
+        "Canvas hugs the trigger's own bounding box instead of the old 220x70 canvas (content was only 172x36). " +
+        "Also fixed a real content mismatch found via this pair's diff heatmap: this preview was showing a " +
+        "committed value \"Vega\" -- shadcn-compose's own preset name, the exact stale artifact " +
+        "docs/reference/ui-validation.md's harness section warns about -- while the real shadcn Select demo (and " +
+        "this reference capture) shows no selection yet, just its placeholder text. Options are now real fruit " +
+        "names (matching ui.shadcn.com's own demo) with nothing selected, so the trigger renders its placeholder.",
+    width = 176,
+    height = 40,
 )
 internal object AwakeSelectClosedLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -901,13 +942,14 @@ internal object AwakeSelectClosedLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(172f.dp)
-                .height((metadata.height.toFloat() - 24f).dp),
+            modifier = Modifier.offset(2f.dp, 2f.dp).width(172f.dp)
+                .height((metadata.height.toFloat() - 2f).dp),
         ) {
             shadcnSelect(
                 id = "parity-select",
-                options = listOf("Vega", "Nova", "Comet"),
-                selectedIndex = 0,
+                options = listOf("Apple", "Banana", "Blueberry", "Grapes", "Pineapple"),
+                selectedIndex = null,
+                placeholder = "Select a fruit",
                 modifier = Modifier.width(172f.dp),
             )
         }
@@ -924,9 +966,10 @@ internal object AwakeSelectClosedLightPreview : AwakeUiPreviewEntry {
     id = "awake-tooltip-trigger-light",
     title = "Awake Tooltip Trigger (light)",
     group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/tooltip_trigger_light.png's arrangement -- the reference screenshot only shows the trigger, not the (hover-only) tooltip content.",
-    width = 160,
-    height = 70,
+    summary = "Matches docs/reference/shadcn-previews/tooltip_trigger_light.png's arrangement -- the reference screenshot only shows the trigger, not the (hover-only) tooltip content. " +
+        "Canvas hugs the trigger button's own bounding box instead of the old 160x70 canvas (content was only 110x36).",
+    width = 114,
+    height = 40,
 )
 internal object AwakeTooltipTriggerLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -937,8 +980,8 @@ internal object AwakeTooltipTriggerLightPreview : AwakeUiPreviewEntry {
         ui.pushFont(font)
         ui.pushTheme(theme)
         ui.column(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(120f.dp)
-                .height((metadata.height.toFloat() - 24f).dp),
+            modifier = Modifier.offset(2f.dp, 2f.dp).width(110f.dp)
+                .height((metadata.height.toFloat() - 2f).dp),
         ) {
             shadcnButton(
                 "parity-tooltip-trigger",
@@ -959,9 +1002,12 @@ internal object AwakeTooltipTriggerLightPreview : AwakeUiPreviewEntry {
     id = "awake-dialog-states-light",
     title = "Awake Dialog States (light)",
     group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/dialog_states_light.png's arrangement (title/description/action) for a direct side-by-side.",
-    width = 420,
-    height = 260,
+    summary = "Matches docs/reference/shadcn-previews/dialog_states_light.png's arrangement (title/description/action) for a direct side-by-side. " +
+        "Canvas hugs the dialog panel itself instead of the old 420x260 canvas (content was only 320x150) -- the " +
+        "reference is a full 1280x800 viewport capture, so it never limits this pair's comparedSize; only Awake's " +
+        "own oversized canvas did.",
+    width = 344,
+    height = 174,
 )
 internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
