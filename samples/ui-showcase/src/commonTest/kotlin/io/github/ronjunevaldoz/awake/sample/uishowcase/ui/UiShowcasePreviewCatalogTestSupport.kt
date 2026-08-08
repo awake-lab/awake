@@ -118,6 +118,14 @@ internal expect fun previewMetadataFor(
     reportScale: Int = 1,
 ): AwakeUiPreviewMetadata
 
+/** iOS and wasmJs have no reflection, so their [previewMetadataFor] actuals return a 1x1
+ * dummy -- rendering a real page into that frame is guaranteed to fail every bounds rule.
+ * Tests that validate real preview metadata must skip on such targets instead of asserting
+ * against the dummy. */
+internal fun previewMetadataIsReal(): Boolean =
+    UiShowcasePreviewEntries.firstOrNull()
+        ?.let { !previewMetadataFor(it).id.endsWith("-dummy") } ?: false
+
 @AwakeUiPreview(
     id = "ui-showcase-overview",
     title = "Overview",

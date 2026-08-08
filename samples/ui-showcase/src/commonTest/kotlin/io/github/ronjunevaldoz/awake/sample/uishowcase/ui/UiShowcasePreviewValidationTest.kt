@@ -11,6 +11,8 @@ class UiShowcasePreviewValidationTest {
 
     @Test
     fun showcasePreviewsPassSharedUiValidationRules() {
+        // Skipped where previewMetadataFor returns the ios-dummy placeholder (no reflection).
+        if (!previewMetadataIsReal()) return
         UiShowcasePreviewEntries.forEach { entry ->
             val metadata = previewMetadataFor(entry)
             val frame = entry.render(metadata)

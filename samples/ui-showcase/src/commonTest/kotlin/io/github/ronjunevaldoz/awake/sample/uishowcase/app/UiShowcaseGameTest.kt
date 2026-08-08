@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.UiShowcaseThemePreview
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.drawUiShowcasePageContent
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.drawUiShowcaseSidebar
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.previewMetadataFor
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.previewMetadataIsReal
 import io.github.ronjunevaldoz.awake.testing.ui.inspectNonOverlappingBounds
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticContentFit
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
@@ -284,6 +285,8 @@ class UiShowcaseGameTest {
 
     @Test
     fun uiShowcaseThemePreviewSemanticLayoutStaysClean() {
+        // Skipped where previewMetadataFor returns the ios-dummy placeholder (no reflection).
+        if (!previewMetadataIsReal()) return
         val frame = UiShowcaseThemePreview.render(previewMetadataFor(UiShowcaseThemePreview))
         val semantics = frame.semantics
 
