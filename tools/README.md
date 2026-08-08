@@ -46,7 +46,8 @@ Read `docs/reference/shadcn-reference-pipeline.md` first.
 |---|---|
 | `fetch_shadcn_reference.sh` | Clones `shadcn-ui/ui` at a pinned SHA into `third_party/` (gitignored). Everything below depends on it. |
 | `extract_shadcn_tokens.py` | Parses the pinned registry's new-york/neutral theme into `ShadcnReferenceTokens.kt`, the numeric ground truth for token tests. |
-| `capture_shadcn_reference.py` | Screenshots real component demos from `ui.shadcn.com` into `docs/reference/shadcn-previews/` (playwright, fixed viewport, animations disabled). |
+| `capture_shadcn_local.py` | **Preferred.** Builds and serves `shadcn-reference-app/`, then screenshots each case from `shadcn_reference_cases.json` into `docs/reference/shadcn-previews-local/`. Components come verbatim from the pinned checkout, so the reference is shadcn's own source. Captures states a docs page cannot show (focus, disabled, hover) and any theme or radius. |
+| `capture_shadcn_reference.py` | Legacy: scrapes `ui.shadcn.com`. Being retired -- that page tiles awkwardly, its demo content differs from our previews, and it applies its own docs-site theming, which produced a false token-bug report the pinned source disproved. |
 | `compare_parity.py` | Diffs an Awake render against a reference capture: aligned crop, heatmap, mismatch metrics. Pairing lives in `shadcn_parity_pairs.json`. |
 | `generate_parity_report.py` | Regenerates `docs/reference/shadcn-parity.md` from the component inventory, token test state, and comparison metrics. |
 | `generate_ui_status.py` | Regenerates `docs/reference/ui-fidelity-status.md`, the per-area status matrix. Each row's status comes from a probe against the source, so it cannot claim done for unwired work. |

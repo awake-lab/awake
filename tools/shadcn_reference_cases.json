@@ -1,0 +1,9 @@
+{
+  "_comment": "Single source of truth for shadcn reference cases. tools/capture_shadcn_local.py renders each id from the local reference app; tools/shadcn-reference-app/src/cases.tsx must declare a matching id (the capture reports FAIL if it does not). Adding a case is one row here plus one entry there -- no tiling, no hand-matched framing.",
+  "cases": [
+    { "id": "button-variants", "why": "All six shadcn button variants in declaration order." },
+    { "id": "button-sizes", "why": "sm/default/lg -- the heights our hardcoded 40dp fallbacks get compared against." },
+    { "id": "button-disabled", "why": "A state no docs demo exposes; our disabled rendering had no reference at all." },
+    { "id": "badge-variants", "why": "Badge variants, including the ghost/link pair the variant audit flagged." }
+  ]
+}
