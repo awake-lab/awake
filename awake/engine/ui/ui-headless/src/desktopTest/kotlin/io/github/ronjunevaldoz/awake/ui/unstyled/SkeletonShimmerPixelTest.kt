@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
+import io.github.ronjunevaldoz.awake.ui.unstyled.skeleton
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -40,7 +41,12 @@ class SkeletonShimmerPixelTest {
         val frameDeltaSeconds = 1f / 60f
         var primitives: List<io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive> = emptyList()
         repeat(36) {
-            ui.beginFrame(width.toFloat(), height.toFloat(), testSnapshot(), deltaSeconds = frameDeltaSeconds)
+            ui.beginFrame(
+                width.toFloat(),
+                height.toFloat(),
+                testSnapshot(),
+                deltaSeconds = frameDeltaSeconds
+            )
             val scope = ui.createAbsolute(x = 0f, y = 0f)
             scope.skeleton(
                 id = "skeleton-shimmer-probe",
@@ -83,7 +89,7 @@ class SkeletonShimmerPixelTest {
             Color.Black,
             cornerWithShimmer,
             "the shimmer band must be clipped to the rounded shape -- it must NOT paint past the cut corner " +
-                "(a failure here means GradientQuad clipping regressed, not that shimmer itself is broken)",
+                    "(a failure here means GradientQuad clipping regressed, not that shimmer itself is broken)",
         )
     }
 
@@ -102,7 +108,7 @@ class SkeletonShimmerPixelTest {
         assertTrue(
             brightnessWithShimmer > brightnessNoShimmer,
             "shimmer=true must visibly brighten the skeleton interior versus pulse alone: " +
-                "$brightnessWithShimmer vs $brightnessNoShimmer",
+                    "$brightnessWithShimmer vs $brightnessNoShimmer",
         )
     }
 }

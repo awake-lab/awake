@@ -22,6 +22,8 @@ import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 /** [button] with the resolved [UiBounds] alongside the click result. */
@@ -53,7 +55,8 @@ private inline fun UiScope.buttonSlotInternal(
         enabled = enabled,
     )
     val baseFill = surface.resolved.background ?: theme.colors.background
-    val fillColor = variant.resolveFill(baseFill, surface.interaction.hovered, surface.interaction.active)
+    val fillColor =
+        variant.resolveFill(baseFill, surface.interaction.hovered, surface.interaction.active)
     // Reference's `disabled:opacity-50` treatment (shadcn-compose's `disabledDim()`), applied
     // here as a single [withGraphicsLayerAlpha] group covering the fill/border paint and the
     // content lambda's own text/graphics, the same "one flat composited result, dimmed once"
@@ -208,7 +211,11 @@ enum class UiButtonVariant {
     Ghost,
 }
 
-internal fun UiButtonVariant.resolveFill(baseColor: Color, hovered: Boolean, active: Boolean): Color =
+internal fun UiButtonVariant.resolveFill(
+    baseColor: Color,
+    hovered: Boolean,
+    active: Boolean
+): Color =
     when (this) {
         UiButtonVariant.Filled -> baseColor
         UiButtonVariant.Outline, UiButtonVariant.Ghost -> if (hovered || active) baseColor else Color.Transparent

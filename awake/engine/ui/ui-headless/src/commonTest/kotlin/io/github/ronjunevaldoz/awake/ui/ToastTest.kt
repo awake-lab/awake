@@ -3,13 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.toast
+import io.github.ronjunevaldoz.awake.ui.unstyled.toast
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /** [toast]'s whole contract is its return value's lifecycle across frames -- stays `true` while
- * under [io.github.ronjunevaldoz.awake.ui.headless.toast]'s own `durationMs`, flips to `false`
+ * under [toast]'s own `durationMs`, flips to `false`
  * once elapsed time crosses it, mirroring how a caller's own "active toasts" list would drop it. */
 class ToastTest {
 

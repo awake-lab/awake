@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless
+package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -38,7 +38,12 @@ fun UiScope.spinner(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
 ) {
-    val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.Fixed(24f.dp), Dimension.Fixed(24f.dp)))
+    val slot = claimModifiedSlot(
+        modifier.withSizeFallback(
+            Dimension.Fixed(24f.dp),
+            Dimension.Fixed(24f.dp)
+        )
+    )
     val resolved = resolveStyle(style = style)
     val dotColor = resolved.foreground ?: theme.colors.foreground
     val state = widgetState(id)
@@ -57,7 +62,7 @@ fun UiScope.spinner(
         val dotX = centerX + orbitRadius * cos(angle)
         val dotY = centerY + orbitRadius * sin(angle)
         emitFillAndBorder(
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+            slot = UiBounds(
                 dotX - dotDiameter / 2f,
                 dotY - dotDiameter / 2f,
                 dotDiameter,

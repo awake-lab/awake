@@ -19,24 +19,6 @@
     <ID>LongMethod:main.kt$fun main(args: Array&lt;String>)</ID>
     <ID>MatchingDeclarationName:WriteFile.kt$FileWriter</ID>
     <ID>MatchingDeclarationName:fieldExt.kt$JNIType</ID>
-    <ID>MaxLineLength:CreateVulkanAccessor.kt$(javaType == JNIType.JLong || javaType == JNIType.JLongArray) &amp;&amp; javaMember.isVkHandle() -> javaMember.getVkHandle().name</ID>
-    <ID>MaxLineLength:CreateVulkanAccessor.kt$child(" $arrayName.push_back(static_cast&lt;$enumName>(enum_utils::getEnumFromObject(env, element))); // type is enum")</ID>
-    <ID>MaxLineLength:CreateVulkanAccessor.kt$child(" jlong value = env->Call${javaMember.type.componentType.simpleName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}Method(element, getValueMethod);")</ID>
-    <ID>MaxLineLength:CreateVulkanAccessor.kt$child("return (${returnType}) (accessor.fromObject()); // Object is null, should be accessed by an accessor")</ID>
-    <ID>MaxLineLength:CreateVulkanAccessor.kt$child("std::copy(${arrayName}.begin(), ${arrayName}.end(), $clazzInfo.${arrayName}); // fixed array size")</ID>
-    <ID>MaxLineLength:CreateVulkanAccessor.kt$child("std::copy(${arrayName}.begin(), ${arrayName}.end(), $clazzInfo.${unionMember.alias}); // union member")</ID>
-    <ID>MaxLineLength:CreateVulkanMutator.kt$child("${javaMember.toJavaTypeArray()} $vulkanArrayName = env->NewObjectArray(source.${javaArray.sizeAlias}, ${javaMember.name}Clazz, nullptr);")</ID>
-    <ID>MaxLineLength:CreateVulkanMutator.kt$child("${javaMember.toJavaTypeArray()} ${javaMember.name} = env->New${javaMember.type.componentType.simpleName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}Array($arraySize);")</ID>
-    <ID>MaxLineLength:fieldExt.kt$// Object::class.javaPrimitiveType, java.lang.Object::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"</ID>
-    <ID>MaxLineLength:fieldExt.kt$// String::class.javaPrimitiveType, java.lang.String::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"</ID>
-    <ID>MaxLineLength:fieldExt.kt$Boolean::class.javaPrimitiveType, java.lang.Boolean::class.java -> "${prefix}BooleanArrayRegion$arrayRegionConstructor"</ID>
-    <ID>MaxLineLength:fieldExt.kt$Boolean::class.javaPrimitiveType, java.lang.Boolean::class.java -> "GetBooleanArrayRegion$arrayRegionConstructor"</ID>
-    <ID>MaxLineLength:fieldExt.kt$Char::class.javaPrimitiveType, java.lang.Character::class.java -> "${prefix}CharArrayRegion$arrayRegionConstructor"</ID>
-    <ID>MaxLineLength:fieldExt.kt$Double::class.javaPrimitiveType, java.lang.Double::class.java -> "${prefix}DoubleArrayRegion$arrayRegionConstructor"</ID>
-    <ID>MaxLineLength:fieldExt.kt$Float::class.javaPrimitiveType, java.lang.Float::class.java -> "${prefix}FloatArrayRegion$arrayRegionConstructor"</ID>
-    <ID>MaxLineLength:fieldExt.kt$Object::class.javaPrimitiveType, java.lang.Object::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"</ID>
-    <ID>MaxLineLength:fieldExt.kt$Short::class.javaPrimitiveType, java.lang.Short::class.java -> "${prefix}ShortArrayRegion$arrayRegionConstructor"</ID>
-    <ID>MaxLineLength:fieldExt.kt$String::class.javaPrimitiveType, java.lang.String::class.java -> "GetObjectArrayElement($list, $index); // actual type is ${type.simpleName}"</ID>
     <ID>NestedBlockDepth:CreateVulkanAccessor.kt$fun CppFunctionBodyBuilder.processArrayAccessor( void: Boolean, clazz: Class&lt;*>, javaMember: Field, returnType: String, import: (dependency: String) -> Unit )</ID>
     <ID>NestedBlockDepth:CreateVulkanAccessor.kt$fun CppFunctionBodyBuilder.processObjectAccessor( void: Boolean, javaMember: Field, returnType: String, import: (dependency: String) -> Unit )</ID>
     <ID>NestedBlockDepth:CreateVulkanAccessor.kt$private fun CppClassBuilder.generateVulkanGetters( clazz: Class&lt;*>, declareMembers: Array&lt;Field> )</ID>

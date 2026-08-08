@@ -115,54 +115,6 @@
     <ID>MatchingDeclarationName:UiDslMarker.kt$AwakeUiDsl</ID>
     <ID>MatchingDeclarationName:UiGradient.kt$UiLinearGradient</ID>
     <ID>MatchingDeclarationName:UiWeightCache.kt$UiWeightCacheConsistencyCheck</ID>
-    <ID>MaxLineLength:AbsoluteScope.kt$AbsoluteScope$*</ID>
-    <ID>MaxLineLength:Arrangement.kt$*</ID>
-    <ID>MaxLineLength:Column.kt$return resolveMeasuredColumn(id, modifier, effectiveStyle, verticalArrangement, role, horizontalAlignment, cacheKey, content)</ID>
-    <ID>MaxLineLength:Column.kt$val occupiedHeight = childHeights.sum() + effectiveArrangement.baseSpacingPx() * (childHeights.size - 1).coerceAtLeast(0)</ID>
-    <ID>MaxLineLength:Column.kt$val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle</ID>
-    <ID>MaxLineLength:Dimension.kt$Dimension$*</ID>
-    <ID>MaxLineLength:Dimension.kt$Dimension.FillMax$/**</ID>
-    <ID>MaxLineLength:Dimension.kt$LayoutWeight$*</ID>
-    <ID>MaxLineLength:Dp.kt$*</ID>
-    <ID>MaxLineLength:Dp.kt$Dp$*</ID>
-    <ID>MaxLineLength:Layout.kt$AbstractUiScope$*</ID>
-    <ID>MaxLineLength:MsdfFont.kt$MsdfFont$if (!GlyphAtlasSource.isFilled(rows, x - 1, y)) segments += Segment(x.toFloat(), y.toFloat(), x.toFloat(), y + 1f)</ID>
-    <ID>MaxLineLength:MsdfFont.kt$MsdfFont$if (!GlyphAtlasSource.isFilled(rows, x, y - 1)) segments += Segment(x.toFloat(), y.toFloat(), x + 1f, y.toFloat())</ID>
-    <ID>MaxLineLength:MsdfFont.kt$MsdfFont$override</ID>
-    <ID>MaxLineLength:Row.kt$val occupiedWidth = childWidths.sum() + effectiveArrangement.baseSpacingPx() * (childWidths.size - 1).coerceAtLeast(0)</ID>
-    <ID>MaxLineLength:Row.kt$val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle</ID>
-    <ID>MaxLineLength:ScrollContainers.kt$"Scrollable container '$containerLabel' requested $axis=FillMax under unbounded parent ${debugScopeLabel()}. "</ID>
-    <ID>MaxLineLength:Style.kt$Style$fun</ID>
-    <ID>MaxLineLength:UiAlignment.kt$UiAlignment.BottomStart, UiAlignment.BottomCenter, UiAlignment.BottomEnd -> content.y + content.height - resolvedHeight</ID>
-    <ID>MaxLineLength:UiAlignment.kt$UiAlignment.CenterStart, UiAlignment.Center, UiAlignment.CenterEnd -> content.y + (content.height - resolvedHeight) / 2f</ID>
-    <ID>MaxLineLength:UiAlignment.kt$UiAlignment.TopCenter, UiAlignment.Center, UiAlignment.BottomCenter -> content.x + (content.width - resolvedWidth) / 2f</ID>
-    <ID>MaxLineLength:UiColorTokens.kt$UiColorTokens$*</ID>
-    <ID>MaxLineLength:UiContext.kt$UiContext$"beginFrame(UiFrameInput(viewportWidth = screenWidth, viewportHeight = screenHeight, input = inputState, deltaSeconds = deltaSeconds))"</ID>
-    <ID>MaxLineLength:UiContext.kt$UiContext$message = "Measurement mode is engine plumbing; prefer UiScope/layout helpers instead of branching on UiContext."</ID>
-    <ID>MaxLineLength:UiContext.kt$UiContext$message = "Measurement should be coordinated from UiScope/layout helpers, not from the public UiContext surface."</ID>
-    <ID>MaxLineLength:UiContext.kt$UiContext$message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly."</ID>
-    <ID>MaxLineLength:UiContextCompat.kt$message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createAbsolute(...) APIs."</ID>
-    <ID>MaxLineLength:UiContextCompat.kt$message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createBox(...) APIs."</ID>
-    <ID>MaxLineLength:UiContextCompat.kt$message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createColumn(...) APIs."</ID>
-    <ID>MaxLineLength:UiContextCompat.kt$message = "Compatibility root helper slated for future removal. Prefer explicit pushFont/pushTheme/pushTextStyle plus direct UiContext.createRow(...) APIs."</ID>
-    <ID>MaxLineLength:UiDebugOverlay.kt$*</ID>
-    <ID>MaxLineLength:UiDebugOverlay.kt$clippedBounds?.let { add(UiDrawPrimitive.StrokedPath(rectOutline(it), UiStroke(strokeWidth), UiDebugOverlayColors.ClippedBounds)) }</ID>
-    <ID>MaxLineLength:UiDebugOverlay.kt$contentBounds?.let { add(UiDrawPrimitive.StrokedPath(rectOutline(it), UiStroke(strokeWidth), UiDebugOverlayColors.ContentBounds)) }</ID>
-    <ID>MaxLineLength:UiDrawPrimitive.kt$*</ID>
-    <ID>MaxLineLength:UiDrawPrimitive.kt$UiDrawPrimitive.ClipPop$*</ID>
-    <ID>MaxLineLength:UiDrawPrimitive.kt$UiDrawPrimitive.ClipPush$*</ID>
-    <ID>MaxLineLength:UiLegacyCompat.kt$message = "Compatibility clip alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.graphics.clip."</ID>
-    <ID>MaxLineLength:UiLegacyCompat.kt$message = "Compatibility spacer alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.layouts.spacer."</ID>
-    <ID>MaxLineLength:UiLegacyCompat.kt$message = "Compatibility surface alias slated for future removal. Prefer io.github.ronjunevaldoz.awake.ui.layouts.surface."</ID>
-    <ID>MaxLineLength:UiPath.kt$UiFillRule.NonZero -> contours.sumOf { contour -> if (contour.closed) contour.windingContribution(x, y) else 0 } != 0</ID>
-    <ID>MaxLineLength:UiPath.kt$private</ID>
-    <ID>MaxLineLength:UiPopup.kt$val bounds = placePopupRelativeToAnchor(anchorBounds, popupSize, resolvedAnchorAlignment, resolvedPopupAlignment, offsetX, offsetY)</ID>
-    <ID>MaxLineLength:UiPopup.kt$val placed = placePopupRelativeToAnchor(anchorBounds, popupSize, resolvedAnchorAlignment, resolvedPopupAlignment, offsetX, offsetY)</ID>
-    <ID>MaxLineLength:UiScope.kt$UiScope$*</ID>
-    <ID>MaxLineLength:UiSpacing.kt$UiSpacing$/**</ID>
-    <ID>MaxLineLength:UiTheme.kt$UiTheme$* A complete, swappable look for a [io.github.ronjunevaldoz.awake.ui.UiScope] -- assigned once at `ui.column(..., theme = ...)`.</ID>
-    <ID>MaxLineLength:UiTransition.kt$return animateFloatTween(id = "__transition__$id", target = target, initial = target, durationMs = durationMs, easing = easing)</ID>
-    <ID>MaxLineLength:WidgetState.kt$WidgetState$*</ID>
     <ID>ReturnCount:Column.kt$internal fun UiScope.smartColumn( id: String?, gap: Float, verticalArrangement: Arrangement, style: Style, modifier: UiModifier, clipContent: Boolean = false, role: UiSemanticRole = UiSemanticRole.None, // ponytail: only the plain-measured-column strategy below actually applies this -- the // scrollable/visual-surface strategies delegate to scrollPanel()/surface(), which are a // separate widget surface (out of this task's row()/column() scope) and always keep their // own Start default. Thread it through those too if a scrollable/surfaced column ever needs // a non-default cross-axis alignment. horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start, // Opt-in cross-frame hasWeightedChild cache -- see UiScope.column()'s doc comment. Only // resolveMeasuredColumn()'s plain-measured strategy below consults this; the scrollable/ // visual-surface strategies delegate to scrollPanel()/surface(), a separate widget surface // out of this task's row()/column() scope, so cacheKey is simply unused (not incorrect) on // those paths. cacheKey: Any? = null, content: ColumnScope.(slot: UiBounds) -> Unit ): UiBounds</ID>
     <ID>ReturnCount:GlyphAtlasSource.kt$GlyphAtlasSource$fun sampleCoverage( rows: IntArray, atlasX: Int, atlasY: Int, atlasInsetPx: Int, atlasCellSize: Int, atlasInnerSize: Int, supersampleGrid: Int ): Float</ID>
     <ID>ReturnCount:ShapePainter.kt$fun UiScope.emitFillAndBorder( slot: UiBounds, fillColor: Color, radiusPx: Float, borderWidth: Dp, borderColor: Color = context.currentTheme.colors.border, shapeSpec: UiShapeSpec? = null, overlay: Boolean = emitsToOverlay )</ID>

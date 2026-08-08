@@ -11,8 +11,6 @@
     <ID>MagicNumber:GameUiPerfOverlay.kt$GameFrameStats$100</ID>
     <ID>MagicNumber:GameUiRuntime.kt$GameUiRuntime$1000f</ID>
     <ID>MatchingDeclarationName:GameUiPerfOverlay.kt$GameFrameStats</ID>
-    <ID>MaxLineLength:GameUiRuntime.kt$GameUiRuntime$message = "Use rootColumn(modifier = ...) so authored runtime layout comes from UiModifier, not UiSlot geometry."</ID>
-    <ID>MaxLineLength:GameUiRuntime.kt$GameUiRuntime$replaceWith = ReplaceWith("rootColumn(modifier = modifier, verticalArrangement = verticalArrangement, block = block)")</ID>
     <ID>TooManyFunctions:GameDsl.kt$GameSpecDsl</ID>
     <ID>TooManyFunctions:GameUiRuntime.kt$GameUiRuntime</ID>
   </CurrentIssues>

@@ -2,6 +2,5 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>MaxLineLength:SceneRuntime.kt$SceneRuntime$scene = SceneLoader.loadFromResource(scenePath).instantiate(world = world, flipYForClipSpace = renderer.flipYForClipSpace)</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -5,10 +5,10 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.spinner
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.spinner
 import kotlin.test.Test
 import kotlin.test.assertNotEquals
 
@@ -41,7 +41,11 @@ class SpinnerTest {
         ui.createAbsolute(x = 10f, y = 10f).spinner("s", modifier = modifier)
         val later = ui.firstDotCenter()
 
-        assertNotEquals(rest, inFlight, "spinner dot should have moved between the rest and next sampled frame")
+        assertNotEquals(
+            rest,
+            inFlight,
+            "spinner dot should have moved between the rest and next sampled frame"
+        )
         assertNotEquals(inFlight, later, "spinner dot should keep moving on a third sampled frame")
         assertNotEquals(rest, later, "spinner dot should not already be back at its rest position")
     }
@@ -50,7 +54,8 @@ class SpinnerTest {
     fun recordsSpinnerSemanticRole() {
         val ui = UiContext()
         ui.beginFrame(60f, 60f, testSnapshot())
-        ui.createAbsolute(x = 10f, y = 10f).spinner("s", modifier = Modifier.width(24f.px).height(24f.px))
+        ui.createAbsolute(x = 10f, y = 10f)
+            .spinner("s", modifier = Modifier.width(24f.px).height(24f.px))
 
         val semantics = ui.semanticNodes()
         inspectSemanticNodes(semantics).requireClean()

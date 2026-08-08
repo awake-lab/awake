@@ -10,9 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.headless.interact
-import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
-import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -24,6 +21,9 @@ import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.interact
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 // Dp, not raw px: added to/subtracted from `slot`/`trackSlot` coordinates that are already
@@ -83,7 +83,7 @@ fun UiScope.slider(
         defaults = theme.components.slider,
         focused = false,
     )
-    val trackSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+    val trackSlot = UiBounds(
         trackX,
         slot.y + (slot.height - trackHeightPx) / 2f,
         trackWidth,
@@ -101,7 +101,12 @@ fun UiScope.slider(
         )
         if (handleWidth > 0f) {
             emitFillAndBorder(
-                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(trackSlot.x, trackSlot.y, handleWidth, trackSlot.height),
+                slot = UiBounds(
+                    trackSlot.x,
+                    trackSlot.y,
+                    handleWidth,
+                    trackSlot.height
+                ),
                 fillColor = theme.colors.primary,
                 radiusPx = 0f,
                 borderWidth = UiShape.none,
@@ -111,7 +116,7 @@ fun UiScope.slider(
         }
         if (showKnob) {
             paintSurface(
-                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                slot = UiBounds(
                     knobCenterX - knobDiameterPx / 2f,
                     slot.y + (slot.height - knobDiameterPx) / 2f,
                     knobDiameterPx,

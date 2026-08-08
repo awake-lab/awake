@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnLabel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
-import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -19,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 
 /**
  * Matches shadcn-compose's `Field` orientation switch -- [Vertical] stacks label above
@@ -96,7 +96,11 @@ fun ColumnScope.shadcnFieldSet(
     id: String? = null,
     modifier: UiModifier = Modifier,
     content: ColumnScope.() -> Unit,
-): UiBounds = column(id = id, verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm), modifier = modifier) { content() }
+): UiBounds = column(
+    id = id,
+    verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm),
+    modifier = modifier
+) { content() }
 
 /** Real shadcn's `FieldLegend` (HTML `<legend>` equivalent) -- the title of a [shadcnFieldSet],
  * one step up in visual weight from [shadcnFieldLabel]. Delegates to [shadcnSectionTitle] for the
@@ -111,7 +115,11 @@ fun ColumnScope.shadcnFieldGroup(
     id: String? = null,
     modifier: UiModifier = Modifier,
     content: ColumnScope.() -> Unit,
-): UiBounds = column(id = id, verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xxl), modifier = modifier) { content() }
+): UiBounds = column(
+    id = id,
+    verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xxl),
+    modifier = modifier
+) { content() }
 
 /**
  * Real shadcn's `FieldSeparator` -- a plain hairline between fields, or (with [label]) a

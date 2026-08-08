@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless
+package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -39,13 +39,17 @@ fun UiScope.skeleton(
     style: Style = Style.Empty,
     shimmer: Boolean = false,
 ) {
-    val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(16f.dp)))
+    val slot =
+        claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(16f.dp)))
     val resolved = resolveStyle(style = style, defaults = theme.components.slider)
     val state = widgetState(id)
     val elapsed = state.get("skeletonElapsed", 0f) + frameDeltaSeconds()
     state.set("skeletonElapsed", elapsed)
     val phase = (elapsed / SKELETON_PULSE_PERIOD_SECONDS) * (2f * PI.toFloat())
-    val pulse = SKELETON_PULSE_MIN_ALPHA + (SKELETON_PULSE_MAX_ALPHA - SKELETON_PULSE_MIN_ALPHA) * ((sin(phase) + 1f) / 2f)
+    val pulse =
+        SKELETON_PULSE_MIN_ALPHA + (SKELETON_PULSE_MAX_ALPHA - SKELETON_PULSE_MIN_ALPHA) * ((sin(
+            phase
+        ) + 1f) / 2f)
     val baseColor = resolved.background ?: theme.colors.muted
     val radiusPx = resolved.shape.toPx()
     emitFillAndBorder(

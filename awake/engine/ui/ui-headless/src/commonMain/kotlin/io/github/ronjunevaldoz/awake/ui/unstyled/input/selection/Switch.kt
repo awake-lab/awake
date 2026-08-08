@@ -12,10 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
-import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -25,6 +22,8 @@ import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import kotlin.math.ceil
 
@@ -61,7 +60,12 @@ fun UiScope.switch(
     // opposite bug: toggle's textSize token differs from ambient body text, so the claimed slot
     // undershot the real render width and text() silently ellipsized the label.
     val labelTextStyle = resolveStyle(style = style, defaults = theme.components.toggle).textStyle
-    val labelWidthPx = label?.let { context.currentFont.measureTextWidth(it, resolveGlyphPx(textStyle = labelTextStyle)) } ?: 0f
+    val labelWidthPx = label?.let {
+        context.currentFont.measureTextWidth(
+            it,
+            resolveGlyphPx(textStyle = labelTextStyle)
+        )
+    } ?: 0f
     val gapPx = if (label != null) TOGGLE_LABEL_GAP.toPx() else 0f
     // ceil, not the raw sum: this width round-trips through Dp (-> .px below -> Dimension.Fixed
     // -> the resolved slot -> .toPx() at paint time), then has trackWidthPx/gapPx subtracted
@@ -81,7 +85,10 @@ fun UiScope.switch(
         id = id,
         style = style,
         defaults = theme.components.toggle,
-        modifier = modifier.withSizeFallback(Dimension.Fixed(fallbackWidthPx.px), Dimension.Fixed(TOGGLE_HEIGHT)),
+        modifier = modifier.withSizeFallback(
+            Dimension.Fixed(fallbackWidthPx.px),
+            Dimension.Fixed(TOGGLE_HEIGHT)
+        ),
         selected = checked,
         enabled = enabled,
     )
@@ -123,7 +130,12 @@ fun UiScope.switch(
             trackSlot.x + knobInsetPx
         }
         emitFillAndBorder(
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(knobX, trackSlot.y + knobInsetPx, knobDiameter, knobDiameter),
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                knobX,
+                trackSlot.y + knobInsetPx,
+                knobDiameter,
+                knobDiameter
+            ),
             fillColor = theme.colors.background,
             radiusPx = 0f,
             borderWidth = UiShape.none,
@@ -134,7 +146,8 @@ fun UiScope.switch(
             val trackWidthPx = TOGGLE_WIDTH.toPx()
             // Slot width is already claimed as track+gap+measured label (see fallbackWidthPx
             // above), so the remainder here is that same measured width, not a guess.
-            val labelWidth = (surface.interaction.slot.width - trackWidthPx - gapPx).coerceAtLeast(0f)
+            val labelWidth =
+                (surface.interaction.slot.width - trackWidthPx - gapPx).coerceAtLeast(0f)
             text(
                 label,
                 slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(

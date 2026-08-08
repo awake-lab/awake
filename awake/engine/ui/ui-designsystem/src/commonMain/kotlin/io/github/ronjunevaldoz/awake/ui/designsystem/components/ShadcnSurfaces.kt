@@ -16,7 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -33,6 +32,7 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 
 /** Inserts the header/footer separator convention shared with [DropdownMenu]'s
  * item separator: a thin border-colored rule with a small gap on both sides,
@@ -84,8 +84,24 @@ private fun UiScope.emitCardElevationShadow(slot: UiBounds) {
     val bands = listOf(2f.dp.toPx() to 0.20f, 4f.dp.toPx() to 0.13f, 6f.dp.toPx() to 0.07f)
     for ((offset, alpha) in bands) {
         val shadowColor = Color.Black.withAlpha(alpha)
-        emit(UiDrawPrimitive.Quad(slot.x, slot.y + slot.height, slot.width + offset, offset, shadowColor))
-        emit(UiDrawPrimitive.Quad(slot.x + slot.width, slot.y, offset, slot.height + offset, shadowColor))
+        emit(
+            UiDrawPrimitive.Quad(
+                slot.x,
+                slot.y + slot.height,
+                slot.width + offset,
+                offset,
+                shadowColor
+            )
+        )
+        emit(
+            UiDrawPrimitive.Quad(
+                slot.x + slot.width,
+                slot.y,
+                offset,
+                slot.height + offset,
+                shadowColor
+            )
+        )
     }
 }
 
@@ -93,7 +109,10 @@ private fun UiScope.emitCardElevationShadow(slot: UiBounds) {
  * background, border, and content padding. Composed from the [surface] primitive. */
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
-    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface"),
+    replaceWith = ReplaceWith(
+        "surface(id = id, modifier = modifier, style = style, content = content)",
+        "io.github.ronjunevaldoz.awake.ui.layouts.surface"
+    ),
 )
 fun UiScope.shadcnSurface(
     id: String,
@@ -104,13 +123,19 @@ fun UiScope.shadcnSurface(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
+    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(
+        theme.asShadcnTheme(),
+        variant
+    )) then style,
     content = { slot -> content(slot) },
 )
 
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
-    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface"),
+    replaceWith = ReplaceWith(
+        "surface(id = id, modifier = modifier, style = style, content = content)",
+        "io.github.ronjunevaldoz.awake.ui.layouts.surface"
+    ),
 )
 fun ColumnScope.shadcnSurface(
     id: String,
@@ -121,13 +146,19 @@ fun ColumnScope.shadcnSurface(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
+    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(
+        theme.asShadcnTheme(),
+        variant
+    )) then style,
     content = { slot -> content(slot) },
 )
 
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
-    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface"),
+    replaceWith = ReplaceWith(
+        "surface(id = id, modifier = modifier, style = style, content = content)",
+        "io.github.ronjunevaldoz.awake.ui.layouts.surface"
+    ),
 )
 fun RowScope.shadcnSurface(
     id: String,
@@ -138,13 +169,19 @@ fun RowScope.shadcnSurface(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
+    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(
+        theme.asShadcnTheme(),
+        variant
+    )) then style,
     content = { slot -> content(slot) },
 )
 
 @Deprecated(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
-    replaceWith = ReplaceWith("surface(id = id, modifier = modifier, style = style, content = content)", "io.github.ronjunevaldoz.awake.ui.layouts.surface"),
+    replaceWith = ReplaceWith(
+        "surface(id = id, modifier = modifier, style = style, content = content)",
+        "io.github.ronjunevaldoz.awake.ui.layouts.surface"
+    ),
 )
 fun BoxScope.shadcnSurface(
     id: String,
@@ -155,7 +192,10 @@ fun BoxScope.shadcnSurface(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style,
+    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(
+        theme.asShadcnTheme(),
+        variant
+    )) then style,
     content = { slot -> content(slot) },
 )
 

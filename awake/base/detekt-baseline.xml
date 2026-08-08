@@ -87,11 +87,6 @@
     <ID>MatchingDeclarationName:gameloop.ios.kt$IOSGameLoop : GameLoop</ID>
     <ID>MatchingDeclarationName:gameloop.kt$GameLoop</ID>
     <ID>MatchingDeclarationName:matrix.kt$Mat4</ID>
-    <ID>MaxLineLength:GltfParser.kt$GltfParser$val values = readFloatAccessor(document, buffers, sampler.output, componentsPerElement = componentsPerKeyframe)</ID>
-    <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$FloatArray(comps) { i -> sampler.values[loBase + i] + (sampler.values[hiBase + i] - sampler.values[loBase + i]) * t }</ID>
-    <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$val a = Quat(sampler.values[loBase], sampler.values[loBase + 1], sampler.values[loBase + 2], sampler.values[loBase + 3])</ID>
-    <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$val b = Quat(sampler.values[hiBase], sampler.values[hiBase + 1], sampler.values[hiBase + 2], sampler.values[hiBase + 3])</ID>
-    <ID>MaxLineLength:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$val local = node.matrix ?: Mat4.fromTrs(currentTranslation[nodeIndex], currentRotation[nodeIndex], currentScale[nodeIndex])</ID>
     <ID>ReturnCount:AndroidInputBridge.kt$fun MotionEvent.syncAwakePointerInput(input: Input): Boolean</ID>
     <ID>ReturnCount:SkinnedAnimationPlayer.kt$SkinnedAnimationPlayer$private fun sampleChannel(sampler: LoadedAnimationSampler, timeSeconds: Float): FloatArray</ID>
     <ID>TooManyFunctions:GltfParser.kt$GltfParser</ID>

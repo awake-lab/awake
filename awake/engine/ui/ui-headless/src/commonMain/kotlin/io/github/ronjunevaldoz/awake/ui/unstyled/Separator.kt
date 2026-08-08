@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless
+package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.Dp
@@ -40,12 +40,29 @@ fun UiScope.separator(
         SeparatorOrientation.Horizontal -> {
             val lineHeight = pixelPerfectPixel(thickness.toPx()).coerceAtLeast(1f)
             val lineY = pixelPerfectPixel(slot.y + (slot.height - lineHeight) / 2f)
-            emit(UiDrawPrimitive.Quad(pixelPerfectPixel(slot.x), lineY, pixelPerfectPixel(slot.width).coerceAtLeast(1f), lineHeight, color))
+            emit(
+                UiDrawPrimitive.Quad(
+                    pixelPerfectPixel(slot.x),
+                    lineY,
+                    pixelPerfectPixel(slot.width).coerceAtLeast(1f),
+                    lineHeight,
+                    color
+                )
+            )
         }
+
         SeparatorOrientation.Vertical -> {
             val lineWidth = pixelPerfectPixel(thickness.toPx()).coerceAtLeast(1f)
             val lineX = pixelPerfectPixel(slot.x + (slot.width - lineWidth) / 2f)
-            emit(UiDrawPrimitive.Quad(lineX, pixelPerfectPixel(slot.y), lineWidth, pixelPerfectPixel(slot.height).coerceAtLeast(1f), color))
+            emit(
+                UiDrawPrimitive.Quad(
+                    lineX,
+                    pixelPerfectPixel(slot.y),
+                    lineWidth,
+                    pixelPerfectPixel(slot.height).coerceAtLeast(1f),
+                    color
+                )
+            )
         }
     }
     recordSemantic(

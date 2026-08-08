@@ -5,6 +5,11 @@ package io.github.ronjunevaldoz.awake.core.mesh.gltf
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Quat
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.decodeBuffer
+import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.parse
+import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.parseScene
+import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.parseSkinned
+import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.readBaseColorImageBytes
 import kotlinx.serialization.json.Json
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -98,10 +103,15 @@ object GltfParser {
         return LoadedScene(loadedMeshes)
     }
 
-    private fun readPrimitive(document: GltfDocument, buffers: List<ByteArray>, primitive: GltfPrimitive): GltfMesh {
+    private fun readPrimitive(
+        document: GltfDocument,
+        buffers: List<ByteArray>,
+        primitive: GltfPrimitive
+    ): GltfMesh {
         val positionAccessor = primitive.attributes.position
             ?: error("glTF primitive is missing a POSITION attribute.")
-        val positions = readFloatAccessor(document, buffers, positionAccessor, componentsPerElement = 3)
+        val positions =
+            readFloatAccessor(document, buffers, positionAccessor, componentsPerElement = 3)
         val normals = primitive.attributes.normal?.let {
             readFloatAccessor(document, buffers, it, componentsPerElement = 3)
         }
@@ -113,20 +123,33 @@ object GltfParser {
         }
         val indices = primitive.indices?.let { readIndexAccessor(document, buffers, it) }
             ?: IntArray(positions.size / 3) { it }
-        val jointIndices = primitive.attributes.joints0?.let { readJointAccessor(document, buffers, it) }
+        val jointIndices =
+            primitive.attributes.joints0?.let { readJointAccessor(document, buffers, it) }
         val jointWeights = primitive.attributes.weights0?.let {
             readFloatAccessor(document, buffers, it, componentsPerElement = 4)
         }
         val baseColorImageBytes = readBaseColorImageBytes(document, primitive)
 
-        return GltfMesh(positions, normals, colors, uvs, indices, jointIndices, jointWeights, baseColorImageBytes)
+        return GltfMesh(
+            positions,
+            normals,
+            colors,
+            uvs,
+            indices,
+            jointIndices,
+            jointWeights,
+            baseColorImageBytes
+        )
     }
 
     /** Resolves [primitive]'s material -> `pbrMetallicRoughness.baseColorTexture` -> texture ->
      * image, returning that image's still-encoded bytes (decoded from its base64 data URI) --
      * `null` at any missing link in that chain (no material, no base color texture, an
      * external/non-embedded image URI). */
-    private fun readBaseColorImageBytes(document: GltfDocument, primitive: GltfPrimitive): ByteArray? {
+    private fun readBaseColorImageBytes(
+        document: GltfDocument,
+        primitive: GltfPrimitive
+    ): ByteArray? {
         val uri = primitive.material
             ?.let { document.materials.getOrNull(it) }
             ?.pbrMetallicRoughness
@@ -181,7 +204,11 @@ object GltfParser {
         return LoadedSkinnedScene(nodes, meshes, skins, animations, rootNodes)
     }
 
-    private fun parseSkin(document: GltfDocument, buffers: List<ByteArray>, skinIndex: Int): LoadedSkin {
+    private fun parseSkin(
+        document: GltfDocument,
+        buffers: List<ByteArray>,
+        skinIndex: Int
+    ): LoadedSkin {
         val skin = document.skins[skinIndex]
         val inverseBindFloats = skin.inverseBindMatrices?.let {
             readFloatAccessor(document, buffers, it, componentsPerElement = 16)
@@ -189,7 +216,8 @@ object GltfParser {
         val inverseBindMatrices = skin.joints.indices.map { jointIndex ->
             Mat4().apply {
                 if (inverseBindFloats != null) {
-                    for (component in 0 until 16) data[component] = inverseBindFloats[jointIndex * 16 + component]
+                    for (component in 0 until 16) data[component] =
+                        inverseBindFloats[jointIndex * 16 + component]
                 }
                 // else: no inverseBindMatrices accessor -- glTF spec default is identity per joint.
             }
@@ -197,7 +225,11 @@ object GltfParser {
         return LoadedSkin(skin.joints, inverseBindMatrices)
     }
 
-    private fun parseAnimation(document: GltfDocument, buffers: List<ByteArray>, animationIndex: Int): LoadedAnimation {
+    private fun parseAnimation(
+        document: GltfDocument,
+        buffers: List<ByteArray>,
+        animationIndex: Int
+    ): LoadedAnimation {
         val animation = document.animations[animationIndex]
         val channels = animation.channels.mapNotNull { channel ->
             val targetNode = channel.target.node ?: return@mapNotNull null
@@ -209,8 +241,14 @@ object GltfParser {
                 "rotation" -> 4
                 else -> return@mapNotNull null // "weights" (morph targets) -- not supported.
             }
-            val times = readFloatAccessor(document, buffers, sampler.input, componentsPerElement = 1)
-            val values = readFloatAccessor(document, buffers, sampler.output, componentsPerElement = componentsPerKeyframe)
+            val times =
+                readFloatAccessor(document, buffers, sampler.input, componentsPerElement = 1)
+            val values = readFloatAccessor(
+                document,
+                buffers,
+                sampler.output,
+                componentsPerElement = componentsPerKeyframe
+            )
             LoadedAnimationChannel(
                 targetNode = targetNode,
                 targetPath = channel.target.path,
@@ -227,7 +265,11 @@ object GltfParser {
         require(bytes.size >= GLB_HEADER_SIZE) { "glTF binary (GLB) buffer is too small to contain a header." }
         val magic = readUIntLe(bytes, 0)
         require(magic == GLB_MAGIC) {
-            "Not a valid glTF binary (GLB) file -- expected magic 0x46546C67, got 0x${magic.toString(16)}."
+            "Not a valid glTF binary (GLB) file -- expected magic 0x46546C67, got 0x${
+                magic.toString(
+                    16
+                )
+            }."
         }
         val totalLength = readUIntLe(bytes, 8)
         require(totalLength <= bytes.size) {
@@ -256,7 +298,7 @@ object GltfParser {
         val uri = buffer.uri
             ?: error(
                 "glTF buffer has no uri -- external .bin buffers are not supported by " +
-                    "this parser (only base64 data URIs).",
+                        "this parser (only base64 data URIs).",
             )
         return decodeBase64DataUri(uri)
     }
@@ -265,10 +307,8 @@ object GltfParser {
      * container's BIN chunk) instead of erroring -- per the glTF 2.0 spec's "GLB-stored
      * Buffer" convention. */
     private fun decodeBufferOrGlbBin(buffer: GltfBuffer, glbBin: ByteArray?): ByteArray {
-        val uri = buffer.uri
-        if (uri == null) {
-            return glbBin ?: error("glTF buffer has no uri and the GLB container has no BIN chunk.")
-        }
+        val uri = buffer.uri ?: return glbBin
+            ?: error("glTF buffer has no uri and the GLB container has no BIN chunk.")
         return decodeBase64DataUri(uri)
     }
 
@@ -277,7 +317,7 @@ object GltfParser {
         val markerIndex = uri.indexOf(BASE64_DATA_URI_MARKER)
         require(uri.startsWith("data:") && markerIndex >= 0) {
             "glTF buffer uri is not a base64 data URI -- external .bin file references " +
-                "are not supported by this parser: $uri"
+                    "are not supported by this parser: $uri"
         }
         return Base64.decode(uri.substring(markerIndex + BASE64_DATA_URI_MARKER.length))
     }
@@ -305,11 +345,16 @@ object GltfParser {
      * not [Mat4]'s own `times` operator; see [Mat4.multiplyColumnMajor]'s doc comment. */
     private fun multiply(a: Mat4, b: Mat4): Mat4 = Mat4.multiplyColumnMajor(a, b)
 
-    private fun accessorAt(document: GltfDocument, index: Int): GltfAccessor = document.accessors.getOrElse(index) {
-        error("glTF accessor index $index is out of range (${document.accessors.size} accessors).")
-    }
+    private fun accessorAt(document: GltfDocument, index: Int): GltfAccessor =
+        document.accessors.getOrElse(index) {
+            error("glTF accessor index $index is out of range (${document.accessors.size} accessors).")
+        }
 
-    private fun bufferViewFor(document: GltfDocument, accessor: GltfAccessor, accessorIndex: Int): GltfBufferView {
+    private fun bufferViewFor(
+        document: GltfDocument,
+        accessor: GltfAccessor,
+        accessorIndex: Int
+    ): GltfBufferView {
         val bufferViewIndex = accessor.bufferView
             ?: error("glTF accessor $accessorIndex has no bufferView -- sparse accessors are not supported.")
         return document.bufferViews.getOrElse(bufferViewIndex) {
@@ -345,7 +390,7 @@ object GltfParser {
         }
         require(typeComponentCount(accessor.type) == componentsPerElement) {
             "glTF accessor $accessorIndex has type ${accessor.type}, expected " +
-                "$componentsPerElement-component elements."
+                    "$componentsPerElement-component elements."
         }
         val bufferView = bufferViewFor(document, accessor, accessorIndex)
         val bytes = buffers[bufferView.buffer]
@@ -421,13 +466,14 @@ object GltfParser {
         }
     }
 
-    private fun readFloatLe(bytes: ByteArray, offset: Int): Float = Float.fromBits(readUIntLe(bytes, offset))
+    private fun readFloatLe(bytes: ByteArray, offset: Int): Float =
+        Float.fromBits(readUIntLe(bytes, offset))
 
     private fun readUShortLe(bytes: ByteArray, offset: Int): Int =
         (bytes[offset].toInt() and 0xFF) or ((bytes[offset + 1].toInt() and 0xFF) shl 8)
 
     private fun readUIntLe(bytes: ByteArray, offset: Int): Int = (bytes[offset].toInt() and 0xFF) or
-        ((bytes[offset + 1].toInt() and 0xFF) shl 8) or
-        ((bytes[offset + 2].toInt() and 0xFF) shl 16) or
-        ((bytes[offset + 3].toInt() and 0xFF) shl 24)
+            ((bytes[offset + 1].toInt() and 0xFF) shl 8) or
+            ((bytes[offset + 2].toInt() and 0xFF) shl 16) or
+            ((bytes[offset + 3].toInt() and 0xFF) shl 24)
 }

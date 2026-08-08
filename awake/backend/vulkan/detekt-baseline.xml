@@ -137,67 +137,6 @@
     <ID>MatchingDeclarationName:exceptions.kt$VkResultException : RuntimeException</ID>
     <ID>MatchingDeclarationName:queue.kt$QueueFamilyIndices</ID>
     <ID>MatchingDeclarationName:swapChain.kt$SwapChainSupportDetails</ID>
-    <ID>MaxLineLength:GlfwWindowInput.kt$RealGlfwWindowInput$override fun isMouseButtonDown(glfwButton: Int): Boolean</ID>
-    <ID>MaxLineLength:GraphicsDevice.kt$GraphicsDevice$val glfwExtensions = if (includeGlfwExtensions) VulkanWindow.glfwGetRequiredInstanceExtensions().toList() else emptyList()</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$if</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$internal fun canExactClip(paths: List&lt;UiPath>): Boolean</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "gradient-quad")</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "rounded-quad-clipped")</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$runs += Renderer.UiRun.TextureRun(stageTextureRun(slice as List&lt;UiDrawPrimitive.Texture>, activePathClips, safeInteriorRect))</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$val</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$val raw = texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 0 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y, glyph.u0, glyph.v0, glyph.color, glyph.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 1 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y, glyph.u1, glyph.v0, glyph.color, glyph.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 2 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y + glyph.h, glyph.u1, glyph.v1, glyph.color, glyph.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 3 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y + glyph.h, glyph.u0, glyph.v1, glyph.color, glyph.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, quad.x, quad.y, -halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 0 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.gradient.topRight)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.gradient.bottomRight)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.gradient.bottomLeft)</ID>
-    <ID>MaxLineLength:RendererVertexWriters.kt$internal</ID>
-    <ID>MaxLineLength:SwapchainManager.kt$SwapchainManager$if</ID>
-    <ID>MaxLineLength:SwapchainManager.kt$SwapchainManager$preferedFormats.contains(surfaceFormat.format) &amp;&amp; surfaceFormat.colorSpace == VkColorSpaceKHR.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR</ID>
-    <ID>MaxLineLength:SwapchainManager.kt$SwapchainManager$}</ID>
-    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptorCount = 1)</ID>
-    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount = 1)</ID>
-    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main")</ID>
-    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")</ID>
-    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$Vulkan.vkCmdBindPipeline(commandBuffer, VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline[0])</ID>
-    <ID>MaxLineLength:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)</ID>
-    <ID>MaxLineLength:UiRenderPipeline.kt$UiRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main")</ID>
-    <ID>MaxLineLength:UiRenderPipeline.kt$UiRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")</ID>
-    <ID>MaxLineLength:UiRenderPipeline.kt$UiRenderPipeline$Vulkan.vkCmdBindPipeline(commandBuffer, VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline[0])</ID>
-    <ID>MaxLineLength:UiRenderPipeline.kt$UiRenderPipeline$pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)</ID>
-    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main")</ID>
-    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")</ID>
-    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 0, binding = 0, format = VkFormat.VK_FORMAT_R32G32_SFLOAT, offset = 0)</ID>
-    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 1, binding = 0, format = VkFormat.VK_FORMAT_R32G32_SFLOAT, offset = 2 * Float.SIZE_BYTES)</ID>
-    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 2, binding = 0, format = VkFormat.VK_FORMAT_R32G32_SFLOAT, offset = 4 * Float.SIZE_BYTES)</ID>
-    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 3, binding = 0, format = VkFormat.VK_FORMAT_R32_SFLOAT, offset = 6 * Float.SIZE_BYTES)</ID>
-    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 4, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 7 * Float.SIZE_BYTES)</ID>
-    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$VkVertexInputAttributeDescription(location = 5, binding = 0, format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT, offset = 11 * Float.SIZE_BYTES)</ID>
-    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$Vulkan.vkCmdBindPipeline(commandBuffer, VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline[0])</ID>
-    <ID>MaxLineLength:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)</ID>
-    <ID>MaxLineLength:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main")</ID>
-    <ID>MaxLineLength:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.VERTEX, module = vertShaderModule, pName = "main")</ID>
-    <ID>MaxLineLength:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$pDynamicStates = arrayOf(VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT, VkDynamicState.VK_DYNAMIC_STATE_SCISSOR)</ID>
-    <ID>MaxLineLength:VkPipelineColorBlendStateCreateInfo.kt$VkPipelineColorBlendAttachmentState$val colorWriteMask: VkColorComponentFlags = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value</ID>
-    <ID>MaxLineLength:VkSurfaceCapabilitiesKHR.kt$VkSurfaceCapabilitiesKHR$val currentTransform: VkSurfaceTransformFlagBitsKHR = VkSurfaceTransformFlagBitsKHR.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</ID>
-    <ID>MaxLineLength:VkSwapchainCreateInfoKHR.kt$VkSwapchainCreateInfoKHR$val preTransform: VkSurfaceTransformFlagBitsKHR = VkSurfaceTransformFlagBitsKHR.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</ID>
-    <ID>MaxLineLength:Vulkan.kt$Vulkan$*</ID>
-    <ID>MaxLineLength:Vulkan.kt$Vulkan$actual external</ID>
-    <ID>MaxLineLength:Vulkan.kt$Vulkan$fun</ID>
-    <ID>MaxLineLength:Vulkan.kt$Vulkan$nativeVkCmdSetViewport(commandBuffer.toCPointer(), firstViewport.toUInt(), viewports.size.toUInt(), nativeViewports)</ID>
-    <ID>MaxLineLength:Vulkan.kt$Vulkan$pQueuePriorities = allocArray(queueInfo.pQueuePriorities.size) { i -> value = queueInfo.pQueuePriorities[i] }</ID>
-    <ID>MaxLineLength:Vulkan.kt$Vulkan$val</ID>
-    <ID>MaxLineLength:VulkanImages.kt$VulkanImages$/**</ID>
     <ID>NestedBlockDepth:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall> )</ID>
     <ID>NestedBlockDepth:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
     <ID>TooGenericExceptionThrown:GraphicsDevice.kt$GraphicsDevice$throw Exception("Cannot find suitable gpu!")</ID>

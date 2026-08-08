@@ -31,34 +31,6 @@
     <ID>MagicNumber:WebGpuCanvasHost.kt$100.0</ID>
     <ID>MagicNumber:WebGpuCanvasHost.kt$1000.0</ID>
     <ID>MagicNumber:WebGpuCanvasHost.kt$32.0</ID>
-    <ID>MaxLineLength:Renderer.kt$Renderer$get() = GpuColor(clearColor[0].toDouble(), clearColor[1].toDouble(), clearColor[2].toDouble(), clearColor[3].toDouble())</ID>
-    <ID>MaxLineLength:Renderer.kt$Renderer$override</ID>
-    <ID>MaxLineLength:Renderer.kt$Renderer$uiRoundedQuadMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS, DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX)</ID>
-    <ID>MaxLineLength:RendererDraw3D.kt$uiRoundedQuadRenderPipeline?.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())</ID>
-    <ID>MaxLineLength:RendererDraw3D.kt$writeLineVertex(vertices, vertexBase + LineMesh.FLOATS_PER_VERTEX, line.end.x, line.end.y, line.end.z, line.color)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$if</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$private fun canExactClip(paths: List&lt;UiPath>): Boolean</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "gradient-quad")</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$quadRunCount = stageChunkedColoredVertexTriangleMeshes(runs, quadRunCount, tessellated, "rounded-quad-clipped")</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$runs += Renderer.UiRun.TextureRun(stageTextureRun(slice as List&lt;UiDrawPrimitive.Texture>, activePathClips, safeInteriorRect))</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$val</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$val raw = texturedQuadMesh(glyph.x, glyph.y, glyph.w, glyph.h, glyph.u0, glyph.v0, glyph.u1, glyph.v1)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 0 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y, glyph.u0, glyph.v0, glyph.color, glyph.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 1 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y, glyph.u1, glyph.v0, glyph.color, glyph.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 2 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x + glyph.w, glyph.y + glyph.h, glyph.u1, glyph.v1, glyph.color, glyph.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeGlyphVertex(glyphVertices, vertexBase + 3 * DynamicMesh.GLYPH_FLOATS_PER_VERTEX, glyph.x, glyph.y + glyph.h, glyph.u0, glyph.v1, glyph.color, glyph.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, quad.x, quad.y, -halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 0 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 1 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y, quad.gradient.topRight)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 2 * DynamicMesh.FLOATS_PER_VERTEX, quad.x + quad.w, quad.y + quad.h, quad.gradient.bottomRight)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.color, quad.transform)</ID>
-    <ID>MaxLineLength:RendererDrawUi.kt$writeVertex(vertices, vertexBase + 3 * DynamicMesh.FLOATS_PER_VERTEX, quad.x, quad.y + quad.h, quad.gradient.bottomLeft)</ID>
-    <ID>MaxLineLength:RendererVertexWriters.kt$internal</ID>
     <ID>NestedBlockDepth:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
     <ID>TooManyFunctions:Renderer.kt$Renderer : RenderRenderer</ID>
     <ID>TooManyFunctions:RendererDrawUi.kt$io.github.ronjunevaldoz.awake.webgpu.renderer.RendererDrawUi.kt</ID>

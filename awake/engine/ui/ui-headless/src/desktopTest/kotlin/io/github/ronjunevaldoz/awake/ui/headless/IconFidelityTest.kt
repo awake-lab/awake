@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
+import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -20,7 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * Proves each shipped [HeroIcons] glyph renders the *same shape* as the official Heroicons SVG
+ * Proves each shipped [io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons] glyph renders the *same shape* as the official Heroicons SVG
  * it was generated from, automatically -- see `skills/awake-icon-authoring/SKILL.md`. Three icon
  * defects shipped in one session before this existed, and every one was only caught by a human
  * looking at a picture.
@@ -39,12 +40,22 @@ class IconFidelityTest {
         var dir = File(System.getProperty("user.dir")).absoluteFile
         while (!File(dir, "settings.gradle.kts").exists()) {
             dir = dir.parentFile
-                ?: error("could not locate repo root (settings.gradle.kts) above ${System.getProperty("user.dir")}")
+                ?: error(
+                    "could not locate repo root (settings.gradle.kts) above ${
+                        System.getProperty(
+                            "user.dir"
+                        )
+                    }"
+                )
         }
         return dir
     }
 
-    private data class ManifestEntry(val name: String, val kotlinTier: String, val kotlinProperty: String) {
+    private data class ManifestEntry(
+        val name: String,
+        val kotlinTier: String,
+        val kotlinProperty: String
+    ) {
         val fileStem get() = "$name-$kotlinTier"
     }
 
@@ -56,7 +67,8 @@ class IconFidelityTest {
         val objectPattern = Regex("\\{[^}]*}")
         val fieldPattern = Regex("\"(\\w+)\"\\s*:\\s*\"([^\"]*)\"")
         return objectPattern.findAll(file.readText()).map { match ->
-            val fields = fieldPattern.findAll(match.value).associate { it.groupValues[1] to it.groupValues[2] }
+            val fields = fieldPattern.findAll(match.value)
+                .associate { it.groupValues[1] to it.groupValues[2] }
             ManifestEntry(
                 name = fields.getValue("name"),
                 kotlinTier = fields.getValue("kotlinTier"),
@@ -67,32 +79,33 @@ class IconFidelityTest {
 
     // Explicit, not reflective -- 19 entries is little enough code that a typo shows up as a
     // compile error instead of a silently-skipped icon.
-    private fun vectorFor(entry: ManifestEntry): UiImageVector = when (entry.kotlinTier to entry.kotlinProperty) {
-        "Solid20Mini" to "chevronDown" -> HeroIcons.Solid20Mini.chevronDown
-        "Solid20Mini" to "chevronUp" -> HeroIcons.Solid20Mini.chevronUp
-        "Solid20Mini" to "chevronLeft" -> HeroIcons.Solid20Mini.chevronLeft
-        "Solid20Mini" to "chevronRight" -> HeroIcons.Solid20Mini.chevronRight
-        "Solid20Mini" to "squares2x2" -> HeroIcons.Solid20Mini.squares2x2
-        "Solid20Mini" to "square3Stack3d" -> HeroIcons.Solid20Mini.square3Stack3d
-        "Solid20Mini" to "tableCells" -> HeroIcons.Solid20Mini.tableCells
-        "Solid20Mini" to "globeAlt" -> HeroIcons.Solid20Mini.globeAlt
-        "Solid20Mini" to "clock" -> HeroIcons.Solid20Mini.clock
-        "Solid20Mini" to "arrowPath" -> HeroIcons.Solid20Mini.arrowPath
-        "Solid20Mini" to "camera" -> HeroIcons.Solid20Mini.camera
-        "Solid24" to "arrowDownOnSquareStack" -> HeroIcons.Solid24.arrowDownOnSquareStack
-        "Solid24" to "arrowUpOnSquareStack" -> HeroIcons.Solid24.arrowUpOnSquareStack
-        "Solid24" to "circleStack" -> HeroIcons.Solid24.circleStack
-        "Solid24" to "inboxStack" -> HeroIcons.Solid24.inboxStack
-        "Solid24" to "rectangleStack" -> HeroIcons.Solid24.rectangleStack
-        "Solid24" to "serverStack" -> HeroIcons.Solid24.serverStack
-        "Solid24" to "square2Stack" -> HeroIcons.Solid24.square2Stack
-        "Solid24" to "square3Stack3d" -> HeroIcons.Solid24.square3Stack3d
-        "Outline24" to "academicCap" -> HeroIcons.Outline24.academicCap
-        "Outline24" to "clock" -> HeroIcons.Outline24.clock
-        "Outline24" to "camera" -> HeroIcons.Outline24.camera
-        "Outline24" to "arrowPath" -> HeroIcons.Outline24.arrowPath
-        else -> error("no vectorFor mapping for ${entry.kotlinTier}.${entry.kotlinProperty} -- add one")
-    }
+    private fun vectorFor(entry: ManifestEntry): UiImageVector =
+        when (entry.kotlinTier to entry.kotlinProperty) {
+            "Solid20Mini" to "chevronDown" -> HeroIcons.Solid20Mini.chevronDown
+            "Solid20Mini" to "chevronUp" -> HeroIcons.Solid20Mini.chevronUp
+            "Solid20Mini" to "chevronLeft" -> HeroIcons.Solid20Mini.chevronLeft
+            "Solid20Mini" to "chevronRight" -> HeroIcons.Solid20Mini.chevronRight
+            "Solid20Mini" to "squares2x2" -> HeroIcons.Solid20Mini.squares2x2
+            "Solid20Mini" to "square3Stack3d" -> HeroIcons.Solid20Mini.square3Stack3d
+            "Solid20Mini" to "tableCells" -> HeroIcons.Solid20Mini.tableCells
+            "Solid20Mini" to "globeAlt" -> HeroIcons.Solid20Mini.globeAlt
+            "Solid20Mini" to "clock" -> HeroIcons.Solid20Mini.clock
+            "Solid20Mini" to "arrowPath" -> HeroIcons.Solid20Mini.arrowPath
+            "Solid20Mini" to "camera" -> HeroIcons.Solid20Mini.camera
+            "Solid24" to "arrowDownOnSquareStack" -> HeroIcons.Solid24.arrowDownOnSquareStack
+            "Solid24" to "arrowUpOnSquareStack" -> HeroIcons.Solid24.arrowUpOnSquareStack
+            "Solid24" to "circleStack" -> HeroIcons.Solid24.circleStack
+            "Solid24" to "inboxStack" -> HeroIcons.Solid24.inboxStack
+            "Solid24" to "rectangleStack" -> HeroIcons.Solid24.rectangleStack
+            "Solid24" to "serverStack" -> HeroIcons.Solid24.serverStack
+            "Solid24" to "square2Stack" -> HeroIcons.Solid24.square2Stack
+            "Solid24" to "square3Stack3d" -> HeroIcons.Solid24.square3Stack3d
+            "Outline24" to "academicCap" -> HeroIcons.Outline24.academicCap
+            "Outline24" to "clock" -> HeroIcons.Outline24.clock
+            "Outline24" to "camera" -> HeroIcons.Outline24.camera
+            "Outline24" to "arrowPath" -> HeroIcons.Outline24.arrowPath
+            else -> error("no vectorFor mapping for ${entry.kotlinTier}.${entry.kotlinProperty} -- add one")
+        }
 
     /** Renders through the real headless pipeline: [UiContext] -> `icon()` widget -> the same
      * CPU [rasterize] `UiSnapshotWriter`/`SkeletonShimmerPixelTest` use for real-pixel proof. */
@@ -196,29 +209,36 @@ class IconFidelityTest {
         val manifest = loadManifest()
         val reportDir = File("build/reports/icon-fidelity")
         val results = manifest.map { entry ->
-            val referenceFile = File(repoRoot(), "docs/reference/icon-previews/${entry.fileStem}.png")
+            val referenceFile =
+                File(repoRoot(), "docs/reference/icon-previews/${entry.fileStem}.png")
             val reference = ImageIO.read(referenceFile)
                 ?: error("missing reference PNG for ${entry.fileStem} -- run tools/capture_heroicons_reference.py")
             val oursRgba = renderIcon(vectorFor(entry))
             val referenceMask = coverageMask(reference)
             val oursMask = coverageMask(oursRgba)
             val metrics = compare(referenceMask, oursMask)
-            writeDiffPng(reference, oursRgba, referenceMask, oursMask, File(reportDir, "${entry.fileStem}.png"))
+            writeDiffPng(
+                reference,
+                oursRgba,
+                referenceMask,
+                oursMask,
+                File(reportDir, "${entry.fileStem}.png")
+            )
             Triple(entry.fileStem, metrics.iou, metrics.mismatchPct)
         }.sortedBy { it.second }
 
         reportDir.mkdirs()
         File(reportDir, "metrics.tsv").writeText(
             "icon\tiou\tmismatchPct\n" +
-                results.joinToString("\n") { (name, iou, mismatchPct) -> "$name\t$iou\t$mismatchPct" } + "\n",
+                    results.joinToString("\n") { (name, iou, mismatchPct) -> "$name\t$iou\t$mismatchPct" } + "\n",
         )
 
         val failures = results.filter { it.second < passThreshold }
         assertTrue(
             failures.isEmpty(),
             "icon(s) below the fidelity threshold (IoU >= $passThreshold) -- inspect " +
-                "build/reports/icon-fidelity/<icon>.png (reference | ours | diff):\n" +
-                failures.joinToString("\n") { (name, iou, mismatchPct) -> "  $name: iou=$iou mismatchPct=$mismatchPct%" },
+                    "build/reports/icon-fidelity/<icon>.png (reference | ours | diff):\n" +
+                    failures.joinToString("\n") { (name, iou, mismatchPct) -> "  $name: iou=$iou mismatchPct=$mismatchPct%" },
         )
     }
 
@@ -248,7 +268,8 @@ class IconFidelityTest {
             }
         }
 
-        val referenceFile = File(repoRoot(), "docs/reference/icon-previews/chevron-down-Solid20Mini.png")
+        val referenceFile =
+            File(repoRoot(), "docs/reference/icon-previews/chevron-down-Solid20Mini.png")
         val reference = ImageIO.read(referenceFile)
             ?: error("missing reference PNG -- run tools/capture_heroicons_reference.py")
         val referenceMask = coverageMask(reference)
@@ -263,7 +284,7 @@ class IconFidelityTest {
         assertTrue(
             corruptedMetrics.iou < passThreshold,
             "the guard must reject a corrupted icon: corrupted iou=${corruptedMetrics.iou} " +
-                "vs correct iou=${correctMetrics.iou} (threshold=$passThreshold)",
+                    "vs correct iou=${correctMetrics.iou} (threshold=$passThreshold)",
         )
     }
 }

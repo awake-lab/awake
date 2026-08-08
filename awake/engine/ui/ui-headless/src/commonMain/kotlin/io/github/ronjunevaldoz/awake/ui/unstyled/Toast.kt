@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless
+package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -14,7 +14,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.rememberFloatState
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.theme
 
 private const val TOAST_WIDTH_DP = 280f
 private const val TOAST_HEIGHT_DP = 44f
@@ -49,7 +48,10 @@ fun UiScope.toast(
         // WrapContent needs a measuring composite pass to resolve (AbsoluteScope.claimSlot
         // throws without one, see UiScopeMetrics), so -- same reasoning Dropdown.kt/TextField.kt
         // already landed on -- both axes fall back to a fixed size, not content-derived.
-        modifier = modifier.withSizeFallback(Dimension.Fixed(TOAST_WIDTH_DP.dp), Dimension.Fixed(TOAST_HEIGHT_DP.dp)),
+        modifier = modifier.withSizeFallback(
+            Dimension.Fixed(TOAST_WIDTH_DP.dp),
+            Dimension.Fixed(TOAST_HEIGHT_DP.dp)
+        ),
         style = style,
         defaults = theme.components.surface,
     )

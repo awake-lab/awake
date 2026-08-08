@@ -12,7 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.headless.HeroIcons
 import io.github.ronjunevaldoz.awake.ui.headless.components.icon
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -24,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.paddingEnd
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
 
 private val RailButtonSize = ShadcnButtonSize.Icon.heightDp.dp
 private val RailPadding = UiSpacing.xs

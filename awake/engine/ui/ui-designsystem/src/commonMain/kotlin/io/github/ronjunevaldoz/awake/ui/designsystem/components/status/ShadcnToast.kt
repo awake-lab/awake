@@ -5,12 +5,12 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.status
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.headless.toast
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.unstyled.toast
 
 private fun shadcnToastStyle(theme: UiTheme, style: Style): Style {
     val shadcnTheme = theme.asShadcnTheme()

@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless
+package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.ui.UiFillRule
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
@@ -922,7 +922,13 @@ object HeroIcons {
             viewportWidth = 24f,
             viewportHeight = 24f,
         ) {
-            path(stroke = UiStroke(width = 1.5f.dp, cap = UiStrokeCap.Round, join = UiStrokeJoin.Round)) {
+            path(
+                stroke = UiStroke(
+                    width = 1.5f.dp,
+                    cap = UiStrokeCap.Round,
+                    join = UiStrokeJoin.Round
+                )
+            ) {
                 moveTo(4.26f, 10.147f)
                 cubicTo(3.9849f, 12.2526f, 3.8211f, 14.3712f, 3.769f, 16.494f)
                 cubicTo(6.6478f, 17.6965f, 9.4042f, 19.1733f, 12f, 20.904f)
@@ -958,7 +964,13 @@ object HeroIcons {
             viewportWidth = 24f,
             viewportHeight = 24f,
         ) {
-            path(stroke = UiStroke(width = 1.5f.dp, cap = UiStrokeCap.Round, join = UiStrokeJoin.Round)) {
+            path(
+                stroke = UiStroke(
+                    width = 1.5f.dp,
+                    cap = UiStrokeCap.Round,
+                    join = UiStrokeJoin.Round
+                )
+            ) {
                 moveTo(12f, 6f)
                 lineTo(12f, 12f)
                 lineTo(16.5f, 12f)
@@ -978,7 +990,13 @@ object HeroIcons {
             viewportWidth = 24f,
             viewportHeight = 24f,
         ) {
-            path(stroke = UiStroke(width = 1.5f.dp, cap = UiStrokeCap.Round, join = UiStrokeJoin.Round)) {
+            path(
+                stroke = UiStroke(
+                    width = 1.5f.dp,
+                    cap = UiStrokeCap.Round,
+                    join = UiStrokeJoin.Round
+                )
+            ) {
                 moveTo(6.827f, 6.175f)
                 cubicTo(6.4626f, 6.7517f, 5.8619f, 7.1379f, 5.186f, 7.23f)
                 cubicTo(4.806f, 7.284f, 4.429f, 7.342f, 4.052f, 7.405f)
@@ -998,7 +1016,13 @@ object HeroIcons {
                 lineTo(6.827f, 6.175f)
                 close()
             }
-            path(stroke = UiStroke(width = 1.5f.dp, cap = UiStrokeCap.Round, join = UiStrokeJoin.Round)) {
+            path(
+                stroke = UiStroke(
+                    width = 1.5f.dp,
+                    cap = UiStrokeCap.Round,
+                    join = UiStrokeJoin.Round
+                )
+            ) {
                 moveTo(16.5f, 12.75f)
                 cubicTo(16.5f, 15.2353f, 14.4853f, 17.25f, 12f, 17.25f)
                 cubicTo(9.5147f, 17.25f, 7.5f, 15.2353f, 7.5f, 12.75f)
@@ -1021,7 +1045,13 @@ object HeroIcons {
             viewportWidth = 24f,
             viewportHeight = 24f,
         ) {
-            path(stroke = UiStroke(width = 1.5f.dp, cap = UiStrokeCap.Round, join = UiStrokeJoin.Round)) {
+            path(
+                stroke = UiStroke(
+                    width = 1.5f.dp,
+                    cap = UiStrokeCap.Round,
+                    join = UiStrokeJoin.Round
+                )
+            ) {
                 moveTo(16.023f, 9.348f)
                 lineTo(21.015f, 9.348f)
                 lineTo(21.015f, 9.347f)

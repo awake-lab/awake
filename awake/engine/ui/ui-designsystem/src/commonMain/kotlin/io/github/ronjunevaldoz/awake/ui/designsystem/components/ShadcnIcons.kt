@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
-import io.github.ronjunevaldoz.awake.ui.headless.HeroIcons
+import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
 
 /** The single icon registry every `shadcn*` component reaches for -- `var`, not `val`, so a
  * consuming app can swap the whole icon set (a different open-source library, or hand-drawn

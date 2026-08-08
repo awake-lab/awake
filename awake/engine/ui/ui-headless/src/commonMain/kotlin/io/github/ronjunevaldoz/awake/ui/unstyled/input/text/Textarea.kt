@@ -14,12 +14,10 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.frameDeltaSeconds
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.headless.interact
 import io.github.ronjunevaldoz.awake.ui.inputState
 import io.github.ronjunevaldoz.awake.ui.isFocused
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.contains
 import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -34,6 +32,7 @@ import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 private const val TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS = 1f
@@ -68,7 +67,7 @@ fun UiScope.textarea(
     // ~1.19em, so reserving fontHeight per line leaves the text overflowing its own field.
     val minHeight =
         (fontHeight * font.lineHeightEm * minLines) +
-            (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
+                (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
 
     val interaction = interact(
         id = id,
@@ -98,9 +97,9 @@ fun UiScope.textarea(
             theme.colors.destructive
         } else {
             (
-                resolvedWithInteraction.borderColor
-                    ?: theme.colors.border
-                )
+                    resolvedWithInteraction.borderColor
+                        ?: theme.colors.border
+                    )
         }
     // Reference's `disabled:opacity-50` treatment, same single group-alpha shape as
     // `Buttons.kt`'s `buttonSlotInternal` -- covers the fill/border paint and the typed
@@ -137,7 +136,12 @@ fun UiScope.textarea(
         // lands on whatever was actually rendered (last frame's scrolled position), not this frame's
         // not-yet-recomputed one.
         val lastScrollOffsetY = cursorState.get("scrollOffsetY", 0f)
-        val lastDrawSlot = UiBounds(contentSlot.x, contentSlot.y - lastScrollOffsetY, contentSlot.width, contentSlot.height)
+        val lastDrawSlot = UiBounds(
+            contentSlot.x,
+            contentSlot.y - lastScrollOffsetY,
+            contentSlot.width,
+            contentSlot.height
+        )
 
         var nextValue = value
         if (focused) {
@@ -172,7 +176,9 @@ fun UiScope.textarea(
                     }
 
                     UiTextEditAction.ArrowLeft -> cursor = (cursor - 1).coerceAtLeast(0)
-                    UiTextEditAction.ArrowRight -> cursor = (cursor + 1).coerceAtMost(nextValue.length)
+                    UiTextEditAction.ArrowRight -> cursor =
+                        (cursor + 1).coerceAtMost(nextValue.length)
+
                     UiTextEditAction.ArrowUp -> cursor = moveCursorVertical(
                         previousLayout,
                         nextValue,
@@ -185,12 +191,25 @@ fun UiScope.textarea(
 
                     UiTextEditAction.ArrowDown ->
                         cursor =
-                            moveCursorVertical(previousLayout, nextValue, resolvedFont, glyphPx, lineGap, cursor, 1)
+                            moveCursorVertical(
+                                previousLayout,
+                                nextValue,
+                                resolvedFont,
+                                glyphPx,
+                                lineGap,
+                                cursor,
+                                1
+                            )
 
-                    UiTextEditAction.Home -> cursor = cursorForLineStart(previousLayout, nextValue, cursor)
-                    UiTextEditAction.End -> cursor = cursorForLineEnd(previousLayout, nextValue, cursor)
+                    UiTextEditAction.Home -> cursor =
+                        cursorForLineStart(previousLayout, nextValue, cursor)
+
+                    UiTextEditAction.End -> cursor =
+                        cursorForLineEnd(previousLayout, nextValue, cursor)
+
                     UiTextEditAction.Enter -> {
-                        nextValue = nextValue.substring(0, cursor) + "\n" + nextValue.substring(cursor)
+                        nextValue =
+                            nextValue.substring(0, cursor) + "\n" + nextValue.substring(cursor)
                         cursor += 1
                     }
                 }
@@ -239,7 +258,12 @@ fun UiScope.textarea(
             scrollOffsetY = scrollOffsetY.coerceIn(0f, maxScrollY)
         }
         cursorState.set("scrollOffsetY", scrollOffsetY)
-        val drawSlot = UiBounds(contentSlot.x, contentSlot.y - scrollOffsetY, contentSlot.width, contentSlot.height)
+        val drawSlot = UiBounds(
+            contentSlot.x,
+            contentSlot.y - scrollOffsetY,
+            contentSlot.width,
+            contentSlot.height
+        )
 
         clip(contentSlot) {
             val showingPlaceholder = nextValue.isEmpty() && !focused
@@ -253,9 +277,9 @@ fun UiScope.textarea(
                         theme.colors.mutedForeground
                     } else {
                         (
-                            resolvedWithInteraction.foreground
-                                ?: theme.colors.foreground
-                            )
+                                resolvedWithInteraction.foreground
+                                    ?: theme.colors.foreground
+                                )
                     },
                     verticallyCentered = false,
                     overflow = UiTextOverflow.Clip,
@@ -280,7 +304,7 @@ fun UiScope.textarea(
                         cursor,
                     )
                     emitFillAndBorder(
-                        slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                        slot = UiBounds(
                             caretPos.first,
                             caretPos.second,
                             TEXT_FIELD_CARET_WIDTH_PX,

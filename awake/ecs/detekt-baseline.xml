@@ -7,8 +7,6 @@
     <ID>MagicNumber:EntityArena.kt$EntityArena$63</ID>
     <ID>MagicNumber:EntityArena.kt$EntityArena$64</ID>
     <ID>MagicNumber:FamilyRegistry.kt$FamilyRegistry$16</ID>
-    <ID>MaxLineLength:System.kt$*</ID>
-    <ID>MaxLineLength:World.kt$World$internal</ID>
     <ID>ReturnCount:FamilySpec.kt$FamilySpecCache$fun matches(world: World, entity: Entity): Boolean</ID>
     <ID>ReturnCount:QueryCollector.kt$QueryCollector$fun collect(types: Set&lt;KClass&lt;out Any>>): List&lt;Entity></ID>
     <ID>TooManyFunctions:ComponentRegistry.kt$ComponentRegistry</ID>

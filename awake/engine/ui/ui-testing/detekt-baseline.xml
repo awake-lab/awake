@@ -42,24 +42,6 @@
     <ID>MagicNumber:UiRasterizer.kt$4</ID>
     <ID>MagicNumber:UiRasterizer.kt$6</ID>
     <ID>MatchingDeclarationName:PixelBaseline.kt$PixelDiffResult</ID>
-    <ID>MaxLineLength:AwakeUiPreviewWriter.kt$"Preview entry ${entry::class.qualifiedName} produced ${scenes.size} samples. Use renderAnnotatedUiPreviews(...) instead."</ID>
-    <ID>MaxLineLength:PixelBaseline.kt$return PixelDiffResult(matches = diffPixelCount == 0, diffPixelCount = diffPixelCount, maxChannelDiff = maxChannelDiff)</ID>
-    <ID>MaxLineLength:UiInspection.kt$fun</ID>
-    <ID>MaxLineLength:UiInspection.kt$fun slotHasValidSize(slot: io.github.ronjunevaldoz.awake.ui.layout.UiBounds): Boolean</ID>
-    <ID>MaxLineLength:UiInspection.kt$is UiDrawPrimitive.Glyph -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)</ID>
-    <ID>MaxLineLength:UiInspection.kt$is UiDrawPrimitive.GradientQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)</ID>
-    <ID>MaxLineLength:UiInspection.kt$is UiDrawPrimitive.Quad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)</ID>
-    <ID>MaxLineLength:UiInspection.kt$is UiDrawPrimitive.RoundedQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)</ID>
-    <ID>MaxLineLength:UiInspection.kt$is UiDrawPrimitive.Texture -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)</ID>
-    <ID>MaxLineLength:UiLayoutSignature.kt$"${node.role}[${node.id ?: "?"}] @ (${bounds.x.toInt()}, ${bounds.y.toInt()}) ${bounds.width.toInt()}x${bounds.height.toInt()}"</ID>
-    <ID>MaxLineLength:UiMetrics.kt$issues += "$label overlap between [$index]=$current and [$otherIndex]=$other with tolerance=$tolerancePx"</ID>
-    <ID>MaxLineLength:UiMetrics.kt$private</ID>
-    <ID>MaxLineLength:UiMetrics.kt$reference == null || candidate == null -> issues += "$label missing on one side: expected=$reference actual=$candidate"</ID>
-    <ID>MaxLineLength:UiRasterizer.kt$UiShapeSpec.RoundedRectangle((primitive.radius * min(primitive.transform?.scaleX ?: 1f, primitive.transform?.scaleY ?: 1f)).px)</ID>
-    <ID>MaxLineLength:UiRasterizer.kt$fun</ID>
-    <ID>MaxLineLength:UiRasterizer.kt$is UiDrawPrimitive.GradientQuad -> fillGradientRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.gradient)</ID>
-    <ID>MaxLineLength:UiRasterizer.kt$is UiDrawPrimitive.StrokedPath -> fillTriangleMesh(primitive.path.tessellateStroke(primitive.stroke), primitive.color)</ID>
-    <ID>MaxLineLength:UiRasterizer.kt$val scaledGlyph = if (primitive.transform == null) primitive else primitive.copy(x = x, y = y, w = w, h = h)</ID>
     <ID>NestedBlockDepth:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null ): ByteArray</ID>
     <ID>ReturnCount:AwakeUiSnapshot.desktop.kt$actual fun loadAwakeUiSnapshot(id: String): ByteArray?</ID>
   </CurrentIssues>

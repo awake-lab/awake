@@ -9,7 +9,6 @@
     <ID>MagicNumber:SceneGameRuntime.kt$SceneGameRuntime$1000f</ID>
     <ID>MagicNumber:SceneInstantiationAdapter.kt$180f</ID>
     <ID>MagicNumber:SceneValidation.kt$SceneValidator$180f</ID>
-    <ID>MaxLineLength:SceneLoader.kt$SceneLoader$instantiateNode(adapter, node, parent = null, flipYForClipSpace = flipYForClipSpace, path = node.name?.takeIf { it.isNotBlank() } ?: "#$index")</ID>
     <ID>TooManyFunctions:SceneGameRuntime.kt$SceneGameRuntime : Game</ID>
   </CurrentIssues>
 </SmellBaseline>

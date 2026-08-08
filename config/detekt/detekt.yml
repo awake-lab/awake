@@ -680,8 +680,32 @@ style:
   MaxChainedCallsOnSameLine:
     active: false
     maxChainedCalls: 5
+  # Off deliberately, and it must stay off unless the decision below is revisited as a whole.
+  #
+  # Two gates format this repo, and they disagreed. Spotless/ktlint
+  # (build-logic/src/main/kotlin/awake.spotless-convention.gradle.kts) sets
+  # ktlint_standard_max-line-length to "disabled" with a stated reason: this codebase's own
+  # convention is a descriptive multi-line explanation above a declaration, and it carries many
+  # long string literals -- shader paths, error messages -- that cannot be wrapped meaningfully.
+  # detekt then enforced 120 and failed the build on the exact lines Spotless had just declared
+  # acceptable and left alone. Spotless is the gate that auto-fixes; detekt only rejects. So the
+  # contradiction could never converge: spotlessApply would format a file, detekt would fail it,
+  # and nothing in the loop would wrap the line.
+  #
+  # 7189 lines in awake/ and samples/ sit between 121 and 140 characters. Only ~114 ever surfaced
+  # as findings, because 1391 entries across 24 detekt-baseline.xml files already absorbed the
+  # rest. That is the shape of the debt: the disagreement was never resolved, it was suppressed
+  # one occurrence at a time, and every new long line demanded another baseline entry.
+  #
+  # Turning the rule off resolves it in the direction the convention was already written and
+  # argued for, in one place, instead of paying for it per line forever. The alternative --
+  # setting ktlint's limit to 120 so spotlessApply wraps automatically -- was rejected: it
+  # overrides the reasoning in the Spotless config and buys a repo-wide reformat diff.
+  #
+  # Consequence to accept: no line-length gate at all. If one is wanted later, add it to ktlint
+  # (where it can auto-fix) rather than here, and re-run the baselines.
   MaxLineLength:
-    active: true
+    active: false
     maxLineLength: 120
     excludes:
       - '**/test/**'

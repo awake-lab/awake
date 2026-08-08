@@ -10,9 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.interact
-import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
-import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
@@ -22,6 +19,9 @@ import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.unstyled.interact
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 
 /** Result of a [toggle]/[toggleSlot] press: the toggle's new checked state, alongside its slot. */
 private inline fun UiScope.toggleInternal(

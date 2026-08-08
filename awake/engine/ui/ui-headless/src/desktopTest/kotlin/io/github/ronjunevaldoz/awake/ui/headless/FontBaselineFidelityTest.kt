@@ -51,7 +51,7 @@ class FontBaselineFidelityTest {
         lit.forEachIndexed { x, on ->
             if (on && start == null) start = x
             if (!on && start != null) {
-                runs += start!! to x
+                runs += start to x
                 start = null
             }
         }
@@ -66,7 +66,8 @@ class FontBaselineFidelityTest {
         val h = 96
         val ui = UiContext()
         ui.beginFrame(w.toFloat(), h.toFloat(), testSnapshot())
-        ui.createAbsolute(x = 16f, y = 48f).text(sample.text, style = Style { textSize(sample.sizePx.sp) })
+        ui.createAbsolute(x = 16f, y = 48f)
+            .text(sample.text, style = Style { textSize(sample.sizePx.sp) })
         val pixels = ui.endFrame().rasterize(w, h, background = Color.Black)
         val bottoms = inkBottomsPerGlyph({ x, y -> pixels[(y * w + x) * 4].toInt() and 0xFF }, w, h)
         return bottoms.max() - bottoms.min()
@@ -74,7 +75,10 @@ class FontBaselineFidelityTest {
 
     private fun referenceSpread(sample: Sample): Int {
         val file = File("../../../../docs/reference/font-previews/${sample.id}.png")
-        assertTrue(file.exists(), "missing reference ${file.path}; run tools/capture_font_reference.py")
+        assertTrue(
+            file.exists(),
+            "missing reference ${file.path}; run tools/capture_font_reference.py"
+        )
         val image = ImageIO.read(file)
         val bottoms = inkBottomsPerGlyph(
             { x, y -> (image.getRGB(x, y) shr 16) and 0xFF },
@@ -94,7 +98,7 @@ class FontBaselineFidelityTest {
                 allowed,
                 ours,
                 "${sample.id}: real Roboto puts every glyph within $reference px of one baseline, " +
-                    "we render a spread of $ours. Update knownBaselineDrift only to shrink it.",
+                        "we render a spread of $ours. Update knownBaselineDrift only to shrink it.",
             )
         }
     }

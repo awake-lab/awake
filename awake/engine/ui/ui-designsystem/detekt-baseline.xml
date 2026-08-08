@@ -73,26 +73,6 @@
     <ID>MatchingDeclarationName:ShadcnAvatars.kt$ShadcnAvatarSize</ID>
     <ID>MatchingDeclarationName:ShadcnField.kt$ShadcnFieldOrientation</ID>
     <ID>MatchingDeclarationName:ShadcnTabs.kt$ShadcnTabItem</ID>
-    <ID>MaxLineLength:DropdownMenu.kt$color = if (selected) theme.colors.accentForeground.withAlpha(0.82f) else theme.colors.mutedForeground</ID>
-    <ID>MaxLineLength:DropdownMenu.kt$modifier = Modifier.align(trailingAlignment).padding(start = 0f.dp, top = verticalPadding, end = 12f.dp, bottom = 0f.dp)</ID>
-    <ID>MaxLineLength:DropdownMenu.kt$modifier = Modifier.padding(start = 12f.dp, top = (8f + glyphPx + 4f).px, end = 12f.dp, bottom = 0f.dp).align(UiAlignment.TopStart)</ID>
-    <ID>MaxLineLength:DropdownMenu.kt$modifier = Modifier.width(bodyWidth.px).padding(start = labelStart.dp, top = verticalPadding, end = 0f.dp, bottom = 0f.dp).align(labelAlignment)</ID>
-    <ID>MaxLineLength:DropdownMenu.kt$val trailingColor = if (!item.enabled) theme.colors.mutedForeground else if (selected) theme.colors.accentForeground.withAlpha(0.82f) else theme.colors.mutedForeground</ID>
-    <ID>MaxLineLength:ShadcnBadges.kt$style = ShadcnStyles.badge(theme.asShadcnTheme(), variant) then ShadcnStyles.badgeContent(theme.asShadcnTheme()) then style</ID>
-    <ID>MaxLineLength:ShadcnCollapsibleCard.kt$column</ID>
-    <ID>MaxLineLength:ShadcnField.kt$)</ID>
-    <ID>MaxLineLength:ShadcnSurfaces.kt$content = { slot -> if (expanded) shadcnCardContent(slot.toBounds(), ShadcnCardSize.Default, header, footer, content) }</ID>
-    <ID>MaxLineLength:ShadcnSurfaces.kt$style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(theme.asShadcnTheme(), variant)) then style</ID>
-    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Luma -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 20.sp, headline = 24.sp, display = 30.sp)</ID>
-    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Lyra -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 22.sp, display = 26.sp)</ID>
-    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Maia -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 20.sp, headline = 24.sp, display = 30.sp)</ID>
-    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Mira -> UiTypography(caption = 10.sp, label = 12.sp, body = 13.sp, title = 17.sp, headline = 20.sp, display = 24.sp)</ID>
-    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Nova -> UiTypography(caption = 11.sp, label = 12.sp, body = 13.sp, title = 17.sp, headline = 21.sp, display = 26.sp)</ID>
-    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Rhea -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 21.sp, display = 27.sp)</ID>
-    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Sera -> UiTypography(caption = 12.sp, label = 14.sp, body = 15.sp, title = 21.sp, headline = 25.sp, display = 30.sp)</ID>
-    <ID>MaxLineLength:ShadcnTheme.kt$ShadcnStylePreset.Vega -> UiTypography(caption = 11.sp, label = 13.sp, body = 14.sp, title = 18.sp, headline = 22.sp, display = 28.sp)</ID>
-    <ID>MaxLineLength:ShadcnTheme.kt$val ring = (accentPrimary ?: ringBase).withAlpha(if (accentPrimary != null) 1f else config.preset.ringAlphaMultiplier)</ID>
-    <ID>MaxLineLength:ShadcnTypography.kt$*</ID>
     <ID>TooManyFunctions:ShadcnStyles.kt$ShadcnStyles</ID>
     <ID>TooManyFunctions:ShadcnSurfaces.kt$io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnSurfaces.kt</ID>
     <ID>UnusedParameter:ShadcnCollapsible.kt$modifier: UiModifier = Modifier</ID>

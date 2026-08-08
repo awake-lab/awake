@@ -10,15 +10,14 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
-import io.github.ronjunevaldoz.awake.ui.headless.resolveSurface
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveSurface
 
 private const val PROGRESS_TRACK_HEIGHT_DP = 8f
 
@@ -36,7 +35,10 @@ fun UiScope.progress(
 ) {
     val theme = context.currentTheme
     val surface = resolveSurface(
-        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(PROGRESS_TRACK_HEIGHT_DP.dp)),
+        modifier = modifier.withSizeFallback(
+            Dimension.FillMax,
+            Dimension.Fixed(PROGRESS_TRACK_HEIGHT_DP.dp)
+        ),
         style = style,
         defaults = theme.components.slider,
     )
@@ -46,7 +48,12 @@ fun UiScope.progress(
     val fillWidth = (surface.slot.width * animatedFraction).coerceAtLeast(0f)
     if (fillWidth > 0f) {
         emitFillAndBorder(
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(surface.slot.x, surface.slot.y, fillWidth, surface.slot.height),
+            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                surface.slot.x,
+                surface.slot.y,
+                fillWidth,
+                surface.slot.height
+            ),
             fillColor = surface.resolved.foreground ?: theme.colors.primary,
             radiusPx = 0f,
             borderWidth = UiShape.none,

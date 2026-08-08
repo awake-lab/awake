@@ -10,17 +10,15 @@ import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetAccent
 import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetDash
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
-import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 // Dp, not raw px: every coordinate it is added to below (`boxPx`, `surface.interaction.slot`)
@@ -75,7 +73,12 @@ fun UiScope.checkbox(
         if (indeterminate) {
             emitInsetDash(boxSlot, inset)
         } else if (newChecked) {
-            emitInsetAccent(boxSlot, inset, surface.resolved.shape.toPx(), surface.resolved.shapeSpec)
+            emitInsetAccent(
+                boxSlot,
+                inset,
+                surface.resolved.shape.toPx(),
+                surface.resolved.shapeSpec
+            )
         }
         val resolvedFont = context.currentFont
         if (label != null) {

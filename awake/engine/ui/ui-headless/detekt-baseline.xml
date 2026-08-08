@@ -51,28 +51,6 @@
     <ID>MatchingDeclarationName:Interaction.kt$UiInteraction</ID>
     <ID>MatchingDeclarationName:Separator.kt$SeparatorOrientation</ID>
     <ID>MatchingDeclarationName:UiSnapshotFixtures.kt$UiSnapshotScene</ID>
-    <ID>MaxLineLength:BasicText.kt$fun</ID>
-    <ID>MaxLineLength:BasicText.kt$val safeLine = if (line.isEmpty() &amp;&amp; trim) remaining.substring(0, fitIndex).trimEnd() else if (line.isEmpty()) remaining.substring(0, fitIndex) else line</ID>
-    <ID>MaxLineLength:Buttons.kt$UiButtonVariant$*</ID>
-    <ID>MaxLineLength:Dropdown.kt$val textColor = if (isPlaceholder) theme.colors.mutedForeground else (resolved.foreground ?: theme.colors.foreground)</ID>
-    <ID>MaxLineLength:ProgressBar.kt$slot</ID>
-    <ID>MaxLineLength:RangeSlider.kt$val rawStart = if (draggingStart) sliderValueFromPointerX(px, trackSlot.x, trackSlot.width, min, max) else valueStart</ID>
-    <ID>MaxLineLength:Separator.kt$emit(UiDrawPrimitive.Quad(lineX, pixelPerfectPixel(slot.y), lineWidth, pixelPerfectPixel(slot.height).coerceAtLeast(1f), color))</ID>
-    <ID>MaxLineLength:Separator.kt$emit(UiDrawPrimitive.Quad(pixelPerfectPixel(slot.x), lineY, pixelPerfectPixel(slot.width).coerceAtLeast(1f), lineHeight, color))</ID>
-    <ID>MaxLineLength:Skeleton.kt$*</ID>
-    <ID>MaxLineLength:Skeleton.kt$val pulse = SKELETON_PULSE_MIN_ALPHA + (SKELETON_PULSE_MAX_ALPHA - SKELETON_PULSE_MIN_ALPHA) * ((sin(phase) + 1f) / 2f)</ID>
-    <ID>MaxLineLength:Slider.kt$slot</ID>
-    <ID>MaxLineLength:Switch.kt$slot</ID>
-    <ID>MaxLineLength:Text.kt$Dimension.FillMax -> (fillWidthOrNull()?.minus(resolved.contentPadding.horizontalPx()))?.coerceAtLeast(glyphPx) ?: 4096f</ID>
-    <ID>MaxLineLength:Text.kt$color = color ?: resolvedStyle.foreground ?: textStyle.color ?: context.currentTextStyle.color ?: theme.colors.foreground</ID>
-    <ID>MaxLineLength:Text.kt$if (fillWidthOrNull() != null) Dimension.FillMax else Dimension.Fixed((labelWidthPx + resolved.contentPadding.horizontalPx()).px)</ID>
-    <ID>MaxLineLength:Text.kt$is Dimension.Fixed -> (defaultWidth.dp.toPx() - resolved.contentPadding.horizontalPx()).coerceAtLeast(glyphPx)</ID>
-    <ID>MaxLineLength:Text.kt$val resolvedSemanticId = semanticId ?: if (modifier.shimmer) modifier.testTag ?: "shimmer-${label.hashCode()}" else null</ID>
-    <ID>MaxLineLength:TextField.kt$*</ID>
-    <ID>MaxLineLength:TextField.kt$slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(drawTextX, textContentSlot.y, measureWidth, textContentSlot.height)</ID>
-    <ID>MaxLineLength:TextField.kt$val measureWidth = if (showingPlaceholder) textContentSlot.width else totalTextWidth.coerceAtLeast(textContentSlot.width)</ID>
-    <ID>MaxLineLength:Toggle.kt$*</ID>
-    <ID>MaxLineLength:ToggleGroup.kt$*</ID>
     <ID>NestedBlockDepth:TextField.kt$fun UiScope.textField( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, leadingIcon: (BoxScope.() -> Unit)? = null, trailingIcon: (BoxScope.() -> Unit)? = null, // Applied only to what's drawn -- `value`/the returned string always carry the real typed // text, same as real shadcn's Input; a password field passes `{ "*".repeat(it.length) }` // here and stores/returns the actual characters untouched. visualTransformation: (String) -> String = { it } ): String</ID>
     <ID>NestedBlockDepth:Textarea.kt$fun UiScope.textarea( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, minLines: Int = 3 ): String</ID>
     <ID>ReturnCount:BasicText.kt$private fun ellipsizeLine(line: String, maxWidthPx: Float, advanceOf: (Char) -> Float): String</ID>

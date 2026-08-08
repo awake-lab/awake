@@ -10,10 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.headless.UiInteraction
-import io.github.ronjunevaldoz.awake.ui.headless.interact
-import io.github.ronjunevaldoz.awake.ui.headless.paintSurface
-import io.github.ronjunevaldoz.awake.ui.headless.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.box
@@ -26,6 +22,10 @@ import io.github.ronjunevaldoz.awake.ui.pointerX
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.UiInteraction
+import io.github.ronjunevaldoz.awake.ui.unstyled.interact
+import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import kotlin.math.abs
 
@@ -62,7 +62,12 @@ fun UiScope.rangeSlider(
 ): Pair<Float, Float> {
     var resultStart = valueStart
     var resultEnd = valueEnd
-    box(modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(20f.dp))) { boxSlot ->
+    box(
+        modifier = modifier.withSizeFallback(
+            Dimension.FillMax,
+            Dimension.Fixed(20f.dp)
+        )
+    ) { boxSlot ->
         val startId = "$id.start"
         val endId = "$id.end"
         val pointerDown = pointerDown()
@@ -110,13 +115,30 @@ fun UiScope.rangeSlider(
 
         val draggingStart = isActive(startId) && pointerDown
         val draggingEnd = isActive(endId) && pointerDown
-        val rawStart = if (draggingStart) sliderValueFromPointerX(px, trackSlot.x, trackSlot.width, min, max) else valueStart
-        val rawEnd = if (draggingEnd) sliderValueFromPointerX(px, trackSlot.x, trackSlot.width, min, max) else valueEnd
+        val rawStart = if (draggingStart) sliderValueFromPointerX(
+            px,
+            trackSlot.x,
+            trackSlot.width,
+            min,
+            max
+        ) else valueStart
+        val rawEnd = if (draggingEnd) sliderValueFromPointerX(
+            px,
+            trackSlot.x,
+            trackSlot.width,
+            min,
+            max
+        ) else valueEnd
         releaseActiveIfMatches(startId)
         releaseActiveIfMatches(endId)
 
-        val newStart = (if (draggingStart) minOf(rawStart, valueEnd - epsilon) else valueStart).coerceIn(min, max)
-        val newEnd = (if (draggingEnd) maxOf(rawEnd, valueStart + epsilon) else valueEnd).coerceIn(min, max)
+        val newStart =
+            (if (draggingStart) minOf(rawStart, valueEnd - epsilon) else valueStart).coerceIn(
+                min,
+                max
+            )
+        val newEnd =
+            (if (draggingEnd) maxOf(rawEnd, valueStart + epsilon) else valueEnd).coerceIn(min, max)
         resultStart = newStart
         resultEnd = newEnd
 
@@ -164,7 +186,8 @@ fun UiScope.rangeSlider(
                         RANGE_SLIDER_KNOB_DIAMETER_PX,
                     ),
                     resolved = surface.resolved.copy(
-                        borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
+                        borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f }
+                            ?: 1.5f.dp,
                         shapeSpec = UiShapeSpec.Pill,
                     ),
                     fillColor = theme.colors.background,
@@ -178,7 +201,12 @@ fun UiScope.rangeSlider(
             id = id,
             label = label,
             bounds = boxSlot,
-            contentBounds = if (fillWidth > 0f) UiBounds(fillX, trackSlot.y, fillWidth, trackSlot.height) else null,
+            contentBounds = if (fillWidth > 0f) UiBounds(
+                fillX,
+                trackSlot.y,
+                fillWidth,
+                trackSlot.height
+            ) else null,
         )
     }
     return resultStart to resultEnd

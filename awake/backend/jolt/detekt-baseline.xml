@@ -17,9 +17,6 @@
     <ID>MagicNumber:JoltPhysicsWorld.kt$JoltPhysicsWorld$9.81f</ID>
     <ID>MagicNumber:JoltPhysicsWorld.kt$JoltPhysicsWorld.Companion$9.81f</ID>
     <ID>MagicNumber:QuatEuler.kt$0.5f</ID>
-    <ID>MaxLineLength:JoltPhysicsWorld.kt$JoltPhysicsWorld$JPC_PhysicsSystem_Update(physicsSystem, deltaTime, collisionSteps, tempAllocator, jobSystem.reinterpret&lt;JPC_JobSystem>())</ID>
-    <ID>MaxLineLength:JoltPhysicsWorld.kt$JoltPhysicsWorld$bodyInterface = JPC_PhysicsSystem_GetBodyInterface(physicsSystem) ?: error("JPC_PhysicsSystem_GetBodyInterface failed")</ID>
-    <ID>MaxLineLength:JoltPhysicsWorld.kt$JoltPhysicsWorld$private</ID>
     <ID>UnusedParameter:JoltPhysicsWorld.kt$broadPhaseLayer: JPC_BroadPhaseLayer</ID>
     <ID>UnusedParameter:JoltPhysicsWorld.kt$layer: JPC_ObjectLayer</ID>
     <ID>UnusedParameter:JoltPhysicsWorld.kt$objectLayer: JPC_ObjectLayer</ID>

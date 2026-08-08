@@ -11,9 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.headless.SeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
@@ -34,6 +32,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.SeparatorOrientation
+import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 
 /** Visual style for real shadcn's `Sidebar`: dedicated sidebar background/border tokens.
  * Content padding is 8dp (p-2 spec) matching real shadcn sidebar layout. */
@@ -46,12 +46,21 @@ private fun sidebarStyle(theme: ShadcnResolvedTheme): Style = Style {
 }
 
 /** Target width (dp) [shadcnSidebar] animates toward when [expanded]. */
-private fun UiModifier.sidebarExpandedWidth(): Dp = (widthDimension as? Dimension.Fixed)?.dp ?: 240f.dp
+private fun UiModifier.sidebarExpandedWidth(): Dp =
+    (widthDimension as? Dimension.Fixed)?.dp ?: 240f.dp
 
 /** Animates [shadcnSidebar]'s width toward 0 when collapsed. */
-private fun UiScope.animatedSidebarWidthModifier(id: String, modifier: UiModifier, expanded: Boolean): UiModifier {
+private fun UiScope.animatedSidebarWidthModifier(
+    id: String,
+    modifier: UiModifier,
+    expanded: Boolean
+): UiModifier {
     val fullWidth = modifier.sidebarExpandedWidth()
-    val animatedWidth = animateFloat("$id.expanded", if (expanded) fullWidth.value else 0f, initial = fullWidth.value)
+    val animatedWidth = animateFloat(
+        "$id.expanded",
+        if (expanded) fullWidth.value else 0f,
+        initial = fullWidth.value
+    )
     return modifier.width(Dimension.Fixed(Dp(animatedWidth)))
 }
 
@@ -68,7 +77,15 @@ fun UiScope.shadcnSidebar(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) },
+    content = { slot ->
+        if (expanded) shadcnCardContent(
+            slot,
+            ShadcnCardSize.Default,
+            header,
+            footer,
+            content
+        )
+    },
 )
 
 /** [shadcnSidebar] override for [ColumnScope]. */
@@ -84,7 +101,15 @@ fun ColumnScope.shadcnSidebar(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) },
+    content = { slot ->
+        if (expanded) shadcnCardContent(
+            slot,
+            ShadcnCardSize.Default,
+            header,
+            footer,
+            content
+        )
+    },
 )
 
 /** [shadcnSidebar] override for [RowScope]. */
@@ -100,7 +125,15 @@ fun RowScope.shadcnSidebar(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) },
+    content = { slot ->
+        if (expanded) shadcnCardContent(
+            slot,
+            ShadcnCardSize.Default,
+            header,
+            footer,
+            content
+        )
+    },
 )
 
 /** [shadcnSidebar] override for [BoxScope]. */
@@ -116,7 +149,15 @@ fun BoxScope.shadcnSidebar(
     id = id,
     modifier = animatedSidebarWidthModifier(id, modifier, expanded),
     style = sidebarStyle(theme.asShadcnTheme()) then style,
-    content = { slot -> if (expanded) shadcnCardContent(slot, ShadcnCardSize.Default, header, footer, content) },
+    content = { slot ->
+        if (expanded) shadcnCardContent(
+            slot,
+            ShadcnCardSize.Default,
+            header,
+            footer,
+            content
+        )
+    },
 )
 
 /** A labeled section within a [shadcnSidebar]'s body, matching real shadcn's `SidebarGroup`. */
@@ -125,7 +166,10 @@ fun ColumnScope.shadcnSidebarGroup(
     label: String? = null,
     content: ColumnScope.() -> Unit,
 ) {
-    column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(ShadcnSpacing.xs)) {
+    column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(ShadcnSpacing.xs)
+    ) {
         if (label != null) {
             shadcnSupportingText(label)
         }
@@ -138,7 +182,10 @@ fun ColumnScope.shadcnSidebarMenu(
     modifier: UiModifier = Modifier,
     content: ColumnScope.() -> Unit,
 ) {
-    column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(ShadcnSpacing.xs)) {
+    column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(ShadcnSpacing.xs)
+    ) {
         content()
     }
 }
@@ -160,16 +207,16 @@ fun ColumnScope.shadcnSidebarMenuItem(
         modifier = modifier.fillMaxWidth().height(32f.dp),
         variant = ShadcnButtonVariant.Ghost,
         style = (
-            Style {
-                contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
-                background(if (active) resolvedTheme.sidebarAccent else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
-                foreground(if (active) resolvedTheme.onSidebarAccent else resolvedTheme.onSidebar)
-                hovered {
-                    background(resolvedTheme.sidebarAccent)
-                    foreground(resolvedTheme.onSidebarAccent)
+                Style {
+                    contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
+                    background(if (active) resolvedTheme.sidebarAccent else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
+                    foreground(if (active) resolvedTheme.onSidebarAccent else resolvedTheme.onSidebar)
+                    hovered {
+                        background(resolvedTheme.sidebarAccent)
+                        foreground(resolvedTheme.onSidebarAccent)
+                    }
                 }
-            }
-            ) then style,
+                ) then style,
         centered = false,
         verticallyCentered = true,
         onClick = onClick,
@@ -199,7 +246,8 @@ fun ColumnScope.shadcnSidebarMenuSub(
 ) {
     val palette = theme.asShadcnTheme().palette
     row(
-        modifier = modifier.fillMaxWidth().padding(start = 14f.dp, top = 0f.dp, end = 0f.dp, bottom = 0f.dp),
+        modifier = modifier.fillMaxWidth()
+            .padding(start = 14f.dp, top = 0f.dp, end = 0f.dp, bottom = 0f.dp),
     ) {
         separator(
             thickness = 1f.dp,
