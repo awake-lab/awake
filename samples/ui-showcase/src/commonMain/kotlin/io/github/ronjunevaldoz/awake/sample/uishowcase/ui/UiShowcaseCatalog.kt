@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeSt
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.inputs.drawShadcnInputOtpDemoPreview
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.layout.drawShadcnAccordionDemoPreview
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.layout.drawShadcnResizableDemoPreview
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.overlay.drawShadcnContextMenuDemoPreview
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.overlay.drawShadcnDrawerDemoPreview
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnAccent
@@ -199,6 +200,15 @@ internal val ShowcasePages = listOf(
         usageCode = "shadcnSidebar(id = \"sb\") { drawUiShowcaseSidebarMenu() }",
         notes = listOf("App navigation rail with sidebar tokens."),
         renderPreview = { drawUiShowcaseSidebarPreview() },
+    ),
+    ShowcasePage(
+        id = "resizable",
+        title = "Resizable",
+        category = ShowcaseCategory.Layout,
+        description = "Draggable panel group where a handle redistributes space between its two neighboring panels.",
+        usageCode = "shadcnResizablePanelGroup(id = \"g\") { shadcnResizablePanel(...); shadcnResizableHandle(...); shadcnResizablePanel(...) }",
+        notes = listOf("Nested groups compose freely -- a vertical group inside a horizontal panel."),
+        renderPreview = { drawShadcnResizableDemoPreview() },
     ),
     ShowcasePage(
         id = "breadcrumb",
