@@ -95,6 +95,7 @@ class ShadcnParityScreenshotTest {
         val record = System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.toBoolean() ?: false
         listOf(
             AwakeButtonVariantsLightPreview,
+            AwakeButtonVariantsDarkPreview,
             AwakeTextFieldStatesLightPreview,
             AwakeTextareaStatesLightPreview,
             AwakeSwitchVariantsLightPreview,
@@ -133,28 +134,33 @@ class ShadcnParityScreenshotTest {
     }
 }
 
-@AwakeUiPreview(
-    id = "awake-button-variants-light",
-    title = "Awake Button Variants (light)",
-    group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/button_variants_light.png's arrangement for a direct side-by-side. " +
-        "Canvas is hugged to the row's own bounding box (see docs/reference/ui-validation.md's parity-harness note) -- " +
-        "the old 661x132 canvas left ~70% of its area as unused background, which crop_quality (comparedSize/awakeSize) " +
-        "read as an unmeasurable framing sliver rather than a fidelity signal. Canvas is exactly the row's own bounding " +
-        "box (no margin) -- checked this doesn't clip anything: the same flat-cap-glyph look on bold white-on-dark " +
-        "labels ('Default', 'Destructive') is already present in the previous 661x132 golden with 44px of surrounding " +
-        "margin, so it's a font-rasterization characteristic at this size, not frame-edge clipping introduced here.",
-    width = 560,
-    height = 42,
-)
-internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
-    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
-        val theme = shadcnTheme(dark = false)
-        val font = UiFonts.default()
-        val ui = UiContext()
-        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.pushFont(font)
-        ui.pushTheme(theme)
+/**
+ * Frame boilerplate every parity preview repeats. Extracted so a light and a dark preview of
+ * one component share a single body -- duplicating the whole entry per theme is what kept dark
+ * mode uncaptured.
+ */
+private fun parityFrame(
+    metadata: AwakeUiPreviewMetadata,
+    dark: Boolean = false,
+    body: UiContext.() -> Unit,
+): AwakeUiPreviewFrame {
+    val theme = shadcnTheme(dark = dark)
+    val font = UiFonts.default()
+    val ui = UiContext()
+    ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
+    ui.pushFont(font)
+    ui.pushTheme(theme)
+    ui.body()
+    return AwakeUiPreviewFrame(
+        primitives = ui.endFrame(),
+        background = theme.colors.background,
+        font = font,
+        semantics = ui.semanticNodes(),
+    )
+}
+
+/** Shared body for the light and dark button-variant parity previews. */
+private fun drawParityButtonVariants(ui: UiContext, metadata: AwakeUiPreviewMetadata) {
         ui.createColumn(
             x = 0f,
             y = 1f,
@@ -199,13 +205,40 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
                 variant = ShadcnButtonVariant.Link,
             )
         }
-        return AwakeUiPreviewFrame(
-            primitives = ui.endFrame(),
-            background = theme.colors.background,
-            font = font,
-            semantics = ui.semanticNodes(),
-        )
-    }
+}
+
+@AwakeUiPreview(
+    id = "awake-button-variants-light",
+    title = "Awake Button Variants (light)",
+    group = "Shadcn Parity",
+    summary = "Matches docs/reference/shadcn-previews/button_variants_light.png's arrangement for a direct side-by-side. " +
+        "Canvas is hugged to the row's own bounding box (see docs/reference/ui-validation.md's parity-harness note) -- " +
+        "the old 661x132 canvas left ~70% of its area as unused background, which crop_quality (comparedSize/awakeSize) " +
+        "read as an unmeasurable framing sliver rather than a fidelity signal. Canvas is exactly the row's own bounding " +
+        "box (no margin) -- checked this doesn't clip anything: the same flat-cap-glyph look on bold white-on-dark " +
+        "labels ('Default', 'Destructive') is already present in the previous 661x132 golden with 44px of surrounding " +
+        "margin, so it's a font-rasterization characteristic at this size, not frame-edge clipping introduced here.",
+    width = 560,
+    height = 42,
+)
+internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        parityFrame(metadata) { drawParityButtonVariants(this, metadata) }
+}
+
+@AwakeUiPreview(
+    id = "awake-button-variants-dark",
+    title = "Awake Button Variants (dark)",
+    group = "Shadcn Parity",
+    summary = "Dark twin of awake-button-variants-light, sharing its body through " +
+        "drawParityButtonVariants so the two cannot drift apart. Pairs against the local " +
+        "reference app's button-variants case rather than a scraped docs page.",
+    width = 560,
+    height = 42,
+)
+internal object AwakeButtonVariantsDarkPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        parityFrame(metadata, dark = true) { drawParityButtonVariants(this, metadata) }
 }
 
 @AwakeUiPreview(

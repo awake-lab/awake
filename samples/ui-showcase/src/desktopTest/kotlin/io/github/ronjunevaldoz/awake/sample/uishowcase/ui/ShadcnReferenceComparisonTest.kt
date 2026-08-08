@@ -112,7 +112,16 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
 }
 
 @Serializable
-private data class ShadcnParityPair(val name: String, val awake: String, val reference: String)
+private data class ShadcnParityPair(
+    val name: String,
+    val awake: String,
+    val reference: String,
+    /** True when the reference comes from the local reference app rather than the legacy
+     * ui.shadcn.com scrape. Local references render from the pinned shadcn checkout, so they
+     * are authoritative; the scrape applies its own docs-site theming, which once produced a
+     * token-bug report against us that the pinned source disproved. */
+    val local: Boolean = false,
+)
 
 @Serializable
 private data class ShadcnParityManifest(val pairs: List<ShadcnParityPair>)
@@ -243,6 +252,7 @@ class ShadcnReferenceComparisonTest {
         // CWD-relative convention build/ui-previews already uses elsewhere in this module.
         val manifestFile = File("../../tools/shadcn_parity_pairs.json")
         val referenceDir = File("../../docs/reference/shadcn-previews")
+        val localReferenceDir = File("../../docs/reference/shadcn-previews-local")
         val awakeDir = File("build/ui-previews")
         val diffDir = File("build/reports/shadcn-parity")
         val metricsFile = File("build/reports/shadcn-parity-metrics.json")
@@ -252,7 +262,7 @@ class ShadcnReferenceComparisonTest {
 
         val results = manifest.pairs.mapNotNull { pair ->
             val awakeFile = File(awakeDir, "${pair.awake}.png")
-            val referenceFile = File(referenceDir, pair.reference)
+            val referenceFile = File(if (pair.local) localReferenceDir else referenceDir, pair.reference)
             if (!awakeFile.exists() || !referenceFile.exists()) {
                 println(
                     "SKIP ${pair.name}: awake exists=${awakeFile.exists()} (${awakeFile.path}), " +
