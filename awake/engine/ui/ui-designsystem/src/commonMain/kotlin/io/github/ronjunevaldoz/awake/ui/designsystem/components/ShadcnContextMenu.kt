@@ -49,8 +49,9 @@ fun UiScope.shadcnContextMenu(
             // A context menu's anchor is the cursor point, not a real control -- it has zero
             // width. shadcnDropdownMenu's own default width (anchorSlot.width) would resolve
             // to a zero-width panel, so items paint with no background behind them (reads as
-            // "transparent"). Size to content instead, same as any other point-anchored popup.
-            width = Dimension.WrapContent,
+            // "transparent"). Size to content instead, same as any other point-anchored popup,
+            // unless the caller pinned a width on [modifier].
+            width = modifier.widthDimension ?: Dimension.WrapContent,
         )
         if (result.dismissed || result.selectedIndex != null) {
             onExpandedChange(false)

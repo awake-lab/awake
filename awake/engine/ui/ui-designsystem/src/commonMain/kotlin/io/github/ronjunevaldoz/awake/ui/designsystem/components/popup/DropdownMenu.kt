@@ -58,6 +58,16 @@ fun UiScope.shadcnDropdownMenu(
     itemStyle: Style = Style.Empty,
 ): UiDropdownMenuResult {
     val theme = context.currentTheme
+    // WrapContent cannot shrink this menu on its own. popup() resolves it by measuring the
+    // content inside a box the full window wide, and every item below sizes to the width it is
+    // handed (`Modifier.width(width.px)`) -- so the measure returns the window width back, and
+    // the menu paints edge to edge. Nothing in the chain has an intrinsic width, so supply one:
+    // the widest item's own ink plus its padding, floored at shadcn's min-w-32.
+    val resolvedWidth = if (width == Dimension.WrapContent) {
+        Dimension.Fixed(intrinsicMenuWidthPx(items).px)
+    } else {
+        width
+    }
     // Wired the same way every other scrollable surface in this module wires it (see
     // shadcnSidebar's doc comment): a plain Modifier.verticalScroll(state) on the menu surface.
     // Only applied when the caller constrains [height] -- the default WrapContent already grows
@@ -71,7 +81,7 @@ fun UiScope.shadcnDropdownMenu(
         id = id,
         anchorSlot = anchorSlot,
         expanded = expanded,
-        width = width,
+        width = resolvedWidth,
         height = height,
         verticalArrangement = Arrangement.spacedBy(0f.dp),
         positionProvider = positionProvider,
@@ -151,6 +161,27 @@ fun UiScope.shadcnDropdownMenu(
         dismissed = popupResult.dismissed,
     )
 }
+
+/**
+ * The width the widest entry needs, mirroring [dropdownMenuItem]'s own horizontal budget:
+ * 8dp start padding, optional icon slot, the label's measured ink, the trailing shortcut, and
+ * 8dp end padding. Floored at shadcn's `min-w-32` so a menu of one-word items still reads as a
+ * panel rather than a sliver.
+ */
+private fun UiScope.intrinsicMenuWidthPx(items: List<UiDropdownMenuEntry>): Float {
+    val resolvedFont = font
+    val glyphPx = pixelPerfectPixel(theme.typography.label.toPx().coerceAtLeast(1f)).coerceAtLeast(1f)
+    val horizontalPadding = 16f.dp.toPx()
+    val widest = items.filterIsInstance<UiDropdownMenuItem>().maxOfOrNull { item ->
+        val iconSlotWidth = if (item.icon != null) glyphPx + 8f else 0f
+        val trailingWidth = item.trailingLabel?.let { resolvedFont.measureTextWidth(it, glyphPx) + 8f } ?: 0f
+        resolvedFont.measureTextWidth(item.label, glyphPx) + iconSlotWidth + trailingWidth
+    } ?: 0f
+    return (widest + horizontalPadding).coerceAtLeast(MENU_MIN_WIDTH_DP.dp.toPx())
+}
+
+/** shadcn's dropdown-menu-content carries `min-w-32`. */
+private const val MENU_MIN_WIDTH_DP = 128f
 
 private fun ColumnScope.dropdownMenuItem(
     id: String,
