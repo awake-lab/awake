@@ -197,7 +197,17 @@ fun UiScope.surface(
         borderToken = resolved.borderColorToken,
         borderRadius = resolved.shape.toPx(),
     )
-    context.pushTextStyle(resolved.textStyle, tokenId = resolved.textStyleToken)
+    // A surface's `foreground` is its content colour, so it has to reach the text inside it.
+    // Without this, text() found no colour on the inherited text style and fell back to the
+    // theme's own foreground -- which on an inverted surface is the same colour as the
+    // background it is sitting on. shadcn's tooltip (bg-foreground/text-background) rendered as
+    // an unreadable dark-on-dark pill because of it. An explicit textStyle colour still wins.
+    val contentTextStyle = if (resolved.textStyle.color == null && resolved.foreground != null) {
+        resolved.textStyle.copy(color = resolved.foreground)
+    } else {
+        resolved.textStyle
+    }
+    context.pushTextStyle(contentTextStyle, tokenId = resolved.textStyleToken)
     val effectiveShape = resolved.shapeSpec ?: UiShapeSpec.RoundedRectangle(resolved.shape)
     context.pushShapeSpec(effectiveShape)
 
