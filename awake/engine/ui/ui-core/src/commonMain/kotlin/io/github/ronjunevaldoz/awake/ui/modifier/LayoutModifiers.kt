@@ -14,6 +14,14 @@ fun UiModifier.width(dp: Dp): UiModifier = copy(widthDimension = Dimension.Fixed
 fun UiModifier.height(dp: Dp): UiModifier = copy(heightDimension = Dimension.Fixed(dp))
 fun UiModifier.width(dimension: Dimension): UiModifier = copy(widthDimension = dimension)
 fun UiModifier.height(dimension: Dimension): UiModifier = copy(heightDimension = dimension)
+/** Bounds the resolved width, mirroring Compose's `Modifier.widthIn`. Either end may be null. */
+fun UiModifier.widthIn(min: Dp? = null, max: Dp? = null): UiModifier =
+    copy(minWidth = min ?: minWidth, maxWidth = max ?: maxWidth)
+
+/** Bounds the resolved height, mirroring Compose's `Modifier.heightIn`. */
+fun UiModifier.heightIn(min: Dp? = null, max: Dp? = null): UiModifier =
+    copy(minHeight = min ?: minHeight, maxHeight = max ?: maxHeight)
+
 fun UiModifier.size(width: Dp, height: Dp): UiModifier =
     copy(widthDimension = Dimension.Fixed(width), heightDimension = Dimension.Fixed(height))
 

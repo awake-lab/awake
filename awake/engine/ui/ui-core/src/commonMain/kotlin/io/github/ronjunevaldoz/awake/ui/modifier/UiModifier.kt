@@ -34,6 +34,14 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 data class UiModifier(
     val widthDimension: Dimension? = null,
     val heightDimension: Dimension? = null,
+    /** Clamps applied after [widthDimension]/[heightDimension] resolve to a concrete size --
+     * Compose's `widthIn`/`heightIn`. Needed for the very common "size to content, but never
+     * below X" shape: shadcn's button is content-width with a minimum height, and without a
+     * clamp that could only be expressed by pinning a fixed width per call site. */
+    val minWidth: Dp? = null,
+    val maxWidth: Dp? = null,
+    val minHeight: Dp? = null,
+    val maxHeight: Dp? = null,
     val layoutWeight: LayoutWeight? = null,
     val testTag: String? = null,
     val alignment: UiAlignment? = null,

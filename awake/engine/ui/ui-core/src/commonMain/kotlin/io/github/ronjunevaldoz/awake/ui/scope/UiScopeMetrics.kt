@@ -19,6 +19,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.roundToInt
+import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.Dp
 
 fun pixelPerfectTextScale(requestedScale: Float, step: Float = 0.25f): Float {
     val safeStep = step.takeIf { it.isFinite() && it > 0f } ?: 0.25f
@@ -66,9 +68,16 @@ fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiBounds {
         modifier.widthDimension ?: (if (modifier.layoutWeight != null) Dimension.FillMax else Dimension.WrapContent)
     val requestedHeight =
         modifier.heightDimension ?: (if (modifier.layoutWeight != null) Dimension.FillMax else Dimension.WrapContent)
-    val containerSlot = claimSlot(requestedWidth, requestedHeight, modifier.layoutWeight)
-    val width = requestedWidth.resolveAgainst(containerSlot.width)
-    val height = requestedHeight.resolveAgainst(containerSlot.height)
+    // Clamp the request before claiming, not the result after: claimSlot() reserves the space,
+    // and place() cannot hand back more than was reserved -- so a minimum applied afterwards
+    // would silently do nothing while a maximum appeared to work.
+    val boundedWidth = requestedWidth.clampToBounds(modifier.minWidth, modifier.maxWidth)
+    val boundedHeight = requestedHeight.clampToBounds(modifier.minHeight, modifier.maxHeight)
+    val containerSlot = claimSlot(boundedWidth, boundedHeight, modifier.layoutWeight)
+    val width = boundedWidth.resolveAgainst(containerSlot.width)
+        .clampToBounds(modifier.minWidth?.toPx(), modifier.maxWidth?.toPx())
+    val height = boundedHeight.resolveAgainst(containerSlot.height)
+        .clampToBounds(modifier.minHeight?.toPx(), modifier.maxHeight?.toPx())
     // claimSlot() above already recorded containerSlot for measurement purposes -- recording
     // the aligned/inset/offset placement again here would double-count this single widget claim
     // in measured.slots (corrupting row/column child-count-sized aggregates like arrangement
@@ -112,4 +121,22 @@ private fun UiScope.crossAxisAlignmentContainer(containerSlot: UiBounds): UiBoun
     is RowScope -> containerSlot.copy(height = height.coerceAtLeast(containerSlot.height))
     is ColumnScope -> containerSlot.copy(width = width.coerceAtLeast(containerSlot.width))
     else -> containerSlot
+}
+
+
+/** Applies whichever of [min]/[max] were supplied. A max below min loses to min, matching
+ * Compose, where the minimum constraint wins. */
+private fun Float.clampToBounds(min: Float?, max: Float?): Float {
+    var value = this
+    if (max != null) value = value.coerceAtMost(max)
+    if (min != null) value = value.coerceAtLeast(min)
+    return value
+}
+
+/** Applies min/max to a sizing request. Only a [Dimension.Fixed] request can be bounded up
+ * front; [Dimension.FillMax] already means "whatever the parent offers", and clamping it here
+ * would change what gets reserved rather than what gets used. */
+private fun Dimension.clampToBounds(min: Dp?, max: Dp?): Dimension {
+    if (this !is Dimension.Fixed || (min == null && max == null)) return this
+    return Dimension.Fixed(dp.value.clampToBounds(min?.value, max?.value).dp)
 }
