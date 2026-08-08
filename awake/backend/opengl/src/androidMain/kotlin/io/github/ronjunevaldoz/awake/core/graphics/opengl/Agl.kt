@@ -75,7 +75,11 @@ import io.github.ronjunevaldoz.awake.core.utils.BufferUtils
 import io.github.ronjunevaldoz.awake.core.utils.sizeBytes
 import io.github.ronjunevaldoz.awake.core.utils.toUType
 
-internal actual object Agl : OpenGL {
+internal actual val Agl: OpenGL = AglImpl
+
+// Implements the whole OpenGL interface; the function count is the GL API's, not a design choice.
+@Suppress("TooManyFunctions")
+private object AglImpl : OpenGL {
     override fun clearColor(r: Float, g: Float, b: Float, a: Float) {
         glClearColor(r, g, b, a)
     }

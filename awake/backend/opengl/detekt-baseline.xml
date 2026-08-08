@@ -4,10 +4,10 @@
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:GlfwKeyMapping.kt$fun glfwToAwtKeyCode(glfwKeyCode: Int): Int</ID>
     <ID>LargeClass:CommonGL.kt$CommonGL</ID>
-    <ID>LongMethod:Agl.kt$Agl$override fun texImage2D( target: Int, level: Int, internalFormat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, buffer: Buffer? )</ID>
-    <ID>LongMethod:Agl.kt$Agl$override fun texSubImage2D( target: Int, level: Int, xOffset: Int, yOffset: Int, width: Int, height: Int, format: Int, type: Int, buffer: Buffer? )</ID>
+    <ID>LongMethod:Agl.kt$Agl$override fun texImage2D( target: Int, level: Int, internalFormat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, buffer: Buffer?, )</ID>
+    <ID>LongMethod:Agl.kt$Agl$override fun texSubImage2D( target: Int, level: Int, xOffset: Int, yOffset: Int, width: Int, height: Int, format: Int, type: Int, buffer: Buffer?, )</ID>
     <ID>LongMethod:GlfwKeyMapping.kt$fun glfwToAwtKeyCode(glfwKeyCode: Int): Int</ID>
-    <ID>LongParameterList:application.kt$( width: Int, height: Int, onInit: () -> Unit, onResize: (width: Int, height: Int) -> Unit, onUpdate: (delta: Float) -> Unit, onDispose: () -> Unit )</ID>
+    <ID>LongParameterList:application.kt$( width: Int, height: Int, onInit: () -> Unit, onResize: (width: Int, height: Int) -> Unit, onUpdate: (delta: Float) -> Unit, onDispose: () -> Unit, )</ID>
     <ID>MagicNumber:CommonGL.kt$CommonGL$0x1901</ID>
     <ID>MagicNumber:Config.kt$Config$30.0</ID>
     <ID>MagicNumber:FontBitmap.kt$FontBitmap$12</ID>

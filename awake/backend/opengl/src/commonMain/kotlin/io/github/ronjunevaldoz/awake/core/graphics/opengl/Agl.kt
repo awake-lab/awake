@@ -8,7 +8,10 @@ import io.github.ronjunevaldoz.awake.core.memory.Buffer
 import io.github.ronjunevaldoz.awake.core.memory.FloatBuf
 import io.github.ronjunevaldoz.awake.core.memory.IntBuf
 
-internal expect object Agl : OpenGL
+// A val, not `expect object Agl : OpenGL`: K2's metadata compilation rejects an expect object
+// with an unimplemented supertype ("is not abstract and does not implement abstract members"),
+// so each platform supplies its GL singleton behind an interface-typed property instead.
+internal expect val Agl: OpenGL
 internal object AglDebuggable : OpenGL {
     override fun clearColor(r: Float, g: Float, b: Float, a: Float) {
         Agl.clearColor(r, g, b, a)

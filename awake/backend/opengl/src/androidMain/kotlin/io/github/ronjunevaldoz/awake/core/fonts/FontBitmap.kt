@@ -15,7 +15,7 @@ import android.text.TextUtils
 import io.github.ronjunevaldoz.awake.core.graphics.AndroidBitmap
 import io.github.ronjunevaldoz.awake.core.rendering.Texture
 
-class FontBitmap(fontSize: Float, antialias: Boolean) {
+class FontBitmap(fontSize: Float, private val antialias: Boolean) {
     private val textPaint = TextPaint()
     private val canvas = Canvas()
     val texture: Texture

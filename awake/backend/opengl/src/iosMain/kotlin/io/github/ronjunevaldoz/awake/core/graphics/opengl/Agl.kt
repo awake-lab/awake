@@ -90,7 +90,11 @@ import platform.gles2.glUseProgram
 import platform.gles2.glVertexAttribPointer
 import platform.gles2.glViewport
 
-internal actual object Agl : OpenGL {
+internal actual val Agl: OpenGL = AglImpl
+
+// Implements the whole OpenGL interface; the function count is the GL API's, not a design choice.
+@Suppress("TooManyFunctions")
+private object AglImpl : OpenGL {
 
     override fun clearColor(r: Float, g: Float, b: Float, a: Float) {
         glClearColor(r, g, b, a)
@@ -247,7 +251,7 @@ internal actual object Agl : OpenGL {
             is ShortBuffer -> data.get<ShortVar>()
             is IntBuffer -> data.get<IntVar>()
             is FloatBuffer -> data.get<FloatVar>()
-            else -> throw Exception("Buffer not supported")
+            else -> error("Buffer not supported")
         }
         glBufferData(
             target.value.toUInt(),

@@ -70,7 +70,11 @@ import org.lwjgl.opengl.GL30.glGenVertexArrays
 import org.lwjgl.opengl.GL30.glGenerateMipmap
 import org.lwjgl.opengl.GL30.glRenderbufferStorage
 
-internal actual object Agl : OpenGL {
+internal actual val Agl: OpenGL = AglImpl
+
+// Implements the whole OpenGL interface; the function count is the GL API's, not a design choice.
+@Suppress("TooManyFunctions")
+private object AglImpl : OpenGL {
     override fun clearColor(r: Float, g: Float, b: Float, a: Float) {
         glClearColor(r, g, b, a)
     }
@@ -348,6 +352,8 @@ internal actual object Agl : OpenGL {
         )
     }
 
+    // GL pixel-upload dispatch table -- one branch per buffer/format pairing.
+    @Suppress("LongMethod")
     override fun texImage2D(
         target: Int,
         level: Int,
@@ -449,6 +455,8 @@ internal actual object Agl : OpenGL {
         )
     }
 
+    // GL pixel-upload dispatch table -- one branch per buffer/format pairing.
+    @Suppress("LongMethod")
     override fun texSubImage2D(
         target: Int,
         level: Int,
