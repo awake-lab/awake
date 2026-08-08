@@ -116,6 +116,9 @@ fun UiScope.shadcnText(
     muted: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
+    // None, not Word: this is the generic label primitive, and wrapping changes how text claims
+    // width -- prose callers opt in (shadcnBodyText/shadcnSupportingText already default to Word).
+    wrap: UiTextWrap = UiTextWrap.None,
 ): UiBounds = text(
     label = label,
     modifier = modifier,
@@ -130,6 +133,7 @@ fun UiScope.shadcnText(
     } then style,
     maxLines = maxLines,
     overflow = overflow,
+    wrap = wrap,
 )
 
 /** Real shadcn's `Label` -- a purely presentational field label. Compose has no HTML `for`
