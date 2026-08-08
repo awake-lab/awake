@@ -93,6 +93,16 @@ class IconFidelityTest {
             "Solid20Mini" to "clock" -> HeroIcons.Solid20Mini.clock
             "Solid20Mini" to "arrowPath" -> HeroIcons.Solid20Mini.arrowPath
             "Solid20Mini" to "camera" -> HeroIcons.Solid20Mini.camera
+            "Solid20Mini" to "sparkles" -> HeroIcons.Solid20Mini.sparkles
+            "Solid20Mini" to "cube" -> HeroIcons.Solid20Mini.cube
+            "Solid20Mini" to "cog6Tooth" -> HeroIcons.Solid20Mini.cog6Tooth
+            "Solid20Mini" to "arrowUpTray" -> HeroIcons.Solid20Mini.arrowUpTray
+            "Solid20Mini" to "arrowDownTray" -> HeroIcons.Solid20Mini.arrowDownTray
+            "Solid20Mini" to "puzzlePiece" -> HeroIcons.Solid20Mini.puzzlePiece
+            "Solid20Mini" to "pencilSquare" -> HeroIcons.Solid20Mini.pencilSquare
+            "Solid20Mini" to "play" -> HeroIcons.Solid20Mini.play
+            "Solid20Mini" to "magnifyingGlass" -> HeroIcons.Solid20Mini.magnifyingGlass
+            "Solid20Mini" to "videoCamera" -> HeroIcons.Solid20Mini.videoCamera
             "Solid24" to "arrowDownOnSquareStack" -> HeroIcons.Solid24.arrowDownOnSquareStack
             "Solid24" to "arrowUpOnSquareStack" -> HeroIcons.Solid24.arrowUpOnSquareStack
             "Solid24" to "circleStack" -> HeroIcons.Solid24.circleStack

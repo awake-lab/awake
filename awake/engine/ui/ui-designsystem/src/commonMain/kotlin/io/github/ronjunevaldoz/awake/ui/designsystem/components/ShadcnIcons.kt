@@ -21,4 +21,14 @@ object ShadcnIcons {
     var chevronRight: UiImageVector = HeroIcons.Solid20Mini.chevronRight
     var squares2x2: UiImageVector = HeroIcons.Solid20Mini.squares2x2
     var xMark: UiImageVector = HeroIcons.Solid20Mini.xMark
+    var sparkles: UiImageVector = HeroIcons.Solid20Mini.sparkles
+    var cube: UiImageVector = HeroIcons.Solid20Mini.cube
+    var cog6Tooth: UiImageVector = HeroIcons.Solid20Mini.cog6Tooth
+    var arrowUpTray: UiImageVector = HeroIcons.Solid20Mini.arrowUpTray
+    var arrowDownTray: UiImageVector = HeroIcons.Solid20Mini.arrowDownTray
+    var puzzlePiece: UiImageVector = HeroIcons.Solid20Mini.puzzlePiece
+    var pencilSquare: UiImageVector = HeroIcons.Solid20Mini.pencilSquare
+    var play: UiImageVector = HeroIcons.Solid20Mini.play
+    var magnifyingGlass: UiImageVector = HeroIcons.Solid20Mini.magnifyingGlass
+    var videoCamera: UiImageVector = HeroIcons.Solid20Mini.videoCamera
 }

@@ -84,6 +84,76 @@
     "kotlinProperty": "camera"
   },
   {
+    "name": "sparkles",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "sparkles"
+  },
+  {
+    "name": "cube",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "cube"
+  },
+  {
+    "name": "cog-6-tooth",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "cog6Tooth"
+  },
+  {
+    "name": "arrow-up-tray",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "arrowUpTray"
+  },
+  {
+    "name": "arrow-down-tray",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "arrowDownTray"
+  },
+  {
+    "name": "puzzle-piece",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "puzzlePiece"
+  },
+  {
+    "name": "pencil-square",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "pencilSquare"
+  },
+  {
+    "name": "play",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "play"
+  },
+  {
+    "name": "magnifying-glass",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "magnifyingGlass"
+  },
+  {
+    "name": "video-camera",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "videoCamera"
+  },
+  {
     "name": "arrow-down-on-square-stack",
     "urlTier": "24/solid",
     "viewBox": 24,
