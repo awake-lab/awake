@@ -20,7 +20,10 @@ Engine limits enforced here:
   is supported and emitted as `path(fillRule = UiFillRule.EvenOdd)`; genuinely
   CROSSING subpaths are rejected since the engine's containment-based hole
   grouping cannot represent them.
-- Stroke attributes are rejected: the icon pipeline is fill-only.
+- Stroke-only (outline-tier) SVGs are rejected: the icon pipeline is fill-only.
+  `fill`/`stroke` are resolved through ancestors, because Heroicons' outline tier
+  declares them on the <svg> root -- checking the <path> alone accepts an outline
+  icon and fills its stroke centreline as a solid polygon.
 - `transform` attributes and non-path shape elements are rejected; flatten
   them to plain paths first (e.g. with picosvg).
 """
@@ -341,16 +344,44 @@ def parse_svg(path: str):
         if tag in unsupported_shapes:
             raise SystemExit(f"error: <{tag}> unsupported -- convert shapes to paths first (picosvg)")
 
+    # `fill` and `stroke` inherit. Heroicons' outline tier sets fill="none" and
+    # stroke="currentColor" on the <svg> root and leaves the <path> carrying only
+    # stroke-linecap/linejoin, so checking the path's own attributes alone accepts an
+    # outline icon and fills its stroke centreline as a solid polygon -- silent garbage.
+    # Resolve each attribute against the element's ancestors instead.
+    parents = {child: parent for parent in root.iter() for child in parent}
+
+    def inherited(el, name, default=None):
+        node = el
+        while node is not None:
+            value = node.get(name)
+            if value is not None:
+                return value
+            node = parents.get(node)
+        return default
+
     paths = []
+    stroked = 0
     for el in root.iter(f"{SVG_NS}path"):
-        if (el.get("stroke") or "none") != "none":
-            raise SystemExit("error: stroked path -- engine icon pipeline is fill-only")
-        if el.get("fill") == "none":
-            print("warning: skipping fill=\"none\" path", file=sys.stderr)
+        if (inherited(el, "stroke") or "none") != "none":
+            stroked += 1
             continue
-        paths.append((el.get("d"), el.get("fill-rule", "nonzero")))
+        if inherited(el, "fill") == "none":
+            continue
+        paths.append((el.get("d"), inherited(el, "fill-rule", "nonzero")))
     if not paths:
+        if stroked:
+            raise SystemExit(
+                "error: every path in this SVG is stroked, not filled -- this is an outline-tier "
+                "icon and the engine's icon pipeline renders fills only (UiStrokeJoin is declared "
+                "but never read; see the 'Stroke rendering' row in docs/reference/"
+                "ui-fidelity-status.md). Use the solid tier of this glyph instead, or implement "
+                "stroke rendering first. Converting the stroke to an outline path (picosvg "
+                "--keep-unsupported-features / a stroke-to-path step) would also work."
+            )
         raise SystemExit("error: no fillable <path> elements found")
+    if stroked:
+        print(f"warning: skipped {stroked} stroked path(s); only fills are rendered", file=sys.stderr)
     return viewport, paths
 
 
@@ -499,6 +530,25 @@ def self_test():
 
     # formatting: trimmed zeros, no negative zero
     assert fmt(4.0) == "4f" and fmt(4.80) == "4.8f" and fmt(-0.0) == "0f" and fmt(1.23456) == "1.2346f"
+
+    # inherited fill/stroke: Heroicons' outline tier puts fill="none" stroke="currentColor"
+    # on the <svg> root, so a path-only attribute check silently fills a stroke centreline.
+    import tempfile, os
+    outline = (
+        '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" '
+        'stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" '
+        'd="M4 10 L20 10"/></svg>'
+    )
+    handle, temp = tempfile.mkstemp(suffix=".svg")
+    os.write(handle, outline.encode())
+    os.close(handle)
+    try:
+        parse_svg(temp)
+        raise AssertionError("outline (stroke-only) svg must be rejected")
+    except SystemExit as failure:
+        assert "outline-tier" in str(failure), failure
+    finally:
+        os.unlink(temp)
 
     print("self-test OK")
 

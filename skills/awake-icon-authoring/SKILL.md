@@ -69,8 +69,12 @@ python3 tools/svg_to_ui_image_vector.py --self-test
 
 ## Engine Limits To Know Before Blaming The Data
 
-- **Fill-only.** No outline/stroked icon tier can exist yet: `UiImageVectorBuilder.path()`
-  never sets `stroke`, and stroke joins are unimplemented in `UiPath`. Use solid SVG tiers.
+- **Fill-only. Use the solid tier, never the outline tier.** Heroicons' `24/outline` glyphs
+  are stroke-only (`fill="none"`, `stroke-width="1.5"` on the `<svg>` root) and there is no
+  stroke rendering: `UiImageVectorBuilder.path()` never sets `stroke`, and `UiStrokeJoin` is
+  declared but never read. The generator rejects them with a message pointing here. Reaching
+  for an outline icon means implementing stroke rendering first, or running a stroke-to-path
+  conversion so the outline becomes a real fillable shape.
 - **Concave fills and holes are handled by the tessellator** (`tessellateFill`/
   `tessellateFillAa`, ui-core `UiPath.kt`): convex hole-less contours centroid-fan (the hot
   path); everything else -- concave contours, nested holes -- goes through scanline-trapezoid
