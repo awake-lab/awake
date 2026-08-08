@@ -1,0 +1,107 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.ui.headless
+
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.testing.ui.rasterize
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.sp
+import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.testSnapshot
+import java.io.File
+import javax.imageio.ImageIO
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+/**
+ * Compares our text rendering against the same TTF rendered by Chromium
+ * (`tools/capture_font_reference.py`, references in `docs/reference/font-previews/`).
+ *
+ * Exists because atlas metrics alone could not answer whether a glyph sitting a pixel low was
+ * faithful to the typeface or introduced by us. The control says introduced by us: real Roboto
+ * puts every flat and round glyph on one row at 12, 14 and 16px, while our atlas splits them by
+ * a pixel at 12 and 14. The drift is recorded below rather than asserted away, so it cannot
+ * widen unnoticed and disappears from the map when the atlas is fixed.
+ */
+class FontBaselineFidelityTest {
+
+    private data class Sample(val id: String, val text: String, val sizePx: Float)
+
+    private val samples = listOf(
+        Sample("roundvsflat-12", "iliaeco", 12f),
+        Sample("roundvsflat-14", "iliaeco", 14f),
+        Sample("roundvsflat-16", "iliaeco", 16f),
+        Sample("email-12", "Email", 12f),
+    )
+
+    /** Baseline spread we currently render, against a reference spread of 0 everywhere.
+     * Every entry is a defect; the goal is an empty map. */
+    private val knownBaselineDrift = mapOf(
+        "roundvsflat-12" to 1,
+        "roundvsflat-14" to 1,
+        "email-12" to 1,
+    )
+
+    private fun inkBottomsPerGlyph(luma: (Int, Int) -> Int, width: Int, height: Int): List<Int> {
+        val lit = (0 until width).map { x -> (0 until height).any { y -> luma(x, y) > 40 } }
+        val runs = mutableListOf<Pair<Int, Int>>()
+        var start: Int? = null
+        lit.forEachIndexed { x, on ->
+            if (on && start == null) start = x
+            if (!on && start != null) { runs += start!! to x; start = null }
+        }
+        start?.let { runs += it to width }
+        return runs.map { (a, b) ->
+            (0 until height).last { y -> (a until b).any { x -> luma(x, y) > 40 } }
+        }
+    }
+
+    private fun ourSpread(sample: Sample): Int {
+        val w = 640
+        val h = 96
+        val ui = UiContext()
+        ui.beginFrame(w.toFloat(), h.toFloat(), testSnapshot())
+        ui.createAbsolute(x = 16f, y = 48f).text(sample.text, style = Style { textSize(sample.sizePx.sp) })
+        val pixels = ui.endFrame().rasterize(w, h, background = Color.Black)
+        val bottoms = inkBottomsPerGlyph({ x, y -> pixels[(y * w + x) * 4].toInt() and 0xFF }, w, h)
+        return bottoms.max() - bottoms.min()
+    }
+
+    private fun referenceSpread(sample: Sample): Int {
+        val file = File("../../../../docs/reference/font-previews/${sample.id}.png")
+        assertTrue(file.exists(), "missing reference ${file.path}; run tools/capture_font_reference.py")
+        val image = ImageIO.read(file)
+        val bottoms = inkBottomsPerGlyph(
+            { x, y -> (image.getRGB(x, y) shr 16) and 0xFF },
+            image.width,
+            image.height,
+        )
+        return bottoms.max() - bottoms.min()
+    }
+
+    @Test
+    fun baselineSpreadMatchesRealRobotoOrIsRecordedAsDrift() {
+        samples.forEach { sample ->
+            val reference = referenceSpread(sample)
+            val ours = ourSpread(sample)
+            val allowed = reference + (knownBaselineDrift[sample.id] ?: 0)
+            assertEquals(
+                allowed,
+                ours,
+                "${sample.id}: real Roboto puts every glyph within $reference px of one baseline, " +
+                    "we render a spread of $ours. Update knownBaselineDrift only to shrink it.",
+            )
+        }
+    }
+
+    @Test
+    fun realRobotoItselfHasNoBaselineSpread() {
+        // Guards the control: if a capture regressed, the comparison above would silently
+        // start grading against a moving reference.
+        samples.forEach { sample ->
+            assertEquals(0, referenceSpread(sample), "reference ${sample.id} is not flush")
+        }
+    }
+}

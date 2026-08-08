@@ -19,6 +19,24 @@ python3 tools/svg_to_ui_image_vector.py icon.svg --name chevronDown --dp 16 --so
 python3 tools/svg_to_ui_image_vector.py --self-test
 ```
 
+## Font fidelity
+
+`capture_font_reference.py` renders each sample in `font_samples_manifest.json` with the exact
+TTF baked into `RobotoRegularUiFontData`, using Chromium as the control, and saves it to
+`docs/reference/font-previews/`. `FontBaselineFidelityTest` renders the same sample through
+Awake's atlas pipeline and compares per-glyph ink baselines.
+
+It exists because atlas metrics alone could not say whether a glyph sitting a pixel low was
+faithful to the typeface or introduced by us. The control answered it: real Roboto puts every
+glyph on one baseline at 12, 14 and 16px, while our atlas splits round and flat glyphs by a
+pixel at 12 and 14. That drift is recorded in the test's `knownBaselineDrift` map, so it cannot
+widen unnoticed — the goal is an empty map.
+
+```bash
+python3 tools/capture_font_reference.py
+./gradlew :awake:engine:ui:ui-headless:desktopTest --tests "*FontBaselineFidelityTest*"
+```
+
 ## Shadcn parity
 
 The chain that answers "does this actually look like shadcn?" rather than "did this change?".

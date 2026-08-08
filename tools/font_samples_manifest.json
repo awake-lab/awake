@@ -1,0 +1,43 @@
+{
+  "_comment": "Single source of truth for the font-fidelity harness. Consumed by tools/capture_font_reference.py (renders each sample in Chromium with the real Roboto TTF) and by FontFidelityTest (renders the same sample through Awake's atlas pipeline and compares). Add a row here rather than editing either side. 'id' names the PNG; 'text' is rendered verbatim; 'sizePx' is the font size in CSS pixels, matched by the Kotlin side's glyph size.",
+  "fontFile": "awake/engine/ui/ui-core/src/commonMain/resources/fonts/Roboto-Regular.ttf",
+  "canvas": { "width": 640, "height": 96, "originX": 16, "baselineY": 64 },
+  "samples": [
+    {
+      "id": "email-12",
+      "text": "Email",
+      "sizePx": 12,
+      "why": "The string whose 'a' was reported as sitting a pixel low. Mixes cap-height (E), x-height flat (m, i, l) and x-height round (a)."
+    },
+    {
+      "id": "headline-call-12",
+      "text": "shadcnHeadline(\"Headline text\")",
+      "sizePx": 12,
+      "why": "Reported second. Dense in round glyphs (a c e s) plus parens and quotes, so overshoot and descender groups both appear."
+    },
+    {
+      "id": "roundvsflat-12",
+      "text": "iliaeco",
+      "sizePx": 12,
+      "why": "Isolates the question directly: flat-bottomed i/l against round a/e/c/o at the same size."
+    },
+    {
+      "id": "roundvsflat-14",
+      "text": "iliaeco",
+      "sizePx": 14,
+      "why": "Same string at 14px, where our own snapping arithmetic behaves differently from 12px."
+    },
+    {
+      "id": "roundvsflat-16",
+      "text": "iliaeco",
+      "sizePx": 16,
+      "why": "Same string at 16px, a common real UI size."
+    },
+    {
+      "id": "alphabet-16",
+      "text": "Handgloves 0123",
+      "sizePx": 16,
+      "why": "Conventional typographer's test string: ascenders, descenders, round and flat bottoms, and digits."
+    }
+  ]
+}
