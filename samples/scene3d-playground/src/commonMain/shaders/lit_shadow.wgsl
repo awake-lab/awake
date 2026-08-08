@@ -6,6 +6,10 @@
 // Scene3DPlaygroundVulkanBootstrap.kt for the Vulkan-only wiring.
 struct Uniforms {
   mvp : mat4x4<f32>,
+  // xyz = the direction the light shines FROM. w = the NDC depth one shadow-map texel of
+  // lateral travel spans on a 45-degree surface, supplied by the renderer because only it knows
+  // the light frustum's depth range and the map size. Re-deriving that here from copied
+  // constants is how a depth bias ends up meaning something different in each file.
   lightDirection : vec4f,
   lightColor : vec4f,
   // Model matrix combined with the light's own view-projection (same "model * viewProjection"
@@ -57,11 +61,15 @@ const PI : f32 = 3.14159265359;
 const EPSILON : f32 = 0.0001;
 const DIELECTRIC_F0 : f32 = 0.04;
 const MIN_ROUGHNESS : f32 = 0.05;
-// Slope-scaled: the depth gradient per shadow texel grows as a surface tilts away from the
-// light, so one constant either leaves grazing-angle acne or detaches face-on contact shadows.
-// Front-face culling would fix this structurally, but the cube's winding isn't reliable.
-const SHADOW_BIAS_MIN : f32 = 0.0015;
-const SHADOW_BIAS_MAX : f32 = 0.0090;
+// Measured in shadow-map texels of depth (scaled by lightDirection.w), NOT raw NDC depth: the
+// light's ortho frustum is ~40 units deep, so a bias written as raw NDC silently means ~40x more
+// world-space offset than it reads and detaches the shadow from its caster. The constant term
+// covers depth quantisation; the slope term covers the PCF kernel's +/-1 texel reach across a
+// surface tilted away from the light. Front-face culling would fix acne structurally instead,
+// but the cube's winding isn't reliable.
+const SHADOW_BIAS_TEXELS : f32 = 1.0;
+const SHADOW_SLOPE_TEXELS : f32 = 2.0;
+const MAX_SHADOW_SLOPE : f32 = 8.0;
 const PCF_RADIUS : i32 = 1;
 
 // Vulkan/WebGPU NDC depth is already 0..1 (ClipSpace.depthZeroToOne), so shadowPos.z after the
@@ -76,7 +84,8 @@ fn sampleShadow(shadowPos : vec4f, nDotL : f32) -> f32 {
   if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0 || ndc.z < 0.0 || ndc.z > 1.0) {
     return 1.0;
   }
-  let bias = max(SHADOW_BIAS_MAX * (1.0 - nDotL), SHADOW_BIAS_MIN);
+  let slope = min(sqrt(max(1.0 - nDotL * nDotL, 0.0)) / max(nDotL, EPSILON), MAX_SHADOW_SLOPE);
+  let bias = uniforms.lightDirection.w * (SHADOW_BIAS_TEXELS + SHADOW_SLOPE_TEXELS * slope);
   let texSize = vec2f(textureDimensions(shadowMap));
   let texel = 1.0 / texSize;
   var shadow = 0.0;
@@ -149,10 +158,14 @@ fn fragmentMain(
   let diffuse = (vec3f(1.0) - fresnel) * (1.0 - metallic) * color / PI;
 
   let shadowFactor = sampleShadow(shadowPos, nDotL);
-  let direct = (diffuse + specular) * uniforms.lightColor.xyz * nDotL * shadowFactor;
+  // lightColor is authored as "a surface facing this light head-on reflects its own albedo"
+  // (what the Lambert path this replaced did), not as radiance -- so the BRDF's 1/PI has to be
+  // paid back here. Without it every lit surface renders at 1/PI of its former brightness.
+  let radiance = uniforms.lightColor.xyz * PI * nDotL * shadowFactor;
+  let specularOut = specular * radiance;
   let ambient = color * AMBIENT_STRENGTH;
-  // Reinhard tone map: the specular lobe blows past 1.0 at low roughness, and clamping it
-  // instead flattens the highlight into a solid white disc.
-  let mapped = (ambient + direct) / (ambient + direct + vec3f(1.0));
-  return vec4f(mapped, 1.0);
+  // Reinhard over the specular lobe alone -- that is the only term that can exceed 1.0 (GGX
+  // spikes at low roughness). Running the whole image through it maps 1.0 to 0.5 and takes
+  // every midtone down with it.
+  return vec4f(ambient + diffuse * radiance + specularOut / (specularOut + vec3f(1.0)), 1.0);
 }

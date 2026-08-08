@@ -361,7 +361,7 @@ internal fun Renderer.prepareDrawCalls(
         light.direction.x,
         light.direction.y,
         light.direction.z,
-        0f,
+        shadowTexelDepthScale(),
         light.color.x,
         light.color.y,
         light.color.z,
@@ -407,6 +407,17 @@ internal fun Renderer.prepareDrawCalls(
     return prepared
 }
 
+/** The NDC depth one shadow-map texel of lateral travel spans on a 45-degree surface --
+ * `lit_shadow.wgsl` scales its depth bias by this so its constants can be written in texels.
+ * Computed here because this is where the light frustum's depth range and the map size both
+ * live; a copy of them in the shader is how a bias silently ends up meaning ~40x more
+ * world-space offset than it reads, which detaches the shadow from its caster. 0 with no shadow
+ * map, where nothing reads it. */
+private fun Renderer.shadowTexelDepthScale(): Float {
+    val map = shadowMap ?: return 0f
+    return (2f * SHADOW_ORTHO_HALF_SIZE / map.size) / (SHADOW_FAR - SHADOW_NEAR)
+}
+
 /** `[metallic, roughness, 0, 0]`, reusing [DrawCall.extraUniformFloats] -- the primary lit
  * format otherwise ignores that field, and a dedicated pair of DrawCall properties would have
  * to be threaded through every backend for two floats. Defaults to a fully dielectric,
@@ -434,7 +445,7 @@ private fun MutableMap<RenderMaterial, Int>.nextSlot(material: RenderMaterial): 
  * world origin, not derived from actual scene bounds or the active camera's frustum.
  * ponytail: fixed shadow-box centered at the origin, not scene/camera-fit; upgrade path is a
  * per-frame bounding-box (or camera-frustum) fit once a demo's content moves far from origin. */
-private fun Renderer.lightViewProjection(light: SceneLight): Mat4 {
+internal fun Renderer.lightViewProjection(light: SceneLight): Mat4 {
     val direction = light.direction.normalized()
     val eye = direction * SHADOW_LIGHT_DISTANCE
     val up = if (abs(direction.y) > 0.99f) Vec3(0f, 0f, 1f) else Vec3(0f, 1f, 0f)

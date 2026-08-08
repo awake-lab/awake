@@ -372,12 +372,18 @@ class Renderer(
         val offscreen = target as OffscreenRenderTarget
         val aspect = offscreen.width.toFloat() / offscreen.height.toFloat()
         val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
+        // Same shadow wiring performDraw uses: without it a shadow-enabled Renderer would write
+        // only the first 24 of lit_shadow.wgsl's 64 uniform floats here, leaving model/
+        // cameraPosition/material reading whatever the buffer last held.
         val preparedDrawCalls = prepareDrawCalls(
             frameIndex = commandBuffers.size,
             viewProjection = viewProjection,
             drawCalls = drawCalls,
             light = DEFAULT_SCENE_LIGHT,
+            lightViewProjection = if (shadowMap != null) lightViewProjection(DEFAULT_SCENE_LIGHT) else null,
+            cameraPosition = camera.eye,
         )
+        performShadowPass(preparedDrawCalls)
 
         runOffscreenCommands { commandBuffer ->
             val renderPassInfo = VkRenderPassBeginInfo(
