@@ -7,39 +7,14 @@
       "reference": "button_variants_light.png"
     },
     {
-      "name": "checkbox",
-      "awake": "awake-checkbox-states-light",
-      "reference": "checkbox_states_light.png"
-    },
-    {
-      "name": "switch",
-      "awake": "awake-switch-variants-light",
-      "reference": "switch_states_light.png"
-    },
-    {
-      "name": "input",
-      "awake": "awake-textfield-states-light",
-      "reference": "text-field_states_light.png"
-    },
-    {
       "name": "select",
       "awake": "awake-select-closed-light",
       "reference": "select_closed_light.png"
     },
     {
-      "name": "tabs",
-      "awake": "awake-tabs-light",
-      "reference": "tabs_states_light.png"
-    },
-    {
       "name": "card",
       "awake": "awake-card-light",
       "reference": "card_states_light.png"
-    },
-    {
-      "name": "slider",
-      "awake": "awake-slider-light",
-      "reference": "slider_states_light.png"
     },
     {
       "name": "tooltip",
@@ -67,6 +42,36 @@
       "name": "badge-local-light",
       "awake": "awake-badge-variants-light",
       "reference": "badge-variants_light.png",
+      "local": true
+    },
+    {
+      "name": "checkbox-local-light",
+      "awake": "awake-checkbox-states-light",
+      "reference": "checkbox-states_light.png",
+      "local": true
+    },
+    {
+      "name": "switch-local-light",
+      "awake": "awake-switch-variants-light",
+      "reference": "switch-states_light.png",
+      "local": true
+    },
+    {
+      "name": "input-local-light",
+      "awake": "awake-textfield-states-light",
+      "reference": "input-states_light.png",
+      "local": true
+    },
+    {
+      "name": "tabs-local-light",
+      "awake": "awake-tabs-light",
+      "reference": "tabs-states_light.png",
+      "local": true
+    },
+    {
+      "name": "slider-local-light",
+      "awake": "awake-slider-light",
+      "reference": "slider-states_light.png",
       "local": true
     }
   ],
