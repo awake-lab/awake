@@ -36,12 +36,14 @@ Examples:
 - `awake-ui-systems-engineer.md`
 - `awake-design-system-engineer.md`
 - `awake-ui-quality-engineer.md`
+- `awake-app-state-engineer.md`
 
 ## Model Tiers
 
-To avoid stale provider-specific documentation in the repo, agent files should describe model
-needs by capability tier instead of pinning a vendor model name. In repo-local agent files,
-the `model:` frontmatter field stores the capability tier, not a provider-specific model ID.
+Agent frontmatter's `model:` field must be a real provider model ID, not a capability tier —
+tooling (Claude Code agent dispatch, kmp-audit) reads this field to actually select a model,
+and a tier name like `flagship-coding` isn't resolvable at runtime. Tiers below are a
+human-facing planning vocabulary only, for picking which real ID to assign.
 
 | Tier | Use For |
 |---|---|
@@ -49,24 +51,20 @@ the `model:` frontmatter field stores the capability tier, not a provider-specif
 | `balanced-coding` | everyday implementation, maintenance, validation, docs-linked changes |
 | `fast-utility` | bulk scans, rote edits, inventory work, low-risk formatting and reporting |
 
-Provider-specific model selection can change over time without forcing a repo doc update.
+## Mapping Rule
 
-## Provider Mapping
+Verified 2026-08-08 against active provider docs. When assigning a tier's real ID in an
+agent's `model:` field, use this table — and update it (not the tier name) when a provider
+ships a new model generation.
 
-Verified on 2026-07-16 against official provider docs. Use this table when a tool or agent
-runner needs an actual provider model instead of Awake's capability tier.
+| Tier | Anthropic (Claude Code) |
+|---|---|
+| `flagship-coding` | `claude-opus-5` |
+| `balanced-coding` | `claude-sonnet-5` |
+| `fast-utility` | `claude-haiku-4-5-20251001` |
 
-| Tier | OpenAI | Anthropic | Google |
-|---|---|---|---|
-| `flagship-coding` | `gpt-5.6-sol` | `claude-opus-4-8` | `gemini-2.5-pro` |
-| `balanced-coding` | `gpt-5.6-terra` | `claude-sonnet-5` | `gemini-2.5-flash` |
-| `fast-utility` | `gpt-5.6-luna` | `claude-haiku-4.5` | `gemini-2.5-flash-lite` |
-
-Why this exists:
-
-- some local agent tools still expect a single `model:` field
-- Awake supports Claude, Codex, Gemini, and repo-local skills
-- the tier is the stable contract; the provider model is a runtime selection
+Awake's agent files only run under Claude Code today, so only the Anthropic column is
+tracked. Add OpenAI/Google columns back if/when this repo runs agents under those tools.
 
 ## Active Agents
 
@@ -82,6 +80,7 @@ Why this exists:
 | `awake-platform-integration-engineer` | Active | Android/iOS/Desktop/Web integration, expect/actual edges, device validation, packaging and launcher behavior | `balanced-coding` |
 | `awake-developer-experience-engineer` | Active | build logic, docs pipelines, agent guidance, release plumbing, benchmark/snapshot workflows | `balanced-coding` |
 | `awake-architecture-auditor` | Active | cross-module ownership checks, split recommendations, review/audit passes, policy drift detection | `flagship-coding` |
+| `awake-app-state-engineer` | Active | MVI-style Contract/State/Intent/Effect definitions, Store implementations, wiring store effects into the ECS frame loop | `balanced-coding` |
 
 ## Responsibility Boundaries
 
@@ -99,6 +98,7 @@ Use the smallest agent that fully owns the task.
 | Android/iOS/Desktop/Web runtime validation and platform glue | `awake-platform-integration-engineer` |
 | Build logic, docs generators, agent/skill upkeep, CI-adjacent structure | `awake-developer-experience-engineer` |
 | Review, split planning, architectural drift, ownership audits | `awake-architecture-auditor` |
+| Sample/game MVI Contract/Store, dispatching intents, draining effects into a frame system | `awake-app-state-engineer` |
 
 If a task spans multiple domains, start with the agent that owns the deepest risk and link to
 the other agent docs as needed.
