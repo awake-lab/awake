@@ -16,7 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
-import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 private val ContextMenuItems = listOf(
@@ -30,7 +29,6 @@ private val ContextMenuItems = listOf(
 
 internal fun ColumnScope.drawShadcnContextMenuDemoPreview() {
     val contextMenuState = context.rememberPopupState("showcase-ctx-menu")
-    var lastAction by context.rememberStateValue("showcase-ctx-menu", "action") { "None" }
 
     shadcnBadge("CONTEXT MENU", variant = ShadcnBadgeVariant.Secondary)
     shadcnSupportingText("Right-click over the designated area to trigger floating action context items.")

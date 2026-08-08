@@ -1,5 +1,12 @@
 [
   {
+    "name": "x-mark",
+    "urlTier": "20/solid",
+    "viewBox": 20,
+    "kotlinTier": "Solid20Mini",
+    "kotlinProperty": "xMark"
+  },
+  {
     "name": "chevron-down",
     "urlTier": "20/solid",
     "viewBox": 20,

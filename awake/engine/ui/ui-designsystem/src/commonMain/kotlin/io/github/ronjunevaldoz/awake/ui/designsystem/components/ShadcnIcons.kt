@@ -20,4 +20,5 @@ object ShadcnIcons {
     var chevronLeft: UiImageVector = HeroIcons.Solid20Mini.chevronLeft
     var chevronRight: UiImageVector = HeroIcons.Solid20Mini.chevronRight
     var squares2x2: UiImageVector = HeroIcons.Solid20Mini.squares2x2
+    var xMark: UiImageVector = HeroIcons.Solid20Mini.xMark
 }

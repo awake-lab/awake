@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
-import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.ShadcnTabItem
@@ -25,8 +24,6 @@ class ShadcnTabsFidelityTest {
 
     @Test
     fun shadcnTabsMatrixFidelity() = runTest {
-        val figma = FigmaVariableProvider.load("design-tokens.json")
-
         val aggregatedReport = FigmaModeMatrix.runValidationMatrix { config ->
             val ui = UiContext()
             ui.pushFont(BitmapFont())

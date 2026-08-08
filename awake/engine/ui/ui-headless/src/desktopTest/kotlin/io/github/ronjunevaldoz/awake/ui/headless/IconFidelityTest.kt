@@ -81,6 +81,7 @@ class IconFidelityTest {
     // compile error instead of a silently-skipped icon.
     private fun vectorFor(entry: ManifestEntry): UiImageVector =
         when (entry.kotlinTier to entry.kotlinProperty) {
+            "Solid20Mini" to "xMark" -> HeroIcons.Solid20Mini.xMark
             "Solid20Mini" to "chevronDown" -> HeroIcons.Solid20Mini.chevronDown
             "Solid20Mini" to "chevronUp" -> HeroIcons.Solid20Mini.chevronUp
             "Solid20Mini" to "chevronLeft" -> HeroIcons.Solid20Mini.chevronLeft

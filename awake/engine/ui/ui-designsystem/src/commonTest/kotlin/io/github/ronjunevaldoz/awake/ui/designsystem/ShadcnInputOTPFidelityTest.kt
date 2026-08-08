@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewExactSpacingRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
-import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInputOTP
@@ -26,7 +25,6 @@ class ShadcnInputOTPFidelityTest {
 
     @Test
     fun shadcnInputOTPSlotsFidelity() = runTest {
-        val figma = FigmaVariableProvider.load("design-tokens.json")
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)

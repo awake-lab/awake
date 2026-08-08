@@ -20,10 +20,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.requestFocus
-import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /**
@@ -59,9 +57,6 @@ fun UiScope.shadcnInputOTP(
         //    - has a clickable fallback that routes focus to the hidden shadcnInput
         //    - renders its digit centered within the full slot bounds via text(slot=...)
         //
-        // Fix #2 (text alignment): use pixelPerfectPixel() to snap the glyph size to a
-        // whole-pixel value so bitmap-font centering lands on an exact pixel row.
-        val glyphSize = pixelPerfectPixel(14f.dp.toPx()).coerceAtLeast(1f)
         row(
             horizontalArrangement = Arrangement.spacedBy(6f.dp),
             verticalAlignment = UiAlignment.Vertical.Center,
@@ -101,7 +96,8 @@ fun UiScope.shadcnInputOTP(
                     // Draw the digit centered within the full slotBounds (not a wrap-content
                     // claim). text(slot=...) renders directly into the given bounds without
                     // claiming a new layout slot, giving perfect horizontal + vertical centering.
-                    // glyphSize is pixel-snapped so sub-pixel drift cannot shift the char up/down.
+                    // BasicText pixel-snaps the emitted glyph quad itself, so sub-pixel drift
+                    // cannot shift the char up or down.
                     if (char.isNotEmpty()) {
                         text(
                             label = char,

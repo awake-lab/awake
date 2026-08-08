@@ -329,7 +329,7 @@ private fun measureTextBlock(
     var blockTopPx = Float.POSITIVE_INFINITY
     var blockBottomPx = Float.NEGATIVE_INFINITY
     layout.lines.forEachIndexed { index, line ->
-        val (lineTopEm, lineBottomEm) = measureVisibleLineBandEm(line, font)
+        val (lineTopEm, lineBottomEm) = measureVisibleLineBandEm(font)
         val lineOriginY = index * (lineHeightPx + lineGap)
         blockTopPx = minOf(blockTopPx, lineOriginY + lineTopEm * glyphPx)
         blockBottomPx = maxOf(blockBottomPx, lineOriginY + lineBottomEm * glyphPx)
@@ -343,7 +343,7 @@ private fun measureTextBlock(
     )
 }
 
-private fun measureVisibleLineBandEm(line: String, font: UiFont): Pair<Float, Float> {
+private fun measureVisibleLineBandEm(font: UiFont): Pair<Float, Float> {
     // Always use the font's consistent vertical band (ascent to descent), NOT per-string
     // character bounding boxes. Per-string character bounding boxes caused text with
     // descenders ('y', 'g', 'p') or symbols ('*') to calculate different line heights and

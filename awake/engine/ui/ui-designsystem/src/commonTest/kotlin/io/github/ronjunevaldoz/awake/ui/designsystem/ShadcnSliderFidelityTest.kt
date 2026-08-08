@@ -6,7 +6,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewDimensionRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
-import io.github.ronjunevaldoz.awake.testing.ui.FigmaVariableProvider
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
@@ -29,7 +28,6 @@ class ShadcnSliderFidelityTest {
 
     @Test
     fun shadcnSliderHeightAndNoOverlayTextFidelity() = runTest {
-        val figma = FigmaVariableProvider.load("design-tokens.json")
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
@@ -87,7 +85,6 @@ class ShadcnSliderFidelityTest {
 
     @Test
     fun shadcnFieldSliderWithValueProximitySpacingFidelity() = runTest {
-        val figma = FigmaVariableProvider.load("design-tokens.json")
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
