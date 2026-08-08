@@ -20,6 +20,9 @@ import kotlin.js.toJsArray
 // Phase 2.5 (Web/WebGPU, decision D7) milestone 1 left this as a compile-only stub;
 // implemented for real here using createImageBitmap() (real browser decode, format-agnostic
 // -- no PNG/JPEG sniffing needed) + an offscreen canvas to read pixels back via getImageData().
+// The literals below are the RGBA8888 layout getImageData() returns and the ARGB layout
+// Bitmap exposes -- channel offsets and byte shifts, not tunable values.
+@Suppress("MagicNumber")
 actual suspend fun createBitmap(bytes: ByteArray): Bitmap {
     val blobParts = arrayOf<JsAny?>(bytes.toInt8Array()).toJsArray()
     val imageBitmap: ImageBitmap = window.createImageBitmap(Blob(blobParts)).await()

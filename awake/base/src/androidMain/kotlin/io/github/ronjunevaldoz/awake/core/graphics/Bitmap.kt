@@ -8,7 +8,12 @@ import android.graphics.Matrix
 typealias NativeBitmap = android.graphics.Bitmap
 typealias NativeBitmapConfig = android.graphics.Bitmap.Config
 
-class AndroidBitmap(override val width: Int, override val height: Int, override val channel: Int, override val pixels: IntArray) : Bitmap
+class AndroidBitmap(
+    override val width: Int,
+    override val height: Int,
+    override val channel: Int,
+    override val pixels: IntArray,
+) : Bitmap
 
 actual suspend fun createBitmap(bytes: ByteArray): Bitmap {
     val matrix = Matrix()

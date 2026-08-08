@@ -50,7 +50,10 @@ class FontBaselineFidelityTest {
         var start: Int? = null
         lit.forEachIndexed { x, on ->
             if (on && start == null) start = x
-            if (!on && start != null) { runs += start!! to x; start = null }
+            if (!on && start != null) {
+                runs += start!! to x
+                start = null
+            }
         }
         start?.let { runs += it to width }
         return runs.map { (a, b) ->

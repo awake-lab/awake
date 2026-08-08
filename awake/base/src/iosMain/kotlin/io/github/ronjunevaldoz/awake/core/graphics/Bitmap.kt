@@ -19,7 +19,12 @@ import platform.Foundation.NSData
 import platform.Foundation.create
 import platform.UIKit.UIImage
 
-class AppleBitmap(override val width: Int, override val height: Int, override val channel: Int, override val pixels: IntArray) : Bitmap
+class AppleBitmap(
+    override val width: Int,
+    override val height: Int,
+    override val channel: Int,
+    override val pixels: IntArray,
+) : Bitmap
 
 actual suspend fun createBitmap(bytes: ByteArray): Bitmap {
     val nsData =

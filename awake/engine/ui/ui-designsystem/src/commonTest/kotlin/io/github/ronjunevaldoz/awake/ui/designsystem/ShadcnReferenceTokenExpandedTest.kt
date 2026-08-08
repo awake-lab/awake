@@ -22,7 +22,7 @@ import kotlin.test.assertTrue
  * - `primaryHover`/`primaryPressed`/`secondaryHover`/... : Awake-only interaction-state colors
  *   synthesized via `mix()`, not shadcn CSS vars.
  *
- * KNOWN_DRIFTED mechanism: this audit found real drift. A token listed in [KNOWN_DRIFTED]
+ * knownDrifted mechanism: this audit found real drift. A token listed in [knownDrifted]
  * (keyed `"<baseColor>.<light|dark>"`, e.g. `"stone.dark"`) is asserted against its CURRENT
  * (wrong) resolved value instead of the reference, keeping the suite green while staying a real
  * regression lock: it fails loudly the moment the drift's shape changes, and fails loudly (by
@@ -43,7 +43,7 @@ import kotlin.test.assertTrue
  * `oklch(0.147 0.004 49.25)` while its `primary` is `oklch(0.216 0.006 56.043)` -- different hue
  * AND chroma, not a shared pair). A single-hue/chroma-per-base-color model structurally cannot
  * reproduce that without becoming a per-token lookup table -- see the drift table in this
- * class's KNOWN_DRIFTED entries below and the task report that introduced them for the full
+ * class's knownDrifted entries below and the task report that introduced them for the full
  * before/after numbers.
  */
 class ShadcnReferenceTokenExpandedTest {
@@ -52,7 +52,7 @@ class ShadcnReferenceTokenExpandedTest {
     // raw OKLCH, so it tolerates float rounding through the OKLCH->linear-sRGB->gamma conversion.
     private val tolerance = 0.02f
 
-    private val KNOWN_DRIFTED: Map<String, Map<String, Color>> = mapOf(
+    private val knownDrifted: Map<String, Map<String, Color>> = mapOf(
         "stone.light" to mapOf(
             "primary" to Color(0.095243f, 0.089069f, 0.087457f, 1.0f), // reference=oklch(0.216, 0.006, 56.043)
             "secondary-foreground" to Color(0.094821f, 0.089204f, 0.087737f, 1.0f), // reference=oklch(0.216, 0.006, 56.043)
@@ -225,7 +225,7 @@ class ShadcnReferenceTokenExpandedTest {
             )
         val reference = if (dark) referenceTokens.dark else referenceTokens.light
         val theme = shadcnTheme(baseColor = baseColor, dark = dark).asShadcnTheme()
-        val locked = KNOWN_DRIFTED["$refKey.$mode"] ?: emptyMap()
+        val locked = knownDrifted["$refKey.$mode"] ?: emptyMap()
         val ours: Map<String, Color> = mapOf(
             "background" to theme.colors.background,
             "foreground" to theme.colors.foreground,
@@ -258,7 +258,7 @@ class ShadcnReferenceTokenExpandedTest {
         for ((key, actual) in ours) {
             val lockedValue = locked[key]
             if (lockedValue != null) {
-                assertColorClose("$refKey $mode $key [KNOWN_DRIFTED, locked to current value]", lockedValue, actual)
+                assertColorClose("$refKey $mode $key [knownDrifted, locked to current value]", lockedValue, actual)
             } else {
                 val ref = reference.getValue(key)
                 assertColorClose("$refKey $mode $key", oklch(ref.lightness, ref.chroma, ref.hueDegrees, ref.alpha), actual)

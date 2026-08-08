@@ -63,50 +63,50 @@ fun UiScope.checkbox(
     // and the label as one composited unit so the label drawn on top of the box's own paint
     // never gets double-dimmed.
     return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
-    paintSurface(slot = boxSlot, resolved = surface.resolved)
-    // Mirrors real shadcn's triStateToggleable: clicking an Indeterminate box always lands
-    // on checked=true, same as clicking an Off box -- only an On box flips to false.
-    val newChecked = if (surface.interaction.clicked) {
-        if (indeterminate) true else !checked
-    } else {
-        checked
-    }
-    val inset = boxPx * 0.25f
-    if (indeterminate) {
-        emitInsetDash(boxSlot, inset)
-    } else if (newChecked) {
-        emitInsetAccent(boxSlot, inset, surface.resolved.shape.toPx(), surface.resolved.shapeSpec)
-    }
-    val resolvedFont = context.currentFont
-    if (label != null) {
-        val gapPx = CHECKBOX_LABEL_GAP.toPx()
-        val labelSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
-            boxSlot.x + boxPx + gapPx,
-            surface.interaction.slot.y,
-            surface.interaction.slot.width - boxPx - gapPx,
-            surface.interaction.slot.height,
+        paintSurface(slot = boxSlot, resolved = surface.resolved)
+        // Mirrors real shadcn's triStateToggleable: clicking an Indeterminate box always lands
+        // on checked=true, same as clicking an Off box -- only an On box flips to false.
+        val newChecked = if (surface.interaction.clicked) {
+            if (indeterminate) true else !checked
+        } else {
+            checked
+        }
+        val inset = boxPx * 0.25f
+        if (indeterminate) {
+            emitInsetDash(boxSlot, inset)
+        } else if (newChecked) {
+            emitInsetAccent(boxSlot, inset, surface.resolved.shape.toPx(), surface.resolved.shapeSpec)
+        }
+        val resolvedFont = context.currentFont
+        if (label != null) {
+            val gapPx = CHECKBOX_LABEL_GAP.toPx()
+            val labelSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                boxSlot.x + boxPx + gapPx,
+                surface.interaction.slot.y,
+                surface.interaction.slot.width - boxPx - gapPx,
+                surface.interaction.slot.height,
+            )
+            text(
+                label,
+                slot = labelSlot,
+                font = resolvedFont,
+                color = surface.resolved.foreground ?: theme.colors.foreground,
+                centered = false,
+                verticallyCentered = true,
+                overflow = UiTextOverflow.Ellipsis,
+                textStyle = surface.resolved.textStyle,
+                semanticId = "$id.label",
+            )
+        }
+        recordSemantic(
+            role = UiSemanticRole.Checkbox,
+            id = id,
+            label = label,
+            bounds = surface.interaction.slot,
+            contentBounds = boxSlot,
+            selected = newChecked,
+            indeterminate = indeterminate,
         )
-        text(
-            label,
-            slot = labelSlot,
-            font = resolvedFont,
-            color = surface.resolved.foreground ?: theme.colors.foreground,
-            centered = false,
-            verticallyCentered = true,
-            overflow = UiTextOverflow.Ellipsis,
-            textStyle = surface.resolved.textStyle,
-            semanticId = "$id.label",
-        )
-    }
-    recordSemantic(
-        role = UiSemanticRole.Checkbox,
-        id = id,
-        label = label,
-        bounds = surface.interaction.slot,
-        contentBounds = boxSlot,
-        selected = newChecked,
-        indeterminate = indeterminate,
-    )
-    newChecked
+        newChecked
     }
 }

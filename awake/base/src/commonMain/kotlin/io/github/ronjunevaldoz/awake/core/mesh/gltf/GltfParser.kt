@@ -423,7 +423,8 @@ object GltfParser {
 
     private fun readFloatLe(bytes: ByteArray, offset: Int): Float = Float.fromBits(readUIntLe(bytes, offset))
 
-    private fun readUShortLe(bytes: ByteArray, offset: Int): Int = (bytes[offset].toInt() and 0xFF) or ((bytes[offset + 1].toInt() and 0xFF) shl 8)
+    private fun readUShortLe(bytes: ByteArray, offset: Int): Int =
+        (bytes[offset].toInt() and 0xFF) or ((bytes[offset + 1].toInt() and 0xFF) shl 8)
 
     private fun readUIntLe(bytes: ByteArray, offset: Int): Int = (bytes[offset].toInt() and 0xFF) or
         ((bytes[offset + 1].toInt() and 0xFF) shl 8) or

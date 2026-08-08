@@ -32,21 +32,20 @@ class GltfParserSkinnedTest {
         0f, 0f, 0f, 1f,
     )
 
-    @Test
-    fun parsesSkinAndAnimationFromEmbeddedBuffers() {
-        val inverseBindMatrices = identityMat4() + identityMat4() // 2 joints, both identity.
-        val times = floatArrayOf(0f, 1f)
-        val rotations = floatArrayOf(
-            0f,
-            0f,
-            0f,
-            1f, // keyframe 0: identity rotation.
-            0f,
-            0f,
-            0.7071f,
-            0.7071f, // keyframe 1: ~90 degrees about Z.
-        )
+    private val inverseBindMatrices = identityMat4() + identityMat4() // 2 joints, both identity.
+    private val times = floatArrayOf(0f, 1f)
+    private val rotations = floatArrayOf(
+        0f,
+        0f,
+        0f,
+        1f, // keyframe 0: identity rotation.
+        0f,
+        0f,
+        0.7071f,
+        0.7071f, // keyframe 1: ~90 degrees about Z.
+    )
 
+    private fun skinnedGltfJson(): String {
         val bytes = floatBytes(inverseBindMatrices) + floatBytes(times) + floatBytes(rotations)
         val bufferBase64 = Base64.encode(bytes)
 
@@ -54,7 +53,7 @@ class GltfParserSkinnedTest {
         val timesByteLength = times.size * 4
         val rotationsByteLength = rotations.size * 4
 
-        val json = """
+        return """
             {
               "buffers": [
                 { "uri": "data:application/octet-stream;base64,$bufferBase64", "byteLength": ${bytes.size} }
@@ -84,8 +83,11 @@ class GltfParserSkinnedTest {
               ]
             }
         """.trimIndent()
+    }
 
-        val scene = GltfParser.parseSkinned(json)
+    @Test
+    fun parsesSkinAndAnimationFromEmbeddedBuffers() {
+        val scene = GltfParser.parseSkinned(skinnedGltfJson())
 
         assertEquals(2, scene.nodes.size)
         assertEquals(1, scene.skins.size)

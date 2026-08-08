@@ -253,6 +253,9 @@ class Mat4 {
          * @param clipSpace The target API's NDC convention -- supplies the depth range.
          * @return The orthographic projection matrix.
          */
+        // Mirrors the canonical GL entry point of the same name; collapsing the
+        // parameters into an object would break that correspondence.
+        @Suppress("LongParameterList")
         fun orthographic(
             left: Float,
             right: Float,
@@ -296,6 +299,9 @@ class Mat4 {
          * @param clipSpace The target API's NDC convention -- supplies the depth range.
          * @return The frustum projection matrix.
          */
+        // Mirrors the canonical GL entry point of the same name; collapsing the
+        // parameters into an object would break that correspondence.
+        @Suppress("LongParameterList")
         fun frustum(
             left: Float,
             right: Float,
@@ -346,6 +352,9 @@ class Mat4 {
             }
         }
 
+        // Mirrors the canonical GL entry point of the same name; collapsing the
+        // parameters into an object would break that correspondence.
+        @Suppress("LongParameterList")
         fun setLookAt(
             eyeX: Float,
             eyeY: Float,
