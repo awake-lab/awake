@@ -5,415 +5,415 @@
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-analytics/SKILL.md",
-      "computedHash": "80c57da17ecfa27f25d5021df6d9b3e0b9b536970c3ccd037bf7542980e943e4"
+      "computedHash": "58bc502dae967a8be85f7f094fd47d674e57dacf7ff7dbffabe6e7905cc1ceb3"
     },
     "kmp-android-cli": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-android-cli/SKILL.md",
-      "computedHash": "e024cced46bca16ce7d9f2638c8ac625b549838273c7d90a5a6b36503ecaf8de"
+      "computedHash": "04d53e90687552bf5835fa8ed115df5650a07e88630677a0f34d25347fa91403"
     },
     "kmp-api-mimicry": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-api-mimicry/SKILL.md",
-      "computedHash": "dc7c15aacd2e6675dc235664e5d1a5179969260491ac79374804473cbfa7468c"
+      "computedHash": "34cc50d691a3fb5b76ae6d548896d4a4561481833fc62040f579d42b37a77ba6"
     },
     "kmp-audit": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-audit/SKILL.md",
-      "computedHash": "4007f3d8c5841e987ec4a1b7537f364f9c5671105f543cae436b7fa4cbfe5d70"
+      "computedHash": "30398f56bd7a95848160dcd47e5ad898e64844a9569a262f889c9db1aa2fdfb2"
     },
     "kmp-benchmark": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-benchmark/SKILL.md",
-      "computedHash": "30b0a823ee7c6cb265770e06e5f870877ad0474416511cfc08e9b083c2d645aa"
+      "computedHash": "406c9df1d18b951d1dbb5a3b1a3e6fc2ba4ecfff585b142d6122430913f903ca"
     },
     "kmp-biometric-auth": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-biometric-auth/SKILL.md",
-      "computedHash": "d60e0a39c2569ba559eeb4966deeef4fa9879ef0426bd2a107bd70ba107229ef"
+      "computedHash": "854c85ffa347287fb8e11883eccdd49bf9ad79fc0adc0b67dde3c1fb0ce14969"
     },
     "kmp-ci-github-actions": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-ci-github-actions/SKILL.md",
-      "computedHash": "faba2256502156a5b37537404c0d902edda7cf1a4162efd992272f5e3ef24599"
+      "computedHash": "3d4221120ac2d6894ad674d8f6997bfbebb68e184ae164c5a5cd1ce2a8dd17c2"
     },
     "kmp-clean-architecture": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-clean-architecture/SKILL.md",
-      "computedHash": "2e11b38b194eeb046caa438ed5873547f5a8bca65d0943bd6d8addec5ec28b55"
+      "computedHash": "f2c3264ffae9d3959ebbd9ac93ce864ea0aae0f777af954e6b05be45963592da"
     },
     "kmp-code-quality": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-code-quality/SKILL.md",
-      "computedHash": "6a98f02ec844274ae06f35f7087d496dfa3b9364a97bb7f53d3cc70d5ce1789f"
+      "computedHash": "bd42e9da94041eb7b25ca265a21995eefa87faa26126300033017a5f904484c2"
     },
     "kmp-compose-accessibility": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-accessibility/SKILL.md",
-      "computedHash": "e3052b10fe2a023ade244c4430a820fef0765e0877366cbae56d720b12e8c24f"
+      "computedHash": "a5ec10d8cbf8ffb1ea9460b0047fc197f06c1d9172e12bfc09d709d1631e0663"
     },
     "kmp-compose-adaptive-layout": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-adaptive-layout/SKILL.md",
-      "computedHash": "f90bd38c4bd1babc79d857758e67ee45ad6844d125f5c42739049f70aa825030"
+      "computedHash": "955e63f0177d301086742f319412f08945dfd9544b0e383e1ddd7375ceb3ae2f"
     },
     "kmp-compose-animation": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-animation/SKILL.md",
-      "computedHash": "17310cea30f04b312a652bbfc36fcc92a0b745d8c19dca73019eccc019bc7973"
+      "computedHash": "62d5e3ffe5b8089d2501a9c359775ad0b9133dd0e359550af0b80083dec5c8e2"
     },
     "kmp-compose-design-system": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-design-system/SKILL.md",
-      "computedHash": "eeeb347e7c26f791ffbbf6c4d1ab5a8b9de72361ae046ee0edc3c36ce50e103e"
+      "computedHash": "a520bd88e7691b8963a2de087b8b2115f0c2ed7b0246dc3004e4e0e5291892a0"
     },
     "kmp-compose-design-system-extended": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-design-system-extended/SKILL.md",
-      "computedHash": "160ff3b783c78b624ceffad3d6d2405b830ee6d354173c0ae0b7619c12d81f80"
+      "computedHash": "5b144cfbe9aa8f695e0efa564065e1bce3957211e22489ebf887682bef13e1d2"
     },
     "kmp-compose-graphics-modifiers": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-graphics-modifiers/SKILL.md",
-      "computedHash": "68152bf01c9700ff5b7e6d115ed3971d32a430d9d5392782cc0e50e7f6e83b36"
+      "computedHash": "db49d873b26ae3c17e1fb3df07d0e17151410e6267e28fda5889a71bf4fa57a0"
     },
     "kmp-compose-preview-driven-development": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-preview-driven-development/SKILL.md",
-      "computedHash": "df199d91672c59a1a0d6f78630a574381efa2496253e8b5884835740068c6c35"
+      "computedHash": "1d7bf0aad42763927469dff67b0611a7c2db8f6140b6b3add7924f068d2c4dfb"
     },
     "kmp-compose-slot-api": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-slot-api/SKILL.md",
-      "computedHash": "0bd65f7e907ccc58503b9b135d2ff2b6af8914dc12e23363e8721da9e1006cf3"
+      "computedHash": "248dd17d1e04b90423629c4ad4ed42417ccf9af265b9d7cb076ceecf6d3536f3"
     },
     "kmp-compose-state-container": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-state-container/SKILL.md",
-      "computedHash": "fb83c5c6d581e8f9784ccbe436a35cbb356fb1f3521da2467129490225a2b439"
+      "computedHash": "ef31a6bd4a3bf23dfbe4bb8d4f666b4e767748f15ade38f4f54d1dac89198603"
     },
     "kmp-compose-state-hoisting": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-state-hoisting/SKILL.md",
-      "computedHash": "b974ad5614493282748b35865c409010881f93b47f725e0acca93834a8cd5ecd"
+      "computedHash": "d9aaf8fd53c342848a2c52420a4e7dea9cca420c3e281387804af670b3d498f3"
     },
     "kmp-compose-web-performance": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-compose-web-performance/SKILL.md",
-      "computedHash": "5469278a497bd95afce4a664289916bf2311c83d765fcea1c1671524c5636381"
+      "computedHash": "5f45da10c57c39d243aa96283650e0d6ab991f6d10b38a54beaec6d6b77c743c"
     },
     "kmp-crash-reporting": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-crash-reporting/SKILL.md",
-      "computedHash": "f16f2aaedbcc1bd82cae2ab31a027e02f78cfd3b2c96cd643dd160cfd82b806a"
+      "computedHash": "2c2e9a0aefb8316e8838c2e2a44b560283eca41cd3d7a0a780e34fd5262672e5"
     },
     "kmp-datastore": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-datastore/SKILL.md",
-      "computedHash": "635bf7e91006f6b49bf9a1e91d8396ab50c715841f78f311d0ebdc086f787776"
+      "computedHash": "b7eee3d8ab9082c83a48ee73f83fcf08629b6a0a8209a2e973b6892cfded4fa9"
     },
     "kmp-deep-linking": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-deep-linking/SKILL.md",
-      "computedHash": "5e5d1dad69a444e1dc399b9d613d7bf3f51f3d9641115f8ba1a7614a94d1ed38"
+      "computedHash": "76f81914f44fd75897e02be10bc8aa2000b4f10e3253a78736d0b114b537128c"
     },
     "kmp-dependency-injection": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-dependency-injection/SKILL.md",
-      "computedHash": "41462ed04dad5a36017230cf202fa2d0e8eea04dd7ef055b55bbc79db358b953"
+      "computedHash": "964c62fee08d2a72bb4ebe197d912226d67398ab441972b59b2aafef2c94df6a"
     },
     "kmp-desktop-app": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-desktop-app/SKILL.md",
-      "computedHash": "1179c6a0a5bb205b0b5d1584da37dfa1e14f1590b7a086640419202f5999e968"
+      "computedHash": "9e14cd79d7973cf5cb72b728cae667530bfb90c106e5974fd871f06acd36f22e"
     },
     "kmp-docs-site": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-docs-site/SKILL.md",
-      "computedHash": "af3e9d3700338fc659cedb6b9b2adac5b9ee3904904a421a5d12fb0d119b4429"
+      "computedHash": "ae92880130e69a0c632deb2dd19f63900b442654e51522e4496e24ee0789a142"
     },
     "kmp-expect-actual": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-expect-actual/SKILL.md",
-      "computedHash": "2b6b4441c16e64751dccee344c5ec2db3b6e1fe1fee8e953fcea3ca3917a8ddc"
+      "computedHash": "96e2a0b5b955d96522f299b0ea94fc7e866d52bfed0afb7fde2c8a871871f459"
     },
     "kmp-expert": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-expert/SKILL.md",
-      "computedHash": "4ab7f7e0ed631b98350f6381a57adf469c68ef5cc3b2fd01be97190e522d09e8"
+      "computedHash": "e6e96cc1c62501858345a484e8f77e2cab4cdbdc7b7e2ddfa0301b74ccc65cac"
     },
     "kmp-feature-flags": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-feature-flags/SKILL.md",
-      "computedHash": "aa93828c102de1cd7b718dd74b2c6d22bf8a8d003347f99d7efeb470b1bfb22f"
+      "computedHash": "68be53efcfa5a0591a9f132967a18669aac13f4510f1142bc1650cf5d7ee24e8"
     },
     "kmp-feature-scaffold": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-feature-scaffold/SKILL.md",
-      "computedHash": "4a0e5c4275d19648d533c0eb36fc11d57ebf302dfd38c8a5e91a2255099f252f"
+      "computedHash": "6b364376e4d3b120b7c487859b1cb54c3fee72c49f901d5e391baaa7a894595b"
     },
     "kmp-flavor-environment": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-flavor-environment/SKILL.md",
-      "computedHash": "262339080f642d1d72e0d9ec35f4e62a00f258c534d5e6cf21d7c8645fd56361"
+      "computedHash": "9d5875b0950269f60c3fa40f1a9c1c2fdcbaa15cbe392cef5a271e2e73d62174"
     },
     "kmp-form-validation": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-form-validation/SKILL.md",
-      "computedHash": "b1542cd428236e810f83845619c73f035c335932214e31e2ab6e0f804405d12b"
+      "computedHash": "04144e733ee84243ae67cf85347e2a32d76e5e1205991d4d812297bb9931cdea"
     },
     "kmp-image-loading": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-image-loading/SKILL.md",
-      "computedHash": "5f8eeedc7244eb01d55cec6d9122a69c53637c3d63a28eeb31f63661defcc4d8"
+      "computedHash": "20d6a705b04107cc5a20ef2bdf797b9689363ca03430df3d4d601feafe70477d"
     },
     "kmp-imagevector-generator": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-imagevector-generator/SKILL.md",
-      "computedHash": "c8838e0c3897fc5ddf9602429c130539fa2c50b7ece645972e15b1c90cf71dbc"
+      "computedHash": "bc8d6bf433a4c2a9cd738733aee61458ed7acd8f59f2e11585342e8f11f3bbb7"
     },
     "kmp-in-app-purchases": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-in-app-purchases/SKILL.md",
-      "computedHash": "edebb241c4d7c4836f09253ddf935c66a3d11fc2cbd51ecc8651fa59b3238310"
+      "computedHash": "93950e988ab96ef72eeea90d10509e8f8e6326e48d031e3c00cd21f5e19fe608"
     },
     "kmp-jni-pro": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-jni-pro/SKILL.md",
-      "computedHash": "e9a990723a341222bb888b8d84dddb44d90bbe4d859c616a3d5b3b9e8817f9f5"
+      "computedHash": "8229975779fc2fa8baf6a8882fad8057299e6eb8d2269ee469554c56f3fd5903"
     },
     "kmp-kotlin-rpc": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-kotlin-rpc/SKILL.md",
-      "computedHash": "ce074ef117b5a107ea747951b2cf1e2b5d4effd609021fc7d2a4b8b7cd53cf52"
+      "computedHash": "4af49101668b1c0089f48d177ae9f02e16a2ffbd0fcee6c6e2e94e4b3be65b86"
     },
     "kmp-ktor-auth-service": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-ktor-auth-service/SKILL.md",
-      "computedHash": "a1d6b4e4f39ab3103fd0cf3c2f60c8d68458bf3b506ed35725bc1ce5c708ad0e"
+      "computedHash": "36a3aa606c99e9d2e6e6eda2f01e7037e474041adcdccb0c11917115e2eb1630"
     },
     "kmp-layout-system": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-layout-system/SKILL.md",
-      "computedHash": "c02bcc1f7ccaccce2e6a5c769abcfc22113d2af2c7493bf1de149db685d04966"
+      "computedHash": "51d1ceed83f01451f3f3d4936cef72e0bec504b1bf7c1057926306bb066c58e4"
     },
     "kmp-legal-docs": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-legal-docs/SKILL.md",
-      "computedHash": "096c337e4005a786b1062cea3fda6e77e4996c210706d7780bbc590f07edcdae"
+      "computedHash": "c95e5dbeff759bac9f6233437484cc18eb10e5487301615b268caba85b6391f3"
     },
     "kmp-lessons": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-lessons/SKILL.md",
-      "computedHash": "6404b649c6e789c2dd36f72337b97e2322088a36e0b847dd245ca97e003c1073"
+      "computedHash": "87be671cb0ded8f507af430c7a7e2765e9e637419e954f03d980f7a4ea99ab5f"
     },
     "kmp-library-publishing": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-library-publishing/SKILL.md",
-      "computedHash": "cdb0cc0cb19c5015dcc99c80847cd0333571e0b45748dcc7c6edbf9fcbe747e5"
+      "computedHash": "1bca914fcbf698c2677619a5fa2370dc85e8d6dc1170709631c1c0244ec60b41"
     },
     "kmp-logging": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-logging/SKILL.md",
-      "computedHash": "90bdeb27b242718c35adcc3e436c3a61a5f58ce76df4cf344f4aacf9ee89e954"
+      "computedHash": "940b5f6a9af82b490b0da35b146333340d7de2694c9d02961afbfb0c66b78890"
     },
     "kmp-migration": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-migration/SKILL.md",
-      "computedHash": "5135fe7d8615506815fe01323d7b8ec24c63861192bb63528ac43da48a5c376d"
+      "computedHash": "aa7dca2e104ed6e6c93c938ae2c28c77b6e6fa954bb1b6915fb8440c6ab31363"
     },
     "kmp-mongodb-database": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-mongodb-database/SKILL.md",
-      "computedHash": "69504057f3514f7a4a86d5a12353eb5b048eb6118cc180e55e7a072f98ad386f"
+      "computedHash": "99111ceec9b2748820418ab07b022328d64336d9a961d93503bc305787218be4"
     },
     "kmp-mvi": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-mvi/SKILL.md",
-      "computedHash": "bffa77513c303e7bb29203f664b139c6971bbf9bc5d4170dc14d747ae704230d"
+      "computedHash": "12db193bcaa636e313fee741956c5fb5f02d8b8f8e8c251635b50cf93f07faf9"
     },
     "kmp-native-authoring": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-native-authoring/SKILL.md",
-      "computedHash": "75c3ada0ad0b2b43481592e30514bba2f18c2559238e5c0dd2a6714acf7d490b"
+      "computedHash": "6a8a8570c3cdad3e889637372ad401441aadaa406f4843933ea18deddfbf60c1"
     },
     "kmp-navigation": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-navigation/SKILL.md",
-      "computedHash": "2c9f73836bcc0419a22eb3a9e7f38c0776145c02f300d3ecffa1d41cca97cdfc"
+      "computedHash": "ac35bbd7326ead4633d1fda16f3f6785783ddfadf48a661f4fa27930d107dcfa"
     },
     "kmp-network-layer": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-network-layer/SKILL.md",
-      "computedHash": "cff508a0c8dc914d185428e5b768ed8117d7798537499c85240753981b9091a9"
+      "computedHash": "a485dcc36aabdb288a356e2ff5b38e85b055f8454ed51a79a18b202b6f9ef64b"
     },
     "kmp-offline-first": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-offline-first/SKILL.md",
-      "computedHash": "65a320121cbce0abefd43a61b8d6ccba914ccbdebec0dc79a15d2784ded80160"
+      "computedHash": "1e0cc971118caa911036c86455da2638036ba577ac4a4e8f7cf475714881e2e2"
     },
     "kmp-paging": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-paging/SKILL.md",
-      "computedHash": "c293937d24e6a0dc2fc092825352ead016b4cd54564272fe1350ea1d6a93b9b5"
+      "computedHash": "f0ee2c599023009afddd1bc611195d58359c941ddd454fe38d2e96923f3ca948"
     },
     "kmp-permissions": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-permissions/SKILL.md",
-      "computedHash": "bdb222e1f2b0357644bcbdee2092ae13636eb2e4d923ae8f6dd361da359f5a64"
+      "computedHash": "71cee1c859d38f063f41d6475ceac04cbee60005ea98ba0828005e54b2287e34"
     },
     "kmp-presenter-module": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-presenter-module/SKILL.md",
-      "computedHash": "2bdb51a4d991fe8b32e2ea6d2747063002e2b733c7d15280fbae40bfc880d322"
+      "computedHash": "108d90f5c7b960c6e97bf3aa7edeba85df1fba427cd5e195848cb0390f84db34"
     },
     "kmp-proguard-r8": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-proguard-r8/SKILL.md",
-      "computedHash": "8ad6aa371449f12c97ab65291274c549d92ca0bde5bfd390be80404e748bb94c"
+      "computedHash": "5ac6864479da7c741eccdbe20f52d341d92d345932228502d4ad260c8b7fccd4"
     },
     "kmp-project-docs-maintainer": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-project-docs-maintainer/SKILL.md",
-      "computedHash": "f30dd3857d02af9737505242dd8f38b4bb4988c022c27105e5354b34894fa66c"
+      "computedHash": "233caca65aab0202964de1b12295132edb56209c66c14ab427a29fe5c444fbce"
     },
     "kmp-push-notifications": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-push-notifications/SKILL.md",
-      "computedHash": "1ef1e059eca330d991600b23d41bca09f6c46e4a27b376b7a0a8b85f665c45b6"
+      "computedHash": "805606385f1123bfc871a159bd4988a9a2dead911aa45c8aef0cd80c275c233d"
     },
     "kmp-refactor": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-refactor/SKILL.md",
-      "computedHash": "3bd7544e11a6d260610e1fdd3f389c0289f8437a6116581c6f9b8074d5612226"
+      "computedHash": "d00c5b6273eeea838199a7855c1eccdb94c6facdf2848579f3b69c376049a89d"
     },
     "kmp-release": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-release/SKILL.md",
-      "computedHash": "0ce77efa05576ef82f63599b70cde4a6f8c6c5e57d9d600f53efc65b4a685a60"
+      "computedHash": "fc2a9c931fd1db3199ec7be227f4675089d3a85b015d0ea8ef376f1b893d7a46"
     },
     "kmp-repository-pattern": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-repository-pattern/SKILL.md",
-      "computedHash": "28e546352ca8a1afb3344e956bc6b8c35dc7f55de45b82e9e5879c34466c1df8"
+      "computedHash": "f18b9ee859f63493ef06dd91964fe120122b5deeb82f258f23d0e0112bdd7e6f"
     },
     "kmp-roborazzi": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-roborazzi/SKILL.md",
-      "computedHash": "f5f4db742054cd0f7acac16f8b55d1ee1db37fa66e3fd12848edf87ad45af830"
+      "computedHash": "dfdcf554cd972714103562f016a9aeaf782748d0a824ce4606f6e04c9b0dc9a5"
     },
     "kmp-shadcn-compose": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-shadcn-compose/SKILL.md",
-      "computedHash": "95bfef42e840091e48977337a558d0765228abb997182149f0014bff9e74290c"
+      "computedHash": "1410f22bfe26e00278f232a6b52fb2508a305d57db1de40325d58bf51eb3c3c6"
     },
     "kmp-shadcn-compose-layouts": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-shadcn-compose-layouts/SKILL.md",
-      "computedHash": "463e50f0c0f94eb79f27e1fe975a2005d6fe51df8433d9a9f2973784408f71e2"
+      "computedHash": "0a8124aacebf6d7393907733e1a2d91969b173dbea67c5e724c1d9c409e9fe37"
     },
     "kmp-shared-resources": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-shared-resources/SKILL.md",
-      "computedHash": "99936629950ec0bde4edd15a89bab5ec7faa77e9560d382773f8d37f89f85c41"
+      "computedHash": "2dee4165c746d05ca905de1d577db967631b790ad45c8dcb642abcf15562aa9a"
     },
     "kmp-skill-harvester": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-skill-harvester/SKILL.md",
-      "computedHash": "fc7f3cc15c0e70b474df9674f069947f25bd7a9ba4885385bdf5405f026d11f8"
+      "computedHash": "11667773db0ec41753ea9e325920be66916ffda9e1b2f8ec10a608ef209b98e3"
     },
     "kmp-sqldelight-setup": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-sqldelight-setup/SKILL.md",
-      "computedHash": "0e9d3bdf4f5998b38272f3405a1104e09b38816a7fdb0720b467ea690925d9a0"
+      "computedHash": "247a1e92ff1e85f5669e5d1c82bd4fcc50d4faf8cf19ec4ab625e402dca1a2cf"
     },
     "kmp-token-saver": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-token-saver/SKILL.md",
-      "computedHash": "5507dc8ecf8c72b75bb10dc85c787b581fb029a254b64c4fe13e139d9bc05e43"
+      "computedHash": "5f9e80de3472936af103d01489186e07c08c311b5b7996bf40bdd1496cff94f3"
     },
     "kmp-unit-testing": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-unit-testing/SKILL.md",
-      "computedHash": "5efdaa7c28f23f7a5461f193fc746fba11a4585c109dadb719701ad5553d85e4"
+      "computedHash": "8aafae5ce017c03ad09f911301e7cd9ac6c188b2db5a5dae0bff94c9c277af13"
     },
     "kmp-workmanager": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-workmanager/SKILL.md",
-      "computedHash": "42f1ef1fd5a1a10ffd9ca5462dad2c3ad40f548251fa613b1a207d10769111c0"
+      "computedHash": "bfab2628e7f98158d886f5113084d6b39bf419e91ddc06f78e85bc2104909f8d"
     },
     "kmp-xcframework-spm": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-xcframework-spm/SKILL.md",
-      "computedHash": "ac1d10b7c2264034210462e9fde0b5fe3f261bb817bd32384f1d5a4bac5a1678"
+      "computedHash": "c2fddfe716828d8b2b0ec4da0f2afd97dbabda44d53f2ddf2937abf2238fa8e5"
     }
   }
 }
