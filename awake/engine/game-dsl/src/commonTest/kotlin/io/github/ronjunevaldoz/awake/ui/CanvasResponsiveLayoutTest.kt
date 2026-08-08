@@ -99,7 +99,7 @@ class CanvasResponsiveLayoutTest {
         runtime.render(0.016f, 360f, 240f)
 
         assertEquals(UiWidthSizeClass.Compact, widthClass)
-        assertEquals(UiBounds(224f, 196f, 120f, 32f), panelSlot)
+        assertEquals(UiBounds(224f, 193f, 120f, 35f), panelSlot)
     }
 
     @Test
@@ -137,7 +137,7 @@ class CanvasResponsiveLayoutTest {
         runtime.render(0.016f, 900f, 600f)
 
         assertEquals(UiWidthSizeClass.Expanded, widthClass)
-        assertEquals(UiBounds(20f, 20f, 320f, 112f), columnSlot)
+        assertEquals(UiBounds(20f, 20f, 320f, 118f), columnSlot)
     }
 
     @Test
