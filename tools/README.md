@@ -31,11 +31,13 @@ Read `docs/reference/shadcn-reference-pipeline.md` first.
 | `capture_shadcn_reference.py` | Screenshots real component demos from `ui.shadcn.com` into `docs/reference/shadcn-previews/` (playwright, fixed viewport, animations disabled). |
 | `compare_parity.py` | Diffs an Awake render against a reference capture: aligned crop, heatmap, mismatch metrics. Pairing lives in `shadcn_parity_pairs.json`. |
 | `generate_parity_report.py` | Regenerates `docs/reference/shadcn-parity.md` from the component inventory, token test state, and comparison metrics. |
+| `generate_ui_status.py` | Regenerates `docs/reference/ui-fidelity-status.md`, the per-area status matrix. Each row's status comes from a probe against the source, so it cannot claim done for unwired work. |
 
 ```bash
 tools/fetch_shadcn_reference.sh
 ./gradlew :samples:ui-showcase:desktopTest --tests "*ShadcnReferenceComparisonTest*"
 python3 tools/generate_parity_report.py
+python3 tools/generate_ui_status.py
 ```
 
 Comparison metrics are only as good as the alignment between the two captures. The generated

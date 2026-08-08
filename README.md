@@ -88,6 +88,7 @@ next to them — so editing a source without recompiling silently changes nothin
 - [`docs/MVP_PLAN.md`](docs/MVP_PLAN.md) — near-term status
 - [`docs/MMORPG_ROADMAP.md`](docs/MMORPG_ROADMAP.md) — long-horizon plan
 - [`docs/reference/developer-docs.md`](docs/reference/developer-docs.md) — docs workflow
+- [`docs/reference/ui-fidelity-status.md`](docs/reference/ui-fidelity-status.md) — UI fidelity status matrix: what's done, partial, or missing per area, with the gap in each
 - [`docs/reference/shadcn-parity.md`](docs/reference/shadcn-parity.md) — generated report on how close the UI is to real shadcn/ui
 - [`tools/README.md`](tools/README.md) — asset generators and the parity toolchain
 
