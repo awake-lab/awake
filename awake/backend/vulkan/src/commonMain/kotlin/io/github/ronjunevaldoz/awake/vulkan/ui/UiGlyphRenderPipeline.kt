@@ -94,14 +94,8 @@ class UiGlyphRenderPipeline(
                 VkDescriptorSetLayoutBinding(
                     binding = 0,
                     descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    // BOTH stages, not just VERTEX: ui_glyph.vert reads `ubo.screenSize` for its
-                    // pixel-space->NDC transform, and ui_glyph.frag reads `ubo.fontInfo` to pick
-                    // the coverage-vs-MSDF sampling branch. This was VERTEX-only and went
-                    // unnoticed for a long time because the checked-in ui_glyph.frag.spv had
-                    // drifted out of date with its own .frag source -- the shipped binary
-                    // predated the MSDF branch, so it never actually referenced `ubo` from the
-                    // fragment stage and Vulkan had nothing to complain about. Recompiling the
-                    // SPIR-V surfaced it immediately as a pipeline-creation validation error.
+                    // BOTH stages: ui_glyph.vert reads ubo.screenSize, ui_glyph.frag reads
+                    // ubo.fontInfo to pick the coverage-vs-MSDF sampling branch.
                     stageFlags = VkShaderStageFlagBits.VERTEX.value or VkShaderStageFlagBits.FRAGMENT.value,
                 ),
                 VkDescriptorSetLayoutBinding(

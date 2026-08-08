@@ -5,11 +5,9 @@ package io.github.ronjunevaldoz.awake.vulkan
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 
 /**
- * [window] is a platform-native window handle -- an `android.view.Surface` on Android, or a
- * GLFW window handle (`Long`, from `VulkanWindow.glfwCreateWindow`) on desktop. There's no
- * common supertype between the two (hence `Any`, cast internally by each actual), so callers
- * that need to be cross-platform can go through this instead of branching on `window is Long`
- * themselves.
+ * Creates a `VkSurfaceKHR` for the given Vulkan [instance] and platform-native [window] handle
+ * -- an `android.view.Surface` on Android, or a GLFW window handle (`Long`) on desktop. There's
+ * no common supertype between the two (hence `Any`, cast internally by each actual).
  */
 expect fun createSurface(instance: Long, window: Any): Long
 

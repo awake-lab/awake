@@ -82,6 +82,9 @@ class World {
         return getInternal<T>(entity, typeId)
     }
 
+    // storeOrNull<T> resolves to ComponentRegistry.storeOrNull, whose own suppress covers the
+    // real cast (a store slot is only ever populated for the T its typeId was minted for);
+    // this reified call site just forwards that same T.
     @PublishedApi
     @Suppress("UNCHECKED_CAST")
     internal fun <T : Any> getInternal(entity: Entity, typeId: ComponentTypeId): T? {
@@ -102,6 +105,8 @@ class World {
     }
 
     @PublishedApi
+    // `type` drives reified type inference at the inline `remove<T>()` call sites (so T can be
+    // resolved without a KClass lookup on the hot path); the body itself only needs `typeId`.
     internal fun <T : Any> removeInternal(entity: Entity, typeId: ComponentTypeId, @Suppress("unused") type: KClass<T>): T? {
         if (!entities.isAlive(entity)) {
             return null
@@ -167,6 +172,9 @@ class World {
     inline fun <reified T : Any> query(): List<Entity> = query(T::class)
 
     fun registerPool(type: KClass<out Any>, factory: () -> Any) {
+        // registerPool only ever stores/reads this pool keyed by `type` itself, and `factory`
+        // already produces values of that same runtime type, so widening KClass<out Any> to
+        // KClass<Any> here changes no actual instance, only the static type-parameter bound.
         @Suppress("UNCHECKED_CAST")
         components.registerPool(type as KClass<Any>, factory)
     }
@@ -184,12 +192,18 @@ class World {
 
     fun componentCount(type: KClass<out Any>): Int = components.componentCount(type)
 
+    // No cast actually happens on this line -- components.store(typeId, type) already
+    // returns ComponentStore<T> via its own generic signature. Kept here only because
+    // this delegates into ComponentRegistry.store, whose real UNCHECKED_CAST this mirrors.
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> store(type: KClass<T>): ComponentStore<T> = components.store(typeId(type), type)
 
     @PublishedApi
     internal fun <T : Any> store(typeId: ComponentTypeId, type: KClass<T>): ComponentStore<T> = components.store(typeId, type)
 
+    // No cast actually happens on this line -- components.storeOrNull(typeId) already
+    // returns ComponentStore<T>? via its own generic signature. Kept here only because
+    // this delegates into ComponentRegistry.storeOrNull, whose real UNCHECKED_CAST this mirrors.
     @PublishedApi
     @Suppress("UNCHECKED_CAST")
     internal fun <T : Any> storeOrNull(typeId: ComponentTypeId): ComponentStore<T>? = components.storeOrNull(typeId)

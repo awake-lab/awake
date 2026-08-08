@@ -34,6 +34,9 @@ internal class ComponentRegistry {
     }
 
     fun <T : Any> registerPool(type: KClass<T>, factory: () -> T) {
+        // componentPools is keyed by `type` (KClass<T>) here, and every read site (pool(),
+        // recycle()) looks the entry up by that same key, so the erased Any-typed pool is
+        // only ever obtained/freed with instances of the T it was registered for.
         @Suppress("UNCHECKED_CAST")
         val pool = ComponentPool(factory) as ComponentPool<Any>
         componentPools[type] = pool
@@ -113,6 +116,9 @@ internal class ComponentRegistry {
      * contract for `get`/`has`. */
     fun typeIdForKeyOrNull(key: Any): ComponentTypeId? = typeIdsByKey[key]
 
+    // stores is keyed by ComponentTypeId, and every id is minted 1:1 with the KClass it was
+    // registered for (see typeId()); the slot at `id` can only ever hold the ComponentStore<T>
+    // created for that exact T below, or null.
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> store(typeId: ComponentTypeId, type: KClass<T>): ComponentStore<T> {
         val id = typeId.value
@@ -127,6 +133,8 @@ internal class ComponentRegistry {
         return store
     }
 
+    // Same typeId-to-T binding as store() above -- the slot at `id` can only ever hold the
+    // ComponentStore<T> minted for that id's own T.
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> storeOrNull(typeId: ComponentTypeId): ComponentStore<T>? {
         val id = typeId.value

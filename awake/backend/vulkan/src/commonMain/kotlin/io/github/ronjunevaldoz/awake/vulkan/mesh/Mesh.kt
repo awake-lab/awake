@@ -74,9 +74,9 @@ class Mesh(
         indexBufferMemory = DeviceMemoryHandle(iMemory)
     }
 
-    /** Allocates a HOST_VISIBLE staging buffer, writes into it via [write], copies it into a
-     * new DEVICE_LOCAL buffer (usage = [usage] or TRANSFER_DST) using a one-time command
-     * buffer + `vkCmdCopyBuffer`, then frees the staging buffer. */
+    /** Allocates a `byteSize`-byte HOST_VISIBLE staging buffer, writes into it via [write],
+     * copies it into a new DEVICE_LOCAL buffer (usage = [usage] or TRANSFER_DST) using a
+     * one-time command buffer + `vkCmdCopyBuffer`, then frees the staging buffer. */
     private fun createDeviceLocalBuffer(
         byteSize: Long,
         usage: Int,

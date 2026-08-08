@@ -23,6 +23,9 @@ object WebGpuHandles {
         return handle
     }
 
+    // `as? T` fails fast with a clear error on a caller/handle-type mismatch rather than
+    // corrupting state -- correctness relies on every caller resolving with the same T it
+    // registered, same as the untyped table itself.
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> resolve(handle: Long): T =
         objects[handle] as? T ?: error("No WebGPU object registered for handle $handle")

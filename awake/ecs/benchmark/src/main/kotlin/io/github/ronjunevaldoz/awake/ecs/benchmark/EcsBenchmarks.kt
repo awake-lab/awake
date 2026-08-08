@@ -29,6 +29,9 @@ import io.github.ronjunevaldoz.awake.ecs.World as AwakeWorld
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @OutputTimeUnit(TimeUnit.SECONDS)
+// One @Benchmark method per ECS-library/operation pair (create/destroy, component
+// add/remove, family churn) so JMH can run and report them side by side; splitting
+// across classes would fragment the comparison this suite exists to produce.
 @Suppress("TooManyFunctions")
 open class EcsBenchmarks {
     @Benchmark

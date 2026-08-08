@@ -33,6 +33,9 @@ class ComponentStore<T : Any>(
      * Kotlin would otherwise insert on every single `as T` element cast. Profiling
      * `awakeTransformMeshQuery` showed that check costing ~14% of CPU samples. Only valid
      * for indices `< count` -- slots at or beyond `count` may hold a stale `null`. */
+    // denseComponents is this store's own private backing array, only ever written via add()
+    // with a T (or nulled by remove()/clear()); every read here is bounds-checked to < count,
+    // which add() guarantees is always populated with a real T.
     @Suppress("UNCHECKED_CAST")
     private inline val typedDenseComponents: Array<T>
         get() = denseComponents as Array<T>

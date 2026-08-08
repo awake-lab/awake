@@ -15,6 +15,9 @@ enum class FigmaDensity(val densityScale: Float) {
 }
 
 /** Layout scale multiplier representation in Figma validation matrix. */
+// Entry names encode the scale value itself (Scale1_5x for 1.5x) for readability at call
+// sites; ktlint's snake_case-in-entry-name check has no exception for that, so this is a
+// naming choice, not sloppiness.
 @Suppress("ktlint:standard:enum-entry-name-case")
 enum class FigmaScale(val scale: Float) {
     Scale1_0x(1.0f),

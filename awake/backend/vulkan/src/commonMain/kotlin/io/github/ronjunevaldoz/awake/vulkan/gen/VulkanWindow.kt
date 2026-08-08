@@ -55,11 +55,9 @@ expect object VulkanWindow {
      * [glfwCreateWindowSurface], or it fails with `VK_ERROR_INITIALIZATION_FAILED`. */
     fun glfwGetRequiredInstanceExtensions(): Array<String>
 
-    /** `GLFW_PRESS` (1) if the GLFW key code [key] is currently held, `GLFW_RELEASE` (0)
-     * otherwise. Polled once per frame (see the desktop entry point) rather than
-     * callback-based -- `glfwPollEvents()` already runs on the single render thread every
-     * frame (see `docs/architecture.md`'s threading-model rules), so a poll there needs no
-     * callback/synchronization machinery a push-based API would. */
+    /** `GLFW_PRESS` (1) if `key` is currently held on `window`, `GLFW_RELEASE` (0) otherwise.
+     * Polled once per frame rather than callback-based, since `glfwPollEvents()` already runs
+     * on the single render thread every frame. */
     fun glfwGetKey(window: Long, key: Int): Int
 
     /** Same polling contract as [glfwGetKey], for a GLFW mouse button code. */

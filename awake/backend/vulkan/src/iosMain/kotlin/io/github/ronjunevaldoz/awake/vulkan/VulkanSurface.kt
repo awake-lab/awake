@@ -20,12 +20,9 @@ import platform.MoltenVK.VkSurfaceKHRVar
 import platform.MoltenVK.vkCreateMetalSurfaceEXT
 import platform.QuartzCore.CAMetalLayer
 
-// iOS surface creation is CAMetalLayer-backed, via MoltenVK's VK_EXT_metal_surface (enabled
-// automatically by mvk_vulkan.h -- see MoltenVK.def). [window] here is expected to be a real
-// platform.QuartzCore.CAMetalLayer (e.g. VulkanMetalView.metalLayer) -- the C header (parsed
-// as plain C, not Objective-C, by this project's cinterop .def) types VkMetalSurfaceCreateInfoEXT's
-// pLayer as an opaque `const void*`, so the real ObjC layer instance is passed via
-// .objcPtr().reinterpret() rather than any cinterop-generated CAMetalLayer wrapper type.
+// iOS surface creation is CAMetalLayer-backed via MoltenVK's VK_EXT_metal_surface. `window` must
+// be a real CAMetalLayer; pLayer is an opaque `const void*` in the cinterop-parsed C header, so
+// the ObjC layer is passed via .objcPtr() rather than a generated wrapper type.
 @OptIn(ExperimentalForeignApi::class)
 actual fun createSurface(instance: Long, window: Any): Long = memScoped {
     val metalLayer = window as CAMetalLayer

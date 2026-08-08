@@ -178,13 +178,9 @@ class Renderer(
     internal var depthImageViews: List<Long> = emptyList()
     internal var presentTransitionRenderPass: Long = 0
 
-    // Reused every call by renderToTexture()/readPixels() -- NOT transferContext
-    // .runOneTimeCommands(), which allocates a fresh command buffer from the shared pool
-    // and never frees it (fine for its own callers, a handful of one-time uploads at
-    // startup, but renderToTexture is expected to run every frame for e.g. a minimap, and
-    // that leak destabilized the whole Vulkan instance within under a minute of real
-    // testing -- confirmed by a real desktop run crashing with VK_SUBOPTIMAL_KHR after
-    // ~1500-3000 leaked command buffers). Built lazily on first use.
+    // Reused every call, NOT transferContext.runOneTimeCommands() -- that allocates a fresh
+    // command buffer it never frees, fine for one-time startup uploads but not for
+    // renderToTexture()/readPixels() running every frame. Built lazily on first use.
     internal var offscreenCommandBuffer: Long = 0
     internal var offscreenFence: Long = 0
     internal var framebuffers: List<Long> = emptyList()
@@ -203,10 +199,8 @@ class Renderer(
     internal var currentUiFont: UiFont? = null
 
     // Offscreen counterparts of uiRenderPipeline/uiRoundedQuadRenderPipeline, bound to
-    // renderPipeline.renderPass (same pass OffscreenRenderTarget's framebuffer is built
-    // against, see createRenderTarget()) instead of the swapchain UI pass -- used by
-    // Renderer.renderUiToTexture()'s headless/offscreen full-UI capture path, which has no
-    // swapchain UI pipeline to reuse. Same reasoning as offscreenGlyphRenderPipeline.
+    // renderPipeline.renderPass instead of the swapchain UI pass -- used by
+    // renderUiToTexture()'s headless capture path, which has no swapchain UI pipeline to reuse.
     internal var offscreenQuadRenderPipeline: UiRenderPipeline? = null
     internal var offscreenRoundedQuadRenderPipeline: UiRoundedQuadRenderPipeline? = null
 
@@ -228,14 +222,8 @@ class Renderer(
     // createdTextures.
     private val createdRenderTargets = mutableListOf<OffscreenRenderTarget>()
 
-    // One DynamicMesh per contiguous same-type run in a frame's primitive list (see
-    // drawUi()'s run-coalescing) rather than one mesh per type -- this is what makes
-    // cross-type paint order (e.g. a dropdown's overlay quad drawn after a sibling button's
-    // glyph, per the original list order) possible: a single "all quads, then all glyphs"
-    // mesh pair can only ever draw every quad before every glyph, regardless of the source
-    // list's order. Grown on demand, reused every frame (never destroyed/shrunk per-frame),
-    // same "stage in drawUi(), consume in recordCommandBuffer()" pattern the old single
-    // uiMesh/uiGlyphMesh fields used.
+    // One DynamicMesh per contiguous same-type run (not one mesh per type) so draw order can
+    // follow the source primitive list's actual paint order. Grown on demand, reused every frame.
     private val uiQuadMeshPool = mutableListOf<DynamicMesh>()
     private val uiGlyphMeshPool = mutableListOf<DynamicMesh>()
     private val uiRoundedQuadMeshPool = mutableListOf<DynamicMesh>()
@@ -328,12 +316,11 @@ class Renderer(
     override fun createMesh(geometry: MeshGeometry): RenderMesh =
         Mesh(graphicsDevice, transferContext::runOneTimeCommands, geometry.vertices, geometry.indices, geometry.format)
 
-    /** Builds a [Material] bound to this [renderPipeline], uploading [texture] (or a 1x1
-     * white placeholder when both [texture]/[renderTarget] are null) -- see
-     * [RenderRenderer.createMaterial]'s doc comment. The created [Texture] is tracked in
-     * [createdTextures] for teardown in [destroy]; a [renderTarget] is NOT re-tracked here
-     * (it's already tracked in [createdRenderTargets] from its own [createRenderTarget]
-     * call). */
+    /** Builds a [Material] bound to this [renderPipeline] with [uniformFloatCount] uniform
+     * floats, uploading [texture] (or a 1x1 white placeholder when both [texture]/[renderTarget]
+     * are null). The created [Texture] is tracked in [createdTextures] for teardown in
+     * [destroy]; a [renderTarget] is NOT re-tracked here (already tracked via its own
+     * [createRenderTarget] call). */
     override fun createMaterial(
         texture: TextureAsset?,
         renderTarget: RenderTarget?,

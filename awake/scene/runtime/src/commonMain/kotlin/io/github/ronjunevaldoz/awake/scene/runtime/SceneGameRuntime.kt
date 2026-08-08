@@ -196,6 +196,9 @@ class SceneGameRuntime internal constructor(
 
     fun <T : Any> requireService(type: kotlin.reflect.KClass<T>): T = services.requireService(type)
 
+    // registeredSystems is keyed by SceneSystemHandle<T>, and only ever populated (in ready())
+    // with the System instance that handle's own factory produced, so `as? T` matches or the
+    // error() below fires -- it never silently returns a mistyped system.
     @Suppress("UNCHECKED_CAST")
     fun <T : System> system(handle: SceneSystemHandle<T>): T =
         registeredSystems[handle] as? T ?: error("System ${handle.name} not found")

@@ -99,14 +99,9 @@ private fun Renderer.buildUiGlyphRenderPipeline(renderPass: Long, font: UiFont):
 
 internal fun Renderer.ensureFontTexture(font: UiFont): Texture {
     fontTexture?.let { return it }
-    // Both atlas types use linear sampling -- matches the WebGPU backend's
-    // UiGlyphRenderPipeline, which always samples Linear regardless of samplingMode.
-    // Nearest-neighbor on a CoverageAlpha atlas made minified text look thin: at typical
-    // UI sizes the on-screen glyph is much smaller than the baked atlas cell, and nearest
-    // sampling picks single texels that miss thin strokes entirely instead of blending
-    // them in. generate_ui_font_atlas.py crops each glyph with a few px of raster
-    // headroom so linear filtering blends into blank atlas margin, not a neighboring
-    // glyph's cell.
+    // Both atlas types use linear sampling: nearest-neighbor on a CoverageAlpha atlas made
+    // minified text look thin, since the on-screen glyph is much smaller than the baked atlas
+    // cell and nearest sampling misses thin strokes instead of blending them in.
     val glyphFilter = VkFilter.VK_FILTER_LINEAR
     return Texture(
         graphicsDevice,

@@ -256,9 +256,9 @@ actual object VulkanImages {
         )
     }
 
-    /** Inverse of [vkCmdCopyBufferToImage] -- for offscreen render-target CPU readback
-     * (`Renderer.readPixels`). [srcImage] is expected in `TRANSFER_SRC_OPTIMAL` layout (the
-     * caller transitions it there before this call). */
+    /** Inverse of [vkCmdCopyBufferToImage] -- records into `commandBuffer` a copy of `srcImage`
+     * (expected in `TRANSFER_SRC_OPTIMAL` layout) into `dstBuffer` per `copy`'s region, for
+     * offscreen render-target CPU readback (`Renderer.readPixels`). */
     actual fun vkCmdCopyImageToBuffer(
         commandBuffer: Long,
         srcImage: Long,

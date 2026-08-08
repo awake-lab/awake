@@ -36,6 +36,8 @@ internal class ComponentPool<T : Any>(
             return factory()
         }
         size -= 1
+        // items only ever holds instances handed to free(instance: T) for this pool's own T,
+        // and slots at/above `size` are cleared to null by obtain()/nothing else writes them.
         @Suppress("UNCHECKED_CAST")
         val instance = items[size] as T
         items[size] = null

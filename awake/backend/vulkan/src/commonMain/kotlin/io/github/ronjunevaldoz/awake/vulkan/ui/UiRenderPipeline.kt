@@ -74,13 +74,9 @@ class UiRenderPipeline(
     private val swapchainManager: SwapchainManager,
     vertShaderCode: ByteArray,
     fragShaderCode: ByteArray,
-    // Offscreen headless capture (Renderer.renderUiToTexture) passes in
-    // renderPipeline.renderPass here instead of letting this pipeline create its own --
-    // that internal render pass is hardcoded for swapchain compositing (LOAD op, final
-    // layout PRESENT_SRC_KHR), which is the wrong layout contract for an OffscreenRenderTarget
-    // framebuffer. Same "externally injected render pass" shape UiGlyphRenderPipeline/
-    // UiRoundedQuadRenderPipeline already use; kept as an optional trailing param (default
-    // null) so the swapchain-owning caller (ensureUiQuadPipeline) is unchanged.
+    // Offscreen headless capture passes in an external render pass instead of letting this
+    // pipeline create its own, since the internal one is hardcoded for swapchain compositing
+    // (wrong layout contract for an OffscreenRenderTarget framebuffer).
     private val externalRenderPass: Long? = null,
 ) {
     private val graphicsDevice = graphicsDevice

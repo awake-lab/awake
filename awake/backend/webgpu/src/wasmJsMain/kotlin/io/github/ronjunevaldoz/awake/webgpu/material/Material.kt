@@ -13,12 +13,9 @@ import io.ygdrasil.webgpu.GPUSampler
 import io.ygdrasil.webgpu.GPUTextureView
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 
-// Phase 2.5 (Web/WebGPU, decision D7) milestone 1: compile-only stub -- see
-// docs/MVP_PLAN.md. `previewTextureView`/`previewSampler` are the one exception: set by
-// [createResourcesFromRenderTarget], scoped narrowly to the UI-compositing use case
-// (`Renderer.createMaterial(renderTarget = ...)` -> `UiTextureRenderPipeline`) -- the
-// general 3D `DrawCall.material` texture-binding path (`createResources`/`bind`) remains
-// unimplemented, see that method's own doc comment for why.
+// Phase 2.5 (Web/WebGPU, decision D7) milestone 1: compile-only stub. Only the UI-compositing
+// path (previewTextureView/previewSampler) is real; the general 3D DrawCall.material path stays
+// unimplemented -- see docs/MVP_PLAN.md.
 class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: Int = 16) : RenderMaterial {
     val descriptorSetLayout: DescriptorSetLayoutHandle = DescriptorSetLayoutHandle(0)
     var descriptorPool: DescriptorPoolHandle = DescriptorPoolHandle(0)

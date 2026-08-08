@@ -32,6 +32,9 @@ internal class FamilyRegistry(
         familiesByComponentId.fill(null)
     }
 
+    // families is keyed by FamilyKey.single(typeId), and getOrPut's builder above always
+    // constructs the Family1Cache<A> for this exact `type`/typeId pair, so a cache stored
+    // under this key can only ever be a Family1Cache<A>.
     @Suppress("UNCHECKED_CAST")
     fun <A : Any> familyCache(type: KClass<A>): Family1Cache<A> {
         val typeId = world.typeId(type)
@@ -41,6 +44,9 @@ internal class FamilyRegistry(
         } as Family1Cache<A>
     }
 
+    // families is keyed by FamilyKey.pair(typeIdA, typeIdB), and getOrPut's builder above
+    // always constructs the Family2Cache<A, B> for this exact type pair, so a cache stored
+    // under this key can only ever be a Family2Cache<A, B>.
     @Suppress("UNCHECKED_CAST")
     fun <A : Any, B : Any> familyCache(typeA: KClass<A>, typeB: KClass<B>): Family2Cache<A, B> {
         val typeIdA = world.typeId(typeA)

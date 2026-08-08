@@ -124,12 +124,8 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
             drawIndex += 1
         }
 
-        // Debug lines (e.g. a frustum wireframe), same render pass as the 3D draw
-        // calls above. This pass now has a real depth attachment (see the
-        // depthStencilAttachment above), but lineRenderPipeline's own depthCompare =
-        // Always/depthWriteEnabled = false keeps lines never depth-tested against
-        // scene geometry -- matches this pass's existing (pre-existing, not new) lack
-        // of depth testing for every other draw call too.
+        // Debug lines share this render pass; lineRenderPipeline's depthCompare = Always keeps
+        // them never depth-tested against scene geometry.
         if (lineMesh.vertexCount > 0) {
             setPipeline(lineRenderPipeline.pipeline)
             setBindGroup(0u, lineRenderPipeline.bindGroup)
@@ -139,11 +135,8 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
         end()
     }
 
-    // Second pass, same encoder, drawn on top of the 3D pass's output --
-    // `loadOp = Load` (not `Clear`) is the whole trick, no separate framebuffer object
-    // needed at all (WebGPU has no framebuffer object; a render pass just names a
-    // texture view directly). Only recorded once drawUi() has actually built a UI
-    // pipeline at least once -- a game that never calls drawUi never pays for this pass.
+    // Second pass, same encoder, on top of the 3D output: `loadOp = Load` (not `Clear`) is the
+    // whole trick. Only recorded once drawUi() has built a UI pipeline and staged runs.
     val quadPipeline = uiRenderPipeline
     if (quadPipeline != null && uiRuns.isNotEmpty()) {
         quadPipeline.writeScreenSize(renderingContext.width.toFloat(), renderingContext.height.toFloat())
@@ -197,14 +190,9 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                         }
                     }
                     is Renderer.UiRun.ClipRun -> {
-                        // Not a real draw call -- run.rect is already fully resolved (see
-                        // UiContext's clip stack), so this just needs to set the scissor
-                        // rect at this exact point in the paint order. Clamped to the
-                        // render target's own bounds: nested scroll/clip regions can
-                        // accumulate a few px of floating-point rounding past the frame
-                        // edge, which WebGPU's stricter scissor validation rejects outright
-                        // (the whole command buffer becomes invalid, dropping the frame) --
-                        // unlike Vulkan, which tolerates the same imprecision silently.
+                        // Sets the scissor rect at this point in paint order; clamped to the render
+                        // target bounds because WebGPU's scissor validation rejects an out-of-bounds
+                        // rect outright (invalidating the whole command buffer), unlike Vulkan.
                         val maxX = renderingContext.width.toInt()
                         val maxY = renderingContext.height.toInt()
                         val x = run.rect.x.toInt().coerceIn(0, maxX)
@@ -214,12 +202,8 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                         setScissorRect(x.toUInt(), y.toUInt(), width.toUInt(), height.toUInt())
                     }
                     is Renderer.UiRun.TextureRun -> {
-                        // Render-target-backed textured quads (e.g. a minimap), one draw
-                        // call per primitive -- each binds that material's own
-                        // (lazily-cached) bind group, see UiTextureRenderPipeline's doc
-                        // comment for why bind groups are cached per material instead of
-                        // rewritten like Vulkan's descriptor set. Geometry is already
-                        // staged, including any exact convex path clipping.
+                        // Render-target-backed textured quads (e.g. a minimap), one draw call per
+                        // primitive; each binds its material's lazily-cached bind group.
                         if (texturePipeline != null) {
                             setPipeline(texturePipeline.pipeline)
                             var textureIndex = 0

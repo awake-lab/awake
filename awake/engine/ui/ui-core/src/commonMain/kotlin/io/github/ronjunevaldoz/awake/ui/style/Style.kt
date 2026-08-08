@@ -33,6 +33,8 @@ class MutableStyleState(
 ) : StyleState {
     private val values = HashMap<StyleStateKey<*>, Any?>()
 
+    // values is only ever written by set(key: StyleStateKey<T>, value: T), so any entry
+    // found under `key` was stored as that same key's own T.
     @Suppress("UNCHECKED_CAST")
     override operator fun <T> get(key: StyleStateKey<T>): T = values[key] as T? ?: key.defaultValue
 

@@ -117,6 +117,9 @@ class GameWindowBackendBuilder {
 private class MutableGameServices : GameServiceLookup {
     private val services = linkedMapOf<KClass<*>, Any>()
 
+    // services is keyed by the exact KClass<T> each value was registered under (see
+    // register() below), so `as? T` matches the entry's real type or legitimately returns
+    // null for an unregistered type.
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> service(type: KClass<T>): T? = services[type] as? T
 

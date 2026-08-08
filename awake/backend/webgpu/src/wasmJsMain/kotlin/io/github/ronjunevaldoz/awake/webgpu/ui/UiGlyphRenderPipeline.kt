@@ -127,11 +127,8 @@ class UiGlyphRenderPipeline(
             ),
         )
 
-        // Deliberately NOT swapchainManager.imageFormatWebGpu: this is a sampled-only texture
-        // (TextureBinding, never a ColorTargetState/render-pass attachment), uploaded directly
-        // from font.atlasPixelsRgba's literal RGBA byte layout -- it never needs to match the
-        // browser's preferred *presentation* format, and forcing it to would reinterpret the
-        // same bytes with R/B swapped on a BGRA-preferred device.
+        // Fixed RGBA8Unorm, not swapchainManager.imageFormatWebGpu: this is a sampled-only
+        // texture uploaded from raw RGBA bytes, not a presentation attachment.
         fontTexture = device.createTexture(
             TextureDescriptor(
                 size = Extent3D(width = font.atlasWidth.toUInt(), height = font.atlasHeight.toUInt()),

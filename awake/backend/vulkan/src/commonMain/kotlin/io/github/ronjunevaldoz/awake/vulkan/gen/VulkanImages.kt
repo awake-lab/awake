@@ -27,13 +27,11 @@ expect object VulkanImages {
     fun vkCreateSampler(device: Long, createInfo: VkSamplerCreateInfo): Long
     fun vkDestroySampler(device: Long, sampler: Long)
 
-    /** `oldLayout`/`newLayout` use the plain-`Int` [io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageLayout2] values.
-     * [levelCount] defaults to `1` (every pre-existing caller -- swapchain images, offscreen
-     * render targets -- is single-mip). A multi-mip [io.github.ronjunevaldoz.awake.vulkan.texture.Texture]
-     * must pass its real level count explicitly: `VK_REMAINING_MIP_LEVELS` was tried first and
-     * silently transitions only level 0 on MoltenVK (confirmed via validation errors -- every
-     * level above 0 stayed `UNDEFINED`), so this takes an explicit count instead of relying on
-     * that sentinel being portable. */
+    /** Transitions `image`'s layout in `commandBuffer` between the plain-`Int`
+     * [io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageLayout2] values `oldLayout`/`newLayout`.
+     * `levelCount` defaults to `1` (every pre-existing caller is single-mip); a multi-mip
+     * [io.github.ronjunevaldoz.awake.vulkan.texture.Texture] must pass its real level count --
+     * `VK_REMAINING_MIP_LEVELS` silently transitions only level 0 on MoltenVK. */
     fun vkTransitionImageLayout(
         commandBuffer: Long,
         image: Long,
@@ -49,10 +47,9 @@ expect object VulkanImages {
         copy: VkBufferImageCopy,
     )
 
-    /** Inverse of [vkCmdCopyBufferToImage] -- copies [srcImage] (expected in
-     * `TRANSFER_SRC_OPTIMAL` layout) into [dstBuffer], for offscreen render-target CPU
-     * readback (`Renderer.readPixels`). Reuses [VkBufferImageCopy] the same way the upload
-     * direction does (single region, `imageOffset` always `(0,0,0)`). */
+    /** Inverse of [vkCmdCopyBufferToImage] -- records into `commandBuffer` a copy of `srcImage`
+     * (expected in `TRANSFER_SRC_OPTIMAL` layout) into `dstBuffer` per `copy`'s region, for
+     * offscreen render-target CPU readback (`Renderer.readPixels`). */
     fun vkCmdCopyImageToBuffer(
         commandBuffer: Long,
         srcImage: Long,

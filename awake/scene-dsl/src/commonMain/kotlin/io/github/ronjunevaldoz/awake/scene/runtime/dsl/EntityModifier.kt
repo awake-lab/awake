@@ -28,6 +28,9 @@ class EntityModifier {
      */
     fun with(component: Any): EntityModifier = apply {
         actions.add { world, entity ->
+            // component::class is always the exact runtime type of `component`, so pairing
+            // them as World.add(entity, KClass<Any>, Any) is type-correct; only the static
+            // KClass<out Any> to KClass<Any> widening needs the cast, not the value itself.
             @Suppress("UNCHECKED_CAST")
             world.add(entity, component::class as KClass<Any>, component)
         }
@@ -59,6 +62,8 @@ class EntityModifier {
  * way UI authoring does. Note this is a *function*, unlike `ui.modifier.Modifier`, which is a
  * `val` -- both names can be imported into one file without clashing.
  */
+// Capitalized to mirror Compose's Modifier entry point by design (see the doc comment
+// above), not an accidental violation of function-naming convention.
 @Suppress("FunctionNaming", "ktlint:standard:function-naming")
 fun Modifier() = EntityModifier()
 

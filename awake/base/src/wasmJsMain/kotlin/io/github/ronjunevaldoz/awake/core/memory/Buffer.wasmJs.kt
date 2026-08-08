@@ -17,6 +17,9 @@ class WasmJsByteBuffer(private val data: ByteArray) : ByteBuf {
     override val size: Int = data.size
     override fun clear() = data.fill(0)
 
+    // Callers always request B as this wrapper's own underlying raw array type (its
+    // get<ByteArray>() etc. call site); the generic bound can't express that, so the
+    // erasure-only cast can't be verified statically but never mismatches in practice.
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = data as B
 }
@@ -34,6 +37,9 @@ class WasmJsShortBuffer(private val data: ShortArray) : ShortBuf {
     override val size: Int = data.size
     override fun clear() = data.fill(0)
 
+    // Callers always request B as this wrapper's own underlying raw array type (its
+    // get<ByteArray>() etc. call site); the generic bound can't express that, so the
+    // erasure-only cast can't be verified statically but never mismatches in practice.
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = data as B
 }
@@ -51,6 +57,9 @@ class WasmJsIntBuffer(private val data: IntArray) : IntBuf {
     override val size: Int = data.size
     override fun clear() = data.fill(0)
 
+    // Callers always request B as this wrapper's own underlying raw array type (its
+    // get<ByteArray>() etc. call site); the generic bound can't express that, so the
+    // erasure-only cast can't be verified statically but never mismatches in practice.
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = data as B
 }
@@ -68,6 +77,9 @@ class WasmJsFloatBuffer(private val data: FloatArray) : FloatBuf {
     override val size: Int = data.size
     override fun clear() = data.fill(0f)
 
+    // Callers always request B as this wrapper's own underlying raw array type (its
+    // get<ByteArray>() etc. call site); the generic bound can't express that, so the
+    // erasure-only cast can't be verified statically but never mismatches in practice.
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = data as B
 }

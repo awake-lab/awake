@@ -30,6 +30,9 @@ class ByteBuffer(size: Int) : ByteBuf {
         buffer.clear()
     }
 
+    // Callers always request B as this wrapper's own underlying java.nio buffer type
+    // (its get<java.nio.ByteBuffer>() etc. call site); the generic bound can't express that,
+    // so the erasure-only cast can't be verified statically but never mismatches in practice.
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = buffer as B
 }
@@ -61,6 +64,9 @@ class ShortBuffer(size: Int) : ShortBuf {
         buffer.clear()
     }
 
+    // Callers always request B as this wrapper's own underlying java.nio buffer type
+    // (its get<java.nio.ByteBuffer>() etc. call site); the generic bound can't express that,
+    // so the erasure-only cast can't be verified statically but never mismatches in practice.
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = buffer as B
 }
@@ -92,6 +98,9 @@ class IntBuffer(size: Int) : IntBuf {
         buffer.clear()
     }
 
+    // Callers always request B as this wrapper's own underlying java.nio buffer type
+    // (its get<java.nio.ByteBuffer>() etc. call site); the generic bound can't express that,
+    // so the erasure-only cast can't be verified statically but never mismatches in practice.
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = buffer as B
 }
@@ -118,6 +127,9 @@ class FloatBuffer(size: Int) : FloatBuf {
         buffer.position(0)
     }
 
+    // Callers always request B as this wrapper's own underlying java.nio buffer type
+    // (its get<java.nio.ByteBuffer>() etc. call site); the generic bound can't express that,
+    // so the erasure-only cast can't be verified statically but never mismatches in practice.
     @Suppress("UNCHECKED_CAST")
     override fun <B : Buffer> get(): B = buffer as B
     override val size: Int = buffer.capacity()

@@ -165,11 +165,8 @@ class Renderer(
     // Vulkan's Renderer.uiRoundedQuadRenderPipeline (same lazy-pay-only-if-used pattern).
     internal var uiRoundedQuadRenderPipeline: UiRoundedQuadRenderPipeline? = null
 
-    // One DynamicMesh per contiguous same-type run in a frame's primitive list (see
-    // drawUi()'s run-coalescing) rather than one mesh per type -- mirrors Vulkan's
-    // Renderer.kt (same file-level bug-fix rationale: a fixed "all quads, then all glyphs,
-    // then all textures" pass order can only ever draw every glyph after every quad,
-    // regardless of the source list's paint order). Grown on demand, reused every frame.
+    // One DynamicMesh per contiguous same-type run (not one mesh per type) so draw order can
+    // follow the source primitive list's actual paint order. Grown on demand, reused every frame.
     internal val uiQuadMeshPool = mutableListOf<DynamicMesh>()
     internal val uiGlyphMeshPool = mutableListOf<DynamicMesh>()
     internal val uiRoundedQuadMeshPool = mutableListOf<DynamicMesh>()
@@ -229,10 +226,8 @@ class Renderer(
     override fun createMesh(geometry: MeshGeometry): RenderMesh =
         Mesh(graphicsDevice, {}, geometry.vertices, geometry.indices, geometry.format)
 
-    /** Builds a [Material] -- this backend's `Material` is still a compile-only stub (see
-     * its own doc comment), so this just constructs it, matching this backend's existing
-     * (pre-refactor) behavior of never calling `createResources`. [texture]/[renderTarget]
-     * are accepted for interface parity with the Vulkan backend but otherwise unused here. */
+    /** Builds a [Material]; `texture` is accepted for interface parity with the Vulkan backend
+     * but is otherwise unused since this backend's `Material` is still a compile-only stub. */
     override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): RenderMaterial {
         require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
         val material = Material(graphicsDevice, uniformFloatCount)

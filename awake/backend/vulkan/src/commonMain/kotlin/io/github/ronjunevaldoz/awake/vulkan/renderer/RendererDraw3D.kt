@@ -75,11 +75,8 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
             cameraPosition = camera.eye,
         )
 
-    // Runs BEFORE the swapchain command buffer is recorded: the main pass's fragment shader
-    // samples this frame's shadow map, so its depth content must already be complete (the
-    // fence wait inside runOffscreenCommands guarantees that) by the time recordCommandBuffer
-    // binds the primary pipeline below. Skipped (not just a no-op render) whenever shadows
-    // aren't supported/enabled -- see performShadowPass's own doc comment.
+    // Must run before the swapchain command buffer records: the main pass's fragment shader
+    // samples this frame's shadow map, so its depth content must already be complete.
     performShadowPass(preparedDrawCalls)
 
     Vulkan.vkResetCommandBuffer(commandBuffers[currentFrame], 0)
@@ -165,17 +162,10 @@ internal fun Renderer.recordCommandBuffer(
         VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE,
     )
 
-    // Grouped by resolved pipeline (see prepareDrawCalls) instead of 3 hardcoded blocks --
-    // the primary group is drawn first (even if empty, its pipeline is still bound first,
-    // matching this method's old unconditional bind-before-anything-else behavior), then
-    // debug lines, then every other format's group -- same relative draw order this method
-    // always had, now generalized to however many pipelines pipelinesByFormat actually holds.
-    // "Primary" is resolved via pipelineFor (not always identically `renderPipeline`): when
-    // `wireframe` is on and a wireframe variant exists for renderPipeline's own format, THAT
-    // must be what's bound/drawn first -- binding the wrong pipeline object here would put the
-    // primary group in the "every other format" loop below instead, drawing it AFTER the
-    // debug lines and breaking their real depth-test against scene geometry (see that
-    // comment).
+    // Grouped by resolved pipeline: primary group first, then debug lines, then every other
+    // format's group. "Primary" is resolved via pipelineFor, not always `renderPipeline` --
+    // when wireframe is on, its variant for renderPipeline's own format must bind first, or the
+    // primary group falls into the "every other format" loop below and draws after debug lines.
     val groupedDrawCalls = drawCalls.groupBy { it.pipeline }
     val primaryPipeline = pipelineFor(renderPipeline.vertexFormat) ?: renderPipeline
     primaryPipeline.bind(commandBuffer)

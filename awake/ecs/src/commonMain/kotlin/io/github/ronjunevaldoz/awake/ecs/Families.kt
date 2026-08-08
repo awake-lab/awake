@@ -63,11 +63,16 @@ internal sealed class FamilyCache {
     abstract fun removeComponent(world: World, entity: Entity, typeId: ComponentTypeId)
 }
 
+// Implements FamilyCache's lifecycle callbacks plus the dense-array accessors Family1
+// delegates to -- all tightly coupled to this one cache's own storage, so splitting them
+// across classes would only separate code that has to change together.
 @PublishedApi
 @Suppress("TooManyFunctions")
 internal class Family1Cache<A : Any>(
     private val type: KClass<A>,
     private val typeId: ComponentTypeId,
+    // Kept for constructor-shape symmetry with Family2Cache's buildFamily() call site;
+    // unlike Family2Cache, a one-component cache never needs to look up a sibling store.
     @Suppress("unused") private val store: ComponentStore<A>,
 ) : FamilyCache() {
     @PublishedApi
@@ -86,12 +91,16 @@ internal class Family1Cache<A : Any>(
 
     @PublishedApi
     internal fun components(): Array<A> {
+        // components is allocated via newComponentArray(type, ...) with this same `type:
+        // KClass<A>`, so its runtime element type is always A.
         @Suppress("UNCHECKED_CAST")
         return components as Array<A>
     }
 
     @PublishedApi
     internal fun componentAt(index: Int): A {
+        // Every populated slot below `count` was written by add()/addComponent() with an A;
+        // components is allocated for type A (see components() above).
         @Suppress("UNCHECKED_CAST")
         return components[index] as A
     }
@@ -114,6 +123,7 @@ internal class Family1Cache<A : Any>(
     internal inline fun forEach(block: (Entity, A) -> Unit) {
         val localEntities = entities
 
+        // components is allocated for type A (see components() above).
         @Suppress("UNCHECKED_CAST")
         val localComponents = components as Array<A>
         val localCount = count
@@ -124,6 +134,7 @@ internal class Family1Cache<A : Any>(
 
     @PublishedApi
     internal inline fun forEachComponent(block: (A) -> Unit) {
+        // components is allocated for type A (see components() above).
         @Suppress("UNCHECKED_CAST")
         val localComponents = components as Array<A>
         val localCount = count
@@ -138,6 +149,8 @@ internal class Family1Cache<A : Any>(
 
     override fun addComponent(world: World, entity: Entity, typeId: ComponentTypeId, component: Any) {
         if (this.typeId == typeId) {
+            // Guarded by the typeId == this.typeId check above: World only ever routes a
+            // structural change to this cache with a component matching the A it was built for.
             @Suppress("UNCHECKED_CAST")
             val typedComponent = component as A
             ensureCapacity(count + 1)
@@ -152,6 +165,8 @@ internal class Family1Cache<A : Any>(
         if (this.typeId == typeId) {
             val index = indexOf(entity)
             if (index >= 0) {
+                // Guarded by the typeId == this.typeId check above (same invariant as
+                // addComponent()).
                 @Suppress("UNCHECKED_CAST")
                 components[index] = component as A
             }
@@ -202,6 +217,8 @@ internal class Family1Cache<A : Any>(
     }
 }
 
+// Same cohesion reasoning as Family1Cache above, doubled for the two-component (A, B)
+// dense-array bookkeeping and its own FamilyCache lifecycle callbacks.
 @PublishedApi
 @Suppress("TooManyFunctions")
 internal class Family2Cache<A : Any, B : Any>(
@@ -231,24 +248,30 @@ internal class Family2Cache<A : Any, B : Any>(
 
     @PublishedApi
     internal fun componentsA(): Array<A> {
+        // componentsA is allocated via newComponentArray(typeA, ...), so its runtime element
+        // type is always A.
         @Suppress("UNCHECKED_CAST")
         return componentsA as Array<A>
     }
 
     @PublishedApi
     internal fun componentsB(): Array<B> {
+        // componentsB is allocated via newComponentArray(typeB, ...), so its runtime element
+        // type is always B.
         @Suppress("UNCHECKED_CAST")
         return componentsB as Array<B>
     }
 
     @PublishedApi
     internal fun componentA(index: Int): A {
+        // Every populated slot below `count` was written with an A (see componentsA() above).
         @Suppress("UNCHECKED_CAST")
         return componentsA[index] as A
     }
 
     @PublishedApi
     internal fun componentB(index: Int): B {
+        // Every populated slot below `count` was written with a B (see componentsB() above).
         @Suppress("UNCHECKED_CAST")
         return componentsB[index] as B
     }
@@ -272,9 +295,11 @@ internal class Family2Cache<A : Any, B : Any>(
     internal inline fun forEach(block: (Entity, A, B) -> Unit) {
         val localEntities = entities
 
+        // componentsA is allocated for type A (see componentsA() above).
         @Suppress("UNCHECKED_CAST")
         val localComponentsA = componentsA as Array<A>
 
+        // componentsB is allocated for type B (see componentsB() above).
         @Suppress("UNCHECKED_CAST")
         val localComponentsB = componentsB as Array<B>
         val localCount = count
@@ -285,9 +310,11 @@ internal class Family2Cache<A : Any, B : Any>(
 
     @PublishedApi
     internal inline fun forEachComponents(block: (A, B) -> Unit) {
+        // componentsA is allocated for type A (see componentsA() above).
         @Suppress("UNCHECKED_CAST")
         val localComponentsA = componentsA as Array<A>
 
+        // componentsB is allocated for type B (see componentsB() above).
         @Suppress("UNCHECKED_CAST")
         val localComponentsB = componentsB as Array<B>
         val localCount = count
@@ -302,6 +329,9 @@ internal class Family2Cache<A : Any, B : Any>(
 
     override fun addComponent(world: World, entity: Entity, typeId: ComponentTypeId, component: Any) {
         if (typeId == typeIdA) {
+            // Guarded by the typeId == typeIdA check above: World only ever routes this call
+            // with a component matching A; storeB.get(entity) is already typed B and needs
+            // no cast, only `component as A` below relies on this guard.
             @Suppress("UNCHECKED_CAST")
             val componentB = storeB.get(entity) ?: return
             val typedComponentA = component as A
@@ -312,6 +342,9 @@ internal class Family2Cache<A : Any, B : Any>(
             componentsB[count] = componentB
             count += 1
         } else if (typeId == typeIdB) {
+            // Guarded by the typeId == typeIdB check above: World only ever routes this call
+            // with a component matching B; storeA.get(entity) is already typed A and needs
+            // no cast, only `component as B` below relies on this guard.
             @Suppress("UNCHECKED_CAST")
             val componentA = storeA.get(entity) ?: return
             val typedComponentB = component as B
@@ -330,9 +363,11 @@ internal class Family2Cache<A : Any, B : Any>(
             return
         }
         if (typeIdA == typeId) {
+            // Guarded by the typeIdA == typeId check above (same invariant as addComponent()).
             @Suppress("UNCHECKED_CAST")
             componentsA[index] = component as A
         } else if (typeIdB == typeId) {
+            // Guarded by the typeIdB == typeId check above (same invariant as addComponent()).
             @Suppress("UNCHECKED_CAST")
             componentsB[index] = component as B
         }

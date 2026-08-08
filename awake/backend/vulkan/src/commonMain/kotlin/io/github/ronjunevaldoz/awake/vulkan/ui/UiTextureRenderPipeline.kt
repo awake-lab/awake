@@ -187,9 +187,9 @@ class UiTextureRenderPipeline(
         )
 
     /** Rewrites this frame/draw slot's descriptor set to sample [sampler]/[imageView], then
-     * binds the pipeline + that slot. Distinct [drawSlotIndex] values avoid overwriting a
-     * descriptor set already referenced by an earlier texture draw in the same command
-     * buffer; distinct [frameIndex] values avoid racing the previous in-flight frame. */
+     * binds the pipeline + that slot in [commandBuffer]. Distinct [drawSlotIndex] values avoid
+     * overwriting a descriptor set already referenced by an earlier texture draw in the same
+     * command buffer; distinct [frameIndex] values avoid racing the previous in-flight frame. */
     fun bindMaterial(
         commandBuffer: Long,
         frameIndex: Int,

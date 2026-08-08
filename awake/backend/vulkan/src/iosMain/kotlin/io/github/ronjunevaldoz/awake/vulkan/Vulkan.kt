@@ -508,11 +508,8 @@ private fun Array<VkAttachmentReference>.toNativeAttachmentRefArray(
     layout = this@toNativeAttachmentRefArray[index].layout.value.toUInt()
 }
 
-// vkCreateDebugUtilsMessengerEXT support -- the one function in this file needing a real
-// Kotlin-lambda-to-C-function-pointer bridge (staticCFunction can't capture state, so the
-// actual Kotlin callback travels through pUserData as a StableRef instead, recovered inside
-// the trampoline). debugMessengerCallbacks maps the returned messenger handle back to its
-// StableRef so vkDestroyDebugUtilsMessengerEXT can dispose it and avoid leaking it forever.
+// staticCFunction can't capture state, so the Kotlin callback travels through pUserData as a
+// StableRef; this map lets vkDestroyDebugUtilsMessengerEXT dispose that StableRef by handle.
 @OptIn(ExperimentalForeignApi::class)
 private val debugMessengerCallbacks = mutableMapOf<Long, StableRef<PFN_vkDebugUtilsMessengerCallbackEXT>>()
 
@@ -535,14 +532,8 @@ private val debugMessengerTrampoline = staticCFunction {
     if (handled) 1u else 0u
 }
 
-// Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md.
-//
-// Functions with real cinterop bodies (not TODO() stubs) actually link against and call
-// into the vendored MoltenVK.xcframework (awake-vulkan/ios-native/MoltenVK). Compiled,
-// not yet hardware/simulator-verified -- no iOS app target drives a real frame yet (Phase
-// 6 is still "MoltenVK cinterop bindings," not "iOS demo runs"). Functions still marked
-// TODO() below need the same struct-marshalling treatment -- see vkCreateInstance for the
-// nested-struct-and-arrays pattern, or any vkDestroyXxx for the trivial handle-only one.
+// Phase 6 (MoltenVK cinterop) is in progress -- see docs/MVP_PLAN.md. Non-TODO() functions link
+// against the vendored MoltenVK.xcframework but are compiled-only, not yet hardware-verified.
 @OptIn(ExperimentalForeignApi::class)
 actual object Vulkan {
     actual fun vkCreateInstance(createInfo: VkInstanceCreateInfo): Long = memScoped {

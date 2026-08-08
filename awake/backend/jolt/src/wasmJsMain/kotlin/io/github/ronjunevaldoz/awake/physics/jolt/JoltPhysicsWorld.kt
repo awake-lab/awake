@@ -71,6 +71,8 @@ private object JoltModule {
  * values can be given their own Kotlin-typed handle (same "no dynamic type" constraint
  * [JoltModule] documents).
  */
+// Called from JoltPhysicsWorld.create() below; detekt's unused-check can't trace calls
+// through an external @JsFun-bound declaration.
 @Suppress("unused")
 @JsFun(
     """
@@ -111,6 +113,8 @@ private external fun joltCreateWorld(jolt: JsAny, gravityX: Double, gravityY: Do
 
 /** Object layer 1 ("moving") for every non-static body, 0 ("non-moving") for static ones --
  * matches [joltCreateWorld]'s own `LAYER_NON_MOVING`/`LAYER_MOVING` constants. */
+// Called from JoltPhysicsWorld.createBody() below; detekt's unused-check can't trace
+// calls through an external @JsFun-bound declaration.
 @Suppress("unused")
 @JsFun(
     """
@@ -152,6 +156,8 @@ private external fun joltCreateBody(
     isStatic: Boolean,
 ): Int
 
+// Called from JoltPhysicsWorld.destroyBody()/destroy() below; detekt's unused-check
+// can't trace calls through an external @JsFun-bound declaration.
 @Suppress("unused")
 @JsFun(
     """
@@ -164,6 +170,8 @@ private external fun joltCreateBody(
 )
 private external fun joltDestroyBody(world: JsAny, idNum: Int)
 
+// Called from JoltPhysicsWorld.step() below; detekt's unused-check can't trace calls
+// through an external @JsFun-bound declaration.
 @Suppress("unused")
 @JsFun("(world, deltaTime, collisionSteps) => { world.joltInterface.Step(deltaTime, collisionSteps); }")
 private external fun joltStep(world: JsAny, deltaTime: Double, collisionSteps: Int)
@@ -171,6 +179,8 @@ private external fun joltStep(world: JsAny, deltaTime: Double, collisionSteps: I
 /** Returns a plain JS array `[px, py, pz, qw, qx, qy, qz]` -- see [jsArrayGet] for why a raw
  * JS array (rather than 7 separate calls, or a Kotlin-typed return) is the simplest thing
  * that can cross this boundary (no `dynamic`, see [JoltModule]'s doc comment). */
+// Called from JoltPhysicsWorld.syncTransforms() below; detekt's unused-check can't
+// trace calls through an external @JsFun-bound declaration.
 @Suppress("unused")
 @JsFun(
     """
@@ -193,6 +203,8 @@ private external fun joltGetBodyTransform(world: JsAny, idNum: Int): JsAny
  * class (`new jolt.BroadPhaseLayerFilter()` etc.) -- the exact JS-side equivalent of the
  * desktop/iOS backends passing `null` broadphase/object-layer/body/shape filters into their
  * own raycast call. */
+// Called from JoltPhysicsWorld.raycast() below; detekt's unused-check can't trace
+// calls through an external @JsFun-bound declaration.
 @Suppress("unused")
 @JsFun(
     """
@@ -224,10 +236,14 @@ private external fun joltRaycast(
     directionZ: Double,
 ): JsAny?
 
+// Called from syncTransforms()/raycast() below; detekt's unused-check can't trace
+// calls through an external @JsFun-bound declaration.
 @Suppress("unused")
 @JsFun("(arr, index) => arr[index]")
 private external fun jsArrayGet(arr: JsAny, index: Int): Double
 
+// Called from JoltPhysicsWorld.destroy() below; detekt's unused-check can't trace
+// calls through an external @JsFun-bound declaration.
 @Suppress("unused")
 @JsFun("(world) => { world.jolt.destroy(world.joltInterface); }")
 private external fun joltDestroyWorld(world: JsAny)

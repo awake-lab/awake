@@ -10,6 +10,9 @@ package io.github.ronjunevaldoz.awake.ui
 class WidgetState {
     private val values = HashMap<String, Any?>()
 
+    // Callers are expected to use a stable, unique key per value type (same contract as any
+    // typed key-value store); getOrPut only ever inserts `default: T` on a miss, so an
+    // existing entry under `key` was itself put there as a T by an earlier call.
     @Suppress("UNCHECKED_CAST")
     fun <T> get(key: String, default: T): T = values.getOrPut(key) { default } as T
 
