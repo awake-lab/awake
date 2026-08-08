@@ -524,8 +524,11 @@ private fun resolveFillGroups(contours: List<UiPathContour>, fillRule: UiFillRul
     val closed = ArrayList<UiPathContour>()
     val simple = ArrayList<UiFillGroup>()
     contours.forEach { contour ->
-        if (contour.closed && contour.points.size >= 3) closed += contour
-        else if (contour.points.size >= 3) simple += UiFillGroup(contour.points, emptyList())
+        if (contour.closed && contour.points.size >= 3) {
+            closed += contour
+        } else if (contour.points.size >= 3) {
+            simple += UiFillGroup(contour.points, emptyList())
+        }
     }
     if (closed.size <= 1) {
         closed.forEach { simple += UiFillGroup(it.points, emptyList()) }

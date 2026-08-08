@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.core.math
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class FrustumTest {
 
@@ -115,8 +116,8 @@ class FrustumTest {
     }
 
     private fun assertVec3Equals(expected: Vec3, actual: Vec3, epsilon: Float = 1e-4f) {
-        assert(kotlin.math.abs(expected.x - actual.x) < epsilon) { "x: expected ${expected.x}, got ${actual.x}" }
-        assert(kotlin.math.abs(expected.y - actual.y) < epsilon) { "y: expected ${expected.y}, got ${actual.y}" }
-        assert(kotlin.math.abs(expected.z - actual.z) < epsilon) { "z: expected ${expected.z}, got ${actual.z}" }
+        assertTrue(kotlin.math.abs(expected.x - actual.x) < epsilon, "x: expected ${expected.x}, got ${actual.x}")
+        assertTrue(kotlin.math.abs(expected.y - actual.y) < epsilon, "y: expected ${expected.y}, got ${actual.y}")
+        assertTrue(kotlin.math.abs(expected.z - actual.z) < epsilon, "z: expected ${expected.z}, got ${actual.z}")
     }
 }

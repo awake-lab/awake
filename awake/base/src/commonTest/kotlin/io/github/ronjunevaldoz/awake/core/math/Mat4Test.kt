@@ -258,11 +258,10 @@ class Mat4Test {
         assertMat4(quatY, Mat4().rotateY(-angle))
     }
 
-    @Ignore(
-        "DEFECT: Mat4.rotateX/rotateY/rotate build the transpose of the standard rotation " +
-            "(they rotate by -angle), while Mat4.rotateZ and Quat.toMat4 build the standard one. " +
-            "Un-@Ignore once matrix.kt is made self-consistent.",
-    )
+    // DEFECT: Mat4.rotateX/rotateY/rotate build the transpose of the standard rotation (they
+    // rotate by -angle), while Mat4.rotateZ and Quat.toMat4 build the standard one. Un-@Ignore
+    // once matrix.kt is made self-consistent.
+    @Ignore
     @Test
     fun rotateXAndRotateYShouldMatchTheEquivalentQuaternion() {
         val angle = 0.7f
@@ -281,10 +280,9 @@ class Mat4Test {
         assertVec4(Vec4(0f, 1f, 0f, 1f), viaRotateZ)
     }
 
-    @Ignore(
-        "DEFECT: rotate(angle, Vec3(0, 0, 1)) and rotateZ(angle) rotate in opposite directions -- " +
-            "rotate() is transposed. Un-@Ignore once matrix.kt is made self-consistent.",
-    )
+    // DEFECT: rotate(angle, Vec3(0, 0, 1)) and rotateZ(angle) rotate in opposite directions --
+    // rotate() is transposed. Un-@Ignore once matrix.kt is made self-consistent.
+    @Ignore
     @Test
     fun rotateAboutAnAxisShouldMatchTheDedicatedPerAxisHelper() {
         assertMat4(Mat4().rotateX(0.7f), Mat4().rotate(0.7f, Vec3(1f, 0f, 0f)))
@@ -302,11 +300,10 @@ class Mat4Test {
         assertTrue(sum.data.all { it == 2f }, "expected every entry to be the buggy 2f, got ${sum.data.toList()}")
     }
 
-    @Ignore(
-        "DEFECT: Mat4.plus (matrix.kt:441) is a matrix-*multiply* loop with '+' substituted for " +
-            "'*' -- it sums a[i,k] + b[k,j] over k instead of adding matching entries. Dead code " +
-            "today (no callers). Un-@Ignore once it is fixed or deleted.",
-    )
+    // DEFECT: Mat4.plus (matrix.kt:441) is a matrix-*multiply* loop with '+' substituted for
+    // '*' -- it sums a[i,k] + b[k,j] over k instead of adding matching entries. Dead code today
+    // (no callers). Un-@Ignore once it is fixed or deleted.
+    @Ignore
     @Test
     fun plusShouldAddMatchingEntries() {
         val sum = Mat4().translate(1f, 2f, 3f) + Mat4().translate(10f, 20f, 30f)

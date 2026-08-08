@@ -74,14 +74,13 @@ class Mat4LookAtTest {
         assertVec4(Vec4(0f, 0f, -eye.length3(), 1f), view.applyToColumnVector(0f, 0f, 0f))
     }
 
-    @Ignore(
-        "DEFECT: Mat4.setLookAt writes the side/up/-forward basis into the matrix's columns " +
-            "while writing the translation in row form, so the rotation block is transposed " +
-            "(inverted). The camera only lands on the view-space origin when its basis happens " +
-            "to be the identity -- i.e. eye on +Z looking down -Z, the one case every existing " +
-            "test uses. Fix: swap the nine rotation assignments to m00/m01/m02 = s, " +
-            "m10/m11/m12 = u, m20/m21/m22 = -f. Un-@Ignore once matrix.kt is fixed.",
-    )
+    // DEFECT: Mat4.setLookAt writes the side/up/-forward basis into the matrix's columns while
+    // writing the translation in row form, so the rotation block is transposed (inverted). The
+    // camera only lands on the view-space origin when its basis happens to be the identity --
+    // i.e. eye on +Z looking down -Z, the one case every existing test uses. Fix: swap the nine
+    // rotation assignments to m00/m01/m02 = s, m10/m11/m12 = u, m20/m21/m22 = -f. Un-@Ignore
+    // once matrix.kt is fixed.
+    @Ignore
     @Test
     fun viewMatrixShouldMapTheCameraPositionToTheOrigin() {
         for (eye in listOf(Vec3(5f, 0f, 0f), Vec3(3f, 4f, 5f), Vec3(-2f, 7f, -1.5f))) {

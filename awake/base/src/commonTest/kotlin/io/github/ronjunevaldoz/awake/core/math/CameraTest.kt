@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.core.math
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class CameraTest {
 
@@ -68,7 +69,7 @@ class CameraTest {
         val narrow = camera.viewProjectionMatrix(aspect = 1f, clipSpace = ClipSpace.Vulkan)
 
         // m00 = scaleY / aspect -- a smaller aspect ratio must produce a larger m00.
-        assert(narrow.m00 > wide.m00) { "expected narrow.m00 (${narrow.m00}) > wide.m00 (${wide.m00})" }
+        assertTrue(narrow.m00 > wide.m00, "expected narrow.m00 (${narrow.m00}) > wide.m00 (${wide.m00})")
     }
 
     /** The flip asserted where it is actually observable: a point above the centre of the frame

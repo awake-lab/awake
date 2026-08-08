@@ -25,6 +25,7 @@ interface UiFont {
     val atlasWidth: Int
     val atlasHeight: Int
     val atlasPixelsRgba: ByteArray
+
     /** Ascent + descent as a multiple of the em size. 1.0 for fonts whose glyphs never exceed
      * their em box; the packed Roboto atlas reports ~1.19. */
     val lineHeightEm: Float get() = 1f

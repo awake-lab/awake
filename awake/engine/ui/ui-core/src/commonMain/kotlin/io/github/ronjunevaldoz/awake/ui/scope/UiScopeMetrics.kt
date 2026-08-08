@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.scope
 
+import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
@@ -19,8 +21,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.roundToInt
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.Dp
 
 fun pixelPerfectTextScale(requestedScale: Float, step: Float = 0.25f): Float {
     val safeStep = step.takeIf { it.isFinite() && it > 0f } ?: 0.25f
@@ -122,7 +122,6 @@ private fun UiScope.crossAxisAlignmentContainer(containerSlot: UiBounds): UiBoun
     is ColumnScope -> containerSlot.copy(width = width.coerceAtLeast(containerSlot.width))
     else -> containerSlot
 }
-
 
 /** Applies whichever of [min]/[max] were supplied. A max below min loses to min, matching
  * Compose, where the minimum constraint wins. */

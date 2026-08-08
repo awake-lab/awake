@@ -61,13 +61,11 @@ class GeometryTest {
         assertEquals(1.7320508f, boundingRadius(positions), TOLERANCE) // sqrt(3)
     }
 
-    @Ignore(
-        "DEFECT: boundingRadius (Geometry.kt:15) loops `while (i < positions.size)` and reads " +
-            "positions[i + 1] / positions[i + 2], so a ragged array (length not a multiple of 3, " +
-            "e.g. a truncated glTF accessor) reads past the end. boundingCenter guards the same " +
-            "case correctly with `while (i + 2 < positions.size)`. Un-@Ignore once the two guards " +
-            "agree.",
-    )
+    // DEFECT: boundingRadius (Geometry.kt:15) loops `while (i < positions.size)` and reads
+    // positions[i + 1] / positions[i + 2], so a ragged array (length not a multiple of 3, e.g.
+    // a truncated glTF accessor) reads past the end. boundingCenter guards the same case
+    // correctly with `while (i + 2 < positions.size)`. Un-@Ignore once the two guards agree.
+    @Ignore
     @Test
     fun radiusIgnoresATrailingPartialVertexTheWayBoundingCenterDoes() {
         val ragged = floatArrayOf(3f, 4f, 0f, 99f)

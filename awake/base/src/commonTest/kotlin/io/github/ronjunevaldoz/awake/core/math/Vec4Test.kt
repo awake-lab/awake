@@ -110,12 +110,11 @@ class Vec4Test {
         assertVec4(Vec4(2f, 0f, 0f, 11f), p * (translate * scale))
     }
 
-    @Ignore(
-        "DEFECT: Vec4.times(Mat4)/Mat4.transformPosition compute M^T * v while Mat4.times " +
-            "composes matrices for the M * v convention the shaders use, so (p * A) * B != " +
-            "p * (A * B). Any CPU-side projection through a composed MVP is wrong today. " +
-            "Un-@Ignore once vector.kt/matrix.kt agree on one convention.",
-    )
+    // DEFECT: Vec4.times(Mat4)/Mat4.transformPosition compute M^T * v while Mat4.times composes
+    // matrices for the M * v convention the shaders use, so (p * A) * B != p * (A * B). Any
+    // CPU-side projection through a composed MVP is wrong today. Un-@Ignore once
+    // vector.kt/matrix.kt agree on one convention.
+    @Ignore
     @Test
     fun timesMat4ShouldAssociateWithMat4Times() {
         val translate = Mat4().translate(5f, 0f, 0f)

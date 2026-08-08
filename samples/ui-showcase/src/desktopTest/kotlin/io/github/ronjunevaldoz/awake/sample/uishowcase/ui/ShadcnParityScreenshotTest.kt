@@ -53,7 +53,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
@@ -161,50 +160,50 @@ private fun parityFrame(
 
 /** Shared body for the light and dark button-variant parity previews. */
 private fun drawParityButtonVariants(ui: UiContext, metadata: AwakeUiPreviewMetadata) {
-        ui.createColumn(
-            x = 0f,
-            y = 1f,
-            width = 560f,
-            height = metadata.height.toFloat() - 1f,
-            verticalArrangement = Arrangement.spacedBy(10f.dp),
-        ).row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
-            shadcnButton(
-                "parity-default",
-                "Default",
-                modifier = Modifier.width(90f.px).height(40f.px),
-                variant = ShadcnButtonVariant.Primary,
-            )
-            shadcnButton(
-                "parity-secondary",
-                "Secondary",
-                modifier = Modifier.width(100f.px).height(40f.px),
-                variant = ShadcnButtonVariant.Secondary,
-            )
-            shadcnButton(
-                "parity-outline",
-                "Outline",
-                modifier = Modifier.width(90f.px).height(40f.px),
-                variant = ShadcnButtonVariant.Outline,
-            )
-            shadcnButton(
-                "parity-ghost",
-                "Ghost",
-                modifier = Modifier.width(80f.px).height(40f.px),
-                variant = ShadcnButtonVariant.Ghost,
-            )
-            shadcnButton(
-                "parity-destructive",
-                "Destructive",
-                modifier = Modifier.width(110f.px).height(40f.px),
-                variant = ShadcnButtonVariant.Danger,
-            )
-            shadcnButton(
-                "parity-link",
-                "Link",
-                modifier = Modifier.width(60f.px).height(40f.px),
-                variant = ShadcnButtonVariant.Link,
-            )
-        }
+    ui.createColumn(
+        x = 0f,
+        y = 1f,
+        width = 560f,
+        height = metadata.height.toFloat() - 1f,
+        verticalArrangement = Arrangement.spacedBy(10f.dp),
+    ).row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
+        shadcnButton(
+            "parity-default",
+            "Default",
+            modifier = Modifier.width(90f.px).height(40f.px),
+            variant = ShadcnButtonVariant.Primary,
+        )
+        shadcnButton(
+            "parity-secondary",
+            "Secondary",
+            modifier = Modifier.width(100f.px).height(40f.px),
+            variant = ShadcnButtonVariant.Secondary,
+        )
+        shadcnButton(
+            "parity-outline",
+            "Outline",
+            modifier = Modifier.width(90f.px).height(40f.px),
+            variant = ShadcnButtonVariant.Outline,
+        )
+        shadcnButton(
+            "parity-ghost",
+            "Ghost",
+            modifier = Modifier.width(80f.px).height(40f.px),
+            variant = ShadcnButtonVariant.Ghost,
+        )
+        shadcnButton(
+            "parity-destructive",
+            "Destructive",
+            modifier = Modifier.width(110f.px).height(40f.px),
+            variant = ShadcnButtonVariant.Danger,
+        )
+        shadcnButton(
+            "parity-link",
+            "Link",
+            modifier = Modifier.width(60f.px).height(40f.px),
+            variant = ShadcnButtonVariant.Link,
+        )
+    }
 }
 
 @AwakeUiPreview(
