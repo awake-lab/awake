@@ -83,14 +83,30 @@ def compose(tiles: list[Path], out: Path, direction: str = "row", gap: int = 16,
 
 def goto(page, slug: str) -> None:
     page.goto(f"{BASE_URL}/docs/components/{slug}", wait_until="networkidle", timeout=30_000)
-    # Force light theme regardless of the site's own dark-mode detection (system pref / stored
-    # localStorage choice) -- every existing shadcn-previews/*.png is a "_light" capture.
-    page.evaluate(
-        "document.documentElement.classList.remove('dark');"
-        "document.documentElement.style.colorScheme = 'light';"
-    )
+    # Pin the theme for this pass rather than inheriting the site's own dark-mode detection
+    # (system preference or a stored localStorage choice), which would make captures depend on
+    # the machine that ran them.
+    if THEME == "dark":
+        page.evaluate(
+            "document.documentElement.classList.add('dark');"
+            "document.documentElement.style.colorScheme = 'dark';"
+        )
+    else:
+        page.evaluate(
+            "document.documentElement.classList.remove('dark');"
+            "document.documentElement.style.colorScheme = 'light';"
+        )
     page.add_style_tag(content=DISABLE_MOTION_CSS)
     page.wait_for_timeout(250)  # let the reflow from the style/theme change above settle
+
+
+# Which theme the current pass is capturing. Set once per pass by main(); the capture
+# functions read it through out_png() so a component never hardcodes a suffix again.
+THEME = "light"
+
+
+def out_png(out_dir: Path, stem: str) -> Path:
+    return out_dir / f"{stem}_{THEME}.png"
 
 
 def previews(page):
@@ -141,7 +157,7 @@ def capture_button(page, out_dir: Path, tmp_dir: Path) -> Path:
         tile = tmp_dir / f"button_{name}.png"
         shoot(btn, tile)
         tiles.append(tile)
-    out = out_dir / "button_variants_light.png"
+    out = out_png(out_dir, "button_variants")
     compose(tiles, out, direction="row", gap=14, pad=24)
     return out
 
@@ -151,7 +167,7 @@ def capture_badge(page, out_dir: Path, tmp_dir: Path) -> Path:
     # The hero demo already shows all 4 variants (Default/Secondary/Destructive/Outline)
     # together in one row -- grab their shared parent for a single real capture, no compositing.
     row = previews(page).nth(0).locator('span[data-slot="badge"]').first.locator("xpath=..")
-    out = out_dir / "badge_variants_light.png"
+    out = out_png(out_dir, "badge_variants")
     tile = tmp_dir / "badge_row.png"
     shoot(row, tile)
     compose([tile], out, pad=20)
@@ -167,7 +183,7 @@ def capture_checkbox(page, out_dir: Path, tmp_dir: Path) -> Path:
     page.wait_for_timeout(100)
     checked = tmp_dir / "checkbox_checked.png"
     shoot(cb, checked)
-    out = out_dir / "checkbox_states_light.png"
+    out = out_png(out_dir, "checkbox_states")
     compose([unchecked, checked], out, direction="row", gap=16, pad=20)
     return out
 
@@ -181,7 +197,7 @@ def capture_switch(page, out_dir: Path, tmp_dir: Path) -> Path:
     page.wait_for_timeout(100)
     on = tmp_dir / "switch_on.png"
     shoot(sw, on)
-    out = out_dir / "switch_states_light.png"
+    out = out_png(out_dir, "switch_states")
     compose([off, on], out, direction="row", gap=16, pad=20)
     return out
 
@@ -197,7 +213,7 @@ def capture_input(page, out_dir: Path, tmp_dir: Path) -> Path:
     page.wait_for_timeout(100)
     focused = tmp_dir / "input_focus.png"
     shoot(inp, focused)
-    out = out_dir / "text-field_states_light.png"
+    out = out_png(out_dir, "text-field_states")
     compose([default, focused], out, direction="column", gap=16, pad=20)
     return out
 
@@ -205,7 +221,7 @@ def capture_input(page, out_dir: Path, tmp_dir: Path) -> Path:
 def capture_select(page, out_dir: Path, tmp_dir: Path) -> Path:
     goto(page, "select")
     trigger = previews(page).nth(0).locator('[data-slot="select-trigger"]').first
-    out = out_dir / "select_closed_light.png"
+    out = out_png(out_dir, "select_closed")
     tile = tmp_dir / "select_closed.png"
     shoot(trigger, tile)
     compose([tile], out, pad=20)
@@ -215,7 +231,7 @@ def capture_select(page, out_dir: Path, tmp_dir: Path) -> Path:
 def capture_tabs(page, out_dir: Path, tmp_dir: Path) -> Path:
     goto(page, "tabs")
     tabs_list = previews(page).nth(0).locator('[data-slot="tabs-list"]').first
-    out = out_dir / "tabs_states_light.png"
+    out = out_png(out_dir, "tabs_states")
     tile = tmp_dir / "tabs_list.png"
     shoot(tabs_list, tile)
     compose([tile], out, pad=20)
@@ -225,7 +241,7 @@ def capture_tabs(page, out_dir: Path, tmp_dir: Path) -> Path:
 def capture_card(page, out_dir: Path, tmp_dir: Path) -> Path:
     goto(page, "card")
     card = previews(page).nth(0).locator('[data-slot="card"]').first
-    out = out_dir / "card_states_light.png"
+    out = out_png(out_dir, "card_states")
     tile = tmp_dir / "card.png"
     shoot(card, tile)
     compose([tile], out, pad=24)
@@ -235,7 +251,7 @@ def capture_card(page, out_dir: Path, tmp_dir: Path) -> Path:
 def capture_slider(page, out_dir: Path, tmp_dir: Path) -> Path:
     goto(page, "slider")
     slider = previews(page).nth(0).locator('[data-slot="slider"]').first
-    out = out_dir / "slider_states_light.png"
+    out = out_png(out_dir, "slider_states")
     tile = tmp_dir / "slider.png"
     shoot(slider, tile)
     compose([tile], out, pad=24)
@@ -256,7 +272,7 @@ def capture_tooltip(page, out_dir: Path, tmp_dir: Path) -> Path:
     y0 = min(tb["y"], pb["y"]) - pad
     x1 = max(tb["x"] + tb["width"], pb["x"] + pb["width"]) + pad
     y1 = max(tb["y"] + tb["height"], pb["y"] + pb["height"]) + pad
-    out = out_dir / "tooltip_trigger_light.png"
+    out = out_png(out_dir, "tooltip_trigger")
     out.parent.mkdir(parents=True, exist_ok=True)
     page.screenshot(path=str(out), clip={"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0})
     return out
@@ -272,7 +288,7 @@ def capture_dialog(page, out_dir: Path, tmp_dir: Path) -> Path:
     # Full-viewport shot (backdrop + centered panel) -- matches the existing
     # dialog_states_light.png convention; compare_parity.py's border-trim step aligns this
     # against Awake's tighter dialog preview.
-    out = out_dir / "dialog_states_light.png"
+    out = out_png(out_dir, "dialog_states")
     out.parent.mkdir(parents=True, exist_ok=True)
     page.screenshot(path=str(out))
     return out
@@ -298,6 +314,10 @@ def main() -> int:
     parser.add_argument("--only", help="comma-separated subset of: " + ",".join(CAPTURES))
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
     parser.add_argument("--headed", action="store_true")
+    parser.add_argument(
+        "--theme", default="light", choices=["light", "dark", "both"],
+        help="which theme(s) to capture; 'both' runs a light pass then a dark pass",
+    )
     args = parser.parse_args()
 
     try:
@@ -334,26 +354,29 @@ def main() -> int:
             # Isolating state per capture is the standard fix for this class of flake, not a
             # longer settle wait -- 11 short-lived contexts is cheap next to debugging Chromium
             # internals further.
-            for name in names:
-                context = browser.new_context(
-                    viewport=VIEWPORT,
-                    device_scale_factor=1,
-                    color_scheme="light",
-                    reduced_motion="reduce",
-                )
-                context.add_init_script("try { localStorage.setItem('theme', 'light'); } catch (e) {}")
-                page = context.new_page()
-                try:
-                    out = CAPTURES[name](page, args.out_dir, tmp_dir)
-                    from PIL import Image
+            themes = ["light", "dark"] if args.theme == "both" else [args.theme]
+            for theme in themes:
+                globals()["THEME"] = theme
+                for name in names:
+                    context = browser.new_context(
+                        viewport=VIEWPORT,
+                        device_scale_factor=1,
+                        color_scheme=THEME,
+                        reduced_motion="reduce",
+                    )
+                    context.add_init_script(f"try {{ localStorage.setItem('theme', '{THEME}'); }} catch (e) {{}}")
+                    page = context.new_page()
+                    try:
+                        out = CAPTURES[name](page, args.out_dir, tmp_dir)
+                        from PIL import Image
 
-                    with Image.open(out) as img:
-                        w, h = img.size
-                    results.append((name, f"OK  {out.relative_to(REPO_ROOT) if out.is_relative_to(REPO_ROOT) else out} ({w}x{h})"))
-                except Exception as exc:  # noqa: BLE001 - keep capturing the rest, report per-item
-                    results.append((name, f"FAIL {exc}"))
-                finally:
-                    context.close()
+                        with Image.open(out) as img:
+                            w, h = img.size
+                        results.append((f"{name} [{theme}]", f"OK  {out.relative_to(REPO_ROOT) if out.is_relative_to(REPO_ROOT) else out} ({w}x{h})"))
+                    except Exception as exc:  # noqa: BLE001 - keep capturing the rest, report per-item
+                        results.append((f"{name} [{theme}]", f"FAIL {exc}"))
+                    finally:
+                        context.close()
 
             browser.close()
 
