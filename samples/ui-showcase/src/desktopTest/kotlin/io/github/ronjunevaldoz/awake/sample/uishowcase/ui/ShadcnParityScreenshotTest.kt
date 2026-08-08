@@ -52,6 +52,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSpi
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
@@ -168,42 +169,44 @@ private fun drawParityButtonVariants(ui: UiContext, metadata: AwakeUiPreviewMeta
         verticalArrangement = Arrangement.spacedBy(10f.dp),
     ).row(
         horizontalArrangement = Arrangement.spacedBy(10f.dp),
-        modifier = Modifier.height(40f.dp.toDimension()),
+        // No height override: the whole point of this capture is to measure the button's
+        // own size against the reference, and pinning it here made that impossible.
+        modifier = Modifier.height(ShadcnButtonSize.Md.heightDp.dp.toDimension()),
     ) {
         shadcnButton(
             "parity-default",
             "Default",
-            modifier = Modifier.width(90f.px).height(40f.px),
+            modifier = Modifier.width(90f.px),
             variant = ShadcnButtonVariant.Primary,
         )
         shadcnButton(
             "parity-secondary",
             "Secondary",
-            modifier = Modifier.width(100f.px).height(40f.px),
+            modifier = Modifier.width(100f.px),
             variant = ShadcnButtonVariant.Secondary,
         )
         shadcnButton(
             "parity-outline",
             "Outline",
-            modifier = Modifier.width(90f.px).height(40f.px),
+            modifier = Modifier.width(90f.px),
             variant = ShadcnButtonVariant.Outline,
         )
         shadcnButton(
             "parity-ghost",
             "Ghost",
-            modifier = Modifier.width(80f.px).height(40f.px),
+            modifier = Modifier.width(80f.px),
             variant = ShadcnButtonVariant.Ghost,
         )
         shadcnButton(
             "parity-destructive",
             "Destructive",
-            modifier = Modifier.width(110f.px).height(40f.px),
+            modifier = Modifier.width(110f.px),
             variant = ShadcnButtonVariant.Danger,
         )
         shadcnButton(
             "parity-link",
             "Link",
-            modifier = Modifier.width(60f.px).height(40f.px),
+            modifier = Modifier.width(60f.px),
             variant = ShadcnButtonVariant.Link,
         )
     }
@@ -221,7 +224,7 @@ private fun drawParityButtonVariants(ui: UiContext, metadata: AwakeUiPreviewMeta
         "labels ('Default', 'Destructive') is already present in the previous 661x132 golden with 44px of surrounding " +
         "margin, so it's a font-rasterization characteristic at this size, not frame-edge clipping introduced here.",
     width = 560,
-    height = 42,
+    height = 38,
 )
 internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
@@ -236,7 +239,7 @@ internal object AwakeButtonVariantsLightPreview : AwakeUiPreviewEntry {
         "drawParityButtonVariants so the two cannot drift apart. Pairs against the local " +
         "reference app's button-variants case rather than a scraped docs page.",
     width = 560,
-    height = 42,
+    height = 38,
 )
 internal object AwakeButtonVariantsDarkPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
