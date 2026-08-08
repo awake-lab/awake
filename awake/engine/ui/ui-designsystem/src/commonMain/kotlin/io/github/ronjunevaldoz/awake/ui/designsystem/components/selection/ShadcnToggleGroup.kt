@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.selection
 
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.dp
@@ -67,7 +66,8 @@ private inline fun UiScope.shadcnToggleGroupContainer(
     modifier: UiModifier,
     crossinline body: UiScope.(itemStyle: Style) -> Unit,
 ) {
-    val colors = theme.asShadcnTheme().colors
+    val shadcnResolvedTheme = theme.asShadcnTheme()
+    val colors = shadcnResolvedTheme.colors
     shadcnSurface(
         id = "$id.container",
         modifier = modifier,
@@ -77,7 +77,9 @@ private inline fun UiScope.shadcnToggleGroupContainer(
             contentPadding(0f.dp)
             borderWidth(1f.dp)
             borderColor(colors.border)
-            shape(UiShape.md)
+            // Real shadcn's ToggleGroup container is rounded-md, drawn from the active theme's
+            // own radius scale rather than ui-core's disconnected `UiShape` global.
+            shape(shadcnResolvedTheme.radii.md)
         },
     ) {
         body(

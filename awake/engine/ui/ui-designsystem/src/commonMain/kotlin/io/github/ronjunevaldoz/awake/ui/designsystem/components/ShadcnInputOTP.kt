@@ -51,7 +51,8 @@ fun UiScope.shadcnInputOTP(
 ): String {
     var resultValue = value
     val focused = enabled && isFocused(id)
-    val palette = theme.asShadcnTheme().palette
+    val shadcnResolvedTheme = theme.asShadcnTheme()
+    val palette = shadcnResolvedTheme.palette
 
     box(modifier = modifier.height(40f.dp)) {
         // 1. Visual slot row drawn FIRST (z-order 0). Each slot:
@@ -90,7 +91,9 @@ fun UiScope.shadcnInputOTP(
                     style = Style {
                         background(palette.card)
                         border(if (isActiveSlot || isError) 1.5f.dp else 1f.dp, slotBorderColor)
-                        shape(6f.dp)
+                        // Real shadcn's InputOTP slot corners are rounded-md, drawn from the
+                        // active theme's radius scale instead of a bare literal.
+                        shape(shadcnResolvedTheme.radii.md)
                         // Zero content padding so the slot slot-lambda receives the full 36×40 area
                         contentPadding(0f.dp)
                     },

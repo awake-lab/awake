@@ -72,17 +72,28 @@ class ShadcnDesignSystemTest {
 
     @Test
     fun shadcnThemeDerivesRadiusScaleFromSingleBaseRadius() {
-        assertTrue(abs(ShadcnTheme.radii.xs.value - 2.4f) <= 0.0001f)
-        assertTrue(abs(ShadcnTheme.radii.sm.value - 3.6f) <= 0.0001f)
-        assertTrue(abs(ShadcnTheme.radii.md.value - 4.8f) <= 0.0001f)
-        assertTrue(abs(ShadcnTheme.radii.lg.value - 6f) <= 0.0001f)
-        assertTrue(abs(ShadcnTheme.radii.xl.value - 8.4f) <= 0.0001f)
+        // Additive scale (shadcn's own convention, --radius: 0.625rem = 10dp for Vega): sm/md
+        // are offset DOWN from base by 4dp/2dp, lg IS base, xl is offset UP by 4dp; xs extends
+        // the same 2dp step one further below sm. See ShadcnRadiusScale.fromBase.
+        assertTrue(abs(ShadcnTheme.radii.xs.value - 4f) <= 0.0001f)
+        assertTrue(abs(ShadcnTheme.radii.sm.value - 6f) <= 0.0001f)
+        assertTrue(abs(ShadcnTheme.radii.md.value - 8f) <= 0.0001f)
+        assertTrue(abs(ShadcnTheme.radii.lg.value - 10f) <= 0.0001f)
+        assertTrue(abs(ShadcnTheme.radii.xl.value - 14f) <= 0.0001f)
     }
 
     @Test
     fun shadcnThemeKeepsInteractiveRolesDistinct() {
-        assertTrue(ShadcnTheme.colors.secondary != ShadcnTheme.colors.muted)
-        assertTrue(ShadcnTheme.colors.accent != ShadcnTheme.colors.secondary)
+        // Real shadcn's own neutral dark theme gives secondary/muted/accent the IDENTICAL
+        // oklch(0.269 0 0) (verified against the pinned reference -- see
+        // ShadcnReferenceTokenExpandedTest) -- Awake's per-role chroma multipliers
+        // (secondary/muted/accent = chroma * 0.55/0.35/0.5) only differentiate them for a base
+        // color with real chroma, not Neutral's 0. Distinctness is a per-role-multiplier design
+        // choice for chromatic themes, not a shadcn spec guarantee for every base color, so this
+        // asserts it against a chromatic base color instead of the Neutral default.
+        val theme = shadcnTheme(baseColor = ShadcnBaseColor.Zinc)
+        assertTrue(theme.colors.secondary != theme.colors.muted)
+        assertTrue(theme.colors.accent != theme.colors.secondary)
         assertTrue(ShadcnTheme.sidebarAccent != ShadcnTheme.sidebar)
     }
 
@@ -98,7 +109,7 @@ class ShadcnDesignSystemTest {
         assertEquals(ShadcnStylePreset.Vega, theme.config.preset)
         assertEquals(ShadcnBaseColor.Neutral, theme.config.baseColor)
         assertEquals(ShadcnAccent.Base, theme.config.accent)
-        assertTrue(abs(theme.radii.lg.value - 6f) <= 0.0001f)
+        assertTrue(abs(theme.radii.lg.value - 10f) <= 0.0001f)
         assertColorClose(hex(0x09090b), theme.colors.background)
         assertTrue(theme.colors.background != Color.White)
     }

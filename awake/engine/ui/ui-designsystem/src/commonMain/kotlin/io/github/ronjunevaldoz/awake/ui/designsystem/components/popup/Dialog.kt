@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.UiShape
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -83,7 +83,9 @@ fun UiScope.shadcnDialog(
             modifier = Modifier
                 .width(width)
                 .height(height)
-                .styleable(theme.components.surface then Style { shape(UiShape.md) } then properties.surfaceStyle),
+                // Real shadcn's dialog content is rounded-lg, drawn from the active theme's own
+                // radius scale rather than ui-core's disconnected `UiShape` global.
+                .styleable(theme.components.surface then Style { shape(theme.asShadcnTheme().radii.lg) } then properties.surfaceStyle),
             clipContent = true,
         ) { slot ->
             val boundsSlot = slot

@@ -7,9 +7,15 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnResolvedTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 internal val ShadcnTransparent = Color.Transparent
+
+// Real shadcn's Badge is text-xs regardless of the active preset's own `typography.caption`
+// role (Vega's caption is 11sp, tuned for other small-text spots) -- pinned to the literal
+// Tailwind value (0.75rem = 12dp) rather than reusing that shared token.
+private val ShadcnBadgeTextSize = 12f.sp
 
 object ShadcnStyles {
     fun button(variant: ShadcnButtonVariant): Style = button(ShadcnTheme, variant)
@@ -21,7 +27,7 @@ object ShadcnStyles {
         ShadcnButtonVariant.Primary -> Style {
             background(theme.palette.primary, tokenId = "primary")
             foreground(theme.palette.primaryForeground, tokenId = "primary-foreground")
-            shape(theme.radii.lg)
+            shape(theme.radii.md)
             textSize(theme.typography.label, tokenId = "label")
             hovered { background(theme.palette.primaryHover, tokenId = "primary-hover") }
             active { background(theme.palette.primaryPressed, tokenId = "primary-pressed") }
@@ -37,7 +43,7 @@ object ShadcnStyles {
             foreground(theme.colors.foreground, tokenId = "foreground")
             borderWidth(1f.dp)
             borderColor(theme.colors.border, tokenId = "border")
-            shape(theme.radii.lg)
+            shape(theme.radii.md)
             textSize(theme.typography.label, tokenId = "label")
             hovered {
                 background(theme.palette.secondary, tokenId = "secondary")
@@ -51,7 +57,7 @@ object ShadcnStyles {
         ShadcnButtonVariant.Ghost -> Style {
             background(ShadcnTransparent, tokenId = "transparent")
             foreground(theme.colors.foreground, tokenId = "foreground")
-            shape(theme.radii.lg)
+            shape(theme.radii.md)
             textSize(theme.typography.label, tokenId = "label")
             hovered {
                 background(theme.palette.accent, tokenId = "accent")
@@ -65,7 +71,7 @@ object ShadcnStyles {
         ShadcnButtonVariant.Danger -> Style {
             background(theme.palette.destructive, tokenId = "destructive")
             foreground(theme.palette.destructiveForeground, tokenId = "destructive-foreground")
-            shape(theme.radii.lg)
+            shape(theme.radii.md)
             textSize(theme.typography.label, tokenId = "label")
             hovered { background(theme.palette.destructiveHover, tokenId = "destructive-hover") }
             active { background(theme.palette.destructivePressed, tokenId = "destructive-pressed") }
@@ -97,13 +103,13 @@ object ShadcnStyles {
             background(theme.palette.primary, tokenId = "primary")
             foreground(theme.palette.primaryForeground, tokenId = "primary-foreground")
             shape(theme.radii.full)
-            textSize(theme.typography.caption, tokenId = "caption")
+            textSize(ShadcnBadgeTextSize, tokenId = "caption")
         }
         ShadcnBadgeVariant.Secondary -> Style {
             background(theme.palette.secondary, tokenId = "secondary")
             foreground(theme.palette.secondaryForeground, tokenId = "secondary-foreground")
             shape(theme.radii.full)
-            textSize(theme.typography.caption, tokenId = "caption")
+            textSize(ShadcnBadgeTextSize, tokenId = "caption")
         }
         ShadcnBadgeVariant.Outline -> Style {
             background(ShadcnTransparent, tokenId = "transparent")
@@ -111,13 +117,13 @@ object ShadcnStyles {
             shape(theme.radii.full)
             borderWidth(1f.dp)
             borderColor(theme.input, tokenId = "input")
-            textSize(theme.typography.caption, tokenId = "caption")
+            textSize(ShadcnBadgeTextSize, tokenId = "caption")
         }
         ShadcnBadgeVariant.Danger -> Style {
             background(theme.palette.destructive, tokenId = "destructive")
             foreground(theme.palette.destructiveForeground, tokenId = "destructive-foreground")
             shape(theme.radii.full)
-            textSize(theme.typography.caption, tokenId = "caption")
+            textSize(ShadcnBadgeTextSize, tokenId = "caption")
         }
         // Real shadcn has no "ghost" badge variant; Awake's addition should still read as a
         // pill at rest, so it takes the muted (not fully transparent) fill rather than
@@ -126,7 +132,7 @@ object ShadcnStyles {
             background(theme.palette.muted, tokenId = "muted")
             foreground(theme.palette.mutedForeground, tokenId = "muted-foreground")
             shape(theme.radii.full)
-            textSize(theme.typography.caption, tokenId = "caption")
+            textSize(ShadcnBadgeTextSize, tokenId = "caption")
         }
     }
 
@@ -158,8 +164,8 @@ object ShadcnStyles {
             foreground(theme.colors.foreground, tokenId = "foreground")
             borderWidth(1f.dp)
             borderColor(theme.input, tokenId = "input")
-            shape(theme.radii.lg)
-            contentPadding(theme.metrics.fieldPaddingX, theme.metrics.fieldPaddingY)
+            shape(theme.radii.md)
+            contentPadding(theme.metrics.fieldPaddingX, theme.metrics.inputPaddingY)
             textSize(theme.typography.label, tokenId = "label")
             hovered {
                 background(theme.card, tokenId = "card")
@@ -182,8 +188,8 @@ object ShadcnStyles {
             background(theme.palette.muted, tokenId = "muted")
             foreground(theme.colors.foreground, tokenId = "foreground")
             borderWidth(UiShape.none)
-            shape(theme.radii.lg)
-            contentPadding(theme.metrics.fieldPaddingX, theme.metrics.fieldPaddingY)
+            shape(theme.radii.md)
+            contentPadding(theme.metrics.fieldPaddingX, theme.metrics.inputPaddingY)
             textSize(theme.typography.label, tokenId = "label")
             hovered { background(theme.palette.secondary, tokenId = "secondary") }
         }
@@ -198,8 +204,8 @@ object ShadcnStyles {
             // once focused" affordance from this variant's own doc comment above.
             borderWidth(1f.dp)
             borderColor(ShadcnTransparent, tokenId = "transparent")
-            shape(theme.radii.lg)
-            contentPadding(theme.metrics.fieldPaddingX, theme.metrics.fieldPaddingY)
+            shape(theme.radii.md)
+            contentPadding(theme.metrics.fieldPaddingX, theme.metrics.inputPaddingY)
             textSize(theme.typography.label, tokenId = "label")
             focused {
                 borderColor(theme.ring, tokenId = "ring")

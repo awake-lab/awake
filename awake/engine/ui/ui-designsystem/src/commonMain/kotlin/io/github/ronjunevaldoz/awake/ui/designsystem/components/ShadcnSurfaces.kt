@@ -260,7 +260,10 @@ internal fun popoverStyle(theme: ShadcnResolvedTheme): Style = Style {
     borderWidth(1f.dp)
     borderColor(theme.colors.border)
     shape(theme.radii.xl)
-    contentPadding(theme.metrics.panelPadding)
+    // Real shadcn's PopoverContent is p-4 (16dp), a deliberately smaller inset than
+    // Card/Dialog's p-6 -- [ShadcnMetrics.surfacePadding] is popover's own field for exactly
+    // this reason, not a reuse of [panelPadding].
+    contentPadding(theme.metrics.surfacePadding)
 }
 
 /** Result of a [shadcnPopover] call: the resolved content slot (null while collapsed) and

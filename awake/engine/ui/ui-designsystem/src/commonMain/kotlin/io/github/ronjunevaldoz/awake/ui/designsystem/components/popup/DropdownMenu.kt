@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.childBox
+import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
@@ -84,8 +84,11 @@ fun UiScope.shadcnDropdownMenu(
                 .height(height)
                 .let { if (scrollState != null) it.verticalScroll(scrollState) else it }
                 .styleable(
+                    // Real shadcn's dropdown-menu-content is rounded-md, drawn from the active
+                    // theme's own radius scale (not ui-core's disconnected `UiShape` global) so
+                    // switching presets actually changes this popup's corners too.
                     theme.components.surface then style then Style {
-                        shape(UiShape.sm)
+                        shape(theme.asShadcnTheme().radii.md)
                     },
                 ),
             clipContent = true,

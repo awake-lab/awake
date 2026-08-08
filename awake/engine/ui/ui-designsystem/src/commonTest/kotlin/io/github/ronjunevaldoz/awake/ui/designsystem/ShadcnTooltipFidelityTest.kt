@@ -41,12 +41,13 @@ class ShadcnTooltipFidelityTest {
             )
             val frameOutput = ui.finishFrame()
 
+            // Real shadcn's TooltipContent is a solid inverted-color pill (`bg-foreground
+            // text-background`), not a card -- no border either.
             val validationConfig = AwakeUiPreviewValidationConfig(
                 tokenRules = listOf(
                     AwakeUiPreviewTokenRule(
                         nodeId = "tooltip-fidelity",
-                        expectedBackgroundToken = "card",
-                        expectedBorderToken = "border",
+                        expectedBackgroundToken = "foreground",
                     ),
                 ),
             )

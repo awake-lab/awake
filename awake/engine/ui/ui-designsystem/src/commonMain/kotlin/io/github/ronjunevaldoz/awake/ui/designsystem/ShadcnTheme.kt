@@ -28,52 +28,57 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
 object ShadcnTheme : ShadcnResolvedTheme by shadcnThemeData()
 
 enum class ShadcnStylePreset(val label: String, internal val baseRadius: Dp, internal val metrics: ShadcnMetrics, internal val ringAlphaMultiplier: Float) {
+    // Vega is the real-shadcn-mapped preset (new-york-v4, --radius: 0.625rem = 10dp, card/dialog
+    // p-6 = 24dp, popover p-4 = 16dp, badge px-2 py-0.5 = 8/2dp) -- every other preset below is
+    // an Awake-original density variant with no upstream shadcn equivalent, so their numbers are
+    // deliberately untouched by the wave-2a value-fix pass that brought Vega in line with the
+    // pinned reference.
     Vega(
         label = "Vega",
-        baseRadius = 6f.dp,
-        metrics = ShadcnMetrics(16f.dp, 20f.dp, 12f.dp, 8f.dp, 12f.dp, 5f.dp),
+        baseRadius = 10f.dp,
+        metrics = ShadcnMetrics(24f.dp, 16f.dp, 12f.dp, 8f.dp, 8f.dp, 2f.dp, 4f.dp),
         ringAlphaMultiplier = 1f,
     ),
     Nova(
         label = "Nova",
         baseRadius = 5f.dp,
-        metrics = ShadcnMetrics(14f.dp, 18f.dp, 10f.dp, 7f.dp, 10f.dp, 4f.dp),
+        metrics = ShadcnMetrics(14f.dp, 18f.dp, 10f.dp, 7f.dp, 10f.dp, 4f.dp, 3.5f.dp),
         ringAlphaMultiplier = 1f,
     ),
     Maia(
         label = "Maia",
         baseRadius = 10f.dp,
-        metrics = ShadcnMetrics(18f.dp, 22f.dp, 14f.dp, 9f.dp, 14f.dp, 6f.dp),
+        metrics = ShadcnMetrics(18f.dp, 22f.dp, 14f.dp, 9f.dp, 14f.dp, 6f.dp, 4.5f.dp),
         ringAlphaMultiplier = 1f,
     ),
     Lyra(
         label = "Lyra",
         baseRadius = 0f.dp,
-        metrics = ShadcnMetrics(15f.dp, 18f.dp, 11f.dp, 7f.dp, 11f.dp, 4f.dp),
+        metrics = ShadcnMetrics(15f.dp, 18f.dp, 11f.dp, 7f.dp, 11f.dp, 4f.dp, 3.5f.dp),
         ringAlphaMultiplier = 0.9f,
     ),
     Mira(
         label = "Mira",
         baseRadius = 4f.dp,
-        metrics = ShadcnMetrics(12f.dp, 15f.dp, 10f.dp, 6f.dp, 9f.dp, 4f.dp),
+        metrics = ShadcnMetrics(12f.dp, 15f.dp, 10f.dp, 6f.dp, 9f.dp, 4f.dp, 3f.dp),
         ringAlphaMultiplier = 0.85f,
     ),
     Luma(
         label = "Luma",
         baseRadius = 12f.dp,
-        metrics = ShadcnMetrics(18f.dp, 22f.dp, 14f.dp, 9f.dp, 14f.dp, 6f.dp),
+        metrics = ShadcnMetrics(18f.dp, 22f.dp, 14f.dp, 9f.dp, 14f.dp, 6f.dp, 4.5f.dp),
         ringAlphaMultiplier = 0.75f,
     ),
     Sera(
         label = "Sera",
         baseRadius = 7f.dp,
-        metrics = ShadcnMetrics(16f.dp, 20f.dp, 13f.dp, 8f.dp, 12f.dp, 5f.dp),
+        metrics = ShadcnMetrics(16f.dp, 20f.dp, 13f.dp, 8f.dp, 12f.dp, 5f.dp, 4f.dp),
         ringAlphaMultiplier = 0.85f,
     ),
     Rhea(
         label = "Rhea",
         baseRadius = 8f.dp,
-        metrics = ShadcnMetrics(14f.dp, 18f.dp, 11f.dp, 7f.dp, 10f.dp, 4f.dp),
+        metrics = ShadcnMetrics(14f.dp, 18f.dp, 11f.dp, 7f.dp, 10f.dp, 4f.dp, 3.5f.dp),
         ringAlphaMultiplier = 0.85f,
     ),
 }
@@ -179,7 +184,7 @@ private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : Sh
         override val button: Style = Style {
             background(palette.secondary, tokenId = "secondary")
             foreground(palette.secondaryForeground, tokenId = "secondary-foreground")
-            shape(radii.lg)
+            shape(radii.md)
             textSize(typography.label, tokenId = "label")
         }
         override val toggle: Style = button
@@ -209,7 +214,7 @@ private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : Sh
             foreground(palette.foreground, tokenId = "foreground")
             borderWidth(1f.dp)
             borderColor(palette.input, tokenId = "input")
-            shape(radii.lg)
+            shape(radii.md)
             contentPadding(metrics.fieldPaddingX, metrics.fieldPaddingY)
             textSize(typography.label, tokenId = "label")
         }
@@ -227,7 +232,7 @@ private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : Sh
             borderWidth(1f.dp)
             borderColor(palette.input, tokenId = "input")
             shape(radii.md)
-            contentPadding(metrics.fieldPaddingX, metrics.fieldPaddingY)
+            contentPadding(metrics.fieldPaddingX, metrics.inputPaddingY)
             textSize(typography.label, tokenId = "label")
             focused { borderColor(palette.ring, tokenId = "ring") }
             disabled {
@@ -259,9 +264,9 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
     val foreground = if (dark) oklch(0.985f, chroma * 0.02f, hue) else oklch(0.145f, chroma * 0.18f, hue)
     val secondary = if (dark) oklch(0.269f, chroma * 0.55f, hue) else oklch(0.97f, chroma * 0.16f, hue)
     val secondaryForeground = if (dark) foreground else oklch(0.205f, chroma * 0.2f, hue)
-    val muted = if (dark) oklch(0.235f, chroma * 0.35f, hue) else oklch(0.97f, chroma * 0.08f, hue)
+    val muted = if (dark) oklch(0.269f, chroma * 0.35f, hue) else oklch(0.97f, chroma * 0.08f, hue)
     val mutedForeground = if (dark) oklch(0.708f, chroma * 0.12f, hue) else oklch(0.556f, chroma * 0.16f, hue)
-    val accentSurface = if (dark) oklch(0.32f, chroma * 0.5f, hue) else oklch(0.94f, chroma * 0.18f, hue)
+    val accentSurface = if (dark) oklch(0.269f, chroma * 0.5f, hue) else oklch(0.97f, chroma * 0.18f, hue)
     val accentSurfaceForeground = if (dark) foreground else oklch(0.205f, chroma * 0.18f, hue)
     // Real shadcn's dark theme gives card/popover/sidebar the IDENTICAL lightness (0.205) --
     // they only read as different surfaces in the real app because of where they sit in the
@@ -335,8 +340,14 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
         popoverForeground = popoverForeground,
         sidebar = sidebar,
         sidebarForeground = sidebarForeground,
-        sidebarPrimary = primary,
-        sidebarPrimaryForeground = primaryForeground,
+        // Real shadcn's dark sidebar-primary is a fixed distinct blue (oklch(0.488 0.243
+        // 264.376)), not a reuse of the page's own `primary` -- verified identical across every
+        // base color in the pinned themes.ts (neutral AND stone dark both emit this same value),
+        // so it is not hue-derived like the rest of this palette. Light mode's sidebar-primary
+        // genuinely does equal `primary` in the reference (both oklch(0.205 0 0) for neutral),
+        // so only the dark branch needs its own literal here.
+        sidebarPrimary = if (dark) oklch(0.488f, 0.243f, 264.376f) else primary,
+        sidebarPrimaryForeground = if (dark) oklch(0.985f, 0f, 0f) else primaryForeground,
         sidebarAccent = secondary,
         sidebarAccentForeground = secondaryForeground,
         sidebarBorder = border,

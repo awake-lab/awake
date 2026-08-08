@@ -17,12 +17,17 @@ internal data class ShadcnRadiusScale(
     override val full: Dp,
 ) : UiShapeTokens {
     companion object {
+        // shadcn's own scale is additive, not multiplicative: sm/md are offset DOWN from
+        // --radius by a fixed 4dp/2dp step, lg IS --radius, xl is offset UP by 4dp (see
+        // tailwind's `calc(var(--radius) - Npx)` convention in new-york-v4's globals.css). xs
+        // has no shadcn counterpart -- extended one more 2dp step below sm to keep the scale's
+        // even spacing. Clamped at 0 so a small base preset (e.g. Lyra's 0dp) can't go negative.
         fun fromBase(base: Dp): ShadcnRadiusScale = ShadcnRadiusScale(
-            xs = Dp(base.value * 0.4f),
-            sm = Dp(base.value * 0.6f),
-            md = Dp(base.value * 0.8f),
+            xs = (base.value - 6f).coerceAtLeast(0f).dp,
+            sm = (base.value - 4f).coerceAtLeast(0f).dp,
+            md = (base.value - 2f).coerceAtLeast(0f).dp,
             lg = base,
-            xl = Dp(base.value * 1.4f),
+            xl = (base.value + 4f).dp,
             full = 9999f.dp,
         )
     }
@@ -40,12 +45,22 @@ internal object ShadcnSpacing {
 }
 
 internal data class ShadcnMetrics(
+    // Card/Dialog/Muted-surface/Alert inset -- real shadcn's Card/Dialog p-6.
     val panelPadding: Dp,
+    // Popover's own inset -- real shadcn's Popover p-4, deliberately smaller than
+    // [panelPadding]; kept as its own field rather than reusing panelPadding since real shadcn
+    // does NOT share one inset value across all three surfaces.
     val surfacePadding: Dp,
     val fieldPaddingX: Dp,
+    // Select-trigger's own vertical inset (real shadcn's SelectTrigger py-2) -- see
+    // [inputPaddingY] for the real text-Input's distinct (smaller) py-1 value; the two used to
+    // incorrectly share this one field.
     val fieldPaddingY: Dp,
     val badgePaddingX: Dp,
     val badgePaddingY: Dp,
+    // Real text-Input's vertical inset (real shadcn's Input py-1) -- smaller than
+    // [fieldPaddingY]'s SelectTrigger py-2.
+    val inputPaddingY: Dp,
 )
 
 internal data class ShadcnPalette(

@@ -38,7 +38,15 @@ fun UiScope.shadcnSelect(
     enabled: Boolean = true,
 ): Int? {
     val popupState = rememberPopupState(id, key = "expanded")
-    val triggerStyle = shadcnFieldStyle(theme, style)
+    // shadcnFieldStyle(theme, style) resolves to ShadcnStyles.field's Default variant, which is
+    // shared with the real Input (shadcnInput) -- Input and SelectTrigger disagree on vertical
+    // padding in real shadcn (py-1 vs py-2), so this re-pins contentPadding to the
+    // trigger-specific value after the shared base style, the same "later rule wins" compose
+    // pattern used throughout this module (see skills/awake-shadcn-styling/SKILL.md).
+    val shadcnResolvedTheme = theme.asShadcnTheme()
+    val triggerStyle = shadcnFieldStyle(theme, style) then Style {
+        contentPadding(shadcnResolvedTheme.metrics.fieldPaddingX, shadcnResolvedTheme.metrics.fieldPaddingY)
+    }
     val trigger = buttonSlot(
         id = "$id.trigger",
         modifier = modifier.height(36f.dp),

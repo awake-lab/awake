@@ -28,8 +28,12 @@ import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import kotlin.math.ceil
 
-private const val TOGGLE_WIDTH_PX = 44f
-private const val TOGGLE_HEIGHT_PX = 24f
+// shadcn's Switch track is w-8 h-[1.15rem] (32dp x 18.4dp at 1rem=16dp), not a 44x24 Material
+// default that had silently become the de-facto spec here -- see
+// skills/awake-ui-authoring/SKILL.md's "an headless default is not a neutral placeholder" note.
+// Authored in Dp, not raw pixel Floats -- converted at the point of use via .toPx().
+private val TOGGLE_WIDTH = 32f.dp
+private val TOGGLE_HEIGHT = 18.4f.dp
 
 // Dp, not raw px: added to/subtracted from `trackSlot` coordinates that are already
 // density-scaled, so a raw literal would render a half-size inset at 2x.
@@ -68,27 +72,27 @@ fun UiScope.switch(
     // is already whole-pixel-quantized (resolveGlyphPx/pixelPerfectPixel), so sub-pixel
     // precision here was never meaningful -- rounding up to the next pixel buys headroom no
     // float round-trip noise gets near.
-    val fallbackWidthPx = ceil(TOGGLE_WIDTH_PX + gapPx + labelWidthPx)
-    // The switch track is always a fixed TOGGLE_WIDTH_PX × TOGGLE_HEIGHT_PX pill — it never
+    val fallbackWidthPx = ceil(TOGGLE_WIDTH.toPx() + gapPx + labelWidthPx)
+    // The switch track is always a fixed TOGGLE_WIDTH × TOGGLE_HEIGHT pill — it never
     // stretches to fill the caller's modifier width. Pass the size-fallback dimension so that
     // a bare switch() still claims exactly track+label size; when the caller adds .width(N)
-    // the widget expands to N while the painted track remains fixed at 44×24dp.
+    // the widget expands to N while the painted track remains fixed at 32x18.4dp.
     val surface = resolveInteractiveSurface(
         id = id,
         style = style,
         defaults = theme.components.toggle,
-        modifier = modifier.withSizeFallback(Dimension.Fixed(fallbackWidthPx.px), Dimension.Fixed(TOGGLE_HEIGHT_PX.dp)),
+        modifier = modifier.withSizeFallback(Dimension.Fixed(fallbackWidthPx.px), Dimension.Fixed(TOGGLE_HEIGHT)),
         selected = checked,
         enabled = enabled,
     )
     // Track slot is always fixed-size, anchored at the START of the claimed slot.
     // When the caller passes .width(260dp), the full slot is 260dp wide but we only paint
-    // the 44dp track on the left side; the label gets the remaining space to the right.
+    // the 32dp track on the left side; the label gets the remaining space to the right.
     val trackSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
         x = surface.interaction.slot.x,
-        y = surface.interaction.slot.y + (surface.interaction.slot.height - TOGGLE_HEIGHT_PX.dp.toPx()) / 2f,
-        width = TOGGLE_WIDTH_PX.dp.toPx(),
-        height = TOGGLE_HEIGHT_PX.dp.toPx(),
+        y = surface.interaction.slot.y + (surface.interaction.slot.height - TOGGLE_HEIGHT.toPx()) / 2f,
+        width = TOGGLE_WIDTH.toPx(),
+        height = TOGGLE_HEIGHT.toPx(),
     )
     val newChecked = if (surface.interaction.clicked) !checked else checked
     // Both states are hardcoded tokens, not resolved.background -- a Switch's on/off track
@@ -127,7 +131,7 @@ fun UiScope.switch(
             shapeSpec = UiShapeSpec.Pill,
         )
         if (label != null) {
-            val trackWidthPx = TOGGLE_WIDTH_PX.dp.toPx()
+            val trackWidthPx = TOGGLE_WIDTH.toPx()
             // Slot width is already claimed as track+gap+measured label (see fallbackWidthPx
             // above), so the remainder here is that same measured width, not a guess.
             val labelWidth = (surface.interaction.slot.width - trackWidthPx - gapPx).coerceAtLeast(0f)

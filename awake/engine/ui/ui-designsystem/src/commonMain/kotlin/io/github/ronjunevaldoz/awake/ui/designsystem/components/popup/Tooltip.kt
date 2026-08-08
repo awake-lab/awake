@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
@@ -49,9 +48,23 @@ fun UiScope.shadcnTooltip(
     positionProvider = positionProvider,
     properties = properties,
 ) { _ ->
+    val shadcnTheme = theme.asShadcnTheme()
+    // Real shadcn's TooltipContent is `rounded-md bg-foreground px-3 py-1.5 text-xs
+    // text-background` -- a solid, inverted-color pill, not a card. This intentionally does NOT
+    // route through `theme.components.surface` (unlike the previous version, whose own
+    // `shape(UiShape.sm)` rule was dead code -- `components.surface`'s later `shape`/
+    // `background`/`borderWidth` rules always overwrote it; see
+    // skills/awake-shadcn-styling/SKILL.md's Style.then note).
     surface(
         id = id,
-        style = Style { shape(UiShape.sm) } then theme.components.surface then style,
+        style = Style {
+            background(shadcnTheme.colors.foreground, tokenId = "foreground")
+            foreground(shadcnTheme.colors.background, tokenId = "background")
+            borderWidth(0f.dp)
+            shape(shadcnTheme.radii.md)
+            contentPadding(12f.dp, 6f.dp)
+            textSize(shadcnTheme.typography.caption, tokenId = "caption")
+        } then style,
         modifier = Modifier.width(width).height(height),
     ) { slot ->
         content(slot)

@@ -58,10 +58,12 @@ class ShadcnCardFidelityTest {
                         expectedBorderToken = "border",
                     ),
                 ),
+                // Real shadcn's Card is p-6 (24dp), not p-4 (16dp/"spacing-lg") -- see
+                // ShadcnStylePreset.Vega's panelPadding.
                 exactPaddingRules = listOf(
                     AwakeUiPreviewExactPaddingRule(
                         nodeId = "card-fidelity",
-                        exactPaddingPx = figma.getPx("spacing-lg") * config.scale.scale,
+                        exactPaddingPx = figma.getPx("spacing-xl") * config.scale.scale,
                     ),
                 ),
             )

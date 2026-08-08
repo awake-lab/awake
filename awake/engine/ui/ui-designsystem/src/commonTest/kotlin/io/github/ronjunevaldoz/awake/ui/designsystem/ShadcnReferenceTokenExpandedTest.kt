@@ -23,13 +23,18 @@ import kotlin.test.assertTrue
  * - `primaryHover`/`primaryPressed`/`secondaryHover`/... : Awake-only interaction-state colors
  *   synthesized via `mix()`, not shadcn CSS vars.
  *
- * KNOWN_DRIFTED mechanism: this audit found real drift. Fixing production values is wave-2's
- * job, not this file's -- so a token listed in [KNOWN_DRIFTED] is asserted against its CURRENT
- * (wrong) resolved value instead of the reference, keeping the suite green today while staying a
- * real regression lock: it fails loudly the moment the drift's shape changes, and fails loudly
- * (by design) the moment someone fixes the underlying value without also deleting the entry here
- * -- a forced touch-point for whoever does the fix. Every entry's comment records the real
- * reference value and the measured diff for that worklist.
+ * KNOWN_DRIFTED mechanism: this audit found real drift. A token listed in [KNOWN_DRIFTED] is
+ * asserted against its CURRENT (wrong) resolved value instead of the reference, keeping the
+ * suite green while staying a real regression lock: it fails loudly the moment the drift's shape
+ * changes, and fails loudly (by design) the moment someone fixes the underlying value without
+ * also deleting the entry here -- a forced touch-point for whoever does the fix. Every entry's
+ * comment records the real reference value and the measured diff for that worklist.
+ *
+ * The wave-2a value-fix pass closed every entry this audit originally found (light `accent`,
+ * dark `muted`/`accent`/`sidebar-primary`/`sidebar-primary-foreground` -- see `ShadcnTheme.kt`'s
+ * `createPalette`), so [KNOWN_DRIFTED] is empty today; every token below now asserts against the
+ * real reference directly. Left in place (rather than deleted outright) as the seam future drift
+ * re-attaches to.
  */
 class ShadcnReferenceTokenExpandedTest {
 
@@ -39,23 +44,8 @@ class ShadcnReferenceTokenExpandedTest {
     private val tolerance = 0.02f
 
     private val KNOWN_DRIFTED: Map<String, Map<String, Color>> = mapOf(
-        "light" to mapOf(
-            // ours=oklch(0.94 0 0) reference=oklch(0.97 0 0) diff=0.117
-            "accent" to oklch(0.94f, 0f, 0f),
-        ),
-        "dark" to mapOf(
-            // ours=oklch(0.235 0 0) reference=oklch(0.269 0 0) diff=0.095
-            "muted" to oklch(0.235f, 0f, 0f),
-            // ours=oklch(0.32 0 0) reference=oklch(0.269 0 0) diff=0.149
-            "accent" to oklch(0.32f, 0f, 0f),
-            // ours=oklch(0.922 0 0) reference=oklch(0.488 0.243 264.376) diff=1.443 -- an
-            // entirely different hue family, not just off-by-a-shade: Awake reuses `primary`
-            // for the sidebar's "active nav item" accent instead of shadcn's distinct blue.
-            "sidebar-primary" to oklch(0.922f, 0f, 0f),
-            // ours=oklch(0.205 0 0) reference=oklch(0.985 0 0) diff=2.669 -- near-total
-            // inversion (dark-on-dark vs reference's near-white).
-            "sidebar-primary-foreground" to oklch(0.205f, 0f, 0f),
-        ),
+        "light" to emptyMap(),
+        "dark" to emptyMap(),
     )
 
     @Test
@@ -65,15 +55,14 @@ class ShadcnReferenceTokenExpandedTest {
     fun darkTokensMatchReferenceOrLockedDrift() = assertMode(dark = true, reference = ShadcnReferenceTokens.dark)
 
     @Test
-    fun defaultRadiusIsKnownDriftedFromReferenceSpec() {
-        // KNOWN_DRIFTED (Dp, not color): ours=6dp (Vega preset's baseRadius) reference=10dp
-        // (ShadcnReferenceTokens.RADIUS_REM=0.625rem * 16). Pre-existing audit finding -- fix
-        // belongs to wave-2.
+    fun defaultRadiusMatchesReferenceSpec() {
+        // Fixed in the wave-2a value-fix pass: Vega preset's baseRadius now matches
+        // ShadcnReferenceTokens.RADIUS_REM=0.625rem * 16 = 10dp exactly.
         val oursDp = shadcnTheme().shapes.lg.value
         val referenceDp = ShadcnReferenceTokens.RADIUS_REM * 16f
         assertTrue(
-            abs(oursDp - 6f) < 0.01f,
-            "radius drift assumption changed: locked ours=6f, actual=$oursDp (reference=${referenceDp}dp)",
+            abs(oursDp - referenceDp) < 0.01f,
+            "radius drifted from reference: ours=$oursDp reference=$referenceDp",
         )
     }
 

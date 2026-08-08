@@ -95,15 +95,17 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // rendered a visibly softer/antialiased edge than the crisp text sitting right next to it.
 // Every scene with a border/panel/button shifted its rasterized pixels by sub-pixel rounding as
 // a result; re-recorded against the now-pixel-snapped primitives.
-// 2026-08-08: re-recorded for the same two stacked changes documented above the review map.
+// 2026-08-08: re-recorded again after the shadcn token/radius value pass (base radius 6->10dp,
+// additive radius scale, button/input rounded-md, accent/muted/sidebar-primary colors) -- every
+// tutorial scene renders through ShadcnTheme, so all of them shifted.
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0x49f8be6b9af58fceuL,
+    "ui-button-variants" to 0xf2ab7bef53607597uL,
     "ui-shaped-panel" to 0x8c9bc00b6959c7bcuL,
-    "ui-panel-controls" to 0xc16069b8ffd45870uL,
-    "ui-alert-dialog" to 0x6be76a141e51338auL,
-    "ui-component-state-matrix" to 0x4cc327d67d363058uL,
+    "ui-panel-controls" to 0x2c1d1ecb4d6c789duL,
+    "ui-alert-dialog" to 0x062ecba6704e3186uL,
+    "ui-component-state-matrix" to 0x9f79081e848b5b93uL,
     "ui-rounded-clip-vector" to 0x8f3c96375e78fdf0uL,
-    "ui-awake-shadcn-showcase" to 0xaf8066d0b54bc2dcuL,
+    "ui-awake-shadcn-showcase" to 0xae9c193360c86548uL,
 )
 
 private fun ULong.toHexString(): String {

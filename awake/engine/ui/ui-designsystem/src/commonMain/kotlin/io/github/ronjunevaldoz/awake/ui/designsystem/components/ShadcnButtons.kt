@@ -52,7 +52,7 @@ fun UiScope.shadcnButton(
         modifier = modifier.withShadcnSize(size),
         style = shadcnButtonStyle(theme, variant, style),
         variant = variant.toUiButtonVariant(),
-        radius = theme.asShadcnTheme().radii.lg,
+        radius = theme.asShadcnTheme().radii.md,
         centered = centered,
         verticallyCentered = verticallyCentered,
         enabled = enabled,
@@ -83,7 +83,7 @@ fun UiScope.shadcnButton(
         modifier = modifier.withShadcnSize(size),
         style = buttonStyle,
         variant = variant.toUiButtonVariant(),
-        radius = theme.asShadcnTheme().radii.lg,
+        radius = theme.asShadcnTheme().radii.md,
         enabled = enabled,
     ) { contentSlot ->
         val alignment = when {
