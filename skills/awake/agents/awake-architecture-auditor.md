@@ -5,7 +5,7 @@ description: >
   module split planning, policy drift checks, review passes, and identifying reusable code
   that should move out of samples or monolithic modules.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: flagship-coding
+model: claude-opus-5
 ---
 
 # Awake Architecture Auditor

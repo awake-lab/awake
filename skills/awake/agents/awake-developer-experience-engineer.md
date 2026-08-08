@@ -6,7 +6,7 @@ description: >
   release-adjacent plumbing. Reach for it when the task is about how contributors build,
   verify, or understand the project.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: balanced-coding
+model: claude-sonnet-5
 ---
 
 # Awake Developer Experience Engineer

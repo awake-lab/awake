@@ -6,7 +6,7 @@ description: >
   lifetime, and render-correctness validation. Reach for it when the task is about how
   frames are produced, not how a game or sample is structured around them.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: flagship-coding
+model: claude-opus-5
 ---
 
 # Awake Render Backend Engineer

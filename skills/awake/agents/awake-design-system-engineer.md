@@ -6,7 +6,7 @@ description: >
   presentation polish. Reach for it when the task is about how shared components should
   look and feel, not low-level widget/layout mechanics.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: balanced-coding
+model: claude-sonnet-5
 ---
 
 # Awake Design System Engineer

@@ -6,7 +6,7 @@ description: >
   reusable bootstrap patterns. Reach for it when the task is about how games are assembled
   and run, not how a backend talks to the GPU.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: balanced-coding
+model: claude-sonnet-5
 ---
 
 # Awake Game Framework Engineer

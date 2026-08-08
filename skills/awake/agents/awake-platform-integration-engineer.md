@@ -5,7 +5,7 @@ description: >
   Web, expect/actual boundaries, launcher/bootstrap wiring, and device validation. Reach
   for it when a task's main risk is platform behavior rather than engine architecture.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: balanced-coding
+model: claude-sonnet-5
 ---
 
 # Awake Platform Integration Engineer

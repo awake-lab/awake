@@ -6,7 +6,7 @@ description: >
   sample scene structure. Reach for it when the task is about authored scene structure
   rather than low-level rendering or ECS storage internals.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: balanced-coding
+model: claude-sonnet-5
 ---
 
 # Awake Scene Runtime Engineer

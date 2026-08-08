@@ -7,7 +7,7 @@ description: >
   the task is about proving the UI is correct rather than designing it or building the
   primitive itself.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: balanced-coding
+model: claude-sonnet-5
 ---
 
 # Awake UI Quality Engineer

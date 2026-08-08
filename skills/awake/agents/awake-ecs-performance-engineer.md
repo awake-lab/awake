@@ -10,7 +10,7 @@ description: >
   app-layer concerns (auth, navigation, design systems — see the project entrypoint skill
   routing table).
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: flagship-coding
+model: claude-opus-5
 ---
 
 # Awake ECS Performance Engineer

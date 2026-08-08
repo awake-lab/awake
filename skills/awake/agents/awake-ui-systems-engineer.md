@@ -6,7 +6,7 @@ description: >
   reusable UI composition boundaries. Reach for it when the task is about shared UI
   primitives and systems, not design-language decisions or sample-local one-off composition.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: balanced-coding
+model: claude-sonnet-5
 ---
 
 # Awake UI Systems Engineer
