@@ -32,11 +32,13 @@ class UiImageVectorBuilder internal constructor(
     fun path(
         fill: Color? = null,
         fillRule: UiFillRule = UiFillRule.NonZero,
+        stroke: UiStroke? = null,
         block: UiPathBuilder.() -> Unit,
     ) {
         paths += UiVectorPath(
             path = uiPath(fillRule = fillRule, block = block),
             fill = fill,
+            stroke = stroke,
         )
     }
 
@@ -79,6 +81,10 @@ fun UiImageVector.fitTo(slot: UiBounds): List<UiVectorPath> {
                 translateX = translateX,
                 translateY = translateY,
             ),
+            // stroke-width is authored in the same viewport units as the path coordinates (SVG's
+            // default, no vector-effect="non-scaling-stroke") -- scale it the same way, or a big
+            // rendered icon gets a proportionally hairline outline.
+            stroke = vectorPath.stroke?.let { it.copy(width = (it.width.value * scale).dp) },
         )
     }
 }

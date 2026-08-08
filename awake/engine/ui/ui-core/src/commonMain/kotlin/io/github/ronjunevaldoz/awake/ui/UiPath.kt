@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.acos
+import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -960,6 +961,188 @@ fun UiPath.tessellateStroke(stroke: UiStroke): UiTriangleMesh {
     }
     return UiTriangleMesh(points, indices.toIntArray())
 }
+
+/**
+ * Converts a stroked centerline into an equivalent FILLED outline, so a stroke can be rendered
+ * through [tessellateFill]/[tessellateFillAa] (real joins, real AA fringe, real capacity
+ * splitting) instead of [tessellateStroke]'s independent per-segment quads, which have no join
+ * geometry at all -- see [tessellateStroke]'s doc history. [tessellateStroke] itself is
+ * untouched: its existing callers (border strokes, the debug overlay) keep the old behavior.
+ *
+ * Each open contour becomes ONE ring: walk the +halfWidth offset forward, round the tip (or cut
+ * it flat for [UiStrokeCap.Butt]/[UiStrokeCap.Square]), walk the -halfWidth offset back, round
+ * the other tip, close. At interior vertices the ring is rounded ([UiStrokeJoin.Round]) or cut
+ * flat (otherwise) on BOTH sides, not just the convex side -- the concave side then
+ * self-overlaps slightly, which [UiFillRule.NonZero]'s winding-number fill renders correctly
+ * (the same property lets font rasterizers fill self-intersecting glyph outlines), so no
+ * separate "which side is outer" test is needed.
+ *
+ * Each closed contour becomes an outer ring (+halfWidth) plus an inner ring (-halfWidth,
+ * reversed so its winding is opposite the outer's) -- exactly the outer+hole shape
+ * [resolveFillGroups] already detects for icon holes like Heroicons' clock/camera glyphs, so a
+ * closed stroke (e.g. a circle) becomes a correct annulus for free.
+ */
+fun UiPath.strokeToFillPath(stroke: UiStroke): UiPath {
+    val contours = flattenContours()
+    val halfWidth = stroke.width.toPx() / 2f
+    if (contours.isEmpty() || halfWidth <= 0f) return UiPath(fillRule = UiFillRule.NonZero, commands = emptyList())
+
+    val commands = ArrayList<UiPathCommand>()
+    fun emitRing(ring: List<UiPoint>) {
+        if (ring.size < 3) return
+        commands += UiPathCommand.MoveTo(ring[0].x, ring[0].y)
+        for (i in 1 until ring.size) commands += UiPathCommand.LineTo(ring[i].x, ring[i].y)
+        commands += UiPathCommand.Close
+    }
+
+    contours.forEach { contour ->
+        if (contour.closed) {
+            emitRing(offsetClosedRing(contour.points, halfWidth, stroke.join))
+            emitRing(offsetClosedRing(contour.points, -halfWidth, stroke.join).asReversed())
+        } else {
+            emitRing(offsetOpenRing(contour.points, halfWidth, stroke))
+        }
+    }
+    return UiPath(fillRule = UiFillRule.NonZero, commands = commands)
+}
+
+private fun unitDir(a: UiPoint, b: UiPoint): UiPoint? {
+    val dx = b.x - a.x
+    val dy = b.y - a.y
+    val length = hypot(dx, dy)
+    return if (length <= 0f) null else UiPoint(dx / length, dy / length)
+}
+
+/** Rotates a unit direction 90 degrees and scales by [distance] -- the same convention
+ * [tessellateStroke]'s per-segment normal uses (`nx = -dy*halfWidth, ny = dx*halfWidth`), so a
+ * positive [distance] lands on the same side [tessellateStroke] calls its stroke's "start+n"
+ * side. Negative [distance] lands on the opposite side without needing a separate code path. */
+private fun offsetVector(dir: UiPoint, distance: Float): UiPoint = UiPoint(-dir.y * distance, dir.x * distance)
+
+/** Arc of points (both endpoints included) at [radius] from [center], sweeping from offset
+ * vector [from] to offset vector [to] the SHORT way around -- the vectors' own angle is all that
+ * matters, not their magnitude, so callers can pass any same-length offset pair. */
+private fun arcBetween(center: UiPoint, radius: Float, from: UiPoint, to: UiPoint): List<UiPoint> {
+    val piF = PI.toFloat()
+    val fromAngle = atan2(from.y, from.x)
+    val toAngle = atan2(to.y, to.x)
+    val twoPi = 2f * piF
+    var delta = toAngle - fromAngle
+    while (delta > piF) delta -= twoPi
+    while (delta < -piF) delta += twoPi
+    val steps = adaptiveArcSteps(delta * 180f / piF, radius, 90f)
+    return (0..steps).map { step ->
+        val t = step / steps.toFloat()
+        val angle = fromAngle + delta * t
+        UiPoint(center.x + cos(angle) * radius, center.y + sin(angle) * radius)
+    }
+}
+
+/**
+ * Cap arc for a segment end traveling in [dir]: sweeps from the LEFT offset of [dir], through the
+ * tip straight ahead in [dir]'s own direction, to the RIGHT offset -- always exactly a half turn
+ * relative to [dir]'s own angle. [arcBetween]'s shortest-way-between-two-vectors logic is
+ * ambiguous for a cap (its two endpoints are always exact opposites, +/-180 degrees both "the
+ * short way") and float rounding on the antipodal angle difference can pick either winding --
+ * this computes the sweep directly off [dir] instead of the endpoint vectors, so it is never
+ * ambiguous. An end cap passes [dir] = the segment's own forward direction; a start cap passes
+ * the reverse of the first segment's direction (the ring is walking backward there).
+ */
+private fun capSweep(round: Boolean, center: UiPoint, halfWidth: Float, dir: UiPoint): List<UiPoint> {
+    if (!round) {
+        val left = offsetVector(dir, halfWidth)
+        val right = offsetVector(UiPoint(-dir.x, -dir.y), halfWidth)
+        return listOf(UiPoint(center.x + left.x, center.y + left.y), UiPoint(center.x + right.x, center.y + right.y))
+    }
+    val piF = PI.toFloat()
+    val fromAngle = atan2(dir.y, dir.x) + piF / 2f
+    val steps = adaptiveArcSteps(180f, halfWidth, 90f)
+    return (0..steps).map { step ->
+        val angle = fromAngle - piF * (step / steps.toFloat())
+        UiPoint(center.x + cos(angle) * halfWidth, center.y + sin(angle) * halfWidth)
+    }
+}
+
+/**
+ * One side (or, for a butt/square cap, one flat cut) of a stroke ring's tip/join: rounds it when
+ * [round] asks for that, otherwise emits the two raw offset points -- a flat cut across the join
+ * (a bevel), the same corner [tessellateStroke] leaves today, kept as the non-round fallback.
+ */
+private fun ringCorner(round: Boolean, center: UiPoint, halfWidth: Float, fromDir: UiPoint, toDir: UiPoint): List<UiPoint> {
+    val from = offsetVector(fromDir, halfWidth)
+    val to = offsetVector(toDir, halfWidth)
+    return if (round) {
+        arcBetween(center, halfWidth, from, to)
+    } else {
+        listOf(UiPoint(center.x + from.x, center.y + from.y), UiPoint(center.x + to.x, center.y + to.y))
+    }
+}
+
+/** Builds the single self-intersecting ring described in [strokeToFillPath]'s doc comment for
+ * one OPEN flattened contour. Assumes no zero-length segments -- guaranteed by
+ * [UiPath.flattenContours], which already dedupes consecutive identical points. */
+private fun offsetOpenRing(points: List<UiPoint>, halfWidth: Float, stroke: UiStroke): List<UiPoint> {
+    if (points.size < 2) return emptyList()
+    val dirs = ArrayList<UiPoint>(points.size - 1)
+    for (i in 0 until points.size - 1) dirs += unitDir(points[i], points[i + 1]) ?: return emptyList()
+
+    var pts = points
+    if (stroke.cap == UiStrokeCap.Square) {
+        val extendedFirst = UiPoint(pts.first().x - dirs.first().x * halfWidth, pts.first().y - dirs.first().y * halfWidth)
+        val extendedLast = UiPoint(pts.last().x + dirs.last().x * halfWidth, pts.last().y + dirs.last().y * halfWidth)
+        pts = listOf(extendedFirst) + pts.subList(1, pts.size - 1) + listOf(extendedLast)
+    }
+    val round = stroke.join == UiStrokeJoin.Round
+    val roundCap = stroke.cap == UiStrokeCap.Round
+
+    val ring = ArrayList<UiPoint>()
+    // Left side (+halfWidth), first point to last.
+    ring += UiPoint(pts.first().x + offsetVector(dirs.first(), halfWidth).x, pts.first().y + offsetVector(dirs.first(), halfWidth).y)
+    for (i in 1 until dirs.size) ring += ringCorner(round, pts[i], halfWidth, dirs[i - 1], dirs[i])
+    // End tip: left offset -> right offset, bulging away from the polyline in dirs.last()'s
+    // own direction (see capSweep's doc comment for why this can't reuse the generic
+    // shortest-arc-between-two-vectors helper).
+    ring += capSweep(roundCap, pts.last(), halfWidth, dirs.last())
+    // Right side (-halfWidth, expressed as +halfWidth on the reversed direction), last point back to first.
+    for (i in dirs.size - 2 downTo 0) {
+        ring += ringCorner(round, pts[i + 1], halfWidth, UiPoint(-dirs[i + 1].x, -dirs[i + 1].y), UiPoint(-dirs[i].x, -dirs[i].y))
+    }
+    // Start tip: right offset -> left offset, bulging away in the reverse of dirs.first() --
+    // closes the ring back to its first point.
+    ring += capSweep(roundCap, pts.first(), halfWidth, UiPoint(-dirs.first().x, -dirs.first().y))
+    return ring
+}
+
+/** Builds one offset ring (outer when [distance] > 0, inner when < 0) for one CLOSED flattened
+ * contour, rounding every vertex when [join] asks for that. Drops a trailing point that
+ * coincides with the first: a source path that explicitly draws all the way back to its start
+ * before `close()` (e.g. a full circle traced by arcs, like Heroicons' clock/camera glyphs) ends
+ * [UiPath.flattenContours]' point list with that same point twice, and [unitDir] on the
+ * resulting zero-length wraparound segment would otherwise reject the whole contour. */
+private fun offsetClosedRing(rawPoints: List<UiPoint>, distance: Float, join: UiStrokeJoin): List<UiPoint> {
+    val points = if (rawPoints.size >= 2 && unitDir(rawPoints.last(), rawPoints.first()) == null) {
+        rawPoints.dropLast(1)
+    } else {
+        rawPoints
+    }
+    val n = points.size
+    if (n < 3) return emptyList()
+    val dirs = (0 until n).map { i -> unitDir(points[i], points[(i + 1) % n]) ?: return emptyList() }
+    val round = join == UiStrokeJoin.Round
+    val ring = ArrayList<UiPoint>()
+    for (i in 0 until n) {
+        val fromDir = dirs[(i - 1 + n) % n]
+        val toDir = dirs[i]
+        ring += ringCorner(round, points[i], abs(distance), scaleDir(fromDir, distance), scaleDir(toDir, distance))
+    }
+    return ring
+}
+
+/** [ringCorner] takes unit directions and multiplies by `halfWidth` (always positive) inside
+ * [offsetVector]; a negative (inner) [offsetClosedRing] distance needs the SIGN folded into the
+ * direction instead, which this does without changing [ringCorner]'s "always offset by a
+ * positive half-width" contract. */
+private fun scaleDir(dir: UiPoint, distance: Float): UiPoint = if (distance >= 0f) dir else UiPoint(-dir.x, -dir.y)
 
 fun UiPath.convexClipContour(): List<UiPoint>? {
     val contour = flattenContours().firstOrNull { it.closed && it.points.size >= 3 }?.points ?: return null

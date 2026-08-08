@@ -87,6 +87,10 @@ class IconFidelityTest {
         "Solid24" to "serverStack" -> HeroIcons.Solid24.serverStack
         "Solid24" to "square2Stack" -> HeroIcons.Solid24.square2Stack
         "Solid24" to "square3Stack3d" -> HeroIcons.Solid24.square3Stack3d
+        "Outline24" to "academicCap" -> HeroIcons.Outline24.academicCap
+        "Outline24" to "clock" -> HeroIcons.Outline24.clock
+        "Outline24" to "camera" -> HeroIcons.Outline24.camera
+        "Outline24" to "arrowPath" -> HeroIcons.Outline24.arrowPath
         else -> error("no vectorFor mapping for ${entry.kotlinTier}.${entry.kotlinProperty} -- add one")
     }
 

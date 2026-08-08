@@ -20,10 +20,11 @@ Engine limits enforced here:
   is supported and emitted as `path(fillRule = UiFillRule.EvenOdd)`; genuinely
   CROSSING subpaths are rejected since the engine's containment-based hole
   grouping cannot represent them.
-- Stroke-only (outline-tier) SVGs are rejected: the icon pipeline is fill-only.
-  `fill`/`stroke` are resolved through ancestors, because Heroicons' outline tier
-  declares them on the <svg> root -- checking the <path> alone accepts an outline
-  icon and fills its stroke centreline as a solid polygon.
+- Stroke-only (outline-tier) SVGs are supported: `stroke-width`/`stroke-linecap`/
+  `stroke-linejoin` are resolved through ancestors (Heroicons' outline tier
+  declares them on the <svg> root) and emitted as `path(stroke = UiStroke(...))`.
+  A <path> with BOTH a fill and a stroke is rejected -- one UiVectorPath draws
+  one or the other, not both.
 - `transform` attributes and non-path shape elements are rejected; flatten
   them to plain paths first (e.g. with picosvg).
 """
@@ -361,27 +362,26 @@ def parse_svg(path: str):
         return default
 
     paths = []
-    stroked = 0
     for el in root.iter(f"{SVG_NS}path"):
-        if (inherited(el, "stroke") or "none") != "none":
-            stroked += 1
-            continue
-        if inherited(el, "fill") == "none":
-            continue
-        paths.append((el.get("d"), inherited(el, "fill-rule", "nonzero")))
-    if not paths:
-        if stroked:
+        has_stroke = (inherited(el, "stroke") or "none") != "none"
+        has_fill = inherited(el, "fill") != "none"
+        if has_stroke and has_fill:
             raise SystemExit(
-                "error: every path in this SVG is stroked, not filled -- this is an outline-tier "
-                "icon and the engine's icon pipeline renders fills only (UiStrokeJoin is declared "
-                "but never read; see the 'Stroke rendering' row in docs/reference/"
-                "ui-fidelity-status.md). Use the solid tier of this glyph instead, or implement "
-                "stroke rendering first. Converting the stroke to an outline path (picosvg "
-                "--keep-unsupported-features / a stroke-to-path step) would also work."
+                "error: <path> has both a fill and a stroke -- UiVectorPath draws one or the "
+                "other, not both. Split the SVG into two <path> elements."
             )
-        raise SystemExit("error: no fillable <path> elements found")
-    if stroked:
-        print(f"warning: skipped {stroked} stroked path(s); only fills are rendered", file=sys.stderr)
+        if has_stroke:
+            paths.append({
+                "d": el.get("d"),
+                "kind": "stroke",
+                "width": float(inherited(el, "stroke-width", "1")),
+                "cap": inherited(el, "stroke-linecap", "butt"),
+                "join": inherited(el, "stroke-linejoin", "miter"),
+            })
+        elif has_fill:
+            paths.append({"d": el.get("d"), "kind": "fill", "fill_rule": inherited(el, "fill-rule", "nonzero")})
+    if not paths:
+        raise SystemExit("error: no fillable or strokeable <path> elements found")
     return viewport, paths
 
 
@@ -393,8 +393,13 @@ def fmt(v: float) -> str:
     return f"{s}f"
 
 
+_CAP_NAMES = {"butt": "Butt", "round": "Round", "square": "Square"}
+_JOIN_NAMES = {"miter": "Miter", "round": "Round", "bevel": "Bevel"}
+
+
 def emit_kotlin(name, viewport, blocks, dp, source, indent="    ", level=2):
-    """blocks: list of (subpaths, kotlin_fill_rule_or_None) -- one path {} per SVG <path>."""
+    """blocks: list of (subpaths, kind, extra) -- one path {} per SVG <path>. kind == "fill":
+    extra is the kotlin fill-rule name or None. kind == "stroke": extra is (width, cap, join)."""
     i0 = indent * level
     i1 = indent * (level + 1)
     i2 = indent * (level + 2)
@@ -407,8 +412,18 @@ def emit_kotlin(name, viewport, blocks, dp, source, indent="    ", level=2):
     lines.append(f"{i1}viewportWidth = {fmt(viewport[0])},")
     lines.append(f"{i1}viewportHeight = {fmt(viewport[1])},")
     lines.append(f"{i0}) {{")
-    for subpaths, fill_rule in blocks:
-        header = f"{i1}path(fillRule = UiFillRule.{fill_rule}) {{" if fill_rule else f"{i1}path {{"
+    for subpaths, kind, extra in blocks:
+        if kind == "stroke":
+            width, cap, join = extra
+            cap_name = _CAP_NAMES.get(cap, "Butt")
+            join_name = _JOIN_NAMES.get(join, "Miter")
+            header = (
+                f"{i1}path(stroke = UiStroke(width = {fmt(width)}.dp, "
+                f"cap = UiStrokeCap.{cap_name}, join = UiStrokeJoin.{join_name})) {{"
+            )
+        else:
+            fill_rule = extra
+            header = f"{i1}path(fillRule = UiFillRule.{fill_rule}) {{" if fill_rule else f"{i1}path {{"
         lines.append(header)
         for subpath in subpaths:
             for op, args in subpath:
@@ -462,9 +477,12 @@ def classify_fill_rule(subpaths, fill_rule):
 def convert(svg_path, name, dp, source, indent_level):
     viewport, raw_paths = parse_svg(svg_path)
     blocks = []
-    for d, fill_rule in raw_paths:
-        subpaths = split_subpaths(parse_path_d(d))
-        blocks.append((subpaths, classify_fill_rule(subpaths, fill_rule)))
+    for entry in raw_paths:
+        subpaths = split_subpaths(parse_path_d(entry["d"]))
+        if entry["kind"] == "stroke":
+            blocks.append((subpaths, "stroke", (entry["width"], entry["cap"], entry["join"])))
+        else:
+            blocks.append((subpaths, "fill", classify_fill_rule(subpaths, entry["fill_rule"])))
     return emit_kotlin(name, viewport, blocks, dp, source, level=indent_level)
 
 
@@ -532,21 +550,41 @@ def self_test():
     assert fmt(4.0) == "4f" and fmt(4.80) == "4.8f" and fmt(-0.0) == "0f" and fmt(1.23456) == "1.2346f"
 
     # inherited fill/stroke: Heroicons' outline tier puts fill="none" stroke="currentColor"
-    # on the <svg> root, so a path-only attribute check silently fills a stroke centreline.
+    # (plus stroke-width/linecap/linejoin) on the <svg> root, so a path-only attribute check
+    # would silently fill the stroke centreline instead of resolving it as a real stroke.
     import tempfile, os
     outline = (
         '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" '
         'stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" '
-        'd="M4 10 L20 10"/></svg>'
+        'stroke-linejoin="round" d="M4 10 L20 10"/></svg>'
     )
     handle, temp = tempfile.mkstemp(suffix=".svg")
     os.write(handle, outline.encode())
     os.close(handle)
     try:
+        _, raw_paths = parse_svg(temp)
+        assert len(raw_paths) == 1
+        entry = raw_paths[0]
+        assert entry["kind"] == "stroke"
+        assert entry["width"] == 1.5
+        assert entry["cap"] == "round" and entry["join"] == "round"
+    finally:
+        os.unlink(temp)
+
+    # a <path> with both a fill and a stroke is still rejected -- not representable by one
+    # UiVectorPath yet.
+    both = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
+        '<path fill="black" stroke="red" d="M0 0h10v10h-10Z"/></svg>'
+    )
+    handle, temp = tempfile.mkstemp(suffix=".svg")
+    os.write(handle, both.encode())
+    os.close(handle)
+    try:
         parse_svg(temp)
-        raise AssertionError("outline (stroke-only) svg must be rejected")
+        raise AssertionError("a path with both fill and stroke must be rejected")
     except SystemExit as failure:
-        assert "outline-tier" in str(failure), failure
+        assert "fill and a stroke" in str(failure), failure
     finally:
         os.unlink(temp)
 

@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.strokeToFillPath
 
 fun UiScope.icon(
     imageVector: UiImageVector,
@@ -29,10 +30,15 @@ fun UiScope.icon(
     imageVector.fitTo(slot).forEach { vectorPath ->
         val fillColor = vectorPath.fill ?: tint
         if (fillColor.isTransparent()) return@forEach
+        // A stroked glyph (Heroicons' outline tier) has no fill of its own -- convert its
+        // centerline+stroke into an equivalent filled outline and draw that through the same
+        // FilledPath primitive, so it gets the same AA fringe every other icon path gets.
+        val stroke = vectorPath.stroke
+        val path = if (stroke != null) vectorPath.path.strokeToFillPath(stroke) else vectorPath.path
         if (overlay) {
-            emitOverlay(UiDrawPrimitive.FilledPath(vectorPath.path, fillColor))
+            emitOverlay(UiDrawPrimitive.FilledPath(path, fillColor))
         } else {
-            emit(UiDrawPrimitive.FilledPath(vectorPath.path, fillColor))
+            emit(UiDrawPrimitive.FilledPath(path, fillColor))
         }
     }
     return slot
