@@ -255,11 +255,9 @@ existed, nothing automated ever checked. This closes that gap with a real upstre
   `./gradlew :samples:ui-showcase:desktopTest --tests "*ShadcnReferenceComparisonTest*"`.
   Renders its own Awake-side previews (doesn't depend on `ShadcnParityScreenshotTest` having
   run first), writes `build/reports/shadcn-parity-metrics.json` plus one diff heatmap per pair
-  under `build/reports/shadcn-parity/`, and prints a summary table. It does **not** fail the
-  build on drift -- mismatch against the real upstream reference is expected and tracked this
-  wave, not gated, until a maintainer decides a specific component is stable enough to lock
-  (see `tools/shadcn_parity_thresholds.json` for the currently-informational per-pair
-  ceilings). The test only asserts the harness itself ran and produced a report.
+  under `build/reports/shadcn-parity/`, and prints a summary table. Absolute mismatch against
+  the real upstream reference is expected and stays untargeted -- pixel-perfect parity with
+  shadcn/ui isn't the goal -- but *drift* is gated, see below.
 
 Caveat carried over from `docs/reference/shadcn-parity.md`: shadcn/ui has no single canonical
 look (style presets, base colors, density all vary) -- these captures are *a* real reference,
@@ -269,3 +267,60 @@ way -- it was captured from `shadcn-compose`, a third-party Kotlin reimplementat
 the old `select_closed_light.png` showed the literal text "Vega", `shadcn-compose`'s own style
 preset name, not a real shadcn select demo's option text). This harness fixes that by going
 straight to the upstream demo pages.
+
+### Shadcn Parity Regression Gate
+
+`ShadcnReferenceComparisonTest` used to be deliberately non-failing -- its own header said it
+"only asserts the harness itself ran and produced a report a human can open." That gap was not
+theoretical: the checkbox component regressed to a 8dp corner radius on a 16dp box (a visible
+circle, not a checkbox), `checkbox-local-light` is one of the 12 pairs the harness already
+compared every run, and the test still passed because nothing ever read the number it wrote.
+
+The fix is a committed baseline, not a fidelity target. `tools/shadcn_parity_baseline.json`
+records each pair's mismatch% as of the last time a maintainer looked at its diff PNG and
+accepted it. The test now fails if a pair's current mismatch% exceeds its recorded value by
+more than `tolerancePct` (1.0 percentage point). Getting *worse* than shadcn/ui fails the
+build; staying exactly as far from shadcn/ui as before does not -- absolute distance from the
+reference is untouched policy, only regression is gated.
+
+**Tolerance, from evidence, not a guess.** Four back-to-back runs of the comparison on
+unchanged code produced byte-identical `shadcn-parity-metrics.json` output (0.00 percentage
+points of drift) -- this harness has no measured run-to-run noise on one machine/JVM, because
+it renders through Awake's own deterministic CPU rasterizer, not a live browser. 1.0pp is
+headroom above that measured-zero floor for cross-machine/JDK/font-rendering variance across
+CI runners, not a response to observed flakiness. A real regression dwarfs it: temporarily
+forcing the checked checkbox's fill to bright red (`AwakeCheckboxStatesLightPreview`'s
+`style = Style { background(Color(1f, 0f, 0f)) }`, a color-only override applied entirely from
+the test file, no `commonMain` edit) moved `checkbox-local-light` from 26.32% to 30.77% -- a
+4.45pp jump, over 4x the tolerance, and the gate failed with exactly that message. Reverting
+the override returned the number to exactly 26.32% and the gate passed again. (A `shape(8f.dp)`
+corner-radius override -- the closer analog to the shipped circle-checkbox incident -- was
+tried first and produced *zero* measured change, not because of a harness blind spot but
+because 8dp already *is* the default preset's `theme.radii.md` -- `ShadcnRadiusScale.fromBase`
+computes `md = baseRadius - 2`, and the default `Vega` preset's `baseRadius` is 10dp, so the
+"perturbation" was a no-op that happened to match production exactly. Switched to a color
+override, which changes pixels the radius token doesn't touch.)
+
+**Same record convention as everywhere else** (`ShadcnParityScreenshotTest`,
+`UiShowcasePreviewDocsTest`): `-DAWAKE_RECORD_SNAPSHOTS=true` overwrites
+`tools/shadcn_parity_baseline.json` with the current run's numbers instead of gating. Follow
+`skills/awake-ui-verification/SKILL.md`'s re-recording discipline -- run without recording
+first, read `build/reports/shadcn-parity/<name>_diff.png`, explain the drift, only then record.
+
+**Not every pair is gated.** A pair whose aligned crop doesn't cover most of its own content
+measures framing, not fidelity (see `generate_parity_report.py`'s `crop` column:
+`good` >=75% of the Awake render's own area was compared, `partial` >=35%, `poor` below that).
+`tools/shadcn_parity_baseline.json`'s `excluded` map holds pairs deliberately left out, each
+with a stated reason -- currently just `slider-local-light`, whose reference PNG
+(`docs/reference/shadcn-previews-local/slider-states_light.png`) is itself only 6px tall before
+any Awake-side cropping runs (the capture never included the slider thumb -- a
+`tools/capture_shadcn_local.py`/reference-app issue, not an Awake or alignment problem). It
+still renders and appears in the report, just isn't compared against a baseline. `tabs-local-
+light` and `card-local-light` were previously `partial`/borderline; `tabs-local-light` stayed
+un-gated-by-exclusion but its full-canvas ratio (0.744) undercounts a mostly-fine crop (its
+own trimmed-content ratio is ~95%, the shortfall is deliberate preview margin, not
+misalignment) and is gated anyway. `card-local-light` and the tooltip pair were fixed instead
+of excluded: the card preview had drifted to compare content the reference never showed (an
+extra password field, a footer-slot divider absent from the real login-card demo), and the
+tooltip pair was comparing a button trigger against the reference's tooltip-bubble capture --
+a wrong-content pairing, not an alignment problem. Both are `good` crops now.

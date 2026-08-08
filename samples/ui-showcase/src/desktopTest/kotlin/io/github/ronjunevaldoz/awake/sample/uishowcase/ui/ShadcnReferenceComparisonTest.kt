@@ -11,9 +11,16 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
  * from the live docs site -- see that script's header for why the previous set of "shadcn
  * reference" images wasn't actually from shadcn/ui at all).
  *
- * Deliberately non-failing: mismatch against the real reference is real, expected, and not
- * something this pass is fixing -- see docs/reference/ui-validation.md's harness section. This
- * only asserts the harness itself ran and produced a report a human can open.
+ * Absolute mismatch against the real reference is real, expected, and not something this test
+ * fixes -- pixel-perfect parity with shadcn/ui isn't the goal (different rasterizer, different
+ * font). What IS gated is *drift*: each pair's mismatch% is checked against a committed baseline
+ * (`tools/shadcn_parity_baseline.json`) plus a small tolerance, so a regression that makes a
+ * component look measurably less like its reference fails the build instead of silently landing
+ * in a report nobody re-reads. This replaced an earlier version of this test that only asserted
+ * the harness ran -- real regressions (e.g. a checkbox radius change that turned it into a
+ * circle) reached users through that gap because "compared and wrote a report" was mistaken for
+ * "verified". See docs/reference/ui-validation.md's "Shadcn Parity Regression Gate" section for
+ * the noise-floor measurement behind the tolerance and re-recording instructions.
  *
  * Renders its own Awake-side previews (rather than depending on [ShadcnParityScreenshotTest]
  * having already run in the same invocation) so `--tests "*ShadcnReferenceComparisonTest*"`
@@ -29,11 +36,14 @@ import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnLabel
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -44,6 +54,7 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.awt.image.BufferedImage
@@ -67,11 +78,16 @@ private fun comparisonTestSnapshot(): UiInputState {
     id = "awake-card-light",
     title = "Awake Card (light)",
     group = "Shadcn Parity",
-    summary = "Matches docs/reference/shadcn-previews/card_states_light.png's login-card arrangement (header/body/footer) for a direct side-by-side. " +
-        "Canvas hugs the card's own bounding box instead of the old 320x300 canvas (content was already 272x276, " +
-        "close to the full canvas -- this pair was already the harness's one 'good' crop, tightened further here).",
+    summary = "Matches docs/reference/shadcn-previews-local/card-login_light.png's login-card arrangement for a direct " +
+        "side-by-side. Composition mirrors tools/shadcn-reference-app/src/cases.tsx's card-login case exactly now: " +
+        "one Label+Input(email)+full-width Login button, all in the content slot -- the previous version added a " +
+        "password field the reference never shows and put Login in shadcnCard's footer slot, which the real markup " +
+        "doesn't use either, so the aligned crop (208 of 284px of Awake's own trimmed height) was comparing content " +
+        "the reference couldn't possibly contain. shadcnCard still draws a divider under the header regardless " +
+        "(real shadcn's CardHeader border is opt-in via an explicit border-b class this demo never sets) -- a real, " +
+        "reportable gap left as-is since fixing it means editing shadcnCard itself, out of this harness's scope.",
     width = 288,
-    height = 292,
+    height = 234,
 )
 internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -94,14 +110,9 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
                         style = Style { textSize(theme.typography.title) },
                     )
                 },
-                footer = {
-                    shadcnButton(
-                        "parity-card-login",
-                        "Login",
-                        modifier = Modifier.width(240f.px).height(36f.px),
-                    )
-                },
             ) { _ ->
+                shadcnLabel("Email")
+                spacer(Modifier.height(6f.dp))
                 shadcnInput(
                     "parity-card-email",
                     value = "",
@@ -109,14 +120,59 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
                     modifier = Modifier.width(240f.px).height(36f.px),
                 )
                 spacer(Modifier.height(12f.dp))
-                shadcnInput(
-                    "parity-card-password",
-                    value = "",
-                    placeholder = "Password",
+                shadcnButton(
+                    "parity-card-login",
+                    "Login",
                     modifier = Modifier.width(240f.px).height(36f.px),
                 )
             }
         }
+        return AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.colors.background,
+            font = font,
+            semantics = ui.semanticNodes(),
+        )
+    }
+}
+
+@AwakeUiPreview(
+    id = "awake-tooltip-content-light",
+    title = "Awake Tooltip Content (light)",
+    group = "Shadcn Parity",
+    summary = "Matches docs/reference/shadcn-previews-local/tooltip-open_light.png -- that capture's selector is " +
+        "`[data-slot=\"tooltip-content\"]` (tools/shadcn_reference_cases.json), i.e. only the open bubble itself, " +
+        "not the trigger. The pair used to compare against awake-tooltip-trigger-light (a 'Hover me' button), a " +
+        "genuine wrong-content pairing bug, not a crop/alignment issue -- no amount of aligned-crop tuning makes a " +
+        "button resemble a tooltip bubble. This renders just the bubble via the real shadcnTooltipText, no visible " +
+        "trigger widget, matching the reference's own framing and text ('Add to library', tools/shadcn-reference-app" +
+        "/src/cases.tsx's tooltip-open case). Canvas width is pinned close to the expected bubble width rather than " +
+        "generously oversized: a WrapContent popup's word-wrapped text measures its width from the *available* " +
+        "space (windowBounds.width, io.github.ronjunevaldoz.awake.ui.UiPopup.kt's `popup()`), not its intrinsic " +
+        "text width, so a wide canvas would report a wide bubble no matter how short the text is -- worth flagging " +
+        "as a real WrapContent-sizing gap, not something this preview can paper over except by keeping the canvas " +
+        "itself close to the intended size.",
+    width = 112,
+    height = 32,
+)
+internal object AwakeTooltipContentLightPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
+        val theme = shadcnTheme(dark = false)
+        val font = UiFonts.default()
+        val ui = UiContext()
+        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), comparisonTestSnapshot())
+        ui.pushFont(font)
+        ui.pushTheme(theme)
+        // Anchor is a 1px sliver, not drawn -- just enough for BottomCenter/TopCenter +
+        // spacing.xs to place the bubble, so the canvas doesn't waste rows on a full-size
+        // trigger the reference (bubble-only capture) never shows either.
+        val anchor = UiBounds(x = 0f, y = 0f, width = metadata.width.toFloat(), height = 1f)
+        ui.createAbsolute(slot = ui.frameBounds()).shadcnTooltipText(
+            anchorSlot = anchor,
+            visible = true,
+            text = "Add to library",
+            id = "parity-tooltip",
+        )
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
@@ -140,6 +196,23 @@ private data class ShadcnParityPair(
 
 @Serializable
 private data class ShadcnParityManifest(val pairs: List<ShadcnParityPair>)
+
+/** Committed regression baseline -- see this file's class doc and
+ * docs/reference/ui-validation.md's "Shadcn Parity Regression Gate" section. [tolerancePct] is
+ * an absolute percentage-point allowance above the recorded value (not a relative multiplier).
+ * [excluded] pairs still render and appear in the printed report / metrics JSON, they're just
+ * not compared against a baseline -- each entry names why its crop alignment can't be trusted.
+ * [comment]/[toleranceNote] round-trip through record mode (unlike a hand-added JSON comment
+ * with no matching property, which `encodeToString` would silently drop the next time someone
+ * records) -- keep both current if the reasoning behind the gate changes. */
+@Serializable
+private data class ShadcnParityBaseline(
+    @SerialName("_comment") val comment: String = "",
+    @SerialName("_toleranceNote") val toleranceNote: String = "",
+    val tolerancePct: Double = 1.0,
+    val excluded: Map<String, String> = emptyMap(),
+    val baseline: Map<String, Double> = emptyMap(),
+)
 
 /** One row of the report -- both the printed summary table and
  * `build/reports/shadcn-parity-metrics.json` are built from this. */
@@ -267,6 +340,7 @@ class ShadcnReferenceComparisonTest {
     fun compareAwakePreviewsAgainstRealShadcnReferences() {
         listOf(
             AwakeButtonVariantsLightPreview,
+            AwakeButtonVariantsDarkPreview,
             AwakeBadgeVariantsLightPreview,
             AwakeCheckboxStatesLightPreview,
             AwakeSwitchVariantsLightPreview,
@@ -275,7 +349,7 @@ class ShadcnReferenceComparisonTest {
             AwakeTabsLightPreview,
             AwakeCardLightPreview,
             AwakeSliderLightPreview,
-            AwakeTooltipTriggerLightPreview,
+            AwakeTooltipContentLightPreview,
             AwakeDialogStatesLightPreview,
         ).forEach { entry -> renderAnnotatedUiPreviews(entry).forEach { saveAwakeUiPreview(it) } }
 
@@ -320,11 +394,75 @@ class ShadcnReferenceComparisonTest {
         metricsFile.writeText(Json { prettyPrint = true }.encodeToString(results))
         println("wrote ${metricsFile.path}")
 
-        // Non-failing on drift by design (see this file's header) -- only proves the harness
-        // ran end to end and produced a report a human can open.
         assertTrue(
             results.isNotEmpty(),
             "expected at least one awake/reference pair to compare -- got 0, check manifest/paths above",
         )
+
+        gateAgainstBaseline(results)
+    }
+
+    /** Same `-DAWAKE_RECORD_SNAPSHOTS=true` convention as [ShadcnParityScreenshotTest] and
+     * `UiShowcasePreviewDocsTest`: without it, compares every non-excluded pair's mismatchPct
+     * against `tools/shadcn_parity_baseline.json` and fails if it drifted worse by more than
+     * [ShadcnParityBaseline.tolerancePct]. With it, overwrites the baseline with the current
+     * numbers instead of gating -- follow the same re-record discipline as any other baseline
+     * here (run without recording first, read the diff PNG, explain the drift, only then
+     * record; see skills/awake-ui-verification/SKILL.md). */
+    private fun gateAgainstBaseline(results: List<ShadcnParityMetric>) {
+        val record = System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.toBoolean() ?: false
+        val baselineFile = File("../../tools/shadcn_parity_baseline.json")
+        // encodeDefaults: without it, a field left at its default (tolerancePct == 1.0, or
+        // either comment) is silently dropped on write instead of round-tripped.
+        val baselineJson = Json {
+            prettyPrint = true
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
+        val current = baselineJson.decodeFromString<ShadcnParityBaseline>(baselineFile.readText())
+
+        if (record) {
+            val recorded = current.copy(
+                baseline = results.filter { it.name !in current.excluded }
+                    .associate { it.name to it.mismatchPct },
+            )
+            baselineFile.writeText(baselineJson.encodeToString(recorded))
+            println("recorded shadcn parity baseline -> ${baselineFile.path}")
+            return
+        }
+
+        val missing = mutableListOf<String>()
+        val regressed = mutableListOf<String>()
+        results.forEach { r ->
+            if (r.name in current.excluded) return@forEach
+            val recordedPct = current.baseline[r.name]
+            if (recordedPct == null) {
+                missing += r.name
+                return@forEach
+            }
+            val drift = r.mismatchPct - recordedPct
+            if (drift > current.tolerancePct) {
+                regressed += "${r.name}: baseline $recordedPct% -> now ${r.mismatchPct}% " +
+                    "(+${round2(drift)}pp, tolerance ${current.tolerancePct}pp)"
+            }
+        }
+
+        if (missing.isNotEmpty()) {
+            throw AssertionError(
+                "No recorded baseline for: ${missing.joinToString()}. New pair, or " +
+                    "tools/shadcn_parity_baseline.json is out of sync with tools/shadcn_parity_pairs.json. " +
+                    "After confirming build/reports/shadcn-parity/<name>_diff.png looks right, record with " +
+                    "-DAWAKE_RECORD_SNAPSHOTS=true.",
+            )
+        }
+        if (regressed.isNotEmpty()) {
+            throw AssertionError(
+                "Shadcn parity regressed beyond tolerance (${current.tolerancePct}pp):\n" +
+                    regressed.joinToString("\n") +
+                    "\nInspect build/reports/shadcn-parity/<name>_diff.png. If this is a real " +
+                    "regression, fix the component. If the drift is intentional, re-record with " +
+                    "-DAWAKE_RECORD_SNAPSHOTS=true after confirming the diff image looks right.",
+            )
+        }
     }
 }

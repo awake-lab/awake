@@ -63,9 +63,10 @@
     },
     {
       "name": "tooltip-local-light",
-      "awake": "awake-tooltip-trigger-light",
+      "awake": "awake-tooltip-content-light",
       "reference": "tooltip-open_light.png",
-      "local": true
+      "local": true,
+      "_comment": "Reference captures [data-slot=tooltip-content] only (the open bubble) -- pairs against the bubble-only preview, not the trigger button. See awake-tooltip-content-light's own doc comment."
     },
     {
       "name": "dialog-local-light",

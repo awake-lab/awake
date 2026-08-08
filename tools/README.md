@@ -50,6 +50,7 @@ Read `docs/reference/shadcn-reference-pipeline.md` first.
 | `compare_parity.py` | Diffs an Awake render against a reference capture: aligned crop, heatmap, mismatch metrics. Pairing lives in `shadcn_parity_pairs.json`. |
 | `generate_parity_report.py` | Regenerates `docs/reference/shadcn-parity.md` from the component inventory, token test state, and comparison metrics. |
 | `generate_ui_status.py` | Regenerates `docs/reference/ui-fidelity-status.md`, the per-area status matrix. Each row's status comes from a probe against the source, so it cannot claim done for unwired work. |
+| `shadcn_parity_baseline.json` | Committed regression baseline consumed by `ShadcnReferenceComparisonTest.kt` (not a script) -- each pair's last-accepted mismatch%, an absolute-percentage-point tolerance, and an `excluded` map for pairs whose crop alignment can't be trusted yet. See `docs/reference/ui-validation.md`'s "Shadcn Parity Regression Gate" section. |
 
 ```bash
 tools/fetch_shadcn_reference.sh
@@ -61,6 +62,13 @@ python3 tools/generate_ui_status.py
 Comparison metrics are only as good as the alignment between the two captures. The generated
 report carries a `crop` column for exactly this reason — a `poor` row means the framing
 differs too much to conclude anything, not that the component is wrong.
+
+`ShadcnReferenceComparisonTest` fails the build on regression (a pair's mismatch% drifting worse
+than its `tools/shadcn_parity_baseline.json` entry by more than the baseline's tolerance), not on
+absolute distance from shadcn/ui -- that distance is real and stays untargeted. Re-record the
+baseline the same way as any other golden here, `-DAWAKE_RECORD_SNAPSHOTS=true`, only after
+reading the diff PNG under `build/reports/shadcn-parity/` and confirming the drift is intended
+(see `skills/awake-ui-verification/SKILL.md`).
 
 ## Icon fidelity
 
