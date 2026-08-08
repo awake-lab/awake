@@ -23,8 +23,13 @@ kotlin {
         }
     }
 
-    @Suppress("OPT_IN_USAGE")
-    wasmJs {
-        browser()
+    // Opt-out for modules whose API cannot exist in a browser (backend:vulkan has no wasm
+    // actuals -- browsers speak WebGPU, not Vulkan). Set awake.target.wasmJs=false in the
+    // module's gradle.properties.
+    if (findProperty("awake.target.wasmJs") != "false") {
+        @Suppress("OPT_IN_USAGE")
+        wasmJs {
+            browser()
+        }
     }
 }
