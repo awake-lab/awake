@@ -287,21 +287,6 @@ private fun CppFunctionBodyBuilder.processVkCreate(
     }
 }
 
-private fun CppFunctionBodyBuilder.processVkAllocate(
-    method: Method,
-    methodName: String,
-    methodParams: String,
-) {
-    child("// process allocate??")
-    val handleReturnType = method.getDeclaredAnnotation(VkReturnType::class.java)
-    if (handleReturnType != null) {
-        child("${handleReturnType.name} handle;")
-    } else {
-        child("${method.returnType.toVulkanType()} handle;")
-    }
-    child("$methodName($methodParams, &handle);")
-}
-
 private fun CppFunctionBodyBuilder.processVkDestroy(
     method: Method,
     methodName: String,

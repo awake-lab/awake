@@ -1,5 +1,7 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
+@file:Suppress("MagicNumber")
+
 package io.github.ronjunevaldoz.awake.studio.examples
 
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry

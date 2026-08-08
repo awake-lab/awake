@@ -103,12 +103,14 @@ private const val MAX_CONTACTS = 20_480u
 private fun getNumBroadPhaseLayers(self: COpaquePointer?): UInt = 1u
 
 @OptIn(ExperimentalForeignApi::class)
+@Suppress("FunctionOnlyReturningConstant") // C callback slot -- Jolt's vtable needs a function.
 private fun getBroadPhaseLayer(
     self: COpaquePointer?,
     layer: JPC_ObjectLayer,
 ): JPC_BroadPhaseLayer = 0u
 
 @OptIn(ExperimentalForeignApi::class)
+@Suppress("FunctionOnlyReturningConstant") // C callback slot -- Jolt's vtable needs a function.
 private fun objectVsBroadPhaseShouldCollide(
     self: COpaquePointer?,
     objectLayer: JPC_ObjectLayer,

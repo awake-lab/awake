@@ -21,6 +21,7 @@ fun studioGameSpec(): GameSpec = studioDefinition.createGameSpec()
 
 private fun WindowDsl.configureStudioWindow() {
     title = "Awake Studio"
+    @Suppress("MagicNumber") // Default window size, used exactly once.
     size(1600, 900)
     backend.select(platformBackendPreference())
 }

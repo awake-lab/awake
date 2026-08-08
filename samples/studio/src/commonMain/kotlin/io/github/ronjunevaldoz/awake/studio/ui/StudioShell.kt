@@ -23,6 +23,7 @@ private val StudioTheme = shadcnTheme(dark = false)
 // Dark neutral gray, not pure black -- Renderer.clearColor otherwise defaults to stark black,
 // which reads as "nothing rendered" rather than a real viewport background. Same reasoning
 // scene3d-playground's own VIEWPORT_CLEAR_COLOR documents.
+@Suppress("MagicNumber") // The literals define the constant; naming each channel adds nothing.
 private val ViewportClearColor = floatArrayOf(0.14f, 0.14f, 0.16f, 1f)
 
 internal fun SceneGameRuntime.drawStudioShell(store: StudioStore, viewportWidth: Float, viewportHeight: Float) {
