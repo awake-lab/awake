@@ -15,8 +15,8 @@ import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.pointerDown
-import io.github.ronjunevaldoz.awake.ui.pointerX
+import io.github.ronjunevaldoz.awake.ui.scope.pointerDown
+import io.github.ronjunevaldoz.awake.ui.scope.pointerX
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -29,7 +29,9 @@ import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 // Dp, not raw px: added to/subtracted from `slot`/`trackSlot` coordinates that are already
 // density-scaled, so a raw literal would render half-size at 2x.
 private val SLIDER_TRACK_HEIGHT = 6f.dp
-private val SLIDER_KNOB_DIAMETER = 20f.dp
+
+// shadcn v4's thumb is size-4 (16px) with a 1px primary border on a background fill.
+private val SLIDER_KNOB_DIAMETER = 16f.dp
 fun UiScope.slider(
     id: String,
     min: Float,
@@ -123,7 +125,7 @@ fun UiScope.slider(
                     knobDiameterPx,
                 ),
                 resolved = surface.resolved.copy(
-                    borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1.5f.dp,
+                    borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1f.dp,
                     shapeSpec = UiShapeSpec.Pill,
                 ),
                 fillColor = theme.colors.background,

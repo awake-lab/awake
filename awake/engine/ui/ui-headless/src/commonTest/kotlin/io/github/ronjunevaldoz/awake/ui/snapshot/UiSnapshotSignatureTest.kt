@@ -107,12 +107,14 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // text-bearing scene moved.
 // 2026-08-08: ui-component-state-matrix only -- the checkbox corner moved off radii.md (8dp on a
 // 16dp box, i.e. a circle) to shadcn's literal rounded-[4px]. It is the one scene with a checkbox.
+// 2026-08-08: ui-component-state-matrix again -- the slider knob shrank 20dp -> 16dp with a 1dp
+// border, shadcn v4's size-4 thumb. It is also the one scene with a slider.
 private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x8f8db47a456d5feeuL,
     "ui-shaped-panel" to 0x932f32837493bb6duL,
     "ui-panel-controls" to 0x794dc208ea695324uL,
     "ui-alert-dialog" to 0xad13b375ad998dbbuL,
-    "ui-component-state-matrix" to 0x87fd477737dd7953uL,
+    "ui-component-state-matrix" to 0x03d905f9c88b8683uL,
     "ui-rounded-clip-vector" to 0xcc9848b4fbbc7aeeuL,
     "ui-awake-shadcn-showcase" to 0x8ebd6881f4dfe9aeuL,
 )

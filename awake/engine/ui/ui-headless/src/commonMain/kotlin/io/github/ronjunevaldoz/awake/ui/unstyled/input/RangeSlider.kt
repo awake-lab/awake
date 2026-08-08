@@ -17,8 +17,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.pointerDown
-import io.github.ronjunevaldoz.awake.ui.pointerX
+import io.github.ronjunevaldoz.awake.ui.scope.pointerDown
+import io.github.ronjunevaldoz.awake.ui.scope.pointerX
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -30,7 +30,9 @@ import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import kotlin.math.abs
 
 private const val RANGE_SLIDER_TRACK_HEIGHT_PX = 6f
-private const val RANGE_SLIDER_KNOB_DIAMETER_PX = 20f
+
+// Matches Slider.kt's SLIDER_KNOB_DIAMETER: shadcn v4's size-4 thumb.
+private const val RANGE_SLIDER_KNOB_DIAMETER_PX = 16f
 
 // ponytail: fixed 1% of the [min, max] span as the minimum start/end gap -- matches shadcn's
 // own range slider "handles can't cross" behavior without modeling step size; revisit if a
@@ -195,7 +197,7 @@ fun UiScope.rangeSlider(
                     ),
                     resolved = surface.resolved.copy(
                         borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f }
-                            ?: 1.5f.dp,
+                            ?: 1f.dp,
                         shapeSpec = UiShapeSpec.Pill,
                     ),
                     fillColor = theme.colors.background,
