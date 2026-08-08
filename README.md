@@ -82,6 +82,31 @@ Vulkan loads the compiled `.spv` binaries at runtime, **not** the `.frag`/`.vert
 next to them — so editing a source without recompiling silently changes nothing. The
 `verifyShaderBinaries` check catches that and fails the build.
 
+## Verifying UI and icons
+
+Awake's UI is verified against real external references, not just against its own previous
+output. Three different questions, three different tools — a passing golden says a render
+did not change, never that it is correct.
+
+| Question | Tool | Command |
+|---|---|---|
+| Did this change? | snapshot goldens + signature maps | `./gradlew :samples:ui-showcase:desktopTest` |
+| Does it look like shadcn? | captures from `ui.shadcn.com` | `ShadcnReferenceComparisonTest` |
+| Is this token value right? | pinned `shadcn-ui/ui` checkout | `ShadcnReferenceTokenExpandedTest` |
+| Does this icon match Heroicons? | rasterized official SVG | `tools/capture_heroicons_reference.py` |
+
+```bash
+tools/fetch_shadcn_reference.sh                 # pin the reference (run first)
+./gradlew :samples:ui-showcase:desktopTest
+python3 tools/generate_parity_report.py         # refresh the parity report
+python3 tools/generate_ui_status.py             # refresh the status matrix
+```
+
+Two rules worth knowing before touching a baseline: never re-record without opening the diff
+first, and treat a parity number from a badly cropped pair as *unmeasured* rather than passing.
+`skills/awake-ui-verification/SKILL.md` carries the full reasoning,
+`docs/reference/ui-validation.md` the policy, and `tools/README.md` the toolchain.
+
 ## Docs
 
 - [`CHANGELOG.md`](CHANGELOG.md) — what changed

@@ -71,6 +71,52 @@ def implemented(component: str, symbols: set[str]) -> str | None:
     return None
 
 
+REF_UI = REPO / "third_party/shadcn-ui-ref/apps/v4/registry/new-york-v4/ui"
+
+# Our enum name -> shadcn's own name, where the two deliberately differ.
+VARIANT_ALIASES = {"primary": "default", "danger": "destructive", "filled": "default"}
+# Not variants: cva size scales and the size key itself leak out of the same block.
+NOT_VARIANTS = {"size", "sm", "lg", "xs", "icon", "default_size"}
+
+
+def real_variants(component: str) -> list[str] | None:
+    """Variant names shadcn itself declares, read from the pinned checkout."""
+    path = REF_UI / f"{component}.tsx"
+    if not path.exists():
+        return None
+    block = re.search(r"variant:\s*\{(.*?)\n\s{4}\}", path.read_text(), re.S)
+    if not block:
+        return None
+    found = set(re.findall(r"^\s+([a-zA-Z]+):", block.group(1), re.M)) - NOT_VARIANTS
+    return sorted(found)
+
+
+def our_variants(enum_name: str) -> list[str]:
+    path = REPO / ("awake/engine/ui/ui-designsystem/src/commonMain/kotlin/io/github/"
+                   "ronjunevaldoz/awake/ui/designsystem/styles/ShadcnVariants.kt")
+    if not path.exists():
+        return []
+    block = re.search(rf"enum class {enum_name} \{{(.*?)\}}", path.read_text(), re.S)
+    if not block:
+        return []
+    return [n.lower() for n in re.findall(r"^\s+([A-Z][a-zA-Z]*)\s*,", block.group(1), re.M)]
+
+
+def variant_audit() -> list[tuple[str, list[str], list[str]]]:
+    """(component, invented-by-us, missing-from-us) against the pinned reference."""
+    pairs = [("button", "ShadcnButtonVariant"), ("badge", "ShadcnBadgeVariant"),
+             ("alert", "ShadcnAlertVariant"), ("toggle", "ShadcnToggleVariant")]
+    out = []
+    for component, enum_name in pairs:
+        real = real_variants(component)
+        ours = our_variants(enum_name)
+        if real is None or not ours:
+            continue
+        mapped = [VARIANT_ALIASES.get(v, v) for v in ours]
+        out.append((component, sorted(set(mapped) - set(real)), sorted(set(real) - set(mapped))))
+    return out
+
+
 def load_metrics() -> list[dict]:
     if not METRICS.exists():
         return []
@@ -205,6 +251,25 @@ def main() -> None:
             )
     add("")
 
+    add("## Variant fidelity")
+    add("")
+    add("Every variant we expose, checked against the ones shadcn itself declares in the pinned")
+    add("checkout. This is the guard against inventing API that has no counterpart upstream --")
+    add("`Primary`/`Danger`/`Filled` are deliberate renames of shadcn's `default`/`destructive`")
+    add("and are mapped, not flagged.")
+    add("")
+    audit = variant_audit()
+    if not audit:
+        add("Reference checkout missing -- run `tools/fetch_shadcn_reference.sh`.")
+    else:
+        add("| component | invented by us | missing from us |")
+        add("|---|---|---|")
+        for component, invented, absent in audit:
+            add(
+                f"| {component} | {', '.join(f'`{v}`' for v in invented) or 'none'} "
+                f"| {', '.join(f'`{v}`' for v in absent) or 'none'} |"
+            )
+    add("")
     add("## What these numbers do not cover")
     add("")
     add("- Only the default theme (`Vega` preset, `Neutral` base) is captured; the other")

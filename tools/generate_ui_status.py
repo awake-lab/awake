@@ -218,13 +218,15 @@ def build_rows() -> list[tuple[str, str, str, str, str]]:
         "`tools/capture_shadcn_reference.py`",
         "Light mode only.",
     ))
+    # done only when essentially every pair is readable -- a harness that measures most of
+    # its pairs is still a harness you cannot trust the rest of.
+    harness_status = MISSING if not entries else (DONE if len(good) >= len(entries) - 1 else PARTIAL)
+    unreadable = [e["name"] for e in entries if crop_quality(e) != "good"]
     rows.append((
-        "Comparison harness",
-        PARTIAL if entries and good else (MISSING if not entries else PARTIAL),
+        "Comparison harness", harness_status,
         f"{len(good)}/{len(entries)} pair(s) aligned well enough to read" if entries else "no metrics on disk",
         "`ShadcnReferenceComparisonTest`",
-        "Misaligned pairs report framing differences, not fidelity. Matching preview "
-        "framing to the captures is the blocking work.",
+        ("Still unreadable: " + ", ".join(unreadable) + ".") if unreadable else "",
     ))
 
     dark = len(list(PREVIEWS.glob("*dark*.png"))) if PREVIEWS.exists() else 0

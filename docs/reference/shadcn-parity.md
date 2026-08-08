@@ -86,6 +86,20 @@ to the reference capture, not changing component styling.
 
 Among the 10 well-aligned pairs, `select` is closest (11.70%) and `dialog` is furthest (97.59%).
 
+## Variant fidelity
+
+Every variant we expose, checked against the ones shadcn itself declares in the pinned
+checkout. This is the guard against inventing API that has no counterpart upstream --
+`Primary`/`Danger`/`Filled` are deliberate renames of shadcn's `default`/`destructive`
+and are mapped, not flagged.
+
+| component | invented by us | missing from us |
+|---|---|---|
+| button | none | none |
+| badge | none | `link` |
+| alert | none | none |
+| toggle | none | none |
+
 ## What these numbers do not cover
 
 - Only the default theme (`Vega` preset, `Neutral` base) is captured; the other
