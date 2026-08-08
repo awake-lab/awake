@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.tessellateFillAa
 import io.github.ronjunevaldoz.awake.ui.tessellateStroke
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.splitToCapacity
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
 import io.github.ronjunevaldoz.awake.core.colors.Color as AwakeColor
 
@@ -87,6 +88,9 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 // exceeds DynamicMesh capacity (1024 vertices)" from 10 shadcn sliders' rounded
                 // -track quads inside one rounded-clip container -- the identical unchunked
                 // assumption applied here too.
+                // slice only contains elements matching `first`'s runtime class (grouped by
+                // the primitives[index]::class == first::class scan above), and `first` was
+                // just smart-cast to UiDrawPrimitive.Quad by this `when` branch.
                 @Suppress("UNCHECKED_CAST")
                 val quadSlice = slice as List<UiDrawPrimitive.Quad>
                 if (canExactClip(activePathClips)) {
@@ -123,6 +127,8 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
             is UiDrawPrimitive.GradientQuad -> {
                 // See the Quad branch's doc comment for why both the exact-clip and fast paths
                 // need chunking, not just the exact-clip one.
+                // slice only contains elements matching `first`'s runtime class (see the Quad
+                // branch above); `first` was just smart-cast to GradientQuad by this branch.
                 @Suppress("UNCHECKED_CAST")
                 val gradientSlice = slice as List<UiDrawPrimitive.GradientQuad>
                 if (canExactClip(activePathClips)) {
@@ -165,6 +171,8 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 // case: dedicated SDF UiRoundedQuadRenderPipeline (mirrors Vulkan's
                 // uiRoundedQuadRenderPipeline), chunked by primitive count -- it previously had
                 // neither chunking.
+                // slice only contains elements matching `first`'s runtime class (see the Quad
+                // branch above); `first` was just smart-cast to RoundedQuad by this branch.
                 @Suppress("UNCHECKED_CAST")
                 val roundedSlice = slice as List<UiDrawPrimitive.RoundedQuad>
                 if (canExactClip(activePathClips)) {
@@ -195,6 +203,8 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 // Path tessellation always produces a variable vertex count (unlike Quad's
                 // fixed 4), so this needs vertex-budget chunking regardless of whether a clip
                 // is active -- see the RoundedQuad branch's doc comment above.
+                // slice only contains elements matching `first`'s runtime class (see the Quad
+                // branch above); `first` was just smart-cast to FilledPath by this branch.
                 @Suppress("UNCHECKED_CAST")
                 val pathSlice = slice as List<UiDrawPrimitive.FilledPath>
                 val tessellated = pathSlice.map { primitive ->
@@ -217,6 +227,8 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 // wireframe overlay (UiDebugOverlayColors, 3 stroked rects per semantic node)
                 // on a content-heavy page: "UI stroked-path run vertex count (4192) exceeds
                 // DynamicMesh capacity (1024 vertices)".
+                // slice only contains elements matching `first`'s runtime class (see the Quad
+                // branch above); `first` was just smart-cast to StrokedPath by this branch.
                 @Suppress("UNCHECKED_CAST")
                 val strokedSlice = slice as List<UiDrawPrimitive.StrokedPath>
                 val tessellated = strokedSlice.map { tessellateStrokedPath(it, activePathClips, safeInteriorRect) }
@@ -227,6 +239,8 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 // Vulkan's Renderer.performDrawUi() Glyph branch, so a single contiguous
                 // glyph run over MAX_UI_QUADS glyphs doesn't hit stageGlyphRun's
                 // require(glyphs.size <= MAX_UI_QUADS) guard and throw.
+                // slice only contains elements matching `first`'s runtime class (see the Quad
+                // branch above); `first` was just smart-cast to Glyph by this branch.
                 @Suppress("UNCHECKED_CAST")
                 val glyphSlice = slice as List<UiDrawPrimitive.Glyph>
                 if (canExactClip(activePathClips)) {
@@ -286,6 +300,8 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                 }
             }
             is UiDrawPrimitive.Texture -> {
+                // slice only contains elements matching `first`'s runtime class (see the Quad
+                // branch above); `first` was just smart-cast to Texture by this branch.
                 @Suppress("UNCHECKED_CAST")
                 runs += Renderer.UiRun.TextureRun(stageTextureRun(slice as List<UiDrawPrimitive.Texture>, activePathClips, safeInteriorRect))
             }
@@ -497,7 +513,9 @@ private fun Renderer.stageChunkedColoredVertexTriangleMeshes(
         chunkVertices = 0
         chunkIndices = 0
     }
-    for (m in meshes) {
+    // Split first: the loop below only flushes BETWEEN meshes, so a single oversized mesh
+    // would otherwise land in an empty chunk and fail staging's capacity check.
+    for (m in meshes.flatMap { it.splitToCapacity(maxVertices, maxIndices) }) {
         val vertexCount = m.vertices.size
         val indexCount = m.indices.size
         if (chunk.isNotEmpty() && (chunkVertices + vertexCount > maxVertices || chunkIndices + indexCount > maxIndices)) {
@@ -559,10 +577,10 @@ private fun stageColoredTriangleMeshes(
     val totalVertices = geometries.sumOf { it.first.points.size }
     val totalIndices = geometries.sumOf { it.first.indices.size }
     require(totalVertices <= maxVertices) {
-        "UI $label run vertex count ($totalVertices) exceeds DynamicMesh capacity ($maxVertices vertices)."
+        "UI $label run vertex count ($totalVertices) exceeds DynamicMesh capacity ($maxVertices). Staging is only reached via a chunker that pre-splits meshes with splitToCapacity(), so this means a caller staged a run directly, or a new mesh source bypassed that split. Route it through stageChunked*TriangleMeshes rather than raising MAX_UI_QUADS."
     }
     require(totalIndices <= maxIndices) {
-        "UI $label run index count ($totalIndices) exceeds DynamicMesh capacity ($maxIndices indices)."
+        "UI $label run index count ($totalIndices) exceeds DynamicMesh capacity ($maxIndices). Staging is only reached via a chunker that pre-splits meshes with splitToCapacity(), so this means a caller staged a run directly, or a new mesh source bypassed that split. Route it through stageChunked*TriangleMeshes rather than raising MAX_UI_QUADS."
     }
 
     val vertices = FloatArray(totalVertices * DynamicMesh.FLOATS_PER_VERTEX)
@@ -609,10 +627,10 @@ private fun stageColoredVertexTriangleMeshes(
     val totalVertices = meshes.sumOf { it.vertices.size }
     val totalIndices = meshes.sumOf { it.indices.size }
     require(totalVertices <= maxVertices) {
-        "UI $label run vertex count ($totalVertices) exceeds DynamicMesh capacity ($maxVertices vertices)."
+        "UI $label run vertex count ($totalVertices) exceeds DynamicMesh capacity ($maxVertices). Staging is only reached via a chunker that pre-splits meshes with splitToCapacity(), so this means a caller staged a run directly, or a new mesh source bypassed that split. Route it through stageChunked*TriangleMeshes rather than raising MAX_UI_QUADS."
     }
     require(totalIndices <= maxIndices) {
-        "UI $label run index count ($totalIndices) exceeds DynamicMesh capacity ($maxIndices indices)."
+        "UI $label run index count ($totalIndices) exceeds DynamicMesh capacity ($maxIndices). Staging is only reached via a chunker that pre-splits meshes with splitToCapacity(), so this means a caller staged a run directly, or a new mesh source bypassed that split. Route it through stageChunked*TriangleMeshes rather than raising MAX_UI_QUADS."
     }
 
     val vertices = FloatArray(totalVertices * DynamicMesh.FLOATS_PER_VERTEX)
@@ -712,10 +730,10 @@ private fun stageTexturedTriangleMeshes(
     val totalVertices = geometries.sumOf { it.first.vertices.size }
     val totalIndices = geometries.sumOf { it.first.indices.size }
     require(totalVertices <= maxVertices) {
-        "UI $label run vertex count ($totalVertices) exceeds DynamicMesh capacity ($maxVertices vertices)."
+        "UI $label run vertex count ($totalVertices) exceeds DynamicMesh capacity ($maxVertices). Staging is only reached via a chunker that pre-splits meshes with splitToCapacity(), so this means a caller staged a run directly, or a new mesh source bypassed that split. Route it through stageChunked*TriangleMeshes rather than raising MAX_UI_QUADS."
     }
     require(totalIndices <= maxIndices) {
-        "UI $label run index count ($totalIndices) exceeds DynamicMesh capacity ($maxIndices indices)."
+        "UI $label run index count ($totalIndices) exceeds DynamicMesh capacity ($maxIndices). Staging is only reached via a chunker that pre-splits meshes with splitToCapacity(), so this means a caller staged a run directly, or a new mesh source bypassed that split. Route it through stageChunked*TriangleMeshes rather than raising MAX_UI_QUADS."
     }
 
     val vertices = FloatArray(totalVertices * DynamicMesh.GLYPH_FLOATS_PER_VERTEX)

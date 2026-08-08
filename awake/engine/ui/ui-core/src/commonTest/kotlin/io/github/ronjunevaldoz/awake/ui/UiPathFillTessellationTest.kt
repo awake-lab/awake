@@ -8,6 +8,7 @@ import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 /**
@@ -333,4 +334,73 @@ private fun shoelaceArea(points: List<UiPoint>): Float {
         sum += a.x * b.y - b.x * a.y
     }
     return sum / 2f
+}
+
+/**
+ * Backends stage a filled path into a fixed-capacity buffer and their chunkers only flush
+ * between meshes, so a single mesh bigger than one buffer used to blow the capacity check at
+ * draw time (a real crash: "filled-path run vertex count (1050) exceeds DynamicMesh capacity
+ * (1024)"). Scanline fills emit a quad per span per slab, so real glyphs reach that size.
+ */
+class UiColoredMeshSplitTest {
+
+    private fun mesh(triangleCount: Int): UiColoredTriangleMesh {
+        val vertices = ArrayList<UiColoredVertex>()
+        val indices = ArrayList<Int>()
+        repeat(triangleCount) { i ->
+            val base = vertices.size
+            val y = i.toFloat()
+            vertices += UiColoredVertex(UiPoint(0f, y), Color.White)
+            vertices += UiColoredVertex(UiPoint(1f, y), Color.White)
+            vertices += UiColoredVertex(UiPoint(0f, y + 1f), Color.White)
+            indices += base
+            indices += base + 1
+            indices += base + 2
+        }
+        return UiColoredTriangleMesh(vertices, indices.toIntArray())
+    }
+
+    @Test
+    fun oversizedMeshSplitsIntoPiecesThatEachFit() {
+        val maxVertices = 1024
+        val maxIndices = 1536
+        val original = mesh(triangleCount = 700) // 2100 vertices, over capacity
+        val pieces = original.splitToCapacity(maxVertices, maxIndices)
+
+        assertTrue(pieces.size > 1, "expected the mesh to be split, got ${pieces.size} piece(s)")
+        pieces.forEach { piece ->
+            assertTrue(piece.vertices.size <= maxVertices, "piece has ${piece.vertices.size} vertices")
+            assertTrue(piece.indices.size <= maxIndices, "piece has ${piece.indices.size} indices")
+            piece.indices.forEach { index ->
+                assertTrue(index in piece.vertices.indices, "index $index out of range after re-indexing")
+            }
+        }
+        // No triangle may be lost or duplicated by the split.
+        assertEquals(original.indices.size, pieces.sumOf { it.indices.size })
+    }
+
+    @Test
+    fun meshThatAlreadyFitsIsReturnedUnchanged() {
+        val original = mesh(triangleCount = 4)
+        val pieces = original.splitToCapacity(1024, 1536)
+        assertEquals(1, pieces.size)
+        assertSame(original, pieces.single())
+    }
+
+    @Test
+    fun splitPreservesEveryTrianglesGeometry() {
+        val original = mesh(triangleCount = 500)
+        val pieces = original.splitToCapacity(64, 96)
+
+        fun corners(m: UiColoredTriangleMesh): List<List<UiPoint>> =
+            (0 until m.indices.size step 3).map { at ->
+                listOf(
+                    m.vertices[m.indices[at]].position,
+                    m.vertices[m.indices[at + 1]].position,
+                    m.vertices[m.indices[at + 2]].position,
+                )
+            }
+
+        assertEquals(corners(original), pieces.flatMap(::corners))
+    }
 }

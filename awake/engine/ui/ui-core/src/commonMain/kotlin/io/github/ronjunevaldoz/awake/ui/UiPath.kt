@@ -77,6 +77,60 @@ data class UiColoredTriangleMesh(
     val indices: IntArray,
 )
 
+/**
+ * Splits a mesh into pieces that each fit a backend's fixed per-draw buffer, cutting on triangle
+ * boundaries and re-indexing each piece against its own vertex list.
+ *
+ * Backends chunk a *list* of meshes into draws, but their chunkers only ever flush between
+ * meshes -- so a single mesh larger than one buffer was never split and blew the capacity check
+ * at staging time. That held while every fill was a centroid fan (one vertex per contour point
+ * plus a centre); it stopped holding once concave and holed paths started scanline-filling,
+ * which emits a quad per span per slab. Run meshes through this before chunking so the
+ * "one mesh fits one buffer" assumption is enforced rather than assumed.
+ *
+ * Returns the receiver unchanged when it already fits, so the common case allocates nothing.
+ */
+fun UiColoredTriangleMesh.splitToCapacity(maxVertices: Int, maxIndices: Int): List<UiColoredTriangleMesh> {
+    if (vertices.size <= maxVertices && indices.size <= maxIndices) return listOf(this)
+    // A triangle needs 3 indices and can introduce up to 3 vertices, so anything below that
+    // cannot make progress -- emit as-is and let the caller's own capacity check report it.
+    if (maxVertices < 3 || maxIndices < 3) return listOf(this)
+
+    val pieces = ArrayList<UiColoredTriangleMesh>()
+    var pieceVertices = ArrayList<UiColoredVertex>()
+    var pieceIndices = ArrayList<Int>()
+    var remap = HashMap<Int, Int>()
+
+    fun flush() {
+        if (pieceIndices.isEmpty()) return
+        pieces += UiColoredTriangleMesh(pieceVertices.toList(), pieceIndices.toIntArray())
+        pieceVertices = ArrayList()
+        pieceIndices = ArrayList()
+        remap = HashMap()
+    }
+
+    var at = 0
+    while (at + 3 <= indices.size) {
+        val triangle = intArrayOf(indices[at], indices[at + 1], indices[at + 2])
+        val newVertices = triangle.distinct().count { it !in remap }
+        if (pieceIndices.isNotEmpty() &&
+            (pieceVertices.size + newVertices > maxVertices || pieceIndices.size + 3 > maxIndices)
+        ) {
+            flush()
+        }
+        triangle.forEach { source ->
+            val mapped = remap.getOrPut(source) {
+                pieceVertices += vertices[source]
+                pieceVertices.size - 1
+            }
+            pieceIndices += mapped
+        }
+        at += 3
+    }
+    flush()
+    return pieces
+}
+
 sealed interface UiPathCommand {
     data class MoveTo(val x: Float, val y: Float) : UiPathCommand
     data class LineTo(val x: Float, val y: Float) : UiPathCommand
