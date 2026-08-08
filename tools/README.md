@@ -44,6 +44,34 @@ Comparison metrics are only as good as the alignment between the two captures. T
 report carries a `crop` column for exactly this reason — a `poor` row means the framing
 differs too much to conclude anything, not that the component is wrong.
 
+## Icon fidelity
+
+Proves each shipped `HeroIcons` `UiImageVector` renders the same shape as the official
+Heroicons SVG it was generated from, automatically -- see `skills/awake-icon-authoring/SKILL.md`.
+
+| Script | Purpose |
+|---|---|
+| `capture_heroicons_reference.py` | Downloads each icon's official SVG and rasterizes it to a fixed 128x128 reference PNG (white fill on black, playwright/chromium) under `docs/reference/icon-previews/`. |
+| `heroicons_manifest.json` | The (name, tier, Kotlin symbol) list both this script and `IconFidelityTest` read -- one source of truth, keyed by (name, tier) since Heroicons ships different path data per tier for the same name (e.g. `square-3-stack-3d` in both 20/solid and 24/solid). |
+
+```bash
+python3 tools/capture_heroicons_reference.py                    # re-capture every reference
+python3 tools/capture_heroicons_reference.py --only chevron-down,camera
+./gradlew :awake:engine:ui:ui-headless:desktopTest --tests "*IconFidelityTest*"
+```
+
+`IconFidelityTest` (`awake/engine/ui/ui-headless/src/desktopTest/`) renders each icon through
+the real CPU rasterizer at the same 128x128 size and compares coverage-mask IoU against the
+reference (threshold and measured correct-vs-corrupted separation are documented on
+`passThreshold` in the test). It writes a reference/ours/diff PNG per icon to
+`build/reports/icon-fidelity/` and a `metrics.tsv` — always regenerate references after adding
+or regenerating an icon in `HeroIcons.kt`, and add the new entry to `heroicons_manifest.json`.
+
+Catches gross shape errors (wrong path data, a rotated/mirrored derivation, a flattened curve).
+Does not catch sub-pixel drift -- both pipelines' antialiasing differs enough that IoU alone
+can't distinguish a 1px edge nudge from noise; that is a known ceiling, not a gap this guard
+silently papers over.
+
 ## Preview serving
 
 `ui_preview_server.py` and `ui_preview_watch.sh` serve rendered preview PNGs for manual

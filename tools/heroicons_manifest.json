@@ -1,0 +1,21 @@
+[
+  {"name": "chevron-down", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "chevronDown"},
+  {"name": "chevron-up", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "chevronUp"},
+  {"name": "chevron-left", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "chevronLeft"},
+  {"name": "chevron-right", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "chevronRight"},
+  {"name": "squares-2x2", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "squares2x2"},
+  {"name": "square-3-stack-3d", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "square3Stack3d"},
+  {"name": "table-cells", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "tableCells"},
+  {"name": "globe-alt", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "globeAlt"},
+  {"name": "clock", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "clock"},
+  {"name": "arrow-path", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "arrowPath"},
+  {"name": "camera", "urlTier": "20/solid", "viewBox": 20, "kotlinTier": "Solid20Mini", "kotlinProperty": "camera"},
+  {"name": "arrow-down-on-square-stack", "urlTier": "24/solid", "viewBox": 24, "kotlinTier": "Solid24", "kotlinProperty": "arrowDownOnSquareStack"},
+  {"name": "arrow-up-on-square-stack", "urlTier": "24/solid", "viewBox": 24, "kotlinTier": "Solid24", "kotlinProperty": "arrowUpOnSquareStack"},
+  {"name": "circle-stack", "urlTier": "24/solid", "viewBox": 24, "kotlinTier": "Solid24", "kotlinProperty": "circleStack"},
+  {"name": "inbox-stack", "urlTier": "24/solid", "viewBox": 24, "kotlinTier": "Solid24", "kotlinProperty": "inboxStack"},
+  {"name": "rectangle-stack", "urlTier": "24/solid", "viewBox": 24, "kotlinTier": "Solid24", "kotlinProperty": "rectangleStack"},
+  {"name": "server-stack", "urlTier": "24/solid", "viewBox": 24, "kotlinTier": "Solid24", "kotlinProperty": "serverStack"},
+  {"name": "square-2-stack", "urlTier": "24/solid", "viewBox": 24, "kotlinTier": "Solid24", "kotlinProperty": "square2Stack"},
+  {"name": "square-3-stack-3d", "urlTier": "24/solid", "viewBox": 24, "kotlinTier": "Solid24", "kotlinProperty": "square3Stack3d"}
+]
