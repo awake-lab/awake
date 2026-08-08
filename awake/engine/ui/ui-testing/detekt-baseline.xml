@@ -4,11 +4,14 @@
   <CurrentIssues>
     <ID>ComplexCondition:AwakeUiPreviewValidator.kt$r1 != r2 || g1 != g2 || b1 != b2 || a1 != a2</ID>
     <ID>ComplexCondition:UiMetrics.kt$bounds.x &lt; allowedBounds.x - tolerancePx || bounds.y &lt; allowedBounds.y - tolerancePx || bounds.x + bounds.width > allowedBounds.x + allowedBounds.width + tolerancePx || bounds.y + bounds.height > allowedBounds.y + allowedBounds.height + tolerancePx</ID>
-    <ID>CyclomaticComplexMethod:UiInspection.kt$fun inspectUiFrame( primitives: List&lt;UiDrawPrimitive>, frame: UiBounds, font: UiFont? = null ): UiInspectionReport</ID>
-    <ID>CyclomaticComplexMethod:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null ): ByteArray</ID>
+    <ID>ConstructorParameterNaming:FigmaVariableProvider.kt$DesignTokensSchema$val file_key: String</ID>
+    <ID>CyclomaticComplexMethod:AwakeUiPreviewValidation.kt$fun validateAwakeUiPreview( metadata: AwakeUiPreviewMetadata, frame: AwakeUiPreviewFrame, config: AwakeUiPreviewValidationConfig = AwakeUiPreviewValidationConfig(), ): AwakeUiPreviewValidationReport</ID>
+    <ID>CyclomaticComplexMethod:UiInspection.kt$fun inspectUiFrame( primitives: List&lt;UiDrawPrimitive>, frame: UiBounds, font: UiFont? = null, ): UiInspectionReport</ID>
+    <ID>CyclomaticComplexMethod:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null, ): ByteArray</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:UiRasterizer.kt$val (x, y, w, h) = scaledRect(primitive.x, primitive.y, primitive.w, primitive.h, primitive.transform)</ID>
-    <ID>LongMethod:UiInspection.kt$fun inspectUiFrame( primitives: List&lt;UiDrawPrimitive>, frame: UiBounds, font: UiFont? = null ): UiInspectionReport</ID>
-    <ID>LongMethod:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null ): ByteArray</ID>
+    <ID>LongMethod:AwakeUiPreviewValidation.kt$fun validateAwakeUiPreview( metadata: AwakeUiPreviewMetadata, frame: AwakeUiPreviewFrame, config: AwakeUiPreviewValidationConfig = AwakeUiPreviewValidationConfig(), ): AwakeUiPreviewValidationReport</ID>
+    <ID>LongMethod:UiInspection.kt$fun inspectUiFrame( primitives: List&lt;UiDrawPrimitive>, frame: UiBounds, font: UiFont? = null, ): UiInspectionReport</ID>
+    <ID>LongMethod:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null, ): ByteArray</ID>
     <ID>LoopWithTooManyJumpStatements:UiRasterizer.kt$while</ID>
     <ID>MagicNumber:AwakeUiPreview.kt$AwakeUiPreviewFrame$0.12f</ID>
     <ID>MagicNumber:AwakeUiPreview.kt$AwakeUiPreviewFrame$0.1f</ID>
@@ -27,6 +30,7 @@
     <ID>MagicNumber:AwakeUiSnapshot.desktop.kt$3</ID>
     <ID>MagicNumber:AwakeUiSnapshot.desktop.kt$4</ID>
     <ID>MagicNumber:AwakeUiSnapshot.desktop.kt$8</ID>
+    <ID>MagicNumber:FigmaModeMatrix.kt$FigmaScale.Scale1_5x$1.5f</ID>
     <ID>MagicNumber:PixelBaseline.kt$0xFF</ID>
     <ID>MagicNumber:PixelBaseline.kt$4</ID>
     <ID>MagicNumber:UiRasterizer.kt$0.12f</ID>
@@ -40,9 +44,12 @@
     <ID>MagicNumber:UiRasterizer.kt$3</ID>
     <ID>MagicNumber:UiRasterizer.kt$3f</ID>
     <ID>MagicNumber:UiRasterizer.kt$4</ID>
+    <ID>MagicNumber:UiRasterizer.kt$4.0f</ID>
     <ID>MagicNumber:UiRasterizer.kt$6</ID>
+    <ID>MagicNumber:UiSemanticInspection.kt$10f</ID>
     <ID>MatchingDeclarationName:PixelBaseline.kt$PixelDiffResult</ID>
-    <ID>NestedBlockDepth:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null ): ByteArray</ID>
+    <ID>NestedBlockDepth:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null, ): ByteArray</ID>
     <ID>ReturnCount:AwakeUiSnapshot.desktop.kt$actual fun loadAwakeUiSnapshot(id: String): ByteArray?</ID>
+    <ID>TooManyFunctions:UiSemanticInspection.kt$io.github.ronjunevaldoz.awake.testing.ui.UiSemanticInspection.kt</ID>
   </CurrentIssues>
 </SmellBaseline>

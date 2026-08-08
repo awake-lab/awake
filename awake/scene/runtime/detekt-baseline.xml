@@ -2,7 +2,9 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LongParameterList:SceneGameSpec.kt$SceneGameSpec$( val sceneName: String?, val systems: List&lt;SceneSystemRegistration>, // Delayed setup mechanism for entities val scenePopulationBlock: SceneGameRuntime.() -> Unit, val renderableFactory: SceneRenderableFactory, internal val assetLibraryFactory: (() -> SceneAssetLibrary)?, val updateBlock: SceneUpdateBlock, val overlayBlock: SceneOverlayBlock, val onReadyBlock: SceneReadyBlock, val onDisposeBlock: SceneDisposeBlock, internal val serviceRegistrations: List&lt;SceneServiceRegistration&lt;*>> )</ID>
+    <ID>CyclomaticComplexMethod:SceneValidation.kt$SceneValidator$private fun validateComponent( component: SceneComponent, path: String, issues: MutableList&lt;SceneValidationIssue>, )</ID>
+    <ID>LongMethod:SceneLoaderTest.kt$SceneLoaderTest$@Test fun instantiateBuildsWorldHierarchyAndRenderableRequests()</ID>
+    <ID>LongParameterList:SceneGameSpec.kt$SceneGameSpec$( val sceneName: String?, val systems: List&lt;SceneSystemRegistration>, // Delayed setup mechanism for entities val scenePopulationBlock: SceneGameRuntime.() -> Unit, val renderableFactory: SceneRenderableFactory, internal val assetLibraryFactory: (() -> SceneAssetLibrary)?, val updateBlock: SceneUpdateBlock, val overlayBlock: SceneOverlayBlock, val onReadyBlock: SceneReadyBlock, val onDisposeBlock: SceneDisposeBlock, internal val serviceRegistrations: List&lt;SceneServiceRegistration&lt;*>>, )</ID>
     <ID>MagicNumber:SceneDocument.kt$SceneCamera$5f</ID>
     <ID>MagicNumber:SceneGameFrame.kt$10f</ID>
     <ID>MagicNumber:SceneGameFrame.kt$SceneFrameStats$100</ID>

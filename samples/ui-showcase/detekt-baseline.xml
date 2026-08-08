@@ -3,15 +3,18 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:UiShowcaseGettingStartedPages.kt$internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState)</ID>
+    <ID>CyclomaticComplexMethod:UiShowcaseOverlayPages.kt$internal fun ColumnScope.drawUiShowcasePopupPreview()</ID>
     <ID>LongMethod:UiShowcaseCardClipBugPngTest.kt$UiShowcaseCardClipBugPngTest$private fun saveRepro(id: String)</ID>
+    <ID>LongMethod:UiShowcaseComponentPages.kt$internal fun ColumnScope.drawUiShowcaseButtonPreview()</ID>
     <ID>LongMethod:UiShowcaseComponentPages.kt$internal fun ColumnScope.drawUiShowcaseSidebarPreview()</ID>
+    <ID>LongMethod:UiShowcaseComponentPages.kt$internal fun ColumnScope.drawUiShowcaseSliderPreview()</ID>
     <ID>LongMethod:UiShowcaseFieldDemoPage.kt$internal fun ColumnScope.drawUiShowcaseFieldDemoPreview()</ID>
-    <ID>LongMethod:UiShowcaseGameTest.kt$UiShowcaseGameTest$@Test fun uiShowcaseSidebarCategoryHeaderCentersIconAndTitleVertically()</ID>
+    <ID>LongMethod:UiShowcaseGameTest.kt$UiShowcaseGameTest$@Test fun uiShowcaseDesktopShellDoesNotDuplicateIntroductionPageContent()</ID>
     <ID>LongMethod:UiShowcaseGettingStartedPages.kt$internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState)</ID>
     <ID>LongMethod:UiShowcaseLayoutPages.kt$private fun CanvasScope.drawShowcaseCanvasScene()</ID>
     <ID>LongMethod:UiShowcaseOverlayPages.kt$internal fun ColumnScope.drawUiShowcasePopupPreview()</ID>
     <ID>LongMethod:UiShowcasePreviewCatalogTestSupport.kt$private fun ColumnScope.drawUiShowcaseFieldMatrixContent()</ID>
-    <ID>LongMethod:UiShowcaseUi.kt$internal fun GameUiRuntime.drawUiShowcaseOverlay( state: UiShowcaseRuntimeState )</ID>
+    <ID>LongMethod:UiShowcaseUi.kt$internal fun GameUiRuntime.drawUiShowcaseOverlay( state: UiShowcaseRuntimeState, )</ID>
     <ID>MagicNumber:UiShowcaseAnimationPages.kt$0.18f</ID>
     <ID>MagicNumber:UiShowcaseAnimationPages.kt$14f</ID>
     <ID>MagicNumber:UiShowcaseAnimationPages.kt$20</ID>

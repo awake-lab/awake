@@ -4,7 +4,7 @@
   <CurrentIssues>
     <ID>LongMethod:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$@Test fun canvasDslTutorial()</ID>
     <ID>LongMethod:UiDslTutorialDocsTest.kt$UiDslTutorialDocsTest$@Test fun inspectorDslTutorial()</ID>
-    <ID>LongParameterList:UiDslSnapshotSupport.kt$( name: String, title: String, summary: String, primitives: List&lt;UiDrawPrimitive>, width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null )</ID>
+    <ID>LongParameterList:UiDslSnapshotSupport.kt$( name: String, title: String, summary: String, primitives: List&lt;UiDrawPrimitive>, width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null, )</ID>
     <ID>MagicNumber:GameUiPerfOverlay.kt$0.3f</ID>
     <ID>MagicNumber:GameUiPerfOverlay.kt$0.4f</ID>
     <ID>MagicNumber:GameUiPerfOverlay.kt$10f</ID>

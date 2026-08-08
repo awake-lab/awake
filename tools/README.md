@@ -108,3 +108,16 @@ review. They are a convenience for eyeballing, not a verification gate — see
 
 `jni-binding-generator/` generates JNI bindings for the native backends and has its own
 documentation.
+
+## Detekt baselines
+
+Every module's `detekt-baseline.xml` was regenerated on 2026-08-09 after the parallel
+component wave (Resizable, Sheet, ScrollArea, Empty, Combobox, Table, studio camera mode)
+and the accordion/slider/checkbox fixes. Everything absorbed is structural — MagicNumber on
+graphics/geometry constants, LongMethod, LongParameterList, CyclomaticComplexMethod — and was
+reviewed before absorbing: findings that pointed at real defects (dead code, unused
+parameters, an unapplied modifier) were fixed in source, not baselined. detekt's baseline
+parser rejects XML comments, so this record lives here rather than in the files themselves.
+
+A new entry appearing in a baseline diff means new structural debt: prefer fixing it or a
+commented `@Suppress` at the site; `./gradlew detektBaseline` is the deliberate second choice.

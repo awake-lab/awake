@@ -6,18 +6,12 @@
     <ID>LongMethod:RotatingCubeContinuousSpinStabilityTest.kt$RotatingCubeContinuousSpinStabilityTest$@Test fun cubeTopEdgeDoesNotDriftDuringContinuousAutoSpin()</ID>
     <ID>LongMethod:RotatingCubeDeterminismTest.kt$RotatingCubeDeterminismTest$@Test fun cubeRenderIsDeterministicForAnIdenticalFrame()</ID>
     <ID>LongMethod:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$@Test fun headlessRotatingCubeRenderMatchesBaselines()</ID>
-    <ID>LongParameterList:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$( target: Vec3, orbitDegrees: Float, pitchDegrees: Float, zoom: Float, elevation: Float, far: Float )</ID>
+    <ID>LongParameterList:GltfViewerDeterminismTest.kt$GltfViewerDeterminismTest$( target: Vec3, orbitDegrees: Float, pitchDegrees: Float, zoom: Float, elevation: Float, far: Float, )</ID>
     <ID>MagicNumber:GltfViewerDemo.kt$GltfViewerDemo$0.15f</ID>
     <ID>MagicNumber:GltfViewerDemo.kt$GltfViewerDemo$0.1f</ID>
     <ID>MagicNumber:GltfViewerDemo.kt$GltfViewerDemo$0.35f</ID>
     <ID>MagicNumber:GltfViewerDemo.kt$GltfViewerDemo$0.75f</ID>
     <ID>MagicNumber:GltfViewerDemo.kt$GltfViewerDemo$0.9f</ID>
-    <ID>MagicNumber:GltfViewerDemo.kt$GltfViewerDemo$10f</ID>
-    <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$0.13f</ID>
-    <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$0.15f</ID>
-    <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$0.36f</ID>
-    <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$1.4f</ID>
-    <ID>MagicNumber:HelloWorldTextDemo.kt$HelloWorldTextDemo$28f</ID>
     <ID>MagicNumber:ProjectionControlsPanel.kt$180.0</ID>
     <ID>MagicNumber:ReferenceGrid.kt$0.15f</ID>
     <ID>MagicNumber:ReferenceGrid.kt$0.35f</ID>
@@ -26,8 +20,7 @@
     <ID>MagicNumber:ReferenceGrid.kt$0.75f</ID>
     <ID>MagicNumber:ReferenceGrid.kt$0.9f</ID>
     <ID>MagicNumber:RotatingCubeDemo.kt$RotatingCubeDemo$0.1f</ID>
-    <ID>MagicNumber:RotatingCubeDemo.kt$RotatingCubeDemo$10f</ID>
-    <ID>MagicNumber:RotatingCubeDemo.kt$RotatingCubeDemo$5f</ID>
+    <ID>MagicNumber:RotatingCubeMesh.kt$0.55f</ID>
     <ID>MagicNumber:RotatingCubeMesh.kt$0.5f</ID>
     <ID>MagicNumber:RotatingCubeMesh.kt$10</ID>
     <ID>MagicNumber:RotatingCubeMesh.kt$11</ID>
@@ -65,9 +58,5 @@
     <ID>MagicNumber:SkinnedMeshDemo.kt$SkinnedMeshDemo$5f</ID>
     <ID>NestedBlockDepth:RotatingCubePixelBaselineTest.kt$RotatingCubePixelBaselineTest$@Test fun headlessRotatingCubeRenderMatchesBaselines()</ID>
     <ID>ReturnCount:SkinnedMeshDemo.kt$SkinnedMeshDemo$private fun ensureSpawned(runtime: SceneGameRuntime)</ID>
-    <ID>WildcardImport:GltfViewerDemo.kt$import io.github.ronjunevaldoz.awake.scene.components.*</ID>
-    <ID>WildcardImport:GltfViewerDemo.kt$import io.github.ronjunevaldoz.awake.scene.runtime.dsl.*</ID>
-    <ID>WildcardImport:SkinnedMeshDemo.kt$import io.github.ronjunevaldoz.awake.scene.components.*</ID>
-    <ID>WildcardImport:SkinnedMeshDemo.kt$import io.github.ronjunevaldoz.awake.scene.runtime.dsl.*</ID>
   </CurrentIssues>
 </SmellBaseline>

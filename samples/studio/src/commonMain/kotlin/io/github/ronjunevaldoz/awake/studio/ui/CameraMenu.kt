@@ -71,8 +71,10 @@ internal fun UiScope.viewportCameraMenu(
     val input = context.inputState
     val state = widgetState(id)
     val popup = rememberPopupState(id)
-    val isHovered = input.pointerX >= bounds.x && input.pointerX <= bounds.x + bounds.width &&
-        input.pointerY >= bounds.y && input.pointerY <= bounds.y + bounds.height
+    val isHovered = input.pointerX >= bounds.x &&
+        input.pointerX <= bounds.x + bounds.width &&
+        input.pointerY >= bounds.y &&
+        input.pointerY <= bounds.y + bounds.height
 
     if (isHovered && input.secondaryPointerDown) {
         state.set("clickX", input.pointerX)
