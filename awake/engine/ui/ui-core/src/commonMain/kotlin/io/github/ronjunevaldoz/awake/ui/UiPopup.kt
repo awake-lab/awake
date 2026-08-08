@@ -14,6 +14,10 @@ import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.scope.frameBounds
+import io.github.ronjunevaldoz.awake.ui.scope.isMeasuring
+import io.github.ronjunevaldoz.awake.ui.scope.measureColumnContent
+import io.github.ronjunevaldoz.awake.ui.scope.pointerDown
 
 data class UiPopupSize(
     val width: Float,
@@ -44,17 +48,18 @@ object UiPopupDefaults {
         popupAlignment: UiAlignment = UiAlignment.TopStart,
         offsetX: Dp = UiShape.none,
         offsetY: Dp = UiShape.none,
-    ): UiPopupPositionProvider = UiPopupPositionProvider { anchorBounds, windowBounds, popupContentSize ->
-        placePopupRelativeToAnchor(
-            anchorBounds = anchorBounds,
-            windowBounds = windowBounds,
-            popupSize = popupContentSize,
-            anchorAlignment = anchorAlignment,
-            popupAlignment = popupAlignment,
-            offsetX = offsetX.toPx(),
-            offsetY = offsetY.toPx(),
-        )
-    }
+    ): UiPopupPositionProvider =
+        UiPopupPositionProvider { anchorBounds, windowBounds, popupContentSize ->
+            placePopupRelativeToAnchor(
+                anchorBounds = anchorBounds,
+                windowBounds = windowBounds,
+                popupSize = popupContentSize,
+                anchorAlignment = anchorAlignment,
+                popupAlignment = popupAlignment,
+                offsetX = offsetX.toPx(),
+                offsetY = offsetY.toPx(),
+            )
+        }
 
     fun dropdown(
         offsetX: Dp = UiShape.none,
@@ -66,13 +71,14 @@ object UiPopupDefaults {
         offsetY = offsetY,
     )
 
-    fun centered(): UiPopupPositionProvider = UiPopupPositionProvider { _, windowBounds, popupContentSize ->
-        windowBounds.place(
-            width = popupContentSize.width,
-            height = popupContentSize.height,
-            alignment = UiAlignment.Center,
-        )
-    }
+    fun centered(): UiPopupPositionProvider =
+        UiPopupPositionProvider { _, windowBounds, popupContentSize ->
+            windowBounds.place(
+                width = popupContentSize.width,
+                height = popupContentSize.height,
+                alignment = UiAlignment.Center,
+            )
+        }
 
     // Real Radix/shadcn Popover default: side="bottom", align="center", sideOffset=4 -- the
     // content is centered under its trigger with a small gap, unlike [dropdown]'s
@@ -138,11 +144,20 @@ fun UiScope.popup(
         null
     }
 
-    val popupWidth = resolvePopupDimension(width, measured?.width?.plus(insets.horizontalPx()), windowBounds.width)
-    val popupHeight = resolvePopupDimension(height, measured?.height?.plus(insets.verticalPx()), windowBounds.height)
+    val popupWidth = resolvePopupDimension(
+        width,
+        measured?.width?.plus(insets.horizontalPx()),
+        windowBounds.width,
+    )
+    val popupHeight = resolvePopupDimension(
+        height,
+        measured?.height?.plus(insets.verticalPx()),
+        windowBounds.height,
+    )
     val resolvedSize = UiPopupSize(popupWidth, popupHeight)
     val anchorBoundsSlot = anchorSlot
-    val placedSlot = positionProvider.calculatePosition(anchorBoundsSlot, windowBounds, resolvedSize)
+    val placedSlot =
+        positionProvider.calculatePosition(anchorBoundsSlot, windowBounds, resolvedSize)
     val popupSlot = if (properties.clippingEnabled) {
         placedSlot.clampWithin(windowBounds)
     } else {
@@ -214,10 +229,18 @@ private fun placePopupRelativeToAnchor(
     val popupV = popupAlignment.verticalSide()
     if (anchorV != VerticalSide.Center && popupV != VerticalSide.Center && anchorV != popupV) {
         val placedBelow = anchorV == VerticalSide.Bottom
-        val bounds = placePopupRelativeToAnchor(anchorBounds, popupSize, resolvedAnchorAlignment, resolvedPopupAlignment, offsetX, offsetY)
+        val bounds = placePopupRelativeToAnchor(
+            anchorBounds,
+            popupSize,
+            resolvedAnchorAlignment,
+            resolvedPopupAlignment,
+            offsetX,
+            offsetY,
+        )
         val overflowsBottom = bounds.y + bounds.height > windowBounds.y + windowBounds.height
         val overflowsTop = bounds.y < windowBounds.y
-        val spaceBelow = (windowBounds.y + windowBounds.height) - (anchorBounds.y + anchorBounds.height)
+        val spaceBelow =
+            (windowBounds.y + windowBounds.height) - (anchorBounds.y + anchorBounds.height)
         val spaceAbove = anchorBounds.y - windowBounds.y
         if (placedBelow && overflowsBottom && spaceAbove > spaceBelow) {
             resolvedAnchorAlignment = anchorAlignment.flipVertical()
@@ -234,7 +257,14 @@ private fun placePopupRelativeToAnchor(
     val popupH = popupAlignment.horizontalSide()
     if (anchorH != HorizontalSide.Center && popupH != HorizontalSide.Center && anchorH != popupH) {
         val placedEnd = anchorH == HorizontalSide.End
-        val bounds = placePopupRelativeToAnchor(anchorBounds, popupSize, resolvedAnchorAlignment, resolvedPopupAlignment, offsetX, offsetY)
+        val bounds = placePopupRelativeToAnchor(
+            anchorBounds,
+            popupSize,
+            resolvedAnchorAlignment,
+            resolvedPopupAlignment,
+            offsetX,
+            offsetY,
+        )
         val overflowsEnd = bounds.x + bounds.width > windowBounds.x + windowBounds.width
         val overflowsStart = bounds.x < windowBounds.x
         val spaceEnd = (windowBounds.x + windowBounds.width) - (anchorBounds.x + anchorBounds.width)
@@ -248,7 +278,14 @@ private fun placePopupRelativeToAnchor(
         }
     }
 
-    val placed = placePopupRelativeToAnchor(anchorBounds, popupSize, resolvedAnchorAlignment, resolvedPopupAlignment, offsetX, offsetY)
+    val placed = placePopupRelativeToAnchor(
+        anchorBounds,
+        popupSize,
+        resolvedAnchorAlignment,
+        resolvedPopupAlignment,
+        offsetX,
+        offsetY,
+    )
     return placed.clampWithin(windowBounds)
 }
 
@@ -317,17 +354,18 @@ private fun UiBounds.alignmentPoint(alignment: UiAlignment): Pair<Float, Float> 
     UiAlignment.BottomEnd -> x + width to y + height
 }
 
-private fun UiPopupSize.alignmentOffset(alignment: UiAlignment): Pair<Float, Float> = when (alignment) {
-    UiAlignment.TopStart -> 0f to 0f
-    UiAlignment.TopCenter -> width / 2f to 0f
-    UiAlignment.TopEnd -> width to 0f
-    UiAlignment.CenterStart -> 0f to height / 2f
-    UiAlignment.Center -> width / 2f to height / 2f
-    UiAlignment.CenterEnd -> width to height / 2f
-    UiAlignment.BottomStart -> 0f to height
-    UiAlignment.BottomCenter -> width / 2f to height
-    UiAlignment.BottomEnd -> width to height
-}
+private fun UiPopupSize.alignmentOffset(alignment: UiAlignment): Pair<Float, Float> =
+    when (alignment) {
+        UiAlignment.TopStart -> 0f to 0f
+        UiAlignment.TopCenter -> width / 2f to 0f
+        UiAlignment.TopEnd -> width to 0f
+        UiAlignment.CenterStart -> 0f to height / 2f
+        UiAlignment.Center -> width / 2f to height / 2f
+        UiAlignment.CenterEnd -> width to height / 2f
+        UiAlignment.BottomStart -> 0f to height
+        UiAlignment.BottomCenter -> width / 2f to height
+        UiAlignment.BottomEnd -> width to height
+    }
 
 private fun UiBounds.clampWithin(bounds: UiBounds): UiBounds {
     // coerceAtLeast(bounds.x/.y) guards the case where the popup is wider/taller than the

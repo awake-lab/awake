@@ -23,6 +23,9 @@ import io.github.ronjunevaldoz.awake.ui.scope.fillHeightOrNull
 import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.scope.hasBoundedFillHeight
 import io.github.ronjunevaldoz.awake.ui.scope.hasBoundedFillWidth
+import io.github.ronjunevaldoz.awake.ui.scope.measureColumnContent
+import io.github.ronjunevaldoz.awake.ui.scope.onOverScrollable
+import io.github.ronjunevaldoz.awake.ui.scope.onScrollConsumed
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
@@ -48,7 +51,8 @@ fun UiScope.scrollPanel(
     verticalArrangement: Arrangement = defaultArrangement(),
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiScrollPanelResult {
-    val state = requireNotNull(modifier.scrollState) { "scrollPanel requires a scrollState on the modifier" }
+    val state =
+        requireNotNull(modifier.scrollState) { "scrollPanel requires a scrollState on the modifier" }
     val config = modifier.scrollConfig
     val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
     val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
@@ -256,30 +260,31 @@ fun UiScope.scrollPanel(
     }
 
     // Horizontal Scrollbar -- same overlay-thumb-only treatment as vertical, above.
-    val hThumb = if (horizontalNeeded && config.horizontalVisibility != UiScrollbarVisibility.Never) {
-        val hTrackSlot = UiBounds(
-            x = innerSlot.x,
-            y = innerSlot.y + innerSlot.height - scrollbarWidthPx - scrollbarEdgeInsetPx,
-            width = viewport.width,
-            height = scrollbarWidthPx,
-        )
-        horizontalScrollThumb(hTrackSlot, state)?.also { thumb ->
-            val custom = config.horizontalScrollbar
-            if (custom != null) {
-                childAbsolute(thumb.track).custom(thumb)
-            } else {
-                emitFillAndBorder(
-                    slot = thumb.thumb,
-                    fillColor = currentTheme.colors.border,
-                    radiusPx = scrollbarWidthPx / 2f,
-                    borderWidth = UiShape.none,
-                    borderColor = Color.Transparent,
-                )
+    val hThumb =
+        if (horizontalNeeded && config.horizontalVisibility != UiScrollbarVisibility.Never) {
+            val hTrackSlot = UiBounds(
+                x = innerSlot.x,
+                y = innerSlot.y + innerSlot.height - scrollbarWidthPx - scrollbarEdgeInsetPx,
+                width = viewport.width,
+                height = scrollbarWidthPx,
+            )
+            horizontalScrollThumb(hTrackSlot, state)?.also { thumb ->
+                val custom = config.horizontalScrollbar
+                if (custom != null) {
+                    childAbsolute(thumb.track).custom(thumb)
+                } else {
+                    emitFillAndBorder(
+                        slot = thumb.thumb,
+                        fillColor = currentTheme.colors.border,
+                        radiusPx = scrollbarWidthPx / 2f,
+                        borderWidth = UiShape.none,
+                        borderColor = Color.Transparent,
+                    )
+                }
             }
+        } else {
+            null
         }
-    } else {
-        null
-    }
 
     return UiScrollPanelResult(
         slot = slot,

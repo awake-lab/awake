@@ -58,7 +58,7 @@ private fun UiScope.emitSheetInnerEdgeBorder(slot: UiBounds, side: ShadcnSheetSi
             slot.y,
             strokePx,
             slot.height,
-            color
+            color,
         )
 
         ShadcnSheetSide.Right -> UiDrawPrimitive.Quad(slot.x, slot.y, strokePx, slot.height, color)
@@ -67,7 +67,7 @@ private fun UiScope.emitSheetInnerEdgeBorder(slot: UiBounds, side: ShadcnSheetSi
             slot.y + slot.height - strokePx,
             slot.width,
             strokePx,
-            color
+            color,
         )
 
         ShadcnSheetSide.Bottom -> UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, strokePx, color)
@@ -175,7 +175,7 @@ private fun sheetPositionProvider(side: ShadcnSheetSide, sizeDp: Dp, slideProgre
                 viewportWidth - sizePx + hiddenOffset,
                 0f,
                 sizePx,
-                viewportHeight
+                viewportHeight,
             )
 
             ShadcnSheetSide.Top -> UiBounds(0f, -hiddenOffset, viewportWidth, sizePx)
@@ -183,7 +183,7 @@ private fun sheetPositionProvider(side: ShadcnSheetSide, sizeDp: Dp, slideProgre
                 0f,
                 viewportHeight - sizePx + hiddenOffset,
                 viewportWidth,
-                sizePx
+                sizePx,
             )
         }
     }

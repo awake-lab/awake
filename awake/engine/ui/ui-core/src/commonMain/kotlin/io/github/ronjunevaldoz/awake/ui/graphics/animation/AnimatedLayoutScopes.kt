@@ -10,11 +10,11 @@ import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.measureColumnContent
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
+import io.github.ronjunevaldoz.awake.ui.scope.measureColumnContent
 
 /**
  * Clips its content to an animated height.
@@ -62,7 +62,8 @@ fun ColumnScope.animatedHeight(
     // exactly 0 (not epsilon-close) right as the tween completes, and a wrap-sized parent measuring
     // it every frame tracks that exact value with no separate snap step to fall out of sync.
     val targetHeight = if (expanded) cachedHeight else 0f
-    val animatedHeight = animateFloatTween(id, targetHeight, durationMs = durationMs, easing = easing)
+    val animatedHeight =
+        animateFloatTween(id, targetHeight, durationMs = durationMs, easing = easing)
 
     // 3. Render a clipped container with the animated height
     return if (animatedHeight > 0.01f) {
@@ -71,7 +72,10 @@ fun ColumnScope.animatedHeight(
         clip(slot) {
             // Preserve this scope's own real gap on the fresh clipped column -- createColumn no
             // longer takes a raw gap, so reconstruct it as an equivalent SpacedBy arrangement.
-            context.createColumn(slot, verticalArrangement = Arrangement.spacedBy(this@animatedHeight.gap.px))
+            context.createColumn(
+                slot,
+                verticalArrangement = Arrangement.spacedBy(this@animatedHeight.gap.px),
+            )
                 .content(slot)
         }
         slot

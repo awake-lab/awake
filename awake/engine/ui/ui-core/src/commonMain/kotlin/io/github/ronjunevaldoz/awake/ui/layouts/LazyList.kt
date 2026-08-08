@@ -13,9 +13,9 @@ import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.onOverScrollable
-import io.github.ronjunevaldoz.awake.ui.onScrollConsumed
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.scope.onOverScrollable
+import io.github.ronjunevaldoz.awake.ui.scope.onScrollConsumed
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.toPx
 
@@ -73,7 +73,8 @@ fun UiScope.lazyColumn(
     val itemHeightPx = itemHeight.toPx()
     val gapPx = verticalArrangement.baseSpacingPx()
     val stridePx = (itemHeightPx + gapPx).coerceAtLeast(1f)
-    val contentHeightPx = if (itemCount <= 0) 0f else itemCount * itemHeightPx + (itemCount - 1) * gapPx
+    val contentHeightPx =
+        if (itemCount <= 0) 0f else itemCount * itemHeightPx + (itemCount - 1) * gapPx
 
     state.update(
         viewportWidth = slot.width,
@@ -93,8 +94,10 @@ fun UiScope.lazyColumn(
         }
     }
 
-    val firstVisible = (state.offsetY / stridePx).toInt().coerceIn(0, (itemCount - 1).coerceAtLeast(0))
-    val lastVisible = ((state.offsetY + slot.height) / stridePx).toInt().coerceIn(0, (itemCount - 1).coerceAtLeast(0))
+    val firstVisible =
+        (state.offsetY / stridePx).toInt().coerceIn(0, (itemCount - 1).coerceAtLeast(0))
+    val lastVisible = ((state.offsetY + slot.height) / stridePx).toInt()
+        .coerceIn(0, (itemCount - 1).coerceAtLeast(0))
     val startIndex = (firstVisible - overscan).coerceAtLeast(0)
     val endIndex = (lastVisible + overscan).coerceAtMost(itemCount - 1)
 
@@ -144,7 +147,8 @@ fun UiScope.lazyRow(
     val itemWidthPx = itemWidth.toPx()
     val gapPx = horizontalArrangement.baseSpacingPx()
     val stridePx = (itemWidthPx + gapPx).coerceAtLeast(1f)
-    val contentWidthPx = if (itemCount <= 0) 0f else itemCount * itemWidthPx + (itemCount - 1) * gapPx
+    val contentWidthPx =
+        if (itemCount <= 0) 0f else itemCount * itemWidthPx + (itemCount - 1) * gapPx
 
     state.update(
         viewportWidth = slot.width,
@@ -164,8 +168,10 @@ fun UiScope.lazyRow(
         }
     }
 
-    val firstVisible = (state.offsetX / stridePx).toInt().coerceIn(0, (itemCount - 1).coerceAtLeast(0))
-    val lastVisible = ((state.offsetX + slot.width) / stridePx).toInt().coerceIn(0, (itemCount - 1).coerceAtLeast(0))
+    val firstVisible =
+        (state.offsetX / stridePx).toInt().coerceIn(0, (itemCount - 1).coerceAtLeast(0))
+    val lastVisible = ((state.offsetX + slot.width) / stridePx).toInt()
+        .coerceIn(0, (itemCount - 1).coerceAtLeast(0))
     val startIndex = (firstVisible - overscan).coerceAtLeast(0)
     val endIndex = (lastVisible + overscan).coerceAtMost(itemCount - 1)
 

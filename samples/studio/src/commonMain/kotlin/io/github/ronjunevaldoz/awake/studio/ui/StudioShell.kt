@@ -84,8 +84,10 @@ private const val ORBIT_DRAG_SENSITIVITY = 0.005f
 private fun UiScope.driveViewportOrbitDrag(store: StudioStore, bounds: UiBounds) {
     if (store.state.value.camera.mode != StudioContract.CameraPresetMode.Orbit) return
     val input = context.inputState
-    val isHovered = input.pointerX >= bounds.x && input.pointerX <= bounds.x + bounds.width &&
-        input.pointerY >= bounds.y && input.pointerY <= bounds.y + bounds.height
+    val isHovered = input.pointerX >= bounds.x &&
+        input.pointerX <= bounds.x + bounds.width &&
+        input.pointerY >= bounds.y &&
+        input.pointerY <= bounds.y + bounds.height
     val dragging = input.pointerDown && isHovered
     val state = widgetState("studio-viewport-orbit-drag")
     val wasDragging = state.get("wasDragging", false)

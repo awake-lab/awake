@@ -3,13 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.inputState
-import io.github.ronjunevaldoz.awake.ui.isFocused
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.requestFocus
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.scope.inputState
+import io.github.ronjunevaldoz.awake.ui.scope.isFocused
+import io.github.ronjunevaldoz.awake.ui.scope.requestFocus
 
 internal data class UiInteraction(
     val slot: UiBounds,

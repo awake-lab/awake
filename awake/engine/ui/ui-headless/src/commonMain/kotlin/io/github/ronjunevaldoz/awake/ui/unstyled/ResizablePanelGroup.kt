@@ -17,11 +17,11 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.pointerDown
-import io.github.ronjunevaldoz.awake.ui.pointerX
-import io.github.ronjunevaldoz.awake.ui.pointerY
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.scope.pointerDown
+import io.github.ronjunevaldoz.awake.ui.scope.pointerX
+import io.github.ronjunevaldoz.awake.ui.scope.pointerY
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.toPx
 
@@ -39,7 +39,12 @@ private val RESIZABLE_HANDLE_THICKNESS = 2f.dp
  * immediately before a [ResizablePanelGroupScope.handle] call so that handle's drag can read/
  * write this panel's fraction without needing to know about a panel declared *after* it in the
  * same content lambda. */
-private class ResizablePanelSpec(val fractionKey: String, val min: Float, val max: Float, val default: Float)
+private class ResizablePanelSpec(
+    val fractionKey: String,
+    val min: Float,
+    val max: Float,
+    val default: Float,
+)
 
 /** A handle's pointer-driven fraction delta, computed in [ResizablePanelGroupScope.handle] and
  * consumed by the very next [ResizablePanelGroupScope.panel] call. */
@@ -188,11 +193,28 @@ fun UiScope.resizablePanelGroup(
     // main-axis budget before any panel's own fraction -> pixel conversion runs -- a panel
     // drawn before the group knows the true handle count would overclaim space (see the
     // ResizablePanelGroupScope class doc's ponytail note for the sibling tradeoff this mirrors).
-    val counter = ResizablePanelGroupScope(context, direction, groupState, slot, mainAxisTotal, countingOnly = true, emitsToOverlay)
+    val counter = ResizablePanelGroupScope(
+        context,
+        direction,
+        groupState,
+        slot,
+        mainAxisTotal,
+        countingOnly = true,
+        emitsToOverlay,
+    )
     counter.content()
-    val availableMainAxisPx = (mainAxisTotal - counter.handleCount * RESIZABLE_HANDLE_THICKNESS.toPx()).coerceAtLeast(0f)
+    val availableMainAxisPx =
+        (mainAxisTotal - counter.handleCount * RESIZABLE_HANDLE_THICKNESS.toPx()).coerceAtLeast(0f)
 
-    val real = ResizablePanelGroupScope(context, direction, groupState, slot, availableMainAxisPx, countingOnly = false, emitsToOverlay)
+    val real = ResizablePanelGroupScope(
+        context,
+        direction,
+        groupState,
+        slot,
+        availableMainAxisPx,
+        countingOnly = false,
+        emitsToOverlay,
+    )
     real.content()
     return slot
 }

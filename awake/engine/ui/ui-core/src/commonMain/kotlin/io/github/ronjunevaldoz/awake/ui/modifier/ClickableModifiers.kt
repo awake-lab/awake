@@ -3,10 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui.modifier
 
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.inputState
-import io.github.ronjunevaldoz.awake.ui.isFocused
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.requestFocus
+import io.github.ronjunevaldoz.awake.ui.scope.inputState
+import io.github.ronjunevaldoz.awake.ui.scope.isFocused
+import io.github.ronjunevaldoz.awake.ui.scope.requestFocus
 
 /** Holds a [Modifier.clickable]-attached handler. Stored on [UiModifier.clickAction] --
  * deliberately not named `clickable` on the data class itself, to dodge the same builder-vs-
