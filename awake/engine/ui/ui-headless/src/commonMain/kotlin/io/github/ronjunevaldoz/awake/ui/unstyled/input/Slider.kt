@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless.input
+package io.github.ronjunevaldoz.awake.ui.unstyled.input
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -105,7 +105,7 @@ fun UiScope.slider(
                     trackSlot.x,
                     trackSlot.y,
                     handleWidth,
-                    trackSlot.height
+                    trackSlot.height,
                 ),
                 fillColor = theme.colors.primary,
                 radiusPx = 0f,

@@ -16,9 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
@@ -35,6 +32,9 @@ import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 internal fun ColumnScope.drawUiShowcaseTypographySpecimenPreview() {
     shadcnSectionHeader(
@@ -55,7 +55,10 @@ internal fun ColumnScope.drawUiShowcaseTypographySpecimenPreview() {
     spacer(Modifier.height(12f.dp))
     shadcnSupportingText("Label: a purely presentational field label -- shadcnFieldLabel (used throughout the Text Input and Checkout Form pages) is sugar over this.")
     spacer(Modifier.height(4f.dp))
-    row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
+    row(
+        horizontalArrangement = Arrangement.spacedBy(16f.dp),
+        modifier = Modifier.height(20f.dp.toDimension()),
+    ) {
         shadcnLabel("Name")
         shadcnLabel("Email", required = true)
         shadcnLabel("Legacy field", disabled = true)

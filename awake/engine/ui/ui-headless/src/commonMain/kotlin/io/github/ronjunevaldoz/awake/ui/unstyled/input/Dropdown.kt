@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless.input
+package io.github.ronjunevaldoz.awake.ui.unstyled.input
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
@@ -10,8 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.fitTo
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -28,6 +26,8 @@ import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 // Real shadcn/ui slider shape: a thin track (not a full-height button-like bar) with a
@@ -143,8 +143,14 @@ fun UiScope.drawDropdownTriggerContent(
             active = expanded,
         ),
     )
-    val textColor = if (isPlaceholder) theme.colors.mutedForeground else (resolved.foreground
-        ?: theme.colors.foreground)
+    val textColor = if (isPlaceholder) {
+        theme.colors.mutedForeground
+    } else {
+        (
+            resolved.foreground
+                ?: theme.colors.foreground
+            )
+    }
     // Authored in Dp and converted here, at the point of use. `slot` *is* physical-pixel
     // space, but it got there by density-scaling: every Dimension.Fixed resolves through
     // `.dp.toPx()`, and a fill width is the real framebuffer width. So the padding subtracted

@@ -6,12 +6,12 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /** Real shadcn's `Badge`: an inline status pill -- defaults to Secondary, but
  * [ShadcnBadgeVariant] covers all semantic variants (Primary, Secondary, Outline,
@@ -24,7 +24,10 @@ fun UiScope.shadcnBadge(
 ): UiBounds = text(
     label = label,
     modifier = modifier,
-    style = ShadcnStyles.badge(theme.asShadcnTheme(), variant) then ShadcnStyles.badgeContent(theme.asShadcnTheme()) then style,
+    style = ShadcnStyles.badge(
+        theme.asShadcnTheme(),
+        variant,
+    ) then ShadcnStyles.badgeContent(theme.asShadcnTheme()) then style,
     centered = true,
 )
 

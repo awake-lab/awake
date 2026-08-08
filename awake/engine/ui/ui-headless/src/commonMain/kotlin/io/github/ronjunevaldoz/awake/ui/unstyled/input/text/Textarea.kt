@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless.input.text
+package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -67,7 +67,7 @@ fun UiScope.textarea(
     // ~1.19em, so reserving fontHeight per line leaves the text overflowing its own field.
     val minHeight =
         (fontHeight * font.lineHeightEm * minLines) +
-                (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
+            (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
 
     val interaction = interact(
         id = id,
@@ -97,9 +97,9 @@ fun UiScope.textarea(
             theme.colors.destructive
         } else {
             (
-                    resolvedWithInteraction.borderColor
-                        ?: theme.colors.border
-                    )
+                resolvedWithInteraction.borderColor
+                    ?: theme.colors.border
+                )
         }
     // Reference's `disabled:opacity-50` treatment, same single group-alpha shape as
     // `Buttons.kt`'s `buttonSlotInternal` -- covers the fill/border paint and the typed
@@ -140,7 +140,7 @@ fun UiScope.textarea(
             contentSlot.x,
             contentSlot.y - lastScrollOffsetY,
             contentSlot.width,
-            contentSlot.height
+            contentSlot.height,
         )
 
         var nextValue = value
@@ -176,8 +176,9 @@ fun UiScope.textarea(
                     }
 
                     UiTextEditAction.ArrowLeft -> cursor = (cursor - 1).coerceAtLeast(0)
-                    UiTextEditAction.ArrowRight -> cursor =
-                        (cursor + 1).coerceAtMost(nextValue.length)
+                    UiTextEditAction.ArrowRight ->
+                        cursor =
+                            (cursor + 1).coerceAtMost(nextValue.length)
 
                     UiTextEditAction.ArrowUp -> cursor = moveCursorVertical(
                         previousLayout,
@@ -198,14 +199,16 @@ fun UiScope.textarea(
                                 glyphPx,
                                 lineGap,
                                 cursor,
-                                1
+                                1,
                             )
 
-                    UiTextEditAction.Home -> cursor =
-                        cursorForLineStart(previousLayout, nextValue, cursor)
+                    UiTextEditAction.Home ->
+                        cursor =
+                            cursorForLineStart(previousLayout, nextValue, cursor)
 
-                    UiTextEditAction.End -> cursor =
-                        cursorForLineEnd(previousLayout, nextValue, cursor)
+                    UiTextEditAction.End ->
+                        cursor =
+                            cursorForLineEnd(previousLayout, nextValue, cursor)
 
                     UiTextEditAction.Enter -> {
                         nextValue =
@@ -262,7 +265,7 @@ fun UiScope.textarea(
             contentSlot.x,
             contentSlot.y - scrollOffsetY,
             contentSlot.width,
-            contentSlot.height
+            contentSlot.height,
         )
 
         clip(contentSlot) {
@@ -277,9 +280,9 @@ fun UiScope.textarea(
                         theme.colors.mutedForeground
                     } else {
                         (
-                                resolvedWithInteraction.foreground
-                                    ?: theme.colors.foreground
-                                )
+                            resolvedWithInteraction.foreground
+                                ?: theme.colors.foreground
+                            )
                     },
                     verticallyCentered = false,
                     overflow = UiTextOverflow.Clip,

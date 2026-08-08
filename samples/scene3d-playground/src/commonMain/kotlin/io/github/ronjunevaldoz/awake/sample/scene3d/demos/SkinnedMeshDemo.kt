@@ -31,7 +31,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.dsl.transform
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /**
@@ -91,14 +91,22 @@ internal object SkinnedMeshDemo {
                 scope.renderCameraModeToggle(config.mode) { config.mode = it }
             }
             cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "skinned") }
-            showAimMarkers = scope.shadcnSwitch(id = "skinned-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
+            showAimMarkers = scope.shadcnSwitch(
+                id = "skinned-show-aim-markers",
+                checked = showAimMarkers,
+                label = "Show aim markers",
+            )
             scope.shadcnCollapsibleCard(
                 id = "skinned-controls-display",
                 expanded = displayGroupExpanded,
                 onExpandedChange = { displayGroupExpanded = it },
                 header = { text("Display", verticallyCentered = true) },
             ) {
-                timeController.autoPlay = shadcnSwitch(id = "skinned-auto-play", checked = timeController.autoPlay, label = "Auto-play")
+                timeController.autoPlay = shadcnSwitch(
+                    id = "skinned-auto-play",
+                    checked = timeController.autoPlay,
+                    label = "Auto-play",
+                )
                 timeController.hours = shadcnFieldSliderWithValue(
                     id = "skinned-time",
                     label = "Time",
@@ -130,11 +138,15 @@ internal object SkinnedMeshDemo {
             val currentSkin = skin
             if (currentAnimation != null && currentPlayer != null) {
                 val duration = currentPlayer.duration(currentAnimation)
-                val timeSeconds = if (duration > 0f) (timeController.hours / ManualTimeController.HOURS_PER_CYCLE) * duration else 0f
+                val timeSeconds =
+                    if (duration > 0f) (timeController.hours / ManualTimeController.HOURS_PER_CYCLE) * duration else 0f
                 currentPlayer.sample(currentAnimation, timeSeconds)
             }
             if (currentSkin != null && currentPlayer != null) {
-                skinnedEntity?.let { world.get<SkinnedPose>(it)?.jointPalette = currentPlayer.jointPalette(currentSkin) }
+                skinnedEntity?.let {
+                    world.get<SkinnedPose>(it)?.jointPalette =
+                        currentPlayer.jointPalette(currentSkin)
+                }
             }
 
             renderer.drawReferenceGrid()
@@ -155,9 +167,21 @@ internal object SkinnedMeshDemo {
             if (showAimMarkers) {
                 val markers = mutableListOf<LineSegment>()
                 val mc = modelCenter
-                markers += LineSegment(mc, mc + Vec3(0.1f, 0f, 0f), floatArrayOf(0.9f, 0.15f, 0.15f, 1f))
-                markers += LineSegment(mc, mc + Vec3(0f, 0.1f, 0f), floatArrayOf(0.15f, 0.75f, 0.15f, 1f))
-                markers += LineSegment(mc, mc + Vec3(0f, 0f, 0.1f), floatArrayOf(0.15f, 0.35f, 0.9f, 1f))
+                markers += LineSegment(
+                    mc,
+                    mc + Vec3(0.1f, 0f, 0f),
+                    floatArrayOf(0.9f, 0.15f, 0.15f, 1f),
+                )
+                markers += LineSegment(
+                    mc,
+                    mc + Vec3(0f, 0.1f, 0f),
+                    floatArrayOf(0.15f, 0.75f, 0.15f, 1f),
+                )
+                markers += LineSegment(
+                    mc,
+                    mc + Vec3(0f, 0f, 0.1f),
+                    floatArrayOf(0.15f, 0.35f, 0.9f, 1f),
+                )
                 val ft = world.get<Transform>(fte)?.position ?: modelCenter
                 markers += LineSegment(ft, ft + Vec3(0.1f, 0f, 0f), floatArrayOf(1f, 1f, 0f, 1f))
                 markers += LineSegment(ft, ft + Vec3(0f, 0.1f, 0f), floatArrayOf(1f, 1f, 0f, 1f))
@@ -187,7 +211,8 @@ internal object SkinnedMeshDemo {
                 ),
             )
 
-            skinnedEntity = entity("SkinnedMesh", Modifier().transform().meshRenderer(mesh!!, material!!))
+            skinnedEntity =
+                entity("SkinnedMesh", Modifier().transform().meshRenderer(mesh!!, material!!))
             runtime.world.add(skinnedEntity!!, SkinnedPose(currentPlayer.jointPalette(currentSkin)))
         }
 

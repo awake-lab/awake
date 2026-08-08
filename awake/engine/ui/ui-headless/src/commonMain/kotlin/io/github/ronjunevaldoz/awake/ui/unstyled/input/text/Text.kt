@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless.input.text
+package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -66,7 +66,8 @@ internal fun UiScope.drawResolvedText(
         label = label,
         slot = slot.inset(resolvedStyle.contentPadding),
         font = resolvedFont,
-        color = color ?: resolvedStyle.foreground ?: textStyle.color ?: context.currentTextStyle.color ?: theme.colors.foreground,
+        color = color ?: resolvedStyle.foreground ?: textStyle.color
+            ?: context.currentTextStyle.color ?: theme.colors.foreground,
         centered = centered,
         verticallyCentered = verticallyCentered,
         wrap = wrap,
@@ -152,7 +153,8 @@ fun UiScope.text(
 ): UiBounds {
     val resolvedFont = font
     val theme = context.currentTheme
-    val resolvedSemanticId = semanticId ?: modifier.testTag ?: if (modifier.shimmer) "shimmer-${label.hashCode()}" else null
+    val resolvedSemanticId = semanticId ?: modifier.testTag
+        ?: if (modifier.shimmer) "shimmer-${label.hashCode()}" else null
 
     // We need to know whether the widget is hovered to resolve hover-dependent style state,
     // but performing a hitTest requires a measured slot. To avoid claiming a WrapContent slot
@@ -193,11 +195,18 @@ fun UiScope.text(
         wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || label.contains('\n') -> {
             if (fillWidthOrNull() != null) Dimension.FillMax else Dimension.Fixed((labelWidthPx + resolved.contentPadding.horizontalPx()).px)
         }
+
         else -> Dimension.Fixed((labelWidthPx + resolved.contentPadding.horizontalPx()).px)
     }
     val availableTextWidth = when (defaultWidth) {
-        is Dimension.Fixed -> (defaultWidth.dp.toPx() - resolved.contentPadding.horizontalPx()).coerceAtLeast(glyphPx)
-        Dimension.FillMax -> (fillWidthOrNull()?.minus(resolved.contentPadding.horizontalPx()))?.coerceAtLeast(glyphPx) ?: 4096f
+        is Dimension.Fixed -> (defaultWidth.dp.toPx() - resolved.contentPadding.horizontalPx()).coerceAtLeast(
+            glyphPx,
+        )
+
+        Dimension.FillMax -> (fillWidthOrNull()?.minus(resolved.contentPadding.horizontalPx()))?.coerceAtLeast(
+            glyphPx,
+        ) ?: 4096f
+
         Dimension.WrapContent -> glyphPx
     }
     var layout = layoutBitmapText(
@@ -237,8 +246,14 @@ fun UiScope.text(
             glyphPx = resolveGlyphPx(resolvedFont, textStyle)
             // re-measure layout with updated text metrics
             val newAvailableTextWidth = when (defaultWidth) {
-                is Dimension.Fixed -> (defaultWidth.dp.toPx() - resolved.contentPadding.horizontalPx()).coerceAtLeast(glyphPx)
-                Dimension.FillMax -> (fillWidthOrNull()?.minus(resolved.contentPadding.horizontalPx()))?.coerceAtLeast(glyphPx) ?: 4096f
+                is Dimension.Fixed -> (defaultWidth.dp.toPx() - resolved.contentPadding.horizontalPx()).coerceAtLeast(
+                    glyphPx,
+                )
+
+                Dimension.FillMax -> (fillWidthOrNull()?.minus(resolved.contentPadding.horizontalPx()))?.coerceAtLeast(
+                    glyphPx,
+                ) ?: 4096f
+
                 Dimension.WrapContent -> glyphPx
             }
             layout = layoutBitmapText(

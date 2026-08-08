@@ -44,7 +44,7 @@ class SpinnerTest {
         assertNotEquals(
             rest,
             inFlight,
-            "spinner dot should have moved between the rest and next sampled frame"
+            "spinner dot should have moved between the rest and next sampled frame",
         )
         assertNotEquals(inFlight, later, "spinner dot should keep moving on a third sampled frame")
         assertNotEquals(rest, later, "spinner dot should not already be back at its rest position")

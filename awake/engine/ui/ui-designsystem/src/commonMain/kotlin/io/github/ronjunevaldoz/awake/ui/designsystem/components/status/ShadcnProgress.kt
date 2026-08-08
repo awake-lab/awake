@@ -5,12 +5,12 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.status
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
-import io.github.ronjunevaldoz.awake.ui.headless.input.progress
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.progress
 
 private fun shadcnProgressTrackStyle(theme: UiTheme, style: Style): Style =
     ShadcnStyles.slider(theme.asShadcnTheme()) then style

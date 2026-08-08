@@ -5,10 +5,10 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.input.progress
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.progress
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -51,16 +51,28 @@ class ProgressTest {
         }
         val settledWidth = ui.progressFillWidth()
 
-        assertTrue(restWidth < inFlightWidth, "fill should widen between rest and in-flight: rest=$restWidth inFlight=$inFlightWidth")
-        assertTrue(inFlightWidth < settledWidth, "fill should keep widening between in-flight and settled: inFlight=$inFlightWidth settled=$settledWidth")
-        assertEquals(200f, settledWidth, absoluteTolerance = 1f, message = "settled fill should have converged on the full track width")
+        assertTrue(
+            restWidth < inFlightWidth,
+            "fill should widen between rest and in-flight: rest=$restWidth inFlight=$inFlightWidth",
+        )
+        assertTrue(
+            inFlightWidth < settledWidth,
+            "fill should keep widening between in-flight and settled: inFlight=$inFlightWidth settled=$settledWidth",
+        )
+        assertEquals(
+            200f,
+            settledWidth,
+            absoluteTolerance = 1f,
+            message = "settled fill should have converged on the full track width",
+        )
     }
 
     @Test
     fun recordsProgressSemanticRoleAndPercentLabel() {
         val ui = UiContext()
         ui.beginFrame(220f, 40f, testSnapshot())
-        ui.createAbsolute(x = 10f, y = 10f).progress("p", value = 0.5f, modifier = Modifier.width(200f.px).height(8f.px))
+        ui.createAbsolute(x = 10f, y = 10f)
+            .progress("p", value = 0.5f, modifier = Modifier.width(200f.px).height(8f.px))
 
         val semantics = ui.semanticNodes()
         inspectSemanticNodes(semantics).requireClean()

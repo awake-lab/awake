@@ -7,13 +7,13 @@ import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.headless.components.icon
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
 import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -43,9 +43,9 @@ class IconFidelityTest {
                 ?: error(
                     "could not locate repo root (settings.gradle.kts) above ${
                         System.getProperty(
-                            "user.dir"
+                            "user.dir",
                         )
-                    }"
+                    }",
                 )
         }
         return dir
@@ -54,7 +54,7 @@ class IconFidelityTest {
     private data class ManifestEntry(
         val name: String,
         val kotlinTier: String,
-        val kotlinProperty: String
+        val kotlinProperty: String,
     ) {
         val fileStem get() = "$name-$kotlinTier"
     }
@@ -222,7 +222,7 @@ class IconFidelityTest {
                 oursRgba,
                 referenceMask,
                 oursMask,
-                File(reportDir, "${entry.fileStem}.png")
+                File(reportDir, "${entry.fileStem}.png"),
             )
             Triple(entry.fileStem, metrics.iou, metrics.mismatchPct)
         }.sortedBy { it.second }
@@ -230,15 +230,15 @@ class IconFidelityTest {
         reportDir.mkdirs()
         File(reportDir, "metrics.tsv").writeText(
             "icon\tiou\tmismatchPct\n" +
-                    results.joinToString("\n") { (name, iou, mismatchPct) -> "$name\t$iou\t$mismatchPct" } + "\n",
+                results.joinToString("\n") { (name, iou, mismatchPct) -> "$name\t$iou\t$mismatchPct" } + "\n",
         )
 
         val failures = results.filter { it.second < passThreshold }
         assertTrue(
             failures.isEmpty(),
             "icon(s) below the fidelity threshold (IoU >= $passThreshold) -- inspect " +
-                    "build/reports/icon-fidelity/<icon>.png (reference | ours | diff):\n" +
-                    failures.joinToString("\n") { (name, iou, mismatchPct) -> "  $name: iou=$iou mismatchPct=$mismatchPct%" },
+                "build/reports/icon-fidelity/<icon>.png (reference | ours | diff):\n" +
+                failures.joinToString("\n") { (name, iou, mismatchPct) -> "  $name: iou=$iou mismatchPct=$mismatchPct%" },
         )
     }
 
@@ -284,7 +284,7 @@ class IconFidelityTest {
         assertTrue(
             corruptedMetrics.iou < passThreshold,
             "the guard must reject a corrupted icon: corrupted iou=${corruptedMetrics.iou} " +
-                    "vs correct iou=${correctMetrics.iou} (threshold=$passThreshold)",
+                "vs correct iou=${correctMetrics.iou} (threshold=$passThreshold)",
         )
     }
 }

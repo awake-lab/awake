@@ -37,9 +37,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -59,6 +56,9 @@ import io.github.ronjunevaldoz.awake.ui.scrollPanel
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseOverviewPreview,
@@ -1192,10 +1192,16 @@ private fun ColumnScope.drawUiShowcaseCollapsibleOpenContent() {
         ) {
             shadcnSeparator(modifier = Modifier.padding(0f.dp, 4f.dp, 0f.dp, 4f.dp))
             row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
-                text("@radix-ui/colors", style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) })
+                text(
+                    "@radix-ui/colors",
+                    style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) },
+                )
             }
             row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
-                text("@stitches/react", style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) })
+                text(
+                    "@stitches/react",
+                    style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) },
+                )
             }
         }
     }

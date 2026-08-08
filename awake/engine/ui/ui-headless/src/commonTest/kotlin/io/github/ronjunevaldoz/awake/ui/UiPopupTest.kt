@@ -3,13 +3,12 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.input.select
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.select
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -86,8 +85,14 @@ class UiPopupTest {
         ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
         ui.endFrame()
 
-        assertNotNull(firstExitFrame.slot, "the first frame after collapsing must still be rendering (fading), not already gone")
-        assertFalse(firstExitFrame.dismissed, "the fade window closing itself is not a click-outside dismissal")
+        assertNotNull(
+            firstExitFrame.slot,
+            "the first frame after collapsing must still be rendering (fading), not already gone",
+        )
+        assertFalse(
+            firstExitFrame.dismissed,
+            "the fade window closing itself is not a click-outside dismissal",
+        )
     }
 
     @Test
@@ -122,7 +127,11 @@ class UiPopupTest {
             ui.endFrame()
         }
 
-        assertEquals(null, lastResult?.slot, "once the exit fade has settled, the popup must really stop rendering")
+        assertEquals(
+            null,
+            lastResult?.slot,
+            "once the exit fade has settled, the popup must really stop rendering",
+        )
     }
 
     @Test
@@ -131,15 +140,27 @@ class UiPopupTest {
         ui.createColumn(x = 20f, y = 20f, width = 160f).widgetState("dd").set("expanded", true)
 
         ui.beginFrame(240f, 200f, testSnapshot(x = 30f, y = 60f, down = true))
-        var picked = ui.createColumn(x = 20f, y = 20f, width = 160f).select("dd", listOf("A", "B"), selectedIndex = 0, modifier = Modifier.width(160f.px).height(32f.px))
+        var picked = ui.createColumn(x = 20f, y = 20f, width = 160f).select(
+            "dd",
+            listOf("A", "B"),
+            selectedIndex = 0,
+            modifier = Modifier.width(160f.px).height(32f.px),
+        )
         ui.endFrame()
         assertEquals(null, picked)
 
         ui.beginFrame(240f, 200f, testSnapshot(x = 30f, y = 60f, down = false))
-        picked = ui.createColumn(x = 20f, y = 20f, width = 160f).select("dd", listOf("A", "B"), selectedIndex = 0, modifier = Modifier.width(160f.px).height(32f.px))
+        picked = ui.createColumn(x = 20f, y = 20f, width = 160f).select(
+            "dd",
+            listOf("A", "B"),
+            selectedIndex = 0,
+            modifier = Modifier.width(160f.px).height(32f.px),
+        )
         ui.endFrame()
 
         assertEquals(0, picked)
-        assertFalse(ui.createColumn(x = 20f, y = 20f, width = 160f).widgetState("dd").get("expanded", true))
+        assertFalse(
+            ui.createColumn(x = 20f, y = 20f, width = 160f).widgetState("dd").get("expanded", true),
+        )
     }
 }

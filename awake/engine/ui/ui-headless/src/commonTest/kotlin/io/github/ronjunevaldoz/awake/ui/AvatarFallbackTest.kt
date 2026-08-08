@@ -6,11 +6,11 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.avatarFallback
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.testTag
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.avatarFallback
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

@@ -30,7 +30,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
@@ -46,6 +45,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -131,8 +131,14 @@ class ShadcnDesignSystemTest {
             .shadcnBadge(label = "BETA", variant = ShadcnBadgeVariant.Primary)
 
         val primitives = ui.endFrame()
-        assertIs<UiDrawPrimitive.RoundedQuad>(primitives.first(), "design-system badge should render its own rounded surface")
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "design-system badge should render glyphs")
+        assertIs<UiDrawPrimitive.RoundedQuad>(
+            primitives.first(),
+            "design-system badge should render its own rounded surface",
+        )
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(),
+            "design-system badge should render glyphs",
+        )
     }
 
     @Test
@@ -192,12 +198,19 @@ class ShadcnDesignSystemTest {
         ui.beginFrame(240f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.createColumn(x = 20f, y = 20f, width = 200f)
-            .shadcnSurface("surface", modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(100f.px))) {
+            .shadcnSurface(
+                "surface",
+                modifier = Modifier.width(Dimension.Fixed(200f.px)).height(Dimension.Fixed(100f.px)),
+            ) {
                 shadcnBadge(label = "READY", modifier = Modifier.width(Dimension.Fixed(80f.px)))
             }
 
         val primitives = ui.endFrame()
-        assertEquals(3, primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size, "surface should emit border + fill, and the filled badge should emit one rounded quad")
+        assertEquals(
+            3,
+            primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size,
+            "surface should emit border + fill, and the filled badge should emit one rounded quad",
+        )
     }
 
     @Test
@@ -223,8 +236,14 @@ class ShadcnDesignSystemTest {
         }
 
         val primitives = ui.endFrame()
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "DSL adapters should still render labeled content")
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 4, "surface, badge, and button should emit rounded surfaces through the DSL")
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(),
+            "DSL adapters should still render labeled content",
+        )
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 4,
+            "surface, badge, and button should emit rounded surfaces through the DSL",
+        )
     }
 
     @Test
@@ -246,8 +265,14 @@ class ShadcnDesignSystemTest {
         }
 
         val primitives = ui.endFrame()
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "field wrappers should keep text rendering intact")
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 6, "surface and field wrappers should emit shaped chrome")
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(),
+            "field wrappers should keep text rendering intact",
+        )
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 6,
+            "surface and field wrappers should emit shaped chrome",
+        )
     }
 
     @Test
@@ -267,8 +292,14 @@ class ShadcnDesignSystemTest {
         }
 
         val primitives = ui.endFrame()
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "label beside the switch should still render text")
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 3, "surface, switch pill, and thumb should emit shaped chrome")
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(),
+            "label beside the switch should still render text",
+        )
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().size >= 3,
+            "surface, switch pill, and thumb should emit shaped chrome",
+        )
     }
 
     @Test
@@ -285,7 +316,10 @@ class ShadcnDesignSystemTest {
             ) {
                 shadcnSectionHeader(
                     title = {
-                        row(horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.height(20f.dp.toDimension())) {
+                        row(
+                            horizontalArrangement = Arrangement.spacedBy(6f.dp),
+                            modifier = Modifier.height(20f.dp.toDimension()),
+                        ) {
                             shadcnBadge(
                                 label = "NEW",
                                 modifier = Modifier.width(Dimension.Fixed(48f.px)),
@@ -382,7 +416,10 @@ class ShadcnDesignSystemTest {
 
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
         assertEquals(4, glyphs.size)
-        assertTrue(glyphs.maxOf { it.x + it.w } > 20f, "wrap-content badge should size itself to its label")
+        assertTrue(
+            glyphs.maxOf { it.x + it.w } > 20f,
+            "wrap-content badge should size itself to its label",
+        )
     }
 
     @Test
@@ -422,7 +459,10 @@ class ShadcnDesignSystemTest {
         val glyphCenterX = glyphBoundsX + glyphBoundsW / 2f
         val buttonCenterX = buttonBounds.x + buttonBounds.w / 2f
 
-        assertTrue(abs(glyphCenterX - buttonCenterX) < 5f, "Text should be roughly horizontally centered in button: glyphCenterX=$glyphCenterX, buttonCenterX=$buttonCenterX")
+        assertTrue(
+            abs(glyphCenterX - buttonCenterX) < 5f,
+            "Text should be roughly horizontally centered in button: glyphCenterX=$glyphCenterX, buttonCenterX=$buttonCenterX",
+        )
     }
 
     @Test
@@ -528,7 +568,10 @@ class ShadcnDesignSystemTest {
         // divider content -- a group with a separator between three fields must be noticeably
         // taller than the same fields packed with zero spacing.
         val gap = modeLabel.bounds.y - (gridLabel.bounds.y + gridLabel.bounds.height)
-        assertTrue(gap >= 8f.dp.toPx(), "field group spacing should reserve real space between fields, was $gap")
+        assertTrue(
+            gap >= 8f.dp.toPx(),
+            "field group spacing should reserve real space between fields, was $gap",
+        )
     }
 
     @Test
@@ -642,8 +685,14 @@ class ShadcnDesignSystemTest {
         val slot = assertNotNull(result.slot, "expanded popover should place its content")
         val expectedX = anchorSlot.x + anchorSlot.width / 2f - slot.width / 2f
         val expectedY = anchorSlot.y + anchorSlot.height + 4f.dp.toPx()
-        assertTrue(abs(slot.x - expectedX) < 1f, "popover should be centered under its anchor: expected x=$expectedX, was x=${slot.x}")
-        assertTrue(abs(slot.y - expectedY) < 1f, "popover should sit just below its anchor: expected y=$expectedY, was y=${slot.y}")
+        assertTrue(
+            abs(slot.x - expectedX) < 1f,
+            "popover should be centered under its anchor: expected x=$expectedX, was x=${slot.x}",
+        )
+        assertTrue(
+            abs(slot.y - expectedY) < 1f,
+            "popover should sit just below its anchor: expected y=$expectedY, was y=${slot.y}",
+        )
         assertTrue(!result.dismissed, "no click occurred, popover must not report dismissed")
     }
 
@@ -686,7 +735,8 @@ class ShadcnDesignSystemTest {
             val anchorSlot = ui.createAbsolute(x = 40f, y = 40f)
                 .shadcnSurface(
                     id = "trigger",
-                    modifier = Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(32f.px)),
+                    modifier = Modifier.width(Dimension.Fixed(80f.px))
+                        .height(Dimension.Fixed(32f.px)),
                 ) { }
             val result = ui.createAbsolute(slot = ui.frameBounds())
                 .shadcnPopover(
@@ -701,10 +751,16 @@ class ShadcnDesignSystemTest {
         }
 
         val insideClick = frame(pointerX = 100f, pointerY = 100f, down = true)
-        assertTrue(!insideClick.dismissed, "clicking inside the popover content must not dismiss it")
+        assertTrue(
+            !insideClick.dismissed,
+            "clicking inside the popover content must not dismiss it",
+        )
 
         val outsideClick = frame(pointerX = 5f, pointerY = 5f, down = true)
-        assertTrue(outsideClick.dismissed, "clicking outside the anchor and content must dismiss the popover")
+        assertTrue(
+            outsideClick.dismissed,
+            "clicking outside the anchor and content must dismiss the popover",
+        )
     }
 
     @Test
@@ -737,13 +793,22 @@ class ShadcnDesignSystemTest {
             horizontalArrangement = Arrangement.spacedBy(0f.dp),
             modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
         ) {
-            sidebarBounds = shadcnSidebar(id = "scene3d-demo-menu", modifier = Modifier.width(200f.dp).height(Dimension.FillMax)) {
+            sidebarBounds = shadcnSidebar(
+                id = "scene3d-demo-menu",
+                modifier = Modifier.width(200f.dp).height(Dimension.FillMax),
+            ) {
                 text("Skinned mesh")
             }
-            viewportBounds = column(id = "scene3d-viewport", modifier = Modifier.weight(1f).height(Dimension.FillMax)) {
+            viewportBounds = column(
+                id = "scene3d-viewport",
+                modifier = Modifier.weight(1f).height(Dimension.FillMax),
+            ) {
                 text("Skinned mesh -- no skeleton")
             }
-            controlsBounds = shadcnSurface(id = "scene3d-controls-panel", modifier = Modifier.width(220f.dp).height(Dimension.FillMax)) {
+            controlsBounds = shadcnSurface(
+                id = "scene3d-controls-panel",
+                modifier = Modifier.width(220f.dp).height(Dimension.FillMax),
+            ) {
                 text("Root")
             }
         }
@@ -767,7 +832,11 @@ class ShadcnDesignSystemTest {
                 "grandchild's leaked slot), got width=${viewport.width}",
         )
         assertEquals(220f.dp.toPx(), controls.width, "controls must keep its own fixed 220dp width")
-        assertEquals(1200f - 220f.dp.toPx(), controls.x, "controls must sit flush against the row's right edge")
+        assertEquals(
+            1200f - 220f.dp.toPx(),
+            controls.x,
+            "controls must sit flush against the row's right edge",
+        )
     }
 
     @Test

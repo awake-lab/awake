@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggleGroup
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggleGroup
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -40,7 +39,12 @@ class ToggleGroupWidgetTest {
         val expectedWidth = 300f / 3f
         toggleBounds.forEach { width ->
             assertTrue(width > 0f, "every option's width must be positive, was $width")
-            assertEquals(expectedWidth, width, 0.5f, "each option must get an equal 1/3 share of the group width")
+            assertEquals(
+                expectedWidth,
+                width,
+                0.5f,
+                "each option must get an equal 1/3 share of the group width",
+            )
         }
     }
 }

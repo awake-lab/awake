@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless.input.selection
+package io.github.ronjunevaldoz.awake.ui.unstyled.input.selection
 
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -8,15 +8,16 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetAccent
 import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetDash
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
@@ -50,7 +51,7 @@ fun UiScope.checkbox(
         enabled = enabled,
     )
     val boxPx = boxSize.toPx()
-    val boxSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+    val boxSlot = UiBounds(
         surface.interaction.slot.x,
         surface.interaction.slot.y + (surface.interaction.slot.height - boxPx) / 2f,
         boxPx,
@@ -77,13 +78,13 @@ fun UiScope.checkbox(
                 boxSlot,
                 inset,
                 surface.resolved.shape.toPx(),
-                surface.resolved.shapeSpec
+                surface.resolved.shapeSpec,
             )
         }
         val resolvedFont = context.currentFont
         if (label != null) {
             val gapPx = CHECKBOX_LABEL_GAP.toPx()
-            val labelSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+            val labelSlot = UiBounds(
                 boxSlot.x + boxPx + gapPx,
                 surface.interaction.slot.y,
                 surface.interaction.slot.width - boxPx - gapPx,

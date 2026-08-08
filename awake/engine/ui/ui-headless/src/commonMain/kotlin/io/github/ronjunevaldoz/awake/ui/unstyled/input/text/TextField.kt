@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless.input.text
+package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.inputState
 import io.github.ronjunevaldoz.awake.ui.isFocused
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -87,8 +88,14 @@ fun UiScope.textField(
         focused = focused,
     )
     val borderColor =
-        if (isError) theme.colors.destructive else (surface.resolved.borderColor
-            ?: theme.colors.border)
+        if (isError) {
+            theme.colors.destructive
+        } else {
+            (
+                surface.resolved.borderColor
+                    ?: theme.colors.border
+                )
+        }
     // Reference's `disabled:opacity-50` treatment, same single group-alpha shape as
     // `Buttons.kt`'s `buttonSlotInternal` -- covers the fill/border paint, icons, and typed
     // text/caret as one composited unit so nothing drawn on top of the fill gets double-dimmed.
@@ -117,18 +124,18 @@ fun UiScope.textField(
         val iconGap = 6f.dp.toPx()
         val textAreaX = contentSlot.x + if (leadingIcon != null) iconSlotWidth + iconGap else 0f
         val textAreaWidth = (
-                contentSlot.width -
-                        (if (leadingIcon != null) iconSlotWidth + iconGap else 0f) -
-                        (if (trailingIcon != null) iconSlotWidth + iconGap else 0f)
-                ).coerceAtLeast(0f)
-        val textContentSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+            contentSlot.width -
+                (if (leadingIcon != null) iconSlotWidth + iconGap else 0f) -
+                (if (trailingIcon != null) iconSlotWidth + iconGap else 0f)
+            ).coerceAtLeast(0f)
+        val textContentSlot = UiBounds(
             textAreaX,
             contentSlot.y,
             textAreaWidth,
             contentSlot.height,
         )
         if (leadingIcon != null) {
-            val iconBounds = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+            val iconBounds = UiBounds(
                 contentSlot.x,
                 contentSlot.y,
                 iconSlotWidth,
@@ -137,7 +144,7 @@ fun UiScope.textField(
             childBox(iconBounds, contentAlignment = UiAlignment.Center).leadingIcon()
         }
         if (trailingIcon != null) {
-            val iconBounds = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+            val iconBounds = UiBounds(
                 contentSlot.x + contentSlot.width - iconSlotWidth,
                 contentSlot.y,
                 iconSlotWidth,
@@ -188,8 +195,9 @@ fun UiScope.textField(
                     }
 
                     UiTextEditAction.ArrowLeft -> cursor = (cursor - 1).coerceAtLeast(0)
-                    UiTextEditAction.ArrowRight -> cursor =
-                        (cursor + 1).coerceAtMost(nextValue.length)
+                    UiTextEditAction.ArrowRight ->
+                        cursor =
+                            (cursor + 1).coerceAtMost(nextValue.length)
 
                     UiTextEditAction.ArrowUp -> {}
                     UiTextEditAction.ArrowDown -> {}
@@ -239,25 +247,29 @@ fun UiScope.textField(
                 // shifted drawTextX has a chance to bring them on-screen; the surrounding clip()
                 // still hides everything outside textContentSlot regardless of this slot's width.
                 val measureWidth =
-                    if (showingPlaceholder) textContentSlot.width else totalTextWidth.coerceAtLeast(
+                    if (showingPlaceholder) {
                         textContentSlot.width
-                    )
+                    } else {
+                        totalTextWidth.coerceAtLeast(
+                            textContentSlot.width,
+                        )
+                    }
                 text(
                     label = displayed,
-                    slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                    slot = UiBounds(
                         drawTextX,
                         textContentSlot.y,
                         measureWidth,
-                        textContentSlot.height
+                        textContentSlot.height,
                     ),
                     font = resolvedFont,
                     color = if (showingPlaceholder) {
                         theme.colors.mutedForeground
                     } else {
                         (
-                                surface.resolved.foreground
-                                    ?: theme.colors.foreground
-                                )
+                            surface.resolved.foreground
+                                ?: theme.colors.foreground
+                            )
                     },
                     verticallyCentered = true,
                     overflow = UiTextOverflow.Clip,
@@ -275,10 +287,10 @@ fun UiScope.textField(
                             visualTransformation(nextValue),
                             resolvedFont,
                             glyphPx,
-                            cursor
+                            cursor,
                         )
                     emitFillAndBorder(
-                        slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                        slot = UiBounds(
                             caretX,
                             textContentSlot.y,
                             TEXT_FIELD_CARET_WIDTH.toPx(),

@@ -30,10 +30,10 @@ import io.github.ronjunevaldoz.awake.scene.runtime.systems.cameraSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -266,7 +266,11 @@ private class RecordingRenderer : Renderer {
         }
     }
 
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): Material {
+    override fun createMaterial(
+        texture: TextureAsset?,
+        renderTarget: RenderTarget?,
+        uniformFloatCount: Int,
+    ): Material {
         materialCreateCount += 1
         return object : Material {
             override fun updateUniformBuffer(mvp: FloatArray) = Unit
@@ -288,7 +292,8 @@ private class RecordingRenderer : Renderer {
         frameCalls += "draw"
     }
 
-    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
+    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) =
+        Unit
 
     override suspend fun readPixels(target: RenderTarget): TextureAsset =
         TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)

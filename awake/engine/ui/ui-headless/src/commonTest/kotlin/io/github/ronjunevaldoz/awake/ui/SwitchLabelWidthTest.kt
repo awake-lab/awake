@@ -6,14 +6,14 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
 import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.input.selection.switch
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.switch
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
  * Locks the label-measurement fix in
- * [io.github.ronjunevaldoz.awake.ui.headless.input.selection.switch]: a bare switch (no
+ * [switch]: a bare switch (no
  * explicit `.width()`) must claim enough width for track+gap+label that the label's own
  * semantic content is never truncated, for both a short and a long label.
  *
@@ -39,8 +39,12 @@ class SwitchLabelWidthTest {
         inspectSemanticNodes(semantics).requireClean()
         inspectTextTruncation(semantics).requireClean()
 
-        val label = requireSemanticNode(semantics, id = "switch-on.label", role = UiSemanticRole.Text)
-        assertTrue((label.contentBounds?.width ?: 0f) > 0f, "label must have measured, non-empty content bounds")
+        val label =
+            requireSemanticNode(semantics, id = "switch-on.label", role = UiSemanticRole.Text)
+        assertTrue(
+            (label.contentBounds?.width ?: 0f) > 0f,
+            "label must have measured, non-empty content bounds",
+        )
     }
 
     @Test
@@ -57,7 +61,11 @@ class SwitchLabelWidthTest {
         inspectSemanticNodes(semantics).requireClean()
         inspectTextTruncation(semantics).requireClean()
 
-        val label = requireSemanticNode(semantics, id = "switch-long.label", role = UiSemanticRole.Text)
-        assertTrue((label.contentBounds?.width ?: 0f) > 0f, "label must have measured, non-empty content bounds")
+        val label =
+            requireSemanticNode(semantics, id = "switch-long.label", role = UiSemanticRole.Text)
+        assertTrue(
+            (label.contentBounds?.width ?: 0f) > 0f,
+            "label must have measured, non-empty content bounds",
+        )
     }
 }

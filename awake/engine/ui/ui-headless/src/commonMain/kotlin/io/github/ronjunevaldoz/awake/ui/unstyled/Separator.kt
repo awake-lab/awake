@@ -46,8 +46,8 @@ fun UiScope.separator(
                     lineY,
                     pixelPerfectPixel(slot.width).coerceAtLeast(1f),
                     lineHeight,
-                    color
-                )
+                    color,
+                ),
             )
         }
 
@@ -60,8 +60,8 @@ fun UiScope.separator(
                     pixelPerfectPixel(slot.y),
                     lineWidth,
                     pixelPerfectPixel(slot.height).coerceAtLeast(1f),
-                    color
-                )
+                    color,
+                ),
             )
         }
     }

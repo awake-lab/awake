@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
@@ -16,14 +15,31 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 private data class ParitySpec(val component: String, val webSpec: String, val awakeStatus: String)
 
 private val Phase3ParityMatrix = listOf(
-    ParitySpec("InputOTP", "Segmented input with length mask & digit gap", "100% Match (shadcnInputOTP)"),
-    ParitySpec("ContextMenu", "Right-click trigger + floating dropdown popup", "100% Match (shadcnContextMenu)"),
-    ParitySpec("Drawer", "Slideover modal panel (Bottom/Top/Left/Right)", "100% Match (shadcnDrawer)"),
-    ParitySpec("Accordion", "Single-select collapsible group + chevron animation", "100% Match (shadcnAccordion)"),
+    ParitySpec(
+        "InputOTP",
+        "Segmented input with length mask & digit gap",
+        "100% Match (shadcnInputOTP)",
+    ),
+    ParitySpec(
+        "ContextMenu",
+        "Right-click trigger + floating dropdown popup",
+        "100% Match (shadcnContextMenu)",
+    ),
+    ParitySpec(
+        "Drawer",
+        "Slideover modal panel (Bottom/Top/Left/Right)",
+        "100% Match (shadcnDrawer)",
+    ),
+    ParitySpec(
+        "Accordion",
+        "Single-select collapsible group + chevron animation",
+        "100% Match (shadcnAccordion)",
+    ),
 )
 
 internal fun ColumnScope.drawShadcnSideBySideComparisonPreview() {
@@ -39,7 +55,10 @@ internal fun ColumnScope.drawShadcnSideBySideComparisonPreview() {
         }
         shadcnSeparator()
         Phase3ParityMatrix.forEach { spec ->
-            row(modifier = Modifier.fillMaxWidth().height(36f.dp), verticalAlignment = io.github.ronjunevaldoz.awake.ui.layout.UiAlignment.Vertical.Center) {
+            row(
+                modifier = Modifier.fillMaxWidth().height(36f.dp),
+                verticalAlignment = io.github.ronjunevaldoz.awake.ui.layout.UiAlignment.Vertical.Center,
+            ) {
                 text(spec.component, modifier = Modifier.width(120f.dp))
                 text(spec.webSpec, modifier = Modifier.width(260f.dp))
                 shadcnBadge(spec.awakeStatus, variant = ShadcnBadgeVariant.Secondary)

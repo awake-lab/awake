@@ -45,7 +45,7 @@ class SkeletonShimmerPixelTest {
                 width.toFloat(),
                 height.toFloat(),
                 testSnapshot(),
-                deltaSeconds = frameDeltaSeconds
+                deltaSeconds = frameDeltaSeconds,
             )
             val scope = ui.createAbsolute(x = 0f, y = 0f)
             scope.skeleton(
@@ -89,7 +89,7 @@ class SkeletonShimmerPixelTest {
             Color.Black,
             cornerWithShimmer,
             "the shimmer band must be clipped to the rounded shape -- it must NOT paint past the cut corner " +
-                    "(a failure here means GradientQuad clipping regressed, not that shimmer itself is broken)",
+                "(a failure here means GradientQuad clipping regressed, not that shimmer itself is broken)",
         )
     }
 
@@ -108,7 +108,7 @@ class SkeletonShimmerPixelTest {
         assertTrue(
             brightnessWithShimmer > brightnessNoShimmer,
             "shimmer=true must visibly brighten the skeleton interior versus pulse alone: " +
-                    "$brightnessWithShimmer vs $brightnessNoShimmer",
+                "$brightnessWithShimmer vs $brightnessNoShimmer",
         )
     }
 }

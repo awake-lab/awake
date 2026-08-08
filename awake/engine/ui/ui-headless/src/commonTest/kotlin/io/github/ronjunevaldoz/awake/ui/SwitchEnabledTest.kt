@@ -3,16 +3,16 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.input.selection.switch
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.switch
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /** Mirrors `CheckboxTest`'s press-then-release simulation -- proves
- * [io.github.ronjunevaldoz.awake.ui.headless.input.selection.switch]'s new `enabled` param
+ * [switch]'s new `enabled` param
  * actually suppresses the toggle, not just its default-true no-op case. */
 class SwitchEnabledTest {
 
@@ -26,7 +26,10 @@ class SwitchEnabledTest {
             checked = ui.createAbsolute(x = 20f, y = 20f)
                 .switch("sw", checked, modifier = Modifier.width(40f.px).height(22f.px))
         }
-        assertTrue(checked, "an otherwise-valid press+release must still flip the switch when enabled (the default)")
+        assertTrue(
+            checked,
+            "an otherwise-valid press+release must still flip the switch when enabled (the default)",
+        )
     }
 
     @Test
@@ -35,8 +38,16 @@ class SwitchEnabledTest {
         var checked = false
         ui.simulateClick(x = 30f, y = 30f, screenHeight = 100f) {
             checked = ui.createAbsolute(x = 20f, y = 20f)
-                .switch("sw", checked, modifier = Modifier.width(40f.px).height(22f.px), enabled = false)
+                .switch(
+                    "sw",
+                    checked,
+                    modifier = Modifier.width(40f.px).height(22f.px),
+                    enabled = false,
+                )
         }
-        assertFalse(checked, "enabled = false must suppress the flip even on an otherwise valid press+release")
+        assertFalse(
+            checked,
+            "enabled = false must suppress the flip even on an otherwise valid press+release",
+        )
     }
 }

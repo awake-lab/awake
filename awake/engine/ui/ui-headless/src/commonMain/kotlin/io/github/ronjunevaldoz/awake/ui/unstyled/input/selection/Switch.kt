@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless.input.selection
+package io.github.ronjunevaldoz.awake.ui.unstyled.input.selection
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -10,9 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -22,6 +21,8 @@ import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
@@ -63,7 +64,7 @@ fun UiScope.switch(
     val labelWidthPx = label?.let {
         context.currentFont.measureTextWidth(
             it,
-            resolveGlyphPx(textStyle = labelTextStyle)
+            resolveGlyphPx(textStyle = labelTextStyle),
         )
     } ?: 0f
     val gapPx = if (label != null) TOGGLE_LABEL_GAP.toPx() else 0f
@@ -87,7 +88,7 @@ fun UiScope.switch(
         defaults = theme.components.toggle,
         modifier = modifier.withSizeFallback(
             Dimension.Fixed(fallbackWidthPx.px),
-            Dimension.Fixed(TOGGLE_HEIGHT)
+            Dimension.Fixed(TOGGLE_HEIGHT),
         ),
         selected = checked,
         enabled = enabled,
@@ -95,7 +96,7 @@ fun UiScope.switch(
     // Track slot is always fixed-size, anchored at the START of the claimed slot.
     // When the caller passes .width(260dp), the full slot is 260dp wide but we only paint
     // the 32dp track on the left side; the label gets the remaining space to the right.
-    val trackSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+    val trackSlot = UiBounds(
         x = surface.interaction.slot.x,
         y = surface.interaction.slot.y + (surface.interaction.slot.height - TOGGLE_HEIGHT.toPx()) / 2f,
         width = TOGGLE_WIDTH.toPx(),
@@ -130,11 +131,11 @@ fun UiScope.switch(
             trackSlot.x + knobInsetPx
         }
         emitFillAndBorder(
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+            slot = UiBounds(
                 knobX,
                 trackSlot.y + knobInsetPx,
                 knobDiameter,
-                knobDiameter
+                knobDiameter,
             ),
             fillColor = theme.colors.background,
             radiusPx = 0f,
@@ -150,7 +151,7 @@ fun UiScope.switch(
                 (surface.interaction.slot.width - trackWidthPx - gapPx).coerceAtLeast(0f)
             text(
                 label,
-                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+                slot = UiBounds(
                     trackSlot.x + trackWidthPx + gapPx,
                     surface.interaction.slot.y,
                     labelWidth,

@@ -106,7 +106,7 @@ object GltfParser {
     private fun readPrimitive(
         document: GltfDocument,
         buffers: List<ByteArray>,
-        primitive: GltfPrimitive
+        primitive: GltfPrimitive,
     ): GltfMesh {
         val positionAccessor = primitive.attributes.position
             ?: error("glTF primitive is missing a POSITION attribute.")
@@ -138,7 +138,7 @@ object GltfParser {
             indices,
             jointIndices,
             jointWeights,
-            baseColorImageBytes
+            baseColorImageBytes,
         )
     }
 
@@ -148,7 +148,7 @@ object GltfParser {
      * external/non-embedded image URI). */
     private fun readBaseColorImageBytes(
         document: GltfDocument,
-        primitive: GltfPrimitive
+        primitive: GltfPrimitive,
     ): ByteArray? {
         val uri = primitive.material
             ?.let { document.materials.getOrNull(it) }
@@ -207,7 +207,7 @@ object GltfParser {
     private fun parseSkin(
         document: GltfDocument,
         buffers: List<ByteArray>,
-        skinIndex: Int
+        skinIndex: Int,
     ): LoadedSkin {
         val skin = document.skins[skinIndex]
         val inverseBindFloats = skin.inverseBindMatrices?.let {
@@ -216,8 +216,10 @@ object GltfParser {
         val inverseBindMatrices = skin.joints.indices.map { jointIndex ->
             Mat4().apply {
                 if (inverseBindFloats != null) {
-                    for (component in 0 until 16) data[component] =
-                        inverseBindFloats[jointIndex * 16 + component]
+                    for (component in 0 until 16) {
+                        data[component] =
+                            inverseBindFloats[jointIndex * 16 + component]
+                    }
                 }
                 // else: no inverseBindMatrices accessor -- glTF spec default is identity per joint.
             }
@@ -228,7 +230,7 @@ object GltfParser {
     private fun parseAnimation(
         document: GltfDocument,
         buffers: List<ByteArray>,
-        animationIndex: Int
+        animationIndex: Int,
     ): LoadedAnimation {
         val animation = document.animations[animationIndex]
         val channels = animation.channels.mapNotNull { channel ->
@@ -247,7 +249,7 @@ object GltfParser {
                 document,
                 buffers,
                 sampler.output,
-                componentsPerElement = componentsPerKeyframe
+                componentsPerElement = componentsPerKeyframe,
             )
             LoadedAnimationChannel(
                 targetNode = targetNode,
@@ -267,7 +269,7 @@ object GltfParser {
         require(magic == GLB_MAGIC) {
             "Not a valid glTF binary (GLB) file -- expected magic 0x46546C67, got 0x${
                 magic.toString(
-                    16
+                    16,
                 )
             }."
         }
@@ -298,7 +300,7 @@ object GltfParser {
         val uri = buffer.uri
             ?: error(
                 "glTF buffer has no uri -- external .bin buffers are not supported by " +
-                        "this parser (only base64 data URIs).",
+                    "this parser (only base64 data URIs).",
             )
         return decodeBase64DataUri(uri)
     }
@@ -317,7 +319,7 @@ object GltfParser {
         val markerIndex = uri.indexOf(BASE64_DATA_URI_MARKER)
         require(uri.startsWith("data:") && markerIndex >= 0) {
             "glTF buffer uri is not a base64 data URI -- external .bin file references " +
-                    "are not supported by this parser: $uri"
+                "are not supported by this parser: $uri"
         }
         return Base64.decode(uri.substring(markerIndex + BASE64_DATA_URI_MARKER.length))
     }
@@ -353,7 +355,7 @@ object GltfParser {
     private fun bufferViewFor(
         document: GltfDocument,
         accessor: GltfAccessor,
-        accessorIndex: Int
+        accessorIndex: Int,
     ): GltfBufferView {
         val bufferViewIndex = accessor.bufferView
             ?: error("glTF accessor $accessorIndex has no bufferView -- sparse accessors are not supported.")
@@ -390,7 +392,7 @@ object GltfParser {
         }
         require(typeComponentCount(accessor.type) == componentsPerElement) {
             "glTF accessor $accessorIndex has type ${accessor.type}, expected " +
-                    "$componentsPerElement-component elements."
+                "$componentsPerElement-component elements."
         }
         val bufferView = bufferViewFor(document, accessor, accessorIndex)
         val bytes = buffers[bufferView.buffer]
@@ -473,7 +475,7 @@ object GltfParser {
         (bytes[offset].toInt() and 0xFF) or ((bytes[offset + 1].toInt() and 0xFF) shl 8)
 
     private fun readUIntLe(bytes: ByteArray, offset: Int): Int = (bytes[offset].toInt() and 0xFF) or
-            ((bytes[offset + 1].toInt() and 0xFF) shl 8) or
-            ((bytes[offset + 2].toInt() and 0xFF) shl 16) or
-            ((bytes[offset + 3].toInt() and 0xFF) shl 24)
+        ((bytes[offset + 1].toInt() and 0xFF) shl 8) or
+        ((bytes[offset + 2].toInt() and 0xFF) shl 16) or
+        ((bytes[offset + 3].toInt() and 0xFF) shl 24)
 }

@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless.input.text
+package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -74,7 +74,8 @@ internal fun UiScope.renderTextBlock(
     )
     val clippedBounds = if (shouldClip) contentBounds.intersect(slot) else contentBounds
 
-    val textColor = color ?: context.currentTextStyle.color ?: context.currentTheme.colors.foreground
+    val textColor =
+        color ?: context.currentTextStyle.color ?: context.currentTheme.colors.foreground
 
     recordSemantic(
         role = semanticRole,
@@ -92,7 +93,12 @@ internal fun UiScope.renderTextBlock(
         borderToken = borderToken,
     )
 
-    fun emitLinesInternal(drawColor: Color, shimmerGradient: UiLinearGradient? = null, shimmerX: Float? = null, shimmerWidth: Float? = null) {
+    fun emitLinesInternal(
+        drawColor: Color,
+        shimmerGradient: UiLinearGradient? = null,
+        shimmerX: Float? = null,
+        shimmerWidth: Float? = null,
+    ) {
         var penY = if (verticallyCentered) {
             slot.y + (slot.height - blockMetrics.heightPx) / 2f - blockMetrics.topPx
         } else {
@@ -125,7 +131,10 @@ internal fun UiScope.renderTextBlock(
                         val highlight = if (relX < peak) {
                             shimmerGradient.topLeft.lerp(shimmerGradient.topRight, relX / peak)
                         } else {
-                            shimmerGradient.topRight.lerp(shimmerGradient.bottomRight, (relX - peak) / (1f - peak))
+                            shimmerGradient.topRight.lerp(
+                                shimmerGradient.bottomRight,
+                                (relX - peak) / (1f - peak),
+                            )
                         }
                         finalColor = highlight
                     }
@@ -218,7 +227,7 @@ private fun resolveTextContentBounds(
             lineLeft + lineWidth
         }
     }
-    return io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+    return UiBounds(
         x = left,
         y = top,
         width = (right - left).coerceAtLeast(0f),
@@ -386,8 +395,17 @@ fun layoutBitmapText(
                 break
             }
             val fitIndex = fitPrefixByWidth(remaining, safeMaxWidthPx, advanceOf).coerceAtLeast(1)
-            val splitIndex = remaining.substring(0, fitIndex).lastIndexOf(' ').takeIf { it > 0 } ?: fitIndex
-            val line = if (trim) remaining.substring(0, splitIndex).trimEnd() else remaining.substring(0, splitIndex)
+            val splitIndex =
+                remaining.substring(0, fitIndex).lastIndexOf(' ').takeIf { it > 0 } ?: fitIndex
+            val line =
+                if (trim) {
+                    remaining.substring(0, splitIndex).trimEnd()
+                } else {
+                    remaining.substring(
+                        0,
+                        splitIndex,
+                    )
+                }
             val safeLine = if (line.isEmpty() && trim) {
                 remaining.substring(0, fitIndex).trimEnd()
             } else if (line.isEmpty()) {
@@ -396,7 +414,14 @@ fun layoutBitmapText(
                 line
             }
             result += safeLine
-            remaining = if (trim) remaining.substring(splitIndex).trimStart() else remaining.substring(splitIndex)
+            remaining =
+                if (trim) {
+                    remaining.substring(splitIndex).trimStart()
+                } else {
+                    remaining.substring(
+                        splitIndex,
+                    )
+                }
         }
         if (remaining.isNotEmpty()) {
             truncated = true
@@ -413,8 +438,18 @@ fun layoutBitmapText(
         val lastIndex = result.lastIndex
         result[lastIndex] = when (overflow) {
             UiTextOverflow.Visible -> result[lastIndex]
-            UiTextOverflow.Clip -> truncateLine(result[lastIndex], safeMaxWidthPx, UiTextOverflow.Clip, advanceOf)
-            UiTextOverflow.Ellipsis -> ellipsizeTruncatedLine(result[lastIndex], safeMaxWidthPx, advanceOf)
+            UiTextOverflow.Clip -> truncateLine(
+                result[lastIndex],
+                safeMaxWidthPx,
+                UiTextOverflow.Clip,
+                advanceOf,
+            )
+
+            UiTextOverflow.Ellipsis -> ellipsizeTruncatedLine(
+                result[lastIndex],
+                safeMaxWidthPx,
+                advanceOf,
+            )
         }
     }
     val finalLines = result.take(normalizedMaxLines)
@@ -454,7 +489,11 @@ private fun ellipsizeLine(line: String, maxWidthPx: Float, advanceOf: (Char) -> 
     return line.take(prefixCount) + ellipsis
 }
 
-private fun ellipsizeTruncatedLine(line: String, maxWidthPx: Float, advanceOf: (Char) -> Float): String {
+private fun ellipsizeTruncatedLine(
+    line: String,
+    maxWidthPx: Float,
+    advanceOf: (Char) -> Float,
+): String {
     val ellipsis = "..."
     if (maxWidthPx.isInfinite()) {
         return "$line$ellipsis"

@@ -926,8 +926,8 @@ object HeroIcons {
                 stroke = UiStroke(
                     width = 1.5f.dp,
                     cap = UiStrokeCap.Round,
-                    join = UiStrokeJoin.Round
-                )
+                    join = UiStrokeJoin.Round,
+                ),
             ) {
                 moveTo(4.26f, 10.147f)
                 cubicTo(3.9849f, 12.2526f, 3.8211f, 14.3712f, 3.769f, 16.494f)
@@ -968,8 +968,8 @@ object HeroIcons {
                 stroke = UiStroke(
                     width = 1.5f.dp,
                     cap = UiStrokeCap.Round,
-                    join = UiStrokeJoin.Round
-                )
+                    join = UiStrokeJoin.Round,
+                ),
             ) {
                 moveTo(12f, 6f)
                 lineTo(12f, 12f)
@@ -994,8 +994,8 @@ object HeroIcons {
                 stroke = UiStroke(
                     width = 1.5f.dp,
                     cap = UiStrokeCap.Round,
-                    join = UiStrokeJoin.Round
-                )
+                    join = UiStrokeJoin.Round,
+                ),
             ) {
                 moveTo(6.827f, 6.175f)
                 cubicTo(6.4626f, 6.7517f, 5.8619f, 7.1379f, 5.186f, 7.23f)
@@ -1020,8 +1020,8 @@ object HeroIcons {
                 stroke = UiStroke(
                     width = 1.5f.dp,
                     cap = UiStrokeCap.Round,
-                    join = UiStrokeJoin.Round
-                )
+                    join = UiStrokeJoin.Round,
+                ),
             ) {
                 moveTo(16.5f, 12.75f)
                 cubicTo(16.5f, 15.2353f, 14.4853f, 17.25f, 12f, 17.25f)
@@ -1049,8 +1049,8 @@ object HeroIcons {
                 stroke = UiStroke(
                     width = 1.5f.dp,
                     cap = UiStrokeCap.Round,
-                    join = UiStrokeJoin.Round
-                )
+                    join = UiStrokeJoin.Round,
+                ),
             ) {
                 moveTo(16.023f, 9.348f)
                 lineTo(21.015f, 9.348f)

@@ -13,10 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.layoutBitmapText
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
@@ -41,6 +37,10 @@ import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.layoutBitmapText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 
 fun UiScope.shadcnDropdownMenu(
@@ -237,7 +237,7 @@ private fun ColumnScope.dropdownMenuItem(
                     start = labelStart.px,
                     top = verticalPadding,
                     end = 0f.dp,
-                    bottom = 0f.dp
+                    bottom = 0f.dp,
                 ).align(labelAlignment),
                 color = textColor,
                 font = resolvedFont,
@@ -299,7 +299,7 @@ private fun ColumnScope.dropdownMenuItem(
                         start = 8f.dp,
                         top = (8f + glyphPx + 4f).px,
                         end = 8f.dp,
-                        bottom = 0f.dp
+                        bottom = 0f.dp,
                     ).align(UiAlignment.TopStart),
                     color = if (selected) theme.colors.accentForeground.withAlpha(0.82f) else theme.colors.mutedForeground,
                     font = resolvedFont,

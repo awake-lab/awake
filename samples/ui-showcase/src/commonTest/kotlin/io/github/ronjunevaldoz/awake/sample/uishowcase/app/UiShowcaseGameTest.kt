@@ -48,10 +48,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.contains
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -68,6 +66,7 @@ import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.math.abs
 import kotlin.test.Test
@@ -321,7 +320,8 @@ class UiShowcaseGameTest {
         ui.createColumn(x = 24f, y = 24f, width = 720f, height = 516f).run {
             column(
                 id = "ui-showcase-content-viewport",
-                modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.Fixed(320f.px)),
+                modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax)
+                    .height(Dimension.Fixed(320f.px)),
             ) {
                 shadcnSurface(
                     id = "ui-showcase-content",
@@ -335,9 +335,16 @@ class UiShowcaseGameTest {
 
         ui.endFrame()
         val semantics = ui.semanticNodes()
-        val viewport = requireSemanticNode(semantics, "ui-showcase-content-viewport", UiSemanticRole.ScrollPanel)
+        val viewport = requireSemanticNode(
+            semantics,
+            "ui-showcase-content-viewport",
+            UiSemanticRole.ScrollPanel,
+        )
 
-        assertTrue(contentScroll.canScrollY, "the theming page should overflow a constrained viewport")
+        assertTrue(
+            contentScroll.canScrollY,
+            "the theming page should overflow a constrained viewport",
+        )
         assertTrue(
             contentScroll.contentHeight > contentScroll.viewportHeight,
             "expected contentHeight=${'$'}{contentScroll.contentHeight} to exceed viewportHeight=${'$'}{contentScroll.viewportHeight}",
@@ -364,19 +371,22 @@ class UiShowcaseGameTest {
         ui.createColumn(x = 0f, y = 0f, width = 1440f, height = 900f).run {
             row(
                 horizontalArrangement = Arrangement.spacedBy(20f.dp),
-                modifier = (Modifier.fillMaxSize().padding(24f.dp)).width(Dimension.FillMax).height(Dimension.Fixed(900f.px)),
+                modifier = (Modifier.fillMaxSize().padding(24f.dp)).width(Dimension.FillMax)
+                    .height(Dimension.Fixed(900f.px)),
             ) {
                 shadcnSidebar(
                     id = "ui-showcase-sidebar",
                     style = Style { shape(16f.dp) },
-                    modifier = (Modifier.verticalScroll(sidebarScroll)).width(264f.dp.toDimension()).height(Dimension.FillMax),
+                    modifier = (Modifier.verticalScroll(sidebarScroll)).width(264f.dp.toDimension())
+                        .height(Dimension.FillMax),
                 ) {
                     drawUiShowcaseSidebar(compact = false)
                 }
 
                 column(
                     id = "ui-showcase-content-viewport",
-                    modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax),
+                    modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax)
+                        .height(Dimension.FillMax),
                 ) {
                     shadcnSurface(
                         id = "ui-showcase-content",
@@ -437,7 +447,10 @@ class UiShowcaseGameTest {
         )
 
         // Collapse the GettingStarted group directly through its persisted state, same as a click would.
-        var expanded by ui.rememberStateValue("ui-showcase-sidebar-category", "GettingStarted") { true }
+        var expanded by ui.rememberStateValue(
+            "ui-showcase-sidebar-category",
+            "GettingStarted",
+        ) { true }
         expanded = false
 
         renderSidebar()
@@ -573,7 +586,7 @@ private fun renderSidebarSurfaceColor(theme: UiTheme): Color {
     ui.beginFrame(
         360f,
         240f,
-        io.github.ronjunevaldoz.awake.core.input.Input().updateSnapshot().toUiInputState(),
+        Input().updateSnapshot().toUiInputState(),
     )
     ui.pushFont(BitmapFont())
     ui.pushTheme(theme)
@@ -599,13 +612,19 @@ private class RecordingRenderer : Renderer {
     override var shadowsEnabled: Boolean = true
 
     override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
-        override val format: io.github.ronjunevaldoz.awake.render.mesh.VertexFormat = geometry.format
+        override val format: io.github.ronjunevaldoz.awake.render.mesh.VertexFormat =
+            geometry.format
+
         override fun bind(commandBuffer: Long) = Unit
         override fun draw(commandBuffer: Long) = Unit
         override fun destroy() = Unit
     }
 
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): Material =
+    override fun createMaterial(
+        texture: TextureAsset?,
+        renderTarget: RenderTarget?,
+        uniformFloatCount: Int,
+    ): Material =
         object : Material {
             override fun updateUniformBuffer(mvp: FloatArray) = Unit
             override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit

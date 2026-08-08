@@ -8,11 +8,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -24,7 +24,11 @@ class ShadcnContextMenuTest {
         ui.pushFont(BitmapFont())
 
         // Right click at (50, 20) inside target bounds (0, 0, 100, 40)
-        ui.beginFrame(240f, 160f, UiInputState(pointerX = 50f, pointerY = 20f, secondaryPointerDown = true))
+        ui.beginFrame(
+            240f,
+            160f,
+            UiInputState(pointerX = 50f, pointerY = 20f, secondaryPointerDown = true),
+        )
 
         var open = false
         ui.column {

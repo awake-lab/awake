@@ -6,10 +6,6 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.button
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.layoutBitmapText
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -17,6 +13,10 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.layoutBitmapText
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -46,15 +46,21 @@ class TextWidgetsTest {
 
         scope.text(
             label = "TOOLONG",
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(10f, 20f, slotWidthPx, 12f),
+            slot = UiBounds(10f, 20f, slotWidthPx, 12f),
             font = font,
             overflow = UiTextOverflow.Ellipsis,
         )
 
         val frame = ui.endFrame()
         val clipPushes = frame.filterIsInstance<UiDrawPrimitive.ClipPush>()
-        assertTrue(layout.lines.single().endsWith("..."), "ellipsis overflow should append a visible ellipsis when text is truncated")
-        assertTrue(layout.lineWidths.single() <= slotWidthPx, "ellipsized text layout must measure within the slot width")
+        assertTrue(
+            layout.lines.single().endsWith("..."),
+            "ellipsis overflow should append a visible ellipsis when text is truncated",
+        )
+        assertTrue(
+            layout.lineWidths.single() <= slotWidthPx,
+            "ellipsized text layout must measure within the slot width",
+        )
         assertTrue(
             clipPushes.isNotEmpty(),
             "ellipsized text should clip to the slot bounds even when the final glyph quad extends past the right edge",
@@ -129,7 +135,7 @@ class TextWidgetsTest {
         ui.pushFont(font)
         ui.createAbsolute(x = 0f, y = 0f).text(
             label = "BUTTON",
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 20f, 160f, 40f),
+            slot = UiBounds(20f, 20f, 160f, 40f),
             font = font,
             centered = true,
         )
@@ -154,7 +160,7 @@ class TextWidgetsTest {
         // depend on it) -- request top alignment explicitly since that's what this test covers.
         ui.createAbsolute(x = 0f, y = 0f).text(
             label = "Title",
-            slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(16f, 24f, 120f, 20f),
+            slot = UiBounds(16f, 24f, 120f, 20f),
             font = font,
             verticallyCentered = false,
         )
@@ -207,7 +213,11 @@ class TextWidgetsTest {
             secondSlot = text("Sibling", modifier = Modifier.width(120f.px))
         }
 
-        assertEquals(0f, firstSlot?.y, "hovered text should not re-claim a later row in the same column")
+        assertEquals(
+            0f,
+            firstSlot?.y,
+            "hovered text should not re-claim a later row in the same column",
+        )
         assertEquals(
             (firstSlot?.y ?: 0f) + (firstSlot?.height ?: 0f) + 8f,
             secondSlot?.y,

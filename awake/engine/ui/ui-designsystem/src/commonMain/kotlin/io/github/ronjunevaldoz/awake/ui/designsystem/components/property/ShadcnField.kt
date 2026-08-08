@@ -99,7 +99,7 @@ fun ColumnScope.shadcnFieldSet(
 ): UiBounds = column(
     id = id,
     verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm),
-    modifier = modifier
+    modifier = modifier,
 ) { content() }
 
 /** Real shadcn's `FieldLegend` (HTML `<legend>` equivalent) -- the title of a [shadcnFieldSet],
@@ -118,7 +118,7 @@ fun ColumnScope.shadcnFieldGroup(
 ): UiBounds = column(
     id = id,
     verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xxl),
-    modifier = modifier
+    modifier = modifier,
 ) { content() }
 
 /**

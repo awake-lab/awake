@@ -5,10 +5,10 @@ package io.github.ronjunevaldoz.awake.ui.headless
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.sp
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import java.io.File
 import javax.imageio.ImageIO
 import kotlin.test.Test
@@ -77,7 +77,7 @@ class FontBaselineFidelityTest {
         val file = File("../../../../docs/reference/font-previews/${sample.id}.png")
         assertTrue(
             file.exists(),
-            "missing reference ${file.path}; run tools/capture_font_reference.py"
+            "missing reference ${file.path}; run tools/capture_font_reference.py",
         )
         val image = ImageIO.read(file)
         val bottoms = inkBottomsPerGlyph(
@@ -98,7 +98,7 @@ class FontBaselineFidelityTest {
                 allowed,
                 ours,
                 "${sample.id}: real Roboto puts every glyph within $reference px of one baseline, " +
-                        "we render a spread of $ours. Update knownBaselineDrift only to shrink it.",
+                    "we render a spread of $ours. Update knownBaselineDrift only to shrink it.",
             )
         }
     }

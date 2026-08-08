@@ -6,10 +6,10 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.TextEditAction
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.textarea
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textarea
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -28,19 +28,42 @@ class TextareaWidgetTest {
         ui.simulateClick(x = 100f, y = 20f, screenHeight = 200f, input = input) {
             ui.pushFont(BitmapFont())
             value = ui.createAbsolute(x = 20f, y = 20f)
-                .textarea("notes", value, modifier = Modifier.width(160f.px).height(60f.px), minLines = 3)
+                .textarea(
+                    "notes",
+                    value,
+                    modifier = Modifier.width(160f.px).height(60f.px),
+                    minLines = 3,
+                )
         }
 
         // 6 newlines -> 7 lines, well beyond the 3-line-tall box.
         repeat(6) { input.pushEditAction(TextEditAction.Enter) }
         input.pushTypedText("last line")
-        ui.simulateFrame(pointerDown = false, x = 100f, y = 20f, screenHeight = 200f, input = input) {
+        ui.simulateFrame(
+            pointerDown = false,
+            x = 100f,
+            y = 20f,
+            screenHeight = 200f,
+            input = input,
+        ) {
             ui.pushFont(BitmapFont())
             value = ui.createAbsolute(x = 20f, y = 20f)
-                .textarea("notes", value, modifier = Modifier.width(160f.px).height(60f.px), minLines = 3)
+                .textarea(
+                    "notes",
+                    value,
+                    modifier = Modifier.width(160f.px).height(60f.px),
+                    minLines = 3,
+                )
         }
-        assertEquals(7, value.count { it == '\n' } + 1, "every typed newline must land in the value")
-        assertTrue(value.endsWith("last line"), "typed text past the visible bottom must not be lost")
+        assertEquals(
+            7,
+            value.count { it == '\n' } + 1,
+            "every typed newline must land in the value",
+        )
+        assertTrue(
+            value.endsWith("last line"),
+            "typed text past the visible bottom must not be lost",
+        )
 
         // Render once more and prove the caret's final line actually got laid out as glyphs --
         // not left clipped out by a box that never scrolled to follow it.
@@ -48,7 +71,12 @@ class TextareaWidgetTest {
         ui.beginFrame(200f, 200f, input.updateSnapshot().toUiInputState())
         ui.pushFont(BitmapFont())
         value = ui.createAbsolute(x = 20f, y = 20f)
-            .textarea("notes", value, modifier = Modifier.width(160f.px).height(60f.px), minLines = 3)
+            .textarea(
+                "notes",
+                value,
+                modifier = Modifier.width(160f.px).height(60f.px),
+                minLines = 3,
+            )
         val glyphCount = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size
         assertEquals(
             "last line".length,
@@ -65,14 +93,30 @@ class TextareaWidgetTest {
         ui.simulateClick(x = 42f, y = 28f, screenHeight = 180f, input = input) {
             ui.pushFont(BitmapFont())
             value = ui.createAbsolute(x = 20f, y = 20f)
-                .textarea("notes", value, modifier = Modifier.width(96f.px).height(80f.px), minLines = 3)
+                .textarea(
+                    "notes",
+                    value,
+                    modifier = Modifier.width(96f.px).height(80f.px),
+                    minLines = 3,
+                )
         }
 
         input.pushTypedText("ANTIDISESTABLISHMENTARIANISM_ANTIDISESTABLISHMENTARIANISM")
-        ui.simulateFrame(pointerDown = false, x = 42f, y = 28f, screenHeight = 180f, input = input) {
+        ui.simulateFrame(
+            pointerDown = false,
+            x = 42f,
+            y = 28f,
+            screenHeight = 180f,
+            input = input,
+        ) {
             ui.pushFont(BitmapFont())
             value = ui.createAbsolute(x = 20f, y = 20f)
-                .textarea("notes", value, modifier = Modifier.width(96f.px).height(80f.px), minLines = 3)
+                .textarea(
+                    "notes",
+                    value,
+                    modifier = Modifier.width(96f.px).height(80f.px),
+                    minLines = 3,
+                )
         }
 
         val textareaNode = requireNotNull(

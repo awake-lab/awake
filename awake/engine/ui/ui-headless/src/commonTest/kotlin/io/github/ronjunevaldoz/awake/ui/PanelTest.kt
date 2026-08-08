@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
@@ -11,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -23,7 +23,10 @@ class PanelTest {
         val ui = UiContext()
         val column = ui.createColumn(x = 10f, y = 20f, width = 200f)
 
-        val panelSlot = column.surface("p", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px))) { }
+        val panelSlot = column.surface(
+            "p",
+            modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px)),
+        ) { }
         val next = column.claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(30f.px))
 
         assertEquals(10f, panelSlot.x)
@@ -39,13 +42,24 @@ class PanelTest {
         val column = ui.createColumn(x = 10f, y = 20f, width = 200f)
 
         var firstChildSlot: UiBounds? = null
-        column.surface("p", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px))) { slot ->
+        column.surface(
+            "p",
+            modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px)),
+        ) { slot ->
             firstChildSlot = claimSlot(Dimension.Fixed(50f.px), Dimension.Fixed(20f.px))
         }
 
         val childSlot = requireNotNull(firstChildSlot)
-        assertEquals(10f + UiSpacing.sm.toPx(), childSlot.x, "nested content must start after the panel's content padding")
-        assertEquals(20f + UiSpacing.sm.toPx(), childSlot.y, "nested content must start after the panel's content padding")
+        assertEquals(
+            10f + UiSpacing.sm.toPx(),
+            childSlot.x,
+            "nested content must start after the panel's content padding",
+        )
+        assertEquals(
+            20f + UiSpacing.sm.toPx(),
+            childSlot.y,
+            "nested content must start after the panel's content padding",
+        )
     }
 
     @Test
@@ -61,17 +75,26 @@ class PanelTest {
         ) { }
         val primitives = ui.endFrame()
         assertTrue(primitives.isNotEmpty())
-        assertIs<UiDrawPrimitive.Quad>(primitives.first(), "radius = UiShape.none must emit a plain Quad, not a RoundedQuad")
+        assertIs<UiDrawPrimitive.Quad>(
+            primitives.first(),
+            "radius = UiShape.none must emit a plain Quad, not a RoundedQuad",
+        )
     }
 
     @Test
     fun nonZeroRadiusEmitsRoundedQuad() {
         val ui = UiContext()
         val column = ui.createColumn(x = 0f, y = 0f, width = 200f)
-        column.surface("p", modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px))) { }
+        column.surface(
+            "p",
+            modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px)),
+        ) { }
         val primitives = ui.endFrame()
         assertTrue(primitives.isNotEmpty())
-        assertIs<UiDrawPrimitive.RoundedQuad>(primitives.first(), "a non-zero radius must emit a RoundedQuad")
+        assertIs<UiDrawPrimitive.RoundedQuad>(
+            primitives.first(),
+            "a non-zero radius must emit a RoundedQuad",
+        )
     }
 
     @Test
@@ -89,7 +112,11 @@ class PanelTest {
             text("Line Two")
         }
 
-        assertEquals(56f, panelSlot.height, "two text rows + 8px row gap + 16px panel padding should size the panel")
+        assertEquals(
+            56f,
+            panelSlot.height,
+            "two text rows + 8px row gap + 16px panel padding should size the panel",
+        )
     }
 
     @Test
@@ -106,7 +133,15 @@ class PanelTest {
             claimSlot(Dimension.Fixed(32f.px), Dimension.Fixed(8f.px))
         }
 
-        assertEquals(48f, panelSlot.width, "four 8px glyphs plus 16px panel padding should size the panel width")
-        assertEquals(24f, panelSlot.height, "one 8px child row plus 16px panel padding should size the panel height")
+        assertEquals(
+            48f,
+            panelSlot.width,
+            "four 8px glyphs plus 16px panel padding should size the panel width",
+        )
+        assertEquals(
+            24f,
+            panelSlot.height,
+            "one 8px child row plus 16px panel padding should size the panel height",
+        )
     }
 }

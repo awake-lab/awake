@@ -11,10 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.headless.input.select
-import io.github.ronjunevaldoz.awake.ui.headless.input.slider
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
@@ -29,6 +25,10 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.uiPath
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.select
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
 import kotlin.test.Test
 
 /** Builds a one-off [UiInputState] for a test frame -- [Input] is a per-session instance
@@ -96,8 +96,18 @@ class UiDslTutorialDocsTest {
                 }
                 spacer(Modifier.height(8f.dp))
                 text("Debug")
-                showGrid = toggle("grid", checked = showGrid, modifier = Modifier.height(28f.dp), label = "Show Grid")
-                showFrustum = toggle("frustum", checked = showFrustum, modifier = Modifier.height(28f.dp), label = "Show Frustum")
+                showGrid = toggle(
+                    "grid",
+                    checked = showGrid,
+                    modifier = Modifier.height(28f.dp),
+                    label = "Show Grid",
+                )
+                showFrustum = toggle(
+                    "frustum",
+                    checked = showFrustum,
+                    modifier = Modifier.height(28f.dp),
+                    label = "Show Frustum",
+                )
                 toggle("hud", checked = true, modifier = Modifier.height(32f.px), label = "HUD")
             }
         }

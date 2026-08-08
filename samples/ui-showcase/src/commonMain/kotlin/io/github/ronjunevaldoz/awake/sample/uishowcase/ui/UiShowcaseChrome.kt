@@ -20,8 +20,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadc
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -33,6 +31,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 
 internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
     var selectedPage by rememberStateValue("ui-showcase-page", "entry") {
@@ -118,7 +118,10 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                 }
             }
         } else {
-            var expanded by context.rememberStateValue("ui-showcase-sidebar-category", category.name) { true }
+            var expanded by context.rememberStateValue(
+                "ui-showcase-sidebar-category",
+                category.name,
+            ) { true }
             shadcnCollapsible(
                 id = "ui-showcase-sidebar-category-${category.name}",
                 title = category.title,
@@ -136,7 +139,14 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                                 id = "ui-showcase-page-${page.id}",
                                 label = page.title,
                                 active = page.id == selectedPageId,
-                                style = Style { contentPadding(start = 24f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp) },
+                                style = Style {
+                                    contentPadding(
+                                        start = 24f.dp,
+                                        top = 0f.dp,
+                                        end = 14f.dp,
+                                        bottom = 0f.dp,
+                                    )
+                                },
                                 onClick = { onSelect(page) },
                             )
                         }

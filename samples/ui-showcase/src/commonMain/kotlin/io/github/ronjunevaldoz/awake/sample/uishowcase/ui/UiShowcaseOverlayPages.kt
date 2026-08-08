@@ -24,9 +24,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -41,6 +38,9 @@ import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.destructiveStyle
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 private val ShowcaseActionMenuItems = listOf(
     UiDropdownMenuItem(
@@ -72,7 +72,10 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
     shadcnBodyText("Count: ${counterState.count}")
     shadcnSupportingText("Last effect: ${state.showcaseCounterEffectMessage ?: "None"}")
     spacer(Modifier.height(6f.dp))
-    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+    row(
+        horizontalArrangement = Arrangement.spacedBy(10f.dp),
+        modifier = Modifier.height(36f.dp.toDimension()),
+    ) {
         if (
             shadcnButton(
                 id = "counter-decrement",
@@ -94,7 +97,10 @@ internal fun ColumnScope.drawUiShowcaseCounterPreview(state: UiShowcaseRuntimeSt
             state.counterStore.dispatch(UiShowcaseCounterContract.Intent.Increment)
         }
     }
-    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+    row(
+        horizontalArrangement = Arrangement.spacedBy(10f.dp),
+        modifier = Modifier.height(36f.dp.toDimension()),
+    ) {
         if (
             shadcnButton(
                 id = "counter-reset",
@@ -123,7 +129,10 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
     shadcnBadge("OVERLAY", variant = ShadcnBadgeVariant.Outline)
     shadcnSupportingText("The action menu anchors to the trigger and opens inside a contained popover surface.")
     spacer(Modifier.height(6f.dp))
-    row(horizontalArrangement = Arrangement.spacedBy(10f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+    row(
+        horizontalArrangement = Arrangement.spacedBy(10f.dp),
+        modifier = Modifier.height(36f.dp.toDimension()),
+    ) {
         val menuTrigger = buttonSlot(
             id = "ui-showcase-menu-trigger",
             label = "Actions",
@@ -151,6 +160,7 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
                 feedbackMessage = "Duplicate panel queued from the dropdown menu."
                 actionMenuState.close()
             }
+
             2 -> {
                 feedbackMessage = "Delete requested from the dropdown menu."
                 actionMenuState.close()
@@ -232,7 +242,11 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
         expanded = infoDialogState.expanded,
         width = Dimension.Fixed(320f.dp),
         header = {
-            text("Scene info", style = Style { textSize(theme.typography.title) }, wrap = UiTextWrap.Word)
+            text(
+                "Scene info",
+                style = Style { textSize(theme.typography.title) },
+                wrap = UiTextWrap.Word,
+            )
         },
         actions = {
             if (
@@ -267,10 +281,12 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
             feedbackMessage = "Confirmed from the alert dialog."
             deleteDialogState.close()
         }
+
         UiAlertDialogAction.Dismiss -> {
             feedbackMessage = "Dismissed from the alert dialog."
             deleteDialogState.close()
         }
+
         null -> {
             if (dialogResult.popup.dismissed) {
                 feedbackMessage = "Dismissed by clicking outside the alert dialog."
@@ -283,7 +299,10 @@ internal fun ColumnScope.drawUiShowcasePopupPreview() {
 internal fun ColumnScope.drawUiShowcaseTooltipPreview() {
     shadcnSupportingText("Tooltips stay small and contextual: anchored to a trigger, wrapped inside a surfaced popup, and dismissible without changing the surrounding layout.")
     spacer(Modifier.height(8f.dp))
-    row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+    row(
+        horizontalArrangement = Arrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(36f.dp.toDimension()),
+    ) {
         val trigger = buttonSlot(
             id = "showcase-tooltip-trigger",
             label = "Scene info",
@@ -326,7 +345,10 @@ internal fun ColumnScope.drawUiShowcasePopoverPreview() {
 
     shadcnSupportingText("Popover owns anchored positioning, dismiss, and panel chrome; the caller renders its own trigger and expanded state, same split as the dropdown menu.")
     spacer(Modifier.height(8f.dp))
-    row(horizontalArrangement = Arrangement.spacedBy(12f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
+    row(
+        horizontalArrangement = Arrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(36f.dp.toDimension()),
+    ) {
         val trigger = buttonSlot(
             id = "ui-showcase-popover-trigger",
             label = "Share",

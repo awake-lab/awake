@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless.input
+package io.github.ronjunevaldoz.awake.ui.unstyled.input
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -65,8 +65,8 @@ fun UiScope.rangeSlider(
     box(
         modifier = modifier.withSizeFallback(
             Dimension.FillMax,
-            Dimension.Fixed(20f.dp)
-        )
+            Dimension.Fixed(20f.dp),
+        ),
     ) { boxSlot ->
         val startId = "$id.start"
         val endId = "$id.end"
@@ -115,27 +115,35 @@ fun UiScope.rangeSlider(
 
         val draggingStart = isActive(startId) && pointerDown
         val draggingEnd = isActive(endId) && pointerDown
-        val rawStart = if (draggingStart) sliderValueFromPointerX(
-            px,
-            trackSlot.x,
-            trackSlot.width,
-            min,
-            max
-        ) else valueStart
-        val rawEnd = if (draggingEnd) sliderValueFromPointerX(
-            px,
-            trackSlot.x,
-            trackSlot.width,
-            min,
-            max
-        ) else valueEnd
+        val rawStart = if (draggingStart) {
+            sliderValueFromPointerX(
+                px,
+                trackSlot.x,
+                trackSlot.width,
+                min,
+                max,
+            )
+        } else {
+            valueStart
+        }
+        val rawEnd = if (draggingEnd) {
+            sliderValueFromPointerX(
+                px,
+                trackSlot.x,
+                trackSlot.width,
+                min,
+                max,
+            )
+        } else {
+            valueEnd
+        }
         releaseActiveIfMatches(startId)
         releaseActiveIfMatches(endId)
 
         val newStart =
             (if (draggingStart) minOf(rawStart, valueEnd - epsilon) else valueStart).coerceIn(
                 min,
-                max
+                max,
             )
         val newEnd =
             (if (draggingEnd) maxOf(rawEnd, valueStart + epsilon) else valueEnd).coerceIn(min, max)
@@ -201,12 +209,16 @@ fun UiScope.rangeSlider(
             id = id,
             label = label,
             bounds = boxSlot,
-            contentBounds = if (fillWidth > 0f) UiBounds(
-                fillX,
-                trackSlot.y,
-                fillWidth,
-                trackSlot.height
-            ) else null,
+            contentBounds = if (fillWidth > 0f) {
+                UiBounds(
+                    fillX,
+                    trackSlot.y,
+                    fillWidth,
+                    trackSlot.height,
+                )
+            } else {
+                null
+            },
         )
     }
     return resultStart to resultEnd

@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
@@ -20,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.style.StyleStateKey
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -36,8 +36,14 @@ class ReusableCompositionTest {
         ui.createAbsolute(x = 20f, y = 20f).badge("status", "READY", emphasized = true)
 
         val primitives = ui.endFrame()
-        assertIs<UiDrawPrimitive.RoundedQuad>(primitives.first(), "custom widget should be able to emit a styled rounded border")
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(), "custom widget should be able to reuse text() for its label")
+        assertIs<UiDrawPrimitive.RoundedQuad>(
+            primitives.first(),
+            "custom widget should be able to emit a styled rounded border",
+        )
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isNotEmpty(),
+            "custom widget should be able to reuse text() for its label",
+        )
     }
 
     @Test
@@ -48,11 +54,25 @@ class ReusableCompositionTest {
         ui.pushTheme(UiDefaultTheme)
 
         val scope = DiagonalScope(ui, startX = 10f, startY = 20f, stepX = 15f, stepY = 10f)
-        val first = scope.buttonSlot("one", label = "ONE", modifier = Modifier.width(100f.px).height(30f.px))
-        val second = scope.buttonSlot("two", label = "TWO", modifier = Modifier.width(100f.px).height(30f.px))
+        val first = scope.buttonSlot(
+            "one",
+            label = "ONE",
+            modifier = Modifier.width(100f.px).height(30f.px),
+        )
+        val second = scope.buttonSlot(
+            "two",
+            label = "TWO",
+            modifier = Modifier.width(100f.px).height(30f.px),
+        )
 
-        assertEquals(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(10f, 20f, 100f, 30f), first.slot)
-        assertEquals(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(25f, 30f, 100f, 30f), second.slot)
+        assertEquals(
+            UiBounds(10f, 20f, 100f, 30f),
+            first.slot,
+        )
+        assertEquals(
+            UiBounds(25f, 30f, 100f, 30f),
+            second.slot,
+        )
     }
 
     @Test
@@ -70,14 +90,14 @@ class ReusableCompositionTest {
         ) { slot ->
             text(
                 label = ">",
-                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(slot.x, slot.y, 12f, slot.height),
+                slot = UiBounds(slot.x, slot.y, 12f, slot.height),
                 font = font,
                 centered = false,
                 verticallyCentered = true,
             )
             text(
                 label = "Launch",
-                slot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(slot.x + 18f, slot.y, 72f, slot.height),
+                slot = UiBounds(slot.x + 18f, slot.y, 72f, slot.height),
                 font = font,
                 centered = false,
                 verticallyCentered = true,
@@ -85,9 +105,18 @@ class ReusableCompositionTest {
         }
 
         val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
-        assertEquals(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 20f, 180f, 40f), result.slot)
-        assertTrue(glyphs.size >= 7, "custom button slot content should be able to emit multiple glyph runs")
-        assertTrue(glyphs.first().x >= 32f, "slot content should render inside the padded content region, not against the outer button edge")
+        assertEquals(
+            UiBounds(20f, 20f, 180f, 40f),
+            result.slot,
+        )
+        assertTrue(
+            glyphs.size >= 7,
+            "custom button slot content should be able to emit multiple glyph runs",
+        )
+        assertTrue(
+            glyphs.first().x >= 32f,
+            "slot content should render inside the padded content region, not against the outer button edge",
+        )
     }
 }
 
@@ -127,7 +156,13 @@ private fun UiScope.badge(
         borderColor = resolved.borderColor ?: theme.colors.border,
     )
     if (font != null) {
-        text(label, slot, font = font, color = resolved.foreground ?: theme.colors.foreground, centered = true)
+        text(
+            label,
+            slot,
+            font = font,
+            color = resolved.foreground ?: theme.colors.foreground,
+            centered = true,
+        )
     }
 }
 

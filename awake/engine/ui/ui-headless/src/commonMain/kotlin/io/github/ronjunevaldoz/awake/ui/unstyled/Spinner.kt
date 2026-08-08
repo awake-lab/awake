@@ -41,8 +41,8 @@ fun UiScope.spinner(
     val slot = claimModifiedSlot(
         modifier.withSizeFallback(
             Dimension.Fixed(24f.dp),
-            Dimension.Fixed(24f.dp)
-        )
+            Dimension.Fixed(24f.dp),
+        ),
     )
     val resolved = resolveStyle(style = style)
     val dotColor = resolved.foreground ?: theme.colors.foreground

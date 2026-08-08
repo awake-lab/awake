@@ -9,13 +9,13 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -60,7 +60,11 @@ class ShadcnCheckboxRadioSlotTest {
         ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             shadcnRadioGroup(id = "plan") {
                 row {
-                    shadcnRadioButton(id = "plan.a", selected = selected == "a", onClick = { selected = "a" })
+                    shadcnRadioButton(
+                        id = "plan.a",
+                        selected = selected == "a",
+                        onClick = { selected = "a" },
+                    )
                     column {
                         text("Pro plan")
                         text("Billed monthly, cancel anytime")
@@ -70,11 +74,17 @@ class ShadcnCheckboxRadioSlotTest {
         }
 
         val semantics = ui.finishFrame().semantics
-        assertNotNull(semantics.firstOrNull { it.label == "Pro plan" }, "content slot's title row should render")
+        assertNotNull(
+            semantics.firstOrNull { it.label == "Pro plan" },
+            "content slot's title row should render",
+        )
         assertNotNull(
             semantics.firstOrNull { it.label == "Billed monthly, cancel anytime" },
             "content slot's description line should render",
         )
-        assertNotNull(semantics.firstOrNull { it.id == "plan.a" }, "bare radio button should render its own semantic node")
+        assertNotNull(
+            semantics.firstOrNull { it.id == "plan.a" },
+            "bare radio button should render its own semantic node",
+        )
     }
 }

@@ -4,10 +4,10 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.input.rangeSlider
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.rangeSlider
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -23,7 +23,11 @@ class RangeSliderTest {
     // Box is offset(20dp,20dp) sized width(160px) x height(20px): track spans x in [30, 170]
     // (knob-radius-inset by 10px each side). start=20/end=80 of [0,100] puts the start knob at
     // x=58 and the end knob at x=142.
-    private fun UiContext.drag(enabled: Boolean, pressX: Float, dragToX: Float): Pair<Float, Float> {
+    private fun UiContext.drag(
+        enabled: Boolean,
+        pressX: Float,
+        dragToX: Float,
+    ): Pair<Float, Float> {
         val input = Input()
         var start = 20f
         var end = 80f
@@ -52,7 +56,10 @@ class RangeSliderTest {
     fun draggingTheStartKnobMovesOnlyStartValue() {
         val ui = UiContext()
         val (start, end) = ui.drag(enabled = true, pressX = 58f, dragToX = 100f)
-        assertTrue(start > 20f, "dragging the start knob rightward should raise valueStart: start=$start")
+        assertTrue(
+            start > 20f,
+            "dragging the start knob rightward should raise valueStart: start=$start",
+        )
         assertTrue(start < end, "dragged start must not cross the end knob: start=$start end=$end")
         assertEquals(80f, end, "dragging only the start knob must not move valueEnd")
     }

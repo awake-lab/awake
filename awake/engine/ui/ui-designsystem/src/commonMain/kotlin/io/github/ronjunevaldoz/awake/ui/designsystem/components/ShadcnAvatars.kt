@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.headless.avatarFallback
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -24,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.size
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.unstyled.avatarFallback
 
 /** Mirrors shadcn-compose's `ShadcnAvatarSize` (`Sm`/`Default`/`Lg`): drives both the
  * avatar's box diameter AND its [shadcnAvatarBadge]/initials text size together, so a caller
@@ -48,10 +48,17 @@ private fun shadcnAvatarStyle(theme: UiTheme, size: ShadcnAvatarSize, style: Sty
  * `Modifier.width()`/`.height()`/`.size()` from the caller always wins, matching the
  * `ColumnScope`/`RowScope` `surface()` overloads' "modifier wins" convention. */
 private fun UiModifier.withAvatarSize(size: ShadcnAvatarSize): UiModifier =
-    if (widthDimension != null || heightDimension != null) this else this.size(size.boxSize, size.boxSize)
+    if (widthDimension != null || heightDimension != null) {
+        this
+    } else {
+        this.size(
+            size.boxSize,
+            size.boxSize,
+        )
+    }
 
 /** Structure only (the circle) -- content is caller-supplied, e.g. a custom icon avatar
- * instead of initials text. See [io.github.ronjunevaldoz.awake.ui.headless.avatarFallback]. */
+ * instead of initials text. See [avatarFallback]. */
 fun UiScope.shadcnAvatar(
     modifier: UiModifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
@@ -125,7 +132,10 @@ fun RowScope.shadcnAvatarGroup(
     overlap: Dp = 8f.dp,
 ): UiBounds {
     val shadcnTheme = theme.asShadcnTheme()
-    return shadcnAvatarGroup(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(0f.dp)) {
+    return shadcnAvatarGroup(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(0f.dp),
+    ) {
         initials.forEachIndexed { index, name ->
             shadcnAvatar(
                 name,

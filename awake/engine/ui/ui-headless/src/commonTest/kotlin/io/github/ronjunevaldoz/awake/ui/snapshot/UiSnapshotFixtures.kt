@@ -26,14 +26,6 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.button
-import io.github.ronjunevaldoz.awake.ui.headless.components.icon
-import io.github.ronjunevaldoz.awake.ui.headless.input.select
-import io.github.ronjunevaldoz.awake.ui.headless.input.selection.checkbox
-import io.github.ronjunevaldoz.awake.ui.headless.input.slider
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.textField
-import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
@@ -56,6 +48,14 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.select
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.checkbox
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
 
 data class UiSnapshotScene(
     val name: String,
@@ -77,14 +77,24 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
     uncheckedUi.pushFont(font)
     uncheckedUi.pushTheme(UiDefaultTheme)
     uncheckedUi.createAbsolute(x = 0f, y = 0f)
-        .toggle("toggle-unchecked", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
+        .toggle(
+            "toggle-unchecked",
+            checked = false,
+            label = "ENABLED",
+            modifier = Modifier.width(160f.px).height(40f.px),
+        )
 
     val checkedUi = UiContext()
     checkedUi.beginFrame(160f, 40f, testSnapshot())
     checkedUi.pushFont(font)
     checkedUi.pushTheme(UiDefaultTheme)
     checkedUi.createAbsolute(x = 0f, y = 0f)
-        .toggle("toggle-checked", checked = true, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px))
+        .toggle(
+            "toggle-checked",
+            checked = true,
+            label = "ENABLED",
+            modifier = Modifier.width(160f.px).height(40f.px),
+        )
 
     val buttonVariants = UiButtonVariant.entries.map { variant ->
         val variantId = buttonVariantId(variant)
@@ -93,7 +103,13 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
         ui.pushFont(font)
         ui.pushTheme(UiDefaultTheme)
         ui.createAbsolute(x = 0f, y = 0f)
-            .button("button-$variantId", label = "BUTTON", modifier = Modifier.width(160f.px).height(40f.px), variant = variant, radius = UiShape.md)
+            .button(
+                "button-$variantId",
+                label = "BUTTON",
+                modifier = Modifier.width(160f.px).height(40f.px),
+                variant = variant,
+                radius = UiShape.md,
+            )
         UiSnapshotScene(
             name = "button-$variantId",
             width = 160,
@@ -129,8 +145,18 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
         style = Style { borderWidth(1f.dp) },
     ) {
         text("CAMERA", color = UiDefaultTheme.colors.mutedForeground)
-        select("mode", listOf("ORBIT", "FREE_FLY"), 0, modifier = Modifier.width(180f.px).height(24f.px))
-        checkbox("debug", checked = true, label = "DEBUG", modifier = Modifier.width(180f.px).height(24f.px))
+        select(
+            "mode",
+            listOf("ORBIT", "FREE_FLY"),
+            0,
+            modifier = Modifier.width(180f.px).height(24f.px),
+        )
+        checkbox(
+            "debug",
+            checked = true,
+            label = "DEBUG",
+            modifier = Modifier.width(180f.px).height(24f.px),
+        )
     }
 
     // Gap found by the unified UI component lookup audit (2026-08-02): shadcnFieldError had
@@ -141,7 +167,10 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
     fieldErrorUi.pushFont(font)
     fieldErrorUi.pushTheme(ShadcnTheme)
     fieldErrorUi.createAbsolute(x = 0f, y = 0f)
-        .shadcnFieldError("This field is required.", modifier = Modifier.width(240f.px).height(24f.px))
+        .shadcnFieldError(
+            "This field is required.",
+            modifier = Modifier.width(240f.px).height(24f.px),
+        )
 
     return buildList {
         add(
@@ -251,19 +280,51 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             ) {
                 shadcnSurface(
                     id = "button-variants",
-                    modifier = Modifier.width(Dimension.Fixed(588f.px)).height(Dimension.WrapContent),
+                    modifier = Modifier.width(Dimension.Fixed(588f.px))
+                        .height(Dimension.WrapContent),
                 ) {
                     text("Awake Shadcn Buttons")
                     shadcnSupportingText("Primary, secondary, outline, ghost, and danger all ride the same owned design tokens.")
                     spacer(Modifier.height(8f.dp))
-                    row(horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
-                        shadcnButton("primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Primary)
-                        shadcnButton("secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = ShadcnButtonVariant.Secondary)
-                        shadcnButton("outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Outline)
+                    row(
+                        horizontalArrangement = Arrangement.spacedBy(8f.dp),
+                        modifier = Modifier.height(40f.dp.toDimension()),
+                    ) {
+                        shadcnButton(
+                            "primary",
+                            "Primary",
+                            modifier = Modifier.width(138f.px).height(40f.px),
+                            variant = ShadcnButtonVariant.Primary,
+                        )
+                        shadcnButton(
+                            "secondary",
+                            "Secondary",
+                            modifier = Modifier.width(172f.px).height(40f.px),
+                            variant = ShadcnButtonVariant.Secondary,
+                        )
+                        shadcnButton(
+                            "outline",
+                            "Outline",
+                            modifier = Modifier.width(138f.px).height(40f.px),
+                            variant = ShadcnButtonVariant.Outline,
+                        )
                     }
-                    row(horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
-                        shadcnButton("ghost", "Ghost", modifier = Modifier.width(122f.px).height(40f.px), variant = ShadcnButtonVariant.Ghost)
-                        shadcnButton("danger", "Danger", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Danger)
+                    row(
+                        horizontalArrangement = Arrangement.spacedBy(8f.dp),
+                        modifier = Modifier.height(40f.dp.toDimension()),
+                    ) {
+                        shadcnButton(
+                            "ghost",
+                            "Ghost",
+                            modifier = Modifier.width(122f.px).height(40f.px),
+                            variant = ShadcnButtonVariant.Ghost,
+                        )
+                        shadcnButton(
+                            "danger",
+                            "Danger",
+                            modifier = Modifier.width(138f.px).height(40f.px),
+                            variant = ShadcnButtonVariant.Danger,
+                        )
                     }
                 }
             }
@@ -286,13 +347,19 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     contentPadding(12f.dp)
                 },
                 clipContent = true,
-                modifier = Modifier.width(Dimension.Fixed(260f.px)).height(Dimension.Fixed(120f.px)),
+                modifier = Modifier.width(Dimension.Fixed(260f.px))
+                    .height(Dimension.Fixed(120f.px)),
             ) { slot ->
                 text("Shaped Panel", color = UiDefaultTheme.colors.mutedForeground)
                 context.pushFont(snapshotFont)
                 context.pushTheme(UiDefaultTheme)
                 context.createAbsolute(x = slot.x + 12f, y = slot.y + 44f)
-                    .button("launch", label = "Launch Scene", modifier = Modifier.width(180f.px).height(36f.dp), radius = UiShape.md)
+                    .button(
+                        "launch",
+                        label = "Launch Scene",
+                        modifier = Modifier.width(180f.px).height(36f.dp),
+                        radius = UiShape.md,
+                    )
             }
         },
         scene(
@@ -312,15 +379,27 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             ) {
                 shadcnSurface(
                     id = "inspector",
-                    modifier = Modifier.width(Dimension.Fixed(390f.px)).height(Dimension.WrapContent),
+                    modifier = Modifier.width(Dimension.Fixed(390f.px))
+                        .height(Dimension.WrapContent),
                 ) {
                     text("Controls")
                     shadcnSupportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
                     spacer(Modifier.height(4f.dp))
-                    shadcnFieldDropdown("mode", "Camera Mode", listOf("Orbit", "Free Fly", "Follow"), selectedIndex = 0)
+                    shadcnFieldDropdown(
+                        "mode",
+                        "Camera Mode",
+                        listOf("Orbit", "Free Fly", "Follow"),
+                        selectedIndex = 0,
+                    )
                     shadcnFieldToggle("debug", "Debug Frustum Overlay", checked = true)
                     shadcnFieldToggle("grid", "Show Reference Grid", checked = false)
-                    shadcnFieldSlider("exposure", "Exposure Compensation", min = 0f, max = 100f, value = 68f)
+                    shadcnFieldSlider(
+                        "exposure",
+                        "Exposure Compensation",
+                        min = 0f,
+                        max = 100f,
+                        value = 68f,
+                    )
                     checkbox("wireframe", checked = true, label = "Wireframe Overlay")
                 }
             }
@@ -361,22 +440,77 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                 modifier = Modifier.offset(20f.dp, 20f.dp).width(420f.dp),
                 verticalArrangement = Arrangement.spacedBy(14f.dp),
             ) {
-                row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
-                    toggle("state-matrix-toggle-off", checked = false, modifier = Modifier.width(120f.px).height(24f.px))
-                    toggle("state-matrix-toggle-on", checked = true, modifier = Modifier.width(120f.px).height(24f.px))
+                row(
+                    horizontalArrangement = Arrangement.spacedBy(16f.dp),
+                    modifier = Modifier.height(40f.dp.toDimension()),
+                ) {
+                    toggle(
+                        "state-matrix-toggle-off",
+                        checked = false,
+                        modifier = Modifier.width(120f.px).height(24f.px),
+                    )
+                    toggle(
+                        "state-matrix-toggle-on",
+                        checked = true,
+                        modifier = Modifier.width(120f.px).height(24f.px),
+                    )
                 }
-                row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(32f.dp.toDimension())) {
-                    checkbox("state-matrix-checkbox-off", checked = false, modifier = Modifier.width(180f.px).height(24f.px))
-                    checkbox("state-matrix-checkbox-on", checked = true, modifier = Modifier.width(180f.px).height(24f.px))
+                row(
+                    horizontalArrangement = Arrangement.spacedBy(16f.dp),
+                    modifier = Modifier.height(32f.dp.toDimension()),
+                ) {
+                    checkbox(
+                        "state-matrix-checkbox-off",
+                        checked = false,
+                        modifier = Modifier.width(180f.px).height(24f.px),
+                    )
+                    checkbox(
+                        "state-matrix-checkbox-on",
+                        checked = true,
+                        modifier = Modifier.width(180f.px).height(24f.px),
+                    )
                 }
-                row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
-                    slider("state-matrix-slider-empty", min = 0f, max = 100f, value = 0f, modifier = Modifier.width(120f.px).height(36f.dp))
-                    slider("state-matrix-slider-half", min = 0f, max = 100f, value = 50f, modifier = Modifier.width(120f.px).height(36f.dp))
-                    slider("state-matrix-slider-full", min = 0f, max = 100f, value = 100f, modifier = Modifier.width(120f.px).height(36f.dp))
+                row(
+                    horizontalArrangement = Arrangement.spacedBy(16f.dp),
+                    modifier = Modifier.height(36f.dp.toDimension()),
+                ) {
+                    slider(
+                        "state-matrix-slider-empty",
+                        min = 0f,
+                        max = 100f,
+                        value = 0f,
+                        modifier = Modifier.width(120f.px).height(36f.dp),
+                    )
+                    slider(
+                        "state-matrix-slider-half",
+                        min = 0f,
+                        max = 100f,
+                        value = 50f,
+                        modifier = Modifier.width(120f.px).height(36f.dp),
+                    )
+                    slider(
+                        "state-matrix-slider-full",
+                        min = 0f,
+                        max = 100f,
+                        value = 100f,
+                        modifier = Modifier.width(120f.px).height(36f.dp),
+                    )
                 }
-                row(horizontalArrangement = Arrangement.spacedBy(16f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
-                    textField("state-matrix-empty-field", value = "", placeholder = "Placeholder", modifier = Modifier.width(190f.px).height(36f.dp))
-                    textField("state-matrix-focused-field", value = "Typed", modifier = Modifier.width(190f.px).height(36f.dp))
+                row(
+                    horizontalArrangement = Arrangement.spacedBy(16f.dp),
+                    modifier = Modifier.height(36f.dp.toDimension()),
+                ) {
+                    textField(
+                        "state-matrix-empty-field",
+                        value = "",
+                        placeholder = "Placeholder",
+                        modifier = Modifier.width(190f.px).height(36f.dp),
+                    )
+                    textField(
+                        "state-matrix-focused-field",
+                        value = "Typed",
+                        modifier = Modifier.width(190f.px).height(36f.dp),
+                    )
                 }
             }
         },
@@ -400,7 +534,8 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     contentPadding(14f.dp)
                 },
                 clipContent = true,
-                modifier = Modifier.width(Dimension.Fixed(292f.px)).height(Dimension.Fixed(164f.px)),
+                modifier = Modifier.width(Dimension.Fixed(292f.px))
+                    .height(Dimension.Fixed(164f.px)),
             ) { slot ->
                 text("Rounded + Clip + Vector", color = Color(0.94f, 0.96f, 1f, 1f))
                 text(
@@ -425,7 +560,8 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                             background(Color(0.2f, 0.24f, 0.36f, 1f))
                             border(1f.dp, Color(0.56f, 0.72f, 1f, 1f))
                         },
-                        modifier = (Modifier.align(UiAlignment.Center)).width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(56f.px)),
+                        modifier = (Modifier.align(UiAlignment.Center)).width(Dimension.Fixed(180f.px))
+                            .height(Dimension.Fixed(56f.px)),
                     ) {
                         text("ICON CHIP", color = Color(0.95f, 0.97f, 1f, 1f))
                     }
@@ -457,17 +593,39 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             ) {
                 shadcnSurface(
                     id = "shadcn-showcase",
-                    modifier = Modifier.width(Dimension.Fixed(520f.px)).height(Dimension.WrapContent),
+                    modifier = Modifier.width(Dimension.Fixed(520f.px))
+                        .height(Dimension.WrapContent),
                 ) {
                     text("Awake Shadcn")
                     shadcnSupportingText("Owned components layered over Awake widgets, with the same shared layout/runtime handling long copy and wrapped panel content.")
                     spacer(Modifier.height(8f.dp))
-                    row(horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(40f.dp.toDimension())) {
-                        shadcnButton("showcase-doc-primary", "Primary", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Primary)
-                        shadcnButton("showcase-doc-secondary", "Secondary", modifier = Modifier.width(172f.px).height(40f.px), variant = ShadcnButtonVariant.Secondary)
-                        shadcnButton("showcase-doc-outline", "Outline", modifier = Modifier.width(138f.px).height(40f.px), variant = ShadcnButtonVariant.Outline)
+                    row(
+                        horizontalArrangement = Arrangement.spacedBy(8f.dp),
+                        modifier = Modifier.height(40f.dp.toDimension()),
+                    ) {
+                        shadcnButton(
+                            "showcase-doc-primary",
+                            "Primary",
+                            modifier = Modifier.width(138f.px).height(40f.px),
+                            variant = ShadcnButtonVariant.Primary,
+                        )
+                        shadcnButton(
+                            "showcase-doc-secondary",
+                            "Secondary",
+                            modifier = Modifier.width(172f.px).height(40f.px),
+                            variant = ShadcnButtonVariant.Secondary,
+                        )
+                        shadcnButton(
+                            "showcase-doc-outline",
+                            "Outline",
+                            modifier = Modifier.width(138f.px).height(40f.px),
+                            variant = ShadcnButtonVariant.Outline,
+                        )
                     }
-                    row(horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(30f.dp.toDimension())) {
+                    row(
+                        horizontalArrangement = Arrangement.spacedBy(8f.dp),
+                        modifier = Modifier.height(30f.dp.toDimension()),
+                    ) {
                         shadcnBadge("LIVE", variant = ShadcnBadgeVariant.Primary)
                         shadcnBadge("NEUTRAL", variant = ShadcnBadgeVariant.Secondary)
                         shadcnBadge("BETA", variant = ShadcnBadgeVariant.Outline)
@@ -482,9 +640,22 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                         text("Preview Card")
                         shadcnSupportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")
                         spacer(Modifier.height(6f.dp))
-                        row(horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(36f.dp.toDimension())) {
-                            shadcnButton("showcase-doc-ghost", "Ghost", modifier = Modifier.width(112f.px).height(36f.dp), variant = ShadcnButtonVariant.Ghost)
-                            shadcnButton("showcase-doc-danger", "Danger", modifier = Modifier.width(112f.px).height(36f.dp), variant = ShadcnButtonVariant.Danger)
+                        row(
+                            horizontalArrangement = Arrangement.spacedBy(8f.dp),
+                            modifier = Modifier.height(36f.dp.toDimension()),
+                        ) {
+                            shadcnButton(
+                                "showcase-doc-ghost",
+                                "Ghost",
+                                modifier = Modifier.width(112f.px).height(36f.dp),
+                                variant = ShadcnButtonVariant.Ghost,
+                            )
+                            shadcnButton(
+                                "showcase-doc-danger",
+                                "Danger",
+                                modifier = Modifier.width(112f.px).height(36f.dp),
+                                variant = ShadcnButtonVariant.Danger,
+                            )
                         }
                     }
                     spacer(Modifier.height(8f.dp))

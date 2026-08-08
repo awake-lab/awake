@@ -34,7 +34,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -44,9 +43,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.awt.image.BufferedImage
 import java.io.File
@@ -91,15 +89,32 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
                 id = "parity-card",
                 modifier = Modifier.width(272f.px),
                 header = {
-                    text("Login to your account", style = Style { textSize(theme.typography.title) })
+                    text(
+                        "Login to your account",
+                        style = Style { textSize(theme.typography.title) },
+                    )
                 },
                 footer = {
-                    shadcnButton("parity-card-login", "Login", modifier = Modifier.width(240f.px).height(36f.px))
+                    shadcnButton(
+                        "parity-card-login",
+                        "Login",
+                        modifier = Modifier.width(240f.px).height(36f.px),
+                    )
                 },
             ) { _ ->
-                shadcnInput("parity-card-email", value = "", placeholder = "Email", modifier = Modifier.width(240f.px).height(36f.px))
+                shadcnInput(
+                    "parity-card-email",
+                    value = "",
+                    placeholder = "Email",
+                    modifier = Modifier.width(240f.px).height(36f.px),
+                )
                 spacer(Modifier.height(12f.dp))
-                shadcnInput("parity-card-password", value = "", placeholder = "Password", modifier = Modifier.width(240f.px).height(36f.px))
+                shadcnInput(
+                    "parity-card-password",
+                    value = "",
+                    placeholder = "Password",
+                    modifier = Modifier.width(240f.px).height(36f.px),
+                )
             }
         }
         return AwakeUiPreviewFrame(
@@ -168,7 +183,18 @@ private fun trimUniformBorder(image: BufferedImage): BufferedImage {
     var top = 0
     while (top < h && (left until right).all { x -> close(image.getRGB(x, top)) }) top++
     var bottom = h
-    while (bottom > top && (left until right).all { x -> close(image.getRGB(x, bottom - 1)) }) bottom--
+    while (bottom > top &&
+        (left until right).all { x ->
+            close(
+                image.getRGB(
+                    x,
+                    bottom - 1,
+                ),
+            )
+        }
+    ) {
+        bottom--
+    }
 
     if (left >= right || top >= bottom) return image
     return image.getSubimage(left, top, right - left, bottom - top)
@@ -184,7 +210,12 @@ private fun heatmapColor(delta: Double): Int {
 /** Aligned-crop perceptual diff: trims each image's own border independently, compares at the
  * intersection size (top-left anchored), and writes a red/blue delta heatmap. Never asserts --
  * callers decide what, if anything, to do with the numbers. */
-private fun compareAgainstReference(awakeFile: File, referenceFile: File, outDir: File, name: String): ShadcnParityMetric {
+private fun compareAgainstReference(
+    awakeFile: File,
+    referenceFile: File,
+    outDir: File,
+    name: String,
+): ShadcnParityMetric {
     val awakeImg = ImageIO.read(awakeFile)
     val refImg = ImageIO.read(referenceFile)
     val awakeTrim = trimUniformBorder(awakeImg)
@@ -275,7 +306,14 @@ class ShadcnReferenceComparisonTest {
 
         println("%-10s %10s %10s %11s".format("name", "mismatch%", "maxDelta", "meanDelta"))
         results.forEach { r ->
-            println("%-10s %9.2f%% %10d %11.2f".format(r.name, r.mismatchPct, r.maxChannelDelta, r.meanDelta))
+            println(
+                "%-10s %9.2f%% %10d %11.2f".format(
+                    r.name,
+                    r.mismatchPct,
+                    r.maxChannelDelta,
+                    r.meanDelta,
+                ),
+            )
         }
 
         metricsFile.parentFile.mkdirs()
@@ -284,6 +322,9 @@ class ShadcnReferenceComparisonTest {
 
         // Non-failing on drift by design (see this file's header) -- only proves the harness
         // ran end to end and produced a report a human can open.
-        assertTrue(results.isNotEmpty(), "expected at least one awake/reference pair to compare -- got 0, check manifest/paths above")
+        assertTrue(
+            results.isNotEmpty(),
+            "expected at least one awake/reference pair to compare -- got 0, check manifest/paths above",
+        )
     }
 }

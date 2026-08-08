@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTransparent
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
-import io.github.ronjunevaldoz.awake.ui.headless.components.icon
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -23,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 
 /**
  * The "card-collapsible" shape (shadcn.io's own example: a rounded card whose header is the
@@ -53,7 +53,11 @@ fun ColumnScope.shadcnCollapsibleCard(
     // run edge to edge (chevron close to the card's own right border, matching the shadcn.io
     // reference) instead of sitting doubly inset by both the card's own padding AND this
     // component's own header/content padding below.
-    shadcnCard(id = "$id.card", modifier = modifier.fillMaxWidth(), style = Style { contentPadding(0f.dp) }) { _ ->
+    shadcnCard(
+        id = "$id.card",
+        modifier = modifier.fillMaxWidth(),
+        style = Style { contentPadding(0f.dp) },
+    ) { _ ->
         shadcnButton(
             id = "$id.header",
             modifier = Modifier.fillMaxWidth().height(40f.dp),
@@ -82,7 +86,8 @@ fun ColumnScope.shadcnCollapsibleCard(
             row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = UiAlignment.Vertical.Center,
-                modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp)),
+                modifier = Modifier.width(Dimension.FillMax)
+                    .height(Dimension.Fixed(slot.height.dp)),
             ) {
                 header()
                 icon(if (expanded) ShadcnIcons.chevronUp else ShadcnIcons.chevronDown)
@@ -91,7 +96,14 @@ fun ColumnScope.shadcnCollapsibleCard(
         // Same horizontal inset the trigger's own contentPadding uses, so expanded content
         // lines up with the header label instead of running edge to edge.
         animatedHeight(id = "$id.content", expanded = expanded) {
-            column(modifier = Modifier.padding(shadcnTheme.spacing.sm, 0f.dp, shadcnTheme.spacing.sm, shadcnTheme.spacing.sm)) {
+            column(
+                modifier = Modifier.padding(
+                    shadcnTheme.spacing.sm,
+                    0f.dp,
+                    shadcnTheme.spacing.sm,
+                    shadcnTheme.spacing.sm,
+                ),
+            ) {
                 content()
             }
         }

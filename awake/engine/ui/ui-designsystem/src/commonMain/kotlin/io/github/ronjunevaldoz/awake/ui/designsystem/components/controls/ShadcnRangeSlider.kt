@@ -3,11 +3,11 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.controls
 
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.headless.input.rangeSlider
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.rangeSlider
 
 /** Real shadcn's `Slider` in range mode: two draggable thumbs on one track, sharing its
  * track/fill/knob chrome with [shadcnSlider] via the same [shadcnSliderStyle]. Delegates

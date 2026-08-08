@@ -5,13 +5,13 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
 import io.github.ronjunevaldoz.awake.ui.headless.button
-import io.github.ronjunevaldoz.awake.ui.headless.input.select
-import io.github.ronjunevaldoz.awake.ui.headless.input.slider
-import io.github.ronjunevaldoz.awake.ui.headless.input.toggle.toggle
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.select
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.slider
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

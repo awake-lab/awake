@@ -6,8 +6,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
-import io.github.ronjunevaldoz.awake.ui.headless.components.icon
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -21,6 +19,8 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /**
  * Real shadcn's `Collapsible` (and `Accordion`, a group of these with only one open at a
@@ -99,7 +99,8 @@ private fun ColumnScope.shadcnCollapsible(
                 row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = UiAlignment.Vertical.Center,
-                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp)),
+                    modifier = Modifier.width(Dimension.FillMax)
+                        .height(Dimension.Fixed(slot.height.dp)),
                 ) {
                     header()
                     icon(if (isOpen) ShadcnIcons.chevronUp else ShadcnIcons.chevronDown)

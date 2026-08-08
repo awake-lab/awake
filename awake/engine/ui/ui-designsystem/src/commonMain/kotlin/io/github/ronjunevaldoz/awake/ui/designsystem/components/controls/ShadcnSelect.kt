@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.headless.input.drawDropdownTriggerContent
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -21,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.drawDropdownTriggerContent
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 /** Real shadcn's `Select`: a trigger button that opens a [shadcnDropdownMenu] of [options].
@@ -45,7 +45,10 @@ fun UiScope.shadcnSelect(
     // pattern used throughout this module (see skills/awake-shadcn-styling/SKILL.md).
     val shadcnResolvedTheme = theme.asShadcnTheme()
     val triggerStyle = shadcnFieldStyle(theme, style) then Style {
-        contentPadding(shadcnResolvedTheme.metrics.fieldPaddingX, shadcnResolvedTheme.metrics.fieldPaddingY)
+        contentPadding(
+            shadcnResolvedTheme.metrics.fieldPaddingX,
+            shadcnResolvedTheme.metrics.fieldPaddingY,
+        )
     }
     val trigger = buttonSlot(
         id = "$id.trigger",

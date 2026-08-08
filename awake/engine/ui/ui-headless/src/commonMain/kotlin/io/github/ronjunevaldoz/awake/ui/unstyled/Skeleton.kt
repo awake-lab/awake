@@ -29,7 +29,7 @@ private const val SKELETON_PULSE_MAX_ALPHA = 1f
 
 /**
  * Real shadcn's `Skeleton`: a muted placeholder block that pulses opacity while content loads
- * -- same per-widget elapsed-time accumulation as [io.github.ronjunevaldoz.awake.ui.headless.input.text.textField]'s caret blink (`caretBlinkElapsedSeconds`),
+ * -- same per-widget elapsed-time accumulation as [io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textField]'s caret blink (`caretBlinkElapsedSeconds`),
  * not a global animation clock, so multiple skeletons on screen don't visibly sync/desync
  * relative to when each was first composed.
  */
@@ -47,9 +47,13 @@ fun UiScope.skeleton(
     state.set("skeletonElapsed", elapsed)
     val phase = (elapsed / SKELETON_PULSE_PERIOD_SECONDS) * (2f * PI.toFloat())
     val pulse =
-        SKELETON_PULSE_MIN_ALPHA + (SKELETON_PULSE_MAX_ALPHA - SKELETON_PULSE_MIN_ALPHA) * ((sin(
-            phase
-        ) + 1f) / 2f)
+        SKELETON_PULSE_MIN_ALPHA + (SKELETON_PULSE_MAX_ALPHA - SKELETON_PULSE_MIN_ALPHA) * (
+            (
+                sin(
+                    phase,
+                ) + 1f
+                ) / 2f
+            )
     val baseColor = resolved.background ?: theme.colors.muted
     val radiusPx = resolved.shape.toPx()
     emitFillAndBorder(

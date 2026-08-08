@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.math.PI
 
 /**
@@ -49,7 +49,10 @@ internal object RotatingCubeDemo {
     /** The scene document's byte load is suspend, so it happens once in the scene DSL's
      * onReady rather than in the per-frame [Scene3DDemo.onActivate] hook. */
     suspend fun preload() {
-        if (document == null) document = SceneLoader.loadFromResource("assets/scenes/rotating-cube.scene.json")
+        if (document == null) {
+            document =
+                SceneLoader.loadFromResource("assets/scenes/rotating-cube.scene.json")
+        }
     }
 
     val entry = Scene3DDemo(
@@ -62,15 +65,24 @@ internal object RotatingCubeDemo {
                 scope.renderCameraModeToggle(config.mode) { config.mode = it }
             }
             cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "cube") }
-            showAimMarkers = scope.shadcnSwitch(id = "cube-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
+            showAimMarkers = scope.shadcnSwitch(
+                id = "cube-show-aim-markers",
+                checked = showAimMarkers,
+                label = "Show aim markers",
+            )
             scope.shadcnCollapsibleCard(
                 id = "cube-controls-display",
                 expanded = displayGroupExpanded,
                 onExpandedChange = { displayGroupExpanded = it },
                 header = { text("Display", verticallyCentered = true) },
             ) {
-                wireframe = shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
-                timeController.autoPlay = shadcnSwitch(id = "cube-auto-spin", checked = timeController.autoPlay, label = "Auto-spin")
+                wireframe =
+                    shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
+                timeController.autoPlay = shadcnSwitch(
+                    id = "cube-auto-spin",
+                    checked = timeController.autoPlay,
+                    label = "Auto-spin",
+                )
                 timeController.hours = shadcnFieldSliderWithValue(
                     id = "cube-time",
                     label = "Time",

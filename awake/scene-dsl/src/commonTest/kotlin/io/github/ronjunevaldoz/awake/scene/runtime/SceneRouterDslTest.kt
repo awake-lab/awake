@@ -22,10 +22,10 @@ import io.github.ronjunevaldoz.awake.scene.runtime.entities.cameraEntity
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -116,7 +116,11 @@ private class RouterRecordingRenderer : Renderer {
         override fun destroy() = Unit
     }
 
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): Material = object : Material {
+    override fun createMaterial(
+        texture: TextureAsset?,
+        renderTarget: RenderTarget?,
+        uniformFloatCount: Int,
+    ): Material = object : Material {
         override fun updateUniformBuffer(mvp: FloatArray) = Unit
         override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
         override fun destroy() = Unit
@@ -130,7 +134,8 @@ private class RouterRecordingRenderer : Renderer {
 
     override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) = Unit
 
-    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
+    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) =
+        Unit
 
     override suspend fun readPixels(target: RenderTarget): TextureAsset =
         TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)

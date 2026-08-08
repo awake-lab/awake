@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMen
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -18,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 private val ContextMenuItems = listOf(
     UiDropdownMenuItem(label = "Back", trailingLabel = "Alt+Left"),
@@ -43,7 +43,10 @@ internal fun ColumnScope.drawShadcnContextMenuDemoPreview() {
         items = ContextMenuItems,
     ) {
         shadcnCard("ctx-card", modifier = Modifier.fillMaxWidth().height(100f.dp)) {
-            text("Right click anywhere inside this card area to open Context Menu", verticallyCentered = true)
+            text(
+                "Right click anywhere inside this card area to open Context Menu",
+                verticallyCentered = true,
+            )
         }
     }
 }

@@ -14,9 +14,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDrawerPosi
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.testTag
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -32,10 +32,15 @@ class ShadcnDrawerDialogFidelityTest {
         val aggregatedReport = FigmaModeMatrix.runValidationMatrix { config ->
             val ui = UiContext()
             ui.pushFont(BitmapFont())
-            val theme = shadcnTheme(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
+            val theme =
+                shadcnTheme(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
             ui.pushTheme(theme)
 
-            ui.beginFrame(400f * config.scale.scale, 500f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
+            ui.beginFrame(
+                400f * config.scale.scale,
+                500f * config.scale.scale,
+                testSnapshot(x = -100f, y = -100f, down = false),
+            )
             ui.createAbsolute(slot = ui.frameBounds()).shadcnDrawer(
                 id = "drawer-fidelity",
                 expanded = true,

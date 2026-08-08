@@ -90,8 +90,8 @@ private fun UiScope.emitCardElevationShadow(slot: UiBounds) {
                 slot.y + slot.height,
                 slot.width + offset,
                 offset,
-                shadowColor
-            )
+                shadowColor,
+            ),
         )
         emit(
             UiDrawPrimitive.Quad(
@@ -99,8 +99,8 @@ private fun UiScope.emitCardElevationShadow(slot: UiBounds) {
                 slot.y,
                 offset,
                 slot.height + offset,
-                shadowColor
-            )
+                shadowColor,
+            ),
         )
     }
 }
@@ -111,7 +111,7 @@ private fun UiScope.emitCardElevationShadow(slot: UiBounds) {
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
     replaceWith = ReplaceWith(
         "surface(id = id, modifier = modifier, style = style, content = content)",
-        "io.github.ronjunevaldoz.awake.ui.layouts.surface"
+        "io.github.ronjunevaldoz.awake.ui.layouts.surface",
     ),
 )
 fun UiScope.shadcnSurface(
@@ -123,10 +123,16 @@ fun UiScope.shadcnSurface(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(
-        theme.asShadcnTheme(),
-        variant
-    )) then style,
+    style = (
+        if (variant == null) {
+            theme.asShadcnTheme().components.surface
+        } else {
+            ShadcnStyles.surface(
+                theme.asShadcnTheme(),
+                variant,
+            )
+        }
+        ) then style,
     content = { slot -> content(slot) },
 )
 
@@ -134,7 +140,7 @@ fun UiScope.shadcnSurface(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
     replaceWith = ReplaceWith(
         "surface(id = id, modifier = modifier, style = style, content = content)",
-        "io.github.ronjunevaldoz.awake.ui.layouts.surface"
+        "io.github.ronjunevaldoz.awake.ui.layouts.surface",
     ),
 )
 fun ColumnScope.shadcnSurface(
@@ -146,10 +152,16 @@ fun ColumnScope.shadcnSurface(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(
-        theme.asShadcnTheme(),
-        variant
-    )) then style,
+    style = (
+        if (variant == null) {
+            theme.asShadcnTheme().components.surface
+        } else {
+            ShadcnStyles.surface(
+                theme.asShadcnTheme(),
+                variant,
+            )
+        }
+        ) then style,
     content = { slot -> content(slot) },
 )
 
@@ -157,7 +169,7 @@ fun ColumnScope.shadcnSurface(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
     replaceWith = ReplaceWith(
         "surface(id = id, modifier = modifier, style = style, content = content)",
-        "io.github.ronjunevaldoz.awake.ui.layouts.surface"
+        "io.github.ronjunevaldoz.awake.ui.layouts.surface",
     ),
 )
 fun RowScope.shadcnSurface(
@@ -169,10 +181,16 @@ fun RowScope.shadcnSurface(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(
-        theme.asShadcnTheme(),
-        variant
-    )) then style,
+    style = (
+        if (variant == null) {
+            theme.asShadcnTheme().components.surface
+        } else {
+            ShadcnStyles.surface(
+                theme.asShadcnTheme(),
+                variant,
+            )
+        }
+        ) then style,
     content = { slot -> content(slot) },
 )
 
@@ -180,7 +198,7 @@ fun RowScope.shadcnSurface(
     message = "shadcn/ui does not define a Surface component. Use headless surface() from ui-layouts for headless container panels, or shadcnCard() for Card panels.",
     replaceWith = ReplaceWith(
         "surface(id = id, modifier = modifier, style = style, content = content)",
-        "io.github.ronjunevaldoz.awake.ui.layouts.surface"
+        "io.github.ronjunevaldoz.awake.ui.layouts.surface",
     ),
 )
 fun BoxScope.shadcnSurface(
@@ -192,10 +210,16 @@ fun BoxScope.shadcnSurface(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = (if (variant == null) theme.asShadcnTheme().components.surface else ShadcnStyles.surface(
-        theme.asShadcnTheme(),
-        variant
-    )) then style,
+    style = (
+        if (variant == null) {
+            theme.asShadcnTheme().components.surface
+        } else {
+            ShadcnStyles.surface(
+                theme.asShadcnTheme(),
+                variant,
+            )
+        }
+        ) then style,
     content = { slot -> content(slot) },
 )
 

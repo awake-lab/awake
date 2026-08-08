@@ -4,13 +4,13 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -42,7 +42,10 @@ class ScrollContainersTest {
         }
 
         assertEquals(24f, state.offsetY)
-        assertTrue(ui.inputResult().isScrollConsumed, "a hovered scrollable scroll panel must mark the frame's delta as consumed")
+        assertTrue(
+            ui.inputResult().isScrollConsumed,
+            "a hovered scrollable scroll panel must mark the frame's delta as consumed",
+        )
         assertTrue(state.canScroll)
     }
 
@@ -72,7 +75,10 @@ class ScrollContainersTest {
         // Not consumed by the (non-hovered) panel above -- a scene-facing consumer (camera
         // pinch-zoom) reads UiInputResult.isScrollConsumed, not a live Input field, to decide
         // whether it's still free to use this frame's delta.
-        assertFalse(ui.inputResult().isScrollConsumed, "a non-hovered scroll panel must not mark the frame's delta as consumed")
+        assertFalse(
+            ui.inputResult().isScrollConsumed,
+            "a non-hovered scroll panel must not mark the frame's delta as consumed",
+        )
     }
 
     @Test
@@ -97,7 +103,10 @@ class ScrollContainersTest {
         val primitives = ui.endFrame()
 
         assertNotNull(result.verticalThumb)
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.ClipPush>().any { it.rect == result.viewport })
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.ClipPush>()
+                .any { it.rect == result.viewport },
+        )
         assertTrue(primitives.filterIsInstance<UiDrawPrimitive.ClipPop>().isNotEmpty())
         assertTrue(
             primitives.any { primitive ->

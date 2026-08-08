@@ -20,9 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
@@ -31,6 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -56,7 +55,10 @@ class UiPopupCompositionsTest {
 
         val popupSlot = assertNotNull(assertNotNull(result).slot)
         val primitives = ui.endFrame()
-        assertTrue(popupSlot.y >= 52f, "tooltip popup should be placed from the anchor by the popup position provider")
+        assertTrue(
+            popupSlot.y >= 52f,
+            "tooltip popup should be placed from the anchor by the popup position provider",
+        )
         assertTrue(primitives.any { it is UiDrawPrimitive.RoundedQuad || it is UiDrawPrimitive.Quad })
         assertTrue(primitives.any { it is UiDrawPrimitive.Glyph })
     }
@@ -74,7 +76,10 @@ class UiPopupCompositionsTest {
                 id = "menu",
                 anchorSlot = anchor,
                 expanded = true,
-                items = listOf(UiDropdownMenuItem("Open"), UiDropdownMenuItem("Delete", destructive = true)),
+                items = listOf(
+                    UiDropdownMenuItem("Open"),
+                    UiDropdownMenuItem("Delete", destructive = true),
+                ),
                 style = Style.Companion { contentPadding(0f.dp) },
             )
         }
@@ -87,7 +92,10 @@ class UiPopupCompositionsTest {
                 id = "menu",
                 anchorSlot = anchor,
                 expanded = true,
-                items = listOf(UiDropdownMenuItem("Open"), UiDropdownMenuItem("Delete", destructive = true)),
+                items = listOf(
+                    UiDropdownMenuItem("Open"),
+                    UiDropdownMenuItem("Delete", destructive = true),
+                ),
                 style = Style.Companion { contentPadding(0f.dp) },
             )
         }
@@ -136,9 +144,19 @@ class UiPopupCompositionsTest {
         }
 
         val primitives = ui.endFrame()
-        assertEquals(1, assertNotNull(result).selectedIndex, "separators should not consume the selectable index space")
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Quad>().isNotEmpty(), "separator should emit a line quad")
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size >= 3, "menu entry metadata should still render text glyphs")
+        assertEquals(
+            1,
+            assertNotNull(result).selectedIndex,
+            "separators should not consume the selectable index space",
+        )
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.Quad>().isNotEmpty(),
+            "separator should emit a line quad",
+        )
+        assertTrue(
+            primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size >= 3,
+            "menu entry metadata should still render text glyphs",
+        )
     }
 
     @Test
@@ -172,8 +190,13 @@ class UiPopupCompositionsTest {
         // The menu surface itself must stay pinned to the constrained height, not grow to fit
         // all 10 items -- proof the container is actually height-bounded, not silently
         // expanding (the pre-fix WrapContent-shaped clip-without-scroll symptom).
-        val menuSemanticsBounds = assertNotNull(frame.semantics.firstOrNull { it.id == "menu.menu" }).bounds
-        assertEquals(96f, menuSemanticsBounds.height, "a Fixed-height menu must not grow to fit overflowing items")
+        val menuSemanticsBounds =
+            assertNotNull(frame.semantics.firstOrNull { it.id == "menu.menu" }).bounds
+        assertEquals(
+            96f,
+            menuSemanticsBounds.height,
+            "a Fixed-height menu must not grow to fit overflowing items",
+        )
         // A scrollbar thumb (a small quad/rounded-quad near the menu's right edge) must be
         // present -- the actual affordance that makes the rest of the list reachable.
         val menuBounds = assertNotNull(frame.semantics.firstOrNull { it.id == "menu.menu" }).bounds
@@ -185,7 +208,10 @@ class UiPopupCompositionsTest {
             }
             w <= 8f && x >= menuBounds.x + menuBounds.width - 12f
         }
-        assertTrue(hasScrollThumb, "a height-constrained overflowing menu must render a scroll thumb")
+        assertTrue(
+            hasScrollThumb,
+            "a height-constrained overflowing menu must render a scroll thumb",
+        )
     }
 
     @Test
@@ -287,8 +313,14 @@ class UiPopupCompositionsTest {
             text("Footer")
         }
 
-        assertTrue(measured.height < 120f, "overlay popups should not poison wrap-content measurement")
-        assertTrue(measured.height > 0f, "normal inline content should still contribute to measurement")
+        assertTrue(
+            measured.height < 120f,
+            "overlay popups should not poison wrap-content measurement",
+        )
+        assertTrue(
+            measured.height > 0f,
+            "normal inline content should still contribute to measurement",
+        )
     }
 
     @Test
@@ -502,7 +534,10 @@ class UiPopupCompositionsTest {
         }
         ui.endFrame()
 
-        assertTrue(assertNotNull(result).dismissed, "clicking the reserved close button should report the dialog as dismissed")
+        assertTrue(
+            assertNotNull(result).dismissed,
+            "clicking the reserved close button should report the dialog as dismissed",
+        )
     }
 
     @Test
@@ -518,9 +553,21 @@ class UiPopupCompositionsTest {
                 expanded = true,
                 title = "Unsaved changes",
                 actions = {
-                    shadcnButton(id = "unsaved.save", label = "Save", modifier = Modifier.width(80f.dp))
-                    shadcnButton(id = "unsaved.discard", label = "Discard", modifier = Modifier.width(80f.dp))
-                    shadcnButton(id = "unsaved.cancel", label = "Cancel", modifier = Modifier.width(80f.dp))
+                    shadcnButton(
+                        id = "unsaved.save",
+                        label = "Save",
+                        modifier = Modifier.width(80f.dp),
+                    )
+                    shadcnButton(
+                        id = "unsaved.discard",
+                        label = "Discard",
+                        modifier = Modifier.width(80f.dp),
+                    )
+                    shadcnButton(
+                        id = "unsaved.cancel",
+                        label = "Cancel",
+                        modifier = Modifier.width(80f.dp),
+                    )
                 },
             ) {
                 text("You have unsaved changes.")
@@ -528,8 +575,17 @@ class UiPopupCompositionsTest {
         }
 
         val semantics = ui.finishFrame().semantics
-        assertNotNull(semantics.firstOrNull { it.id == "unsaved.save" }, "Save action should render")
-        assertNotNull(semantics.firstOrNull { it.id == "unsaved.discard" }, "Discard action should render")
-        assertNotNull(semantics.firstOrNull { it.id == "unsaved.cancel" }, "Cancel action should render")
+        assertNotNull(
+            semantics.firstOrNull { it.id == "unsaved.save" },
+            "Save action should render",
+        )
+        assertNotNull(
+            semantics.firstOrNull { it.id == "unsaved.discard" },
+            "Discard action should render",
+        )
+        assertNotNull(
+            semantics.firstOrNull { it.id == "unsaved.cancel" },
+            "Cancel action should render",
+        )
     }
 }

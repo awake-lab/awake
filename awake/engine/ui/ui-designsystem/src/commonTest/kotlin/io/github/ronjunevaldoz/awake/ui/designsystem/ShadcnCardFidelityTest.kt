@@ -14,11 +14,11 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.input.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.testTag
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -34,16 +34,22 @@ class ShadcnCardFidelityTest {
         val aggregatedReport = FigmaModeMatrix.runValidationMatrix { config ->
             val ui = UiContext()
             ui.pushFont(BitmapFont())
-            val theme = shadcnTheme(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
+            val theme =
+                shadcnTheme(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
             ui.pushTheme(theme)
 
             val cardWidth = 300f * config.scale.scale
             val cardHeight = 180f * config.scale.scale
 
-            ui.beginFrame(400f * config.scale.scale, 300f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
+            ui.beginFrame(
+                400f * config.scale.scale,
+                300f * config.scale.scale,
+                testSnapshot(x = -100f, y = -100f, down = false),
+            )
             ui.createAbsolute(slot = ui.frameBounds()).shadcnCard(
                 id = "card-fidelity",
-                modifier = Modifier.testTag("card-fidelity").width(cardWidth.dp).height(cardHeight.dp),
+                modifier = Modifier.testTag("card-fidelity").width(cardWidth.dp)
+                    .height(cardHeight.dp),
                 header = { text("Card Title") },
             ) {
                 text("Card Body Content")
