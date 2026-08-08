@@ -181,14 +181,27 @@ def main() -> None:
                 f"| {coverage_note(entry)} |"
             )
         trustworthy = [e for e in metrics if coverage_note(e) == "good"]
-        if trustworthy:
-            add("")
+        add("")
+        if len(trustworthy) == 1:
+            only = trustworthy[0]
+            add(
+                f"Only `{only['name']}` ({only.get('mismatchPct', 0):.2f}%) is aligned well "
+                f"enough to read as a fidelity measurement. The rest are dominated by framing "
+                f"differences, so this harness cannot yet rank components against each other — "
+                f"matching preview framing to the reference captures is the blocking work."
+            )
+        elif trustworthy:
             worst = max(trustworthy, key=lambda e: e.get("mismatchPct", 0))
             best = min(trustworthy, key=lambda e: e.get("mismatchPct", 0))
             add(
-                f"Among well-aligned pairs, `{best['name']}` is closest "
+                f"Among the {len(trustworthy)} well-aligned pairs, `{best['name']}` is closest "
                 f"({best.get('mismatchPct', 0):.2f}%) and `{worst['name']}` is furthest "
                 f"({worst.get('mismatchPct', 0):.2f}%)."
+            )
+        else:
+            add(
+                "No pair is aligned well enough to read as a fidelity measurement — every "
+                "number above is dominated by framing differences."
             )
     add("")
 

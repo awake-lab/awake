@@ -84,7 +84,7 @@ to the reference capture, not changing component styling.
 | input | 12.44 | 140 | 12.22 | poor |
 | select | 10.92 | 245 | 12.63 | partial |
 
-Among well-aligned pairs, `card` is closest (20.35%) and `card` is furthest (20.35%).
+Only `card` (20.35%) is aligned well enough to read as a fidelity measurement. The rest are dominated by framing differences, so this harness cannot yet rank components against each other — matching preview framing to the reference captures is the blocking work.
 
 ## What these numbers do not cover
 
