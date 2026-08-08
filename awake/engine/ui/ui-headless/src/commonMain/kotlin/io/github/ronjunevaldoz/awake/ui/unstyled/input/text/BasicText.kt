@@ -59,6 +59,9 @@ internal fun UiScope.renderTextBlock(
         maxLines = maxLines,
         font = font,
     )
+    // A line's ink band is glyphPx * lineHeightEm tall (Roboto ~1.19em), not glyphPx: a slot
+    // sized at the font size alone cannot contain the text measured into it.
+    val lineHeightPx = glyphPx * font.lineHeightEm
     val lineGap = glyphPx * 0.25f
     val blockMetrics = measureTextBlock(layout, font, glyphPx, lineGap)
     val shouldClip = wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || maxLines > 1
@@ -144,7 +147,7 @@ internal fun UiScope.renderTextBlock(
                 }
                 penX += advance
             }
-            penY += glyphPx + lineGap
+            penY += lineHeightPx + lineGap
         }
     }
 
@@ -288,11 +291,14 @@ data class UiBitmapTextLayout(
     val lineWidths: List<Float>,
     val truncated: Boolean,
 ) {
-    fun blockHeight(glyphPx: Float, lineGap: Float): Float {
+    /** Height a slot must offer to contain this text. Each line occupies its ink band --
+     * [lineHeightPx], not the font size -- because Roboto's ascent + descent is ~1.19em; sizing
+     * a slot at the font size leaves the text overflowing the node that claimed it. */
+    fun blockHeight(lineHeightPx: Float, lineGap: Float): Float {
         if (lines.isEmpty()) {
             return 0f
         }
-        return lines.size * glyphPx + (lines.size - 1) * lineGap
+        return lines.size * lineHeightPx + (lines.size - 1) * lineGap
     }
 }
 
@@ -307,6 +313,7 @@ private fun measureTextBlock(
     glyphPx: Float,
     lineGap: Float,
 ): UiMeasuredTextBlock {
+    val lineHeightPx = glyphPx * font.lineHeightEm
     if (layout.lines.isEmpty()) {
         return UiMeasuredTextBlock(topPx = 0f, heightPx = 0f)
     }
@@ -314,7 +321,7 @@ private fun measureTextBlock(
     var blockBottomPx = Float.NEGATIVE_INFINITY
     layout.lines.forEachIndexed { index, line ->
         val (lineTopEm, lineBottomEm) = measureVisibleLineBandEm(line, font)
-        val lineOriginY = index * (glyphPx + lineGap)
+        val lineOriginY = index * (lineHeightPx + lineGap)
         blockTopPx = minOf(blockTopPx, lineOriginY + lineTopEm * glyphPx)
         blockBottomPx = maxOf(blockBottomPx, lineOriginY + lineBottomEm * glyphPx)
     }

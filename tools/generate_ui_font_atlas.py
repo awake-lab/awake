@@ -61,6 +61,11 @@ def main() -> None:
     cell_width_px = max(
         math.ceil(font.getlength(char)) for char in ASCII_GLYPHS if char != " "
     ) + args.padding * 2
+    # Em values are multiplied at runtime by glyphPx, which is a FONT SIZE (cellSize *
+    # textScale). Normalising them by the taller line-height cell instead made every advance and
+    # quad exactly logical_cell/line_cell too small -- measured against the TTF's own advances,
+    # every glyph came out at 0.8421x, precisely 16/19, so all text rendered ~19% narrow.
+    em_reference = args.logical_cell
     base_cell_size = math.ceil(line_height_px / args.oversample)
 
     rows = math.ceil(len(ASCII_GLYPHS) / args.columns)
@@ -114,12 +119,12 @@ def main() -> None:
             # the root cause of the reported uneven letter spacing (see PackedUiFont.kt).
             # offset_y_em stays cell-relative; vertical baseline placement is a separate,
             # currently self-consistent convention untouched by this fix.
-            offset_x_em = (left - baseline_x) / args.oversample / base_cell_size
-            offset_y_em = (top - cell_y) / args.oversample / base_cell_size
-            width_em = max(1, right - left) / args.oversample / base_cell_size
-            height_em = max(1, bottom - top) / args.oversample / base_cell_size
+            offset_x_em = (left - baseline_x) / args.oversample / em_reference
+            offset_y_em = (top - cell_y) / args.oversample / em_reference
+            width_em = max(1, right - left) / args.oversample / em_reference
+            height_em = max(1, bottom - top) / args.oversample / em_reference
 
-        advance_em = font.getlength(char) / args.oversample / base_cell_size
+        advance_em = font.getlength(char) / args.oversample / em_reference
 
         glyph_order.append(char)
         uv_bounds_px.extend([left, top, right, bottom])
@@ -140,7 +145,8 @@ def main() -> None:
         "",
         f"internal object {args.object_name} : PackedUiFontData {{",
         f"    override val name: String = \"{escape_kotlin_string(args.display_name)}\"",
-        f"    override val baseCellSize: Int = {base_cell_size}",
+        f"    override val baseCellSize: Int = {em_reference}",
+        f"    override val lineHeightEm: Float = {line_height_px / args.oversample / em_reference:.6f}f",
         "    override val textScaleStep: Float = 0.25f",
         f"    override val atlasWidth: Int = {atlas_width}",
         f"    override val atlasHeight: Int = {atlas_height}",

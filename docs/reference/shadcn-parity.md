@@ -72,20 +72,20 @@ to the reference capture, not changing component styling.
 
 | component | mismatch % | max Δ | mean Δ | crop |
 |---|---:|---:|---:|---|
-| badge-local-light | 55.80 | 255 | 91.11 | good |
 | slider-local-light | 50.65 | 254 | 127.32 | poor |
-| button-local-dark | 32.92 | 245 | 46.79 | good |
-| button-local-light | 28.90 | 255 | 50.28 | good |
-| dialog-local-light | 28.13 | 255 | 54.34 | good |
+| badge-local-light | 44.30 | 255 | 72.41 | good |
+| button-local-dark | 33.82 | 245 | 48.40 | good |
+| button-local-light | 29.61 | 255 | 51.86 | good |
 | checkbox-local-light | 26.32 | 254 | 60.28 | good |
-| tooltip-local-light | 22.93 | 249 | 54.83 | partial |
-| card-local-light | 19.84 | 254 | 43.38 | partial |
-| tabs-local-light | 15.98 | 254 | 25.03 | partial |
+| dialog-local-light | 25.91 | 255 | 50.39 | good |
+| tooltip-local-light | 25.25 | 249 | 60.22 | partial |
+| card-local-light | 20.20 | 254 | 44.27 | partial |
+| tabs-local-light | 17.73 | 254 | 28.06 | partial |
 | switch-local-light | 12.92 | 254 | 24.67 | good |
-| input-local-light | 10.08 | 254 | 10.79 | good |
-| select-local-light | 8.41 | 140 | 10.27 | good |
+| input-local-light | 10.27 | 254 | 11.10 | good |
+| select-local-light | 8.79 | 140 | 10.88 | good |
 
-Among the 8 well-aligned pairs, `select-local-light` is closest (8.41%) and `badge-local-light` is furthest (55.80%).
+Among the 8 well-aligned pairs, `select-local-light` is closest (8.79%) and `badge-local-light` is furthest (44.30%).
 
 ## Variant fidelity
 

@@ -76,16 +76,20 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 // default flipped to true in ac03b490 without a re-record at the time; (2) the AA fringe now
 // centers on the true path boundary (interior insets by fringe/2) instead of dilating outward,
 // so every filled-path edge crisped by ~0.5px.
+// 2026-08-08: re-recorded after em normalisation was corrected. Glyph metrics were divided by
+// the line-height cell (19) rather than the render font size (16), so every advance and quad was
+// 16/19 = 0.842x too small and all text rendered ~19% narrow. Text is now its true size, and
+// slots size to the line box (lineHeightEm) instead of the font size so they can contain it.
 private val expectedReviewSnapshotSignatures = mapOf(
-    "toggle-unchecked" to 0x111391adcb3f75aauL,
-    "toggle-checked" to 0x22e8b4ced99be0c9uL,
-    "button-filled" to 0x12d0e99e80d20ff3uL,
-    "button-outline" to 0x8055094bd5d0136buL,
-    "button-ghost" to 0x86b8da857caf4983uL,
-    "theme-dark" to 0x86b8da857caf4983uL,
-    "theme-light" to 0x01352f6a79a9b747uL,
-    "panel-with-children" to 0xbbcb8d6a49044117uL,
-    "shadcn-field-error" to 0xb05bf14b98906406uL,
+    "toggle-unchecked" to 0x95eb5adbc17db513uL,
+    "toggle-checked" to 0x7f16b387f3978b4buL,
+    "button-filled" to 0xf57beb864329ef5duL,
+    "button-outline" to 0x9bb741e22962aab2uL,
+    "button-ghost" to 0x608d62e1cd679dd2uL,
+    "theme-dark" to 0x608d62e1cd679dd2uL,
+    "theme-light" to 0x36980dcb54139faauL,
+    "panel-with-children" to 0x8efde13511ea838auL,
+    "shadcn-field-error" to 0x7ee841a396f2f12fuL,
 )
 
 // 2026-08-03: quads/rounded-quads/borders (surface fills, buttons, dialogs, separators) now
@@ -102,13 +106,13 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // were inflated by the atlas cell padding by a per-glyph-varying 6-29%, so every glyph in every
 // text-bearing scene moved.
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0x9fa43cc3d990d320uL,
-    "ui-shaped-panel" to 0x1b3242a7567af49cuL,
-    "ui-panel-controls" to 0x1167af940eee6b3euL,
-    "ui-alert-dialog" to 0xcf6baed013dbffb9uL,
-    "ui-component-state-matrix" to 0xd2ebc0e0ae2ab5dbuL,
-    "ui-rounded-clip-vector" to 0x25489e8e721b321euL,
-    "ui-awake-shadcn-showcase" to 0xfad913ddd1b79999uL,
+    "ui-button-variants" to 0x8f8db47a456d5feeuL,
+    "ui-shaped-panel" to 0x932f32837493bb6duL,
+    "ui-panel-controls" to 0x794dc208ea695324uL,
+    "ui-alert-dialog" to 0xad13b375ad998dbbuL,
+    "ui-component-state-matrix" to 0x5bcadc41fe9337d3uL,
+    "ui-rounded-clip-vector" to 0xcc9848b4fbbc7aeeuL,
+    "ui-awake-shadcn-showcase" to 0x8ebd6881f4dfe9aeuL,
 )
 
 private fun ULong.toHexString(): String {

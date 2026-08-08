@@ -183,7 +183,7 @@ private fun ColumnScope.dropdownMenuItem(
         )
     }
 
-    val supportingHeight = supportingLayout?.blockHeight(glyphPx, lineGap) ?: 0f
+    val supportingHeight = supportingLayout?.blockHeight(glyphPx * resolvedFont.lineHeightEm, lineGap) ?: 0f
     val computedHeight = if (supportingLayout == null) {
         baseHeight
     } else {

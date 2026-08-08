@@ -150,7 +150,7 @@ fun UiScope.shadcnLabel(
     // for a specific width.
     val resolvedWidth = modifier.widthDimension ?: Dimension.Fixed(labelWidthPx.px)
     return row(
-        modifier = modifier.width(resolvedWidth).height(glyphPx.px),
+        modifier = modifier.width(resolvedWidth).height((glyphPx * font.lineHeightEm).px),
         horizontalArrangement = Arrangement.spacedBy(0f.dp),
     ) {
         shadcnText(text, muted = disabled, style = Style { textSize(shadcnTheme.typography.label) })

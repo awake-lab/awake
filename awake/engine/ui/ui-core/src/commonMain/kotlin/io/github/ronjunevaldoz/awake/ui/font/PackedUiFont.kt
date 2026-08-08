@@ -10,6 +10,12 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 internal interface PackedUiFontData {
     val name: String
     val baseCellSize: Int
+
+    /** Ascent + descent as a multiple of the em size (Roboto: ~1.19). A font's ink band is
+     * taller than its nominal size, so a slot sized at exactly glyphPx cannot contain its own
+     * text. Explicit because baseCellSize used to double as the line height and stopped being
+     * able to once em values were normalised against the font size. */
+    val lineHeightEm: Float
     val textScaleStep: Float
     val atlasWidth: Int
     val atlasHeight: Int
@@ -36,6 +42,8 @@ class PackedUiFont internal constructor(
 
     private val glyphsByChar: Map<Char, GlyphRect> by lazy(::decodeGlyphRects)
     private val advancesByChar: Map<Char, Float> by lazy(::decodeAdvances)
+
+    override val lineHeightEm: Float get() = data.lineHeightEm
 
     override fun uvFor(char: Char): GlyphRect? = glyphsByChar[char] ?: glyphsByChar[data.fallbackChar]
 

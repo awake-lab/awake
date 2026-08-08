@@ -885,7 +885,7 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
         shadcnButton(
             id = "showcase-matrix-button-secondary",
             label = "Secondary",
-            modifier = Modifier.width(120f.px).height(36f.dp),
+            modifier = Modifier.width(136f.px).height(36f.dp),
             variant = ShadcnButtonVariant.Secondary,
         )
         shadcnButton(
@@ -1162,7 +1162,7 @@ private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
     shadcnButton(
         id = "showcase-matrix-dialog-trigger",
         label = "Open Dialog",
-        modifier = Modifier.width(140f.px).height(36f.dp),
+        modifier = Modifier.width(156f.px).height(36f.dp),
         variant = ShadcnButtonVariant.Outline,
     )
     shadcnAlertDialog(

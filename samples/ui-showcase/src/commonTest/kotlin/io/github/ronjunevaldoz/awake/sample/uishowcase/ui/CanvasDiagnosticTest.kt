@@ -54,7 +54,11 @@ class CanvasDiagnosticTest {
         val expectedChartX = surfaceNode.bounds.x + 188f
         val expectedChartY = surfaceNode.bounds.y + 82f
 
-        assertEquals(expectedChartX, chartQuad.x, 0.1f, "Nested quad X must be relative to parent slot")
-        assertEquals(expectedChartY, chartQuad.y, 0.1f, "Nested quad Y must be relative to parent slot")
+        // Tolerance is half a pixel, not 0.1: emitted quads pixel-snap (see ShapePainter) while
+        // semantic bounds keep their sub-pixel layout position, so the two legitimately differ by
+        // up to half a pixel whenever the parent lands off the pixel grid. The old 0.1 only held
+        // because this page happened to lay out on whole pixels.
+        assertEquals(expectedChartX, chartQuad.x, 0.5f, "Nested quad X must be relative to parent slot")
+        assertEquals(expectedChartY, chartQuad.y, 0.5f, "Nested quad Y must be relative to parent slot")
     }
 }

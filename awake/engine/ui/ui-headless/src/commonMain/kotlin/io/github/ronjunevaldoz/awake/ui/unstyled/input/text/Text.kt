@@ -210,7 +210,7 @@ fun UiScope.text(
         advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) },
     )
     val lineGap = glyphPx * 0.25f
-    val blockHeight = layout.blockHeight(glyphPx, lineGap)
+    val blockHeight = layout.blockHeight(glyphPx * resolvedFont.lineHeightEm, lineGap)
     var slot = claimModifiedSlot(
         modifier.withSizeFallback(
             defaultWidth,

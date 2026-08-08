@@ -64,8 +64,11 @@ fun UiScope.textarea(
     val padding = resolved.contentPadding
     val totalPadding = padding.top + padding.bottom
     val lineGap = fontHeight * 0.25f
+    // minLines occupies minLines line BOXES, not minLines font sizes: Roboto's ink band is
+    // ~1.19em, so reserving fontHeight per line leaves the text overflowing its own field.
     val minHeight =
-        (fontHeight * minLines) + (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
+        (fontHeight * font.lineHeightEm * minLines) +
+            (lineGap * (minLines - 1)).coerceAtLeast(0f) + totalPadding.toPx()
 
     val interaction = interact(
         id = id,
@@ -221,13 +224,13 @@ fun UiScope.textarea(
     // -- the same "cursor scrolls into view" behavior a native multi-line text input gives you,
     // simpler than wiring a draggable scrollbar for a field whose scroll is driven by typing/
     // arrow-key position, not by dragging.
-    val contentHeight = currentLayout.blockHeight(glyphPx, lineGap)
+    val contentHeight = currentLayout.blockHeight(glyphPx * resolvedFont.lineHeightEm, lineGap)
     val maxScrollY = (contentHeight - contentSlot.height).coerceAtLeast(0f)
     var scrollOffsetY = lastScrollOffsetY.coerceIn(0f, maxScrollY)
     if (focused) {
         val (caretLineIdx, _) = cursorToLineAndCol(currentLayout, nextValue, cursor)
-        val caretTop = caretLineIdx * (glyphPx + lineGap)
-        val caretBottom = caretTop + glyphPx
+        val caretTop = caretLineIdx * (glyphPx * resolvedFont.lineHeightEm + lineGap)
+        val caretBottom = caretTop + glyphPx * resolvedFont.lineHeightEm
         if (caretTop - scrollOffsetY < 0f) {
             scrollOffsetY = caretTop
         } else if (caretBottom - scrollOffsetY > contentSlot.height) {
