@@ -9,6 +9,10 @@ import { Slider } from "./ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Label } from "./ui/label"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "./ui/dialog"
 
 /**
  * The reference cases. Each id is the single source of truth shared with the Awake side:
@@ -119,6 +123,38 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
           <Button className="w-full">Login</Button>
         </CardContent>
       </Card>
+    ),
+  },
+  // Tooltip and dialog render open via `defaultOpen`/`open` rather than needing the capture to
+  // hover or click. A docs page can only be scraped in whatever state it happens to be in;
+  // owning the page means an open overlay is just another case.
+  "tooltip-open": {
+    render: () => (
+      <TooltipProvider>
+        <Tooltip defaultOpen>
+          <TooltipTrigger asChild>
+            <Button variant="outline">Hover</Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Add to library</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ),
+  },
+  "dialog-open": {
+    render: () => (
+      <Dialog open>
+        <DialogContent showCloseButton={false} className="w-[320px]">
+          <DialogHeader>
+            <DialogTitle>Edit profile</DialogTitle>
+            <DialogDescription>
+              Make changes to your profile here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     ),
   },
   "badge-variants": {

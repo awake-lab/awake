@@ -251,7 +251,6 @@ class ShadcnReferenceComparisonTest {
         // Gradle's Test task working dir is the module dir (samples/ui-showcase/) -- same
         // CWD-relative convention build/ui-previews already uses elsewhere in this module.
         val manifestFile = File("../../tools/shadcn_parity_pairs.json")
-        val referenceDir = File("../../docs/reference/shadcn-previews")
         val localReferenceDir = File("../../docs/reference/shadcn-previews-local")
         val awakeDir = File("build/ui-previews")
         val diffDir = File("build/reports/shadcn-parity")
@@ -262,7 +261,7 @@ class ShadcnReferenceComparisonTest {
 
         val results = manifest.pairs.mapNotNull { pair ->
             val awakeFile = File(awakeDir, "${pair.awake}.png")
-            val referenceFile = File(if (pair.local) localReferenceDir else referenceDir, pair.reference)
+            val referenceFile = File(localReferenceDir, pair.reference)
             if (!awakeFile.exists() || !referenceFile.exists()) {
                 println(
                     "SKIP ${pair.name}: awake exists=${awakeFile.exists()} (${awakeFile.path}), " +

@@ -115,8 +115,10 @@ def main() -> int:
                     url = f"{BASE}/?case={case['id']}&theme={theme}"
                     page.goto(url, wait_until="networkidle")
                     page.wait_for_timeout(150)
-                    target = page.locator("#case")
-                    if target.get_attribute("data-error"):
+                    # Radix portals overlays (dialog, tooltip) to the body, outside #case, so
+                    # those cases name their own selector instead.
+                    target = page.locator(case.get("selector", "#case"))
+                    if page.locator("#case").get_attribute("data-error"):
                         results.append((f"{case['id']} [{theme}]", "FAIL app has no such case"))
                         continue
                     out = args.out_dir / f"{case['id']}_{theme}.png"

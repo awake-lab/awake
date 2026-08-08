@@ -44,6 +44,16 @@
     {
       "id": "card-login",
       "why": "The login card our card preview renders: title, label, input, full-width button."
+    },
+    {
+      "id": "tooltip-open",
+      "why": "An open tooltip -- a state the scraped docs page could only be caught in by accident.",
+      "selector": "[data-slot=\"tooltip-content\"]"
+    },
+    {
+      "id": "dialog-open",
+      "why": "An open dialog with title, description and a save action, matching our dialog preview.",
+      "selector": "[data-slot=\"dialog-content\"]"
     }
   ]
 }
