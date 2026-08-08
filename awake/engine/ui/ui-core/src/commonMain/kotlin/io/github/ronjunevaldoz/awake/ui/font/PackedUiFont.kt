@@ -49,6 +49,13 @@ class PackedUiFont internal constructor(
      * per-character misalignment this was reported as). Clamping the pen step to never be
      * smaller than the glyph's own right edge keeps every glyph's ink inside its own advance,
      * eliminating the collision while leaving glyphs with correctly-tight metrics untouched.
+     *
+     * `offsetXEm` is generated pen-relative (measured from the same pen origin as
+     * `advanceEm`, see generate_ui_font_atlas.py), so `rightEdgeEm` is directly comparable to
+     * `advanceEm` here -- it must NOT carry any atlas-cell-relative padding term, or this
+     * `maxOf` degenerates into clamping essentially every glyph by a padding-sized (not
+     * overhang-sized) amount, which varies per glyph because ink width varies per glyph. That
+     * variable inflation was the actual root cause of the reported uneven letter spacing.
      */
     override fun advanceFor(char: Char, glyphPx: Float): Float {
         val advanceEm = advancesByChar[char] ?: advancesByChar[data.fallbackChar] ?: 1f

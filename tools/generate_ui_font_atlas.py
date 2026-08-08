@@ -105,7 +105,16 @@ def main() -> None:
             top = cell_y + max(0, bbox[1] - crop_bleed)
             right = cell_x + min(cell_width_px, bbox[2] + crop_bleed)
             bottom = cell_y + min(cell_height_px, bbox[3] + crop_bleed)
-            offset_x_em = (left - cell_x) / args.oversample / base_cell_size
+            # offset_x_em is pen-relative (measured from baseline_x, the same origin as
+            # advance_em below), not cell-relative -- otherwise it silently carries the
+            # `padding` gap between the cell origin and the pen origin, which inflates
+            # `offset_x_em + width_em` by a constant amount that PackedUiFont.advanceFor
+            # compares directly against advance_em. Since that padding term is constant but
+            # each glyph's ink width differs, the inflation is uneven per glyph -- this is
+            # the root cause of the reported uneven letter spacing (see PackedUiFont.kt).
+            # offset_y_em stays cell-relative; vertical baseline placement is a separate,
+            # currently self-consistent convention untouched by this fix.
+            offset_x_em = (left - baseline_x) / args.oversample / base_cell_size
             offset_y_em = (top - cell_y) / args.oversample / base_cell_size
             width_em = max(1, right - left) / args.oversample / base_cell_size
             height_em = max(1, bottom - top) / args.oversample / base_cell_size
