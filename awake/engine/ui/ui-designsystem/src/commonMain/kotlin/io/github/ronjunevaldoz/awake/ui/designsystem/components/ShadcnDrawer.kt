@@ -30,6 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.popup
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 
 enum class ShadcnDrawerPosition {
     Bottom,
@@ -129,14 +130,14 @@ fun UiScope.shadcnDrawer(
                             spacer(Modifier.width(1f.dp))
                         }
                         if (showCloseButton) {
-                            if (shadcnButton(
-                                    id = "$id.close",
-                                    label = "✕",
-                                    variant = ShadcnButtonVariant.Ghost,
-                                    modifier = Modifier.width(28f.dp).height(28f.dp),
-                                    onClick = onDismissRequest,
-                                )
-                            ) { }
+                            // "✕" (U+2715) isn't in the bitmap font atlas (ASCII 32-126 only),
+                            // so a text label silently drew nothing -- use the real icon glyph.
+                            shadcnButton(
+                                id = "$id.close",
+                                variant = ShadcnButtonVariant.Ghost,
+                                modifier = Modifier.width(28f.dp).height(28f.dp),
+                                onClick = onDismissRequest,
+                            ) { icon(ShadcnIcons.xMark) }
                         }
                     }
                     spacer(Modifier.height(12f.dp))
