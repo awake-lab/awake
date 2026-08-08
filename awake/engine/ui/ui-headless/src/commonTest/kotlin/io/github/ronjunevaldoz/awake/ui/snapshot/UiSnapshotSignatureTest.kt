@@ -105,12 +105,14 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // 2026-08-08: re-recorded once more after the glyph-advance coordinate-space fix -- advances
 // were inflated by the atlas cell padding by a per-glyph-varying 6-29%, so every glyph in every
 // text-bearing scene moved.
+// 2026-08-08: ui-component-state-matrix only -- the checkbox corner moved off radii.md (8dp on a
+// 16dp box, i.e. a circle) to shadcn's literal rounded-[4px]. It is the one scene with a checkbox.
 private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x8f8db47a456d5feeuL,
     "ui-shaped-panel" to 0x932f32837493bb6duL,
     "ui-panel-controls" to 0x794dc208ea695324uL,
     "ui-alert-dialog" to 0xad13b375ad998dbbuL,
-    "ui-component-state-matrix" to 0x5bcadc41fe9337d3uL,
+    "ui-component-state-matrix" to 0x87fd477737dd7953uL,
     "ui-rounded-clip-vector" to 0xcc9848b4fbbc7aeeuL,
     "ui-awake-shadcn-showcase" to 0x8ebd6881f4dfe9aeuL,
 )

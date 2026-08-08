@@ -193,7 +193,11 @@ private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : Sh
             foreground(palette.foreground, tokenId = "foreground")
             borderWidth(1f.dp)
             borderColor(palette.input, tokenId = "input")
-            shape(radii.md)
+            // shadcn v4's checkbox is `size-4 rounded-[4px]` -- a literal 4px, deliberately off
+            // the radius scale. Taking radii.md instead made the corner half the box: at the
+            // default 10dp base that is 8dp on a 16dp square, i.e. a circle, and it tracked the
+            // preset's base radius so bigger presets rounded it further.
+            shape(CHECKBOX_RADIUS)
             textSize(typography.label, tokenId = "label")
         }
         override val avatar: Style = Style {
@@ -373,3 +377,6 @@ internal fun hex(rgb: Int, alpha: Float = 1f): Color = Color(
     b = (rgb and 0xFF) / 255f,
     a = alpha,
 )
+
+/** shadcn v4's checkbox corner: a literal `rounded-[4px]`, not a step on the radius scale. */
+private val CHECKBOX_RADIUS = 4f.dp
