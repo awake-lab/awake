@@ -24,10 +24,11 @@ export function App() {
   if (!entry) {
     return <div id="case" data-error="unknown-case">{`unknown case: ${id}`}</div>
   }
-  // `w-fit` so the captured element hugs its content -- the crop-coverage problem that made
-  // ten of eleven scraped pairs unmeasurable was framing, not fidelity.
+  // `w-fit` with no padding: the captured element must be exactly the component, since any
+  // wrapper padding is 16px of reference that the Awake preview has no counterpart for and
+  // would show up as a fidelity difference it isn't.
   return (
-    <div id="case" className="w-fit p-2" data-case={id}>
+    <div id="case" className="w-fit" data-case={id}>
       {entry.render()}
     </div>
   )
