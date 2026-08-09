@@ -34,12 +34,17 @@ private val RailWidth = RailButtonSize + RailPadding * 2f
 
 // HeroIcons directly, not ShadcnIcons: the registry only carries glyphs shadcn* components
 // themselves draw, and this rail is sample-local composition.
+//
+// Grid used to read `tableCells` (a literal table grid) -- `squares2x2` is the actual grid
+// glyph, so it moved there, which freed `squares2x2` up from Panels; `bars3` (a stacked-lines
+// layout glyph) reads as "panels/layout" better than the vacated grid glyph did. Only glyphs
+// that exist in HeroIcons.Solid20Mini today -- no Solid24-only glyph (e.g. square2Stack).
 private val RailTools = listOf(
     StudioContract.Tool.Layers to HeroIcons.Solid20Mini.square3Stack3d,
-    StudioContract.Tool.Grid to HeroIcons.Solid20Mini.tableCells,
+    StudioContract.Tool.Grid to HeroIcons.Solid20Mini.squares2x2,
     StudioContract.Tool.Environment to HeroIcons.Solid20Mini.globeAlt,
     StudioContract.Tool.History to HeroIcons.Solid20Mini.clock,
-    StudioContract.Tool.Panels to HeroIcons.Solid20Mini.squares2x2,
+    StudioContract.Tool.Panels to HeroIcons.Solid20Mini.bars3,
 )
 
 /** Floating tool rail (Modly-style): a rounded card hugging its icon stack, vertically
