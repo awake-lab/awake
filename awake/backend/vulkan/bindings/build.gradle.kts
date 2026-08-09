@@ -117,15 +117,26 @@ kotlin {
 val desktopNativeBuildDir = layout.buildDirectory.dir("desktop-native")
 val desktopNativeLibDir = layout.buildDirectory.dir("desktop-native-libs")
 
+// Locates ccache without relying on it being on PATH at Gradle's own launch time --
+// homebrew's two standard prefixes cover both Apple Silicon and Intel Macs.
+fun findCcache(): String? =
+    listOf("/opt/homebrew/bin/ccache", "/usr/local/bin/ccache").firstOrNull { File(it).exists() }
+
 tasks.register<Exec>("configureDesktopNative") {
     group = "native"
     description = "Configure the desktop native build (CMake) -- run after any C++ source change."
     workingDir = desktopNativeBuildDir.get().asFile.also { it.mkdirs() }
     commandLine(
-        "cmake",
-        "-S", layout.projectDirectory.dir("desktop-native").asFile.absolutePath,
-        "-B", desktopNativeBuildDir.get().asFile.absolutePath,
-        "-DCMAKE_BUILD_TYPE=Debug"
+        buildList {
+            add("cmake")
+            add("-S"); add(layout.projectDirectory.dir("desktop-native").asFile.absolutePath)
+            add("-B"); add(desktopNativeBuildDir.get().asFile.absolutePath)
+            add("-DCMAKE_BUILD_TYPE=Debug")
+            findCcache()?.let {
+                add("-DCMAKE_C_COMPILER_LAUNCHER=$it")
+                add("-DCMAKE_CXX_COMPILER_LAUNCHER=$it")
+            }
+        }
     )
 }
 
