@@ -29,4 +29,5 @@ actual object VulkanWindow {
     actual external fun glfwGetCursorPos(window: Long): DoubleArray
     actual external fun glfwSetScrollCallback(window: Long)
     actual external fun glfwConsumeScrollDeltaY(window: Long): Double
+    actual external fun glfwSetCursorShape(window: Long, shape: Int)
 }

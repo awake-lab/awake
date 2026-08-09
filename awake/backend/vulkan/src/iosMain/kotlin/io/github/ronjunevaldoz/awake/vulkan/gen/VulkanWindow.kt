@@ -81,4 +81,9 @@ actual object VulkanWindow {
     actual fun glfwConsumeScrollDeltaY(window: Long): Double {
         TODO("Not applicable on iOS -- see VulkanWindow.kt's doc comment.")
     }
+
+    // See the Android actual's identical override for why this is a safe no-op rather than
+    // a TODO -- iOS has no GLFW cursor to set, but a caller forwarding UiFrameOutput.effects.
+    // cursor here should be able to do so unconditionally across platforms.
+    actual fun glfwSetCursorShape(window: Long, shape: Int) = Unit
 }

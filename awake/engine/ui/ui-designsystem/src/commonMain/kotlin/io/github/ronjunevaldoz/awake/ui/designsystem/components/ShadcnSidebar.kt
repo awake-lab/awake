@@ -213,7 +213,13 @@ fun ColumnScope.shadcnSidebarMenuItem(
     return shadcnButton(
         id = id,
         modifier = modifier.fillMaxWidth().height(32f.dp),
-        variant = ShadcnButtonVariant.Ghost,
+        // UiButtonVariant.Ghost's resolveFill hardcodes fill to transparent unless hovered/
+        // active, ignoring any style override -- so the active item (which must show its
+        // sidebar-accent background at rest, not just on hover) uses Primary (->
+        // UiButtonVariant.Filled, which always honors the resolved background) with that
+        // background/foreground overridden below; inactive items stay Ghost for the real
+        // chromeless-until-hover look. Same workaround as shadcnTabs's active trigger.
+        variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
         style = (
             Style {
                 contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
@@ -286,7 +292,10 @@ fun ColumnScope.shadcnSidebarMenuSubItem(
         id = id,
         label = label,
         modifier = modifier.fillMaxWidth().height(28f.dp),
-        variant = ShadcnButtonVariant.Ghost,
+        // See shadcnSidebarMenuItem's matching comment: Ghost's resolveFill ignores a style
+        // override's resting background, so the active sub-item needs Primary to actually
+        // paint sidebar-accent instead of transparent.
+        variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
         style = Style {
             contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
             background(if (active) resolvedTheme.sidebarAccent else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)

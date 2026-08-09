@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
 import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
 import io.github.ronjunevaldoz.awake.ui.UiDensity
+import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow
 
 private const val GLFW_CLIENT_API = 0x00022001
@@ -25,6 +26,7 @@ fun runVulkanDesktopGame(
     pollInput: (window: Long, input: Input) -> Unit = ::pollGlfwInput,
     beforeFrame: () -> Unit = {},
     afterLoop: () -> Unit = {},
+    cursor: (() -> UiCursor)? = null,
 ) {
     runVulkanDesktopGame(
         game = game,
@@ -32,6 +34,7 @@ fun runVulkanDesktopGame(
         pollInput = pollInput,
         beforeFrame = beforeFrame,
         afterLoop = afterLoop,
+        cursor = cursor,
     )
 }
 
@@ -41,6 +44,11 @@ fun runVulkanDesktopGame(
     pollInput: (window: Long, input: Input) -> Unit = ::pollGlfwInput,
     beforeFrame: () -> Unit = {},
     afterLoop: () -> Unit = {},
+    // The desktop cursor application point: the UI owns the request (see UiCursor's doc
+    // comment), this loop owns the platform call. `null` (default) skips it entirely -- every
+    // existing caller keeps its current zero-cursor-management behavior; a caller opts in by
+    // returning its own UiContext's `finishFrame().effects.cursor` each frame.
+    cursor: (() -> UiCursor)? = null,
 ) {
     check(game.windowConfig.backend == GameWindowBackend.VULKAN) {
         "Desktop Vulkan host requires a Vulkan backend, found ${game.windowConfig.backend}."
@@ -68,6 +76,7 @@ fun runVulkanDesktopGame(
             DesktopGameLoop.startLoop { deltaTime ->
                 application.update(deltaTime.toFloat())
             }
+            cursor?.let { applyUiCursor(window, it()) }
         }
     } finally {
         afterLoop()

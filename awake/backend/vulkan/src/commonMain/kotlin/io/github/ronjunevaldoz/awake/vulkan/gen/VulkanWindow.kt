@@ -82,4 +82,13 @@ expect object VulkanWindow {
      * `0.0`, so a caller polling this once per frame gets exactly the ticks that happened
      * since its last poll (no double-counting, no dropped ticks between polls). */
     fun glfwConsumeScrollDeltaY(window: Long): Double
+
+    /** Sets [window]'s pointer cursor to one of GLFW's standard shapes (`GLFW_ARROW_CURSOR`,
+     * `GLFW_HRESIZE_CURSOR`, ... -- see the constants alongside this call's own Kotlin call
+     * site). Does NOT fit [glfwGetKey]'s single-GLFW-call-per-function shape: the native side
+     * lazily creates each `GLFWcursor*` via `glfwCreateStandardCursor` once and caches it in a
+     * file-scope map keyed by [shape] (same "cached standard cursors" contract as this
+     * project's `UiCursor` -- see `ResizablePanelGroup.kt`'s `handle()`), then applies it via
+     * `glfwSetCursor`, so a real per-frame call never re-creates a cursor object. */
+    fun glfwSetCursorShape(window: Long, shape: Int)
 }

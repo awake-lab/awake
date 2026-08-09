@@ -13,12 +13,14 @@ internal class UiContextInteractionState {
     private var focusClaimedThisFrame = false
     private var isOverScrollableThisFrame = false
     private var isScrollConsumedThisFrame = false
+    private var requestedCursorThisFrame = UiCursor.Default
 
     fun beginFrame(inputState: UiInputState) {
         pointerDownEdgeThisFrame = inputState.pointerDown && !pointerDownLastFrame
         focusClaimedThisFrame = false
         isOverScrollableThisFrame = false
         isScrollConsumedThisFrame = false
+        requestedCursorThisFrame = UiCursor.Default
     }
 
     fun endFrame(inputState: UiInputState) {
@@ -42,6 +44,15 @@ internal class UiContextInteractionState {
     fun onScrollConsumed() {
         isScrollConsumedThisFrame = true
     }
+
+    /** Last call each frame wins, same "no priority, last writer settles it" shape
+     * [setActive] already uses -- a widget only calls this while hovered/dragging, so the
+     * common case is at most one call per frame anyway. */
+    fun requestCursor(cursor: UiCursor) {
+        requestedCursorThisFrame = cursor
+    }
+
+    fun requestedCursor(): UiCursor = requestedCursorThisFrame
 
     fun hitTest(slot: UiBounds, inputState: UiInputState): Boolean =
         inputState.pointerX in slot.x..(slot.x + slot.width) &&

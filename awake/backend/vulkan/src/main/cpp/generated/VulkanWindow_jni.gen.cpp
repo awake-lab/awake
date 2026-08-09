@@ -403,3 +403,40 @@ Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwConsumeScrollDelt
     g_scrollAccumulatorY = 0.0;
     return static_cast<jdouble>(delta);
 }
+
+
+// Hand-written, same reasoning as awake_glfwScrollCallback above: doesn't fit the generator's
+// "one GLFW call per function" template -- this lazily creates each standard cursor exactly
+// once (glfwCreateStandardCursor) and caches it here, keyed by GLFW's own shape constant, so a
+// real per-frame glfwSetCursorShape call never re-creates a cursor object. One process-wide
+// cache is fine for the same "one GLFW window per process" reason g_scrollAccumulatorY's own
+// comment gives. Never freed (glfwTerminate() tears down the whole GLFW context anyway, taking
+// every outstanding GLFWcursor* with it).
+static std::unordered_map<int32_t, GLFWcursor*> g_cursorCache;
+
+extern "C" JNIEXPORT void JNICALL
+Java_io_github_ronjunevaldoz_awake_vulkan_gen_VulkanWindow_glfwSetCursorShape(
+        JNIEnv* env,
+        jclass clazz,
+        jlong window,
+        jint shape) {
+    // --- Marshalling ---
+    void* window_ptr = reinterpret_cast<void*>(window);
+    int32_t shape_val = static_cast<int32_t>(shape);
+
+    // --- Error handling ---
+    if (!window_ptr) {
+        throw_illegal_state(env, "glfwSetCursorShape: window not initialized");
+        return;
+    }
+
+    auto cached = g_cursorCache.find(shape_val);
+    GLFWcursor* cursor;
+    if (cached != g_cursorCache.end()) {
+        cursor = cached->second;
+    } else {
+        cursor = glfwCreateStandardCursor(shape_val);
+        g_cursorCache[shape_val] = cursor;
+    }
+    glfwSetCursor(reinterpret_cast<GLFWwindow*>(window_ptr), cursor);
+}

@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.testing.ui.inspectUiFrame
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -117,5 +118,97 @@ class ResizablePanelGroupTest {
         val output = ui.finishFrame()
         val report = inspectUiFrame(output.primitives, ui.frameBounds())
         assertTrue(report.isClean, report.summary())
+    }
+
+    @Test
+    fun hoveringHorizontalHandleRequestsHorizontalResizeCursor() {
+        val ui = UiContext()
+        // Handle sits at x in [299, 301] for a 600px-wide group (see the layout test above).
+        ui.simulateFrame(pointerDown = false, x = 300f, y = 100f) {
+            ui.createAbsolute(x = 0f, y = 0f).resizablePanelGroup(
+                id = "cursor-group",
+                modifier = Modifier.width(600f.px).height(200f.px),
+            ) {
+                panel("p1", defaultSize = 0.5f) { }
+                handle("h1")
+                panel("p2", defaultSize = 0.5f) { }
+            }
+        }
+        assertEquals(
+            UiCursor.ResizeHorizontal,
+            ui.finishFrame().effects.cursor,
+            "hovering a horizontal handle must request the horizontal resize cursor",
+        )
+    }
+
+    @Test
+    fun hoveringVerticalHandleRequestsVerticalResizeCursor() {
+        val ui = UiContext()
+        // Vertical group, 200px tall, one handle: handle band sits at y in [99, 101].
+        ui.simulateFrame(pointerDown = false, x = 100f, y = 100f) {
+            ui.createAbsolute(x = 0f, y = 0f).resizablePanelGroup(
+                id = "cursor-group-v",
+                direction = ResizableDirection.Vertical,
+                modifier = Modifier.width(200f.px).height(200f.px),
+            ) {
+                panel("p1", defaultSize = 0.5f) { }
+                handle("h1")
+                panel("p2", defaultSize = 0.5f) { }
+            }
+        }
+        assertEquals(
+            UiCursor.ResizeVertical,
+            ui.finishFrame().effects.cursor,
+            "hovering a vertical handle must request the vertical resize cursor",
+        )
+    }
+
+    @Test
+    fun pointerAwayFromHandleLeavesCursorDefault() {
+        val ui = UiContext()
+        ui.simulateFrame(pointerDown = false, x = -100f, y = -100f) {
+            ui.createAbsolute(x = 0f, y = 0f).resizablePanelGroup(
+                id = "cursor-group-away",
+                modifier = Modifier.width(600f.px).height(200f.px),
+            ) {
+                panel("p1", defaultSize = 0.5f) { }
+                handle("h1")
+                panel("p2", defaultSize = 0.5f) { }
+            }
+        }
+        assertEquals(
+            UiCursor.Default,
+            ui.finishFrame().effects.cursor,
+            "a frame with no pointer near the handle must not request a resize cursor",
+        )
+    }
+
+    @Test
+    fun draggingHandleKeepsResizeCursorEvenIfPointerOutrunsTheThinHitStrip() {
+        val ui = UiContext()
+        val input = Input()
+
+        fun frame(pointerDown: Boolean, x: Float) {
+            ui.simulateFrame(pointerDown = pointerDown, x = x, y = 100f, input = input) {
+                ui.createAbsolute(x = 0f, y = 0f).resizablePanelGroup(
+                    id = "cursor-drag-group",
+                    modifier = Modifier.width(600f.px).height(200f.px),
+                ) {
+                    panel("p1", defaultSize = 0.5f) { }
+                    handle("h1")
+                    panel("p2", defaultSize = 0.5f) { }
+                }
+            }
+        }
+
+        frame(pointerDown = true, x = 300f)
+        // Drag far past the handle's own 2px-wide hit strip -- still mid-gesture.
+        frame(pointerDown = true, x = 400f)
+        assertEquals(
+            UiCursor.ResizeHorizontal,
+            ui.finishFrame().effects.cursor,
+            "a resize gesture still in progress must keep requesting the resize cursor even " +
+                "once the pointer has moved off the handle's own thin hit strip",
+        )
     }
 }

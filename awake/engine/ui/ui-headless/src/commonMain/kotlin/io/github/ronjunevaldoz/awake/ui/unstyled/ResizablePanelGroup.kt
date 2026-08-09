@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.WidgetState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
@@ -23,6 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.pointerDown
 import io.github.ronjunevaldoz.awake.ui.scope.pointerX
 import io.github.ronjunevaldoz.awake.ui.scope.pointerY
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.scope.requestCursor
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** Axis a [resizablePanelGroup] lays panels/handles out along -- react-resizable-panels'
@@ -151,6 +153,18 @@ class ResizablePanelGroupScope internal constructor(
         val pointerMain = if (direction == ResizableDirection.Horizontal) pointerX() else pointerY()
         val lastPointerKey = "$id.lastPointerMain"
         val dragging = isActive(id) && pointerDown()
+        // Hovered OR mid-drag: a fast drag can outrun the pointer past this handle's own thin
+        // hit strip on a given frame, and the resize affordance must not flicker off just
+        // because the hover test briefly misses while the gesture is still active.
+        if (interaction.hovered || dragging) {
+            requestCursor(
+                if (direction == ResizableDirection.Horizontal) {
+                    UiCursor.ResizeHorizontal
+                } else {
+                    UiCursor.ResizeVertical
+                },
+            )
+        }
         pendingDrag = if (dragging) {
             val previousPointerMain = groupState.get(lastPointerKey, pointerMain)
             groupState.set(lastPointerKey, pointerMain)

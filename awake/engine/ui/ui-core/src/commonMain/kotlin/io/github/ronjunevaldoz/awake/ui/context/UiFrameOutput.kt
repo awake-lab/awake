@@ -22,6 +22,10 @@ val UiInputOwnership.blocksGameplayKeys: Boolean get() = isCaptured || isTextInp
 
 data class UiPlatformEffects(
     val requestKeyboard: Boolean = false,
+    /** See [UiCursor] -- the platform embedding this [UiContext] applies this via its own
+     * windowing API (e.g. `glfwSetCursor` on desktop); `ui-core` never calls a platform API
+     * itself. */
+    val cursor: UiCursor = UiCursor.Default,
 )
 
 data class UiFrameOutput(

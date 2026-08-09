@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.scope
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
@@ -40,6 +41,10 @@ fun UiScope.setActive(id: String?) = context.setActiveInternal(id)
 fun UiScope.onOverScrollable() = context.onOverScrollableInternal()
 
 fun UiScope.onScrollConsumed() = context.onScrollConsumedInternal()
+
+/** Requests [cursor] as this frame's platform pointer shape -- see [UiCursor]'s doc comment.
+ * Call while hovered/dragging; last call in the frame wins. */
+fun UiScope.requestCursor(cursor: UiCursor) = context.requestCursorInternal(cursor)
 
 fun UiScope.measureColumnContent(
     width: Float,

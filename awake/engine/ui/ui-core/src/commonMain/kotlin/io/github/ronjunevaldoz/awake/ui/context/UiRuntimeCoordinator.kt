@@ -45,7 +45,10 @@ internal class UiRuntimeCoordinator(
             primitives = frameState.endFrame(),
             semantics = frameState.semanticNodes(),
             ownership = ownership,
-            effects = UiPlatformEffects(requestKeyboard = ownership.isTextInputFocused),
+            effects = UiPlatformEffects(
+                requestKeyboard = ownership.isTextInputFocused,
+                cursor = interaction.requestedCursor(),
+            ),
         )
     }
 
@@ -104,6 +107,10 @@ internal class UiRuntimeCoordinator(
 
     fun setActive(id: String?) {
         interaction.setActive(id)
+    }
+
+    fun requestCursor(cursor: UiCursor) {
+        interaction.requestCursor(cursor)
     }
 }
 

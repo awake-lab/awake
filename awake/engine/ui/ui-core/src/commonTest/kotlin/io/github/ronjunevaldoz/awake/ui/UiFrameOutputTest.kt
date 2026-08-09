@@ -3,12 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.resolveRootSlot
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.scope.requestCursor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -37,6 +39,27 @@ class UiFrameOutputTest {
             frame.ownership.isTextInputFocused,
             ui.inputResult().isTextInputFocused,
             "inputResult() should reflect the finalized frame ownership after finishFrame()",
+        )
+    }
+
+    @Test
+    fun requestedCursorResetsToDefaultEachFrame() {
+        val ui = UiContext()
+
+        ui.beginFrame(200f, 100f, testSnapshot())
+        ui.createAbsolute(x = 0f, y = 0f).requestCursor(UiCursor.ResizeHorizontal)
+        assertEquals(
+            UiCursor.ResizeHorizontal,
+            ui.finishFrame().effects.cursor,
+            "a widget's requestCursor call this frame should surface on effects.cursor",
+        )
+
+        ui.beginFrame(200f, 100f, testSnapshot())
+        // No widget requests a cursor this frame.
+        assertEquals(
+            UiCursor.Default,
+            ui.finishFrame().effects.cursor,
+            "a cursor request must not carry over into a frame that never re-requested it",
         )
     }
 }

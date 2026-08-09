@@ -426,6 +426,14 @@ class UiContext internal constructor(
         runtime.setActive(id)
     }
 
+    /** Gated by `!measuring` like [tryClaimActiveInternal]/[requestFocusInternal] -- a trial-
+     * measure pass (e.g. [io.github.ronjunevaldoz.awake.ui.scope.measureColumnContent]) re-runs
+     * widget code to size a WrapContent container and must not let that dry run's hover state
+     * leak a cursor request into the real frame's [UiFrameOutput.effects]. */
+    internal fun requestCursorInternal(cursor: UiCursor) {
+        if (!measuring) runtime.requestCursor(cursor)
+    }
+
     @Deprecated(
         message = "Active-state mutation belongs to widgets and scopes, not public UiContext callers.",
     )
