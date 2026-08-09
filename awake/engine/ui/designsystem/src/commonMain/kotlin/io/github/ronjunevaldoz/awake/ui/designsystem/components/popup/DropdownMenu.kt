@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font
-import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
@@ -37,9 +36,11 @@ import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.UiMenuItemWidthInput
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.intrinsicMenuWidthPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.measureMenuItemLayout
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.layoutBitmapText
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 
@@ -64,7 +65,18 @@ fun UiScope.shadcnDropdownMenu(
     // the menu paints edge to edge. Nothing in the chain has an intrinsic width, so supply one:
     // the widest item's own ink plus its padding, floored at shadcn's min-w-32.
     val resolvedWidth = if (width == Dimension.WrapContent) {
-        Dimension.Fixed(intrinsicMenuWidthPx(items).px)
+        val glyphPx = pixelPerfectPixel(theme.typography.label.toPx().coerceAtLeast(1f)).coerceAtLeast(1f)
+        val widthInputs = items.filterIsInstance<UiDropdownMenuItem>().map {
+            UiMenuItemWidthInput(label = it.label, trailingLabel = it.trailingLabel, hasIcon = it.icon != null)
+        }
+        Dimension.Fixed(
+            intrinsicMenuWidthPx(
+                items = widthInputs,
+                font = font,
+                glyphPx = glyphPx,
+                minWidthPx = MENU_MIN_WIDTH_DP.dp.toPx(),
+            ).px,
+        )
     } else {
         width
     }
@@ -172,24 +184,6 @@ fun UiScope.shadcnDropdownMenu(
     )
 }
 
-/**
- * The width the widest entry needs, mirroring [dropdownMenuItem]'s own horizontal budget:
- * 8dp start padding, optional icon slot, the label's measured ink, the trailing shortcut, and
- * 8dp end padding. Floored at shadcn's `min-w-32` so a menu of one-word items still reads as a
- * panel rather than a sliver.
- */
-private fun UiScope.intrinsicMenuWidthPx(items: List<UiDropdownMenuEntry>): Float {
-    val resolvedFont = font
-    val glyphPx = pixelPerfectPixel(theme.typography.label.toPx().coerceAtLeast(1f)).coerceAtLeast(1f)
-    val horizontalPadding = 16f.dp.toPx()
-    val widest = items.filterIsInstance<UiDropdownMenuItem>().maxOfOrNull { item ->
-        val iconSlotWidth = if (item.icon != null) glyphPx + 8f else 0f
-        val trailingWidth = item.trailingLabel?.let { resolvedFont.measureTextWidth(it, glyphPx) + 8f } ?: 0f
-        resolvedFont.measureTextWidth(item.label, glyphPx) + iconSlotWidth + trailingWidth
-    } ?: 0f
-    return (widest + horizontalPadding).coerceAtLeast(MENU_MIN_WIDTH_DP.dp.toPx())
-}
-
 /** shadcn's dropdown-menu-content carries `min-w-32`. */
 private const val MENU_MIN_WIDTH_DP = 128f
 
@@ -206,41 +200,22 @@ private fun ColumnScope.dropdownMenuItem(
     val resolvedTextStyle = textStyle then TextStyle(size = labelSize)
     val glyphPx = pixelPerfectPixel(labelSize.toPx().coerceAtLeast(1f)).coerceAtLeast(1f)
 
-    val trailingWidth = item.trailingLabel?.let { label ->
-        resolvedFont.measureTextWidth(label, glyphPx) + 8f
-    } ?: 0f
-    // Leading icon slot: a fixed glyphPx-square reserved only when `item.icon` is set, so
-    // icon-less items keep the exact same 12dp label start they had before this field existed.
-    val iconSlotWidth = if (item.icon != null) glyphPx + 8f else 0f
-    // shadcn px-2 = 8dp horizontal item padding (was 12f hardcoded)
-    val labelStart = 8f.dp.toPx() + iconSlotWidth
-    val bodyWidth = (width - 16f.dp.toPx() - trailingWidth - iconSlotWidth).coerceAtLeast(glyphPx)
-
-    val lineGap = glyphPx * 0.25f
-    val supportingLayout = item.shadcnSupportingText?.takeIf { it.isNotBlank() }?.let {
-        layoutBitmapText(
-            label = it,
-            glyphPx = glyphPx,
-            maxWidthPx = (width - 16f.dp.toPx()).coerceAtLeast(glyphPx),
-            wrap = UiTextWrap.Word,
-            overflow = UiTextOverflow.Ellipsis,
-            maxLines = 2,
-            advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) },
-        )
-    }
-
-    val supportingHeight =
-        supportingLayout?.blockHeight(glyphPx * resolvedFont.lineHeightEm, lineGap) ?: 0f
-    val computedHeight = if (supportingLayout == null) {
-        baseHeight
-    } else {
-        // Vertical stack: 8dp top + label + 4dp gap + supporting + 8dp bottom
-        maxOf(baseHeight, 8f + glyphPx + 4f + supportingHeight + 8f)
-    }
+    // Pure geometry (label/icon/trailing/supporting-text placement, row height) lives in
+    // ui-headless -- see measureMenuItemLayout's own doc comment. Only color/decoration below
+    // is design-system-specific.
+    val layout = measureMenuItemLayout(
+        trailingLabel = item.trailingLabel,
+        hasIcon = item.icon != null,
+        supportingText = item.shadcnSupportingText,
+        width = width,
+        baseHeight = baseHeight,
+        font = resolvedFont,
+        glyphPx = glyphPx,
+    )
 
     val result = buttonSlot(
         id = id,
-        modifier = Modifier.width(width.px).height(computedHeight.px),
+        modifier = Modifier.width(width.px).height(layout.computedHeight.px),
         style = style,
         variant = if (selected) UiButtonVariant.Filled else UiButtonVariant.Ghost,
     ) { contentSlot ->
@@ -250,17 +225,6 @@ private fun ColumnScope.dropdownMenuItem(
             item.destructive -> theme.colors.destructive
             else -> theme.colors.foreground
         }
-
-        val verticalPadding = if (supportingLayout == null) 0f.dp else 8f.dp
-        // A one-line item centers its label in the full row height. A two-line item (with
-        // supporting text) must pin the label to the top instead -- supportingLayout's own
-        // position is a fixed top-offset ("8dp top + label + 4dp gap + supporting"), so
-        // centering the label in the taller box would drift it down into that fixed offset
-        // and overlap the supporting text.
-        val labelAlignment =
-            if (supportingLayout == null) UiAlignment.CenterStart else UiAlignment.TopStart
-        val trailingAlignment =
-            if (supportingLayout == null) UiAlignment.CenterEnd else UiAlignment.TopEnd
 
         // Use a relative child box to anchor content correctly within the button
         val box = childBox(contentSlot)
@@ -274,12 +238,12 @@ private fun ColumnScope.dropdownMenuItem(
             // through/under the shortcut instead of truncating before it.
             text(
                 label = item.label,
-                modifier = Modifier.width(bodyWidth.px).padding(
-                    start = labelStart.px,
-                    top = verticalPadding,
+                modifier = Modifier.width(layout.bodyWidth.px).padding(
+                    start = layout.labelStart.px,
+                    top = layout.verticalPadding,
                     end = 0f.dp,
                     bottom = 0f.dp,
-                ).align(labelAlignment),
+                ).align(layout.labelAlignment),
                 color = textColor,
                 font = resolvedFont,
                 overflow = UiTextOverflow.Ellipsis,
@@ -316,8 +280,8 @@ private fun ColumnScope.dropdownMenuItem(
                     // left to shift into, so the shortcut draws left-anchored under the label
                     // instead of at the row's right edge. Shortcuts are short fixed strings
                     // ("Cmd+D", "Del") that never need to wrap or truncate.
-                    modifier = Modifier.align(trailingAlignment)
-                        .padding(start = 0f.dp, top = verticalPadding, end = 8f.dp, bottom = 0f.dp),
+                    modifier = Modifier.align(layout.trailingAlignment)
+                        .padding(start = 0f.dp, top = layout.verticalPadding, end = 8f.dp, bottom = 0f.dp),
                     color = trailingColor,
                     font = resolvedFont,
                     textStyle = resolvedTextStyle,
@@ -325,7 +289,7 @@ private fun ColumnScope.dropdownMenuItem(
             }
 
             // --- 3. Supporting Text ---
-            supportingLayout?.let {
+            layout.supportingLayout?.let {
                 // `glyphPx` is already a resolved raster-pixel value (it went through
                 // labelSize.toPx() above), same as the "8dp top + label + 4dp gap" offset
                 // baked into computedHeight's own raw-px math. Using `.dp` here would push it

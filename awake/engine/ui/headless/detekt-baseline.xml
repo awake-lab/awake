@@ -29,6 +29,7 @@
     <ID>LongMethod:UiSnapshotFixtures.kt$internal fun tutorialSnapshotScenes(): List&lt;UiSnapshotScene></ID>
     <ID>LongParameterList:BasicText.kt$( label: String, glyphPx: Float, maxWidthPx: Float, wrap: UiTextWrap, overflow: UiTextOverflow, maxLines: Int, font: UiFont, )</ID>
     <ID>LongParameterList:BasicText.kt$( label: String, glyphPx: Float, maxWidthPx: Float, wrap: UiTextWrap, overflow: UiTextOverflow, maxLines: Int, trim: Boolean = true, advanceOf: (Char) -> Float = { glyphPx }, )</ID>
+    <ID>LongParameterList:MenuItem.kt$( trailingLabel: String?, hasIcon: Boolean, supportingText: String?, width: Float, baseHeight: Float, font: UiFont, glyphPx: Float, )</ID>
     <ID>LongParameterList:Surface.kt$( slot: UiBounds, style: Style, defaults: Style, selected: Boolean, disabled: Boolean, focused: Boolean, hovered: Boolean, active: Boolean, )</ID>
     <ID>LongParameterList:Textarea.kt$( layout: UiBitmapTextLayout, value: String, font: UiFont, glyphPx: Float, lineGap: Float, contentSlot: UiBounds, cursor: Int, )</ID>
     <ID>LongParameterList:Textarea.kt$( layout: UiBitmapTextLayout, value: String, font: UiFont, glyphPx: Float, lineGap: Float, contentSlot: UiBounds, pointerX: Float, pointerY: Float, )</ID>
@@ -41,6 +42,9 @@
     <ID>MagicNumber:Checkbox.kt$0.25f</ID>
     <ID>MagicNumber:Checkbox.kt$0.5f</ID>
     <ID>MagicNumber:Dropdown.kt$0.5f</ID>
+    <ID>MagicNumber:MenuItem.kt$0.25f</ID>
+    <ID>MagicNumber:MenuItem.kt$4f</ID>
+    <ID>MagicNumber:MenuItem.kt$8f</ID>
     <ID>MagicNumber:RangeSlider.kt$0.5f</ID>
     <ID>MagicNumber:Slider.kt$0.5f</ID>
     <ID>MagicNumber:Spinner.kt$0.16f</ID>
