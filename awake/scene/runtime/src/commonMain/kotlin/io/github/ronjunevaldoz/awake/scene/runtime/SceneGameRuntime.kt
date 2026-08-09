@@ -16,8 +16,10 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.core.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -48,6 +50,9 @@ class SceneGameRuntime internal constructor(
         private set
 
     private var assetLibrary: SceneAssetLibrary? = null
+
+    /** Mandatory, not user-configurable -- see [SceneGameSpec.infrastructureSystemsFactory]. */
+    private lateinit var infrastructureSystems: List<System>
 
     val uiContext = UiContext()
     val font: UiFont = UiFonts.default()
@@ -82,6 +87,7 @@ class SceneGameRuntime internal constructor(
 
     override suspend fun ready(renderer: Renderer) {
         this.renderer = renderer
+        infrastructureSystems = spec.infrastructureSystemsFactory(this)
 
         // 1. Instantiate systems (after renderer is available)
         spec.systems.forEach { registration ->
@@ -104,8 +110,10 @@ class SceneGameRuntime internal constructor(
         // see null. GltfViewerDemo used to paper over this by re-checking every frame.
         spec.onReadyBlock(this)
 
-        // 4. Initial sync pass for all frame-rate systems
+        // 4. Initial sync pass for all frame-rate systems, infrastructure (transform
+        // resolution + the draw pass) always last so it sees this frame's final state.
         frameSystems.forEach { it.update(world, 0f) }
+        infrastructureSystems.forEach { it.update(world, 0f) }
     }
 
     override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
@@ -137,6 +145,7 @@ class SceneGameRuntime internal constructor(
             },
             render = {
                 frameSystems.forEach { it.update(world, delta) }
+                infrastructureSystems.forEach { it.update(world, delta) }
             },
         )
 
@@ -240,3 +249,9 @@ class SceneGameRuntime internal constructor(
         const val FRAME_TIME_HISTORY_SIZE = 30
     }
 }
+
+/** The standard infrastructure pair every 3D scene needs -- transform resolution then the
+ * draw pass, always last. See [SceneGameSpec.infrastructureSystemsFactory]'s doc comment for
+ * why this lives here instead of being wired through the authoring DSL. */
+fun SceneGameRuntime.defaultInfrastructureSystems(): List<System> =
+    listOf(TransformSystem(), RenderSystem(renderer))

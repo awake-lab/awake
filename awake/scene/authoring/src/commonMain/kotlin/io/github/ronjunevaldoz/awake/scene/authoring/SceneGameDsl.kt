@@ -9,7 +9,6 @@ import io.github.ronjunevaldoz.awake.scene.authoring.dsl.EntityModifier
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.Modifier
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.SceneBuilder
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.scene
-import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.installInfrastructureSystems
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneAssetLibrary
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneDisposeBlock
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneDocument
@@ -24,6 +23,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneSystemPhase
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneSystemRegistration
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneUpdateBlock
 import io.github.ronjunevaldoz.awake.scene.runtime.attachRenderableComponents
+import io.github.ronjunevaldoz.awake.scene.runtime.defaultInfrastructureSystems
 import io.github.ronjunevaldoz.awake.scene.runtime.instantiate
 import kotlin.reflect.KClass
 
@@ -75,6 +75,8 @@ class SceneGameDsl internal constructor() {
     private val onReadyBlocks = mutableListOf<SceneReadyBlock>()
     private val onDisposeBlocks = mutableListOf<SceneDisposeBlock>()
     private val serviceRegistrations = mutableListOf<SceneServiceRegistration<*>>()
+    private var infrastructureSystemsFactory: SceneGameRuntime.() -> List<System> =
+        SceneGameRuntime::defaultInfrastructureSystems
 
     fun name(value: String?) {
         this.sceneName = value
@@ -176,24 +178,29 @@ class SceneGameDsl internal constructor() {
         service(T::class, factory)
     }
 
-    internal fun build(): SceneGameSpec {
-        // Core infrastructure: must run every frame.
-        // Added at the end of build so they always execute LAST in the pipeline.
-        installInfrastructureSystems()
-
-        return SceneGameSpec(
-            sceneName = sceneName,
-            systems = systemsDsl.build(),
-            scenePopulationBlock = scenePopulationBlock,
-            renderableFactory = renderableFactory,
-            assetLibraryFactory = assetLibraryFactory,
-            updateBlock = updateBlock,
-            overlayBlock = overlayBlock,
-            onReadyBlock = { onReadyBlocks.forEach { it(this) } },
-            onDisposeBlock = { onDisposeBlocks.forEach { it(this) } },
-            serviceRegistrations = serviceRegistrations.toList(),
-        )
+    /**
+     * Overrides the mandatory transform-resolution + draw-pass systems (default:
+     * [defaultInfrastructureSystems]) -- e.g. to swap in a custom render backend. This DSL
+     * never imports a concrete render system itself; the override lambda is free to import
+     * whatever it needs from the caller's own module.
+     */
+    fun infrastructureSystems(factory: SceneGameRuntime.() -> List<System>) {
+        infrastructureSystemsFactory = factory
     }
+
+    internal fun build(): SceneGameSpec = SceneGameSpec(
+        sceneName = sceneName,
+        systems = systemsDsl.build(),
+        scenePopulationBlock = scenePopulationBlock,
+        renderableFactory = renderableFactory,
+        assetLibraryFactory = assetLibraryFactory,
+        updateBlock = updateBlock,
+        overlayBlock = overlayBlock,
+        onReadyBlock = { onReadyBlocks.forEach { it(this) } },
+        onDisposeBlock = { onDisposeBlocks.forEach { it(this) } },
+        serviceRegistrations = serviceRegistrations.toList(),
+        infrastructureSystemsFactory = infrastructureSystemsFactory,
+    )
 }
 
 class SceneSystemsDsl internal constructor() {
