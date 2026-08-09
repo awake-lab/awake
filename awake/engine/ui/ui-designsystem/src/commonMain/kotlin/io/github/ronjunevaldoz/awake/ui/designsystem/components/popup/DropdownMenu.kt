@@ -95,20 +95,10 @@ fun UiScope.shadcnDropdownMenu(
                 .height(height)
                 .let { if (scrollState != null) it.verticalScroll(scrollState) else it }
                 .styleable(
-                    // theme.components.surface's default contentPadding is sized for a Card/
-                    // Dialog panel (shadcn's p-6), not a dropdown-menu-content (shadcn's p-1,
-                    // 4dp -- handled here entirely by the manual p-1 spacers above/below, since
-                    // items already carry their own px-2 horizontal inset -- see
-                    // dropdownMenuItem's labelStart/bodyWidth math). Left unzeroed, that inherited
-                    // panel padding silently ate into every item's claimed width without
-                    // intrinsicMenuWidthPx() (which assumes zero panel-level padding, matching
-                    // dropdownMenuItem's own budget) ever knowing about it -- the two go out of
-                    // sync and the widest item's label truncates by exactly that padding amount.
-                    // Zero it before `style` so a caller-supplied `style` can still override it.
-                    theme.components.surface then Style { contentPadding(0f.dp) } then style then Style {
-                        // Real shadcn's dropdown-menu-content is rounded-md, drawn from the active
-                        // theme's own radius scale (not ui-core's disconnected `UiShape` global) so
-                        // switching presets actually changes this popup's corners too.
+                    // Real shadcn's dropdown-menu-content is rounded-md, drawn from the active
+                    // theme's own radius scale (not ui-core's disconnected `UiShape` global) so
+                    // switching presets actually changes this popup's corners too.
+                    theme.components.surface then style then Style {
                         shape(theme.asShadcnTheme().radii.md)
                     },
                 ),

@@ -25,7 +25,8 @@ import io.github.ronjunevaldoz.awake.studio.ui.drawStudioShell
  * + material(4). Must match `lit_shadow.wgsl`'s Uniforms field order. */
 internal const val LIT_SHADOW_UNIFORM_FLOAT_COUNT = 64
 
-internal fun studioModule(store: StudioStore = StudioStore()): GameModule {
+internal fun studioModule(): GameModule {
+    val store = StudioStore()
     val loader = ExampleLoader()
     return gameModule {
         scene("studio") {
