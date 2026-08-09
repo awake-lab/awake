@@ -188,6 +188,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Incomplete text rendering.
 - Desktop OpenGL texture rendering is leaking.
 
-[unreleased]: https://github.com/ronjunevaldoz/awake/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/awake-lab/awake/compare/v1.0.0...HEAD
 
-[1.0.0-SNAPSHOT]: https://github.com/ronjunevaldoz/awake/compare/v0.0.1...v0.0.2
+[1.0.0-SNAPSHOT]: https://github.com/awake-lab/awake/compare/v0.0.1...v0.0.2

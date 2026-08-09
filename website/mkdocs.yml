@@ -1,6 +1,6 @@
 site_name: Awake Engine
-site_url: https://ronjunevaldoz.github.io/awake/
-repo_url: https://github.com/ronjunevaldoz/awake
+site_url: https://awake-lab.github.io/awake/
+repo_url: https://github.com/awake-lab/awake
 theme:
   name: material
   palette:

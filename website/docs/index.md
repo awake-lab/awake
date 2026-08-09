@@ -1,6 +1,6 @@
 # Awake Engine
 
-![Awake Banner](https://github.com/ronjunevaldoz/awake/actions/workflows/build-and-publish.yml/badge.svg)
+![Awake Banner](https://github.com/awake-lab/awake/actions/workflows/build-and-publish.yml/badge.svg)
 
 Awake is a Kotlin Multiplatform game engine (Vulkan, WebGPU, OpenGL) with a shared ECS runtime, targeting Android, iOS, Desktop (macOS/Windows/Linux), and the Web (Wasm/WebGPU) from one `commonMain` codebase.
 
