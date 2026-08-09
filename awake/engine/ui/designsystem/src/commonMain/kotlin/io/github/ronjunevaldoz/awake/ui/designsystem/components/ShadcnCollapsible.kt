@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -19,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.collapsible
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
@@ -44,15 +44,14 @@ fun ColumnScope.shadcnCollapsible(
     onExpandedChange: (Boolean) -> Unit = {},
     trigger: ColumnScope.(isOpen: Boolean, toggle: () -> Unit) -> Unit,
     content: ColumnScope.() -> Unit,
-): Boolean {
-    trigger(expanded) { onExpandedChange(!expanded) }
-
-    animatedHeight(id = "$id.content", expanded = expanded) {
-        content()
-    }
-
-    return expanded
-}
+): Boolean = collapsible(
+    id = id,
+    expanded = expanded,
+    modifier = modifier,
+    onExpandedChange = onExpandedChange,
+    trigger = trigger,
+    content = content,
+)
 
 /**
  * [shadcnCollapsible] convenience with the previous fixed trigger: caller-supplied [header]
