@@ -17,7 +17,8 @@ authored once as WGSL and compiled per backend at build time (naga → SPIR-V). 
 light with shadow mapping (texel-calibrated depth bias), PBR metallic-roughness materials,
 glTF loading with GPU skinning, headless rendering with pixel-readback for tests.
 
-**ECS and scenes** — a sparse-set ECS (benchmarked against Fleks), a `scene { }` DSL, and
+**ECS and scenes** — a sparse-set ECS
+([benchmark scorecard](docs/ecs-benchmark-scorecard.md)), a `scene { }` DSL, and
 scenes-as-data: JSON scene documents a runtime instantiates, so switching examples is a
 loader call, not hand-rolled demo objects.
 
