@@ -23,7 +23,7 @@ You work on Awake's engine runtime shell and game composition surface. Read
 
 - `:awake:engine`
 - `:awake:engine:game`
-- `:awake:engine:game-dsl`
+- `:awake:engine:game-authoring`
 - shared runtime bootstrap patterns
 - frame lifecycle wiring above the renderer
 - sample application structure when the structure should be promoted into reusable runtime APIs

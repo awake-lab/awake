@@ -32,7 +32,7 @@ just spread unclear ownership across more folders.
   (depends on `TransformSystem`, which hasn't split out yet).
 - 2026-08-05: Scene module split Phase 5 (DSL dependency tightening) landed:
   `TransformSystem` moved to `:awake:scene:core`, `PlayerControlSystem` moved into
-  `:awake:scene:dsl` directly (needs `ui-core`). `:awake:scene:dsl` now depends on the
+  `:awake:scene:authoring` directly (needs `ui-core`). `:awake:scene:authoring` now depends on the
   specific `:awake:scene:*` leaf modules it uses instead of the whole `:awake:scene`
   facade -- this completes the module list the split proposal sketched, leaving only
   `NavMesh` and the deprecated `SceneRuntime` bootstrap in `:awake:scene` itself.

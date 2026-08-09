@@ -20,7 +20,7 @@ This currently builds:
 
 - module API references through `dokkaGeneratePublicationHtml`
 - the Game DSL tutorial guide at
-  `awake/engine/game-dsl/build/reports/game-dsl-tutorials/index.html`
+  `awake/engine/game-authoring/build/reports/game-dsl-tutorials/index.html`
 - the UI DSL tutorial guide at
   `awake/engine/ui-dsl/build/reports/ui-dsl-tutorials/index.html`
 - the UI snapshot gallery at
@@ -203,7 +203,7 @@ manually cropping pixels out of a screenshot: toggle F3, take one screenshot, re
 The underlying primitives live in
 `awake/engine/ui/ui-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/UiDebugOverlay.kt`;
 the toggle wiring (key state, the append-after-`finishFrame()` step) lives in
-`awake/engine/game-dsl/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/engine/application/GameUiRuntime.kt`.
+`awake/engine/game-authoring/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/engine/application/GameUiRuntime.kt`.
 F3 is mapped to `Key.F3` in both input backends -- GLFW (desktop,
 `awake/backend/vulkan/src/desktopMain/kotlin/io/github/ronjunevaldoz/awake/vulkan/application/GlfwInputBridge.kt`)
 and DOM keyboard events (wasmJs,

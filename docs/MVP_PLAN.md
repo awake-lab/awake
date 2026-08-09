@@ -1505,9 +1505,9 @@ Base: [graphyn-editor](https://github.com/ronjunevaldoz/graphyn-editor) (Compose
 
 **Correction (2026-08-03):** this section previously described a placeholder pending D2.
 D2 has since been decided and shipped (option 2, custom Kotlin DSL — see D2 below); the
-placeholder candidate shape below is superseded by the real `awake:scene-dsl` module
+placeholder candidate shape below is superseded by the real `awake:scene:authoring` module
 (`AwakeSceneDsl.kt`, `SceneNodeDsl.kt`, `SceneTransformDsl.kt`, `SceneCameraDsl.kt`,
-`SceneLightDsl.kt`, `SceneDocumentDsl.kt`) plus `awake:engine:game-dsl`'s `game { ... }`/
+`SceneLightDsl.kt`, `SceneDocumentDsl.kt`) plus `awake:engine:game-authoring`'s `game { ... }`/
 `gameSpec { ... }` entrypoint. Left as-is below for history.
 
 Placeholder until D2 is decided. Candidate shape:
@@ -1523,7 +1523,7 @@ fun GameScene() {
 ```
 
 - [x] Decide layer: Compose runtime reuse vs. custom DSL (D2) — **custom DSL**, see D2
-- [x] Prototype: declarative tree → ECS world diffing — shipped as `awake:scene-dsl`
+- [x] Prototype: declarative tree → ECS world diffing — shipped as `awake:scene:authoring`
       (`sceneGame { ... }`) building `SceneGameSpec`, no incremental diffing (matches D2's
       option 2 tradeoff: rebuild, not recomposition)
 - [ ] State-driven updates (`remember`, `mutableStateOf` interop) — not applicable; option 2

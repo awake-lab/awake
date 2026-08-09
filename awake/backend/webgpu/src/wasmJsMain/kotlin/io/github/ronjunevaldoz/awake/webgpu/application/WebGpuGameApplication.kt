@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.webgpu.application
 
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.engine.application.Game
-import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
 import io.github.ronjunevaldoz.awake.engine.application.GameApplication
+import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
@@ -27,7 +27,7 @@ import io.ygdrasil.webgpu.GPUPrimitiveTopology
  * (`main.kt`) resolves it via `canvasContextRenderer()` + `surface.configure()` in its own
  * coroutine before calling `create`, since that resolution is itself `suspend`.
  */
-class WebGpuGameApplication(
+open class WebGpuGameApplication(
     vertexShaderResourcePath: String,
     fragmentShaderResourcePath: String,
     vertexFormat: VertexFormat = VertexFormat.PositionColorUv,

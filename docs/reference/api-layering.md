@@ -38,9 +38,9 @@ Current intended split:
 | `Camera`, `Light`, `MeshRenderer` | Scene rendering | `:awake:scene:rendering` via `:awake:scene` facade | Render-facing scene components stay out of the tiny scene core |
 | `SceneGameRuntime` | Scene core | `:awake:scene:runtime` via `:awake:scene` facade | Owns scene lifecycle and game-loop integration |
 | `SceneSystemPhase` | Scene core | `:awake:scene:runtime` via `:awake:scene` facade | Scheduling belongs to the scene runtime, not the ECS core |
-| `fixedSystem(...)` / `frameSystem(...)` | Helper/sugar | `:awake:scene-dsl` | Friendly explicit registration for scene runtime phases |
-| `cameraEntity(...)` / `meshEntity(...)` | Sugar | `:awake:scene-dsl` | Authoring convenience for common scene shapes |
-| `scene { ... }` / `assets { ... }` | Sugar | `:awake:scene-dsl` | Declarative authoring surface |
+| `fixedSystem(...)` / `frameSystem(...)` | Helper/sugar | `:awake:scene:authoring` | Friendly explicit registration for scene runtime phases |
+| `cameraEntity(...)` / `meshEntity(...)` | Sugar | `:awake:scene:authoring` | Authoring convenience for common scene shapes |
+| `scene { ... }` / `assets { ... }` | Sugar | `:awake:scene:authoring` | Declarative authoring surface |
 
 Design credit: Awake's system model is Ashley-like in spirit, but with a
 Bevy/Unity/Flecs-style separation. Systems describe behavior; schedules decide when that
@@ -135,7 +135,7 @@ Likely future shape:
   (depends on TransformSystem's package, unaffected by which module physically holds it,
   but not worth moving before its planned removal).
 
-:awake:scene-dsl or :awake:scene:authoring
+:awake:scene:authoring or :awake:scene:authoring
   Declarative authoring sugar and demo-friendly builders. Depends on
   :awake:scene:core/:rendering/:controls/:runtime directly, not the :awake:scene facade
   (Phase 5). Owns the DSL registration helpers for those systems (playerInputSystem(),

@@ -137,12 +137,12 @@ That keeps:
 
 The cookbook examples above are backed by executable tests and a generated report:
 
-- [awake/engine/game-dsl/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/engine/application/GameDslTutorialDocsTest.kt](/Users/ronvaldoz/StudioProjects/awaken/awake/engine/game-dsl/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/engine/application/GameDslTutorialDocsTest.kt:1)
-- `awake/engine/game-dsl/build/reports/game-dsl-tutorials/index.html`
+- [awake/engine/game-authoring/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/engine/application/GameDslTutorialDocsTest.kt](/Users/ronvaldoz/StudioProjects/awaken/awake/engine/game-authoring/src/desktopTest/kotlin/io/github/ronjunevaldoz/awake/engine/application/GameDslTutorialDocsTest.kt:1)
+- `awake/engine/game-authoring/build/reports/game-dsl-tutorials/index.html`
 - [samples/starter-game/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/sample/startergame/app/StarterGameTest.kt](/Users/ronvaldoz/StudioProjects/awaken/samples/starter-game/src/commonTest/kotlin/io/github/ronjunevaldoz/awake/sample/startergame/app/StarterGameTest.kt:1)
 
 Regenerate with:
 
 ```bash
-./gradlew :awake:engine:game-dsl:desktopTest :awake:engine:game-dsl:gameDslTutorialDocsReport
+./gradlew :awake:engine:game-authoring:desktopTest :awake:engine:game-authoring:gameDslTutorialDocsReport
 ```

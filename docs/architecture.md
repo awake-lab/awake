@@ -26,10 +26,10 @@ flowchart TD
     scenePhysics["awake:scene:physics"]
     sceneRendering["awake:scene:rendering"]
     sceneRuntime["awake:scene:runtime"]
-    sceneDsl["awake:scene-dsl"]
+    sceneDsl["awake:scene:authoring"]
     render["awake:engine:render-api"]
     game["awake:engine:game"]
-    gameDsl["awake:engine:game-dsl"]
+    gameDsl["awake:engine:game-authoring"]
     physicsApi["awake:physics:api"]
     jolt["awake:backend:jolt"]
     uiCore["awake:engine:ui:ui-core"]
@@ -98,10 +98,10 @@ flowchart TD
 | `:awake-scene:rendering` | Render-facing scene components and systems: `Camera`, `Light`, `MeshRenderer`, `RenderSystem` | not published |
 | `:awake-scene:controls` | Reusable camera/movement control components and systems: `CameraComponent` (with its `CameraMode` enum) plus the `ActiveCamera` tag, `MovementControl`, and the `CameraSystem`, `CameraInputSystem`, `MatrixRelativeMovementSystem`, `PlayerInputSystem` systems | not published |
 | `:awake-scene:runtime` | `SceneGameRuntime`/`SceneGameSpec`/`SceneRouterSpec`, the scene document model (`SceneDocument`, `SceneLoader`, `SceneValidator`, `SceneInstantiationAdapter`), and `SceneAssetLibrary` -- moved as one unit since `SceneGameSpec` couples the runtime and document model directly | not published |
-| `:awake-scene-dsl` | Authored scene DSL (`sceneGame { ... }`, entities/assets/systems) on top of the scene leaf modules (`core`/`rendering`/`controls`/`runtime`), not the `awake:scene` facade | not published |
+| `:awake-scene-authoring` | Authored scene DSL (`sceneGame { ... }`, entities/assets/systems) on top of the scene leaf modules (`core`/`rendering`/`controls`/`runtime`), not the `awake:scene` facade | not published |
 | `:awake-backend:vulkan` | Vulkan KMP bindings and JNI bridge | `awake-vulkan` |
 | `:awake-engine:game` | Backend-neutral game bootstrap and runtime glue | not published |
-| `:awake-engine:game-dsl` | Authored `game { ... }`/`gameSpec { ... }` entrypoint for assembling a game from `awake:engine:game` contracts | not published |
+| `:awake-engine:game-authoring` | Authored `game { ... }`/`gameSpec { ... }` entrypoint for assembling a game from `awake:engine:game` contracts | not published |
 | `:awake-engine:render-api` | Renderer-facing abstractions and draw orchestration | not published |
 | `:awake-physics:api` | Backend-agnostic physics contracts: `PhysicsWorld`, `BodyHandle`, `BodyTransform`, `PhysicsShape`, `MotionType`, `RaycastHit` | not published |
 | `:awake-backend:jolt` | Jolt Physics binding (JNI on desktop/Android via `jolt-jni`, JoltC cinterop on iOS) implementing `awake:physics:api` | not published |

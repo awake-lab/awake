@@ -11,7 +11,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "io.github.ronjunevaldoz.awake.engine.application.dsl"
+        namespace = "io.github.ronjunevaldoz.awake.engine.application.authoring"
     }
 
     sourceSets {
@@ -98,7 +98,7 @@ tasks.register("gameDslTutorialDocsReport") {
         val body = if (cards.isBlank()) {
             """
             <p>No game DSL tutorials recorded.</p>
-            <p>Run <code>./gradlew :awake:engine:game-dsl:desktopTest</code> to regenerate them.</p>
+            <p>Run <code>./gradlew :awake:engine:game-authoring:desktopTest</code> to regenerate them.</p>
             """.trimIndent()
         } else {
             """
@@ -186,7 +186,7 @@ tasks.register("uiDslTutorialDocsReport") {
         val body = if (cards.isBlank()) {
             """
             <p>No UI DSL tutorial snapshots recorded.</p>
-            <p>Run <code>./gradlew :awake:engine:game-dsl:desktopTest</code> to regenerate them.</p>
+            <p>Run <code>./gradlew :awake:engine:game-authoring:desktopTest</code> to regenerate them.</p>
             """.trimIndent()
         } else {
             """

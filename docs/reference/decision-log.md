@@ -17,9 +17,9 @@ silently adding a general-purpose ECS library.
 ### D2 — Compose-style scene API
 **Correction (2026-08-03):** this entry was left marked "OPEN — under discussion" after the
 decision had already shipped in code. **Decided: option 2, custom Kotlin DSL.** Real,
-tested modules exist: `awake:scene-dsl` (`AwakeSceneDsl.kt`, `SceneNodeDsl.kt`,
+tested modules exist: `awake:scene:authoring` (`AwakeSceneDsl.kt`, `SceneNodeDsl.kt`,
 `SceneTransformDsl.kt`, `SceneCameraDsl.kt`, `SceneLightDsl.kt`, `SceneDocumentDsl.kt` —
-`sceneGame { ... }` builder syntax over `awake:scene`) and `awake:engine:game-dsl`
+`sceneGame { ... }` builder syntax over `awake:scene`) and `awake:engine:game-authoring`
 (`game { ... }`/`gameSpec { ... }` entrypoint over `awake:engine:game`). No Compose runtime
 dependency, no incremental recomposition — matches option 2's known tradeoff exactly
 (rebuild/manual diff, not diffing). See Phase 7 above for the checklist reconciliation.

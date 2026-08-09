@@ -8,7 +8,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "io.github.ronjunevaldoz.awake.scene.dsl"
+        namespace = "io.github.ronjunevaldoz.awake.scene.authoring"
     }
 
     sourceSets {
@@ -22,7 +22,7 @@ kotlin {
             api(project(":awake:scene:rendering"))
             api(project(":awake:scene:controls"))
             api(project(":awake:scene:runtime"))
-            api(project(":awake:engine:game-dsl"))
+            api(project(":awake:engine:game-authoring"))
             api(project(":awake:engine:ui:ui-core"))
             implementation(libs.kotlinx.serialization.json)
         }

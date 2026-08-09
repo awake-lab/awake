@@ -10,9 +10,9 @@ Keep the pleasant builder syntax without hiding the real reusable contracts.
 
 | Module | Owns | Depends on |
 |---|---|---|
-| `awake:engine:game-dsl` | `game {}` / `gameSpec {}` / `gameModule {}` / `feature.createGame {}` / installer syntax | `awake:engine:game` |
-| `awake:scene-dsl` | `sceneGame {}`, `flow {}`, `sceneFlow {}`, and `game/module { ecs { ... } }` | `awake:scene`, `awake:engine:game-dsl`, `awake:engine:ui-dsl` |
-| `awake:engine:ui-dsl` | `gameUi {}`, `game/module { ui { ... } }`, responsive overlay authoring through `overlayBox(...)` + `UiBoxConstraints`, shell helpers like `shellPane(...)` / `overlayShell(...)`, and neutral property-form composition | `awake:engine:game-dsl`, `ui-core`, `ui-headless` |
+| `awake:engine:game-authoring` | `game {}` / `gameSpec {}` / `gameModule {}` / `feature.createGame {}` / installer syntax | `awake:engine:game` |
+| `awake:scene:authoring` | `sceneGame {}`, `flow {}`, `sceneFlow {}`, and `game/module { ecs { ... } }` | `awake:scene`, `awake:engine:game-authoring`, `awake:engine:ui-dsl` |
+| `awake:engine:ui-dsl` | `gameUi {}`, `game/module { ui { ... } }`, responsive overlay authoring through `overlayBox(...)` + `UiBoxConstraints`, shell helpers like `shellPane(...)` / `overlayShell(...)`, and neutral property-form composition | `awake:engine:game-authoring`, `ui-core`, `ui-headless` |
 
 ## Recommended Authoring Shape
 
@@ -54,9 +54,9 @@ val game = feature.createGame {
 
 That keeps:
 
-- `game-dsl` as the single top-level game shell
+- `game authoring` as the single top-level game shell
 - `gameModule {}` as the reusable authored feature layer
-- `scene-dsl` focused on scene authoring
+- `scene-authoring` focused on scene authoring
 - `ui-dsl` focused on overlay authoring, responsive box-style composition, and reusable shell composition
 
 ## When To Use Specs Directly

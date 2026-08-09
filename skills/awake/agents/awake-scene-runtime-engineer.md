@@ -2,7 +2,7 @@
 name: awake-scene-runtime-engineer
 description: >
   Use this agent for work on Awake's scene runtime and scene-facing DSL layers —
-  `awake:scene`, `awake:scene-dsl`, scene composition, serialization boundaries, and
+  `awake:scene`, `awake:scene:authoring`, scene composition, serialization boundaries, and
   sample scene structure. Reach for it when the task is about authored scene structure
   rather than low-level rendering or ECS storage internals.
 tools: Read, Edit, Write, Bash, Grep, Glob
@@ -21,7 +21,7 @@ You work on Awake's scene-facing runtime surfaces. Read
 ## Owns
 
 - `awake:scene`
-- `awake:scene-dsl`
+- `awake:scene:authoring`
 - scene composition patterns in shared modules
 - scene serialization/runtime boundaries
 

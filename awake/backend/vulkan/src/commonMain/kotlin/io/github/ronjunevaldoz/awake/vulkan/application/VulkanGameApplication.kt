@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.vulkan.application
 
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.engine.application.Game
-import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
 import io.github.ronjunevaldoz.awake.engine.application.GameApplication
+import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
@@ -30,7 +30,7 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.ShadowMap
  * behavior via the injected [game] (`Game.ready(renderer)`/`Game.render(...)`) -- this class
  * only builds/tears down Vulkan's GPU resources, it never knows what the game actually draws.
  */
-class VulkanGameApplication(
+open class VulkanGameApplication(
     vertexShaderResourcePath: String,
     fragmentShaderResourcePath: String,
     vertexFormat: VertexFormat = VertexFormat.PositionColorUv,

@@ -310,7 +310,7 @@ Awake also build-enforces authored-unit usage in:
 
 - `:awake:engine:ui:ui-headless`
 - `:awake:engine:ui:ui-designsystem`
-- `:awake:engine:game-dsl`
+- `:awake:engine:game-authoring`
 - `:samples:ui-showcase`
 
 Those modules run `verifyUiAuthoredUnits`, which currently rejects numeric `.px` literals in

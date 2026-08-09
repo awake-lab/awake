@@ -1,12 +1,12 @@
 ---
 name: awake-ecs-scene-runtime
 description: >
-  How to consume Awake's real ECS (awake-ecs + awake-scene + awake-scene-dsl) from a
+  How to consume Awake's real ECS (awake-ecs + awake-scene + awake-scene-authoring) from a
   game or sample -- World/Entity/component basics, the sceneGame{}/GameModuleDsl.scene{}
   DSL surface, when to reach for SceneGameRuntime instead of GameUiRuntime (and why they
   don't compose inside one demo), and the TransformSystem-overwrites-worldMatrix trap.
   This is a how-to reference for consuming the ECS, distinct from the awake-ecs-performance-engineer
-  and awake-scene-runtime-engineer personas (which guide work ON the ECS/scene-dsl internals
+  and awake-scene-runtime-engineer personas (which guide work ON the ECS/scene-authoring internals
   themselves).
 license: Apache-2.0
 metadata:
@@ -34,7 +34,7 @@ all.
 
 **Trigger keywords:** ECS, World, Entity, spawn entity, SceneGameRuntime, sceneGame,
 GameModuleDsl.scene, RenderSystem, TransformSystem, MeshRenderer, real 3D scene, awake-scene,
-awake-scene-dsl, GameUiRuntime vs SceneGameRuntime.
+awake-scene-authoring, GameUiRuntime vs SceneGameRuntime.
 
 ---
 
@@ -46,7 +46,7 @@ independent per-frame passes, not one integrated one (see `SceneGameDslTest.game
 the only place they've ever coexisted, which installs `scene{}` and `ui{}` as two *sibling*
 `GameModule`s, not one runtime doing both).
 
-| | `GameUiRuntime` (`engine/game-dsl`) | `SceneGameRuntime` (`awake:scene` + `awake:scene-dsl`) |
+| | `GameUiRuntime` (`engine/game-authoring`) | `SceneGameRuntime` (`awake:scene` + `awake:scene:authoring`) |
 |---|---|---|
 | Owns | `UiContext` only, no `World` | `UiContext` **and** a real `World` |
 | 3D content | Only via `provideDrawCalls` escape hatch (a lambda a demo sets to smuggle one `Camera`+`List<DrawCall>` into the runtime's one `renderer.draw()` call) | Real ECS entities -- `RenderSystem` walks `world.family<Transform, MeshRenderer>()` every frame and calls `renderer.draw()` itself |
@@ -138,8 +138,8 @@ fun myGameModule(): GameModule = gameModule {
 Other entry points: `entity(name) { transform { } ; meshRenderer(mesh = "x", material = "y") }`
 for declaratively-authored scene documents, `assets { mesh("x") { renderer.createMesh(...) } }`
 for a named mesh/material library resolved lazily by name, `cameraEntity(...)`/`meshEntity(...)`
-sugar (`awake-scene-dsl`'s `EntityExtensions.kt`) for the common camera/mesh entity shapes. Real
-signatures live in `awake/scene-dsl/.../runtime/SceneGameDsl.kt` -- read it before guessing a
+sugar (`awake-scene-authoring`'s `EntityExtensions.kt`) for the common camera/mesh entity shapes. Real
+signatures live in `awake/scene/authoring/.../runtime/SceneGameDsl.kt` -- read it before guessing a
 DSL method exists; it's a small, closed surface, not an open-ended builder.
 
 ---
@@ -278,9 +278,9 @@ for a sample-level example built on it):
 
 - `awake-ecs-performance-engineer` -- persona for working ON `awake-ecs`'s own storage/query
   internals (entity arena, component pools, family indexing), not for consuming it from a game
-- `awake-scene-runtime-engineer` -- persona for working ON `awake-scene`/`awake-scene-dsl`
+- `awake-scene-runtime-engineer` -- persona for working ON `awake-scene`/`awake-scene-authoring`
   themselves (new components, new systems, DSL surface changes)
-- `awake-game-framework-engineer` -- persona for `GameUiRuntime`/`engine`/`game-dsl` itself
+- `awake-game-framework-engineer` -- persona for `GameUiRuntime`/`engine`/`game authoring` itself
 
 ---
 

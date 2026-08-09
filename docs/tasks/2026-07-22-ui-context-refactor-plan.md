@@ -33,9 +33,9 @@ Validation snapshot:
 
 - `:awake:engine:ui:ui-core:compileKotlinDesktop` passes
 - `:awake:engine:ui:ui-headless:compileKotlinDesktop` passes
-- `:awake:engine:game-dsl:compileKotlinDesktop` passes
+- `:awake:engine:game-authoring:compileKotlinDesktop` passes
 - `:awake:scene:compileKotlinDesktop` passes
-- `:awake:scene-dsl:compileTestKotlinDesktop` still fails, but the remaining failures are
+- `:awake:scene:authoring:compileTestKotlinDesktop` still fails, but the remaining failures are
   in older `SceneDslTest` API drift rather than in the `UiContext` split itself
 
 ## Why This Needs A Plan
@@ -297,7 +297,7 @@ competing split.
 - `:awake:engine:ui:ui-headless:commonTest`
 - `:awake:engine:ui-dsl:commonTest`
 - `:awake:engine:ui:ui-designsystem:commonTest`
-- `:awake:engine:game-dsl:commonTest`
+- `:awake:engine:game-authoring:commonTest`
 - `:samples:ui-showcase:commonTest`
 - targeted `desktopTest` where frame output or text-input focus behavior changes
 
