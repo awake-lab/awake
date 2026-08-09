@@ -22,6 +22,9 @@ import io.github.ronjunevaldoz.awake.ui.scope.isFocused
 import io.github.ronjunevaldoz.awake.ui.scope.requestFocus
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.otpActiveSlotIndex
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.otpDigitsOnly
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.otpShowsSeparatorBefore
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 /**
@@ -51,6 +54,7 @@ fun UiScope.shadcnInputOTP(
     val focused = enabled && isFocused(id)
     val shadcnResolvedTheme = theme.asShadcnTheme()
     val palette = shadcnResolvedTheme.palette
+    val activeSlotIndex = otpActiveSlotIndex(focused, resultValue.length, length)
 
     box(modifier = modifier.height(40f.dp)) {
         // 1. Visual slot row drawn FIRST (z-order 0). Each slot:
@@ -63,14 +67,13 @@ fun UiScope.shadcnInputOTP(
             modifier = Modifier.fillMaxWidth().height(40f.dp),
         ) {
             for (i in 0 until length) {
-                if (groupSize > 0 && i > 0 && i % groupSize == 0) {
+                if (otpShowsSeparatorBefore(i, groupSize)) {
                     // Separator between groups (e.g. "123 - 456")
                     text("-", color = palette.mutedForeground)
                 }
 
                 val char = resultValue.getOrNull(i)?.toString() ?: ""
-                // Active slot = the slot that would receive the next character
-                val isActiveSlot = focused && i == resultValue.length.coerceAtMost(length - 1)
+                val isActiveSlot = i == activeSlotIndex
                 val slotBorderColor = when {
                     isError -> palette.destructive
                     isActiveSlot -> palette.ring
@@ -129,7 +132,7 @@ fun UiScope.shadcnInputOTP(
             },
         )
 
-        val digitsOnly = rawInput.filter { it.isDigit() }.take(length)
+        val digitsOnly = otpDigitsOnly(rawInput, length)
         if (digitsOnly != value) {
             resultValue = digitsOnly
             onValueChange(resultValue)
