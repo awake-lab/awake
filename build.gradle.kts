@@ -30,12 +30,35 @@ plugins {
     alias(libs.plugins.vanniktech.publish) apply false
 }
 
+// Version comes from the latest v* git tag, so publishing is "tag + push" and the
+// number can never drift from the tag:
+//   HEAD exactly on v0.1.0-dev.1  ->  0.1.0-dev.1          (publishable, immutable)
+//   3 commits after that tag      ->  0.1.0-dev.2-SNAPSHOT (local/CI only, never released)
+//   no tag reachable              ->  0.1.0-dev.0-SNAPSHOT
+val gitDerivedVersion: String = run {
+    val describe = runCatching {
+        providers.exec {
+            commandLine("git", "describe", "--tags", "--match", "v*")
+        }.standardOutput.asText.get().trim()
+    }.getOrDefault("")
+    val exact = Regex("""^v(.+?)-(\d+)-g[0-9a-f]+$""").find(describe)
+    when {
+        describe.isEmpty() -> "0.1.0-dev.0-SNAPSHOT"
+        exact == null -> describe.removePrefix("v")
+        else -> {
+            val base = exact.groupValues[1]
+            val bumped = Regex("""(\d+)$""").replace(base) { (it.value.toInt() + 1).toString() }
+            "$bumped-SNAPSHOT"
+        }
+    }
+}
+
 allprojects {
     // Maven namespace: verified through the awake-lab GitHub org, no domain dependency.
     // Packages keep io.github.ronjunevaldoz until the one pre-publish rename pass (they
     // become io.github.awakelab.* -- hyphens are legal in a groupId, illegal in a package).
     group = "io.github.awake-lab"
-    version = "0.1.0-SNAPSHOT"
+    version = gitDerivedVersion
 }
 
 tasks.register("developerDocs") {
