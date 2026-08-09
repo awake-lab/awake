@@ -34,7 +34,7 @@ widen unnoticed — the goal is an empty map.
 
 ```bash
 python3 tools/capture_font_reference.py
-./gradlew :awake:engine:ui:ui-headless:desktopTest --tests "*FontBaselineFidelityTest*"
+./gradlew :awake:engine:ui:headless:desktopTest --tests "*FontBaselineFidelityTest*"
 ```
 
 ## Shadcn parity
@@ -83,7 +83,7 @@ Heroicons SVG it was generated from, automatically -- see `skills/awake-icon-aut
 ```bash
 python3 tools/capture_heroicons_reference.py                    # re-capture every reference
 python3 tools/capture_heroicons_reference.py --only chevron-down,camera
-./gradlew :awake:engine:ui:ui-headless:desktopTest --tests "*IconFidelityTest*"
+./gradlew :awake:engine:ui:headless:desktopTest --tests "*IconFidelityTest*"
 ```
 
 `IconFidelityTest` (`awake/engine/ui/ui-headless/src/desktopTest/`) renders each icon through

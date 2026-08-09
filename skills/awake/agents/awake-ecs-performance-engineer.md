@@ -169,7 +169,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":awake:base"))            // Mat4/Vec3/Camera
-            implementation(project(":awake:engine:render-api")) // Renderer/DrawCall
+            implementation(project(":awake:engine:render:contract")) // Renderer/DrawCall
             implementation(project(":awake:backend:vulkan"))  // Mesh/Material (MeshRenderer only)
         }
         commonTest.dependencies {
@@ -183,9 +183,9 @@ Register it in root `settings.gradle.kts` next to the other `include(...)` lines
 `include(":awake:ecs")`.
 
 **Dependency direction check**: `:awake:ecs` depends on `:awake:base` (for math/`Camera`),
-`:awake:engine:render-api` (for `Renderer`/`DrawCall`), and `:awake:backend:vulkan` (for
+`:awake:engine:render:contract` (for `Renderer`/`DrawCall`), and `:awake:backend:vulkan` (for
 `Mesh`/`Material`) — same direction `:awake:backend:vulkan` already depends on
-`:awake:engine:render-api`, so no cycle. Don't add an `:awake:ecs` dependency back into any
+`:awake:engine:render:contract`, so no cycle. Don't add an `:awake:ecs` dependency back into any
 of those modules.
 
 ## Benchmark module

@@ -118,7 +118,7 @@ kotlin {
             // instead of all of awake-backend-vulkan's concrete Vulkan bindings. `api`, not
             // `implementation`, since consumers reaching these types through awake-backend-vulkan
             // (e.g. VulkanApplication.kt) need them visible too.
-            api(project(":awake:engine:render-api"))
+            api(project(":awake:engine:render:contract"))
             // Reusable-Application gap fix (see docs/MVP_PLAN.md's Decision Log):
             // VulkanGameApplication implements the Application interface (awake-engine) and
             // owns generic scene loading/TransformSystem/RenderSystem wiring (awake-scene) so
@@ -137,13 +137,13 @@ kotlin {
             implementation(kotlin("test"))
             // Headless-renderer pixel-baseline regression test (desktopTest only, see
             // RendererHeadlessPixelBaselineTest) needs comparePixels().
-            implementation(project(":awake:engine:ui:ui-testing"))
+            implementation(project(":awake:engine:ui:testing"))
             // Real-widget real-render investigations (see UiAnimationFrameCapture /
             // ShadcnCollapsibleRealRenderCollapseFrameCaptureTest, desktopTest only) need
             // actual shadcn widgets (shadcnSidebar/shadcnCollapsible), not just raw
             // UiDrawPrimitives -- test-only, no cycle (ui-designsystem doesn't depend on this
             // module).
-            implementation(project(":awake:engine:ui:ui-designsystem"))
+            implementation(project(":awake:engine:ui:designsystem"))
         }
         androidMain.dependencies {
             // CMake/NDK build + bundled validation layers (AGP 9 KMP plugin

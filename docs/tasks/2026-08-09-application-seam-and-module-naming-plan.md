@@ -212,9 +212,9 @@ backend **selection and configuration** duplication, not the platform bootstrap 
 | Pattern in use | Correct examples | Where it breaks |
 |---|---|---|
 | Colon-nest by domain | `scene:core`, `scene:controls`, `scene:physics`, `scene:rendering`, `scene:runtime` | `scene-dsl` is hyphenated and a *sibling* of `scene`, not nested under it, despite being the same domain |
-| Leaf states what's different | `backend:vulkan`, `backend:webgpu`, `backend:jolt` | `engine:ui:ui-core` repeats the parent segment's name in the leaf — says "ui" twice |
+| Leaf states what's different | `backend:vulkan`, `backend:webgpu`, `backend:jolt` | `engine:ui:ui-core` repeats the parent segment's name in the leaf — says "ui" twice (diagnosis stands; see "Leaf-name collision" below for why the fix keeps the hyphen anyway) |
 | Colon-nest a sub-boundary | `backend:vulkan:android-native` | `backend:vulkan-generator` hyphenates instead of `backend:vulkan:generator` |
-| `domain:api` for a neutral contract + backend implementations | `physics:api` (+ `backend:jolt` implementing it) | `engine:render-api` hyphenates the same shape instead of `engine:render:api` — confirmed via `backend:vulkan`/`backend:webgpu` both declaring `api(project(":awake:engine:render-api"))`, i.e. it is genuinely the same `domain:api` relationship as physics, just spelled differently |
+| `domain:api` for a neutral contract + backend implementations | `physics:api` (+ `backend:jolt` implementing it) | `engine:render-api` hyphenates the same shape — genuinely the same `domain:api` relationship as physics, confirmed via `backend:vulkan`/`backend:webgpu` both declaring `api(project(":awake:engine:render-api"))` (diagnosis stands; see below for why the fix isn't `render:api`) |
 
 One rule replaces all four: **colon-nest by domain, never hyphenate a domain boundary; a leaf
 segment names what's different about it, never repeats an ancestor's name.**
@@ -230,12 +230,12 @@ times is the pattern working correctly, not duplication.
 | Current path | New path |
 |---|---|
 | `awake:scene-dsl` | `awake:scene:dsl` |
-| `awake:engine:ui:ui-core` | `awake:engine:ui:core` |
+| `awake:engine:ui:ui-core` | **unchanged — `ui-core` stays.** See "Leaf-name collision" below. |
 | `awake:engine:ui:ui-headless` | `awake:engine:ui:headless` |
 | `awake:engine:ui:ui-designsystem` | `awake:engine:ui:designsystem` |
 | `awake:engine:ui:ui-testing` | `awake:engine:ui:testing` |
 | `awake:backend:vulkan-generator` | `awake:backend:vulkan:generator` |
-| `awake:engine:render-api` | `awake:engine:render:api` |
+| `awake:engine:render-api` | `awake:engine:render:contract` (not `render:api` — see below) |
 | *(new)* | `awake:engine:app` — the `AwakeApplication` module; not `awake:X` since "awake" already names the whole project, and `app` states its actual job (assembles a runnable at the top of the graph) |
 
 Scope decision: apply the **full table**, not a partial subset limited to what `AwakeApplication`
@@ -244,6 +244,41 @@ touches. Reasoning: this is a Gradle path rename only (every `include(...)` line
 paths change or 8, and leaving `ui-core`/`ui-designsystem` inconsistent while fixing
 `render-api` next to them would recreate exactly the "why is this one different" confusion that
 started this conversation.
+
+### Leaf-name collision — discovered during implementation, changes two entries above
+
+Implementing this table exposed a real Gradle constraint the naming rule didn't account for:
+every subproject carries an implicit default *component identity* of `group:project.name:version`,
+where `project.name` is the **path leaf only** — independent of the full colon-nested path, and
+independent of whether any publish plugin is even applied to that module (confirmed via
+`./gradlew :module:outgoingVariants`, which prints this "default capability" for every
+subproject regardless). Two subprojects sharing a leaf name collide on that identity, and
+Gradle's dependency-graph conflict resolution silently substitutes one for the other on any
+classpath that reaches both — a real compile failure
+(`awake:scene:controls` failed to resolve `UiInputOwnership` because Gradle substituted
+`:awake:engine:ui:core` with `:awake:scene:core` — same leaf, `core`), not a cosmetic risk.
+
+Renaming `engine:ui:ui-core` → `engine:ui:core` collided with the pre-existing `:awake:scene:core`.
+Renaming `engine:render-api` → `engine:render:api` collided with the pre-existing
+`:awake:physics:api`.
+
+An attempted middle-ground fix — adding an explicit `outgoing.capability(...)` to just the new
+leaf, so the naming rule could stay as originally written — was tried and directly disproven:
+Gradle's implicit default identity is not replaced by an additional declared capability, only
+supplemented, so the collision persisted (`./gradlew :awake:scene:controls:dependencies
+--configuration desktopCompileClasspath` still showed the same substitution after the change).
+The only Gradle-native way to change that identity is changing `project.name` itself, which
+cascades into the project's full path (a project's path is its ancestors' names concatenated,
+not independent of them) — at that point it's the same amount of work as just picking a
+non-colliding leaf in the first place, with none of the risk of relying on unfamiliar capability
+internals.
+
+**Amended rule**, added as a second clause: leaf names must be unique **across the entire module
+tree**, not just against their own immediate parent. `ui-core` and `render-api`'s hyphens stay
+(or, for `render-api`, becomes `render:contract` — colon-nested, but with a leaf word that
+doesn't collide with `physics:api`) specifically because the domain-neutral word each would
+otherwise take (`core`, `api`) is already claimed elsewhere in the tree. This is judged a smaller
+inconsistency than a build that silently resolves the wrong module.
 
 This table is the *rename* list — existing modules getting a new path. Part 3 below adds one
 more new module (`awake:backend:vulkan:bindings`) that isn't a rename of anything, so it isn't
@@ -308,7 +343,7 @@ awake:backend:vulkan:bindings   NEW — raw generated API only
 awake:backend:vulkan            renamed target of today's module — Awake's renderer
     renderer/, application/, pipeline/, swapchain/, device/, commands/,
     material/, mesh/, texture/, debug/, ui/
-    depends on: bindings (above), engine:render:api, engine:app (game/application layer)
+    depends on: bindings (above), engine:render:contract, engine:app (game/application layer)
     (the awake:scene dependency found in Part 1's investigation is dead -- removed here,
     not carried into either new module)
 

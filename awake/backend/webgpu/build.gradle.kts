@@ -44,7 +44,7 @@ kotlin {
             implementation(project(":awake:base"))
             // Mesh/Material/Renderer implement the same narrow backend-neutral interfaces
             // awake-backend-vulkan's do -- see awake-engine-render-api's module doc.
-            api(project(":awake:engine:render-api"))
+            api(project(":awake:engine:render:contract"))
             // Reusable-Application gap fix (see docs/MVP_PLAN.md's Decision Log): same
             // reasoning as awake-backend-vulkan's VulkanGameApplication -- see that
             // module's build.gradle.kts comment.

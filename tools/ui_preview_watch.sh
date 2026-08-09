@@ -17,7 +17,7 @@ REPORT_DIR="build/reports/ui-component-lookup"
 
 ./gradlew \
     :samples:ui-showcase:desktopTest --tests "*UiShowcasePreviewDocsTest*" \
-    :awake:engine:ui:ui-headless:desktopTest --tests "*UiSnapshotTest*" \
+    :awake:engine:ui:headless:desktopTest --tests "*UiSnapshotTest*" \
     uiComponentLookupReport \
     --continuous -q &
 GRADLE_PID=$!

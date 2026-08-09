@@ -32,7 +32,7 @@ just spread unclear ownership across more folders.
   (depends on `TransformSystem`, which hasn't split out yet).
 - 2026-08-05: Scene module split Phase 5 (DSL dependency tightening) landed:
   `TransformSystem` moved to `:awake:scene:core`, `PlayerControlSystem` moved into
-  `:awake:scene-dsl` directly (needs `ui-core`). `:awake:scene-dsl` now depends on the
+  `:awake:scene:dsl` directly (needs `ui-core`). `:awake:scene:dsl` now depends on the
   specific `:awake:scene:*` leaf modules it uses instead of the whole `:awake:scene`
   facade -- this completes the module list the split proposal sketched, leaving only
   `NavMesh` and the deprecated `SceneRuntime` bootstrap in `:awake:scene` itself.
@@ -47,7 +47,7 @@ just spread unclear ownership across more folders.
   [docs/reference/decision-log.md](reference/decision-log.md) D11-D13 and the current
   `settings.gradle.kts` (no `awake:core` module exists anymore): `awake-core` split into
   dependency-free `:awake:base` (math/input/glTF/utils), `:awake:backend:opengl`, and
-  `:awake:engine:render-api`; the Vulkan/WebGPU backends physically split into
+  `:awake:engine:render:contract`; the Vulkan/WebGPU backends physically split into
   `:awake:backend:vulkan`/`:awake:backend:webgpu`. This entry and the matching Open
   Questions/Fix Lanes bullets below were stale, written before D11-D13 landed.
 - 2026-08-06: `RotatingCubeDemo` gained a "Camera mode" toggle (Orbit/Follow/Look at),

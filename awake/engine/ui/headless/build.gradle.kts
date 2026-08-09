@@ -21,12 +21,12 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation(project(":awake:engine:ui:ui-testing"))
-            implementation(project(":awake:engine:ui:ui-designsystem"))
+            implementation(project(":awake:engine:ui:testing"))
+            implementation(project(":awake:engine:ui:designsystem"))
         }
         named("desktopTest") {
             dependencies {
-                implementation(project(":awake:engine:ui:ui-designsystem"))
+                implementation(project(":awake:engine:ui:designsystem"))
             }
         }
     }

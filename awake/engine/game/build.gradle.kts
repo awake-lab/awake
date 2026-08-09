@@ -42,7 +42,7 @@ kotlin {
             api(project(":awake:base"))
             // Renderer/LineSegment -- Game.ready(renderer)'s parameter type and
             // drawDebugLines()'s plumbing, nothing scene/ECS-specific.
-            api(project(":awake:engine:render-api"))
+            api(project(":awake:engine:render:contract"))
             implementation(libs.kotlinx.coroutines.core)
         }
         named("androidMain") {

@@ -51,7 +51,7 @@ jobs:
         run: ./gradlew :samples:ui-showcase:desktopJar
 
       - name: Build vulkan generator
-        run: ./gradlew :awake:backend:vulkan-generator:assemble
+        run: ./gradlew :awake:backend:vulkan:generator:assemble
 
   # Runner GPUs aren't available on GitHub-hosted runners, so this uses Mesa's lavapipe
   # (a real, fully-conformant software Vulkan implementation -- not a stub) to run the

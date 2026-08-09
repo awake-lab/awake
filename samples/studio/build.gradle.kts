@@ -30,13 +30,13 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":awake:engine:game-dsl"))
-            implementation(project(":awake:engine:render-api"))
+            implementation(project(":awake:engine:render:contract"))
             implementation(project(":awake:base"))
             implementation(project(":awake:ecs"))
             implementation(project(":awake:scene"))
-            implementation(project(":awake:scene-dsl"))
+            implementation(project(":awake:scene:dsl"))
             implementation(project(":awake:engine:ui:ui-core"))
-            implementation(project(":awake:engine:ui:ui-designsystem"))
+            implementation(project(":awake:engine:ui:designsystem"))
             implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {

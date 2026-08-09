@@ -72,7 +72,7 @@ tasks.register("developerDocs") {
         ":awake:engine:game-dsl:desktopTest",
         ":awake:engine:game-dsl:gameDslTutorialDocsReport",
         ":awake:engine:game-dsl:uiDslTutorialDocsReport",
-        ":awake:engine:render-api:dokkaGeneratePublicationHtml",
+        ":awake:engine:render:contract:dokkaGeneratePublicationHtml",
         ":awake:engine:ui:ui-core:dokkaGeneratePublicationHtml",
         ":awake:engine:ui:ui-designsystem:dokkaGeneratePublicationHtml",
         ":awake:engine:ui:ui-headless:dokkaGeneratePublicationHtml",
@@ -111,7 +111,7 @@ tasks.register("uiComponentLookupReport") {
     )
     val previewManifestFile = project(":samples:ui-showcase").layout.buildDirectory.file("ui-previews/previews.tsv")
     val previewImagesDir = project(":samples:ui-showcase").layout.buildDirectory.dir("ui-previews")
-    val snapshotImagesDir = project(":awake:engine:ui:ui-headless").layout.buildDirectory.dir("ui-snapshots")
+    val snapshotImagesDir = project(":awake:engine:ui:headless").layout.buildDirectory.dir("ui-snapshots")
     val reportFile = layout.buildDirectory.file("reports/ui-component-lookup/index.html")
     doLast {
         // Rows use the same plain List<String> shape ([id, title, group, summary, source,

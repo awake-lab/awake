@@ -114,7 +114,7 @@ Kotlin test would require an illegal cross-module dependency). Instead, a root-l
 both modules' already-generated output after the fact and writes one merged, searchable page:
 
 ```bash
-./gradlew :samples:ui-showcase:desktopTest :awake:engine:ui:ui-headless:desktopTest uiComponentLookupReport
+./gradlew :samples:ui-showcase:desktopTest :awake:engine:ui:headless:desktopTest uiComponentLookupReport
 ```
 
 This regenerates `build/reports/ui-component-lookup/index.html`: every card is tagged with its
@@ -133,7 +133,7 @@ lookup:
 ```bash
 ./gradlew \
     :samples:ui-showcase:desktopTest --tests "*UiShowcasePreviewDocsTest*" \
-    :awake:engine:ui:ui-headless:desktopTest --tests "*UiSnapshotTest*" \
+    :awake:engine:ui:headless:desktopTest --tests "*UiSnapshotTest*" \
     uiComponentLookupReport \
     --continuous
 ```

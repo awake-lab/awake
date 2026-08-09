@@ -13,7 +13,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":awake:scene:core"))
-            api(project(":awake:engine:render-api"))
+            api(project(":awake:engine:render:contract"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

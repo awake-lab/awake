@@ -54,7 +54,7 @@ kotlin {
             // never awake-vulkan's concrete Vulkan bindings -- depending on just the
             // interface module (instead of all of awake-vulkan) is the actual point of this
             // restructuring.
-            api(project(":awake:engine:render-api"))
+            api(project(":awake:engine:render:contract"))
             // PhysicsBody/PhysicsSystem only ever touch the backend-neutral PhysicsWorld
             // contract, never a concrete backend (`awake:backend:jolt`) -- same restructuring
             // rationale as the render-api dependency above.
