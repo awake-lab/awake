@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.contextMenuTrigger
 
 /**
  * Real shadcn's `ContextMenu`: a context menu trigger that listens for secondary clicks (right click)
@@ -23,27 +24,15 @@ fun UiScope.shadcnContextMenu(
     target: UiScope.() -> UiBounds,
 ): UiBounds {
     val bounds = target()
-    val input = context.inputState
-    val state = widgetState(id)
-    val isHovered = input.pointerX >= bounds.x &&
-        input.pointerX <= bounds.x + bounds.width &&
-        input.pointerY >= bounds.y &&
-        input.pointerY <= bounds.y + bounds.height
-
-    if (isHovered && input.secondaryPointerDown) {
-        state.set("clickX", input.pointerX)
-        state.set("clickY", input.pointerY)
-        if (!expanded) {
-            onExpandedChange(true)
-        }
+    val trigger = contextMenuTrigger(id, expanded, bounds)
+    if (trigger.shouldOpen) {
+        onExpandedChange(true)
     }
 
     if (expanded) {
-        val clickX = state.get("clickX", input.pointerX)
-        val clickY = state.get("clickY", input.pointerY)
         val result = shadcnDropdownMenu(
             id = "$id.menu",
-            anchorSlot = UiBounds(clickX, clickY, 0f, 0f),
+            anchorSlot = trigger.anchor,
             expanded = true,
             items = items,
             // A context menu's anchor is the cursor point, not a real control -- it has zero
