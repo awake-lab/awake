@@ -4,6 +4,7 @@ import org.gradle.api.tasks.JavaExec
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("awake.shader-pipeline-convention")
+    id("awake.test-resources-convention")
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
@@ -63,6 +64,14 @@ kotlin {
             }
             resources.srcDir(project(":awake:backend:webgpu").file("src/wasmJsMain/resources"))
         }
+
+        named("wasmJsTest") {
+            // The camera tests preload example assets (scene JSON from commonMain, the
+            // glTF-viewer's model from appMain); only wasmJs source sets' resources reach the
+            // karma server, and neither of those live under one already.
+            resources.srcDir(layout.projectDirectory.dir("src/commonMain/resources"))
+            resources.srcDir(layout.projectDirectory.dir("src/appMain/resources"))
+        }
     }
 }
 
@@ -92,3 +101,9 @@ tasks.register<JavaExec>("run") {
     }
     jvmArgs(jvmArgsList)
 }
+
+awakeTestResources {
+    roots.from(layout.projectDirectory.dir("src/appMain/resources"))
+    roots.from(layout.projectDirectory.dir("src/commonMain/resources"))
+}
+

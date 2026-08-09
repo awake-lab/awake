@@ -217,8 +217,7 @@ awakeTestResources {
 
 // appMain/resources also holds syncAwakeShaders' generated SPIR-V output, so the convention's
 // copy consumes that task's output and must order after it.
-tasks.named("copyIosSimulatorTestResources") { dependsOn("syncAwakeShaders") }
-tasks.named("generateAwakeKarmaTestResources") { dependsOn("syncAwakeShaders") }
+// Ordering now handled centrally by awake.shader-pipeline-convention.
 
 // The playground shell test preloads GltfViewerDemo, whose android actual decodes textures via
 // BitmapFactory -- on the host JVM that's android.jar's stub, which throws "not mocked" (and

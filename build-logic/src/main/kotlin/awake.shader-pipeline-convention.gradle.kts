@@ -42,10 +42,17 @@ tasks.named("check").configure {
     dependsOn(validateAwakeShaders)
 }
 
-// Both spellings exist: KMP targets register *ProcessResources, the Android plugin registers
-// process*JavaRes -- and both consume src/appMain/resources, which syncAwakeShaders writes
-// into. Missing the Android one tripped Gradle's implicit-dependency validation.
-tasks.matching { it.name.endsWith("ProcessResources") || (it.name.startsWith("process") && it.name.endsWith("JavaRes")) }.configureEach {
+// Every consumer of src/appMain/resources (or a directory tree that folds it in, like
+// awake.test-resources-convention's merge Sync) must run after syncAwakeShaders writes into
+// it, or Gradle's implicit-dependency validation fails the build. New consumers keep showing
+// up under different names (*ProcessResources, process*JavaRes, syncAwakeTestResources) --
+// matched by pattern here instead of adding one `dependsOn` per module per new consumer task.
+tasks.matching {
+    it.name.endsWith("ProcessResources") ||
+        (it.name.startsWith("process") && it.name.endsWith("JavaRes")) ||
+        it.name == "syncAwakeTestResources" ||
+        it.name == "copyIosSimulatorTestResources"
+}.configureEach {
     dependsOn(syncAwakeShaders)
 }
 
