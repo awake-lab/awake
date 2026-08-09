@@ -20,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDensity
 
 class VulkanView(
     context: Context,
-    private val application: Application,
+    private val application: WindowApplication,
 ) : SurfaceView(context),
     SurfaceHolder.Callback2 {
 

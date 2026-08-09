@@ -9,10 +9,10 @@ import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
 
 /**
- * Encapsulates exactly what `GenericGameApplication` (`awake-engine-game`) used to do for
+ * Encapsulates exactly what `GameApplication` (`awake-engine-game`) used to do for
  * scene handling -- [World]/[SceneInstance] loading, [TransformSystem]/[RenderSystem]
  * driving -- as a plain class a game constructs and drives itself (see docs/MVP_PLAN.md's
- * Decision Log, "GenericGameApplication a standalone render bootstrap"). Only takes a
+ * Decision Log, "GameApplication a standalone render bootstrap"). Only takes a
  * [Renderer] (not pre-built mesh/material instances): a caller supplies its own
  * `resolveRenderable` closure that calls `renderer.createMesh(...)`/
  * `renderer.createMaterial(...)` for whatever the scene needs, at [load] time.

@@ -6,7 +6,7 @@ package io.github.ronjunevaldoz.awake.core.graphics.opengl
 
 import io.github.aakira.napier.Napier
 import io.github.ronjunevaldoz.awake.core.AwakeContext
-import io.github.ronjunevaldoz.awake.core.graphics.Application
+import io.github.ronjunevaldoz.awake.core.graphics.WindowApplication
 import io.github.ronjunevaldoz.awake.core.utils.Frame
 import io.github.ronjunevaldoz.awake.core.utils.Time
 import kotlinx.cinterop.CValue
@@ -34,7 +34,7 @@ import platform.QuartzCore.CADisplayLink
 import platform.UIKit.UIScreen
 import platform.UIKit.UIWindow
 
-class GameView(frame: CValue<CGRect>, val renderer: Application) :
+class GameView(frame: CValue<CGRect>, val renderer: WindowApplication) :
     GLKView(frame),
     GLKViewDelegateProtocol {
 

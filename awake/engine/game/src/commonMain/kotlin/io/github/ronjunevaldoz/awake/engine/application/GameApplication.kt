@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.application
 
-import io.github.ronjunevaldoz.awake.core.graphics.Application
+import io.github.ronjunevaldoz.awake.core.graphics.WindowApplication
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
@@ -15,12 +15,12 @@ import kotlinx.coroutines.launch
  * Backend-neutral render bootstrap shared by `VulkanGameApplication` (`awake-backend-vulkan`)
  * and `WebGpuGameApplication` (`awake-backend-webgpu`)
  */
-abstract class GenericGameApplication(
+abstract class GameApplication(
     protected val vertexShaderResourcePath: String,
     protected val fragmentShaderResourcePath: String,
     protected val vertexFormat: VertexFormat,
     protected val game: Game,
-) : Application {
+) : WindowApplication {
 
     /** The session's input accumulator. Guaranteed to exist since [game] is an [AwakeGame]. */
     override val input: Input get() = (game as AwakeGame).input

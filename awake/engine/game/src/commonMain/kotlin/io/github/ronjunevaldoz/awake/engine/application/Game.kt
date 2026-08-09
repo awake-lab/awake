@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.engine.application
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 
 /**
- * A game's own behavior, injected into [GenericGameApplication] rather than provided by
+ * A game's own behavior, injected into [GameApplication] rather than provided by
  * inheriting from it.
  */
 interface Game {

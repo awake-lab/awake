@@ -51,7 +51,7 @@ kotlin {
             implementation(project(":awake:base"))
             implementation(project(":awake:scene"))
             implementation(libs.kotlinx.coroutines.core)
-            // WebGpuGameApplication now extends GenericGameApplication (see
+            // WebGpuGameApplication now extends GameApplication (see
             // docs/MVP_PLAN.md's decision log for the duplication this replaces). `api`,
             // not `implementation`: same reasoning as awake-backend-vulkan's identical
             // dependency -- it's a supertype, so consumers need it on their classpath too.

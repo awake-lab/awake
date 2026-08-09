@@ -30,11 +30,11 @@ kotlin {
         namespace = "io.github.ronjunevaldoz.awake.engine.application"
     }
 
-    // GenericGameApplication.kt: the backend-neutral render bootstrap that
+    // GameApplication.kt: the backend-neutral render bootstrap that
     // VulkanGameApplication (awake-backend-vulkan) and WebGpuGameApplication
     // (awake-backend-webgpu) both extend, plus the Game interface a game implements and
     // injects into it -- deliberately has zero ECS/scene-graph/UI knowledge (see
-    // docs/MVP_PLAN.md's decision log, "GenericGameApplication a standalone render
+    // docs/MVP_PLAN.md's decision log, "GameApplication a standalone render
     // bootstrap").
     sourceSets {
         commonMain.dependencies {

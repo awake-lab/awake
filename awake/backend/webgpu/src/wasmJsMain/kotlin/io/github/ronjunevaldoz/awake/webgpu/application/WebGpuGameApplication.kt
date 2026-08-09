@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.webgpu.application
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
-import io.github.ronjunevaldoz.awake.engine.application.GenericGameApplication
+import io.github.ronjunevaldoz.awake.engine.application.GameApplication
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
@@ -18,7 +18,7 @@ import io.ygdrasil.webgpu.GPUPrimitiveTopology
 /**
  * Reusable WebGPU game bootstrap -- wasmJs counterpart to `VulkanGameApplication`
  * (`awake-backend-vulkan`), see that class's doc comment and docs/MVP_PLAN.md's Decision
- * Log ("reusable-Application gap fix", "GenericGameApplication", and "GenericGameApplication
+ * Log ("reusable-Application gap fix", "GameApplication", and "GameApplication
  * a standalone render bootstrap") for the full rationale. Mirrors `VulkanGameApplication`'s
  * constructor/lifecycle shape exactly.
  *
@@ -39,7 +39,7 @@ class WebGpuGameApplication(
      * `Renderer.wireframe`. `false` by default so a game that never uses it doesn't pay for
      * the extra pipeline object, mirroring `VulkanGameApplication`'s `wireframeSupport`. */
     private val wireframeSupport: Boolean = false,
-) : GenericGameApplication(
+) : GameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
     vertexFormat,

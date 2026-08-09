@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.vulkan.application
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.engine.application.Game
 import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
-import io.github.ronjunevaldoz.awake.engine.application.GenericGameApplication
+import io.github.ronjunevaldoz.awake.engine.application.GameApplication
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
@@ -25,7 +25,7 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.ShadowMap
 
 /**
  * Reusable Vulkan game bootstrap (see docs/MVP_PLAN.md's Decision Log: "reusable-Application
- * gap fix", "GenericGameApplication", and "GenericGameApplication a standalone render
+ * gap fix", "GameApplication", and "GameApplication a standalone render
  * bootstrap"). A new game supplies its shader/vertex-layout via the constructor and its own
  * behavior via the injected [game] (`Game.ready(renderer)`/`Game.render(...)`) -- this class
  * only builds/tears down Vulkan's GPU resources, it never knows what the game actually draws.
@@ -61,7 +61,7 @@ class VulkanGameApplication(
      * as [vertexShaderResourcePath] itself (see `shadow_depth.wgsl`), since both draw the
      * exact same meshes. */
     private val shadowShaderSet: GameShaderSet? = null,
-) : GenericGameApplication(
+) : GameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
     vertexFormat,
