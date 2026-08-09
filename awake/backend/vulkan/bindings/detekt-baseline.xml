@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ConstructorParameterNaming:VkPhysicalDeviceFeatures.kt$VkPhysicalDeviceFeatures$val textureCompressionASTC_LDR: VkBool32 = false</ID>
+    <ID>CyclomaticComplexMethod:Vulkan.kt$@OptIn(ExperimentalForeignApi::class) private fun NativeVkPhysicalDeviceFeatures.fromKotlinModel(model: VkPhysicalDeviceFeatures)</ID>
+    <ID>CyclomaticComplexMethod:Vulkan.kt$Vulkan$actual fun vkCreateGraphicsPipelines( device: Long, pipelineCache: Long, createInfos: Array&lt;VkGraphicsPipelineCreateInfo>, ): LongArray</ID>
+    <ID>LargeClass:Vulkan.kt$Vulkan</ID>
+    <ID>LongMethod:Vulkan.kt$@OptIn(ExperimentalForeignApi::class) private fun platform.MoltenVK.VkPhysicalDeviceLimits.toKotlinModel(): VkPhysicalDeviceLimits</ID>
+    <ID>LongMethod:Vulkan.kt$Vulkan$actual fun vkCreateGraphicsPipelines( device: Long, pipelineCache: Long, createInfos: Array&lt;VkGraphicsPipelineCreateInfo>, ): LongArray</ID>
+    <ID>LongMethod:Vulkan.kt$Vulkan$actual fun vkCreateRenderPass(device: Long, createInfo: VkRenderPassCreateInfo): Long</ID>
+    <ID>LongMethod:VulkanImages.kt$VulkanImages$actual fun vkTransitionImageLayout( commandBuffer: Long, image: Long, oldLayout: Int, newLayout: Int, levelCount: Int, )</ID>
+    <ID>LongParameterList:VulkanBuffers.kt$VulkanBuffers$( commandBuffer: Long, indexCount: Int, instanceCount: Int, firstIndex: Int, vertexOffset: Int, firstInstance: Int, )</ID>
+    <ID>MagicNumber:Version.kt$Version.Companion$12</ID>
+    <ID>MagicNumber:Version.kt$Version.Companion$22</ID>
+    <ID>MagicNumber:Version.kt$Version.Companion$4096</ID>
+    <ID>MagicNumber:Version.kt$Version.Companion$64</ID>
+    <ID>MagicNumber:VkClearValue.kt$VkClearColorValue.Companion$3</ID>
+    <ID>MagicNumber:VkClearValue.kt$VkClearColorValue.Float32$4</ID>
+    <ID>MagicNumber:VkClearValue.kt$VkClearColorValue.Int32$4</ID>
+    <ID>MagicNumber:VkClearValue.kt$VkClearColorValue.UInt32$4</ID>
+    <ID>MagicNumber:VkDebugUtilsLabelEXT.kt$VkDebugUtilsLabelEXT$4</ID>
+    <ID>MagicNumber:VkPhysicalDeviceLimits.kt$VkPhysicalDeviceLimits$3</ID>
+    <ID>MagicNumber:Vulkan.kt$3</ID>
+    <ID>MagicNumber:Vulkan.kt$Vulkan$3</ID>
+    <ID>MatchingDeclarationName:AwkEnum.kt$VkEnum</ID>
+    <ID>MatchingDeclarationName:VDeviceQueueCreateFlagBits.kt$VkDeviceQueueCreateFlagBits</ID>
+    <ID>MatchingDeclarationName:exceptions.kt$VkResultException : RuntimeException</ID>
+    <ID>MatchingDeclarationName:queue.kt$QueueFamilyIndices</ID>
+    <ID>MatchingDeclarationName:swapChain.kt$SwapChainSupportDetails</ID>
+    <ID>TooManyFunctions:Vulkan.kt$Vulkan</ID>
+    <ID>TooManyFunctions:VulkanBuffers.kt$VulkanBuffers</ID>
+    <ID>TooManyFunctions:VulkanWindow.kt$VulkanWindow</ID>
+  </CurrentIssues>
+</SmellBaseline>

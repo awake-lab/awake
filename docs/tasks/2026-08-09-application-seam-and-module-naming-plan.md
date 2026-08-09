@@ -298,6 +298,20 @@ possible the way a partially-renamed package can leave stale imports).
 
 ## Part 3 — Split `backend:vulkan` into bindings + engine
 
+**Status: done.** `awake:backend:vulkan:bindings` exists at the planned shape below, with
+`awake:backend:vulkan:bindings:android-native` nested under it and the `ios-native/MoltenVK`
+submodule moved alongside (`.gitmodules` updated, submodule re-verified at its pinned commit
+post-move). One refinement found during execution: the boundary is slightly wider than first
+scoped — `utils/`, `VulkanSurface.kt`, `common.kt`, `flags.kt`, and `annotations.kt` are also
+raw-binding-shaped (confirmed by reading each file's actual content, not assumed) and moved
+too. `verifyGlfwMain`/`GlfwManualVerify.kt` and the two Vulkan smoke tests
+(`VulkanDesktopNativeSmokeTest`, `VulkanMoltenVkSmokeTest`) moved with it — pure bindings-level
+verification, zero engine types. `vulkan-generator`'s dependency and a stale resource path
+(pre-existing, from an earlier rename, unrelated to this split) were corrected while touching
+that file anyway. Full `./gradlew build` verified green afterward: 3124 tests, 0 failures,
+including a real desktop-native CMake rebuild and iOS MoltenVK cinterop compile from the new
+paths, not just Kotlin compilation.
+
 ### The finding
 
 `backend:vulkan` today is one module holding two genuinely different things fused together:

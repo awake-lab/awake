@@ -1,5 +1,5 @@
 [submodule "awake-backend-vulkan/ios-native/MoltenVK"]
-	path = awake/backend/vulkan/ios-native/MoltenVK
+	path = awake/backend/vulkan/bindings/ios-native/MoltenVK
 	url = https://github.com/KhronosGroup/MoltenVK.git
 [submodule "awake/backend/jolt/ios-native/JoltC"]
 	path = awake/backend/jolt/ios-native/JoltC

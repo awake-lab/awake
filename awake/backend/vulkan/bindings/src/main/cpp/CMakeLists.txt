@@ -42,7 +42,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 # this module lives at awake/backend/vulkan/src/main/cpp since the Phase 0 nested-module
 # rename (previously awake-backend-vulkan/src/main/cpp, 4 levels).
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../tools/jni-binding-generator/scripts)
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../../tools/jni-binding-generator/scripts)
 
 find_library(log-lib log)
 

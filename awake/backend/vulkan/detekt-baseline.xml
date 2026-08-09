@@ -2,12 +2,8 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>ConstructorParameterNaming:VkPhysicalDeviceFeatures.kt$VkPhysicalDeviceFeatures$val textureCompressionASTC_LDR: VkBool32 = false</ID>
     <ID>CyclomaticComplexMethod:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, )</ID>
     <ID>CyclomaticComplexMethod:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
-    <ID>CyclomaticComplexMethod:Vulkan.kt$@OptIn(ExperimentalForeignApi::class) private fun NativeVkPhysicalDeviceFeatures.fromKotlinModel(model: VkPhysicalDeviceFeatures)</ID>
-    <ID>CyclomaticComplexMethod:Vulkan.kt$Vulkan$actual fun vkCreateGraphicsPipelines( device: Long, pipelineCache: Long, createInfos: Array&lt;VkGraphicsPipelineCreateInfo>, ): LongArray</ID>
-    <ID>LargeClass:Vulkan.kt$Vulkan</ID>
     <ID>LongMethod:LineRenderPipeline.kt$LineRenderPipeline$private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray)</ID>
     <ID>LongMethod:RenderPipeline.kt$RenderPipeline$private fun createGraphicsPipeline( descriptorSetLayout: DescriptorSetLayoutHandle, vertShaderCode: ByteArray, fragShaderCode: ByteArray, vertexFormat: VertexFormat, vertexEntryPoint: String, fragmentEntryPoint: String, polygonMode: VkPolygonMode, )</ID>
     <ID>LongMethod:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, )</ID>
@@ -19,18 +15,13 @@
     <ID>LongMethod:UiRenderPipeline.kt$UiRenderPipeline$private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray)</ID>
     <ID>LongMethod:UiRoundedQuadRenderPipeline.kt$UiRoundedQuadRenderPipeline$private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray)</ID>
     <ID>LongMethod:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray)</ID>
-    <ID>LongMethod:Vulkan.kt$@OptIn(ExperimentalForeignApi::class) private fun platform.MoltenVK.VkPhysicalDeviceLimits.toKotlinModel(): VkPhysicalDeviceLimits</ID>
-    <ID>LongMethod:Vulkan.kt$Vulkan$actual fun vkCreateGraphicsPipelines( device: Long, pipelineCache: Long, createInfos: Array&lt;VkGraphicsPipelineCreateInfo>, ): LongArray</ID>
-    <ID>LongMethod:Vulkan.kt$Vulkan$actual fun vkCreateRenderPass(device: Long, createInfo: VkRenderPassCreateInfo): Long</ID>
     <ID>LongMethod:VulkanGameApplication.kt$VulkanGameApplication$override suspend fun createBackendResources(window: Any): BackendResources</ID>
-    <ID>LongMethod:VulkanImages.kt$VulkanImages$actual fun vkTransitionImageLayout( commandBuffer: Long, image: Long, oldLayout: Int, newLayout: Int, levelCount: Int, )</ID>
     <ID>LongParameterList:RenderPipeline.kt$RenderPipeline$( descriptorSetLayout: DescriptorSetLayoutHandle, vertShaderCode: ByteArray, fragShaderCode: ByteArray, vertexFormat: VertexFormat, vertexEntryPoint: String, fragmentEntryPoint: String, polygonMode: VkPolygonMode, )</ID>
     <ID>LongParameterList:Renderer.kt$Renderer$( graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager, renderPipeline: RenderPipeline, /** Extra 3D pipelines beyond [renderPipeline], keyed by the [VertexFormat] each one was * built for -- see [pipelinesByFormat]'s doc comment for how a [DrawCall] picks one. * Empty (default) for every game that only ever draws [renderPipeline]'s format (most of * them) -- built eagerly, same as [renderPipeline] itself, by whichever `GameApplication` * bootstrap opts into extra formats (shader loading is `suspend`, so this can't be built * lazily on first draw the way the UI pipelines below are). */ additionalPipelinesByFormat: Map&lt;VertexFormat, RenderPipeline> = emptyMap(), internal val lineRenderPipeline: LineRenderPipeline, internal val transferContext: TransferContext, internal val uiShaders: ShaderPair, internal val uiGlyphShaders: ShaderPair, internal val uiTextureShaders: ShaderPair, internal val uiRoundedQuadShaders: ShaderPair, internal val maxFramesInFlight: Int, /** `VK_POLYGON_MODE_LINE` companions of [renderPipeline]/[additionalPipelinesByFormat], * keyed the same way -- see [wireframe]'s doc comment for how these get selected. Empty * (default) for every game that doesn't opt into `VulkanGameApplication`'s * `wireframeSupport`, same "skip building it" shape as [additionalPipelinesByFormat]. * Appended as the last (defaulted) constructor parameter, not inserted alongside * [additionalPipelinesByFormat], so every existing positional-argument call site (this * repo has several, across `VulkanGameApplication` and desktopTest) keeps compiling * unchanged. A format with no wireframe entry here just keeps drawing filled even with * [wireframe] on (see [pipelineFor]) -- it is never skipped the way an unknown-format * mesh is. */ wireframePipelinesByFormat: Map&lt;VertexFormat, RenderPipeline> = emptyMap(), /** Non-null only when the app's bootstrap opted into shadows (see * `VulkanGameApplication`'s own `shadowShaderSet` doc comment) -- both this and * [shadowRenderPipeline] are built once, before this `Renderer`, by whoever constructs it * (mirrors how [renderPipeline] itself is built externally). `null` (default) is the * "shadows never existed" path: every material built by this instance keeps its original * 3-binding descriptor set layout, and [prepareDrawCalls] keeps writing the exact same * 8-float light block it always did -- zero behavior change for every caller that doesn't * opt in. */ internal val shadowMap: ShadowMap? = null, internal val shadowRenderPipeline: ShadowRenderPipeline? = null, )</ID>
     <ID>LongParameterList:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.Companion$( label: String, font: io.github.ronjunevaldoz.awake.ui.font.UiFont, x: Float, y: Float, scale: Float, color: Color, )</ID>
     <ID>LongParameterList:RendererHeadlessUiGlyphBaselineTest.kt$RendererHeadlessUiGlyphBaselineTest.HeadlessUiRendererFixture$( val graphicsDevice: GraphicsDevice, val swapchainManager: SwapchainManager, val pipelineLayoutMaterial: Material, val renderPipeline: RenderPipeline, val lineRenderPipeline: LineRenderPipeline, val transferContext: TransferContext, val renderer: Renderer, )</ID>
     <ID>LongParameterList:UiAnimationFrameCapture.kt$HeadlessUiRendererFixture$( private val graphicsDevice: GraphicsDevice, private val swapchainManager: SwapchainManager, private val pipelineLayoutMaterial: Material, private val renderPipeline: RenderPipeline, private val lineRenderPipeline: LineRenderPipeline, private val transferContext: TransferContext, val renderer: Renderer, )</ID>
     <ID>LongParameterList:UiGlyphRenderPipeline.kt$UiGlyphRenderPipeline$( graphicsDevice: GraphicsDevice, private val swapchainManager: SwapchainManager, private val renderPass: Long, vertShaderCode: ByteArray, fragShaderCode: ByteArray, private val fontTexture: Texture, private val font: UiFont, )</ID>
-    <ID>LongParameterList:VulkanBuffers.kt$VulkanBuffers$( commandBuffer: Long, indexCount: Int, instanceCount: Int, firstIndex: Int, vertexOffset: Int, firstInstance: Int, )</ID>
     <ID>LongParameterList:VulkanMetalView.kt$VulkanMetalView$( frame: CValue&lt;CGRect>, private val input: Input, private val onCreate: (metalLayer: CAMetalLayer) -> Unit, private val onUpdate: (deltaSeconds: Float) -> Unit, private val onResize: (width: Int, height: Int) -> Unit, private val onPause: () -> Unit, private val onResume: () -> Unit, )</ID>
     <ID>MagicNumber:DynamicMesh.kt$DynamicMesh$0xFF</ID>
     <ID>MagicNumber:DynamicMesh.kt$DynamicMesh$16</ID>
@@ -130,23 +121,6 @@
     <ID>MagicNumber:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$3</ID>
     <ID>MagicNumber:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$4</ID>
     <ID>MagicNumber:UiTextureRenderPipeline.kt$UiTextureRenderPipeline$8</ID>
-    <ID>MagicNumber:Version.kt$Version.Companion$12</ID>
-    <ID>MagicNumber:Version.kt$Version.Companion$22</ID>
-    <ID>MagicNumber:Version.kt$Version.Companion$4096</ID>
-    <ID>MagicNumber:Version.kt$Version.Companion$64</ID>
-    <ID>MagicNumber:VkClearValue.kt$VkClearColorValue.Companion$3</ID>
-    <ID>MagicNumber:VkClearValue.kt$VkClearColorValue.Float32$4</ID>
-    <ID>MagicNumber:VkClearValue.kt$VkClearColorValue.Int32$4</ID>
-    <ID>MagicNumber:VkClearValue.kt$VkClearColorValue.UInt32$4</ID>
-    <ID>MagicNumber:VkDebugUtilsLabelEXT.kt$VkDebugUtilsLabelEXT$4</ID>
-    <ID>MagicNumber:VkPhysicalDeviceLimits.kt$VkPhysicalDeviceLimits$3</ID>
-    <ID>MagicNumber:Vulkan.kt$3</ID>
-    <ID>MagicNumber:Vulkan.kt$Vulkan$3</ID>
-    <ID>MatchingDeclarationName:AwkEnum.kt$VkEnum</ID>
-    <ID>MatchingDeclarationName:VDeviceQueueCreateFlagBits.kt$VkDeviceQueueCreateFlagBits</ID>
-    <ID>MatchingDeclarationName:exceptions.kt$VkResultException : RuntimeException</ID>
-    <ID>MatchingDeclarationName:queue.kt$QueueFamilyIndices</ID>
-    <ID>MatchingDeclarationName:swapChain.kt$SwapChainSupportDetails</ID>
     <ID>NestedBlockDepth:RendererDraw3D.kt$internal fun Renderer.prepareDrawCalls( frameIndex: Int, viewProjection: Mat4, drawCalls: List&lt;DrawCall>, light: SceneLight, lightViewProjection: Mat4? = null, materialUsage: MutableMap&lt;RenderMaterial, Int> = mutableMapOf(), cameraPosition: Vec3 = Vec3.ZERO, ): List&lt;PreparedDrawCall></ID>
     <ID>NestedBlockDepth:RendererDraw3D.kt$internal fun Renderer.recordCommandBuffer( commandBuffer: Long, frameIndex: Int, acquiredImageIndex: Int, drawCalls: List&lt;PreparedDrawCall>, )</ID>
     <ID>NestedBlockDepth:RendererDrawUi.kt$internal fun Renderer.performDrawUi(primitives: List&lt;UiDrawPrimitive>, font: UiFont?)</ID>
@@ -161,10 +135,7 @@
     <ID>TooManyFunctions:RendererDraw3D.kt$io.github.ronjunevaldoz.awake.vulkan.renderer.RendererDraw3D.kt</ID>
     <ID>TooManyFunctions:RendererDrawUi.kt$io.github.ronjunevaldoz.awake.vulkan.renderer.RendererDrawUi.kt</ID>
     <ID>TooManyFunctions:UiTextureRenderPipeline.kt$UiTextureRenderPipeline</ID>
-    <ID>TooManyFunctions:Vulkan.kt$Vulkan</ID>
-    <ID>TooManyFunctions:VulkanBuffers.kt$VulkanBuffers</ID>
     <ID>TooManyFunctions:VulkanMetalView.kt$VulkanMetalView : UIViewUIKeyInputProtocol</ID>
-    <ID>TooManyFunctions:VulkanWindow.kt$VulkanWindow</ID>
     <ID>UnusedPrivateMember:VulkanMetalView.kt$VulkanMetalView$@ObjCAction private fun tick(displayLink: CADisplayLink)</ID>
     <ID>UnusedPrivateProperty:GlfwTextInputBridgeTest.kt$private const val REPEAT_INTERVAL_SECONDS = 0.05</ID>
     <ID>UnusedPrivateProperty:GraphicsDevice.kt$GraphicsDevice$val hasGeometry = features.geometryShader</ID>

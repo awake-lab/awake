@@ -26,13 +26,19 @@ plugins {
 }
 
 sourceSets["main"].kotlin.srcDir("src/main/kotlin")
-sourceSets["main"].resources.srcDir("awake-backend-vulkan/src/main/cpp/vulkan-kotlin/")
+// Was "awake-backend-vulkan/src/main/cpp/vulkan-kotlin/" -- stale since a much earlier module
+// rename (that directory name hasn't existed in a long time); corrected here to the real
+// current location while updating this file for the bindings split anyway.
+sourceSets["main"].resources.srcDir("../bindings/src/main/cpp/vulkan-kotlin/")
 
 application { // Specify the main class using the application plugin
     mainClass.set("io.github.ronjunevaldoz.awake.vulkan_generator.MainKt")
 }
 
 dependencies {
-    implementation(project(":awake:backend:vulkan"))
+    // models.* (what MainKt reflects over to generate C++ accessors/mutators) now lives in
+    // the bindings module -- see docs/tasks/2026-08-09-application-seam-and-module-naming-
+    // plan.md, Part 3.
+    implementation(project(":awake:backend:vulkan:bindings"))
     implementation(kotlin("reflect"))
 }
