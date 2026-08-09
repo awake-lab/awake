@@ -211,8 +211,13 @@ tasks.named<Test>("desktopTest") {
     forkEvery = 1
 }
 
+// appMain holds compiled Vulkan SPIR-V; commonMain holds hand-authored assets (models, scene
+// documents) every target loads. Both need serving to iosSimulatorArm64Test/wasmJsBrowserTest
+// the same way the real app gets them -- Kotlin's own resource merging reaches the compiled
+// app bundle, but not karma's test server or a Kotlin/Native test binary's working directory.
 awakeTestResources {
     roots.from(layout.projectDirectory.dir("src/appMain/resources"))
+    roots.from(layout.projectDirectory.dir("src/commonMain/resources"))
 }
 
 // appMain/resources also holds syncAwakeShaders' generated SPIR-V output, so the convention's

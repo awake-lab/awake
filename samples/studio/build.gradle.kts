@@ -65,13 +65,7 @@ kotlin {
             resources.srcDir(project(":awake:backend:webgpu").file("src/wasmJsMain/resources"))
         }
 
-        named("wasmJsTest") {
-            // The camera tests preload example assets (scene JSON from commonMain, the
-            // glTF-viewer's model from appMain); only wasmJs source sets' resources reach the
-            // karma server, and neither of those live under one already.
-            resources.srcDir(layout.projectDirectory.dir("src/commonMain/resources"))
-            resources.srcDir(layout.projectDirectory.dir("src/appMain/resources"))
-        }
+
     }
 }
 
@@ -102,6 +96,10 @@ tasks.register<JavaExec>("run") {
     jvmArgs(jvmArgsList)
 }
 
+// appMain holds compiled Vulkan SPIR-V; commonMain holds hand-authored assets (models, scene
+// documents) every target loads. Both need serving to iosSimulatorArm64Test/wasmJsBrowserTest
+// the same way the real app gets them -- Kotlin's own resource merging reaches the compiled
+// app bundle, but not karma's test server or a Kotlin/Native test binary's working directory.
 awakeTestResources {
     roots.from(layout.projectDirectory.dir("src/appMain/resources"))
     roots.from(layout.projectDirectory.dir("src/commonMain/resources"))
