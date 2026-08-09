@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlinx.coroutines.test.runTest
+import kotlin.math.tan
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -135,6 +136,36 @@ class StudioModuleCameraTest {
         assertEquals(0f, topEye.z, TOLERANCE)
     }
 
+    /**
+     * The projection half of the same report: the Perspective/Orthographic menu set store
+     * state that no camera ever read, because `Camera.viewProjectionMatrix` always built
+     * `Mat4.perspective`. Asserted on the projection the *renderer* was handed, same reason
+     * the eye assertions above are.
+     */
+    @Test
+    fun setProjectionSwitchesTheProjectionTheRendererActuallyDraws() = runTest {
+        val renderer = RecordingCameraRenderer()
+        val store = StudioStore()
+        val game = game { module(studioModule(store)) }
+
+        game.ready(renderer)
+        val runtime = game.requireService<SceneGameRuntime>()
+        game.render(1f / 60f, 800f, 600f)
+
+        assertEquals(Camera.Projection.Perspective, renderer.lastProjection)
+
+        store.dispatch(StudioContract.Intent.SetProjection(StudioContract.Projection.Orthographic))
+        game.render(1f / 60f, 800f, 600f)
+
+        assertEquals(Camera.Projection.Orthographic, renderer.lastProjection)
+
+        // And it is framed to match what the perspective lens showed at the orbit distance,
+        // so the toggle changes the projection without resizing the subject.
+        val fovYRadians = assertNotNull(runtime.findCamera("camera")).camera.fovYRadians
+        val expectedHalfHeight = StudioContract.DEFAULT_ORBIT_DISTANCE * tan(fovYRadians / 2f)
+        assertEquals(expectedHalfHeight, renderer.lastOrthoHalfHeight, TOLERANCE)
+    }
+
     private companion object {
         const val TOLERANCE = 1e-4f
     }
@@ -142,6 +173,8 @@ class StudioModuleCameraTest {
 
 private class RecordingCameraRenderer : Renderer {
     var lastEye: Vec3? = null
+    var lastProjection: Camera.Projection? = null
+    var lastOrthoHalfHeight: Float = 0f
 
     override val clipSpace: ClipSpace = ClipSpace.WebGpu
     override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
@@ -172,6 +205,8 @@ private class RecordingCameraRenderer : Renderer {
         // Snapshot, not a reference -- `camera.eye` is mutated in place next frame, so holding
         // the live object would make every past frame's assertion read the *latest* value.
         lastEye = Vec3(camera.eye.x, camera.eye.y, camera.eye.z)
+        lastProjection = camera.projection
+        lastOrthoHalfHeight = camera.orthoHalfHeight
     }
 
     override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit

@@ -80,8 +80,7 @@ private class StudioExampleDriverSystem(
         CameraPresetMath.applyPreset(
             state = store.state.value.camera,
             target = core.center,
-            eyeOut = core.eye,
-            upOut = core.up,
+            camera = core,
             forwardScratch = cameraForward,
         )
     }

@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.math
 
+import kotlin.math.tan
+
 /**
- * A view + perspective-projection pair -- extracted out of `VulkanApplication`'s
+ * A view + projection pair -- extracted out of `VulkanApplication`'s
  * `updateUniformBuffer` (previously computed inline, mixed in with the demo's own
  * cube-spin animation). Pure math, no GPU/backend dependency, so it lives in `awake-core`
  * rather than `awake-vulkan`: any future backend (WebGPU, Metal) needs the same view/
@@ -23,6 +25,23 @@ class Camera(
     var near: Float,
     var far: Float,
 ) {
+    /** Which lens shape [viewProjectionMatrix] builds. Perspective unless a caller opts out,
+     * so every camera built before this existed keeps the matrix it always had. */
+    var projection: Projection = Projection.Perspective
+
+    /** Half the vertical world extent an orthographic view covers; left/right follow from it
+     * and the aspect ratio. Read only while [projection] is [Projection.Orthographic].
+     *
+     * Ortho has no perspective divide, so nothing else sets on-screen scale. A caller
+     * toggling projection at runtime wants `distance * tan(fovYRadians / 2)`, which frames
+     * exactly what the perspective lens frames at that distance. */
+    var orthoHalfHeight: Float = DEFAULT_ORTHO_HALF_HEIGHT
+
+    /** An enum plus a separate [orthoHalfHeight] rather than a sealed type carrying the
+     * half-height: camera-driver systems reassign this every frame, and a variant with a
+     * payload would allocate there (core-math skill Rule 2). */
+    enum class Projection { Perspective, Orthographic }
+
     /** Returns `view * projection` in Mat4's own (Kotlin-operator) multiplication order,
      * which -- per [Mat4.times]'s convention (`A * B` computes the conventional `B * A`) --
      * is the conventional `projection * view`. A caller building a full MVP matrix combines
@@ -35,17 +54,34 @@ class Camera(
      * some other backend's convention. */
     fun viewProjectionMatrix(aspect: Float, clipSpace: ClipSpace): Mat4 {
         val view = Mat4.setLookAt(eye = eye, center = center, up = up)
-        val projection = Mat4.perspective(
-            fovY = fovYRadians,
-            aspect = aspect,
-            near = near,
-            far = far,
-            clipSpace = clipSpace,
-        )
-        if (clipSpace.flipY) {
-            projection.m11 *= -1f
+        val projectionMatrix = when (projection) {
+            Projection.Perspective -> Mat4.perspective(
+                fovY = fovYRadians,
+                aspect = aspect,
+                near = near,
+                far = far,
+                clipSpace = clipSpace,
+            )
+
+            // Same [clipSpace] through the same builder family, so ortho picks up the depth
+            // convention (and the flipY below) exactly the way perspective does.
+            Projection.Orthographic -> {
+                val halfWidth = orthoHalfHeight * aspect
+                Mat4.orthographic(
+                    left = -halfWidth,
+                    right = halfWidth,
+                    bottom = -orthoHalfHeight,
+                    top = orthoHalfHeight,
+                    near = near,
+                    far = far,
+                    clipSpace = clipSpace,
+                )
+            }
         }
-        return view * projection
+        if (clipSpace.flipY) {
+            projectionMatrix.m11 *= -1f
+        }
+        return view * projectionMatrix
     }
 
     companion object {
@@ -75,6 +111,11 @@ class Camera(
         const val DEFAULT_FOV_DEGREES = 45f
         const val DEFAULT_NEAR = 0.1f
         const val DEFAULT_FAR = 100f
+
+        /** What the default perspective lens frames at [DEFAULT_EYE_DISTANCE], so an untouched
+         * camera switched to ortho keeps its subject roughly the same size. */
+        val DEFAULT_ORTHO_HALF_HEIGHT = DEFAULT_EYE_DISTANCE * tan(DEFAULT_FOV_DEGREES.angleRad / 2f)
+
         private const val DEFAULT_EYE_DISTANCE = 5f
     }
 }

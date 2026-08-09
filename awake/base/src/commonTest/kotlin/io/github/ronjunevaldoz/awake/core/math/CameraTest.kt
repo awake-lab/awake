@@ -36,6 +36,9 @@ class CameraTest {
 
         val actual = camera.viewProjectionMatrix(aspect, ClipSpace.WebGpu)
 
+        // The default lens is still perspective, entry for entry -- adding the orthographic
+        // branch must not change what any existing camera projects.
+        assertEquals(Camera.Projection.Perspective, camera.projection)
         assertEquals(expected.data.toList(), actual.data.toList())
     }
 
@@ -118,6 +121,61 @@ class CameraTest {
 
         // The world origin is 5 units in front of the camera, so w (which is -z_view) is 5.
         assertEquals(5f, clip.w, TOLERANCE)
+    }
+
+    /** The defining property of an orthographic lens: depth does not scale anything. Two
+     * points on the same line of sight from the camera -- one at the target plane, one far
+     * behind it -- must land on the same NDC XY, where perspective would shrink the far one. */
+    @Test
+    fun `orthographic projects the same XY at any depth, where perspective shrinks`() {
+        val ortho = identityViewCamera().apply {
+            projection = Camera.Projection.Orthographic
+            orthoHalfHeight = 2f
+        }.viewProjectionMatrix(aspect = 2f, clipSpace = ClipSpace.WebGpu)
+
+        val atTarget = ortho.ndc(1f, 1f, -5f)
+        val farBehind = ortho.ndc(1f, 1f, -50f)
+
+        assertEquals(atTarget.x, farBehind.x, TOLERANCE)
+        assertEquals(atTarget.y, farBehind.y, TOLERANCE)
+        // half-height 2 at aspect 2 => half-width 4, so x = 1 is a quarter across and y = 1
+        // is half way up -- absolute placement, not just "the two agree".
+        assertEquals(0.25f, atTarget.x, TOLERANCE)
+        assertEquals(0.5f, atTarget.y, TOLERANCE)
+        // Depth still increases with distance, so the depth test keeps ordering fragments.
+        assertTrue(farBehind.z > atTarget.z, "expected ${farBehind.z} > ${atTarget.z}")
+
+        // The contrast: the same two points under the default perspective lens do not agree.
+        val perspective = identityViewCamera().viewProjectionMatrix(aspect = 2f, clipSpace = ClipSpace.WebGpu)
+        assertTrue(
+            perspective.ndc(1f, 1f, -50f).x < perspective.ndc(1f, 1f, -5f).x,
+            "perspective must shrink with depth",
+        )
+    }
+
+    /** Ortho goes through the same [ClipSpace] mechanism perspective does -- same flipY, same
+     * `[0, 1]` depth range -- so a backend cannot end up with one convention per projection. */
+    @Test
+    fun `orthographic honours the renderer's ClipSpace exactly like perspective`() {
+        fun ortho(clipSpace: ClipSpace) = identityViewCamera().apply {
+            projection = Camera.Projection.Orthographic
+            orthoHalfHeight = 2f
+            near = 1f
+            far = 100f
+        }.viewProjectionMatrix(aspect = 1f, clipSpace = clipSpace)
+
+        val webGpu = ortho(ClipSpace.WebGpu).ndc(0.5f, 0.5f, -1f)
+        val vulkan = ortho(ClipSpace.Vulkan).ndc(0.5f, 0.5f, -1f)
+
+        assertEquals(-webGpu.y, vulkan.y, TOLERANCE) // flipY, and only Y
+        assertEquals(webGpu.x, vulkan.x, TOLERANCE)
+        assertEquals(webGpu.z, vulkan.z, TOLERANCE)
+
+        // depthZeroToOne: the near plane is 0 and the far plane is 1 for both.
+        assertEquals(0f, vulkan.z, TOLERANCE)
+        assertEquals(1f, ortho(ClipSpace.Vulkan).ndc(0f, 0f, -100f).z, TOLERANCE)
+        // ...and OpenGL's -1 .. 1 instead, from the same call.
+        assertEquals(-1f, ortho(ClipSpace.OpenGl).ndc(0f, 0f, -1f).z, TOLERANCE)
     }
 
     private fun Mat4.ndc(x: Float, y: Float, z: Float): Vec3 {
