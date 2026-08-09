@@ -2,7 +2,7 @@ name: docs
 on:
   push:
     branches:
-      - vulkan # Or whichever branch you want to track
+      - main
 permissions:
   contents: write
 jobs:
