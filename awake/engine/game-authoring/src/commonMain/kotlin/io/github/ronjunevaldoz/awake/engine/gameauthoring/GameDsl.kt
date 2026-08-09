@@ -28,12 +28,6 @@ fun gameSpec(
     return builder.build()
 }
 
-fun gameInstaller(block: GameDsl.() -> Unit): GameInstaller = object : GameInstaller {
-    override fun install(into: GameSpecBuilder) {
-        GameDsl(into).block()
-    }
-}
-
 // Shared forwarding surface for both GameDsl and GameModuleDsl -- they wrap the same
 // GameSpecBuilder and expose the same install/lifecycle/service methods. GameDsl adds
 // `window(...)` on top since only the top-level game {} block owns window configuration;

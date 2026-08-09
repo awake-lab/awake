@@ -7,19 +7,11 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameSpec
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRoute
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterSpec
 
-fun GameSpecDsl.scenes(block: SceneRouterDsl.() -> Unit) {
-    install(sceneFlow(block))
-}
-
-fun sceneRouter(block: SceneRouterDsl.() -> Unit): SceneRouterSpec = sceneFlow(block)
-
-fun GameSpecDsl.flow(block: SceneFlowDsl.() -> Unit) {
+fun GameSpecDsl.scenes(block: SceneFlowDsl.() -> Unit) {
     install(sceneFlow(block))
 }
 
 fun sceneFlow(block: SceneFlowDsl.() -> Unit): SceneRouterSpec = SceneFlowDsl().apply(block).build()
-
-typealias SceneRouterDsl = SceneFlowDsl
 
 class SceneFlowDsl internal constructor() {
     private val routes = mutableListOf<SceneRoute>()
