@@ -31,7 +31,10 @@ plugins {
 }
 
 allprojects {
-    group = "io.github.ronjunevaldoz"
+    // Maven namespace: verified through the awake-lab GitHub org, no domain dependency.
+    // Packages keep io.github.ronjunevaldoz until the one pre-publish rename pass (they
+    // become io.github.awakelab.* -- hyphens are legal in a groupId, illegal in a package).
+    group = "io.github.awake-lab"
     version = "0.1.0-SNAPSHOT"
 }
 

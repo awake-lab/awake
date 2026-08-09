@@ -11,8 +11,8 @@ Add the following to your `libs.versions.toml`:
 awake = "1.0.0-SNAPSHOT"
 
 [libraries]
-awake-base = { group = "io.github.ronjunevaldoz.awake", name = "awake-base", version.ref = "awake" }
-awake-vulkan = { group = "io.github.ronjunevaldoz.awake", name = "awake-backend-vulkan", version.ref = "awake" }
+awake-base = { group = "io.github.awake-lab", name = "awake-base", version.ref = "awake" }
+awake-vulkan = { group = "io.github.awake-lab", name = "awake-backend-vulkan", version.ref = "awake" }
 ```
 
 ## Creating a Game
