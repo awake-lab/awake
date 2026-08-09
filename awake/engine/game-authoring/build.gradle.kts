@@ -1,4 +1,3 @@
-import java.io.File
 import java.util.Base64
 
 plugins {
@@ -20,7 +19,7 @@ kotlin {
             implementation(project(":awake:engine:ui:headless"))
         }
         commonTest.dependencies {
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
             implementation(project(":awake:engine:render:contract"))
             implementation(project(":awake:engine:ui:ui-core"))
             implementation(project(":awake:engine:ui:headless"))
@@ -29,7 +28,7 @@ kotlin {
         }
         named("desktopTest") {
             dependencies {
-                implementation(project(":awake:base"))
+                implementation(project(":awake:core"))
                 implementation(project(":awake:engine:render:contract"))
                 implementation(project(":awake:engine:ui:ui-core"))
                 implementation(project(":awake:engine:ui:headless"))
@@ -90,7 +89,11 @@ tasks.register("gameDslTutorialDocsReport") {
             <article style="margin:0 0 2rem 0;padding:1rem;border:1px solid #333;border-radius:8px;background:#252525">
                 <h2 style="margin-top:0">${escapeHtml(title)}</h2>
                 <p style="color:#cfcfcf">${escapeHtml(summary)}</p>
-                <pre style="overflow:auto;padding:1rem;background:#171717;border-radius:6px;border:1px solid #2f2f2f"><code>${escapeHtml(snippet)}</code></pre>
+                <pre style="overflow:auto;padding:1rem;background:#171717;border-radius:6px;border:1px solid #2f2f2f"><code>${
+                escapeHtml(
+                    snippet
+                )
+            }</code></pre>
             </article>
             """.trimIndent()
         }

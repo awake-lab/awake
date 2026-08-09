@@ -2,6 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.app
 
-import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
+import io.github.ronjunevaldoz.awake.engine.game.GameWindowBackend
 
 internal actual fun platformBackendPreference(): GameWindowBackend = GameWindowBackend.WEBGPU

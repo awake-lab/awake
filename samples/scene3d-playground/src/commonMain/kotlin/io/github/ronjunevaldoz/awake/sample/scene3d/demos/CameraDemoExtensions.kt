@@ -5,11 +5,11 @@ package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.ecs.ensure
-import io.github.ronjunevaldoz.awake.scene.components.ActiveCamera
-import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
-import io.github.ronjunevaldoz.awake.scene.components.CameraMode
-import io.github.ronjunevaldoz.awake.scene.components.MovementControl
-import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.controls.components.ActiveCamera
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
+import io.github.ronjunevaldoz.awake.scene.controls.components.MovementControl
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope

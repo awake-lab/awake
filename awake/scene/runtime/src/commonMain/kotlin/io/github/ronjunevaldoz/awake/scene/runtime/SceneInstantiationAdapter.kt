@@ -6,13 +6,13 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.scene.components.Light
-import io.github.ronjunevaldoz.awake.scene.components.Name
-import io.github.ronjunevaldoz.awake.scene.components.PbrMaterial
-import io.github.ronjunevaldoz.awake.scene.components.SpinControl
-import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.core.components.Name
+import io.github.ronjunevaldoz.awake.scene.core.components.SpinControl
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
+import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import kotlin.math.PI
-import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera as SceneCameraComponent
 
 data class SceneNodeHandle<T>(
     val name: String?,

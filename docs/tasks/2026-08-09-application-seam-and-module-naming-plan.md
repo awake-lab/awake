@@ -185,6 +185,7 @@ calls one shared factory instead of a backend-specific one.
 ### Migration per sample
 
 Each of `samples:scene3d-playground`, `samples:studio`, `samples:ui-showcase` currently has:
+
 - `app/*VulkanBootstrap.kt` (appMain)
 - `app/*WebGpuBootstrap.kt` (wasmJsMain)
 - `app/Main.kt` (desktopMain), `app/main.ios.kt` (iosMain), `app/main.kt` (wasmJsMain)
@@ -200,7 +201,8 @@ backend **selection and configuration** duplication, not the platform bootstrap 
 - `AwakeApplication` construction test per platform target confirming it delegates to the
   correct concrete backend with the parameters preserved (unit-testable without a real GPU —
   assert on the `BackendResources`/constructor-forwarding shape, not a live render).
-- A regression test asserting no sample's `commonMain` imports `io.github.ronjunevaldoz.awake.vulkan.*`
+- A regression test asserting no sample's `commonMain` imports
+  `io.github.ronjunevaldoz.awake.vulkan.*`
   or `io.github.ronjunevaldoz.awake.webgpu.*` directly — this is the architectural property the
   whole plan exists to establish, so it should be a real, permanently-enforced check (a Konsist-
   style test or a grep-based CI step), not just a one-time cleanup.
@@ -209,12 +211,12 @@ backend **selection and configuration** duplication, not the platform bootstrap 
 
 ### The four inconsistent patterns found
 
-| Pattern in use | Correct examples | Where it breaks |
-|---|---|---|
-| Colon-nest by domain | `scene:core`, `scene:controls`, `scene:physics`, `scene:rendering`, `scene:runtime` | `scene-dsl` is hyphenated and a *sibling* of `scene`, not nested under it, despite being the same domain |
-| Leaf states what's different | `backend:vulkan`, `backend:webgpu`, `backend:jolt` | `engine:ui:ui-core` repeats the parent segment's name in the leaf — says "ui" twice (diagnosis stands; see "Leaf-name collision" below for why the fix keeps the hyphen anyway) |
-| Colon-nest a sub-boundary | `backend:vulkan:android-native` | `backend:vulkan-generator` hyphenates instead of `backend:vulkan:generator` |
-| `domain:api` for a neutral contract + backend implementations | `physics:api` (+ `backend:jolt` implementing it) | `engine:render-api` hyphenates the same shape — genuinely the same `domain:api` relationship as physics, confirmed via `backend:vulkan`/`backend:webgpu` both declaring `api(project(":awake:engine:render-api"))` (diagnosis stands; see below for why the fix isn't `render:api`) |
+| Pattern in use                                                | Correct examples                                                                    | Where it breaks                                                                                                                                                                                                                                                                     |
+|---------------------------------------------------------------|-------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Colon-nest by domain                                          | `scene:core`, `scene:controls`, `scene:physics`, `scene:rendering`, `scene:runtime` | `scene-dsl` is hyphenated and a *sibling* of `scene`, not nested under it, despite being the same domain                                                                                                                                                                            |
+| Leaf states what's different                                  | `backend:vulkan`, `backend:webgpu`, `backend:jolt`                                  | `engine:ui:ui-core` repeats the parent segment's name in the leaf — says "ui" twice (diagnosis stands; see "Leaf-name collision" below for why the fix keeps the hyphen anyway)                                                                                                     |
+| Colon-nest a sub-boundary                                     | `backend:vulkan:android-native`                                                     | `backend:vulkan-generator` hyphenates instead of `backend:vulkan:generator`                                                                                                                                                                                                         |
+| `domain:api` for a neutral contract + backend implementations | `physics:api` (+ `backend:jolt` implementing it)                                    | `engine:render-api` hyphenates the same shape — genuinely the same `domain:api` relationship as physics, confirmed via `backend:vulkan`/`backend:webgpu` both declaring `api(project(":awake:engine:render-api"))` (diagnosis stands; see below for why the fix isn't `render:api`) |
 
 One rule replaces all four: **colon-nest by domain, never hyphenate a domain boundary; a leaf
 segment names what's different about it, never repeats an ancestor's name.**
@@ -227,16 +229,16 @@ times is the pattern working correctly, not duplication.
 
 ### Renames (Gradle module paths only — no Kotlin package changes here)
 
-| Current path | New path |
-|---|---|
-| `awake:scene-dsl` | `awake:scene:dsl` |
-| `awake:engine:ui:ui-core` | **unchanged — `ui-core` stays.** See "Leaf-name collision" below. |
-| `awake:engine:ui:ui-headless` | `awake:engine:ui:headless` |
-| `awake:engine:ui:ui-designsystem` | `awake:engine:ui:designsystem` |
-| `awake:engine:ui:ui-testing` | `awake:engine:ui:testing` |
-| `awake:backend:vulkan-generator` | `awake:backend:vulkan:generator` |
-| `awake:engine:render-api` | `awake:engine:render:contract` (not `render:api` — see below) |
-| *(new)* | `awake:engine:app` — the `AwakeApplication` module; not `awake:X` since "awake" already names the whole project, and `app` states its actual job (assembles a runnable at the top of the graph) |
+| Current path                      | New path                                                                                                                                                                                        |
+|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `awake:scene-dsl`                 | `awake:scene:dsl`                                                                                                                                                                               |
+| `awake:engine:ui:ui-core`         | **unchanged — `ui-core` stays.** See "Leaf-name collision" below.                                                                                                                               |
+| `awake:engine:ui:ui-headless`     | `awake:engine:ui:headless`                                                                                                                                                                      |
+| `awake:engine:ui:ui-designsystem` | `awake:engine:ui:designsystem`                                                                                                                                                                  |
+| `awake:engine:ui:ui-testing`      | `awake:engine:ui:testing`                                                                                                                                                                       |
+| `awake:backend:vulkan-generator`  | `awake:backend:vulkan:generator`                                                                                                                                                                |
+| `awake:engine:render-api`         | `awake:engine:render:contract` (not `render:api` — see below)                                                                                                                                   |
+| *(new)*                           | `awake:engine:app` — the `AwakeApplication` module; not `awake:X` since "awake" already names the whole project, and `app` states its actual job (assembles a runnable at the top of the graph) |
 
 Scope decision: apply the **full table**, not a partial subset limited to what `AwakeApplication`
 touches. Reasoning: this is a Gradle path rename only (every `include(...)` line in
@@ -256,9 +258,10 @@ subproject regardless). Two subprojects sharing a leaf name collide on that iden
 Gradle's dependency-graph conflict resolution silently substitutes one for the other on any
 classpath that reaches both — a real compile failure
 (`awake:scene:controls` failed to resolve `UiInputOwnership` because Gradle substituted
-`:awake:engine:ui:core` with `:awake:scene:core` — same leaf, `core`), not a cosmetic risk.
+`:awake:engine:ui:core` with `:awake:scene:scene-core` — same leaf, `core`), not a cosmetic risk.
 
-Renaming `engine:ui:ui-core` → `engine:ui:core` collided with the pre-existing `:awake:scene:core`.
+Renaming `engine:ui:ui-core` → `engine:ui:core` collided with the pre-existing
+`:awake:scene:scene-core`.
 Renaming `engine:render-api` → `engine:render:api` collided with the pre-existing
 `:awake:physics:api`.
 
@@ -324,20 +327,20 @@ surfaced from asking "can we ship a pure Vulkan wrapper, no engine dependency?" 
 Sixteen top-level packages under `vulkan/`, classified by what they actually contain (verified,
 not assumed — sizes and content checked directly):
 
-| Package | Files | What it is |
-|---|---|---|
-| `gen/` | 4 | Generated `vkCreate*`/`vkDestroy*` binding calls |
-| `handles/` | 1 (51 lines) | Raw Vulkan handle wrapper types |
-| `models/` | 65 | Generated `Vk*CreateInfo`/`Vk*` struct models |
-| `enums/` | 52 | Generated `Vk*` enum types |
-| `vulkan/` (root) | — | `Vulkan` object, `VkArray`, `Version` — the raw API surface itself |
-| `renderer/` | 7 | `Renderer`, `RendererDraw3D`, swapchain draw loop — Awake's opinionated renderer |
-| `application/` | 1 | `VulkanGameApplication` — Awake's `GameApplication` actual |
-| `pipeline/` | — | `RenderPipeline`, `ShadowRenderPipeline` — Awake's pipeline abstraction |
-| `swapchain/` | — | `SwapchainManager` — Awake's swapchain lifecycle policy |
-| `device/` | 1 (229 lines) | `GraphicsDevice` — Awake's own physical/logical device selection, validation-layer and extension choices. A decision, not a binding. |
-| `commands/` | 1 | `TransferContext` — Awake's staging-buffer transfer abstraction |
-| `material/`, `mesh/`, `texture/`, `debug/`, `ui/` | — | Awake's `render-api` contract implementations and UI glyph/quad pipelines |
+| Package                                           | Files         | What it is                                                                                                                           |
+|---------------------------------------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| `gen/`                                            | 4             | Generated `vkCreate*`/`vkDestroy*` binding calls                                                                                     |
+| `handles/`                                        | 1 (51 lines)  | Raw Vulkan handle wrapper types                                                                                                      |
+| `models/`                                         | 65            | Generated `Vk*CreateInfo`/`Vk*` struct models                                                                                        |
+| `enums/`                                          | 52            | Generated `Vk*` enum types                                                                                                           |
+| `vulkan/` (root)                                  | —             | `Vulkan` object, `VkArray`, `Version` — the raw API surface itself                                                                   |
+| `renderer/`                                       | 7             | `Renderer`, `RendererDraw3D`, swapchain draw loop — Awake's opinionated renderer                                                     |
+| `application/`                                    | 1             | `VulkanGameApplication` — Awake's `GameApplication` actual                                                                           |
+| `pipeline/`                                       | —             | `RenderPipeline`, `ShadowRenderPipeline` — Awake's pipeline abstraction                                                              |
+| `swapchain/`                                      | —             | `SwapchainManager` — Awake's swapchain lifecycle policy                                                                              |
+| `device/`                                         | 1 (229 lines) | `GraphicsDevice` — Awake's own physical/logical device selection, validation-layer and extension choices. A decision, not a binding. |
+| `commands/`                                       | 1             | `TransferContext` — Awake's staging-buffer transfer abstraction                                                                      |
+| `material/`, `mesh/`, `texture/`, `debug/`, `ui/` | —             | Awake's `render-api` contract implementations and UI glyph/quad pipelines                                                            |
 
 The boundary is exactly `gen/` + `handles/` + `models/` + `enums/` + the raw `vulkan/`-root API
 surface (what `vulkan-generator` produces or directly wraps) versus everything else (what Awake
@@ -376,7 +379,8 @@ natural producer of `vulkan:bindings`' contents (worth revisiting whether `vulka
 should itself move under `vulkan:generator` and generate directly into `vulkan:bindings` — flag
 for implementation time, not a decision this plan needs to force now).
 
-Confirmed, not assumed: `vulkan-generator`'s `FileWriter.rootDir` (`awake/backend/vulkan-generator/.../tool/WriteFile.kt`)
+Confirmed, not assumed: `vulkan-generator`'s `FileWriter.rootDir` (
+`awake/backend/vulkan-generator/.../tool/WriteFile.kt`)
 is a caller-set variable, not a path hardcoded into `backend:vulkan`'s tree. Repointing
 generation at `backend:vulkan:bindings/src/commonMain/...` needs zero generator-logic changes —
 only the `rootDir` argument the build script passes it. The split's mechanical cost is exactly

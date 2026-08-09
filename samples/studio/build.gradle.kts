@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.gradle.api.tasks.JavaExec
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -20,7 +19,8 @@ kotlin {
     wasmJs {
         browser {
             commonWebpackConfig {
-                val port = if (mode == org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.Mode.PRODUCTION) 8087 else 8086
+                val port =
+                    if (mode == org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.Mode.PRODUCTION) 8087 else 8086
                 devServer = devServer?.copy(port = port)
             }
         }
@@ -31,7 +31,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":awake:engine:game-authoring"))
             implementation(project(":awake:engine:render:contract"))
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
             implementation(project(":awake:ecs"))
             implementation(project(":awake:scene"))
             implementation(project(":awake:scene:authoring"))
@@ -48,7 +48,7 @@ kotlin {
             dependsOn(commonMain.get())
         }
         appMain.dependencies {
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
             implementation(project(":awake:backend:vulkan"))
         }
 
@@ -58,7 +58,7 @@ kotlin {
 
         named("wasmJsMain") {
             dependencies {
-                implementation(project(":awake:base"))
+                implementation(project(":awake:core"))
                 implementation(project(":awake:backend:webgpu"))
                 implementation(libs.kotlinx.browser)
             }
@@ -69,10 +69,12 @@ kotlin {
     }
 }
 
-val desktopNativeLibDir = project(":awake:backend:vulkan").layout.buildDirectory.dir("desktop-native-libs")
-val moltenVkIcdPath = fileTree("/opt/homebrew/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") }
-    .plus(fileTree("/usr/local/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") })
-    .files.firstOrNull()?.absolutePath
+val desktopNativeLibDir =
+    project(":awake:backend:vulkan:bindings").layout.buildDirectory.dir("desktop-native-libs")
+val moltenVkIcdPath =
+    fileTree("/opt/homebrew/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") }
+        .plus(fileTree("/usr/local/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") })
+        .files.firstOrNull()?.absolutePath
 val dyldFallbackLibraryPath = "/opt/homebrew/opt/vulkan-loader/lib:/opt/homebrew/lib:/usr/local/lib"
 
 tasks.register<JavaExec>("run") {
@@ -89,7 +91,8 @@ tasks.register<JavaExec>("run") {
         environment("VK_ICD_FILENAMES", moltenVkIcdPath)
     }
     environment("DYLD_FALLBACK_LIBRARY_PATH", dyldFallbackLibraryPath)
-    val jvmArgsList = mutableListOf("-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
+    val jvmArgsList =
+        mutableListOf("-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
     if (System.getProperty("os.name").lowercase().contains("mac")) {
         jvmArgsList += "-XstartOnFirstThread"
     }

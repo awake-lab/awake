@@ -42,7 +42,7 @@ kotlin {
             // Renderer/DrawCall/TextureLoader (moved in from awake-core) need Mat4/Camera
             // and Bitmap/readResourceBytes -- see docs/MVP_PLAN.md's Decision Log, D11, for
             // the awake-core split this module boundary comes from.
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
             // Module restructuring slice 1 (see docs/MVP_PLAN.md): Mesh/Material/Renderer's
             // expect declarations now implement the narrow backend-neutral interfaces this
             // module owns, so RenderSystem (awake-scene) can depend on just that module
@@ -88,14 +88,19 @@ kotlin {
 // On macOS, the Vulkan loader needs VK_ICD_FILENAMES to find MoltenVK's ICD manifest at run
 // time -- same rationale as :awake:backend:vulkan:bindings' own desktopTest env (this module's
 // desktopTest exercises the real renderer, so it needs the same environment).
-val moltenVkIcdPath = fileTree("/opt/homebrew/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") }
-    .plus(fileTree("/usr/local/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") })
-    .files.firstOrNull()?.absolutePath
+val moltenVkIcdPath =
+    fileTree("/opt/homebrew/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") }
+        .plus(fileTree("/usr/local/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") })
+        .files.firstOrNull()?.absolutePath
 val desktopVulkanEnv = buildMap {
     if (moltenVkIcdPath != null) put("VK_ICD_FILENAMES", moltenVkIcdPath)
-    put("DYLD_FALLBACK_LIBRARY_PATH", "/opt/homebrew/opt/vulkan-loader/lib:/opt/homebrew/lib:/usr/local/lib")
+    put(
+        "DYLD_FALLBACK_LIBRARY_PATH",
+        "/opt/homebrew/opt/vulkan-loader/lib:/opt/homebrew/lib:/usr/local/lib"
+    )
 }
-val desktopNativeLibDir = project(":awake:backend:vulkan:bindings").layout.buildDirectory.dir("desktop-native-libs")
+val desktopNativeLibDir =
+    project(":awake:backend:vulkan:bindings").layout.buildDirectory.dir("desktop-native-libs")
 
 // Always points java.library.path at bindings' desktop-native-libs for desktop tests -- a
 // no-op if :awake:backend:vulkan:bindings:buildDesktopNative hasn't been run (System.loadLibrary
@@ -106,7 +111,8 @@ tasks.named<Test>("desktopTest") {
     // `-DAWAKE_RECORD_SNAPSHOTS=true` on the Gradle CLI only sets the property on Gradle's own
     // JVM -- desktopTest runs in a forked test JVM, so forward it explicitly. Same fix
     // awake.ui-preview-report-convention applies for the ui-preview modules.
-    System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.let { systemProperty("AWAKE_RECORD_SNAPSHOTS", it) }
+    System.getProperty("AWAKE_RECORD_SNAPSHOTS")
+        ?.let { systemProperty("AWAKE_RECORD_SNAPSHOTS", it) }
     // Headless Vulkan tests exercise native loader / instance lifecycle paths that have
     // proven sensitive to process-shared state when multiple renderer baseline classes run
     // in one worker. Fork per test class keeps those baselines isolated and reproducible.
@@ -123,7 +129,8 @@ tasks.named<Test>("desktopTest") {
 // test-reporting tool (Allure, etc) until there are enough visual tests to justify one.
 tasks.register("pixelBaselineReport") {
     group = "verification"
-    description = "Generate an HTML gallery of actual-vs-baseline PNGs for any failed pixel-baseline test."
+    description =
+        "Generate an HTML gallery of actual-vs-baseline PNGs for any failed pixel-baseline test."
     val failuresDir = layout.buildDirectory.dir("test-failures")
     val reportFile = layout.buildDirectory.file("reports/pixel-baseline/index.html")
     // No inputs.dir/outputs.file declared -- this always reruns (a plain dev convenience
@@ -131,7 +138,8 @@ tasks.register("pixelBaselineReport") {
     // legitimately not exist yet (no failures ever recorded).
     doLast {
         val root = failuresDir.get().asFile
-        val testDirs = root.listFiles { file -> file.isDirectory }?.sortedBy { it.name } ?: emptyList()
+        val testDirs =
+            root.listFiles { file -> file.isDirectory }?.sortedBy { it.name } ?: emptyList()
 
         fun imgTag(file: File): String {
             if (!file.exists()) return "<p><em>missing: ${file.name}</em></p>"
@@ -215,12 +223,13 @@ val verifyShaderBinaries = tasks.register("verifyShaderBinaries") {
         val expected = manifestFile.readText().trim()
         val actual = hashShaderSources().trim()
         if (expected != actual) {
-            val changed = actual.lines().filter { it !in expected.lines() }.map { it.substringBefore("  ") }
+            val changed =
+                actual.lines().filter { it !in expected.lines() }.map { it.substringBefore("  ") }
             error(
                 "Vulkan GLSL changed but the checked-in .spv was not regenerated: " +
-                    "${changed.joinToString()}. Recompile with " +
-                    "`glslangValidator -V <file> -o <file>.spv`, then run " +
-                    ":awake:backend:vulkan:updateShaderManifest."
+                        "${changed.joinToString()}. Recompile with " +
+                        "`glslangValidator -V <file> -o <file>.spv`, then run " +
+                        ":awake:backend:vulkan:updateShaderManifest."
             )
         }
     }

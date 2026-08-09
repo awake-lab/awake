@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`GltfMesh.baseColorImageBytes`, `toInterleavedPositionNormalColorUv()`),
   `VertexFormat.PositionNormalColorUv`, and `Renderer.drawTexturedMesh(mesh, material,
   model)` — same separate staged-draw pattern as GPU skinning.
-- `:awake:scene:core` gained `SpinControl`/`SpinSystem` (generic entity rotation) and
+- `:awake:scene:scene-core` gained `SpinControl`/`SpinSystem` (generic entity rotation) and
   `:awake:scene:controls` gained `LookAtControl`/`LookAtCameraSystem` (rotation-only
   tracking) plus `PrimaryOrbitCamera` (a plain lifecycle helper, not an ECS `System`, for
   a UI-driven debug camera entity) — extracted from boilerplate duplicated across
@@ -103,13 +103,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   be reusable behavior; sample/game-specific systems belong with the authored gameplay that
   owns their rules.
 - Scene internals started splitting behind the published `awake-scene` facade:
-  `:awake:scene:core` now owns `Transform`/`Name`, and `:awake:scene:rendering` owns
+  `:awake:scene:scene-core` now owns `Transform`/`Name`, and `:awake:scene:rendering` owns
   `Camera`/`Light`/`MeshRenderer` plus `RenderSystem`. `:awake:scene:physics` now owns
   `PhysicsBody`/`PhysicsSystem`, `:awake:scene:controls` now owns
   `OrbitControl`/`FreeFlyControl`/`FollowControl`/`MovementControl` plus their camera
   systems, and `:awake:scene:runtime` now owns `SceneGameRuntime`, `SceneGameSpec`, the
   scene document model, and `SceneAssetLibrary`. `TransformSystem` moved to
-  `:awake:scene:core`; `PlayerControlSystem` moved into `:awake:scene-dsl` (it needs
+  `:awake:scene:scene-core`; `PlayerControlSystem` moved into `:awake:scene-dsl` (it needs
   `ui-core`). `:awake:scene-dsl` now depends on the specific scene leaf modules it uses
   instead of the whole `:awake:scene` facade. Public package names stay stable.
 - **Maven Central publishing migrated off Sonatype's legacy OSSRH staging API**
@@ -183,7 +183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GlslValidator plugin for pre-compiling glsl to spv in the demo project.
 
 ### Known Issues
- 
+
 - Possible memory leak when using Vulkan.
 - Incomplete text rendering.
 - Desktop OpenGL texture rendering is leaking.

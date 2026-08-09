@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
-import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 
 typealias SceneMeshFactory = SceneGameRuntime.() -> Mesh
 typealias SceneMaterialFactory = SceneGameRuntime.() -> Material
@@ -30,12 +30,13 @@ class SceneAssetLibrary(
         runtime.factory()
     }
 
-    fun requireMaterial(runtime: SceneGameRuntime, name: String): Material = materials.getOrPut(name) {
-        val factory = checkNotNull(materialFactories[name]) {
-            "No scene material named '$name' is registered."
+    fun requireMaterial(runtime: SceneGameRuntime, name: String): Material =
+        materials.getOrPut(name) {
+            val factory = checkNotNull(materialFactories[name]) {
+                "No scene material named '$name' is registered."
+            }
+            runtime.factory()
         }
-        runtime.factory()
-    }
 
     fun resolve(
         runtime: SceneGameRuntime,

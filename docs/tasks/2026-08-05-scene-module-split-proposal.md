@@ -24,7 +24,7 @@ Use a staged capability split:
 
 ```text
 :awake:scene                  published compatibility facade for now
-:awake:scene:core             scene contracts, transform/name, document model, validation
+:awake:scene:scene-core             scene contracts, transform/name, document model, validation
 :awake:scene:runtime          SceneGameRuntime scheduling and game-loop integration
 :awake:scene:rendering        Camera/Light/MeshRenderer, RenderSystem, render asset binding
 :awake:scene:physics          PhysicsBody and PhysicsSystem
@@ -40,7 +40,7 @@ would add churn before the scene core split is proven.
 
 The first physical split has started:
 
-- `:awake:scene:core` exists and owns `Transform`/`Name`.
+- `:awake:scene:scene-core` exists and owns `Transform`/`Name`.
 - `:awake:scene:rendering` exists and owns `Camera`/`Light`/`MeshRenderer` plus
   `RenderSystem`.
 - `:awake:scene:physics` exists and owns `PhysicsBody`/`PhysicsSystem`.
@@ -56,20 +56,20 @@ The first physical split has started:
   (`SceneDocument`/`SceneLoader`/`SceneValidator`/`SceneInstantiationAdapter`), and
   `SceneAssetLibrary` -- moved together as one unit since `SceneGameSpec` couples them
   directly (`sceneDocument: SceneDocument`, `assetLibraryFactory: () -> SceneAssetLibrary`),
-  not because the document model has stopped being a candidate for `:awake:scene:core`
+  not because the document model has stopped being a candidate for `:awake:scene:scene-core`
   later. `SceneRuntime` (the deprecated pre-`SceneGameRuntime` bootstrap) stays behind in
   `:awake:scene` -- it depends on `TransformSystem`, which hasn't moved out of `:awake:scene`
   yet, and moving it would have created a circular module dependency for no benefit to a
   deprecated class.
 - `:awake:scene` still acts as the published facade and re-exports all five modules.
-- `TransformSystem` moved to `:awake:scene:core` (it only ever needed `Transform`, and the
+- `TransformSystem` moved to `:awake:scene:scene-core` (it only ever needed `Transform`, and the
   rendering split had already happened -- the condition the original plan set for this move).
   `PlayerControlSystem` moved into `:awake:scene-dsl` directly, not `:awake:scene:controls`
   (it needs `ui-core`'s `UiInputOwnership`, and `:awake:scene-dsl` is exactly the "DSL/sample
   tooling" home the open-decisions section below already named for it). `SpinControl`/
-  `SpinSystem` (generic entity rotation) landed in `:awake:scene:core` after this split,
+  `SpinSystem` (generic entity rotation) landed in `:awake:scene:scene-core` after this split,
   following the same component+System convention as the existing camera controls.
-- `:awake:scene-dsl` now depends on `:awake:scene:core`/`:rendering`/`:controls`/`:runtime`
+- `:awake:scene-dsl` now depends on `:awake:scene:scene-core`/`:rendering`/`:controls`/`:runtime`
   directly instead of the `:awake:scene` facade (Phase 5, "DSL Dependency Tightening") --
   moving `TransformSystem`/`PlayerControlSystem` out of `:awake:scene` is what made this
   possible; before that, `:awake:scene-dsl` had no narrower path to either of them.
@@ -95,14 +95,14 @@ import immediately.
 
 ## Proposed Module Responsibilities
 
-| Module | Owns | Allowed dependencies | Must not own |
-|---|---|---|---|
-| `:awake:scene:core` | `Transform`, `Name` now; later `SceneDocument`, `SceneNode`, `SceneTransform`, validation, adapter contracts | `awake:base`, `awake:ecs`, serialization only once document model moves | `Renderer`, `PhysicsWorld`, UI input, authored gameplay |
-| `:awake:scene:runtime` | `SceneGameRuntime`, `SceneGameSpec`, `SceneSystemPhase`, `SceneSystemHandle`, frame/update lifecycle, scene frame helpers | `scene:core`, `awake:engine:game`, `awake:engine:ui:ui-core`, likely `render-api` during transition | Render submission internals, physics backend details, sample demo drivers |
-| `:awake:scene:rendering` | `Camera`, `Light`, `MeshRenderer`, `RenderSystem`, renderable request resolution, scene asset binding | `scene:core`, `scene:runtime` if asset factories still need runtime receiver, `awake:engine:render-api` | Vulkan/WebGPU concrete backends, authored sample meshes |
-| `:awake:scene:physics` | `PhysicsBody`, `PhysicsSystem` | `scene:core`, `awake:physics:api` | Jolt backend classes, gameplay movement rules |
-| `:awake:scene:controls` | `OrbitControl`, `FreeFlyControl`, `FollowControl`, reusable camera systems | `scene:core`, possibly `scene:rendering` for `Camera` | One-game movement/combat/chase rules, UI chrome |
-| `:awake:scene-dsl` | `sceneGame {}`, `fixedSystem`, `frameSystem`, entity/asset/document builders, infrastructure system installation | facade or the exact modules it needs | Engine core primitives, hidden duplicate render paths |
+| Module                    | Owns                                                                                                                      | Allowed dependencies                                                                                    | Must not own                                                              |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| `:awake:scene:scene-core` | `Transform`, `Name` now; later `SceneDocument`, `SceneNode`, `SceneTransform`, validation, adapter contracts              | `awake:base`, `awake:ecs`, serialization only once document model moves                                 | `Renderer`, `PhysicsWorld`, UI input, authored gameplay                   |
+| `:awake:scene:runtime`    | `SceneGameRuntime`, `SceneGameSpec`, `SceneSystemPhase`, `SceneSystemHandle`, frame/update lifecycle, scene frame helpers | `scene:core`, `awake:engine:game`, `awake:engine:ui:ui-core`, likely `render-api` during transition     | Render submission internals, physics backend details, sample demo drivers |
+| `:awake:scene:rendering`  | `Camera`, `Light`, `MeshRenderer`, `RenderSystem`, renderable request resolution, scene asset binding                     | `scene:core`, `scene:runtime` if asset factories still need runtime receiver, `awake:engine:render-api` | Vulkan/WebGPU concrete backends, authored sample meshes                   |
+| `:awake:scene:physics`    | `PhysicsBody`, `PhysicsSystem`                                                                                            | `scene:core`, `awake:physics:api`                                                                       | Jolt backend classes, gameplay movement rules                             |
+| `:awake:scene:controls`   | `OrbitControl`, `FreeFlyControl`, `FollowControl`, reusable camera systems                                                | `scene:core`, possibly `scene:rendering` for `Camera`                                                   | One-game movement/combat/chase rules, UI chrome                           |
+| `:awake:scene-dsl`        | `sceneGame {}`, `fixedSystem`, `frameSystem`, entity/asset/document builders, infrastructure system installation          | facade or the exact modules it needs                                                                    | Engine core primitives, hidden duplicate render paths                     |
 
 ## Transition Seams To Handle Carefully
 
@@ -211,7 +211,7 @@ Defer `PlayerControlSystem` until the UI-input dependency decision is made.
 After leaf splits, decide whether `SceneGameRuntime` belongs in:
 
 - `:awake:scene:runtime`, if it remains renderer/UI aware; or
-- `:awake:scene:core`, only if render/UI concerns are pulled behind explicit interfaces.
+- `:awake:scene:scene-core`, only if render/UI concerns are pulled behind explicit interfaces.
 
 Do not force this earlier. Runtime is the highest-risk seam.
 
@@ -248,13 +248,13 @@ Major-version option:
 
 ## Validation Matrix
 
-| Change | Minimum validation |
-|---|---|
-| Rendering split | `detekt`, `:awake:scene:desktopTest`, `:awake:scene-dsl:desktopTest`, `:samples:scene3d-playground:desktopTest` |
-| Physics split | `detekt`, `:awake:scene:desktopTest`, `:awake:backend:jolt:desktopTest` if available |
-| Controls split | `detekt`, camera/control system tests, scene DSL tests |
-| Runtime split | all scene/scene-dsl/sample tests plus Android sample compile |
-| Published facade changes | publication dry run or at least Gradle metadata inspection before release |
+| Change                   | Minimum validation                                                                                              |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------|
+| Rendering split          | `detekt`, `:awake:scene:desktopTest`, `:awake:scene-dsl:desktopTest`, `:samples:scene3d-playground:desktopTest` |
+| Physics split            | `detekt`, `:awake:scene:desktopTest`, `:awake:backend:jolt:desktopTest` if available                            |
+| Controls split           | `detekt`, camera/control system tests, scene DSL tests                                                          |
+| Runtime split            | all scene/scene-dsl/sample tests plus Android sample compile                                                    |
+| Published facade changes | publication dry run or at least Gradle metadata inspection before release                                       |
 
 ## Open Decisions
 

@@ -33,7 +33,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
             implementation(project(":awake:engine:ui:ui-core"))
             implementation(libs.kotlinx.serialization.json)
         }

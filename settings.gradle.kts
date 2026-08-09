@@ -19,12 +19,12 @@
 
 rootProject.name = "Awake"
 
-include(":awake:base")
+include(":awake:core")
 include(":awake:backend:opengl")
 include(":awake:ecs")
 include(":awake:ecs:benchmark")
 include(":awake:scene")
-include(":awake:scene:core")
+include(":awake:scene:scene-core")
 include(":awake:scene:controls")
 include(":awake:scene:physics")
 include(":awake:scene:rendering")

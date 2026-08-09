@@ -32,7 +32,6 @@
 // (the per-struct accessor/mutator tree matching models/). There is no engine-layer C++ --
 // GraphicsDevice/RenderPipeline/etc. are pure Kotlin calling into this module's `Vulkan.*`
 // functions, which this native library backs.
-import java.security.MessageDigest
 
 plugins {
     id("awake.kmp-library-convention")
@@ -56,7 +55,7 @@ kotlin {
         ),
         "iosSimulatorArm64" to file(
             "ios-native/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/" +
-                "ios-arm64_x86_64-simulator"
+                    "ios-arm64_x86_64-simulator"
         ),
     )
     listOf(
@@ -64,9 +63,11 @@ kotlin {
         "iosSimulatorArm64"
     ).forEach { targetName ->
         val staticDir = moltenVkStaticDir.getValue(targetName)
-        val target = kotlin.targets.getByName(targetName) as org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+        val target =
+            kotlin.targets.getByName(targetName) as org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
-        val generatedDefFile = layout.buildDirectory.file("cinterop/MoltenVK-$targetName.def").get().asFile
+        val generatedDefFile =
+            layout.buildDirectory.file("cinterop/MoltenVK-$targetName.def").get().asFile
         generatedDefFile.parentFile.mkdirs()
         val moltenVkLinkerOpts = listOf(
             "-L${staticDir.path}", "-lMoltenVK", "-lc++",
@@ -79,7 +80,7 @@ kotlin {
         ).joinToString(" ")
         generatedDefFile.writeText(
             project.file("src/nativeInterop/cinterop/MoltenVK.def").readText() +
-                "\nlinkerOpts = $moltenVkLinkerOpts\n"
+                    "\nlinkerOpts = $moltenVkLinkerOpts\n"
         )
         target.compilations.getByName("main") {
             cinterops {
@@ -96,7 +97,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // Buffer/memory types the raw Vk*/gen wrappers marshal through.
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
@@ -131,7 +132,7 @@ tasks.register<Exec>("configureDesktopNative") {
 tasks.register<Exec>("buildDesktopNative") {
     group = "native"
     description = "Build the desktop native library (.dylib/.so/.dll) and copy it where the " +
-        "desktop JVM's System.loadLibrary(\"awake-vulkan\") can find it (-Djava.library.path)."
+            "desktop JVM's System.loadLibrary(\"awake-vulkan\") can find it (-Djava.library.path)."
     dependsOn("configureDesktopNative")
     workingDir = desktopNativeBuildDir.get().asFile
     commandLine("cmake", "--build", desktopNativeBuildDir.get().asFile.absolutePath)
@@ -148,12 +149,16 @@ tasks.register<Exec>("buildDesktopNative") {
 
 // See :awake:backend:vulkan's original build.gradle.kts history for the macOS Vulkan
 // loader/ICD rationale -- unchanged by the split.
-val moltenVkIcdPath = fileTree("/opt/homebrew/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") }
-    .plus(fileTree("/usr/local/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") })
-    .files.firstOrNull()?.absolutePath
+val moltenVkIcdPath =
+    fileTree("/opt/homebrew/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") }
+        .plus(fileTree("/usr/local/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") })
+        .files.firstOrNull()?.absolutePath
 val desktopVulkanEnv = buildMap {
     if (moltenVkIcdPath != null) put("VK_ICD_FILENAMES", moltenVkIcdPath)
-    put("DYLD_FALLBACK_LIBRARY_PATH", "/opt/homebrew/opt/vulkan-loader/lib:/opt/homebrew/lib:/usr/local/lib")
+    put(
+        "DYLD_FALLBACK_LIBRARY_PATH",
+        "/opt/homebrew/opt/vulkan-loader/lib:/opt/homebrew/lib:/usr/local/lib"
+    )
 }
 
 tasks.named<Test>("desktopTest") {
@@ -174,7 +179,7 @@ val startOnFirstThread = if (System.getProperty("os.name").lowercase().contains(
 tasks.register<JavaExec>("verifyGlfwMain") {
     group = "native"
     description = "Manually verify GLFW window + Vulkan surface creation on the real OS main " +
-        "thread (see GlfwManualVerify.kt) -- run after buildDesktopNative."
+            "thread (see GlfwManualVerify.kt) -- run after buildDesktopNative."
     dependsOn("compileTestKotlinDesktop")
     mainClass.set("GlfwManualVerifyKt")
     classpath = files(

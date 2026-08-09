@@ -17,30 +17,30 @@ unclear, keep it out of published core until real usage proves where it belongs.
 
 ## Layer Definitions
 
-| Layer | Purpose | Stability | Belongs In | Avoid |
-|---|---|---|---|---|
-| Core | Minimal primitives and contracts that other layers build on | Highest | Published engine/runtime modules | Renderer-specific behavior, scene assumptions, opinionated defaults, demo shortcuts |
-| Helpers | Reusable convenience over core that stays explicit | Medium-high | Runtime modules or helper packages | Hidden lifecycle, surprising allocation, policy that callers cannot override |
-| Sugar | Authoring-friendly syntax and sample ergonomics | Medium-low | DSL/authoring/sample-facing modules | Becoming the only way to use the engine, leaking into core, hiding expensive work |
+| Layer   | Purpose                                                     | Stability   | Belongs In                          | Avoid                                                                               |
+|---------|-------------------------------------------------------------|-------------|-------------------------------------|-------------------------------------------------------------------------------------|
+| Core    | Minimal primitives and contracts that other layers build on | Highest     | Published engine/runtime modules    | Renderer-specific behavior, scene assumptions, opinionated defaults, demo shortcuts |
+| Helpers | Reusable convenience over core that stays explicit          | Medium-high | Runtime modules or helper packages  | Hidden lifecycle, surprising allocation, policy that callers cannot override        |
+| Sugar   | Authoring-friendly syntax and sample ergonomics             | Medium-low  | DSL/authoring/sample-facing modules | Becoming the only way to use the engine, leaking into core, hiding expensive work   |
 
 ## ECS And Scene Mapping
 
 Current intended split:
 
-| API | Layer | Module | Why |
-|---|---|---|---|
-| `Entity` | Core | `:awake:ecs` | Stable identity primitive |
-| `World` | Core | `:awake:ecs` | Owns entity/component storage |
-| `System` | Core | `:awake:ecs` | Minimal behavior contract: `update(world, delta)` |
-| `World.family(...)` / `queryEach(...)` | Core/helper boundary | `:awake:ecs` | Querying is central to using the ECS; ergonomic overloads are acceptable when they stay explicit |
-| Component pooling | Helper | `:awake:ecs` | Performance convenience over component storage |
-| `Transform`, `Name` | Scene core | `:awake:scene:core` via `:awake:scene` facade | Scene-domain components, not generic ECS concepts |
-| `Camera`, `Light`, `MeshRenderer` | Scene rendering | `:awake:scene:rendering` via `:awake:scene` facade | Render-facing scene components stay out of the tiny scene core |
-| `SceneGameRuntime` | Scene core | `:awake:scene:runtime` via `:awake:scene` facade | Owns scene lifecycle and game-loop integration |
-| `SceneSystemPhase` | Scene core | `:awake:scene:runtime` via `:awake:scene` facade | Scheduling belongs to the scene runtime, not the ECS core |
-| `fixedSystem(...)` / `frameSystem(...)` | Helper/sugar | `:awake:scene:authoring` | Friendly explicit registration for scene runtime phases |
-| `cameraEntity(...)` / `meshEntity(...)` | Sugar | `:awake:scene:authoring` | Authoring convenience for common scene shapes |
-| `scene { ... }` / `assets { ... }` | Sugar | `:awake:scene:authoring` | Declarative authoring surface |
+| API                                     | Layer                | Module                                              | Why                                                                                              |
+|-----------------------------------------|----------------------|-----------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| `Entity`                                | Core                 | `:awake:ecs`                                        | Stable identity primitive                                                                        |
+| `World`                                 | Core                 | `:awake:ecs`                                        | Owns entity/component storage                                                                    |
+| `System`                                | Core                 | `:awake:ecs`                                        | Minimal behavior contract: `update(world, delta)`                                                |
+| `World.family(...)` / `queryEach(...)`  | Core/helper boundary | `:awake:ecs`                                        | Querying is central to using the ECS; ergonomic overloads are acceptable when they stay explicit |
+| Component pooling                       | Helper               | `:awake:ecs`                                        | Performance convenience over component storage                                                   |
+| `Transform`, `Name`                     | Scene core           | `:awake:scene:scene-core` via `:awake:scene` facade | Scene-domain components, not generic ECS concepts                                                |
+| `Camera`, `Light`, `MeshRenderer`       | Scene rendering      | `:awake:scene:rendering` via `:awake:scene` facade  | Render-facing scene components stay out of the tiny scene core                                   |
+| `SceneGameRuntime`                      | Scene core           | `:awake:scene:runtime` via `:awake:scene` facade    | Owns scene lifecycle and game-loop integration                                                   |
+| `SceneSystemPhase`                      | Scene core           | `:awake:scene:runtime` via `:awake:scene` facade    | Scheduling belongs to the scene runtime, not the ECS core                                        |
+| `fixedSystem(...)` / `frameSystem(...)` | Helper/sugar         | `:awake:scene:authoring`                            | Friendly explicit registration for scene runtime phases                                          |
+| `cameraEntity(...)` / `meshEntity(...)` | Sugar                | `:awake:scene:authoring`                            | Authoring convenience for common scene shapes                                                    |
+| `scene { ... }` / `assets { ... }`      | Sugar                | `:awake:scene:authoring`                            | Declarative authoring surface                                                                    |
 
 Design credit: Awake's system model is Ashley-like in spirit, but with a
 Bevy/Unity/Flecs-style separation. Systems describe behavior; schedules decide when that
@@ -107,7 +107,7 @@ Likely future shape:
 :awake:scene
   Published compatibility facade while scene internals split by capability.
 
-:awake:scene:core
+:awake:scene:scene-core
   Scene-domain core components. Currently owns Transform, Name, and TransformSystem
   (moved here once the rendering split made "keep transform propagation in core" the
   actual state, not just the plan), plus the generic entity-rotation SpinControl/
@@ -137,7 +137,7 @@ Likely future shape:
 
 :awake:scene:authoring or :awake:scene:authoring
   Declarative authoring sugar and demo-friendly builders. Depends on
-  :awake:scene:core/:rendering/:controls/:runtime directly, not the :awake:scene facade
+  :awake:scene:scene-core/:rendering/:controls/:runtime directly, not the :awake:scene facade
   (Phase 5). Owns the DSL registration helpers for those systems (playerInputSystem(),
   cameraInputSystem(), matrixRelativeMovementSystem(), cameraSystem()), not the systems
   themselves.

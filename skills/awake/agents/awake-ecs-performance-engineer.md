@@ -38,14 +38,16 @@ means the scope has grown past what was decided.
 ## Architecture: sparse-set, not archetype
 
 `awake-ecs` uses a **sparse-set** per component type (`dense: IntArray`/`data: MutableList<T>`
+
 + `sparse: IntArray` mapping entity ID → dense index), not archetype tables. This was a
-deliberate choice over three real options (map-of-maps, sparse-set, archetype) — sparse-set
-gives fast contiguous iteration per component and O(1) add/remove without archetype-migration
-complexity, which this project's scale doesn't need yet. Don't "upgrade" to an archetype
-design without discussing it first — it's a large rewrite (archetype graph, table migration
-logic) that solves a scaling problem this project doesn't have.
+  deliberate choice over three real options (map-of-maps, sparse-set, archetype) — sparse-set
+  gives fast contiguous iteration per component and O(1) add/remove without archetype-migration
+  complexity, which this project's scale doesn't need yet. Don't "upgrade" to an archetype
+  design without discussing it first — it's a large rewrite (archetype graph, table migration
+  logic) that solves a scaling problem this project doesn't have.
 
 Core pieces:
+
 - `Entity` — a value class wrapping an `Int` id **and** a generation counter. The generation
   counter exists specifically so a recycled entity ID from a destroyed entity can't alias a
   stale reference held elsewhere — don't simplify this to a bare `Int` id, it's the classic
@@ -81,11 +83,12 @@ Core pieces:
 
 Profiling `awakeFamilyChurn` with async-profiler (see `docs/ecs-benchmark-scorecard.md`'s
 "Profiled `awakeFamilyChurn`" section) found `kotlin.jvm.internal.ClassReference.hashCode`
+
 + `ReflectionFactory.getOrCreateKotlinClass` costing ~10% of CPU samples. Root cause:
-Kotlin's reified generics (`inline fun <reified T> add(entity, component) = add(entity,
+  Kotlin's reified generics (`inline fun <reified T> add(entity, component) = add(entity,
 T::class, component)`) re-derive the `KClass` token *at the call site* on every invocation
-— without `kotlin-reflect` on the classpath (which this project deliberately doesn't add),
-that's a fresh `ClassReference` wrapper allocation each time, not a cached lookup.
+  — without `kotlin-reflect` on the classpath (which this project deliberately doesn't add),
+  that's a fresh `ClassReference` wrapper allocation each time, not a cached lookup.
 
 This is invisible for code that calls a reified generic once per frame (e.g.
 `TransformSystem`'s single `world.queryEach<Transform> { ... }` call) — negligible cost at
@@ -132,9 +135,14 @@ there.
 ## Reference files (exact paths — read these before writing `MeshRenderer`/`RenderSystem`)
 
 - `awake/backend/vulkan/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/vulkan/mesh/Mesh.kt`
-- `awake/backend/vulkan/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/vulkan/material/Material.kt`
-- `awake/engine/render-api/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/render/renderer/DrawCall.kt`
-- `awake/engine/render-api/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/render/renderer/Renderer.kt`
+-
+
+`awake/backend/vulkan/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/vulkan/material/Material.kt`
+-
+`awake/engine/render-api/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/render/renderer/DrawCall.kt`
+-
+`awake/engine/render-api/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/render/renderer/Renderer.kt`
+
 - `awake/base/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/core/math/Camera.kt` (and
   `Mat4`/`Vec3` in the same `math` package, for `Transform`'s own matrix math)
 
@@ -168,7 +176,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":awake:base"))            // Mat4/Vec3/Camera
+            implementation(project(":awake:core"))            // Mat4/Vec3/Camera
             implementation(project(":awake:engine:render:contract")) // Renderer/DrawCall
             implementation(project(":awake:backend:vulkan"))  // Mesh/Material (MeshRenderer only)
         }
@@ -182,7 +190,7 @@ kotlin {
 Register it in root `settings.gradle.kts` next to the other `include(...)` lines:
 `include(":awake:ecs")`.
 
-**Dependency direction check**: `:awake:ecs` depends on `:awake:base` (for math/`Camera`),
+**Dependency direction check**: `:awake:ecs` depends on `:awake:core` (for math/`Camera`),
 `:awake:engine:render:contract` (for `Renderer`/`DrawCall`), and `:awake:backend:vulkan` (for
 `Mesh`/`Material`) — same direction `:awake:backend:vulkan` already depends on
 `:awake:engine:render:contract`, so no cycle. Don't add an `:awake:ecs` dependency back into any

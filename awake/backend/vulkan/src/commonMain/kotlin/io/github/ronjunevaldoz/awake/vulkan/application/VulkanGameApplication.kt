@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.vulkan.application
 
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.engine.application.Game
-import io.github.ronjunevaldoz.awake.engine.application.GameApplication
-import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
+import io.github.ronjunevaldoz.awake.engine.game.Game
+import io.github.ronjunevaldoz.awake.engine.game.GameApplication
+import io.github.ronjunevaldoz.awake.engine.game.GameShaderSet
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
@@ -98,7 +98,8 @@ open class VulkanGameApplication(
     private var shadowRenderPipeline: ShadowRenderPipeline? = null
 
     /** Needed to build [renderPipeline]'s pipeline layout before any real [Material] exists. */
-    private var pipelineDescriptorSetLayout: DescriptorSetLayoutHandle = DescriptorSetLayoutHandle(0)
+    private var pipelineDescriptorSetLayout: DescriptorSetLayoutHandle =
+        DescriptorSetLayoutHandle(0)
 
     override suspend fun createBackendResources(window: Any): BackendResources {
         graphicsDevice = GraphicsDevice()
@@ -114,7 +115,8 @@ open class VulkanGameApplication(
         // decide whether their shared descriptor set layout declares the extra shadow
         // bindings (see Material.kt's own shadowMap doc comment).
         shadowMap = shadowShaderSet?.let { ShadowMap(graphicsDevice) }
-        pipelineDescriptorSetLayout = Material.createDescriptorSetLayout(graphicsDevice, shadowMap = shadowMap)
+        pipelineDescriptorSetLayout =
+            Material.createDescriptorSetLayout(graphicsDevice, shadowMap = shadowMap)
 
         // fillPipeline(shaders, format) builds the normal pipeline plus, when wireframeSupport
         // is on, a VK_POLYGON_MODE_LINE companion sharing the exact same loaded ShaderPair --
@@ -181,7 +183,10 @@ open class VulkanGameApplication(
                 graphicsDevice,
                 map.renderPass,
                 pipelineDescriptorSetLayout,
-                loadShaderPair(shaderSet.vulkan.vertexResourcePath, shaderSet.vulkan.fragmentResourcePath),
+                loadShaderPair(
+                    shaderSet.vulkan.vertexResourcePath,
+                    shaderSet.vulkan.fragmentResourcePath,
+                ),
                 // Same vertex layout as the primary pipeline -- it draws the same meshes.
                 vertexFormat,
                 map.size,
@@ -193,7 +198,10 @@ open class VulkanGameApplication(
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
-            loadShaderPair(DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH, DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH),
+            loadShaderPair(
+                DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH,
+                DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH,
+            ),
             MAX_FRAMES_IN_FLIGHT,
         )
         transferContext = TransferContext(graphicsDevice)
@@ -210,9 +218,18 @@ open class VulkanGameApplication(
             lineRenderPipeline,
             transferContext,
             loadShaderPair(UI_VERTEX_SHADER_RESOURCE_PATH, UI_FRAGMENT_SHADER_RESOURCE_PATH),
-            loadShaderPair(UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH, UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH),
-            loadShaderPair(UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH, UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH),
-            loadShaderPair(UI_ROUNDED_QUAD_VERTEX_SHADER_RESOURCE_PATH, UI_ROUNDED_QUAD_FRAGMENT_SHADER_RESOURCE_PATH),
+            loadShaderPair(
+                UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH,
+                UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH,
+            ),
+            loadShaderPair(
+                UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH,
+                UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH,
+            ),
+            loadShaderPair(
+                UI_ROUNDED_QUAD_VERTEX_SHADER_RESOURCE_PATH,
+                UI_ROUNDED_QUAD_FRAGMENT_SHADER_RESOURCE_PATH,
+            ),
             MAX_FRAMES_IN_FLIGHT,
             wireframePipelinesByFormat,
             shadowMap,
@@ -269,11 +286,17 @@ open class VulkanGameApplication(
         const val UI_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_quad.frag.spv"
         const val UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_glyph.vert.spv"
         const val UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_glyph.frag.spv"
-        const val UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_texture.vert.spv"
-        const val UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_texture.frag.spv"
-        const val UI_ROUNDED_QUAD_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_rounded_quad.vert.spv"
-        const val UI_ROUNDED_QUAD_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/ui_rounded_quad.frag.spv"
-        const val DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH = "assets/shader/vulkan/debug_line.vert.spv"
-        const val DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH = "assets/shader/vulkan/debug_line.frag.spv"
+        const val UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH =
+            "assets/shader/vulkan/ui_texture.vert.spv"
+        const val UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH =
+            "assets/shader/vulkan/ui_texture.frag.spv"
+        const val UI_ROUNDED_QUAD_VERTEX_SHADER_RESOURCE_PATH =
+            "assets/shader/vulkan/ui_rounded_quad.vert.spv"
+        const val UI_ROUNDED_QUAD_FRAGMENT_SHADER_RESOURCE_PATH =
+            "assets/shader/vulkan/ui_rounded_quad.frag.spv"
+        const val DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH =
+            "assets/shader/vulkan/debug_line.vert.spv"
+        const val DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH =
+            "assets/shader/vulkan/debug_line.frag.spv"
     }
 }

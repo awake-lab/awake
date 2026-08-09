@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime
 
-import io.github.ronjunevaldoz.awake.engine.application.Game
-import io.github.ronjunevaldoz.awake.engine.application.GameInstaller
-import io.github.ronjunevaldoz.awake.engine.application.GameServiceLookup
-import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
+import io.github.ronjunevaldoz.awake.engine.game.Game
+import io.github.ronjunevaldoz.awake.engine.game.GameInstaller
+import io.github.ronjunevaldoz.awake.engine.game.GameServiceLookup
+import io.github.ronjunevaldoz.awake.engine.game.GameSpecBuilder
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.EmptyCoroutineContext
@@ -39,7 +39,13 @@ class SceneRouterSpec(
         val runtime = SceneRouterRuntime(routes, initialRouteId, into.serviceLookup())
         into.service(SceneRouterRuntime::class, runtime)
         into.ready { renderer -> runtime.ready(renderer) }
-        into.render { delta, viewportWidth, viewportHeight -> runtime.render(delta, viewportWidth, viewportHeight) }
+        into.render { delta, viewportWidth, viewportHeight ->
+            runtime.render(
+                delta,
+                viewportWidth,
+                viewportHeight,
+            )
+        }
         into.resize { width, height -> runtime.resize(width, height) }
         into.pause { runtime.pause() }
         into.resume { runtime.resume() }
@@ -115,7 +121,8 @@ class SceneRouterRuntime internal constructor(
 
     private fun activate(sceneId: String) {
         val route = routesById.getValue(sceneId)
-        val activeRenderer = checkNotNull(renderer) { "Scene router cannot activate '$sceneId' before ready()." }
+        val activeRenderer =
+            checkNotNull(renderer) { "Scene router cannot activate '$sceneId' before ready()." }
         currentRuntime?.dispose()
         currentRoute = route
         currentRuntime = SceneGameRuntime(route.spec).also { runtime ->

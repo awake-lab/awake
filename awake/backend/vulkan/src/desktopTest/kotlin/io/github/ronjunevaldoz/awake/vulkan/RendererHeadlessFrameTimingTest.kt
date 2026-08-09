@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.vulkan
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.engine.application.FrameStats
+import io.github.ronjunevaldoz.awake.engine.game.FrameStats
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
@@ -47,7 +47,12 @@ class RendererHeadlessFrameTimingTest {
             graphicsDevice,
             swapchainManager,
             pipelineLayoutMaterial.descriptorSetLayout,
-            runBlocking { loadShaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
+            runBlocking {
+                loadShaderPair(
+                    "assets/shader/vulkan/triangle.vert.spv",
+                    "assets/shader/vulkan/triangle.frag.spv",
+                )
+            },
             VertexFormat.PositionColorUv,
             vertexEntryPoint = "vertexMain",
             fragmentEntryPoint = "fragmentMain",
@@ -56,7 +61,12 @@ class RendererHeadlessFrameTimingTest {
             graphicsDevice,
             swapchainManager,
             renderPipeline.renderPass,
-            runBlocking { loadShaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
+            runBlocking {
+                loadShaderPair(
+                    "assets/shader/vulkan/debug_line.vert.spv",
+                    "assets/shader/vulkan/debug_line.frag.spv",
+                )
+            },
             MAX_FRAMES_IN_FLIGHT,
         )
         val transferContext = TransferContext(graphicsDevice)
@@ -67,11 +77,29 @@ class RendererHeadlessFrameTimingTest {
             emptyMap(),
             lineRenderPipeline,
             transferContext,
-            runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") },
-            runBlocking { loadShaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") },
-            runBlocking { loadShaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") },
             runBlocking {
-                loadShaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
+                loadShaderPair(
+                    "assets/shader/vulkan/ui_quad.vert.spv",
+                    "assets/shader/vulkan/ui_quad.frag.spv",
+                )
+            },
+            runBlocking {
+                loadShaderPair(
+                    "assets/shader/vulkan/ui_glyph.vert.spv",
+                    "assets/shader/vulkan/ui_glyph.frag.spv",
+                )
+            },
+            runBlocking {
+                loadShaderPair(
+                    "assets/shader/vulkan/ui_texture.vert.spv",
+                    "assets/shader/vulkan/ui_texture.frag.spv",
+                )
+            },
+            runBlocking {
+                loadShaderPair(
+                    "assets/shader/vulkan/ui_rounded_quad.vert.spv",
+                    "assets/shader/vulkan/ui_rounded_quad.frag.spv",
+                )
             },
             MAX_FRAMES_IN_FLIGHT,
         )
@@ -87,7 +115,8 @@ class RendererHeadlessFrameTimingTest {
                 near = 0.1f,
                 far = 10f,
             )
-            val createdMesh = renderer.createMesh(MeshGeometry(cubeVertices, cubeIndices)).also { mesh = it }
+            val createdMesh =
+                renderer.createMesh(MeshGeometry(cubeVertices, cubeIndices)).also { mesh = it }
             val createdMaterial = renderer.createMaterial().also { material = it }
             val drawCalls = listOf(DrawCall(createdMesh, createdMaterial))
 
@@ -98,7 +127,10 @@ class RendererHeadlessFrameTimingTest {
                 runBlocking { renderer.readPixels(target) }
             }
 
-            val stats = FrameStats(sampleWindowSeconds = Float.MAX_VALUE, percentileWindowSize = FRAME_COUNT)
+            val stats = FrameStats(
+                sampleWindowSeconds = Float.MAX_VALUE,
+                percentileWindowSize = FRAME_COUNT,
+            )
             var totalNanos = 0L
             repeat(FRAME_COUNT) {
                 val start = TimeSource.Monotonic.markNow()
@@ -132,7 +164,10 @@ class RendererHeadlessFrameTimingTest {
             renderer.destroy()
             lineRenderPipeline.destroy()
             renderPipeline.destroy()
-            VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)
+            VulkanDescriptors.vkDestroyDescriptorSetLayout(
+                graphicsDevice.device,
+                pipelineLayoutMaterial.descriptorSetLayout.handle,
+            )
             transferContext.destroy()
             graphicsDevice.destroy()
         }

@@ -17,7 +17,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":awake:engine:ui:ui-core"))
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

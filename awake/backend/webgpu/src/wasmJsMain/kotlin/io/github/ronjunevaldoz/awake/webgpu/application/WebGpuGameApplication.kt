@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.webgpu.application
 
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.engine.application.Game
-import io.github.ronjunevaldoz.awake.engine.application.GameApplication
-import io.github.ronjunevaldoz.awake.engine.application.GameShaderSet
+import io.github.ronjunevaldoz.awake.engine.game.Game
+import io.github.ronjunevaldoz.awake.engine.game.GameApplication
+import io.github.ronjunevaldoz.awake.engine.game.GameShaderSet
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice

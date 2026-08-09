@@ -12,7 +12,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":awake:scene:core"))
+            api(project(":awake:scene:scene-core"))
             api(project(":awake:physics:api"))
         }
         commonTest.dependencies {

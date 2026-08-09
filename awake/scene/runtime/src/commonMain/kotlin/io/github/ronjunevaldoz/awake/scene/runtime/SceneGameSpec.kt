@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime
 
-import io.github.ronjunevaldoz.awake.engine.application.GameModule
-import io.github.ronjunevaldoz.awake.engine.application.GameSpecBuilder
+import io.github.ronjunevaldoz.awake.engine.game.GameModule
+import io.github.ronjunevaldoz.awake.engine.game.GameSpecBuilder
 import kotlin.reflect.KClass
 
 class SceneGameSpec(
@@ -31,7 +31,13 @@ class SceneGameSpec(
             registration.install(into, runtime)
         }
         into.ready { renderer -> runtime.ready(renderer) }
-        into.render { delta, viewportWidth, viewportHeight -> runtime.render(delta, viewportWidth, viewportHeight) }
+        into.render { delta, viewportWidth, viewportHeight ->
+            runtime.render(
+                delta,
+                viewportWidth,
+                viewportHeight,
+            )
+        }
         into.resize { width, height -> runtime.resize(width, height) }
         into.pause { runtime.pause() }
         into.resume { runtime.resume() }

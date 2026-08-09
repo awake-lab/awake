@@ -6,9 +6,9 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
-import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
-import io.github.ronjunevaldoz.awake.engine.application.createGameSpec
-import io.github.ronjunevaldoz.awake.engine.application.select
+import io.github.ronjunevaldoz.awake.engine.game.GameWindowBackend
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.createGameSpec
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.select
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry

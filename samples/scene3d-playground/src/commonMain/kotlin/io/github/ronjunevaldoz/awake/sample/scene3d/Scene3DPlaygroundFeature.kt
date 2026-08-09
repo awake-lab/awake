@@ -4,28 +4,28 @@ package io.github.ronjunevaldoz.awake.sample.scene3d
 
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.engine.application.GameModule
-import io.github.ronjunevaldoz.awake.engine.application.gameModule
+import io.github.ronjunevaldoz.awake.engine.game.GameModule
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.GltfViewerDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.LIT_SHADOW_UNIFORM_FLOAT_COUNT
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.rotatingCubeGeometry
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.rotatingGroundPlaneGeometry
+import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraInputSystem
+import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraSystem
+import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.matrixRelativeMovementSystem
+import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.playerInputSystem
+import io.github.ronjunevaldoz.awake.scene.authoring.scene
+import io.github.ronjunevaldoz.awake.scene.core.systems.SpinSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.scene
-import io.github.ronjunevaldoz.awake.scene.runtime.systems.cameraInputSystem
-import io.github.ronjunevaldoz.awake.scene.runtime.systems.cameraSystem
-import io.github.ronjunevaldoz.awake.scene.runtime.systems.matrixRelativeMovementSystem
-import io.github.ronjunevaldoz.awake.scene.runtime.systems.playerInputSystem
-import io.github.ronjunevaldoz.awake.scene.systems.SpinSystem
 
 /** The whole app -- this module's `app/Main.kt`/`app/main.kt` platform entry points install
- * this directly (see [io.github.ronjunevaldoz.awake.engine.application.gameDefinition]'s
+ * this directly (see [io.github.ronjunevaldoz.awake.engine.gameauthoring.gameDefinition]'s
  * `module(...)` call).
  *
  * Runs on the real ECS [io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime] (not
- * [io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime]) -- every demo page spawns
+ * [io.github.ronjunevaldoz.awake.engine.gameauthoring.GameUiRuntime]) -- every demo page spawns
  * its own [io.github.ronjunevaldoz.awake.ecs.World] entities on activation and destroys them on
  * deactivation (see [Scene3DDemo]'s own doc comment); the scene DSL's built-in infrastructure
  * render system is the one real `renderer.draw()` call per frame this relies on, replacing

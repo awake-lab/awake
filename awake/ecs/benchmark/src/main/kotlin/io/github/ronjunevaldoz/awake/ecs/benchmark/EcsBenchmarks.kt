@@ -5,8 +5,8 @@ package io.github.ronjunevaldoz.awake.ecs.benchmark
 import com.artemis.WorldConfigurationBuilder
 import com.github.quillraven.fleks.configureWorld
 import io.github.ronjunevaldoz.awake.ecs.ComponentTypeId
-import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
-import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.Fork
 import org.openjdk.jmh.annotations.Level

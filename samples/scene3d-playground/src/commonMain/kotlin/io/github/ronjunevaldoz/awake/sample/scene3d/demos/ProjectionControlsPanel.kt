@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.scene.components.Camera
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope

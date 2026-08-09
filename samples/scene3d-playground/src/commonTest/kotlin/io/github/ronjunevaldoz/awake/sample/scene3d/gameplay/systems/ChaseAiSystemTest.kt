@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.sample.scene3d.gameplay.systems
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.navigation.NavMesh
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,7 +39,10 @@ class ChaseAiSystemTest {
 
         system.update(world, 0.1f)
         assertEquals(1, navMesh.findPathCallCount)
-        assertTrue(npcTransform.position.x > 0f, "Expected the NPC to step toward the first waypoint.")
+        assertTrue(
+            npcTransform.position.x > 0f,
+            "Expected the NPC to step toward the first waypoint.",
+        )
 
         repeat(30) { system.update(world, 0.1f) }
         assertTrue(

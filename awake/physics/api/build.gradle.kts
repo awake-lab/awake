@@ -38,7 +38,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // BodyTransform/RaycastHit/PhysicsWorld all take/return Vec3 (portable math).
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

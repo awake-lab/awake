@@ -5,11 +5,11 @@ package io.github.ronjunevaldoz.awake.studio
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.engine.application.GameModule
-import io.github.ronjunevaldoz.awake.engine.application.gameModule
-import io.github.ronjunevaldoz.awake.scene.components.Camera
+import io.github.ronjunevaldoz.awake.engine.game.GameModule
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
+import io.github.ronjunevaldoz.awake.scene.authoring.scene
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.scene
 import io.github.ronjunevaldoz.awake.studio.examples.ExampleLoader
 import io.github.ronjunevaldoz.awake.studio.examples.GltfViewerAssets
 import io.github.ronjunevaldoz.awake.studio.examples.SkinnedExampleDriver
@@ -51,7 +51,13 @@ internal fun studioModule(store: StudioStore = StudioStore()): GameModule {
                 // since dispatch only otherwise fires from a click.
                 store.dispatch(StudioContract.Intent.SelectExample(StudioExamples.first().id))
             }
-            overlay { viewportWidth, viewportHeight -> drawStudioShell(store, viewportWidth, viewportHeight) }
+            overlay { viewportWidth, viewportHeight ->
+                drawStudioShell(
+                    store,
+                    viewportWidth,
+                    viewportHeight,
+                )
+            }
         }
     }
 }

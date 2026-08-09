@@ -39,7 +39,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // Application, FixedTimestepLoop (via awake-base transitively).
-            api(project(":awake:base"))
+            api(project(":awake:core"))
             // Renderer/LineSegment -- Game.ready(renderer)'s parameter type and
             // drawDebugLines()'s plumbing, nothing scene/ECS-specific.
             api(project(":awake:engine:render:contract"))

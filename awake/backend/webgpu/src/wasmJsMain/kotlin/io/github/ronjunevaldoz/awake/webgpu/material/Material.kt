@@ -54,7 +54,7 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
 
     /** Unlike Vulkan, WebGPU objects (`GPUSampler`/`GPUTextureView`) are garbage-collected by
      * the JS runtime -- there's no native handle to explicitly release here. This must be
-     * safe to call unconditionally (every [io.github.ronjunevaldoz.awake.engine.application.Game.dispose]
+     * safe to call unconditionally (every [io.github.ronjunevaldoz.awake.engine.game.Game.dispose]
      * calls its own `Material.destroy()` regardless of whether the general 3D texture-binding
      * path above was ever used), so it just drops the references rather than throwing the
      * same `TODO()` as the genuinely-unimplemented methods above. */

@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.vulkan.application
 
 import io.github.ronjunevaldoz.awake.core.application.DesktopGameLoop
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.engine.application.AwakeGame
-import io.github.ronjunevaldoz.awake.engine.application.GameWindowBackend
+import io.github.ronjunevaldoz.awake.engine.game.AwakeGame
+import io.github.ronjunevaldoz.awake.engine.game.GameWindowBackend
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanWindow

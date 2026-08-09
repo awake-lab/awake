@@ -1,4 +1,3 @@
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library.kmp)
@@ -72,10 +71,10 @@ kotlin {
             // AwakeContext/Config/rendering wrappers need Bitmap/readResourceBytes/Mat4 --
             // see docs/MVP_PLAN.md's Decision Log, D11 follow-up, for the split this module
             // boundary comes from.
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
             // AwakeContext.init mirrors fps/ups into EngineConfigHolder so awake-engine's
             // GameLoop actuals keep working without depending on this (or any) backend.
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.components.resources)

@@ -4,9 +4,9 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
-import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
-import io.github.ronjunevaldoz.awake.scene.systems.RenderSystem
-import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
+import io.github.ronjunevaldoz.awake.scene.core.systems.TransformSystem
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
 
 /**
  * Encapsulates exactly what `GameApplication` (`awake-engine-game`) used to do for
@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
  * `renderer.createMaterial(...)` for whatever the scene needs, at [load] time.
  */
 @Deprecated(
-    message = "Use SceneGameRuntime via awake:scene-dsl sceneGame/scene instead. " +
+    message = "Use SceneGameRuntime via awake:scene:authoring sceneGame/scene instead. " +
         "SceneRuntime is the legacy manual transform/render bootstrap.",
 )
 class SceneRuntime(private val renderer: Renderer) {
@@ -33,7 +33,10 @@ class SceneRuntime(private val renderer: Renderer) {
     /** Loads the scene document at [scenePath], instantiates it into a fresh [World], and
      * attaches renderable components via [resolveRenderable] -- called once, before [render]
      * is ever invoked. */
-    suspend fun load(scenePath: String, resolveRenderable: (SceneRenderableRequest) -> MeshRenderer) {
+    suspend fun load(
+        scenePath: String,
+        resolveRenderable: (SceneRenderableRequest) -> MeshRenderer,
+    ) {
         world = World()
         scene = SceneLoader.loadFromResource(scenePath).instantiate(world = world)
         scene.attachRenderableComponents(resolveRenderable)

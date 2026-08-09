@@ -7,9 +7,9 @@ import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
-import io.github.ronjunevaldoz.awake.scene.components.PbrMaterial
-import io.github.ronjunevaldoz.awake.scene.components.SpinControl
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
+import io.github.ronjunevaldoz.awake.scene.core.components.SpinControl
+import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneDocument
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue

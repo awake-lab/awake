@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import kotlinx.serialization.json.Json
 
 data class SceneInstance(
@@ -44,16 +44,19 @@ private val SceneJson = Json {
 }
 
 object SceneLoader {
-    fun encode(document: SceneDocument, json: Json = SceneJson): String = json.encodeToString(document)
+    fun encode(document: SceneDocument, json: Json = SceneJson): String =
+        json.encodeToString(document)
 
     fun decode(text: String, json: Json = SceneJson): SceneDocument =
         json.decodeFromString<SceneDocument>(text).also { document ->
             if (document.version > SCENE_SCHEMA_VERSION) throw SceneSchemaVersionException(document.version)
         }
 
-    suspend fun loadFromResource(path: String, json: Json = SceneJson): SceneDocument = decode(readResourceBytes(path).decodeToString(), json)
+    suspend fun loadFromResource(path: String, json: Json = SceneJson): SceneDocument =
+        decode(readResourceBytes(path).decodeToString(), json)
 
-    fun instantiate(document: SceneDocument, world: World = World()): SceneInstance = instantiate(document, AwakeWorldSceneAdapter(world))
+    fun instantiate(document: SceneDocument, world: World = World()): SceneInstance =
+        instantiate(document, AwakeWorldSceneAdapter(world))
 
     /** Adapter-driven instantiation path: the scene DSL/model stays Awake-owned, while the
      * execution target can vary as long as it implements [SceneInstantiationAdapter]. */
@@ -63,7 +66,12 @@ object SceneLoader {
     ): Instance {
         SceneValidator.requireValid(document)
         val roots = document.nodes.mapIndexed { index, node ->
-            instantiateNode(adapter, node, parent = null, path = node.name?.takeIf { it.isNotBlank() } ?: "#$index")
+            instantiateNode(
+                adapter,
+                node,
+                parent = null,
+                path = node.name?.takeIf { it.isNotBlank() } ?: "#$index",
+            )
         }
         return adapter.complete(roots)
     }
@@ -91,7 +99,8 @@ object SceneLoader {
     }
 }
 
-fun SceneDocument.instantiate(world: World = World()): SceneInstance = SceneLoader.instantiate(this, world)
+fun SceneDocument.instantiate(world: World = World()): SceneInstance =
+    SceneLoader.instantiate(this, world)
 
 fun SceneInstance.attachRenderableComponents(
     factory: (SceneRenderableRequest) -> MeshRenderer,

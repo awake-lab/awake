@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime
-import io.github.ronjunevaldoz.awake.engine.application.GameUiSpec
-import io.github.ronjunevaldoz.awake.engine.application.frame
-import io.github.ronjunevaldoz.awake.engine.application.gameUi
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.GameUiRuntime
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.GameUiSpec
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.frame
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameUi
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
@@ -63,19 +64,26 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                 // weight().
                 cacheKey = "static",
                 verticalArrangement = Arrangement.spacedBy(12f.dp),
-                modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax),
+                modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax)
+                    .height(Dimension.FillMax),
             ) {
                 shadcnSidebar(
                     id = "ui-showcase-mobile-sidebar",
                     style = Style { shape(16f.dp) },
-                    modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).height(Dimension.FillMax),
+                    modifier = (
+                        Modifier.verticalScroll(
+                            sidebarScroll,
+                            UiScrollConfig.Hidden,
+                        )
+                        ).height(Dimension.FillMax),
                 ) {
                     drawUiShowcaseSidebar(compact = true)
                 }
 
                 column(
                     id = "ui-showcase-mobile-content-viewport",
-                    modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax),
+                    modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax)
+                        .height(Dimension.FillMax),
                 ) {
                     shadcnSurface(
                         id = "ui-showcase-mobile-content",
@@ -95,25 +103,32 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                 // safe.
                 cacheKey = "static",
                 horizontalArrangement = Arrangement.spacedBy(railGap),
-                modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax),
+                modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax)
+                    .height(Dimension.FillMax),
             ) {
                 shadcnSidebar(
                     id = "ui-showcase-sidebar",
                     style = Style { shape(16f.dp) },
-                    modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).width(sidebarWidth).height(Dimension.FillMax),
+                    modifier = (
+                        Modifier.verticalScroll(
+                            sidebarScroll,
+                            UiScrollConfig.Hidden,
+                        )
+                        ).width(sidebarWidth).height(Dimension.FillMax),
                 ) {
                     drawUiShowcaseSidebar(compact = false)
                 }
 
                 column(
                     id = "ui-showcase-content-viewport",
-                    modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax),
+                    modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax)
+                        .height(Dimension.FillMax),
                 ) {
                     shadcnSurface(
                         id = "ui-showcase-content",
                         style = Style {
                             shape(16f.dp)
-                            borderColor(io.github.ronjunevaldoz.awake.core.colors.Color(1f, 0f, 0f, 1f))
+                            borderColor(Color(1f, 0f, 0f, 1f))
                         },
                         modifier = Modifier.height(Dimension.WrapContent),
                     ) {

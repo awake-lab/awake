@@ -18,14 +18,14 @@ import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
-import io.github.ronjunevaldoz.awake.scene.components.CameraComponent
-import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.authoring.dsl.Modifier
+import io.github.ronjunevaldoz.awake.scene.authoring.dsl.camera
+import io.github.ronjunevaldoz.awake.scene.authoring.dsl.meshRenderer
+import io.github.ronjunevaldoz.awake.scene.authoring.dsl.scene
+import io.github.ronjunevaldoz.awake.scene.authoring.dsl.transform
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.Modifier
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.camera
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.meshRenderer
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.scene
-import io.github.ronjunevaldoz.awake.scene.runtime.dsl.transform
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
@@ -94,11 +94,23 @@ internal object GltfViewerDemo {
             }
             // Before the projection sliders: the column scrolls, and three slider rows push
             // these below the fold.
-            showAimMarkers = scope.shadcnSwitch(id = "gltf-show-aim-markers", checked = showAimMarkers, label = "Show aim markers")
-            wireframeEnabled = scope.shadcnSwitch(id = "gltf-wireframe", checked = wireframeEnabled, label = "Wireframe")
+            showAimMarkers = scope.shadcnSwitch(
+                id = "gltf-show-aim-markers",
+                checked = showAimMarkers,
+                label = "Show aim markers",
+            )
+            wireframeEnabled = scope.shadcnSwitch(
+                id = "gltf-wireframe",
+                checked = wireframeEnabled,
+                label = "Wireframe",
+            )
             // Shared across every demo. The duck itself draws unlit, so the visible effect is
             // on the Rotating cube demo's ground plane.
-            renderer.shadowsEnabled = scope.shadcnSwitch(id = "gltf-shadows", checked = renderer.shadowsEnabled, label = "Shadows")
+            renderer.shadowsEnabled = scope.shadcnSwitch(
+                id = "gltf-shadows",
+                checked = renderer.shadowsEnabled,
+                label = "Shadows",
+            )
             cameraEntity?.let { scope.renderProjectionControls(world, it, idPrefix = "gltf") }
         },
         onActivate = { ensureSpawned(this) },
@@ -135,9 +147,21 @@ internal object GltfViewerDemo {
             if (showAimMarkers) {
                 val markers = mutableListOf<LineSegment>()
                 val mc = modelCenter
-                markers += LineSegment(mc, mc + Vec3(0.1f, 0f, 0f), floatArrayOf(0.9f, 0.15f, 0.15f, 1f))
-                markers += LineSegment(mc, mc + Vec3(0f, 0.1f, 0f), floatArrayOf(0.15f, 0.75f, 0.15f, 1f))
-                markers += LineSegment(mc, mc + Vec3(0f, 0f, 0.1f), floatArrayOf(0.15f, 0.35f, 0.9f, 1f))
+                markers += LineSegment(
+                    mc,
+                    mc + Vec3(0.1f, 0f, 0f),
+                    floatArrayOf(0.9f, 0.15f, 0.15f, 1f),
+                )
+                markers += LineSegment(
+                    mc,
+                    mc + Vec3(0f, 0.1f, 0f),
+                    floatArrayOf(0.15f, 0.75f, 0.15f, 1f),
+                )
+                markers += LineSegment(
+                    mc,
+                    mc + Vec3(0f, 0f, 0.1f),
+                    floatArrayOf(0.15f, 0.35f, 0.9f, 1f),
+                )
                 val ft = world.get<Transform>(fte)?.position ?: modelCenter
                 markers += LineSegment(ft, ft + Vec3(0.1f, 0f, 0f), floatArrayOf(1f, 1f, 0f, 1f))
                 markers += LineSegment(ft, ft + Vec3(0f, 0.1f, 0f), floatArrayOf(1f, 1f, 0f, 1f))
@@ -161,7 +185,11 @@ internal object GltfViewerDemo {
                     // The mesh is normalized to unit radius above, so frame it at a few radii
                     // rather than a fixed 10 -- that was ~10x too far and read as "zoomed out".
                     lens = CoreCamera.perspective(
-                        eye = Vec3(modelCenter.x, modelCenter.y, modelCenter.z + FRAMING_DISTANCE_RADII),
+                        eye = Vec3(
+                            modelCenter.x,
+                            modelCenter.y,
+                            modelCenter.z + FRAMING_DISTANCE_RADII,
+                        ),
                         center = modelCenter,
                     ),
                 ),

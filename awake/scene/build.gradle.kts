@@ -17,10 +17,6 @@
  * limitations under the License.
  */
 
-import java.util.Properties
-
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 plugins {
     id("awake.kmp-library-convention")
     alias(libs.plugins.kotlin.serialization)
@@ -41,13 +37,13 @@ kotlin {
             // proposal.md) -- `:awake:scene`'s own remaining source (the deprecated
             // `SceneRuntime` bootstrap, `NavMesh`) doesn't itself need controls/physics/
             // runtime, but published `awake-scene` consumers still expect them.
-            api(project(":awake:scene:core"))
+            api(project(":awake:scene:scene-core"))
             api(project(":awake:scene:controls"))
             api(project(":awake:scene:physics"))
             api(project(":awake:scene:rendering"))
             api(project(":awake:scene:runtime"))
             // Needed directly by SceneRuntime.kt/NavMesh.kt.
-            api(project(":awake:base"))
+            api(project(":awake:core"))
             api(project(":awake:ecs"))
             // Module restructuring slice 1 (see docs/MVP_PLAN.md): RenderSystem/MeshRenderer
             // only ever touch the backend-neutral Mesh/Material/Renderer/DrawCall contract,

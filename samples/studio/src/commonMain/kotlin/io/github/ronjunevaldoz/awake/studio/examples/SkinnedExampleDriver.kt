@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
-import io.github.ronjunevaldoz.awake.scene.components.SkinnedPose
+import io.github.ronjunevaldoz.awake.scene.rendering.components.SkinnedPose
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
 
@@ -45,7 +45,11 @@ internal object SkinnedExampleDriver {
     }
 
     fun createMesh(runtime: SceneGameRuntime): Mesh = runtime.renderer.createMesh(
-        MeshGeometry(requireNotNull(vertices), requireNotNull(indices), format = VertexFormat.PositionNormalColorSkin),
+        MeshGeometry(
+            requireNotNull(vertices),
+            requireNotNull(indices),
+            format = VertexFormat.PositionNormalColorSkin,
+        ),
     )
 
     fun createMaterial(runtime: SceneGameRuntime): Material =

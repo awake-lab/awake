@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.studio.ui
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.scene.components.Name
-import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.core.components.Name
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnIcons
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
@@ -77,7 +77,8 @@ internal fun UiScope.drawInspectorPanel(world: World) {
     ) {
         if (expanded.value) {
             world.queryEach<Name> { entity, name ->
-                val rowExpanded = rememberBooleanState(id = "studio-inspector-row-${entity.id}", initial = false)
+                val rowExpanded =
+                    rememberBooleanState(id = "studio-inspector-row-${entity.id}", initial = false)
                 shadcnCollapsible(
                     id = "studio-inspector-row-${entity.id}",
                     title = name.value,

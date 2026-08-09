@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.app
 
-import io.github.ronjunevaldoz.awake.engine.application.GameSpec
-import io.github.ronjunevaldoz.awake.engine.application.WindowDsl
-import io.github.ronjunevaldoz.awake.engine.application.gameDefinition
-import io.github.ronjunevaldoz.awake.engine.application.select
+import io.github.ronjunevaldoz.awake.engine.game.GameSpec
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.WindowDsl
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameDefinition
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.select
 import io.github.ronjunevaldoz.awake.studio.studioModule
 
 private val studioDefinition = gameDefinition(createState = {}) {

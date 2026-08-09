@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.scene.components.Name
-import io.github.ronjunevaldoz.awake.scene.components.PbrMaterial
-import io.github.ronjunevaldoz.awake.scene.components.Transform
+import io.github.ronjunevaldoz.awake.scene.core.components.Name
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import kotlinx.coroutines.test.runTest
 import kotlin.math.PI
 import kotlin.test.Test
@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import io.github.ronjunevaldoz.awake.scene.components.Camera as SceneCameraComponent
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera as SceneCameraComponent
 
 class SceneLoaderTest {
     @Test
@@ -169,7 +169,9 @@ class SceneLoaderTest {
         assertEquals(2, document.nodes.size)
         assertEquals("camera", document.nodes[0].name)
         assertEquals("cube", document.nodes[1].name)
-        assertNotNull(document.nodes[1].components.filterIsInstance<SceneMeshRenderer>().singleOrNull())
+        assertNotNull(
+            document.nodes[1].components.filterIsInstance<SceneMeshRenderer>().singleOrNull(),
+        )
         assertEquals(
             0.35f,
             document.nodes[1].components.filterIsInstance<ScenePbrMaterial>().single().roughness,

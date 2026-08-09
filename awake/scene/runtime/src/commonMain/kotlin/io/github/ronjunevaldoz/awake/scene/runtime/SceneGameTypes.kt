@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.ecs.System
-import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 
 typealias SceneRenderableFactory = SceneGameRuntime.(SceneRenderableRequest) -> MeshRenderer
 typealias SceneSystemFactory = SceneGameRuntime.() -> System

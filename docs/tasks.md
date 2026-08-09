@@ -17,7 +17,7 @@ just spread unclear ownership across more folders.
   to the scene3d sample. The scene module split proposal is now tracked in
   [docs/tasks/2026-08-05-scene-module-split-proposal.md](tasks/2026-08-05-scene-module-split-proposal.md).
 - 2026-08-05: First scene split slice landed behind the `awake-scene` facade:
-  `:awake:scene:core` owns `Transform`/`Name`, and `:awake:scene:rendering` owns
+  `:awake:scene:scene-core` owns `Transform`/`Name`, and `:awake:scene:rendering` owns
   render-facing scene components plus `RenderSystem`.
 - 2026-08-05: Physics scene leaf split landed behind the `awake-scene` facade:
   `:awake:scene:physics` owns `PhysicsBody`/`PhysicsSystem`.
@@ -31,12 +31,12 @@ just spread unclear ownership across more folders.
   couples them directly). The deprecated `SceneRuntime` bootstrap stays in `:awake:scene`
   (depends on `TransformSystem`, which hasn't split out yet).
 - 2026-08-05: Scene module split Phase 5 (DSL dependency tightening) landed:
-  `TransformSystem` moved to `:awake:scene:core`, `PlayerControlSystem` moved into
+  `TransformSystem` moved to `:awake:scene:scene-core`, `PlayerControlSystem` moved into
   `:awake:scene:authoring` directly (needs `ui-core`). `:awake:scene:authoring` now depends on the
   specific `:awake:scene:*` leaf modules it uses instead of the whole `:awake:scene`
   facade -- this completes the module list the split proposal sketched, leaving only
   `NavMesh` and the deprecated `SceneRuntime` bootstrap in `:awake:scene` itself.
-- 2026-08-06: `:awake:scene:core` gained `SpinControl`/`SpinSystem` (generic entity
+- 2026-08-06: `:awake:scene:scene-core` gained `SpinControl`/`SpinSystem` (generic entity
   rotation) and `:awake:scene:controls` gained `LookAtControl`/`LookAtCameraSystem` plus
   `PrimaryOrbitCamera` (a plain lifecycle helper, not an ECS `System`, for a UI-driven
   debug camera entity) -- extracted from duplicated demo boilerplate, following the same
@@ -46,7 +46,7 @@ just spread unclear ownership across more folders.
 - 2026-08-06: The above core split is done -- confirmed complete via
   [docs/reference/decision-log.md](reference/decision-log.md) D11-D13 and the current
   `settings.gradle.kts` (no `awake:core` module exists anymore): `awake-core` split into
-  dependency-free `:awake:base` (math/input/glTF/utils), `:awake:backend:opengl`, and
+  dependency-free `:awake:core` (math/input/glTF/utils), `:awake:backend:opengl`, and
   `:awake:engine:render:contract`; the Vulkan/WebGPU backends physically split into
   `:awake:backend:vulkan`/`:awake:backend:webgpu`. This entry and the matching Open
   Questions/Fix Lanes bullets below were stale, written before D11-D13 landed.

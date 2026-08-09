@@ -65,7 +65,7 @@ tasks.register("developerDocs") {
     group = "documentation"
     description = "Build developer-facing API references and tutorial artifacts."
     dependsOn(
-        ":awake:base:dokkaGeneratePublicationHtml",
+        ":awake:core:dokkaGeneratePublicationHtml",
         ":awake:ecs:dokkaGeneratePublicationHtml",
         ":awake:engine:game:dokkaGeneratePublicationHtml",
         ":awake:engine:game-authoring:dokkaGeneratePublicationHtml",
@@ -104,14 +104,17 @@ tasks.register<Exec>("syncFigma") {
 // existing report tasks untouched.
 tasks.register("uiComponentLookupReport") {
     group = "documentation"
-    description = "Generate one searchable HTML component lookup across the ui-showcase preview gallery and the ui-headless snapshot gallery."
+    description =
+        "Generate one searchable HTML component lookup across the ui-showcase preview gallery and the ui-headless snapshot gallery."
     mustRunAfter(
         ":samples:ui-showcase:uiShowcasePreviewReport",
         ":awake:engine:ui:ui-headless:uiSnapshotReport"
     )
-    val previewManifestFile = project(":samples:ui-showcase").layout.buildDirectory.file("ui-previews/previews.tsv")
+    val previewManifestFile =
+        project(":samples:ui-showcase").layout.buildDirectory.file("ui-previews/previews.tsv")
     val previewImagesDir = project(":samples:ui-showcase").layout.buildDirectory.dir("ui-previews")
-    val snapshotImagesDir = project(":awake:engine:ui:headless").layout.buildDirectory.dir("ui-snapshots")
+    val snapshotImagesDir =
+        project(":awake:engine:ui:headless").layout.buildDirectory.dir("ui-snapshots")
     val reportFile = layout.buildDirectory.file("reports/ui-component-lookup/index.html")
     doLast {
         // Rows use the same plain List<String> shape ([id, title, group, summary, source,
@@ -206,15 +209,30 @@ tasks.register("uiComponentLookupReport") {
             val cards = groupEntries.joinToString("\n") { entry ->
                 val image = File(entry[imagePathIdx])
                 val base64 = java.util.Base64.getEncoder().encodeToString(image.readBytes())
-                val search = "${entry[idIdx]} ${entry[titleIdx]} ${entry[groupIdx]} ${entry[sourceIdx]}".lowercase()
+                val search =
+                    "${entry[idIdx]} ${entry[titleIdx]} ${entry[groupIdx]} ${entry[sourceIdx]}".lowercase()
                 val summary = entry[summaryIdx]
                 """
                 <article class="lookup-card" data-search="${escapeHtml(search)}" style="display:grid;gap:0.75rem;margin:0 0 1.25rem 0;padding:1.1rem;border:1px solid #262626;border-radius:14px;background:#09090b">
                     <div>
-                        <p style="margin:0 0 0.3rem 0;color:#a1a1aa;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em">${escapeHtml(entry[sourceIdx])}</p>
+                        <p style="margin:0 0 0.3rem 0;color:#a1a1aa;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em">${
+                    escapeHtml(
+                        entry[sourceIdx]
+                    )
+                }</p>
                         <h3 style="margin:0 0 0.4rem 0">${escapeHtml(entry[titleIdx])}</h3>
-                        ${if (summary.isNotBlank()) """<p style="margin:0 0 0.4rem 0;color:#d4d4d8;font-size:0.9rem">${escapeHtml(summary)}</p>""" else ""}
-                        <p style="margin:0;color:#71717a;font-size:0.82rem">${entry[widthIdx]}x${entry[heightIdx]} &middot; ${escapeHtml(entry[idIdx])}</p>
+                        ${
+                    if (summary.isNotBlank()) """<p style="margin:0 0 0.4rem 0;color:#d4d4d8;font-size:0.9rem">${
+                        escapeHtml(
+                            summary
+                        )
+                    }</p>""" else ""
+                }
+                        <p style="margin:0;color:#71717a;font-size:0.82rem">${entry[widthIdx]}x${entry[heightIdx]} &middot; ${
+                    escapeHtml(
+                        entry[idIdx]
+                    )
+                }</p>
                     </div>
                     <img src="data:image/png;base64,$base64" alt="${escapeHtml(entry[titleIdx])}" style="display:block;border:1px solid #2f2f2f;border-radius:10px;max-width:100%;height:auto" />
                 </article>

@@ -12,9 +12,9 @@ import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.ecs.ComponentTypeId
-import io.github.ronjunevaldoz.awake.scene.components.MeshRenderer
-import io.github.ronjunevaldoz.awake.scene.components.Transform
-import io.github.ronjunevaldoz.awake.scene.systems.TransformSystem
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.core.systems.TransformSystem
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import org.openjdk.jmh.annotations.Level
@@ -115,7 +115,8 @@ open class AshleyQueryState {
     @Setup(Level.Iteration)
     fun setup() {
         engine = AshleyEngine()
-        transformMapper = com.badlogic.ashley.core.ComponentMapper.getFor(AshleyTransform::class.java)
+        transformMapper =
+            com.badlogic.ashley.core.ComponentMapper.getFor(AshleyTransform::class.java)
         meshMapper = com.badlogic.ashley.core.ComponentMapper.getFor(AshleyMeshRenderer::class.java)
         family = AshleyFamily.all(AshleyTransform::class.java, AshleyMeshRenderer::class.java).get()
         repeat(entityCount) {
@@ -255,7 +256,8 @@ open class AwakeHierarchyState {
         }
     }
 
-    fun lastTransform(): Transform = world.get(lastEntity, Transform::class) ?: error("Missing last transform.")
+    fun lastTransform(): Transform =
+        world.get(lastEntity, Transform::class) ?: error("Missing last transform.")
 }
 
 @State(Scope.Benchmark)
@@ -328,7 +330,8 @@ open class AshleyHierarchyState {
     @Setup(Level.Iteration)
     fun setup() {
         engine = AshleyEngine()
-        transformMapper = com.badlogic.ashley.core.ComponentMapper.getFor(AshleyTransform::class.java)
+        transformMapper =
+            com.badlogic.ashley.core.ComponentMapper.getFor(AshleyTransform::class.java)
         entities.clear()
         var parent: AshleyEntity? = null
         repeat(depth) { index ->
@@ -385,7 +388,8 @@ class ArtemisTransformSystem(
     private val visiting = mutableSetOf<Int>()
 
     fun propagate() {
-        val subscription = world.aspectSubscriptionManager.get(Aspect.all(ArtemisTransform::class.java))
+        val subscription =
+            world.aspectSubscriptionManager.get(Aspect.all(ArtemisTransform::class.java))
         val entities = subscription.entities
         visited.clear()
         visiting.clear()

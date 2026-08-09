@@ -8,7 +8,7 @@ into live ECS entities. This is the layer between the bare ECS and a real game �
 `awake-ecs`'s README first if you haven't.
 
 Internally, the scene stack has started splitting by reusable capability. `awake-scene`
-still re-exports the stable public packages, while `:awake:scene:core` owns
+still re-exports the stable public packages, while `:awake:scene:scene-core` owns
 `Transform`/`Name` and `:awake:scene:rendering` owns `Camera`/`Light`/`MeshRenderer` plus
 `RenderSystem` (plus `TransformSystem`). `:awake:scene:physics` owns
 `PhysicsBody`/`PhysicsSystem`, `:awake:scene:controls` owns `CameraComponent`/`ActiveCamera`/
@@ -34,7 +34,8 @@ repositories {
   frame. `localMatrix()` builds the local transform from position/rotation/scale.
 - **`Name`** — optional label for scene hierarchy/editor views. It is a small runtime
   component, not part of the serialized document itself.
-- **`MeshRenderer`** — wraps a `Mesh` + `Material` (from `awake:engine:render-api`) for `RenderSystem`
+- **`MeshRenderer`** — wraps a `Mesh` + `Material` (from `awake:engine:render-api`) for
+  `RenderSystem`
   to turn into a `DrawCall`.
 - **`Camera`** — wraps `awake-core`'s math `Camera` (eye/center/up/fov/near/far) plus
   `isPrimary: Boolean`; `RenderSystem` renders through whichever `Camera` has
@@ -140,7 +141,7 @@ you and appended after user systems.
 ## Building your own systems on top
 
 Scene systems are plain `awake-ecs` `System`s — there's nothing special about the two
-above beyond what components they read/write. `:awake:scene:core` already ships
+above beyond what components they read/write. `:awake:scene:scene-core` already ships
 `SpinControl`/`SpinSystem` for generic entity rotation and `:awake:scene:controls` ships
 `CameraComponent`/`MovementControl` and their camera and movement systems — check those
 first. For anything not already covered, a typical addition follows the same shape:

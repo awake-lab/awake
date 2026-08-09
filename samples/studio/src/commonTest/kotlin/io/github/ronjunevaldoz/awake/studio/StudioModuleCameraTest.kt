@@ -5,9 +5,9 @@ package io.github.ronjunevaldoz.awake.studio
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.engine.application.game
-import io.github.ronjunevaldoz.awake.engine.application.module
-import io.github.ronjunevaldoz.awake.engine.application.requireService
+import io.github.ronjunevaldoz.awake.engine.game.requireService
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -53,11 +53,13 @@ class StudioModuleCameraTest {
         val runtime = game.requireService<SceneGameRuntime>()
         game.render(1f / 60f, 800f, 600f)
 
-        val orbitEye = assertNotNull(renderer.lastEye, "No draw() call captured for the Orbit default.")
+        val orbitEye =
+            assertNotNull(renderer.lastEye, "No draw() call captured for the Orbit default.")
 
         store.dispatch(StudioContract.Intent.SetCameraMode(StudioContract.CameraPresetMode.Top))
         game.render(1f / 60f, 800f, 600f)
-        val topEye = assertNotNull(renderer.lastEye, "No draw() call captured after SetCameraMode(Top).")
+        val topEye =
+            assertNotNull(renderer.lastEye, "No draw() call captured after SetCameraMode(Top).")
 
         // The regression: before the fix, the driver system applied the preset to a camera
         // object the renderer never reads, so this eye position never moved.
@@ -104,7 +106,10 @@ class StudioModuleCameraTest {
         // Frame 1: no input, just to learn where the icon rail laid the camera button out.
         val discovered = drive(UiInputState(pointerX = -1f, pointerY = -1f)).semantics
         val buttonBounds =
-            assertNotNull(discovered.firstOrNull { it.id == "studio-tool-camera" }, "Camera rail button not found.").bounds
+            assertNotNull(
+                discovered.firstOrNull { it.id == "studio-tool-camera" },
+                "Camera rail button not found.",
+            ).bounds
         val buttonX = buttonBounds.x + buttonBounds.width / 2f
         val buttonY = buttonBounds.y + buttonBounds.height / 2f
 
@@ -188,7 +193,11 @@ private class RecordingCameraRenderer : Renderer {
         override fun destroy() = Unit
     }
 
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): Material =
+    override fun createMaterial(
+        texture: TextureAsset?,
+        renderTarget: RenderTarget?,
+        uniformFloatCount: Int,
+    ): Material =
         object : Material {
             override fun updateUniformBuffer(mvp: FloatArray) = Unit
             override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
@@ -209,7 +218,8 @@ private class RecordingCameraRenderer : Renderer {
         lastOrthoHalfHeight = camera.orthoHalfHeight
     }
 
-    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
+    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) =
+        Unit
 
     override suspend fun readPixels(target: RenderTarget): TextureAsset =
         TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)

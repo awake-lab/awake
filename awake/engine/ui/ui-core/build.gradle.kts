@@ -1,4 +1,3 @@
-
 plugins {
     id("awake.kmp-library-convention")
     id("awake.dokka-convention")
@@ -14,7 +13,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":awake:base"))
+            implementation(project(":awake:core"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

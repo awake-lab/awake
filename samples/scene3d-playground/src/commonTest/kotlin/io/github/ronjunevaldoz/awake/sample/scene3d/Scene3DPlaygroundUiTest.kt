@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.sample.scene3d
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
-import io.github.ronjunevaldoz.awake.engine.application.game
-import io.github.ronjunevaldoz.awake.engine.application.module
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
+import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -46,10 +46,16 @@ class Scene3DPlaygroundUiTest {
     @Test
     fun switchingTheActiveDemoChangesWhichControlsRender() {
         val state = Scene3DPlaygroundState()
-        assertTrue(state.activeDemoId == Scene3DDemos.first().id, "default active demo must be the first entry")
+        assertTrue(
+            state.activeDemoId == Scene3DDemos.first().id,
+            "default active demo must be the first entry",
+        )
 
         state.activeDemoId = Scene3DDemos.last().id
-        assertTrue(state.activeDemoId == Scene3DDemos.last().id, "activeDemoId must be freely settable by the menu's onClick")
+        assertTrue(
+            state.activeDemoId == Scene3DDemos.last().id,
+            "activeDemoId must be freely settable by the menu's onClick",
+        )
     }
 }
 
@@ -68,7 +74,11 @@ private class RecordingScene3DRenderer : Renderer {
         override fun destroy() = Unit
     }
 
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): Material =
+    override fun createMaterial(
+        texture: TextureAsset?,
+        renderTarget: RenderTarget?,
+        uniformFloatCount: Int,
+    ): Material =
         object : Material {
             override fun updateUniformBuffer(mvp: FloatArray) = Unit
             override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
@@ -82,7 +92,9 @@ private class RecordingScene3DRenderer : Renderer {
     }
 
     override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) = Unit
-    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
+    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) =
+        Unit
+
     override suspend fun readPixels(target: RenderTarget): TextureAsset =
         TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)
 
