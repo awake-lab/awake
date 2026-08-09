@@ -37,6 +37,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.filterOptionsByQuery
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.drawDropdownTriggerContent
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
@@ -171,10 +172,7 @@ private fun ColumnScope.shadcnComboboxPopoverContent(
     separator(thickness = 1f.dp, color = resolvedTheme.colors.border)
     spacer(Modifier.height(4f.dp))
 
-    val query = nextFilter.trim()
-    val filtered = config.options.withIndex().filter { (_, option) ->
-        query.isEmpty() || option.contains(query, ignoreCase = true)
-    }
+    val filtered = filterOptionsByQuery(config.options, nextFilter)
     var picked: Int? = null
     if (filtered.isEmpty()) {
         shadcnText(
