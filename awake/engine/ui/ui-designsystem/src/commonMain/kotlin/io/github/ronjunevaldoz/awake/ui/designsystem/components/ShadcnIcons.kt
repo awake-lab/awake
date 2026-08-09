@@ -31,4 +31,17 @@ object ShadcnIcons {
     var play: UiImageVector = HeroIcons.Solid20Mini.play
     var magnifyingGlass: UiImageVector = HeroIcons.Solid20Mini.magnifyingGlass
     var videoCamera: UiImageVector = HeroIcons.Solid20Mini.videoCamera
+    var eye: UiImageVector = HeroIcons.Solid20Mini.eye
+    var eyeSlash: UiImageVector = HeroIcons.Solid20Mini.eyeSlash
+    var sun: UiImageVector = HeroIcons.Solid20Mini.sun
+    var user: UiImageVector = HeroIcons.Solid20Mini.user
+    var documentText: UiImageVector = HeroIcons.Solid20Mini.documentText
+    var plus: UiImageVector = HeroIcons.Solid20Mini.plus
+    var trash: UiImageVector = HeroIcons.Solid20Mini.trash
+    var lockClosed: UiImageVector = HeroIcons.Solid20Mini.lockClosed
+    var bars3: UiImageVector = HeroIcons.Solid20Mini.bars3
+    var funnel: UiImageVector = HeroIcons.Solid20Mini.funnel
+    var adjustmentsHorizontal: UiImageVector = HeroIcons.Solid20Mini.adjustmentsHorizontal
+    var stop: UiImageVector = HeroIcons.Solid20Mini.stop
+    var pause: UiImageVector = HeroIcons.Solid20Mini.pause
 }

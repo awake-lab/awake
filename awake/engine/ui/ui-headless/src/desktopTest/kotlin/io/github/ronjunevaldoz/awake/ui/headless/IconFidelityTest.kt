@@ -103,6 +103,19 @@ class IconFidelityTest {
             "Solid20Mini" to "play" -> HeroIcons.Solid20Mini.play
             "Solid20Mini" to "magnifyingGlass" -> HeroIcons.Solid20Mini.magnifyingGlass
             "Solid20Mini" to "videoCamera" -> HeroIcons.Solid20Mini.videoCamera
+            "Solid20Mini" to "eye" -> HeroIcons.Solid20Mini.eye
+            "Solid20Mini" to "eyeSlash" -> HeroIcons.Solid20Mini.eyeSlash
+            "Solid20Mini" to "sun" -> HeroIcons.Solid20Mini.sun
+            "Solid20Mini" to "user" -> HeroIcons.Solid20Mini.user
+            "Solid20Mini" to "documentText" -> HeroIcons.Solid20Mini.documentText
+            "Solid20Mini" to "plus" -> HeroIcons.Solid20Mini.plus
+            "Solid20Mini" to "trash" -> HeroIcons.Solid20Mini.trash
+            "Solid20Mini" to "lockClosed" -> HeroIcons.Solid20Mini.lockClosed
+            "Solid20Mini" to "bars3" -> HeroIcons.Solid20Mini.bars3
+            "Solid20Mini" to "funnel" -> HeroIcons.Solid20Mini.funnel
+            "Solid20Mini" to "adjustmentsHorizontal" -> HeroIcons.Solid20Mini.adjustmentsHorizontal
+            "Solid20Mini" to "stop" -> HeroIcons.Solid20Mini.stop
+            "Solid20Mini" to "pause" -> HeroIcons.Solid20Mini.pause
             "Solid24" to "arrowDownOnSquareStack" -> HeroIcons.Solid24.arrowDownOnSquareStack
             "Solid24" to "arrowUpOnSquareStack" -> HeroIcons.Solid24.arrowUpOnSquareStack
             "Solid24" to "circleStack" -> HeroIcons.Solid24.circleStack
