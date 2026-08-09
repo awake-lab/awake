@@ -127,7 +127,7 @@ class CameraTest {
      * points on the same line of sight from the camera -- one at the target plane, one far
      * behind it -- must land on the same NDC XY, where perspective would shrink the far one. */
     @Test
-    fun `orthographic projects the same XY at any depth, where perspective shrinks`() {
+    fun `orthographic projects the same XY at any depth where perspective shrinks`() {
         val ortho = identityViewCamera().apply {
             projection = Camera.Projection.Orthographic
             orthoHalfHeight = 2f
