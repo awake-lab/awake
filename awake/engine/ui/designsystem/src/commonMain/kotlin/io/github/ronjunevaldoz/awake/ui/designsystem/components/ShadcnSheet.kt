@@ -35,7 +35,9 @@ import io.github.ronjunevaldoz.awake.ui.scope.frameBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.UiEdge
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
+import io.github.ronjunevaldoz.awake.ui.unstyled.components.slideInPanelBounds
 
 private const val SHEET_SCRIM_ALPHA = 0.5f
 private val DefaultSheetScrimColor = Color.Black.withAlpha(SHEET_SCRIM_ALPHA)
@@ -163,29 +165,22 @@ private fun UiScope.shadcnSheetPanel(
 
 /** [side]-anchored slide offset: 0 at rest (flush against the anchored edge), positive pushes
  * the panel past that edge and off-screen -- see [shadcnSheet]'s own [animateFloatTween] call. */
+private fun ShadcnSheetSide.toUiEdge(): UiEdge = when (this) {
+    ShadcnSheetSide.Top -> UiEdge.Top
+    ShadcnSheetSide.Right -> UiEdge.Right
+    ShadcnSheetSide.Bottom -> UiEdge.Bottom
+    ShadcnSheetSide.Left -> UiEdge.Left
+}
+
 private fun sheetPositionProvider(side: ShadcnSheetSide, sizeDp: Dp, slideProgress: Float) =
     UiPopupPositionProvider { _, windowBounds, _ ->
-        val sizePx = sizeDp.toPx()
-        val viewportWidth = windowBounds.width
-        val viewportHeight = windowBounds.height
-        val hiddenOffset = (1f - slideProgress) * sizePx
-        when (side) {
-            ShadcnSheetSide.Left -> UiBounds(-hiddenOffset, 0f, sizePx, viewportHeight)
-            ShadcnSheetSide.Right -> UiBounds(
-                viewportWidth - sizePx + hiddenOffset,
-                0f,
-                sizePx,
-                viewportHeight,
-            )
-
-            ShadcnSheetSide.Top -> UiBounds(0f, -hiddenOffset, viewportWidth, sizePx)
-            ShadcnSheetSide.Bottom -> UiBounds(
-                0f,
-                viewportHeight - sizePx + hiddenOffset,
-                viewportWidth,
-                sizePx,
-            )
-        }
+        slideInPanelBounds(
+            edge = side.toUiEdge(),
+            sizePx = sizeDp.toPx(),
+            slideProgress = slideProgress,
+            viewportWidth = windowBounds.width,
+            viewportHeight = windowBounds.height,
+        )
     }
 
 /**
