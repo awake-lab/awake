@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
+import io.github.ronjunevaldoz.awake.ui.scope.isMeasuring
 import io.github.ronjunevaldoz.awake.ui.scope.measureColumnContent
 
 /**
@@ -30,6 +31,18 @@ fun ColumnScope.animatedHeight(
     // 1. Measure the content to know the target expanded height -- only on the frame this
     // collapses into an expanded state, not every frame it stays expanded (that used to run a
     // full extra layout pass forever for a collapsible left open, e.g. a sidebar group).
+    //
+    // A WrapContent/weighted-child trial-measurement pass re-executes this whole content lambda
+    // against a scratch UiContext that shares this real, persisted `state` (see
+    // UiContextMeasureState.createMeasureContext) -- so an unguarded `state.set("wasExpanded",
+    // expanded)` below would let the trial pass "consume" this frame's false->true transition
+    // before the real pass ever sees it: the real pass would then read wasExpanded already
+    // flipped true, skip the one-time remeasure, and keep rendering the *previous* expansion's
+    // stale cachedHeight even though this frame's content actually changed size. Guard both
+    // writes like every other side-effecting UiContext operation (see
+    // ResizablePanelGroup.handle()/UiContext.animateFloat's identical isMeasuring() gate) --
+    // reads (and the trial's own local remeasure, needed to size this call's own WrapContent
+    // result) stay unconditional.
     val state = widgetState(id)
     var cachedHeight: Float = state.get("measuredHeight", 0f)
     val wasExpanded = state.get("wasExpanded", false)
@@ -41,9 +54,13 @@ fun ColumnScope.animatedHeight(
             content = content,
         )
         cachedHeight = measured.height
-        state.set("measuredHeight", cachedHeight)
+        if (!isMeasuring()) {
+            state.set("measuredHeight", cachedHeight)
+        }
     }
-    state.set("wasExpanded", expanded)
+    if (!isMeasuring()) {
+        state.set("wasExpanded", expanded)
+    }
 
     // 2. Animate current height toward 0 (collapsed) or measured.height (expanded). A fixed-
     // duration animateFloatTween, not the spring-style animateFloat this used to call: that one
