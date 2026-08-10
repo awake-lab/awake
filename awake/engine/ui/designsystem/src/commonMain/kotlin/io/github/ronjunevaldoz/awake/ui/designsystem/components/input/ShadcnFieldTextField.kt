@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnF
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldError
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLabel
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -42,7 +42,9 @@ fun ColumnScope.shadcnFieldTextField(
             id = id,
             value = value,
             placeholder = placeholder,
-            modifier = Modifier.weight(1f).height(40f.dp),
+            // Matches shadcnSelect/shadcnCombobox's own trigger height -- this field wrapper
+            // previously forced a hand-typed 40dp (h-10), the only place doing so.
+            modifier = Modifier.weight(1f).height(ShadcnButtonSize.Md.heightDp),
             style = style,
             enabled = enabled,
             isError = errorText != null,

@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.scope.isFocused
 import io.github.ronjunevaldoz.awake.ui.scope.requestFocus
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.otpActiveSlotIndex
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.otpDigitsOnly
@@ -32,8 +33,8 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
  * rendering individual rounded square slot boxes (`[ ] [ ] [ ] [ ] [ ] [ ]`).
  *
  * Architecture:
- * - A visual row of fixed 36×40 dp slot boxes draws first. Each slot shows one digit centered
- *   within the full slot bounds via the explicit-slot [text] overload.
+ * - A visual row of fixed 36×36 dp slot boxes draws first (shadcn's `h-9 w-9`). Each slot shows
+ *   one digit centered within the full slot bounds via the explicit-slot [text] overload.
  * - A transparent, zero-height [shadcnInput] is rendered **on top** (z-order 1) so it is the
  *   first hit-test candidate for pointer events.  Clicking any slot of the visual row is
  *   handled by the overlay input which captures the pointer and calls [requestFocus] on itself.
@@ -56,7 +57,7 @@ fun UiScope.shadcnInputOTP(
     val palette = shadcnResolvedTheme.palette
     val activeSlotIndex = otpActiveSlotIndex(focused, resultValue.length, length)
 
-    box(modifier = modifier.height(40f.dp)) {
+    box(modifier = modifier.height(Tw.Spacing.s9)) {
         // 1. Visual slot row drawn FIRST (z-order 0). Each slot:
         //    - has a clickable fallback that routes focus to the hidden shadcnInput
         //    - renders its digit centered within the full slot bounds via text(slot=...)
@@ -64,7 +65,7 @@ fun UiScope.shadcnInputOTP(
         row(
             horizontalArrangement = Arrangement.spacedBy(6f.dp),
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.fillMaxWidth().height(40f.dp),
+            modifier = Modifier.fillMaxWidth().height(Tw.Spacing.s9),
         ) {
             for (i in 0 until length) {
                 if (otpShowsSeparatorBefore(i, groupSize)) {
@@ -83,8 +84,8 @@ fun UiScope.shadcnInputOTP(
                 surface(
                     id = "$id.slot.$i",
                     modifier = Modifier
-                        .width(36f.dp)
-                        .height(40f.dp)
+                        .width(Tw.Spacing.s9)
+                        .height(Tw.Spacing.s9)
                         .clickable(enabled = enabled) { requestFocus(id) },
                     style = Style {
                         background(palette.card)
@@ -92,7 +93,7 @@ fun UiScope.shadcnInputOTP(
                         // Real shadcn's InputOTP slot corners are rounded-md, drawn from the
                         // active theme's radius scale instead of a bare literal.
                         shape(shadcnResolvedTheme.radii.md)
-                        // Zero content padding so the slot slot-lambda receives the full 36×40 area
+                        // Zero content padding so the slot slot-lambda receives the full 36×36 area
                         contentPadding(0f.dp)
                     },
                 ) { slotBounds ->
@@ -124,7 +125,7 @@ fun UiScope.shadcnInputOTP(
             value = value,
             enabled = enabled,
             isError = isError,
-            modifier = Modifier.fillMaxWidth().height(40f.dp),
+            modifier = Modifier.fillMaxWidth().height(Tw.Spacing.s9),
             style = Style {
                 foreground(Color.Transparent)
                 background(Color.Transparent)

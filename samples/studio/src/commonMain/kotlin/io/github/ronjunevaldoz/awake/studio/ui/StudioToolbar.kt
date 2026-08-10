@@ -48,7 +48,7 @@ internal fun UiScope.drawStudioTopBar(renderer: Renderer, onPlay: () -> Unit) {
         shadcnText("Awake Studio")
         shadcnButton(
             id = "studio-top-bar-play",
-            modifier = Modifier.width(ShadcnButtonSize.Icon.heightDp.dp),
+            modifier = Modifier.width(ShadcnButtonSize.Icon.heightDp),
             variant = ShadcnButtonVariant.Ghost,
             size = ShadcnButtonSize.Icon,
             onClick = onPlay,

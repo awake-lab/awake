@@ -196,7 +196,9 @@ fun UiScope.shadcnSheet(
     onDismissRequest: () -> Unit,
     modifier: UiModifier = Modifier,
     side: ShadcnSheetSide = ShadcnSheetSide.Right,
-    sizeDp: Dp = 320f.dp,
+    // Real shadcn's SheetContent left/right variants cap at sm:max-w-sm = 384dp (on top of a
+    // w-3/4 viewport-relative floor this fixed-dp API doesn't model).
+    sizeDp: Dp = 384f.dp,
     showCloseButton: Boolean = true,
     header: (ColumnScope.(slot: UiBounds) -> Unit)? = null,
     actions: (RowScope.(slot: UiBounds) -> Unit)? = null,

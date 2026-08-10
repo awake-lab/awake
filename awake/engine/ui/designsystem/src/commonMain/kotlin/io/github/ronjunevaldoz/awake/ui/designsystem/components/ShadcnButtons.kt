@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
-import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
@@ -22,7 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 private fun UiModifier.withShadcnSize(size: ShadcnButtonSize): UiModifier =
-    if (heightDimension == null) height(size.heightDp.dp) else this
+    if (heightDimension == null) height(size.heightDp) else this
 
 private fun shadcnButtonStyle(
     theme: UiTheme,

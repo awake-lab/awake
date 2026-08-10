@@ -56,6 +56,8 @@ private fun Map<String, ULong>.toExpectedSignatureMatrix(): String =
 // cell padding, so every text run's measured width changed and reflowed the layouts.
 // 2026-08-08: re-recorded after em normalisation was corrected -- text is now its true size
 // and slots size to the line box, so every page reflowed.
+// 2026-08-10: re-recorded after the shadcn parity pass -- Tabs track height 32->36dp (h-9),
+// FieldTextField/FieldDropdown control height 40->36dp (h-9, was the only place using h-10).
 private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-overview" to 0xd9b72a019af9f240uL,
     "ui-showcase-theming" to 0x28aeb8300528c759uL,
@@ -67,12 +69,12 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-sidebar" to 0x7b873256c3c67de5uL,
     "ui-showcase-selection" to 0x9851f324c711f52fuL,
     "ui-showcase-range-slider" to 0xd9b72a019af9f240uL,
-    "ui-showcase-tabs" to 0x6cd1171213742b62uL,
+    "ui-showcase-tabs" to 0x8f6b181267c85cb6uL,
     "ui-showcase-select" to 0x8afc8aaf9465140duL,
     "ui-showcase-kbd-separator" to 0x97a104d253c8e4b4uL,
     "ui-showcase-feedback" to 0xf879b78c98dbb68cuL,
     "ui-showcase-alert" to 0xbd163943a933bd33uL,
-    "ui-showcase-text-input" to 0xba6c8030fad27874uL,
+    "ui-showcase-text-input" to 0x2bc1307c4807b99cuL,
     "ui-showcase-popups" to 0x2e01bc254488b7uL,
     "ui-showcase-state" to 0xd9b72a019af9f240uL,
     "ui-showcase-button-matrix" to 0xeb99998df754bcc9uL,

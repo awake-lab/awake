@@ -171,7 +171,7 @@ private fun drawParityButtonVariants(ui: UiContext, metadata: AwakeUiPreviewMeta
         horizontalArrangement = Arrangement.spacedBy(10f.dp),
         // No height override: the whole point of this capture is to measure the button's
         // own size against the reference, and pinning it here made that impossible.
-        modifier = Modifier.height(ShadcnButtonSize.Md.heightDp.dp.toDimension()),
+        modifier = Modifier.height(ShadcnButtonSize.Md.heightDp.toDimension()),
     ) {
         shadcnButton(
             "parity-default",

@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
@@ -43,7 +44,8 @@ fun ColumnScope.shadcnTabs(
     items: List<ShadcnTabItem>,
     selected: String,
     modifier: UiModifier = Modifier,
-    height: Dp = 32f.dp,
+    // shadcn's TabsList is h-9 (36dp) on the new-york-v4 baseline this module targets.
+    height: Dp = Tw.Spacing.s9,
 ): String {
     var resolved = selected
     val shadcnTheme = theme.asShadcnTheme()
@@ -121,7 +123,7 @@ fun ColumnScope.shadcnTabs(
     tabs: List<String>,
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
-    height: Dp = 32f.dp,
+    height: Dp = Tw.Spacing.s9,
 ): Int {
     val items = tabs.map { ShadcnTabItem(value = it, label = it) }
     val selectedValue = tabs.getOrNull(selectedIndex) ?: tabs.firstOrNull() ?: ""

@@ -38,8 +38,9 @@ class ShadcnInputOTPFidelityTest {
         )
         val frameOutput = ui.finishFrame()
 
+        // shadcn's InputOTPSlot is h-9 w-9 (36x36, square).
         val slotWidth = 36f
-        val slotHeight = 40f
+        val slotHeight = 36f
         val slotSpacing = 6f
 
         val config = AwakeUiPreviewValidationConfig(

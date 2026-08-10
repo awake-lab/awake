@@ -12,7 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -28,7 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 
-private val RailButtonSize = ShadcnButtonSize.Icon.heightDp.dp
+private val RailButtonSize = ShadcnButtonSize.Icon.heightDp
 private val RailPadding = UiSpacing.xs
 private val RailWidth = RailButtonSize + RailPadding * 2f
 

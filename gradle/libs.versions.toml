@@ -36,8 +36,13 @@ oshi-core = "7.4.0"
 # docs/MVP_PLAN.md's debug-control-channel decision log entry) -- 3.5.1 is the latest stable
 # release compatible with this repo's Kotlin 2.4.0 (Ktor 3.x requires Kotlin 2.0+).
 ktor = "3.5.1"
+# Tailwind spacing/sizing scale codegen (awake:engine:ui:tailwind-generator) -- generates the
+# Tw.kt object from a vendored static scale, same manual-invoke shape as
+# awake:backend:vulkan:generator.
+kotlinpoet = "2.3.0"
 
 [libraries]
+kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 vanniktech-maven-publish-plugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "vanniktech-publish" }

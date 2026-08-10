@@ -107,7 +107,8 @@ fun UiScope.shadcnDrawer(
                     ) {
                         surface(
                             id = "$id.handle",
-                            modifier = Modifier.width(48f.dp).height(6f.dp),
+                            // Real shadcn/vaul drag handle is h-2 w-[100px] (8x100dp).
+                            modifier = Modifier.width(100f.dp).height(8f.dp),
                             style = Style {
                                 background(resolvedTheme.palette.muted)
                                 shape(resolvedTheme.radii.full)

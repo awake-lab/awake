@@ -65,7 +65,7 @@ internal fun UiScope.drawInspectorPanel(world: World) {
                 shadcnText("Inspector", modifier = Modifier.weight(1f))
                 shadcnButton(
                     id = "studio-inspector-toggle",
-                    modifier = Modifier.width(ShadcnButtonSize.Icon.heightDp.dp),
+                    modifier = Modifier.width(ShadcnButtonSize.Icon.heightDp),
                     variant = ShadcnButtonVariant.Ghost,
                     size = ShadcnButtonSize.Icon,
                     onClick = { expanded.value = !expanded.value },

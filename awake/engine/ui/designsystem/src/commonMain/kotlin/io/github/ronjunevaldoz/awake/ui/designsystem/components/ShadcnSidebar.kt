@@ -30,6 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.SeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
@@ -45,9 +46,10 @@ private fun sidebarStyle(theme: ShadcnResolvedTheme): Style = Style {
     contentPadding(8f.dp)
 }
 
-/** Target width (dp) [shadcnSidebar] animates toward when [expanded]. */
+/** Target width (dp) [shadcnSidebar] animates toward when [expanded] -- shadcn's
+ * `SIDEBAR_WIDTH = "16rem"` = 256dp. */
 private fun UiModifier.sidebarExpandedWidth(): Dp =
-    (widthDimension as? Dimension.Fixed)?.dp ?: 240f.dp
+    (widthDimension as? Dimension.Fixed)?.dp ?: Tw.Spacing.s64 // shadcn's SIDEBAR_WIDTH = 16rem
 
 /** Animates [shadcnSidebar]'s width toward 0 when collapsed. */
 private fun UiScope.animatedSidebarWidthModifier(

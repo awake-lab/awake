@@ -69,7 +69,7 @@ internal fun UiScope.drawExampleRail(
             ) {
                 shadcnButton(
                     id = "studio-example-rail-toggle",
-                    modifier = Modifier.width(ShadcnButtonSize.Icon.heightDp.dp),
+                    modifier = Modifier.width(ShadcnButtonSize.Icon.heightDp),
                     variant = ShadcnButtonVariant.Ghost,
                     size = ShadcnButtonSize.Icon,
                     onClick = { expanded.value = !expanded.value },
