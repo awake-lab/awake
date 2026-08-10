@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
@@ -142,6 +143,10 @@ fun UiScope.shadcnDrawer(
                             shadcnButton(
                                 id = "$id.close",
                                 variant = ShadcnButtonVariant.Ghost,
+                                // Icon size: real shadcn's `icon` variant is `size-9` with no
+                                // px-* at all. The default Md size would inject px-4 (16dp/side)
+                                // into this 28dp box, leaving no room for the glyph.
+                                size = ShadcnButtonSize.Icon,
                                 modifier = Modifier.width(28f.dp).height(28f.dp),
                                 onClick = onDismissRequest,
                             ) { icon(ShadcnIcons.xMark) }

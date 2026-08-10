@@ -23,11 +23,31 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 private fun UiModifier.withShadcnSize(size: ShadcnButtonSize): UiModifier =
     if (heightDimension == null) height(size.heightDp) else this
 
+/** Real shadcn's button carries its horizontal inset on the button itself (`px-4` for the
+ * default size -- see [ShadcnButtonSize]); this module previously set no contentPadding at all,
+ * so every label sat flush against the button's own edges and the button measured narrower than
+ * upstream at every size. Applied before the caller's own `style` so an explicit
+ * `contentPadding` override still wins. */
+private fun shadcnButtonSizeStyle(size: ShadcnButtonSize): Style {
+    // DISABLED, deliberately. ShadcnButtonSize.paddingX carries the real per-size inset
+    // (px-2/px-3/px-4/px-6, asserted by ShadcnSpecAssertionTest), but APPLYING it exposes a
+    // deeper defect: labels truncate at content widths that should comfortably fit them
+    // ("Secondary" truncating inside 112dp at 14sp). That is the same text-measurement
+    // divergence tracked as open-risk 2 in docs/reference/ui-status.md -- the button padding
+    // makes it visible rather than causing it. Enabling this before that is understood just
+    // trades a padding bug for a truncation bug, so the constant stays verified-but-unapplied.
+    @Suppress("UNUSED_EXPRESSION")
+    size
+    return Style.Empty
+}
+
 private fun shadcnButtonStyle(
     theme: UiTheme,
     variant: ShadcnButtonVariant,
+    size: ShadcnButtonSize,
     style: Style,
-): Style = ShadcnStyles.button(theme.asShadcnTheme(), variant) then style
+): Style = ShadcnStyles.button(theme.asShadcnTheme(), variant) then
+    shadcnButtonSizeStyle(size) then style
 
 /**
  * Shadcn button with a simple text label.
@@ -49,7 +69,7 @@ fun UiScope.shadcnButton(
         id = id,
         label = label,
         modifier = modifier.withShadcnSize(size),
-        style = shadcnButtonStyle(theme, variant, style),
+        style = shadcnButtonStyle(theme, variant, size, style),
         variant = variant.toUiButtonVariant(),
         radius = theme.asShadcnTheme().radii.md,
         centered = centered,
@@ -76,7 +96,7 @@ fun UiScope.shadcnButton(
     onClick: (() -> Unit)? = null,
     content: BoxScope.(slot: UiBounds) -> Unit,
 ): Boolean {
-    val buttonStyle = shadcnButtonStyle(theme, variant, style)
+    val buttonStyle = shadcnButtonStyle(theme, variant, size, style)
     val result = buttonSlot(
         id = id,
         modifier = modifier.withShadcnSize(size),

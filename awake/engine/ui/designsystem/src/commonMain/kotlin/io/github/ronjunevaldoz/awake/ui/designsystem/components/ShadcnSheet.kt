@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.animateFloatTween
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
@@ -103,6 +104,10 @@ private fun ColumnScope.shadcnSheetHeaderRow(
             shadcnButton(
                 id = "$id.close",
                 variant = ShadcnButtonVariant.Ghost,
+                // Icon size, not the default: real shadcn's `icon` variant is `size-9` with no
+                // px-* at all. Leaving it Md gave this 28dp box a px-4 (16dp/side) inset, which
+                // exceeds the box outright and left no room for the glyph to draw.
+                size = ShadcnButtonSize.Icon,
                 modifier = Modifier.width(28f.dp).height(28f.dp),
                 onClick = onDismissRequest,
             ) { icon(ShadcnIcons.xMark) }

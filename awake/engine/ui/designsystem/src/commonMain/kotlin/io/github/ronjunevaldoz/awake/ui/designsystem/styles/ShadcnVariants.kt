@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.styles
 
 import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 
 enum class ShadcnButtonVariant {
@@ -15,18 +14,21 @@ enum class ShadcnButtonVariant {
     Link,
 }
 
-// Mirrors real shadcn's ButtonSize axis (Xs/Sm/Md/Lg/Icon). Height only -- width still
-// comes from the caller's modifier or content, same as every other Awake button call site.
-// Md/Lg/Icon match shadcn's own h-9/h-10/size-9 (36/40/36px) -- Xs/Sm have no direct shadcn
-// counterpart and are kept as this module's existing custom scale.
-enum class ShadcnButtonSize(val heightDp: Dp) {
-    // Xs has no direct shadcn counterpart -- this module's own custom scale step, not part of
-    // Tw's generated Tailwind scale.
-    Xs(28f.dp),
-    Sm(Tw.Spacing.s8), // h-8
-    Md(Tw.Spacing.s9), // h-9
-    Lg(Tw.Spacing.s10), // h-10
-    Icon(Tw.Spacing.s9), // size-9
+// Mirrors real shadcn's ButtonSize axis. Height AND horizontal padding both come from
+// button.tsx's own buttonVariants.size entries -- verified 2026-08-10 against the pinned
+// reference, which is also where the `xs` height came from (this previously read 28dp with a
+// comment claiming xs had "no direct shadcn counterpart"; current source defines it as h-6).
+//   xs      -> "h-6 gap-1 rounded-md px-2 text-xs"      -> 24dp / px-2
+//   sm      -> "h-8 gap-1.5 rounded-md px-3"            -> 32dp / px-3
+//   default -> "h-9 px-4 py-2"                          -> 36dp / px-4
+//   lg      -> "h-10 rounded-md px-6"                   -> 40dp / px-6
+//   icon    -> "size-9"                                 -> 36dp / no horizontal padding
+enum class ShadcnButtonSize(val heightDp: Dp, val paddingX: Dp) {
+    Xs(Tw.Spacing.s6, Tw.Spacing.s2),
+    Sm(Tw.Spacing.s8, Tw.Spacing.s3),
+    Md(Tw.Spacing.s9, Tw.Spacing.s4),
+    Lg(Tw.Spacing.s10, Tw.Spacing.s6),
+    Icon(Tw.Spacing.s9, Tw.Spacing.s0),
 }
 
 enum class ShadcnBadgeVariant {

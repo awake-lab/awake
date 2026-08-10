@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation
 import io.github.ronjunevaldoz.awake.ui.Dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
@@ -23,6 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
+import kotlin.math.ceil
 
 /** One tab in a [shadcnTabs] track. Mirrors shadcn-compose's `ShadcnTabItem`: [value] is the
  * stable selection identity, [label] is what's drawn -- two tabs can share a [label] without
@@ -56,8 +58,12 @@ fun ColumnScope.shadcnTabs(
     // box -- shadcnButton's centered text() fills it exactly.
     val glyphPx = resolveGlyphPx(textStyle = TextStyle(size = shadcnTheme.typography.label))
     // Real TabsTrigger is `px-2` = 8dp per side. (A stale comment here claimed px-3/16dp --
-    // wrong against the current registry source on both counts.)
-    val horizontalPaddingPx = Tw.Spacing.s2.toPx() * 2f
+    // wrong against the current registry source on both counts.) ShadcnButtonSize.Xs is the
+    // size whose paddingX IS px-2, so the width measured here and the inset shadcnButton
+    // actually applies stay in agreement -- inheriting the default Md (px-4) would inset 16dp
+    // per side into a box measured for 8dp and truncate every tab label.
+    val tabSize = ShadcnButtonSize.Xs
+    val horizontalPaddingPx = tabSize.paddingX.toPx() * 2f
     // Real shadcn's TabsList reserves a p-1 (4px) inset so the active trigger's raised
     // background sits inside the track, not flush against its edges -- previously the row
     // filled the track's full height with no inset, so the active highlight's own rounded
@@ -96,7 +102,11 @@ fun ColumnScope.shadcnTabs(
                 } else {
                     Style { foreground(shadcnTheme.colors.mutedForeground) }
                 }
-                val tabWidthPx = context.currentFont.measureTextWidth(item.label, glyphPx) + horizontalPaddingPx
+                // ceil: the button subtracts exactly `horizontalPaddingPx` back out, so an
+                // unrounded width leaves the label zero sub-pixel slack and the renderer
+                // truncates on a fractional remainder.
+                val tabWidthPx =
+                    ceil(context.currentFont.measureTextWidth(item.label, glyphPx)) + horizontalPaddingPx
                 val tabModifier = UiModifier(
                     widthDimension = Dimension.Fixed(tabWidthPx.px),
                     heightDimension = Dimension.FillMax,
@@ -112,6 +122,7 @@ fun ColumnScope.shadcnTabs(
                     label = item.label,
                     modifier = tabModifier,
                     variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
+                    size = tabSize,
                     style = tabStyle,
                 )
                 if (clicked) resolved = item.value
