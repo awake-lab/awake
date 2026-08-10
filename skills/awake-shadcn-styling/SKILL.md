@@ -365,7 +365,8 @@ never name.
 ## Fidelity tests run a different font than the real app -- vertical-centering bugs can survive them
 
 `UiFonts.default()` resolves to `PackedUiFont(RobotoRegularUiFontData)` -- a **generated** atlas
-(`tools/generate_ui_font_atlas.py`, ~6.5k lines of packed per-glyph quad metrics) that overrides
+(`:awake:engine:ui:font-atlas-generator`'s `generateFontAtlas` task, ~6.5k lines of packed
+per-glyph quad metrics) that overrides
 `visibleTopEm`/`visibleBottomEm` with values computed from real glyph ink, and reports
 `lineHeightEm = 1.1875`.
 
@@ -379,7 +380,8 @@ Vertical centering is computed from exactly those values (`BasicText.kt`'s
 real asymmetric band do not center identically, so **a test asserting text is centered proves it
 for `BitmapFont`, not for what ships**. When a text-alignment bug is reported against the running
 app but every test is green, this divergence is the first thing to check -- and when the metrics
-themselves look wrong, remember they are generated: fix `generate_ui_font_atlas.py` and regenerate,
+themselves look wrong, remember they are generated: fix
+`:awake:engine:ui:font-atlas-generator`'s `Main.kt` and re-run its `generateFontAtlas` task,
 never hand-edit `RobotoRegularUiFontData.kt`.
 
 ---

@@ -106,13 +106,18 @@ internal fun UiScope.renderTextBlock(
         }
         layout.lines.forEachIndexed { index, line ->
             val textWidth = layout.lineWidths[index]
-            var penX = if (centered) slot.x + (slot.width - textWidth) / 2f else slot.x
+            // Snap the LINE's pen origin once -- not each glyph's own box. Every glyph on this
+            // line now reads its exact (unrounded) offsetXEm/offsetYEm/widthEm/heightEm off this
+            // one shared, pixel-aligned origin instead of independently rounding its own edges
+            // (see the removed per-glyph rounding below for why that was wrong).
+            var penX = pixelPerfectPixel(if (centered) slot.x + (slot.width - textWidth) / 2f else slot.x)
+            val linePenY = pixelPerfectPixel(penY)
             for (char in line) {
                 val glyph = font.uvFor(char)
                 val advance = font.advanceFor(char, glyphPx)
                 if (glyph != null) {
                     val glyphX = penX + glyph.offsetXEm * glyphPx
-                    val glyphY = penY + glyph.offsetYEm * glyphPx
+                    val glyphY = linePenY + glyph.offsetYEm * glyphPx
                     val glyphW = glyph.widthEm * glyphPx
                     val glyphH = glyph.heightEm * glyphPx
 
@@ -139,30 +144,25 @@ internal fun UiScope.renderTextBlock(
                         finalColor = highlight
                     }
 
-                    // Quantize the glyph's EDGES, not its origin-and-size separately.
-                    //
-                    // `Glyph(round(y), round(h))` renders a bottom edge of `round(y) + round(h)`
-                    // -- two independent roundings of two different fractional values. Glyphs
-                    // sharing a baseline have different offsetYEm/heightEm (correctly: 'S' and
-                    // 'u' start at different ink heights), so their fractions differ and the
-                    // pair of roundings lands their bottoms up to a pixel apart. The baseline
-                    // they should share is never snapped itself -- it's re-derived per glyph
-                    // from two rounded numbers, which is exactly the reported "wavy" text.
-                    //
-                    // Rounding right/bottom from the same unrounded origin instead means every
-                    // glyph resting on the same true baseline rounds to the SAME bottom, so the
-                    // baseline stays flat; descenders still fall below it on their own metrics.
-                    // Same argument horizontally, where the symptom is uneven letter spacing.
-                    val left = pixelPerfectPixel(glyphX)
-                    val top = pixelPerfectPixel(glyphY)
-                    val right = pixelPerfectPixel(glyphX + glyphW)
-                    val bottom = pixelPerfectPixel(glyphY + glyphH)
+                    // Do NOT round this glyph's own box -- `linePenY`/the line-start `penX` above
+                    // are already the only snapped values, shared by every glyph on the line.
+                    // Emitting `glyphX/glyphY/glyphW/glyphH` unrounded keeps the destination
+                    // quad's size exactly `widthEm * glyphPx` / `heightEm * glyphPx`, matching
+                    // its fixed source UV footprint 1:1 -- rounding a quad's width/height
+                    // independently of its source rect rescales it, and that per-glyph scale
+                    // drift (a 6.4px stroke rounds to 6px, its neighbour's 6.6px rounds to 7px)
+                    // is what read as inconsistent stroke weight/sharpness across a line, not
+                    // just a baseline offset. Two glyphs sharing a true baseline still render
+                    // bit-identical bottoms here: same `linePenY`, same unrounded arithmetic, so
+                    // equal offsetYEm+heightEm values stay equal -- no waviness without rounding
+                    // to independently perturb them (see git history for the rounding this
+                    // replaces, which fixed waviness only by coupling two roundings together).
                     emit(
                         UiDrawPrimitive.Glyph(
-                            left,
-                            top,
-                            (right - left).coerceAtLeast(1f),
-                            (bottom - top).coerceAtLeast(1f),
+                            glyphX,
+                            glyphY,
+                            glyphW,
+                            glyphH,
                             glyph.u0,
                             glyph.v0,
                             glyph.u1,

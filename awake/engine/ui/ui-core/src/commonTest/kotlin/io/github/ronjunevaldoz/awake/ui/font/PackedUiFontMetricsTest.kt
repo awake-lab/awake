@@ -28,24 +28,30 @@ class PackedUiFontMetricsTest {
         assertEquals(bottoms.first(), font.ascentEm, "ascentEm must be the measured baseline")
     }
 
+    // 2026-08-10: re-pinned after tools/generate_ui_font_atlas.py was replaced by
+    // :awake:engine:ui:font-atlas-generator, which reads these from the TTF's own outline
+    // geometry (continuous doubles) instead of the antialiased raster ink bbox (quantized to
+    // 1/64 em). Values are no longer exact multiples of 1/64 -- that is the fix, not a defect.
     @Test
     fun metricsAreTheMeasuredValuesNotTheInterfaceDefaults() {
-        assertEquals(1.046875f, font.ascentEm)
-        assertEquals(0.21875f, font.descentEm)
-        assertEquals(0.75f, font.capHeightEm)
+        assertEquals(0.927735f, font.ascentEm)
+        assertEquals(0.22656202f, font.descentEm)
+        assertEquals(0.710938f, font.capHeightEm)
     }
 
     @Test
     fun inkExtremesAreDrivenByOutlierGlyphsSoTheyCannotStandInForMetrics() {
-        // The reason the overrides exist. visibleTop/visibleBottom are set by '(' and '@' --
+        // The reason the overrides exist. visibleTop/visibleBottom are set by '$' and '(' --
         // punctuation, not the typographic ascent/descent -- so centering against that band
         // makes every label's position hostage to which symbols the atlas happens to pack.
-        assertEquals(font.visibleTopEm, font.uvFor('(')!!.offsetYEm)
-        val at = font.uvFor('@')!!
-        assertEquals(font.visibleBottomEm, at.offsetYEm + at.heightEm)
+        // ('(' had a tied bottom with ')'; '@' no longer reaches as deep once outline geometry
+        // replaced the raster bbox -- see the file header for why the qualifying glyph changed.)
+        assertEquals(font.visibleTopEm, font.uvFor('$')!!.offsetYEm)
+        val paren = font.uvFor('(')!!
+        assertEquals(font.visibleBottomEm, paren.offsetYEm + paren.heightEm)
         assertTrue(
             font.visibleTopEm < font.ascentEm - font.capHeightEm,
-            "'(' should reach above cap height, else this test no longer proves the point",
+            "'\$' should reach above cap height, else this test no longer proves the point",
         )
     }
 

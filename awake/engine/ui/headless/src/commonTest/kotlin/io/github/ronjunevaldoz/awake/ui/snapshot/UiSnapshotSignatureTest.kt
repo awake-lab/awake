@@ -80,19 +80,22 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 // the line-height cell (19) rather than the render font size (16), so every advance and quad was
 // 16/19 = 0.842x too small and all text rendered ~19% narrow. Text is now its true size, and
 // slots size to the line box (lineHeightEm) instead of the font size so they can contain it.
+// 2026-08-10 (2): re-recorded again after the atlas moved to TTF outline geometry
+// (:awake:engine:ui:font-atlas-generator) and BasicText switched to snapping a line's pen
+// origin once with exact per-glyph sizes. Every glyph's position and size changed.
 // 2026-08-10: re-recorded after BasicText switched from rounding each glyph's origin and size
 // independently to rounding its right/bottom edges from one unrounded origin -- the "wavy text"
 // fix. Every text-bearing scene moved by up to a pixel per glyph.
 private val expectedReviewSnapshotSignatures = mapOf(
-    "toggle-unchecked" to 0x1d81f3dc2c84c2d6uL,
-    "toggle-checked" to 0x9040bb2c02268441uL,
-    "button-filled" to 0xe029e37c50e7f6d2uL,
-    "button-outline" to 0xae6cb4b40007b96auL,
-    "button-ghost" to 0x6c077611ebf67182uL,
-    "theme-dark" to 0x6c077611ebf67182uL,
-    "theme-light" to 0x23107dc643303eeeuL,
-    "panel-with-children" to 0x48977390ca8655c8uL,
-    "shadcn-field-error" to 0x0f43f98c425f72c1uL,
+    "toggle-unchecked" to 0xaf200cf385ff7da4uL,
+    "toggle-checked" to 0x5fafc82c35aa44e4uL,
+    "button-filled" to 0xac173f532a04a075uL,
+    "button-outline" to 0x04b50c4578d096aauL,
+    "button-ghost" to 0xddb2da7359acd1cauL,
+    "theme-dark" to 0xddb2da7359acd1cauL,
+    "theme-light" to 0xe262c67ed42823aauL,
+    "panel-with-children" to 0xd283209e0d35e986uL,
+    "shadcn-field-error" to 0x2e33e11ca0a004a6uL,
 )
 
 // 2026-08-03: quads/rounded-quads/borders (surface fills, buttons, dialogs, separators) now
@@ -113,13 +116,13 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // 2026-08-08: ui-component-state-matrix again -- the slider knob shrank 20dp -> 16dp with a 1dp
 // border, shadcn v4's size-4 thumb. It is also the one scene with a slider.
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0x0ab601cada598da5uL,
-    "ui-shaped-panel" to 0x0585019887395e83uL,
-    "ui-panel-controls" to 0x5e44ab22a8c11856uL,
-    "ui-alert-dialog" to 0xf67718edf2daa48fuL,
-    "ui-component-state-matrix" to 0x1ae54e2c0ae07d17uL,
-    "ui-rounded-clip-vector" to 0x448dc7a53cfc1288uL,
-    "ui-awake-shadcn-showcase" to 0x3b6ec833c076c3fbuL,
+    "ui-button-variants" to 0x5199da4edbc05eebuL,
+    "ui-shaped-panel" to 0xd900059d4e6033a9uL,
+    "ui-panel-controls" to 0x63c2ce40baa2d72auL,
+    "ui-alert-dialog" to 0xa546274de4dcecf3uL,
+    "ui-component-state-matrix" to 0x10483f798ffb8861uL,
+    "ui-rounded-clip-vector" to 0x846cadc9615aa8bfuL,
+    "ui-awake-shadcn-showcase" to 0x2aeef3b1f3e05041uL,
 )
 
 private fun ULong.toHexString(): String {
