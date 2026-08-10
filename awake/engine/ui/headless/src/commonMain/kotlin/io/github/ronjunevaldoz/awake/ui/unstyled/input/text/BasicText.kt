@@ -139,12 +139,30 @@ internal fun UiScope.renderTextBlock(
                         finalColor = highlight
                     }
 
+                    // Quantize the glyph's EDGES, not its origin-and-size separately.
+                    //
+                    // `Glyph(round(y), round(h))` renders a bottom edge of `round(y) + round(h)`
+                    // -- two independent roundings of two different fractional values. Glyphs
+                    // sharing a baseline have different offsetYEm/heightEm (correctly: 'S' and
+                    // 'u' start at different ink heights), so their fractions differ and the
+                    // pair of roundings lands their bottoms up to a pixel apart. The baseline
+                    // they should share is never snapped itself -- it's re-derived per glyph
+                    // from two rounded numbers, which is exactly the reported "wavy" text.
+                    //
+                    // Rounding right/bottom from the same unrounded origin instead means every
+                    // glyph resting on the same true baseline rounds to the SAME bottom, so the
+                    // baseline stays flat; descenders still fall below it on their own metrics.
+                    // Same argument horizontally, where the symptom is uneven letter spacing.
+                    val left = pixelPerfectPixel(glyphX)
+                    val top = pixelPerfectPixel(glyphY)
+                    val right = pixelPerfectPixel(glyphX + glyphW)
+                    val bottom = pixelPerfectPixel(glyphY + glyphH)
                     emit(
                         UiDrawPrimitive.Glyph(
-                            pixelPerfectPixel(glyphX),
-                            pixelPerfectPixel(glyphY),
-                            pixelPerfectPixel(glyphW).coerceAtLeast(1f),
-                            pixelPerfectPixel(glyphH).coerceAtLeast(1f),
+                            left,
+                            top,
+                            (right - left).coerceAtLeast(1f),
+                            (bottom - top).coerceAtLeast(1f),
                             glyph.u0,
                             glyph.v0,
                             glyph.u1,
