@@ -40,6 +40,31 @@ class PackedUiFont internal constructor(
     override val visibleTopEm: Float by lazy { computeVisibleBand().first }
     override val visibleBottomEm: Float by lazy { computeVisibleBand().second }
 
+    /** Distance from a line's layout origin down to its baseline, measured off the atlas rather
+     * than inherited from [UiFont]'s fabricated 0.8 default. */
+    override val ascentEm: Float by lazy { baselineEm }
+
+    /** Ink below the baseline. Uses the atlas's deepest glyph, so it covers every descender the
+     * font can actually draw. */
+    override val descentEm: Float by lazy { visibleBottomEm - baselineEm }
+
+    override val capHeightEm: Float by lazy { measureCapHeightEm() }
+
+    /**
+     * Baseline position, read off a flat-bottomed capital rather than assumed.
+     *
+     * Round glyphs ('O', 'S') overshoot the baseline slightly by design, and every descender
+     * sits well below it, so the atlas's own ink extremes cannot locate it -- [visibleBottomEm]
+     * is 1.265625 here, set by '@'. [BASELINE_REFERENCE_GLYPHS] are all flat-bottomed with no
+     * overshoot, so their ink bottom IS the baseline; they agree exactly in the packed Roboto
+     * atlas, and the first one present wins.
+     */
+    private val baselineEm: Float by lazy {
+        BASELINE_REFERENCE_GLYPHS.firstNotNullOfOrNull { char ->
+            glyphsByChar[char]?.takeIf { it.heightEm > 0f }?.let { it.offsetYEm + it.heightEm }
+        } ?: visibleBottomEm
+    }
+
     private val glyphsByChar: Map<Char, GlyphRect> by lazy(::decodeGlyphRects)
     private val advancesByChar: Map<Char, Float> by lazy(::decodeAdvances)
 
@@ -118,6 +143,13 @@ class PackedUiFont internal constructor(
         return result
     }
 
+    /** Cap height is the reference capital's own ink height -- flat top, flat bottom, so the
+     * quad spans exactly baseline-to-cap with no overshoot to subtract. */
+    private fun measureCapHeightEm(): Float =
+        BASELINE_REFERENCE_GLYPHS.firstNotNullOfOrNull { char ->
+            glyphsByChar[char]?.heightEm?.takeIf { it > 0f }
+        } ?: super.capHeightEm
+
     private fun computeVisibleBand(): Pair<Float, Float> {
         var metricIndex = 0
         var top = Float.POSITIVE_INFINITY
@@ -135,5 +167,11 @@ class PackedUiFont internal constructor(
             return 0f to 1f
         }
         return top to bottom
+    }
+
+    private companion object {
+        /** Flat-bottomed capitals, in preference order. Ordered by how reliably a font draws
+         * them without overshoot or optical correction. */
+        val BASELINE_REFERENCE_GLYPHS = listOf('H', 'I', 'E', 'T', 'X')
     }
 }
