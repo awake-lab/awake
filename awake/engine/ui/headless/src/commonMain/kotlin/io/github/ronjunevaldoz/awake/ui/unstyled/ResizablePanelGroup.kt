@@ -33,19 +33,18 @@ import io.github.ronjunevaldoz.awake.ui.toPx
 enum class ResizableDirection { Horizontal, Vertical }
 
 // Layout cost a handle reserves along the main axis, subtracted from the panels' shared budget
-// before dividing it by fraction. Matches real shadcn/react-resizable-panels: the Separator
-// itself is only `w-px` (1dp) *in flow* -- the wider grab target below is an absolutely
-// positioned pseudo-element that does NOT consume flex layout space. Reserving a wider slot here
-// (this used to be 4dp) silently taxed every neighboring panel's budget by 3dp per handle beyond
-// what real shadcn ever costs.
-private val RESIZABLE_HANDLE_LAYOUT_THICKNESS = 1f.dp
-
-// Grab-area inflation on each side of the thin layout slot above, independent of layout cost --
-// react-resizable-panels' own `hitAreaMargins` default (`{ coarse: 15, fine: 5 }` px; this engine
-// is mouse-primary, so the "fine" value). Without this, the effective mouse target was the bare
-// 1dp line itself -- small enough that hover and press both routinely miss it, so the handle
-// read as neither draggable nor hoverable.
-private val RESIZABLE_HANDLE_HIT_MARGIN = 5f.dp
+// before dividing it by fraction, AND the rect it hit-tests for hover/drag.
+//
+// Real shadcn is thinner in flow -- its Separator is `w-px` with the grab area in an absolutely
+// positioned pseudo-element that costs no layout, and react-resizable-panels inflates the grab
+// target further via hitAreaMargins. Splitting this into a 1dp layout cost plus a separate 5dp
+// grab margin was tried and reverted: it re-proportioned every panel (they all size off the
+// budget this is subtracted from) and, because the split required hand-rolling the hit test
+// instead of going through interact(), the hover state the resize cursor reads went dead.
+//
+// Matching shadcn here needs interact() to accept a hit rect distinct from its layout rect. Until
+// it does, one honest 4dp value beats a split that breaks two things to fix a 3dp discrepancy.
+private val RESIZABLE_HANDLE_THICKNESS = 4f.dp
 
 /** One [resizablePanelGroup] panel's identity, captured by [ResizablePanelGroupScope.panel]
  * immediately before a [ResizablePanelGroupScope.handle] call so that handle's drag can read/
@@ -154,23 +153,20 @@ class ResizablePanelGroupScope internal constructor(
             return UiBounds(0f, 0f, 0f, 0f)
         }
         val modifier = if (direction == ResizableDirection.Horizontal) {
-            Modifier.width(RESIZABLE_HANDLE_LAYOUT_THICKNESS).height(Dimension.FillMax)
+            Modifier.width(RESIZABLE_HANDLE_THICKNESS).height(Dimension.FillMax)
         } else {
-            Modifier.width(Dimension.FillMax).height(RESIZABLE_HANDLE_LAYOUT_THICKNESS)
+            Modifier.width(Dimension.FillMax).height(RESIZABLE_HANDLE_THICKNESS)
         }
-        val slot = claimModifiedSlot(modifier)
-        // Hit-test a wider rect than the thin layout slot -- see RESIZABLE_HANDLE_HIT_MARGIN.
-        // Not routed through the generic `interact()` helper (which hit-tests the same slot it
-        // lays out) precisely because those two rects must now differ.
-        val marginPx = RESIZABLE_HANDLE_HIT_MARGIN.toPx()
-        val hitSlot = if (direction == ResizableDirection.Horizontal) {
-            UiBounds(slot.x - marginPx, slot.y, slot.width + marginPx * 2f, slot.height)
-        } else {
-            UiBounds(slot.x, slot.y - marginPx, slot.width, slot.height + marginPx * 2f)
-        }
-        val hovered = hitTest(hitSlot)
-        tryClaimActive(id, hovered)
-        releaseActiveIfMatches(id)
+        // Back to interact(), deliberately. Hand-rolling this as claimModifiedSlot + a bare
+        // hitTest against an inflated rect looked equivalent and was not: interact() is what
+        // produces the hover state the resize cursor is requested from, and doing the hit test
+        // directly left `hovered` false in the real app, so the custom cursor never appeared
+        // even though dragging worked. The wider grab area matching react-resizable-panels'
+        // hitAreaMargins needs interact() to support a hit rect distinct from its layout rect;
+        // it is not something a caller can bolt on from outside.
+        val interaction = interact(id = id, modifier = modifier)
+        val slot = interaction.slot
+        val hovered = interaction.hovered
         val pointerMain = if (direction == ResizableDirection.Horizontal) pointerX() else pointerY()
         val lastPointerKey = "$id.lastPointerMain"
         val dragging = isActive(id) && pointerDown()
@@ -248,7 +244,7 @@ fun UiScope.resizablePanelGroup(
     )
     counter.content()
     val availableMainAxisPx =
-        (mainAxisTotal - counter.handleCount * RESIZABLE_HANDLE_LAYOUT_THICKNESS.toPx()).coerceAtLeast(0f)
+        (mainAxisTotal - counter.handleCount * RESIZABLE_HANDLE_THICKNESS.toPx()).coerceAtLeast(0f)
 
     val real = ResizablePanelGroupScope(
         context,
