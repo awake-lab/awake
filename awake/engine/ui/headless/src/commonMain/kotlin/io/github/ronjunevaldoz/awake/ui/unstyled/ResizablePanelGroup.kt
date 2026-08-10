@@ -20,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
+import io.github.ronjunevaldoz.awake.ui.scope.isMeasuring
 import io.github.ronjunevaldoz.awake.ui.scope.pointerDown
 import io.github.ronjunevaldoz.awake.ui.scope.pointerX
 import io.github.ronjunevaldoz.awake.ui.scope.pointerY
@@ -31,16 +32,20 @@ import io.github.ronjunevaldoz.awake.ui.toPx
  * `orientation` prop, the upstream shadcn's `Resizable` wraps. */
 enum class ResizableDirection { Horizontal, Vertical }
 
-// Fixed hit-width a handle reserves along the main axis, subtracted from the panels' shared
-// budget before dividing it by fraction -- same "small intrinsic constant" shape as Slider's own
-// SLIDER_TRACK_HEIGHT/SLIDER_KNOB_DIAMETER. The visible line the shadcn skin paints is thinner
-// (w-px, 1dp); this is the draggable hit region around it.
-//
-// Matches real shadcn's own hit target: ResizableHandle paints a `w-px` line but overlays an
-// `after:w-1` (4dp) pseudo-element centered on it, and THAT is what the pointer actually hits.
-// This was 2dp, which is a 2-physical-pixel strip at density 1 -- small enough that hover and
-// press both routinely miss it, so the handle read as neither draggable nor hoverable.
-private val RESIZABLE_HANDLE_THICKNESS = 4f.dp
+// Layout cost a handle reserves along the main axis, subtracted from the panels' shared budget
+// before dividing it by fraction. Matches real shadcn/react-resizable-panels: the Separator
+// itself is only `w-px` (1dp) *in flow* -- the wider grab target below is an absolutely
+// positioned pseudo-element that does NOT consume flex layout space. Reserving a wider slot here
+// (this used to be 4dp) silently taxed every neighboring panel's budget by 3dp per handle beyond
+// what real shadcn ever costs.
+private val RESIZABLE_HANDLE_LAYOUT_THICKNESS = 1f.dp
+
+// Grab-area inflation on each side of the thin layout slot above, independent of layout cost --
+// react-resizable-panels' own `hitAreaMargins` default (`{ coarse: 15, fine: 5 }` px; this engine
+// is mouse-primary, so the "fine" value). Without this, the effective mouse target was the bare
+// 1dp line itself -- small enough that hover and press both routinely miss it, so the handle
+// read as neither draggable nor hoverable.
+private val RESIZABLE_HANDLE_HIT_MARGIN = 5f.dp
 
 /** One [resizablePanelGroup] panel's identity, captured by [ResizablePanelGroupScope.panel]
  * immediately before a [ResizablePanelGroupScope.handle] call so that handle's drag can read/
@@ -149,19 +154,30 @@ class ResizablePanelGroupScope internal constructor(
             return UiBounds(0f, 0f, 0f, 0f)
         }
         val modifier = if (direction == ResizableDirection.Horizontal) {
-            Modifier.width(RESIZABLE_HANDLE_THICKNESS).height(Dimension.FillMax)
+            Modifier.width(RESIZABLE_HANDLE_LAYOUT_THICKNESS).height(Dimension.FillMax)
         } else {
-            Modifier.width(Dimension.FillMax).height(RESIZABLE_HANDLE_THICKNESS)
+            Modifier.width(Dimension.FillMax).height(RESIZABLE_HANDLE_LAYOUT_THICKNESS)
         }
-        val interaction = interact(id = id, modifier = modifier)
-        val slot = interaction.slot
+        val slot = claimModifiedSlot(modifier)
+        // Hit-test a wider rect than the thin layout slot -- see RESIZABLE_HANDLE_HIT_MARGIN.
+        // Not routed through the generic `interact()` helper (which hit-tests the same slot it
+        // lays out) precisely because those two rects must now differ.
+        val marginPx = RESIZABLE_HANDLE_HIT_MARGIN.toPx()
+        val hitSlot = if (direction == ResizableDirection.Horizontal) {
+            UiBounds(slot.x - marginPx, slot.y, slot.width + marginPx * 2f, slot.height)
+        } else {
+            UiBounds(slot.x, slot.y - marginPx, slot.width, slot.height + marginPx * 2f)
+        }
+        val hovered = hitTest(hitSlot)
+        tryClaimActive(id, hovered)
+        releaseActiveIfMatches(id)
         val pointerMain = if (direction == ResizableDirection.Horizontal) pointerX() else pointerY()
         val lastPointerKey = "$id.lastPointerMain"
         val dragging = isActive(id) && pointerDown()
         // Hovered OR mid-drag: a fast drag can outrun the pointer past this handle's own thin
         // hit strip on a given frame, and the resize affordance must not flicker off just
         // because the hover test briefly misses while the gesture is still active.
-        if (interaction.hovered || dragging) {
+        if (hovered || dragging) {
             requestCursor(
                 if (direction == ResizableDirection.Horizontal) {
                     UiCursor.ResizeHorizontal
@@ -170,7 +186,17 @@ class ResizablePanelGroupScope internal constructor(
                 },
             )
         }
-        pendingDrag = if (dragging) {
+        // A WrapContent/scroll trial-measurement pass re-executes this whole content lambda
+        // against a scratch UiContext that shares the real, persisted groupState but starts with
+        // its own blank input/activation state (see UiContextMeasureState.createMeasureContext),
+        // so `dragging` above always reads false there. Left unguarded, the trial's own `else`
+        // branch below would delete lastPointerKey out from under the real pass that runs right
+        // after it in the same frame, permanently zeroing every real frame's pointer delta --
+        // the actual "dragging does nothing" bug. Guard this side effect like every other
+        // stateful UiContext operation (see UiContext.animateFloat's identical isMeasuring() gate).
+        pendingDrag = if (isMeasuring()) {
+            null
+        } else if (dragging) {
             val previousPointerMain = groupState.get(lastPointerKey, pointerMain)
             groupState.set(lastPointerKey, pointerMain)
             val before = lastPanel
@@ -187,7 +213,6 @@ class ResizablePanelGroupScope internal constructor(
             groupState.remove(lastPointerKey)
             null
         }
-        releaseActiveIfMatches(id)
         recordSemantic(role = UiSemanticRole.Separator, id = id, bounds = slot)
         return slot
     }
@@ -223,7 +248,7 @@ fun UiScope.resizablePanelGroup(
     )
     counter.content()
     val availableMainAxisPx =
-        (mainAxisTotal - counter.handleCount * RESIZABLE_HANDLE_THICKNESS.toPx()).coerceAtLeast(0f)
+        (mainAxisTotal - counter.handleCount * RESIZABLE_HANDLE_LAYOUT_THICKNESS.toPx()).coerceAtLeast(0f)
 
     val real = ResizablePanelGroupScope(
         context,
