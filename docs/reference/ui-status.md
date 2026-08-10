@@ -59,6 +59,7 @@ external truth. That is the structural gap behind every bug found on 2026-08-10.
 | 4 | Parity baselines accept 28–44% | Can't certify fidelity | Needs component-aligned comparison + risk 1/2 fixed, then rebaseline |
 | 5 | Three spacing vocabularies | `UiSpacing` / `ShadcnSpacing` / `Tw` | Decided: `Tw` in designsystem, `UiSpacing` in core/headless, delete `ShadcnSpacing`. Sweep not done — must be per-site (a mechanical rename would launder 4 known-wrong values) |
 | 6 | Cursor wired in one sample only | studio/scene3d have no hover cursors | Known |
+| 7 | `popup()` can't take min/max bounds | `max-w-*`/`max-h-*` classes are unportable for any popup-based component (AlertDialog, Dialog, Sheet, Drawer, Popover). `UiModifier.widthIn(max=)` exists, but `popup()` sizes from a `Dimension`, so the constraint can't reach it. AlertDialog is parked at 320dp because of this. | Open — plumbing change in `popup()` |
 
 ## How to stop this recurring
 

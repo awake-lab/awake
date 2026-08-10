@@ -232,10 +232,39 @@ literal for a radius/type value is the bug, not the fix -- `Tw` deliberately shi
 
 **Responsive and fractional classes need a judgment call, not a translation.** Real
 `SheetContent` is `w-3/4 sm:max-w-sm`: three-quarters of the viewport, capped at 384px on
-small-and-up. This engine has neither fractional widths nor breakpoints, so the honest port is the
-cap (`Tw.Spacing.s96` = 384dp) with a comment saying the `w-3/4` floor isn't modelled -- which is
+small-and-up. This engine has no breakpoints, so the honest port is the cap
+(`Tw.Spacing.s96` = 384dp) with a comment saying the `w-3/4` floor isn't modelled -- which is
 exactly what `shadcnSheet`'s `sizeDp` default does. Don't silently pick one and pretend it's a full
 port.
+
+**`max-w-*` is a CONSTRAINT, not a width -- use `widthIn`, never `Dimension.Fixed`.** This is a
+real trap: `Dimension` only offers `Fixed`/`FillMax`/`WrapContent`, so `max-w-lg` looks
+unportable and the tempting move is `Dimension.Fixed(512f.dp)`. That is wrong in both
+directions -- it forces 512dp in a viewport narrower than 512 (which overflowed a 320px test
+frame outright, pushing a dialog's confirm button out of bounds), and it drops the `w-full`
+floor. `UiModifier` already carries the right primitive:
+
+```kotlin
+// UiModifier.kt -- these exist, use them
+val minWidth: Dp? = null
+val maxWidth: Dp? = null
+val minHeight: Dp? = null
+val maxHeight: Dp? = null
+```
+
+```kotlin
+// WRONG -- `w-full sm:max-w-lg` is not a fixed 512dp width
+width: Dimension = Dimension.Fixed(512f.dp),
+
+// RIGHT -- fill the parent (w-full), capped at max-w-lg
+modifier = Modifier
+    .width(Dimension.FillMax)
+    .widthIn(max = 512f.dp)
+```
+
+Rule of thumb: `w-N`/`h-N` (a size) map to `Dimension.Fixed`; `max-w-*`/`min-w-*`/`max-h-*`
+(a bound) map to `widthIn`/`heightIn`. Mapping a bound onto a size is how a component ends up
+correct on one viewport and broken on another.
 
 **Where to read the real classes:** `github.com/shadcn-ui/ui/blob/main/apps/v4/registry/new-york-v4/ui/<component>.tsx`
 (the registry `ShadcnStylePreset.Vega` targets). Fetch the raw file, find the `className` on the
