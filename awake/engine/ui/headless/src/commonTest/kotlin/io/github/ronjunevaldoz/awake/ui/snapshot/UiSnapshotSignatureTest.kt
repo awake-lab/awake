@@ -80,6 +80,10 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 // the line-height cell (19) rather than the render font size (16), so every advance and quad was
 // 16/19 = 0.842x too small and all text rendered ~19% narrow. Text is now its true size, and
 // slots size to the line box (lineHeightEm) instead of the font size so they can contain it.
+// 2026-08-10 (5): re-recorded after UiRasterizer was made numerically equivalent to the real
+// glyph shaders -- it had applied no stem darkening on either branch and resolved a distance
+// field with a size-derived smoothstep instead of the shaders' screenPxRange. Until now these
+// signatures described a renderer nobody ships.
 // 2026-08-10 (4): pxrange 4 -> 2. A distance field cannot encode a feature thinner than its
 // own spread, and at 4 (with an em spanning 32 texels) 'i'/'l' stems were narrower than the
 // range and rendered eroded next to rounder glyphs.
@@ -93,15 +97,15 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 // independently to rounding its right/bottom edges from one unrounded origin -- the "wavy text"
 // fix. Every text-bearing scene moved by up to a pixel per glyph.
 private val expectedReviewSnapshotSignatures = mapOf(
-    "toggle-unchecked" to 0xb316d0e6dcb666c7uL,
-    "toggle-checked" to 0x5185876d2237a1e7uL,
-    "button-filled" to 0xfe51d9503086a307uL,
-    "button-outline" to 0xb537e459ca8ae28fuL,
-    "button-ghost" to 0xd088286e8e753bd7uL,
-    "theme-dark" to 0xd088286e8e753bd7uL,
-    "theme-light" to 0x56db939aa658573buL,
-    "panel-with-children" to 0x94f77e15d1e4ec86uL,
-    "shadcn-field-error" to 0x43269f220a0ede6fuL,
+    "toggle-unchecked" to 0x2c5e85cbc6ddea13uL,
+    "toggle-checked" to 0x1dd091dcdc1bfc6fuL,
+    "button-filled" to 0xdf3924ecd0942817uL,
+    "button-outline" to 0x37fd27abbdd9fbc7uL,
+    "button-ghost" to 0x53987e853c04cdd7uL,
+    "theme-dark" to 0x53987e853c04cdd7uL,
+    "theme-light" to 0x6dfeb79a64e2937buL,
+    "panel-with-children" to 0x9187ea74182c7137uL,
+    "shadcn-field-error" to 0x20943f9498faabceuL,
 )
 
 // 2026-08-03: quads/rounded-quads/borders (surface fills, buttons, dialogs, separators) now
@@ -122,13 +126,13 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // 2026-08-08: ui-component-state-matrix again -- the slider knob shrank 20dp -> 16dp with a 1dp
 // border, shadcn v4's size-4 thumb. It is also the one scene with a slider.
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0x4a4f7b60a2c968eauL,
-    "ui-shaped-panel" to 0xfff36e9ef3ce0671uL,
-    "ui-panel-controls" to 0xe8c0139e5954717duL,
-    "ui-alert-dialog" to 0x305dca0cd2c98dcfuL,
-    "ui-component-state-matrix" to 0xe7e1a14f6542f14auL,
-    "ui-rounded-clip-vector" to 0xedcf61ceec2b3df8uL,
-    "ui-awake-shadcn-showcase" to 0x1c1d06abbc778966uL,
+    "ui-button-variants" to 0xae28947abd0c5431uL,
+    "ui-shaped-panel" to 0x243aacbf26a193f0uL,
+    "ui-panel-controls" to 0x455cdac7ac5dc08euL,
+    "ui-alert-dialog" to 0x895106b3568cb09auL,
+    "ui-component-state-matrix" to 0x022a9ff342e38c66uL,
+    "ui-rounded-clip-vector" to 0x4331de5fc8bd2788uL,
+    "ui-awake-shadcn-showcase" to 0xb9ba5b0ba8bcb2f7uL,
 )
 
 private fun ULong.toHexString(): String {

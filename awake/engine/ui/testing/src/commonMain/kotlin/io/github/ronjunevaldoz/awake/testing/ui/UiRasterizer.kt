@@ -16,6 +16,11 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
+/** Stem-darkening exponent. Must stay numerically identical to GLYPH_GAMMA in
+ * `vulkan/ui_glyph.frag` and `webgpu/ui_glyph.wgsl` -- this rasterizer exists to predict what
+ * those produce, and silently diverging from them is what made the font gates decorative. */
+private const val GLYPH_GAMMA = 1.45f
+
 /**
  * Software-rasterizes a [UiDrawPrimitive] list into a tightly-packed RGBA8 buffer for
  * preview/docs/snapshot review. This is deliberately backend-agnostic and simpler than the
@@ -115,18 +120,36 @@ fun List<UiDrawPrimitive>.rasterize(
 
     fun median3(a: Float, b: Float, c: Float): Float = max(min(a, b), min(max(a, b), c))
 
+    /**
+     * Kept numerically equivalent to `vulkan/ui_glyph.frag` and `webgpu/ui_glyph.wgsl`.
+     *
+     * It previously was not, and that is why the font gates in this repo were decorative: this
+     * rasterizer applied no stem darkening on either branch and resolved a distance field with a
+     * `smoothstep` over an `edgeSoftness` derived from the glyph's size, while both shaders use
+     * `screenPxRange` derived from the UV derivative. Every snapshot signature and every local
+     * render therefore measured a renderer nobody ships, and stayed green through two rounds of
+     * text that was visibly wrong on screen.
+     *
+     * `fwidth` has no meaning here, but its value is known analytically: the shader's
+     * `screenTexSize` is screen pixels per texel, which for a glyph quad is its rendered width
+     * over the width of the atlas region it samples.
+     */
     fun sampleGlyphAlpha(font: UiFont, glyph: UiDrawPrimitive.Glyph, u: Float, v: Float): Int {
         val rgba = sampleAtlasRgba(font, u, v)
         val coverage = when (font.samplingMode) {
             UiFontSamplingMode.CoverageAlpha -> rgba[3]
             UiFontSamplingMode.DistanceField -> {
                 val signedDistance = median3(rgba[0], rgba[1], rgba[2])
-                val glyphScale = min(glyph.w, glyph.h) / font.cellSize.toFloat()
-                val edgeSoftness = 0.5f / max(1f, font.distanceFieldRangePx * glyphScale)
-                smoothstep(0.5f - edgeSoftness, 0.5f + edgeSoftness, signedDistance)
+                val texelWidth = max(1e-4f, (glyph.u1 - glyph.u0) * font.atlasWidth)
+                val screenPxPerTexel = glyph.w / texelWidth
+                val screenPxRange = max(font.distanceFieldRangePx * screenPxPerTexel, 1f)
+                (screenPxRange * (signedDistance - 0.5f) + 0.5f).coerceIn(0f, 1f)
             }
         }
-        return (coverage * 255f).toInt().coerceIn(0, 255)
+        // Stem darkening, applied to BOTH branches exactly as the shaders do: it compensates for
+        // blending in gamma space, a property of the framebuffer rather than of how coverage was
+        // derived. Numerically identical to GLYPH_GAMMA in both shader files.
+        return (coverage.pow(1f / GLYPH_GAMMA) * 255f).toInt().coerceIn(0, 255)
     }
 
     fun fillGradientRect(x: Float, y: Float, w: Float, h: Float, gradient: io.github.ronjunevaldoz.awake.ui.UiLinearGradient) {
