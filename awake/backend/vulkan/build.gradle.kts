@@ -236,3 +236,12 @@ val verifyShaderBinaries = tasks.register("verifyShaderBinaries") {
 }
 
 tasks.named("check") { dependsOn(verifyShaderBinaries) }
+
+// Also gate RESOURCE PACKAGING, not just `check`. `check` alone only fires for someone who runs
+// this module's own verification; it is silent for the far more common path of building or
+// running a sample, which is exactly how a stale ui_glyph.frag.spv shipped a gamma fix that
+// never reached the GPU. Hanging the gate off processResources means any build that packages
+// the .spv has to prove the .spv matches its GLSL first.
+tasks.matching { it.name.endsWith("rocessResources") }.configureEach {
+    dependsOn(verifyShaderBinaries)
+}
