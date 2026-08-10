@@ -56,7 +56,11 @@ fn fragmentMain(in: VertexOut) -> @location(0) vec4<f32> {
         let screenTexSize = vec2<f32>(1.0, 1.0) / fwidth(in.uv);
         let screenPxRange = max(0.5 * dot(unitRange, screenTexSize), 1.0);
         let signedDistance = max(min(atlas.r, atlas.g), min(max(atlas.r, atlas.g), atlas.b));
-        glyphAlpha = clamp(screenPxRange * (signedDistance - 0.5) + 0.5, 0.0, 1.0);
+        // Stem darkening applies to the distance-field path too -- it compensates for blending
+        // in gamma space, a property of the framebuffer rather than of how coverage was
+        // derived. Kept identical to vulkan/ui_glyph.frag so both backends match.
+        let coverage = clamp(screenPxRange * (signedDistance - 0.5) + 0.5, 0.0, 1.0);
+        glyphAlpha = pow(coverage, 1.0 / GLYPH_GAMMA);
     }
     return vec4<f32>(in.color.rgb, in.color.a * glyphAlpha);
 }

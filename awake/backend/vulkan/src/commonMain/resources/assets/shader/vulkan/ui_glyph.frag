@@ -37,7 +37,13 @@ float resolveGlyphAlpha() {
     vec2 screenTexSize = vec2(1.0) / fwidth(fragUV);
     float screenPxRange = max(0.5 * dot(unitRange, screenTexSize), 1.0);
     float signedDistance = median3(atlas.rgb);
-    return clamp(screenPxRange * (signedDistance - 0.5) + 0.5, 0.0, 1.0);
+    float coverage = clamp(screenPxRange * (signedDistance - 0.5) + 0.5, 0.0, 1.0);
+    // Stem darkening applies here too. It compensates for blending in GAMMA space (see the
+    // GLYPH_GAMMA comment), which is a property of the framebuffer, not of how the glyph's
+    // coverage was derived -- so a distance field needs it exactly as much as a coverage
+    // bitmap does. Omitting it here is why MTSDF text rendered visibly thinner than the
+    // coverage atlas it replaced.
+    return pow(coverage, 1.0 / GLYPH_GAMMA);
 }
 
 void main() {

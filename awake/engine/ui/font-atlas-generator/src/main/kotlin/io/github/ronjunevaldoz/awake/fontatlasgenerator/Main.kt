@@ -46,8 +46,13 @@ private const val MSDFGEN = "msdfgen"
 private const val RGBA_CHANNELS = 4
 
 /** Distance-field spread in ATLAS TEXELS, passed to msdfgen as `-pxrange` and shipped as
- * `distanceFieldRangePx` so the glyph shader recovers the same range. */
-private const val DISTANCE_FIELD_RANGE_PX = 4
+ * `distanceFieldRangePx` so the glyph shader recovers the same range.
+ *
+ * Must stay well under the narrowest stem the atlas has to represent. A distance field cannot
+ * encode a feature thinner than its own spread -- at 4, with [OVERSAMPLE] 2 putting an em at 32
+ * texels, 'i' and 'l' stems (~2 texels) were narrower than the range and rendered visibly
+ * eroded next to rounder glyphs. */
+private const val DISTANCE_FIELD_RANGE_PX = 2
 
 /** Manual/on-demand, matching `:awake:engine:ui:tailwind-generator`'s own shape -- run this
  * (`./gradlew :awake:engine:ui:font-atlas-generator:generateFontAtlas`) and commit the
