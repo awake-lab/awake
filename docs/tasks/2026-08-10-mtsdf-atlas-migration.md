@@ -75,16 +75,29 @@ independently. Two implementations agreeing to six decimals confirms the em conv
 
 ## Remaining work
 
+**DONE — step 2, the format widening (`cb77e8ea`).** `encodedAlphaBase64` → `encodedAtlasBase64`
+with an `atlasChannels` selector (1 = coverage, 4 = MTSDF handed back verbatim), and
+`distanceFieldRangePx` now flows from the data through `PackedUiFont`. Roboto still ships
+`CoverageAlpha` at one channel, so this changed no behaviour. The remaining steps are 1, 3, 4.
+
 1. **Per-glyph generation and packing** in
    `awake/engine/ui/font-atlas-generator/.../Main.kt` (289 lines today; it currently draws into a
    `TYPE_BYTE_GRAY` image and base64-encodes via `grayBytes`).
    Prefer passing explicit `-scale`/`-translate` derived from our own metrics over `-autoframe`,
    so every glyph shares one em→px mapping and the existing UV-rect derivation is unchanged. With
    `-autoframe` you must map back through the reported `scale`/`translate` per glyph.
-2. **Widen the data format** — this is the bulk of the task. `encodedAlphaBase64` is
-   single-channel by construction; it must carry RGBA. Touches the `PackedUiFontData` interface,
-   `PackedUiFont.decodeAtlasPixels`, and the generator's emission. `BitmapFont` stays
-   `CoverageAlpha`, so both paths must remain decodable.
+
+   The fiddly part, and the reason this was not attempted blind: msdfgen's shape space is
+   **Y-up with the baseline at y = 0**, while `quadMetricsEm`'s `offsetYEm` is measured
+   **downward from the line top** (baseline − ascent), and the atlas is Y-down. For a tile
+   spanning `offsetYEm .. offsetYEm + heightEm` below the line top, the `-translate` y term is
+   `-(ascentEm / LOGICAL_CELL - (offsetYEm + heightEm))`, and the decoded tile must be flipped
+   vertically before blitting. Getting this wrong renders glyphs mirrored or vertically shifted
+   in a way that reads like a metrics bug, not a packing bug.
+
+   Verify on one glyph before packing all 95: `-printmetrics` for `A` (65) must report a
+   `bounds` top of `0.7109375`, matching the independently measured `capHeightEm`.
+2. ~~**Widen the data format.**~~ Done in `cb77e8ea`.
 3. **Flip the default** — `samplingMode = DistanceField`, set `distanceFieldRangePx` from the
    `-pxrange` used, point `UiFonts.default()` at the new data. Retire the coverage Roboto rather
    than maintaining two packed paths. No shader or backend changes.
