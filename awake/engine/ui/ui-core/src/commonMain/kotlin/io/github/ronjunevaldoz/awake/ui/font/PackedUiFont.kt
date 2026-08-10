@@ -21,7 +21,18 @@ internal interface PackedUiFontData {
     val atlasHeight: Int
     val samplingMode: UiFontSamplingMode
     val fallbackChar: Char
-    val encodedAlphaBase64: String
+
+    /** Distance-field spread, in ATLAS TEXELS -- the `-pxrange` the atlas was generated with.
+     * The glyph shader divides this by the atlas size to recover a UV-space range, so it must
+     * stay in texels, not screen pixels. Ignored for [UiFontSamplingMode.CoverageAlpha]. */
+    val distanceFieldRangePx: Float get() = 0f
+
+    /** Channels per texel in [encodedAtlasBase64]: 1 for a coverage-alpha atlas, 4 for an
+     * MTSDF one (RGB carries the multi-channel distance, A a true signed distance). */
+    val atlasChannels: Int get() = 1
+
+    /** Raw atlas bytes, [atlasChannels] per texel, row-major from the top-left. */
+    val encodedAtlasBase64: String
     val glyphOrder: String
     val uvBoundsPx: IntArray
     val quadMetricsEm: FloatArray
@@ -37,6 +48,7 @@ class PackedUiFont internal constructor(
     override val atlasWidth: Int = data.atlasWidth
     override val atlasHeight: Int = data.atlasHeight
     override val atlasPixelsRgba: ByteArray by lazy(::decodeAtlasPixels)
+    override val distanceFieldRangePx: Float = data.distanceFieldRangePx
     override val visibleTopEm: Float by lazy { computeVisibleBand().first }
     override val visibleBottomEm: Float by lazy { computeVisibleBand().second }
 
@@ -98,18 +110,22 @@ class PackedUiFont internal constructor(
     }
 
     private fun decodeAtlasPixels(): ByteArray {
-        val normalizedBase64 = data.encodedAlphaBase64.filterNot(Char::isWhitespace)
-        val alpha = Base64.Default.decode(normalizedBase64)
-        val rgba = ByteArray(alpha.size * 4)
+        val normalizedBase64 = data.encodedAtlasBase64.filterNot(Char::isWhitespace)
+        val decoded = Base64.Default.decode(normalizedBase64)
+        // An MTSDF atlas is already RGBA -- RGB carries the multi-channel distance the shader
+        // takes a median of, A a true signed distance. Handing it back verbatim is the point;
+        // rewriting RGB to white (as the coverage path must) would erase the distance field.
+        if (data.atlasChannels == RGBA_CHANNELS) return decoded
+        val rgba = ByteArray(decoded.size * RGBA_CHANNELS)
         var sourceIndex = 0
         var targetIndex = 0
-        while (sourceIndex < alpha.size) {
+        while (sourceIndex < decoded.size) {
             rgba[targetIndex] = -1
             rgba[targetIndex + 1] = -1
             rgba[targetIndex + 2] = -1
-            rgba[targetIndex + 3] = alpha[sourceIndex]
+            rgba[targetIndex + 3] = decoded[sourceIndex]
             sourceIndex += 1
-            targetIndex += 4
+            targetIndex += RGBA_CHANNELS
         }
         return rgba
     }
@@ -173,5 +189,6 @@ class PackedUiFont internal constructor(
         /** Flat-bottomed capitals, in preference order. Ordered by how reliably a font draws
          * them without overshoot or optical correction. */
         val BASELINE_REFERENCE_GLYPHS = listOf('H', 'I', 'E', 'T', 'X')
+        const val RGBA_CHANNELS = 4
     }
 }

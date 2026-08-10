@@ -81,7 +81,7 @@ private class AtlasResult(
     val uvBoundsPx: IntArray,
     val quadMetricsEm: FloatArray,
     val advancesEm: FloatArray,
-    val encodedAlphaBase64: String,
+    val encodedAtlasBase64: String,
 )
 
 private fun generateAtlas(fontFile: File): AtlasResult {
@@ -154,7 +154,7 @@ private fun generateAtlas(fontFile: File): AtlasResult {
         uvBoundsPx = uvBoundsPx.toIntArray(),
         quadMetricsEm = quadMetricsEm.toFloatArray(),
         advancesEm = advancesEm.toFloatArray(),
-        encodedAlphaBase64 = Base64.getEncoder().encodeToString(grayBytes(atlasImage)),
+        encodedAtlasBase64 = Base64.getEncoder().encodeToString(grayBytes(atlasImage)),
     )
 }
 
@@ -246,7 +246,7 @@ private fun buildFileSpec(atlas: AtlasResult): FileSpec {
         .addProperty(intArrayProperty("uvBoundsPx", atlas.uvBoundsPx))
         .addProperty(floatArrayProperty("quadMetricsEm", atlas.quadMetricsEm))
         .addProperty(floatArrayProperty("advancesEm", atlas.advancesEm))
-        .addProperty(base64Property(atlas.encodedAlphaBase64))
+        .addProperty(base64Property(atlas.encodedAtlasBase64))
         .build()
 
     return FileSpec.builder(FONT_PACKAGE, OBJECT_NAME)
@@ -282,7 +282,7 @@ private fun base64Property(base64: String): PropertySpec {
     val block = CodeBlock.builder().add("\"\"\"\n")
     base64.chunked(120).forEach { line -> block.add("%L\n", line) }
     block.add("\"\"\"")
-    return PropertySpec.builder("encodedAlphaBase64", STRING)
+    return PropertySpec.builder("encodedAtlasBase64", STRING)
         .addModifiers(KModifier.OVERRIDE)
         .initializer(block.build())
         .build()
