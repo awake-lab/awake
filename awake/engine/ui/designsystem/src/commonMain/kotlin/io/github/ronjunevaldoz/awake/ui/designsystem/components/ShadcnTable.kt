@@ -25,6 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.FontWeight
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
@@ -75,7 +76,8 @@ fun ColumnScope.shadcnTable(
         ShadcnTableScope(this, id, columns, resolvedTheme).content()
         // shadcn's TableCaption sits BELOW the body (`caption-bottom`), muted + small.
         caption?.let {
-            spacer(Modifier.height(ShadcnSpacing.xs))
+            // Real TableCaption's `mt-4` = 16dp.
+            spacer(Modifier.height(Tw.Spacing.s4))
             shadcnSupportingText(it, modifier = Modifier.padding(horizontal = ShadcnSpacing.sm, vertical = 0f.dp))
         }
     }

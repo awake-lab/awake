@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
+import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 import io.github.ronjunevaldoz.awake.ui.theme
 
 /**
@@ -43,7 +44,9 @@ fun <T> ColumnScope.shadcnAccordion(
             // and constrains width so long body text wraps instead of overflowing the panel.
             column(
                 modifier = Modifier.fillMaxWidth()
-                    .padding(start = shadcnTheme.spacing.sm, top = 0f.dp, end = shadcnTheme.spacing.sm, bottom = shadcnTheme.spacing.sm),
+                    // bottom = real AccordionContent's `pb-4`(16dp). start/end have NO upstream
+                    // counterpart (real AccordionContent has zero horizontal inset) -- Awake-original.
+                    .padding(start = shadcnTheme.spacing.sm, top = 0f.dp, end = shadcnTheme.spacing.sm, bottom = Tw.Spacing.s4),
             ) {
                 content(item)
             }

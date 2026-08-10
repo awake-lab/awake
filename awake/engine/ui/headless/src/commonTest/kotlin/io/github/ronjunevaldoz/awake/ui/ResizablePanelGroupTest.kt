@@ -20,7 +20,8 @@ import kotlin.test.assertTrue
 class ResizablePanelGroupTest {
 
     // Group is 600px wide, one handle -- see RESIZABLE_HANDLE_THICKNESS (2dp/2px at the default
-    // test density): 598px left for the two 50/50 panels, 299px each.
+    // test density): 596px left for the two 50/50 panels, 298px each (handle is 4dp -- real
+    // shadcn's `after:w-1` hit target, see RESIZABLE_HANDLE_THICKNESS).
     @Test
     fun twoPanelsSplitAroundOneHandleLeavesRoomForTheHandle() {
         val ui = UiContext()
@@ -36,10 +37,10 @@ class ResizablePanelGroupTest {
                 panel2 = panel("p2", defaultSize = 0.5f) { }
             }
         }
-        assertEquals(299f, panel1!!.width, 0.5f, "left panel should absorb half the budget left after the handle's own width")
-        assertEquals(299f, panel2!!.width, 0.5f, "right panel should absorb the other half")
+        assertEquals(298f, panel1!!.width, 0.5f, "left panel should absorb half the budget left after the handle's own width")
+        assertEquals(298f, panel2!!.width, 0.5f, "right panel should absorb the other half")
         assertEquals(0f, panel1!!.x, "left panel starts at the group's own origin")
-        assertEquals(301f, panel2!!.x, 0.5f, "right panel starts after the left panel and the 2px handle")
+        assertEquals(302f, panel2!!.x, 0.5f, "right panel starts after the left panel and the 4dp handle")
     }
 
     @Test
@@ -62,10 +63,10 @@ class ResizablePanelGroupTest {
             }
         }
 
-        // Handle sits at x in [299, 301] (see the layout test above) -- press its center.
+        // Handle sits at x in [298, 302] (see the layout test above) -- press its center.
         frame(pointerDown = true, x = 300f)
         val widthAfterPress = panel1!!.width
-        assertEquals(299f, widthAfterPress, 0.5f, "pressing the handle must not move it before any pointer motion")
+        assertEquals(298f, widthAfterPress, 0.5f, "pressing the handle must not move it before any pointer motion")
 
         frame(pointerDown = true, x = 400f)
         // One more frame at the same x: the panel drawn *before* its own trailing handle reads
@@ -123,7 +124,7 @@ class ResizablePanelGroupTest {
     @Test
     fun hoveringHorizontalHandleRequestsHorizontalResizeCursor() {
         val ui = UiContext()
-        // Handle sits at x in [299, 301] for a 600px-wide group (see the layout test above).
+        // Handle sits at x in [298, 302] for a 600px-wide group (see the layout test above).
         ui.simulateFrame(pointerDown = false, x = 300f, y = 100f) {
             ui.createAbsolute(x = 0f, y = 0f).resizablePanelGroup(
                 id = "cursor-group",

@@ -19,7 +19,9 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
  * both already exist in `ui-core` ([io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll] +
  * [io.github.ronjunevaldoz.awake.ui.scrollPanel]'s own [io.github.ronjunevaldoz.awake.ui.verticalScrollThumb]
  * call) -- this only supplies the shadcn-shaped [UiScrollConfig], not new scroll behaviour. */
-private val ShadcnScrollAreaConfig = UiScrollConfig(width = 10f.dp, gap = 2f.dp)
+// gap matches real ScrollAreaScrollbar's `p-px` -- literally 1px, Tailwind's px step, not
+// p-0.5(2dp). Stays a plain literal for the same reason shadcn's own source uses `p-px`.
+private val ShadcnScrollAreaConfig = UiScrollConfig(width = 10f.dp, gap = 1f.dp)
 
 /**
  * Real shadcn's `ScrollArea`: a viewport with a styled overlay scrollbar that only appears once

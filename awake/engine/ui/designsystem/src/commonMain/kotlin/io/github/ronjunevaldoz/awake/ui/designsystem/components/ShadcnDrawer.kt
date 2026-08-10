@@ -42,7 +42,13 @@ enum class ShadcnDrawerPosition {
 /**
  * Real shadcn's `Drawer` (built on vaul/sheet primitives): a slide-over modal overlay panel
  * anchored to the bottom, top, left, or right viewport edge.
- */
+ *
+ * [sizeDp] note: one default across all four positions, which real shadcn does NOT have --
+ * left/right drawers are `w-3/4 sm:max-w-sm` (the same 384dp cap [shadcnSheet] uses), while
+ * top/bottom are `max-h-[80vh]`, viewport-relative with no fixed-dp equivalent this API can
+ * express. Left at 320dp because Bottom is the default position here, so pinning it to the
+ * left/right cap would change the common case to match a spec that doesn't govern it. Pass
+ * `sizeDp = 384f.dp` explicitly for a left/right drawer to match shadcn exactly. */
 fun UiScope.shadcnDrawer(
     id: String,
     expanded: Boolean,

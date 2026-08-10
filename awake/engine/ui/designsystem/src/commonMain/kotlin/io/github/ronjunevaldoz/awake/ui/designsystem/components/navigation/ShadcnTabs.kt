@@ -55,7 +55,9 @@ fun ColumnScope.shadcnTabs(
     // per-tab contentPadding Style is set below, so this measured width IS the label's padded
     // box -- shadcnButton's centered text() fills it exactly.
     val glyphPx = resolveGlyphPx(textStyle = TextStyle(size = shadcnTheme.typography.label))
-    val horizontalPaddingPx = shadcnTheme.spacing.md.toPx() * 2f
+    // Real TabsTrigger is `px-2` = 8dp per side. (A stale comment here claimed px-3/16dp --
+    // wrong against the current registry source on both counts.)
+    val horizontalPaddingPx = Tw.Spacing.s2.toPx() * 2f
     // Real shadcn's TabsList reserves a p-1 (4px) inset so the active trigger's raised
     // background sits inside the track, not flush against its edges -- previously the row
     // filled the track's full height with no inset, so the active highlight's own rounded
@@ -63,7 +65,8 @@ fun ColumnScope.shadcnTabs(
     // contentPadding on the track's own Style rather than padding() on the nested row,
     // since Surface already exposes this as an explicit content-padding concept distinct
     // from the row's own outer placement.
-    val trackInset = 4f.dp
+    // Real TabsList is `p-[3px]` -- an arbitrary value, not the p-1(4dp) scale step.
+    val trackInset = 3f.dp
     surface(
         id = "$id.track",
         modifier = (modifier).copy(
@@ -77,7 +80,10 @@ fun ColumnScope.shadcnTabs(
         },
     ) {
         row(
-            horizontalArrangement = Arrangement.spacedBy(2f.dp),
+            // Real TabsList's default variant has NO gap class -- triggers sit flush, each
+            // rounded fill floating inside the shared p-[3px] track. (Only the `line` variant
+            // gets gap-1, which this component doesn't render.)
+            horizontalArrangement = Arrangement.spacedBy(0f.dp),
             modifier = Modifier.height(Dimension.FillMax),
         ) {
             items.forEachIndexed { index, item ->

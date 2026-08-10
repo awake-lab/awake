@@ -17,24 +17,35 @@ internal data class ShadcnRadiusScale(
     override val full: Dp,
 ) : UiShapeTokens {
     companion object {
-        // shadcn's own scale is additive, not multiplicative: sm/md are offset DOWN from
-        // --radius by a fixed 4dp/2dp step, lg IS --radius, xl is offset UP by 4dp (see
-        // tailwind's `calc(var(--radius) - Npx)` convention in new-york-v4's globals.css). xs
-        // has no shadcn counterpart -- extended one more 2dp step below sm to keep the scale's
-        // even spacing. Clamped at 0 so a small base preset (e.g. Lyra's 0dp) can't go negative.
+        // Multiplicative, matching Tailwind v4 / new-york-v4's real derivation (verified against
+        // the pinned reference app's own index.css):
+        //   --radius-sm: calc(var(--radius) * 0.6)   --radius-lg: var(--radius)
+        //   --radius-md: calc(var(--radius) * 0.8)   --radius-xl: calc(var(--radius) * 1.4)
+        // This was previously additive (base-4 / base-2 / base+4) with a comment asserting
+        // shadcn's scale "is additive, not multiplicative" -- factually wrong, but it produced
+        // IDENTICAL numbers at Vega's base of 10dp (6/8/10/14), so the preset the parity
+        // comparisons use was correct by coincidence while every other preset drifted (Nova's
+        // base of 5dp gave 1/3/9 instead of the real 3/4/7).
+        // xs has no shadcn counterpart -- kept as one step below sm on the same ratio curve.
+        // Clamped at 0 so a 0dp base preset (Lyra) can't go negative.
         fun fromBase(base: Dp): ShadcnRadiusScale = ShadcnRadiusScale(
-            xs = (base.value - 6f).coerceAtLeast(0f).dp,
-            sm = (base.value - 4f).coerceAtLeast(0f).dp,
-            md = (base.value - 2f).coerceAtLeast(0f).dp,
+            xs = (base.value * 0.4f).coerceAtLeast(0f).dp,
+            sm = (base.value * 0.6f).coerceAtLeast(0f).dp,
+            md = (base.value * 0.8f).coerceAtLeast(0f).dp,
             lg = base,
-            xl = (base.value + 4f).dp,
+            xl = (base.value * 1.4f).coerceAtLeast(0f).dp,
             full = 9999f.dp,
         )
     }
 }
 
 /** shadcn-matching spacing names, wrapping [UiSpacing]'s dp values instead of duplicating them --
- * ui-core owns the raw scale, this just renames/extends it for shadcn call sites (e.g. `theme.spacing.xxl`). */
+ * ui-core owns the raw scale, this just renames/extends it for shadcn call sites (e.g. `theme.spacing.xxl`).
+ *
+ * This object is the ONE spacing vocabulary `ui-designsystem` components should speak. Reaching
+ * past it to [Tw.Spacing] directly inside a component is what splits the module into two competing
+ * vocabularies for the same concept -- add the missing step here instead, the way [smd]/[lgx] were.
+ * `Tw` is this object's source of truth, not a parallel API for call sites. */
 internal object ShadcnSpacing {
     val xs: Dp = UiSpacing.xs
     val sm: Dp = UiSpacing.sm

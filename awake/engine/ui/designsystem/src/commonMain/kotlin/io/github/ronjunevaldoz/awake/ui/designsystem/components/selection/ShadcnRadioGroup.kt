@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.checkbox
@@ -83,7 +84,8 @@ fun ColumnScope.shadcnRadioGroup(
     options: List<String>,
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
-    gap: Dp = 8f.dp,
+    // Real shadcn's RadioGroup root is `grid gap-3` (12dp), not gap-2.
+    gap: Dp = Tw.Spacing.s3,
     style: Style = Style.Empty,
     enabled: Boolean = true,
 ): Int {

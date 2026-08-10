@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
@@ -90,7 +91,8 @@ fun ColumnScope.shadcnEmpty(
         if (action != null) {
             column(
                 horizontalAlignment = UiAlignment.Horizontal.Center,
-                verticalArrangement = Arrangement.spacedBy(ShadcnSpacing.sm),
+                // Real EmptyContent is `gap-4`(16dp), not gap-2.
+                verticalArrangement = Arrangement.spacedBy(Tw.Spacing.s4),
             ) { action() }
         }
     }

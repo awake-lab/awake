@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
 import io.github.ronjunevaldoz.awake.ui.debugOverlayPrimitives
@@ -49,6 +50,15 @@ class GameUiRuntime(
         private set
 
     var font: UiFont = spec.font
+
+    /** Last finished frame's requested cursor (see [UiCursor]) -- `ui-core` only records the
+     * request, the platform host owns the actual call. A desktop entry point wires this to
+     * `runVulkanDesktopGame(cursor = { runtime.cursor })`; without that wiring nothing ever
+     * applies it and every hover-driven cursor (resize handles, text fields) stays the default
+     * arrow. */
+    var cursor: UiCursor = UiCursor.Default
+        private set
+
     var viewportWidth: Float = 0f
         private set
     var viewportHeight: Float = 0f
@@ -174,6 +184,7 @@ class GameUiRuntime(
 
         val frame = uiContext.finishFrame()
         input.textInputFocused = frame.effects.requestKeyboard
+        cursor = frame.effects.cursor
 
         val primitives = if (debugOverlayEnabled) {
             frame.primitives + uiContext.debugOverlayPrimitives()

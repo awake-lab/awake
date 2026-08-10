@@ -33,21 +33,27 @@ import kotlin.test.assertTrue
  */
 class ShadcnStylePresetVerificationTest {
 
+    /** This test previously asserted an ADDITIVE ladder (base-6/-4/-2/+4) and therefore actively
+     * protected the bug it was meant to catch: real Tailwind v4 derives radii MULTIPLICATIVELY
+     * (`calc(var(--radius) * 0.6/0.8/1.4)`, see the pinned reference app's own index.css).
+     * The two agree exactly at Vega's base of 10dp, which is the only preset the parity
+     * screenshots exercise -- so every other preset drifted silently. Corrected 2026-08-10;
+     * see ShadcnRadiusScaleTest for the formula-level lock. */
     @Test
-    fun radiusScaleFollowsTheAdditiveRuleForEveryPreset() {
+    fun radiusScaleFollowsTheMultiplicativeRuleForEveryPreset() {
         for (preset in ShadcnStylePreset.values()) {
             val base = preset.baseRadius.value
             val shapes = shadcnTheme(preset = preset).shapes
-            val expectedXs = (base - 6f).coerceAtLeast(0f)
-            val expectedSm = (base - 4f).coerceAtLeast(0f)
-            val expectedMd = (base - 2f).coerceAtLeast(0f)
-            val expectedXl = base + 4f
+            val expectedXs = (base * 0.4f).coerceAtLeast(0f)
+            val expectedSm = (base * 0.6f).coerceAtLeast(0f)
+            val expectedMd = (base * 0.8f).coerceAtLeast(0f)
+            val expectedXl = (base * 1.4f).coerceAtLeast(0f)
 
-            assertEquals(expectedXs, shapes.xs.value, "${preset.label}: xs should be base-6 clamped at 0")
-            assertEquals(expectedSm, shapes.sm.value, "${preset.label}: sm should be base-4 clamped at 0")
-            assertEquals(expectedMd, shapes.md.value, "${preset.label}: md should be base-2 clamped at 0")
-            assertEquals(base, shapes.lg.value, "${preset.label}: lg should equal baseRadius exactly")
-            assertEquals(expectedXl, shapes.xl.value, "${preset.label}: xl should be base+4")
+            assertEquals(expectedXs, shapes.xs.value, "${preset.label}: xs should be base * 0.4")
+            assertEquals(expectedSm, shapes.sm.value, "${preset.label}: sm should be base * 0.6 (--radius-sm)")
+            assertEquals(expectedMd, shapes.md.value, "${preset.label}: md should be base * 0.8 (--radius-md)")
+            assertEquals(base, shapes.lg.value, "${preset.label}: lg should equal baseRadius exactly (--radius-lg)")
+            assertEquals(expectedXl, shapes.xl.value, "${preset.label}: xl should be base * 1.4 (--radius-xl)")
         }
     }
 

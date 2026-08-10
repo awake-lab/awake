@@ -33,9 +33,14 @@ enum class ResizableDirection { Horizontal, Vertical }
 
 // Fixed hit-width a handle reserves along the main axis, subtracted from the panels' shared
 // budget before dividing it by fraction -- same "small intrinsic constant" shape as Slider's own
-// SLIDER_TRACK_HEIGHT/SLIDER_KNOB_DIAMETER. The visible line the shadcn skin paints is thinner;
-// this is the draggable hit region around it.
-private val RESIZABLE_HANDLE_THICKNESS = 2f.dp
+// SLIDER_TRACK_HEIGHT/SLIDER_KNOB_DIAMETER. The visible line the shadcn skin paints is thinner
+// (w-px, 1dp); this is the draggable hit region around it.
+//
+// Matches real shadcn's own hit target: ResizableHandle paints a `w-px` line but overlays an
+// `after:w-1` (4dp) pseudo-element centered on it, and THAT is what the pointer actually hits.
+// This was 2dp, which is a 2-physical-pixel strip at density 1 -- small enough that hover and
+// press both routinely miss it, so the handle read as neither draggable nor hoverable.
+private val RESIZABLE_HANDLE_THICKNESS = 4f.dp
 
 /** One [resizablePanelGroup] panel's identity, captured by [ResizablePanelGroupScope.panel]
  * immediately before a [ResizablePanelGroupScope.handle] call so that handle's drag can read/

@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 
@@ -40,14 +41,16 @@ fun ColumnScope.shadcnField(
     orientation: ShadcnFieldOrientation = ShadcnFieldOrientation.Vertical,
     content: UiScope.() -> Unit,
 ): UiBounds = when (orientation) {
+    // Real fieldVariants' base class is `flex w-full gap-3` -- one 12dp gap regardless of
+    // orientation, not a different token per direction (this used spacing.sm=8 / spacing.md=16).
     ShadcnFieldOrientation.Vertical -> column(
         id = id,
-        verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm),
+        verticalArrangement = Arrangement.spacedBy(Tw.Spacing.s3),
         modifier = modifier,
     ) { content() }
 
     ShadcnFieldOrientation.Horizontal -> row(
-        horizontalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(Tw.Spacing.s3),
         verticalAlignment = UiAlignment.Vertical.Center,
         modifier = modifier,
     ) { content() }
@@ -98,7 +101,8 @@ fun ColumnScope.shadcnFieldSet(
     content: ColumnScope.() -> Unit,
 ): UiBounds = column(
     id = id,
-    verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.sm),
+    // Real FieldSet is `flex flex-col gap-6` (24dp), not spacing.sm(8dp).
+    verticalArrangement = Arrangement.spacedBy(Tw.Spacing.s6),
     modifier = modifier,
 ) { content() }
 
@@ -117,7 +121,8 @@ fun ColumnScope.shadcnFieldGroup(
     content: ColumnScope.() -> Unit,
 ): UiBounds = column(
     id = id,
-    verticalArrangement = Arrangement.spacedBy(theme.asShadcnTheme().spacing.xxl),
+    // Real FieldGroup is `gap-7` (28dp) -- spacing.xxl is 48dp, a sizeable overshoot.
+    verticalArrangement = Arrangement.spacedBy(Tw.Spacing.s7),
     modifier = modifier,
 ) { content() }
 

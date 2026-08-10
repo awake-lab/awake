@@ -17,6 +17,10 @@ metadata:
   keywords:
     - Awake
     - shadcn
+    - tailwind
+    - Tw.Spacing
+    - h-9
+    - parity
     - ui-designsystem
     - Style
     - animatedHeight
@@ -196,6 +200,51 @@ tiers ahead of an icon that actually needs them.
 
 ---
 
+## Reading Tailwind: shadcn's real source is a class string, and it is the spec
+
+Every value in this module traces back to a Tailwind utility class in shadcn's own `.tsx`. You
+cannot fix a parity bug without reading one, so read them correctly.
+
+**The numbered scale is the whole game.** `h-9`, `w-9`, `p-9`, `gap-9`, `m-9`, `size-9` all resolve
+to the *same* number -- Tailwind has ONE spacing scale, applied to different CSS properties. The
+step number is not pixels: `step * 4 = px` (`1` = 4px, `2` = 8px, `9` = 36px, `64` = 256px). Two
+steps break the pattern and are the ones people get wrong: `px` = exactly 1px (a hairline, not
+step 0.25), and `0.5`/`1.5`/`2.5`/`3.5` are half-steps (2/6/10/14px). `Tw.Spacing` already encodes
+all of this -- `Tw.Spacing.s9`, `Tw.Spacing.px`, `Tw.Spacing.s1_5` -- so never do the arithmetic by
+hand, just read the step number off the class and use the matching constant.
+
+| Tailwind class | Means | This codebase |
+|---|---|---|
+| `h-9` / `w-9` | height/width, scale step 9 | `.height(Tw.Spacing.s9)` / `.width(...)` |
+| `size-9` | height AND width both | both modifiers, same constant |
+| `p-4` / `px-3` / `py-2` | padding all / horizontal / vertical | `contentPadding(...)` or `.padding(...)` |
+| `gap-2` | flex/grid gap between children | `Arrangement.spacedBy(Tw.Spacing.s2)` |
+| `rounded-md` | border radius, *named* not numbered | `theme.radii.md` -- NOT `Tw`, radius is theme-relative here |
+| `w-[100px]` | arbitrary value, escapes the scale | plain `100f.dp` literal, `Tw` has no step for it |
+| `w-3/4` | fraction of parent | no direct equivalent -- see below |
+| `sm:max-w-sm` | responsive breakpoint cap | this engine has no breakpoints; the cap value is what to use |
+
+**Named scales are not the numbered scale.** `rounded-md`, `text-sm`, `shadow-lg` use word tiers,
+not step numbers, and in this codebase they are theme-driven (`theme.radii.md`,
+`theme.typography.label`) precisely so a preset swap changes them. Reaching for a `Tw` constant or a
+literal for a radius/type value is the bug, not the fix -- `Tw` deliberately ships spacing only (see
+`tailwindSpacingScalePx`'s own doc comment for why).
+
+**Responsive and fractional classes need a judgment call, not a translation.** Real
+`SheetContent` is `w-3/4 sm:max-w-sm`: three-quarters of the viewport, capped at 384px on
+small-and-up. This engine has neither fractional widths nor breakpoints, so the honest port is the
+cap (`Tw.Spacing.s96` = 384dp) with a comment saying the `w-3/4` floor isn't modelled -- which is
+exactly what `shadcnSheet`'s `sizeDp` default does. Don't silently pick one and pretend it's a full
+port.
+
+**Where to read the real classes:** `github.com/shadcn-ui/ui/blob/main/apps/v4/registry/new-york-v4/ui/<component>.tsx`
+(the registry `ShadcnStylePreset.Vega` targets). Fetch the raw file, find the `className` on the
+element whose role you're fixing -- `cva()` base string, a variant entry, or an inline JSX
+`className` -- and read the step off it. Guessing from how the component looks in this engine's own
+preview is how all six bugs in the next section got there.
+
+---
+
 ## Every `shadcn*` component needs Variant + Size + Style -- a bare `.dp` literal is how spacing/size bugs slip through
 
 ```
@@ -261,6 +310,51 @@ own doc comment.
 
 ---
 
+## There is already parity tooling -- use it before eyeballing a diff
+
+`tools/` ships a full perceptual-parity pipeline that predates any manual audit:
+
+- `fetch_shadcn_reference.sh` / `capture_shadcn_local.py` / `tools/shadcn-reference-app` -- capture
+  real shadcn/ui component PNGs.
+- `compare_parity.py` -- trims both images to their own content bbox, crops to the intersection,
+  and reports mismatch %, max/mean channel delta, plus a red/blue heatmap PNG. Explicitly a
+  *perceptual fidelity signal*, not a golden-image lock.
+- `shadcn_parity_baseline.json` + `ShadcnReferenceComparisonTest` -- gates **regression** (a pair
+  getting worse than its accepted mismatch %), deliberately NOT absolute fidelity, which stays
+  informational in `shadcn_parity_thresholds.json`.
+- `ShadcnParityScreenshotTest` -- the separate golden-image lock, re-recorded with
+  `-DAWAKE_RECORD_SNAPSHOTS=true`.
+
+So: for "does this component look right vs real shadcn," run the comparison and read the heatmap
+rather than squinting at a screenshot. For "did my change move something," the layout-signature and
+golden-image tests already answer it. Reach for a manual source-reading audit (the previous two
+sections) for *numeric* spec questions -- `h-9` vs `h-10` -- which pixel diffing can suggest but
+never name.
+
+---
+
+## Fidelity tests run a different font than the real app -- vertical-centering bugs can survive them
+
+`UiFonts.default()` resolves to `PackedUiFont(RobotoRegularUiFontData)` -- a **generated** atlas
+(`tools/generate_ui_font_atlas.py`, ~6.5k lines of packed per-glyph quad metrics) that overrides
+`visibleTopEm`/`visibleBottomEm` with values computed from real glyph ink, and reports
+`lineHeightEm = 1.1875`.
+
+Every fidelity/screenshot test in the repo constructs `BitmapFont()` instead, which overrides
+neither -- it inherits `UiFont`'s defaults of `visibleTopEm = 0f` / `visibleBottomEm = 1f` and
+`lineHeightEm = 1f`.
+
+Vertical centering is computed from exactly those values (`BasicText.kt`'s
+`penY = slot.y + (slot.height - blockHeight) / 2f - blockTopPx`, fed by `measureTextBlock` ->
+`measureVisibleLineBandEm` -> `font.visibleTopEm/visibleBottomEm`). A clean 0..1 band and Roboto's
+real asymmetric band do not center identically, so **a test asserting text is centered proves it
+for `BitmapFont`, not for what ships**. When a text-alignment bug is reported against the running
+app but every test is green, this divergence is the first thing to check -- and when the metrics
+themselves look wrong, remember they are generated: fix `generate_ui_font_atlas.py` and regenerate,
+never hand-edit `RobotoRegularUiFontData.kt`.
+
+---
+
 ## Related Skills
 
 - `awake-design-system-engineer` (agent persona) -- the broader role guidance for working on
@@ -281,5 +375,5 @@ own doc comment.
 
 | Date | Change |
 |---|---|
-| 2026-08-10 | Added the Variant+Size+Style component convention and the shadcn-source-of-truth rule, written after a parity audit found six components (Field wrappers, InputOTP, Sidebar, Tabs, Drawer) with hand-typed dp values that drifted from real shadcn/ui. |
+| 2026-08-10 | Added the Tailwind-reading primer (numbered vs named scales, arbitrary/responsive/fractional classes, the class-to-`Tw.Spacing` table), the Variant+Size+Style component convention, and the shadcn-source-of-truth rule -- written after a parity audit found six components (Field wrappers, InputOTP, Sidebar, Tabs, Sheet, Drawer) with hand-typed dp values that drifted from real shadcn/ui. |
 | 2026-08-04 | Initial release -- written alongside building `shadcnCollapsibleCard` (shadcn.io's "card-collapsible" reference example) and the `HeroIcons`/`ShadcnIcons` icon-registry split. |

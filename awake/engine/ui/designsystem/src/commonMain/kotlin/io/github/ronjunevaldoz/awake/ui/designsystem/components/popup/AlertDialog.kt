@@ -33,6 +33,12 @@ fun UiScope.shadcnAlertDialog(
     id: String,
     expanded: Boolean,
     title: String,
+    // Real AlertDialogContent is `w-full sm:max-w-lg` -- full width on small viewports, CAPPED
+    // at 512dp on larger ones. `Dimension` has no max-width concept (Fixed/FillMax/WrapContent
+    // only), so that cannot be expressed today: a Fixed(512dp) overflows any viewport narrower
+    // than 512 (it broke a 320px-wide test frame outright), and FillMax drops the cap entirely.
+    // Left at the pre-existing 320dp until Dimension grows a max-width variant -- see
+    // docs/reference/ui-status.md's open-risk register.
     width: Dimension = Dimension.Fixed(320f.dp),
     properties: UiDialogProperties = UiDialogProperties(),
     style: Style = Style.Empty,
@@ -58,6 +64,12 @@ fun UiScope.shadcnAlertDialog(
     id: String,
     expanded: Boolean,
     title: String,
+    // Real AlertDialogContent is `w-full sm:max-w-lg` -- full width on small viewports, CAPPED
+    // at 512dp on larger ones. `Dimension` has no max-width concept (Fixed/FillMax/WrapContent
+    // only), so that cannot be expressed today: a Fixed(512dp) overflows any viewport narrower
+    // than 512 (it broke a 320px-wide test frame outright), and FillMax drops the cap entirely.
+    // Left at the pre-existing 320dp until Dimension grows a max-width variant -- see
+    // docs/reference/ui-status.md's open-risk register.
     width: Dimension = Dimension.Fixed(320f.dp),
     confirmLabel: String = "Confirm",
     dismissLabel: String? = "Cancel",
@@ -119,6 +131,12 @@ fun UiScope.shadcnAlertDialog(
     expanded: Boolean,
     title: String,
     message: String,
+    // Real AlertDialogContent is `w-full sm:max-w-lg` -- full width on small viewports, CAPPED
+    // at 512dp on larger ones. `Dimension` has no max-width concept (Fixed/FillMax/WrapContent
+    // only), so that cannot be expressed today: a Fixed(512dp) overflows any viewport narrower
+    // than 512 (it broke a 320px-wide test frame outright), and FillMax drops the cap entirely.
+    // Left at the pre-existing 320dp until Dimension grows a max-width variant -- see
+    // docs/reference/ui-status.md's open-risk register.
     width: Dimension = Dimension.Fixed(320f.dp),
     confirmLabel: String = "Confirm",
     dismissLabel: String? = "Cancel",

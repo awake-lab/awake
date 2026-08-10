@@ -58,9 +58,12 @@ private fun Map<String, ULong>.toExpectedSignatureMatrix(): String =
 // and slots size to the line box, so every page reflowed.
 // 2026-08-10: re-recorded after the shadcn parity pass -- Tabs track height 32->36dp (h-9),
 // FieldTextField/FieldDropdown control height 40->36dp (h-9, was the only place using h-10).
+// 2026-08-10 (2): re-recorded after the source-verified parity wave -- radius ladder switched
+// from additive to Tailwind's real multiplicative one (theming), TabsTrigger px-3->px-2 with a
+// flush p-[3px] track (tabs), Field gaps -> gap-3/gap-6/gap-7 (text-input), AccordionContent -> pb-4 (collapsible).
 private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-overview" to 0xd9b72a019af9f240uL,
-    "ui-showcase-theming" to 0x28aeb8300528c759uL,
+    "ui-showcase-theming" to 0x42a62dea646996e9uL,
     "ui-showcase-typography" to 0x53f8cd263d433510uL,
     "ui-showcase-buttons" to 0x1e39505ab6f95389uL,
     "ui-showcase-avatar" to 0xb5d5e50d63e30cc8uL,
@@ -69,12 +72,12 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-sidebar" to 0x7b873256c3c67de5uL,
     "ui-showcase-selection" to 0x9851f324c711f52fuL,
     "ui-showcase-range-slider" to 0xd9b72a019af9f240uL,
-    "ui-showcase-tabs" to 0x8f6b181267c85cb6uL,
+    "ui-showcase-tabs" to 0x86de789679c63b40uL,
     "ui-showcase-select" to 0x8afc8aaf9465140duL,
     "ui-showcase-kbd-separator" to 0x97a104d253c8e4b4uL,
     "ui-showcase-feedback" to 0xf879b78c98dbb68cuL,
     "ui-showcase-alert" to 0xbd163943a933bd33uL,
-    "ui-showcase-text-input" to 0x2bc1307c4807b99cuL,
+    "ui-showcase-text-input" to 0x68313bdeb48cd804uL,
     "ui-showcase-popups" to 0x2e01bc254488b7uL,
     "ui-showcase-state" to 0xd9b72a019af9f240uL,
     "ui-showcase-button-matrix" to 0xeb99998df754bcc9uL,
@@ -86,7 +89,7 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-alert-dialog" to 0xb9672b746a727b67uL,
     "ui-showcase-scroll-panel" to 0x4fa59d69b536da09uL,
     "ui-showcase-shimmer" to 0xd9b72a019af9f240uL,
-    "ui-showcase-collapsible" to 0xd5b55d0a57787a1euL,
+    "ui-showcase-collapsible" to 0xfcf9234be0d22826uL,
     "ui-showcase-collapsible-open" to 0x7f286dd9db6f7592uL,
     "ui-showcase-field-demo" to 0xd9b72a019af9f240uL,
 )
