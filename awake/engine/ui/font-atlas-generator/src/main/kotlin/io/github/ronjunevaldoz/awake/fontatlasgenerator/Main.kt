@@ -12,13 +12,11 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
-import java.awt.Color
 import java.awt.Font
-import java.awt.RenderingHints
 import java.awt.font.FontRenderContext
 import java.awt.image.BufferedImage
-import java.awt.image.DataBufferByte
 import java.io.File
+import javax.imageio.ImageIO
 import java.util.Base64
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -33,9 +31,23 @@ private const val OUT_DIR = "../ui-core/src/commonMain/kotlin"
 private const val OBJECT_NAME = "RobotoRegularUiFontData"
 private const val DISPLAY_NAME = "Roboto Regular"
 private const val LOGICAL_CELL = 16
-private const val OVERSAMPLE = 4
+/** Atlas texels per em, as a multiple of [LOGICAL_CELL].
+ *
+ * Was 4 for the coverage atlas, which needed the extra raster resolution because a coverage
+ * bitmap is only sharp near a 1:1 texel mapping. An MTSDF encodes the outline as a distance,
+ * so it stays sharp at any size and gains nothing from oversampling. RGBA is already 4x the
+ * bytes of coverage alpha, so keeping 4 here produced a 3.3 MB generated Kotlin source for no
+ * rendering benefit. 2 keeps enough texels for msdfgen to resolve fine detail while landing at
+ * roughly the old atlas's file size. */
+private const val OVERSAMPLE = 2
 private const val PADDING = 6
 private const val COLUMNS = 16
+private const val MSDFGEN = "msdfgen"
+private const val RGBA_CHANNELS = 4
+
+/** Distance-field spread in ATLAS TEXELS, passed to msdfgen as `-pxrange` and shipped as
+ * `distanceFieldRangePx` so the glyph shader recovers the same range. */
+private const val DISTANCE_FIELD_RANGE_PX = 4
 
 /** Manual/on-demand, matching `:awake:engine:ui:tailwind-generator`'s own shape -- run this
  * (`./gradlew :awake:engine:ui:font-atlas-generator:generateFontAtlas`) and commit the
@@ -114,13 +126,7 @@ private fun generateAtlas(fontFile: File): AtlasResult {
     val atlasWidth = cellWidthPx * COLUMNS
     val atlasHeight = cellHeightPx * rows
 
-    val atlasImage = BufferedImage(atlasWidth, atlasHeight, BufferedImage.TYPE_BYTE_GRAY)
-    val graphics = atlasImage.createGraphics()
-    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-    graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
-    graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON)
-    graphics.font = renderFont
-    graphics.color = Color.WHITE
+    val atlasImage = BufferedImage(atlasWidth, atlasHeight, BufferedImage.TYPE_INT_ARGB)
 
     val uvBoundsPx = mutableListOf<Int>()
     val quadMetricsEm = mutableListOf<Float>()
@@ -134,8 +140,16 @@ private fun generateAtlas(fontFile: File): AtlasResult {
         val baselineX = cellX + PADDING
         val baselineY = cellY + PADDING + ascentPxRender
 
-        val gv = renderFont.createGlyphVector(frc, char.toString())
-        graphics.drawGlyphVector(gv, baselineX.toFloat(), baselineY)
+        blitGlyphCell(
+            atlasImage = atlasImage,
+            fontFile = fontFile,
+            char = char,
+            cellX = cellX,
+            cellY = cellY,
+            cellWidthPx = cellWidthPx,
+            cellHeightPx = cellHeightPx,
+            ascentPxRender = ascentPxRender,
+        )
 
         val metrics = glyphMetrics.getValue(char)
         val (left, top, right, bottom) = sampleRect(metrics, cellX, cellY, cellWidthPx, cellHeightPx, baselineX, baselineY, ascentPxRender)
@@ -144,7 +158,6 @@ private fun generateAtlas(fontFile: File): AtlasResult {
         quadMetricsEm += listOf(metrics.offsetXEm, metrics.offsetYEm, metrics.widthEm, metrics.heightEm)
         advancesEm += metrics.advanceEm
     }
-    graphics.dispose()
 
     return AtlasResult(
         lineHeightEm = (ascentPxRender + renderLineMetrics.descent) / OVERSAMPLE / LOGICAL_CELL,
@@ -154,9 +167,65 @@ private fun generateAtlas(fontFile: File): AtlasResult {
         uvBoundsPx = uvBoundsPx.toIntArray(),
         quadMetricsEm = quadMetricsEm.toFloatArray(),
         advancesEm = advancesEm.toFloatArray(),
-        encodedAtlasBase64 = Base64.getEncoder().encodeToString(grayBytes(atlasImage)),
+        encodedAtlasBase64 = Base64.getEncoder().encodeToString(rgbaBytes(atlasImage)),
     )
 }
+
+/**
+ * Renders one glyph's MTSDF tile with `msdfgen` and blits it into [atlasImage] at the glyph's
+ * cell.
+ *
+ * Placement reproduces exactly where the old `Graphics2D.drawGlyphVector` put the glyph, so the
+ * UV derivation in [sampleRect] needs no changes: the glyph's baseline origin must land at cell
+ * pixel `(PADDING, PADDING + ascentPxRender)`.
+ *
+ * Three coordinate conventions have to be reconciled, which is the whole difficulty here:
+ * msdfgen's shape space is Y-UP with the baseline at zero, `-emnormalize` puts it in em units,
+ * and the atlas is Y-DOWN. msdfgen maps a shape point to `(point + translate) * scale` measured
+ * up from the image BOTTOM, so placing the baseline `PADDING + ascentPxRender` down from the
+ * cell top means translating it `cellHeightPx - PADDING - ascentPxRender` up from the bottom.
+ */
+private fun blitGlyphCell(
+    atlasImage: BufferedImage,
+    fontFile: File,
+    char: Char,
+    cellX: Int,
+    cellY: Int,
+    cellWidthPx: Int,
+    cellHeightPx: Int,
+    ascentPxRender: Float,
+) {
+    val scale = (LOGICAL_CELL * OVERSAMPLE).toDouble()
+    val translateX = PADDING / scale
+    val translateY = (cellHeightPx - PADDING - ascentPxRender) / scale
+    val out = File.createTempFile("awake-msdf-", ".png")
+    try {
+        val process = ProcessBuilder(
+            MSDFGEN, "mtsdf",
+            "-font", fontFile.absolutePath, char.code.toString(),
+            "-emnormalize",
+            "-size", cellWidthPx.toString(), cellHeightPx.toString(),
+            "-pxrange", DISTANCE_FIELD_RANGE_PX.toString(),
+            "-translate", translateX.toString(), translateY.toString(),
+            "-scale", scale.toString(),
+            "-o", out.absolutePath,
+        ).redirectErrorStream(true).start()
+        val log = process.inputStream.bufferedText()
+        check(process.waitFor() == 0) { "msdfgen failed for '$char' (${char.code}):\n$log" }
+        // A blank glyph (space) legitimately produces no output file.
+        if (!out.exists() || out.length() == 0L) return
+        val tile = ImageIO.read(out) ?: return
+        for (y in 0 until minOf(tile.height, cellHeightPx)) {
+            for (x in 0 until minOf(tile.width, cellWidthPx)) {
+                atlasImage.setRGB(cellX + x, cellY + y, tile.getRGB(x, y))
+            }
+        }
+    } finally {
+        out.delete()
+    }
+}
+
+private fun java.io.InputStream.bufferedText(): String = reader().use { it.readText() }
 
 private fun measureGlyph(measureFont: Font, frc: FontRenderContext, ascentEm: Float, char: Char): GlyphMetrics {
     val gv = measureFont.createGlyphVector(frc, char.toString())
@@ -212,9 +281,22 @@ private fun sampleRect(
 
 private const val CROP_BLEED = 1
 
-private fun grayBytes(image: BufferedImage): ByteArray {
-    val data = (image.raster.dataBuffer as DataBufferByte).data
-    return data.copyOf(image.width * image.height)
+/** Flattens to tightly-packed RGBA8, the layout `PackedUiFont.decodeAtlasPixels` hands straight
+ * to a `VK_FORMAT_R8G8B8A8_UNORM` upload when `atlasChannels` is 4. */
+private fun rgbaBytes(image: BufferedImage): ByteArray {
+    val bytes = ByteArray(image.width * image.height * RGBA_CHANNELS)
+    var index = 0
+    for (y in 0 until image.height) {
+        for (x in 0 until image.width) {
+            val argb = image.getRGB(x, y)
+            bytes[index] = ((argb shr 16) and 0xFF).toByte()
+            bytes[index + 1] = ((argb shr 8) and 0xFF).toByte()
+            bytes[index + 2] = (argb and 0xFF).toByte()
+            bytes[index + 3] = ((argb ushr 24) and 0xFF).toByte()
+            index += RGBA_CHANNELS
+        }
+    }
+    return bytes
 }
 
 private fun buildFileSpec(atlas: AtlasResult): FileSpec {
@@ -238,10 +320,12 @@ private fun buildFileSpec(atlas: AtlasResult): FileSpec {
         .addProperty(
             PropertySpec.builder("samplingMode", samplingModeType)
                 .addModifiers(KModifier.OVERRIDE)
-                .initializer("%T.CoverageAlpha", samplingModeType)
+                .initializer("%T.DistanceField", samplingModeType)
                 .build(),
         )
         .addProperty(overrideProperty("fallbackChar", CHAR, "'?'"))
+        .addProperty(overrideProperty("atlasChannels", INT, "%L", RGBA_CHANNELS))
+        .addProperty(overrideProperty("distanceFieldRangePx", FLOAT, "%Lf", DISTANCE_FIELD_RANGE_PX))
         .addProperty(overrideProperty("glyphOrder", STRING, "%S", atlas.glyphOrder))
         .addProperty(intArrayProperty("uvBoundsPx", atlas.uvBoundsPx))
         .addProperty(floatArrayProperty("quadMetricsEm", atlas.quadMetricsEm))
