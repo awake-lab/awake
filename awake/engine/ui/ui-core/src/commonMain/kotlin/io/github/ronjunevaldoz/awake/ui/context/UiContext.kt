@@ -22,6 +22,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.scaledByAlpha
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.withTransform
 
@@ -47,6 +49,8 @@ class UiContext internal constructor(
     val inputState: UiInputState get() = runtime.inputState
 
     fun pushTheme(theme: UiTheme) = stacks.pushTheme(theme)
+    /** Installs a runtime-free theme contract; Core supplies neutral fallback recipes internally. */
+    fun pushTheme(theme: UiThemeValues) = stacks.pushTheme(theme.asRuntimeTheme())
     fun popTheme() = stacks.popTheme()
 
     fun pushTextStyle(style: TextStyle, tokenId: String? = null) = stacks.pushTextStyle(style, tokenId)

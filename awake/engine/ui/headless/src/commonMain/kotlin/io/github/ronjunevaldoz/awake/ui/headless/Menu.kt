@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
-import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
@@ -13,7 +12,7 @@ data class UiMenuItem(
     val id: String,
     val index: Int,
     val enabled: Boolean = true,
-): UiMenuEntry
+) : UiMenuEntry
 
 /** A separator is behavior-free and lets skins insert their own divider treatment. */
 data object UiMenuSeparator : UiMenuEntry

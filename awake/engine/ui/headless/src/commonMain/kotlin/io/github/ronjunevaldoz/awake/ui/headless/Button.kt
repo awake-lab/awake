@@ -40,3 +40,18 @@ fun ColumnScope.button(
     radius = 0.dp,
     enabled = enabled,
 )
+
+fun RowScope.button(
+    id: String,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    visuals: SurfaceVisuals = SurfaceVisuals(),
+    enabled: Boolean = true,
+): Boolean = primitive.primitiveButton(
+    id = id,
+    label = label,
+    modifier = modifier.asPrimitiveModifier(),
+    style = visuals.asPrimitiveStyle(),
+    radius = 0.dp,
+    enabled = enabled,
+)

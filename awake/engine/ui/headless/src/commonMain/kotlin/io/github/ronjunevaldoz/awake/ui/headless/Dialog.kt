@@ -17,6 +17,17 @@ data class DialogProperties(
     val surface: SurfaceStyle = SurfaceStyle(),
 )
 
+/** Result/action contracts for a branded alert-dialog recipe. */
+data class UiAlertDialogResult(
+    val popup: UiPopupResult,
+    val action: UiAlertDialogAction?,
+)
+
+enum class UiAlertDialogAction {
+    Confirm,
+    Dismiss,
+}
+
 /**
  * Generic modal popup behavior with optional caller-provided scrim and neutral surface values.
  *
