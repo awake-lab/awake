@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -19,6 +20,15 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier as HeadlessModifier
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope as HeadlessUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.button as headlessButton
+import io.github.ronjunevaldoz.awake.ui.headless.height as headlessHeight
 
 private fun UiModifier.withShadcnSize(size: ShadcnButtonSize): UiModifier =
     if (heightDimension == null) height(size.heightDp) else this
@@ -122,4 +132,50 @@ private fun ShadcnButtonVariant.toUiButtonVariant(): UiButtonVariant = when (thi
     ShadcnButtonVariant.Outline -> UiButtonVariant.Outline
     ShadcnButtonVariant.Ghost -> UiButtonVariant.Ghost
     else -> UiButtonVariant.Filled
+}
+
+/** Shadcn text button for the public Headless facade. */
+fun HeadlessUiScope.shadcnButton(
+    id: String,
+    label: String,
+    modifier: HeadlessModifier = HeadlessModifier,
+    variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
+    size: ShadcnButtonSize = ShadcnButtonSize.Md,
+    enabled: Boolean = true,
+    onClick: (() -> Unit)? = null,
+): Boolean {
+    val clicked = headlessButton(
+        id = id,
+        label = label,
+        modifier = modifier.headlessHeight(size.heightDp),
+        visuals = shadcnButtonVisuals(themeValues, variant),
+        enabled = enabled,
+    )
+    if (clicked) onClick?.invoke()
+    return clicked
+}
+
+private fun shadcnButtonVisuals(theme: UiThemeValues, variant: ShadcnButtonVariant): SurfaceVisuals {
+    val colors = theme.colors
+    val rest = when (variant) {
+        ShadcnButtonVariant.Primary -> SurfaceStyle(colors.primary, colors.primaryForeground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
+        ShadcnButtonVariant.Secondary -> SurfaceStyle(colors.secondary, colors.secondaryForeground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
+        ShadcnButtonVariant.Outline -> SurfaceStyle(colors.background, colors.foreground, SurfaceBorder(1f.dp, colors.border), theme.shapes.md, textSize = theme.typography.label)
+        ShadcnButtonVariant.Ghost -> SurfaceStyle(Color.Transparent, colors.foreground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
+        ShadcnButtonVariant.Danger -> SurfaceStyle(colors.destructive, colors.destructiveForeground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
+        ShadcnButtonVariant.Link -> SurfaceStyle(Color.Transparent, colors.primary, cornerRadius = theme.shapes.xs, textSize = theme.typography.label)
+    }
+    return SurfaceVisuals(
+        rest = rest,
+        hovered = when (variant) {
+            ShadcnButtonVariant.Outline -> SurfaceStyle(colors.secondary, colors.secondaryForeground)
+            ShadcnButtonVariant.Ghost -> SurfaceStyle(colors.accent, colors.accentForeground)
+            else -> null
+        },
+        pressed = when (variant) {
+            ShadcnButtonVariant.Outline, ShadcnButtonVariant.Ghost -> SurfaceStyle(colors.accent, colors.accentForeground)
+            else -> null
+        },
+        disabled = SurfaceStyle(foreground = colors.mutedForeground),
+    )
 }

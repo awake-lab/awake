@@ -115,8 +115,10 @@ compiles.
 
 Migrate one behavior at a time, always retaining `UiScope.shadcn*` syntax:
 
-1. Button plus its generic visual states and `shadcnButton` variant mapping (proof slice).
-2. Dialog plus `overlayScrim`.
+1. **Complete:** Button plus its generic visual states and `shadcnButton` variant mapping
+   (proof slice).
+2. **Complete:** Dialog plus `overlayScrim`, including runtime-free `card`/`popover` theme
+   roles consumed through `UiThemeValues`.
 3. Sheet and drawer mechanics.
 4. Popup/dropdown/menu position, selection, and scrolling.
 5. Tabs and collapsible state/measurement.

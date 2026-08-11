@@ -351,3 +351,10 @@ Composite ids (a container building its children's ids from its own, e.g.
 `ShadcnTabs.kt` -- and stay plain string interpolation. A wrapper function for this was
 considered and rejected: the interpolation is already one line and self-explanatory: adding
 an indirection for it is a net increase in concepts-to-learn for no real gain.
+
+State hooks have two identity levels: `id` chooses the persistent `WidgetState` bucket for one
+widget instance, and the hook `key` chooses a value within that bucket. Leave `key = "value"`
+when a widget owns one value; name the fields when it owns several, for example
+`rememberBooleanState(id, key = "expanded")` and `rememberStateValue(id, key = "filter")`.
+The two are deliberately not interchangeable: changing `id` resets all of that widget's state,
+while changing a hook key resets only that field.

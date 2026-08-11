@@ -21,6 +21,10 @@ object LightUiTheme : UiTheme {
     override val colors: UiColorTokens = object : UiColorTokens {
         override val background = oklch(1f, 0f)
         override val foreground = oklch(0.145f, 0f)
+        override val card = oklch(1f, 0f)
+        override val cardForeground = oklch(0.145f, 0f)
+        override val popover = oklch(1f, 0f)
+        override val popoverForeground = oklch(0.145f, 0f)
         override val primary = oklch(0.205f, 0f)
         override val primaryForeground = oklch(0.985f, 0f)
         override val secondary = oklch(0.97f, 0f)

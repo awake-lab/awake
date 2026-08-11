@@ -29,6 +29,12 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.overlayScrim
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope as HeadlessColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.DialogProperties as HeadlessDialogProperties
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle as HeadlessSurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope as HeadlessUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.dialog as headlessDialog
 
 private val DetachedPopupAnchor = UiBounds(-1f, -1f, 0f, 0f)
 private val DefaultDialogScrimColor = Color.Black.withAlpha(0.48f)
@@ -106,3 +112,39 @@ fun UiScope.shadcnDialog(
     }
     return if (closeClicked) popupResult.copy(dismissed = true) else popupResult
 }
+
+/** Branded inputs for the Headless-backed [shadcnDialog] recipe. */
+data class ShadcnDialogProperties(
+    val dismissOnClickOutside: Boolean = true,
+    val showScrim: Boolean = true,
+    val scrimColor: Color? = null,
+    val popupProperties: UiPopupProperties = UiPopupProperties(),
+    val surface: HeadlessSurfaceStyle? = null,
+)
+
+/** Shadcn dialog recipe for the public Headless facade. */
+fun HeadlessUiScope.shadcnDialog(
+    id: String,
+    expanded: Boolean,
+    width: Dimension = Dimension.WrapContent,
+    height: Dimension = Dimension.WrapContent,
+    properties: ShadcnDialogProperties = ShadcnDialogProperties(),
+    content: HeadlessColumnScope.(slot: UiBounds) -> Unit,
+): UiPopupResult = headlessDialog(
+    id = id,
+    expanded = expanded,
+    width = width,
+    height = height,
+    properties = HeadlessDialogProperties(
+        dismissOnClickOutside = properties.dismissOnClickOutside,
+        showScrim = properties.showScrim,
+        scrimColor = properties.scrimColor ?: DefaultDialogScrimColor,
+        popupProperties = properties.popupProperties,
+        surface = properties.surface ?: HeadlessSurfaceStyle(
+            background = themeValues.colors.card,
+            foreground = themeValues.colors.cardForeground,
+            cornerRadius = themeValues.shapes.lg,
+        ),
+    ),
+    content = content,
+)

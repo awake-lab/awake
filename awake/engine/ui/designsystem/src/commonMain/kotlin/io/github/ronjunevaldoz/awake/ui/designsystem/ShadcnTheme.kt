@@ -167,6 +167,10 @@ private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : Sh
     override val colors: UiColorTokens = object : UiColorTokens {
         override val background = palette.background
         override val foreground = palette.foreground
+        override val card = palette.card
+        override val cardForeground = palette.cardForeground
+        override val popover = palette.popover
+        override val popoverForeground = palette.popoverForeground
         override val primary = palette.primary
         override val primaryForeground = palette.primaryForeground
         override val secondary = palette.secondary

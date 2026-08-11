@@ -11,6 +11,14 @@ import io.github.ronjunevaldoz.awake.ui.api.sp
 interface UiColorTokens {
     val background: Color
     val foreground: Color
+    /** Elevated container surface. Defaults to [background] for themes without a separate role. */
+    val card: Color get() = background
+    /** Foreground paired with [card]. Defaults to [foreground]. */
+    val cardForeground: Color get() = foreground
+    /** Floating container surface. Defaults to [background] for themes without a separate role. */
+    val popover: Color get() = background
+    /** Foreground paired with [popover]. Defaults to [foreground]. */
+    val popoverForeground: Color get() = foreground
     val primary: Color
     val primaryForeground: Color
     val secondary: Color
