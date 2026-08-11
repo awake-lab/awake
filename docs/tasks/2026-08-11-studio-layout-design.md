@@ -6,30 +6,38 @@ components that already exist in `ui-designsystem`.
 
 ## Target
 
+![Proposed studio layout](2026-08-11-studio-layout.svg)
+
     +------------------------------------------------------------------------------+
-    | Awake Studio | Scene v |          > Play || >|          | Wire  Shadows      |
+    | Awake studio | [Cube demo] Skinned mesh  +                          [> Play]  |
     +--------------------+-------------------------------------+-------------------+
-    | HIERARCHY          |[S]|                                 | INSPECTOR         |
-    | [Scene] [Assets]   |[M]|                                 | Transform      v  |
-    |                    |[R]|                                 |   Position x y z  |
-    |  v Scene           |[S]|                                 |   Rotation x y z  |
-    |    > Camera        +---+         VIEWPORT                |   Scale    x y z  |
-    |    > Light         |                                     | Mesh           v  |
-    |    v Cube          |     (gizmo on selection)            |   Material ...    |
-    |        Transform   |                                     | Light          >  |
-    |    > Ground        |                                     |                   |
-    |                    |                                     |                   |
+    | [Scene] [Assets]   | Third person v | Persp Ortho | Wire Shadows |            |
+    |                    +-------------------------------------+ INSPECTOR         |
+    |  v Scene           |(S)|                                 | Transform         |
+    |    Camera          |(M)|                                 |   Position _ _ _  |
+    |   [Cube]           |(R)|          VIEWPORT               |   Rotation _ _ _  |
+    |    Ground          |(S)|     (gizmo on selection)        |   Scale    _ _ _  |
+    |                    +---+                                 | Mesh              |
+    | Hierarchy          |                                     | Light             |
     +--------------------+-------------------------------------+-------------------+
-    | Console                                                          [x] [!] [i] |
-    | 12:47 scene loaded (4 entities)                                              |
+    | [Console] Timeline  Assets                      0 errors   2 warnings         |
+    | 12:47:02 scene loaded (4 entities)                                            |
     +------------------------------------------------------------------------------+
-    | Edit mode | 4 entities | 60 fps                                    [Vulkan]  |
+    | Edit mode | 4 entities | 60 fps                                    [Vulkan]   |
     +------------------------------------------------------------------------------+
 
 Four docks around a viewport, which is the arrangement Unity, Godot, Unreal and Blender all
-converge on. The differences from today are: the left dock holds the scene, not the demo list;
-the tool rail keeps its place at the viewport edge but gains real transform tools; and a console
-dock appears at the bottom.
+converge on. Differences from today:
+
+- the left dock holds the scene, not the demo list -- the demo list becomes the tab strip
+- scenes are TABS, with Play anchoring the right edge (Godot's shape)
+- the viewport gains a HEADER for camera mode, projection, wireframe and shadows
+- the tool pill keeps its place at the viewport edge but gains real transform tools
+- the bottom dock is TABBED: console, timeline, assets
+
+The SVG above is the reference; the sketch below it is a text fallback. If they ever disagree,
+the SVG wins -- an earlier revision of this document kept an ASCII sketch that still showed a
+centred Play button and wireframe toggles in the top bar, three decisions after both had moved.
 
 ## Region by region
 

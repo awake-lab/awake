@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 470" width="900" height="470" role="img" aria-labelledby="title desc">
+  <title id="title">Awake Studio proposed layout</title>
+  <desc id="desc">Top bar with scene tabs on the left and a Play toggle on the right; a hierarchy dock on the left; a viewport with a header strip for camera mode, projection, wireframe and shadows, and a floating tool pill on its left edge; an inspector dock on the right; a tabbed bottom dock for console, timeline and assets; and a status bar.</desc>
+
+  <style>
+    .p { fill: #1a1a1a; font-family: system-ui, sans-serif; font-size: 12px; }
+    .m { fill: #6b6b6b; font-family: system-ui, sans-serif; font-size: 12px; }
+    .s { fill: #8a8a8a; font-family: system-ui, sans-serif; font-size: 11px; }
+    .b { fill: #1a1a1a; font-family: system-ui, sans-serif; font-size: 12px; font-weight: 500; }
+    .box { fill: none; stroke: #d0d0d0; stroke-width: 1; }
+    .fillbox { fill: #f4f4f4; stroke: #d0d0d0; stroke-width: 1; }
+    .sel { fill: #e8e8e8; stroke: #b8b8b8; stroke-width: 1; }
+    .rule { stroke: #d0d0d0; stroke-width: 1; }
+  </style>
+
+  <rect x="10" y="10" width="880" height="450" rx="8" class="box"/>
+
+  <rect x="10" y="10" width="880" height="34" rx="8" class="fillbox"/>
+  <rect x="10" y="36" width="880" height="8" fill="#f4f4f4"/>
+  <line x1="10" y1="44" x2="890" y2="44" class="rule"/>
+  <text x="26" y="32" class="m">Awake studio</text>
+  <rect x="118" y="16" width="92" height="28" fill="#ffffff" stroke="#d0d0d0"/>
+  <text x="132" y="34" class="b">Cube demo</text>
+  <line x1="118" y1="43" x2="210" y2="43" stroke="#1a1a1a" stroke-width="2"/>
+  <text x="224" y="34" class="m">Skinned mesh</text>
+  <text x="322" y="34" class="m">+</text>
+  <rect x="786" y="16" width="88" height="22" rx="4" class="sel"/>
+  <text x="800" y="31" class="b">▶  Play</text>
+
+  <rect x="10" y="44" width="176" height="330" fill="none"/>
+  <line x1="186" y1="44" x2="186" y2="374" class="rule"/>
+  <rect x="10" y="44" width="176" height="26" fill="#fafafa"/>
+  <line x1="10" y1="70" x2="186" y2="70" class="rule"/>
+  <text x="34" y="62" class="b">Scene</text>
+  <line x1="24" y1="69" x2="86" y2="69" stroke="#1a1a1a" stroke-width="2"/>
+  <text x="112" y="62" class="m">Assets</text>
+  <text x="26" y="94" class="p">▾ Scene</text>
+  <text x="44" y="116" class="m">Camera</text>
+  <text x="44" y="138" class="m">Light</text>
+  <rect x="10" y="146" width="176" height="22" fill="#eeeeee"/>
+  <text x="44" y="162" class="b">Cube</text>
+  <text x="44" y="184" class="m">Ground</text>
+  <text x="26" y="364" class="s">Hierarchy</text>
+
+  <rect x="186" y="44" width="518" height="330" fill="#fbfbfb"/>
+  <rect x="186" y="44" width="518" height="30" fill="#ffffff"/>
+  <line x1="186" y1="74" x2="704" y2="74" class="rule"/>
+  <rect x="200" y="51" width="104" height="18" rx="4" class="box"/>
+  <text x="209" y="64" class="p">Third person ▾</text>
+  <rect x="314" y="51" width="46" height="18" rx="4" class="sel"/>
+  <text x="323" y="64" class="b">Persp</text>
+  <rect x="360" y="51" width="44" height="18" rx="4" class="box"/>
+  <text x="369" y="64" class="m">Ortho</text>
+  <rect x="524" y="51" width="76" height="18" rx="4" class="box"/>
+  <text x="533" y="64" class="m">Wireframe</text>
+  <rect x="606" y="51" width="70" height="18" rx="4" class="sel"/>
+  <text x="615" y="64" class="b">Shadows</text>
+
+  <rect x="200" y="90" width="34" height="130" rx="17" fill="#ffffff" stroke="#b8b8b8"/>
+  <circle cx="217" cy="108" r="13" fill="#e8e8e8"/>
+  <text x="211" y="113" class="p">↖</text>
+  <text x="211" y="145" class="m">✥</text>
+  <text x="211" y="177" class="m">⟳</text>
+  <text x="211" y="209" class="m">⤢</text>
+
+  <text x="404" y="206" class="s" text-anchor="middle">Viewport</text>
+  <text x="404" y="224" class="s" text-anchor="middle">gizmo on selection</text>
+
+  <line x1="704" y1="44" x2="704" y2="374" class="rule"/>
+  <rect x="704" y="44" width="186" height="26" fill="#fafafa"/>
+  <line x1="704" y1="70" x2="890" y2="70" class="rule"/>
+  <text x="720" y="62" class="b">Inspector</text>
+  <text x="720" y="94" class="b">Transform</text>
+  <text x="720" y="118" class="m">Position</text>
+  <rect x="782" y="106" width="32" height="16" rx="3" class="box"/>
+  <rect x="818" y="106" width="32" height="16" rx="3" class="box"/>
+  <rect x="854" y="106" width="30" height="16" rx="3" class="box"/>
+  <text x="720" y="142" class="m">Rotation</text>
+  <rect x="782" y="130" width="32" height="16" rx="3" class="box"/>
+  <rect x="818" y="130" width="32" height="16" rx="3" class="box"/>
+  <rect x="854" y="130" width="30" height="16" rx="3" class="box"/>
+  <text x="720" y="166" class="m">Scale</text>
+  <rect x="782" y="154" width="32" height="16" rx="3" class="box"/>
+  <rect x="818" y="154" width="32" height="16" rx="3" class="box"/>
+  <rect x="854" y="154" width="30" height="16" rx="3" class="box"/>
+  <line x1="720" y1="186" x2="874" y2="186" class="rule"/>
+  <text x="720" y="206" class="b">Mesh</text>
+  <line x1="720" y1="222" x2="874" y2="222" class="rule"/>
+  <text x="720" y="242" class="m">Light</text>
+
+  <line x1="10" y1="374" x2="890" y2="374" class="rule"/>
+  <rect x="10" y="374" width="880" height="26" fill="#fafafa"/>
+  <line x1="10" y1="400" x2="890" y2="400" class="rule"/>
+  <text x="34" y="392" class="b">Console</text>
+  <line x1="26" y1="399" x2="94" y2="399" stroke="#1a1a1a" stroke-width="2"/>
+  <text x="118" y="392" class="m">Timeline</text>
+  <text x="196" y="392" class="m">Assets</text>
+  <text x="762" y="392" class="s">0 errors   2 warnings</text>
+  <text x="26" y="420" class="s">12:47:02  scene loaded · 4 entities</text>
+
+  <line x1="10" y1="434" x2="890" y2="434" class="rule"/>
+  <text x="26" y="452" class="s">Edit mode</text>
+  <text x="106" y="452" class="s">4 entities</text>
+  <text x="186" y="452" class="s">60 fps</text>
+  <text x="838" y="452" class="s">Vulkan</text>
+</svg>
