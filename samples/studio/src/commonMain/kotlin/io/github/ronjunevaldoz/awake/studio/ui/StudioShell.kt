@@ -9,12 +9,12 @@ import io.github.ronjunevaldoz.awake.scene.runtime.frame
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableHandle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
@@ -54,6 +54,8 @@ internal fun SceneGameRuntime.drawStudioShell(store: StudioStore, viewportWidth:
 private const val SIDEBAR_FRACTION = 0.18f
 private const val VIEWPORT_FRACTION = 0.62f
 private const val INSPECTOR_FRACTION = 0.20f
+private const val MAIN_WORKSPACE_FRACTION = 0.72f
+private const val BOTTOM_DOCK_FRACTION = 0.28f
 
 // Same default shadcnSeparator() itself uses -- passed explicitly (not left to the default) so
 // this file's own height math below stays in sync with what actually gets drawn.
@@ -71,12 +73,14 @@ private val SEPARATOR_THICKNESS = 1f.dp
  * bare [io.github.ronjunevaldoz.awake.ui.context.UiContext] drive this directly is what makes it
  * testable without a full game/runtime bootstrap (see `StudioShellLayoutTest`).
  *
- * The panels group's height is computed explicitly (shell height minus the top bar, the status
- * bar, and both hairlines) rather than `Modifier.weight(1f)` -- a weight fill here left a gap
- * exactly the status bar's own height tall between the panels and the status bar, since
+ * The workspace group's height is computed explicitly (shell height minus the top bar, the
+ * status bar, and both hairlines) rather than `Modifier.weight(1f)` -- a weight fill here left a
+ * gap exactly the status bar's own height tall between the panels and the status bar, since
  * `shadcnResizablePanelGroup` already runs its own dry-count-then-real pass over its content
  * independently of the outer column's weight-distribution trial; computing the height directly
- * sidesteps that interaction instead of depending on it.
+ * sidesteps that interaction instead of depending on it. A vertical resizable group owns the
+ * main three-panel workspace and the bottom dock; the horizontal group remains nested inside
+ * the main panel, matching the ui-showcase nested-resizable example.
  */
 internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, renderer: Renderer) {
     column(
@@ -91,33 +95,79 @@ internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, rende
             onPlay = { store.dispatch(StudioContract.Intent.SelectExample(store.state.value.examples.activeExampleId)) },
         )
         shadcnSeparator(thickness = SEPARATOR_THICKNESS)
-        val panelsHeightPx = (
+        val workspaceHeightPx = (
             shellSlot.height - TOP_BAR_HEIGHT.toPx() - STATUS_BAR_HEIGHT.toPx() -
                 SEPARATOR_THICKNESS.toPx() * 2f
             ).coerceAtLeast(0f)
-        shadcnResizablePanelGroup(
-            id = "studio-panels-group",
-            direction = ResizableDirection.Horizontal,
-            modifier = Modifier.width(Dimension.FillMax).height(panelsHeightPx.px),
-        ) {
-            shadcnResizablePanel(id = "studio-panel-sidebar", defaultSize = SIDEBAR_FRACTION, minSize = 0.12f, maxSize = 0.32f) {
-                drawHierarchyPanel(
-                    world = world,
-                    selectedEntityId = store.state.value.inspector.selectedEntityId,
-                    onSelectEntity = { store.dispatch(StudioContract.Intent.SelectEntity(it)) },
-                )
-            }
-            shadcnResizableHandle(id = "studio-panel-handle-left", withHandle = true)
-            shadcnResizablePanel(id = "studio-panel-viewport", defaultSize = VIEWPORT_FRACTION, minSize = 0.3f) {
-                drawStudioViewportPanel(store, renderer)
-            }
-            shadcnResizableHandle(id = "studio-panel-handle-right", withHandle = true)
-            shadcnResizablePanel(id = "studio-panel-inspector", defaultSize = INSPECTOR_FRACTION, minSize = 0.14f, maxSize = 0.32f) {
-                drawInspectorPanel(world, selectedEntityId = store.state.value.inspector.selectedEntityId)
-            }
-        }
+        drawStudioWorkspace(
+            store = store,
+            world = world,
+            renderer = renderer,
+            heightPx = workspaceHeightPx,
+        )
         shadcnSeparator(thickness = SEPARATOR_THICKNESS)
         drawStudioStatusBar()
+    }
+}
+
+private fun UiScope.drawStudioWorkspace(
+    store: StudioStore,
+    world: World,
+    renderer: Renderer,
+    heightPx: Float,
+) {
+    shadcnResizablePanelGroup(
+        id = "studio-workspace-group",
+        direction = ResizableDirection.Vertical,
+        modifier = Modifier.width(Dimension.FillMax).height(heightPx.px),
+    ) {
+        shadcnResizablePanel(
+            id = "studio-workspace-main",
+            defaultSize = MAIN_WORKSPACE_FRACTION,
+            minSize = 0.4f,
+            maxSize = 0.86f,
+        ) {
+            shadcnResizablePanelGroup(
+                id = "studio-panels-group",
+                direction = ResizableDirection.Horizontal,
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
+            ) {
+                shadcnResizablePanel(
+                    id = "studio-panel-sidebar",
+                    defaultSize = SIDEBAR_FRACTION,
+                    minSize = 0.12f,
+                    maxSize = 0.32f,
+                ) {
+                    drawHierarchyPanel(
+                        world = world,
+                        selectedEntityId = store.state.value.inspector.selectedEntityId,
+                        onSelectEntity = { store.dispatch(StudioContract.Intent.SelectEntity(it)) },
+                    )
+                }
+                shadcnResizableHandle(id = "studio-panel-handle-left", withHandle = true)
+                shadcnResizablePanel(id = "studio-panel-viewport", defaultSize = VIEWPORT_FRACTION, minSize = 0.3f) {
+                    drawStudioViewportPanel(store, renderer)
+                }
+                shadcnResizableHandle(id = "studio-panel-handle-right", withHandle = true)
+                shadcnResizablePanel(
+                    id = "studio-panel-inspector",
+                    defaultSize = INSPECTOR_FRACTION,
+                    minSize = 0.14f,
+                    maxSize = 0.32f,
+                ) {
+                    drawInspectorPanel(world, selectedEntityId = store.state.value.inspector.selectedEntityId)
+                }
+            }
+        }
+        shadcnResizableHandle(id = "studio-bottom-dock-handle", withHandle = true)
+        shadcnResizablePanel(
+            id = "studio-bottom-dock-panel",
+            defaultSize = BOTTOM_DOCK_FRACTION,
+            minSize = 0.14f,
+            maxSize = 0.6f,
+        ) {
+            drawStudioBottomDock()
+        }
     }
 }
 

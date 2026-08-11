@@ -105,6 +105,15 @@ class StudioShellLayoutTest {
         assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-projection.0" })
         assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-projection.1" })
     }
+
+    @Test
+    fun bottomDockExposesConsoleTimelineAndAssetsTabs() {
+        val semantics = renderShell()
+
+        assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.0" })
+        assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.1" })
+        assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.2" })
+    }
 }
 
 private class NoopRenderer : Renderer {
