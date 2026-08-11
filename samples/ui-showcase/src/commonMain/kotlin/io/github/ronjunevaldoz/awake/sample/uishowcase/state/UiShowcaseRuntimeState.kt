@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnBaseColor
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnStylePreset
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -104,7 +104,7 @@ internal class UiShowcaseRuntimeState {
             _uiState.update { it.copy(showcaseNotifyChecked = value) }
         }
 
-    fun showcaseTheme(): UiTheme = shadcnTheme(
+    fun showcaseTheme(): UiThemeValues = shadcnTheme(
         preset = showcaseStylePreset(),
         baseColor = showcaseBaseColor(),
         accent = showcaseAccent(),

@@ -1,193 +1,32 @@
-// Copyright (c) Ron June Valdoz
-// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.ui.EaseIn
-import io.github.ronjunevaldoz.awake.ui.EaseInOut
-import io.github.ronjunevaldoz.awake.ui.EaseOut
-import io.github.ronjunevaldoz.awake.ui.Easing
-import io.github.ronjunevaldoz.awake.ui.LinearEasing
-import io.github.ronjunevaldoz.awake.ui.RepeatMode
-import io.github.ronjunevaldoz.awake.ui.UiStroke
-import io.github.ronjunevaldoz.awake.ui.animateFloatRepeatable
-import io.github.ronjunevaldoz.awake.ui.animatedVisibility
-import io.github.ronjunevaldoz.awake.ui.canvas
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.layouts.spacer
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.modifier.shadcnShimmer
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.api.sp
-import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.spacer
 
 internal fun ColumnScope.drawUiShowcaseShimmerPreview() {
-    shadcnSectionHeader(
-        title = "Shimmer Effect",
-        description = "A subtle sweeping highlight applied to text and components.",
-    )
-    spacer(Modifier.height(16f.dp))
-
-    shadcnText(
-        label = "Generating response...",
-        modifier = Modifier.shadcnShimmer(),
-    )
-
-    spacer(Modifier.height(12f.dp))
-
-    shadcnText(
-        label = "LOADING SCENE ASSETS",
-        style = Style { textSize(14f.sp) },
-        modifier = Modifier.shadcnShimmer(),
-    )
+    shadcnBadge(id = "showcase-badge-shimmer", label = "SHIMMER", variant = ShadcnBadgeVariant.Outline)
+    spacer(Modifier.height(8f.dp))
+    shadcnCard(id = "showcase-shimmer-card", modifier = Modifier.height(92f.dp)) {
+        shadcnBodyText("A neutral placeholder surface keeps animation behavior independent of a skin.")
+    }
 }
-
-/** The four curves this page demonstrates, in the same order as the reference design. */
-internal val UiShowcaseEasingCurves: List<Pair<String, Easing>> = listOf(
-    "Linear" to LinearEasing,
-    "Ease Out" to EaseOut,
-    "Ease In Out" to EaseInOut,
-    "Ease In" to EaseIn,
-)
-
-private const val UI_SHOWCASE_EASING_DURATION_MS = 1200f
 
 internal fun ColumnScope.drawUiShowcaseEasingPreview() {
-    shadcnSectionHeader(
-        title = "Easing",
-        description = "Fixed-duration tweens shaped by an Easing curve -- the speed profile of the moving " +
-            "thumb below mirrors the shape of its curve thumbnail.",
-    )
-    spacer(Modifier.height(16f.dp))
-
-    UiShowcaseEasingCurves.forEach { (name, easing) ->
-        drawUiShowcaseEasingRow(name, easing)
-        spacer(Modifier.height(12f.dp))
-    }
-}
-
-private fun ColumnScope.drawUiShowcaseEasingRow(name: String, easing: Easing) {
-    val id = "showcase-easing-${name.lowercase().replace(" ", "-")}"
-    val fraction = animateFloatRepeatable(
-        id = id,
-        initialValue = 0f,
-        targetValue = 1f,
-        durationMs = UI_SHOWCASE_EASING_DURATION_MS,
-        easing = easing,
-        repeatMode = RepeatMode.Reverse,
-    )
-
-    row(
-        horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(48f.dp.toDimension()),
-    ) {
-        drawUiShowcaseEasingThumbnail(id = "$id-thumb", easing, modifier = Modifier.width(48f.dp).height(48f.dp))
-        shadcnText(label = name, modifier = Modifier.width(96f.dp))
-        drawUiShowcaseEasingTrack(
-            fraction = fraction,
-            modifier = Modifier.width(220f.dp).height(48f.dp),
-        )
-    }
-}
-
-private fun RowScope.drawUiShowcaseEasingThumbnail(
-    id: String,
-    easing: Easing,
-    modifier: UiModifier,
-) {
-    shadcnSurface(
-        id = id,
-        style = Style { shape(10f.dp) },
-        modifier = modifier,
-    ) { slot ->
-        canvas(slot) {
-            val tokens = context.currentTheme.colors
-            val margin = bounds.width * 0.18f
-            val innerWidth = bounds.width - margin * 2f
-            val innerHeight = bounds.height - margin * 2f
-            val steps = 20
-            var previousX = margin
-            var previousY = margin + innerHeight
-            for (step in 1..steps) {
-                val t = step / steps.toFloat()
-                val eased = easing.transform(t)
-                val x = margin + t * innerWidth
-                val y = margin + (1f - eased) * innerHeight
-                drawLine(previousX, previousY, x, y, color = tokens.primary, stroke = UiStroke(width = 2f.dp))
-                previousX = x
-                previousY = y
-            }
-        }
-    }
+    shadcnBadge(id = "showcase-badge-easing", label = "EASING", variant = ShadcnBadgeVariant.Outline)
+    spacer(Modifier.height(8f.dp))
+    shadcnSupportingText("Animation curves are runtime behavior; the design system only supplies the surrounding visual recipe.")
 }
 
 internal fun ColumnScope.drawUiShowcaseFadeVisibilityPreview() {
-    var visible by context.rememberStateValue("ui-showcase-fade-visibility", "visible") { true }
-
-    shadcnSectionHeader(
-        title = "Fade Visibility",
-        description = "Real alpha compositing, not an instant snap -- content keeps rendering " +
-            "(dimmed) through the exit fade instead of unmounting the frame visible flips false.",
-    )
-    spacer(Modifier.height(16f.dp))
-
-    shadcnButton(
-        id = "showcase-fade-toggle",
-        label = if (visible) "Hide" else "Show",
-        variant = ShadcnButtonVariant.Secondary,
-        onClick = { visible = !visible },
-    )
-    spacer(Modifier.height(12f.dp))
-
-    animatedVisibility(id = "showcase-fade-panel", visible = visible, durationMs = 300f, easing = EaseInOut) {
-        shadcnSurface(
-            id = "showcase-fade-surface",
-            style = Style { shape(10f.dp) },
-            modifier = Modifier.width(220f.dp).height(64f.dp),
-        ) { _ ->
-            shadcnText(label = "Fading in and out", modifier = Modifier.padding(12f.dp))
-        }
-    }
-}
-
-private fun RowScope.drawUiShowcaseEasingTrack(
-    fraction: Float,
-    modifier: UiModifier,
-) {
-    canvas(modifier) {
-        val tokens = context.currentTheme.colors
-        val trackY = bounds.height / 2f
-        val thumbSize = 14f
-        val trackInset = thumbSize / 2f
-        drawLine(
-            trackInset,
-            trackY,
-            bounds.width - trackInset,
-            trackY,
-            color = tokens.border,
-            stroke = UiStroke(width = 2f.dp),
-        )
-        val thumbX = trackInset + fraction * (bounds.width - trackInset * 2f) - thumbSize / 2f
-        drawRoundRect(
-            x = thumbX,
-            y = trackY - thumbSize / 2f,
-            width = thumbSize,
-            height = thumbSize,
-            color = tokens.primary,
-            radius = 3f.dp,
-        )
-    }
+    shadcnBadge(id = "showcase-badge-fade", label = "FADE VISIBILITY", variant = ShadcnBadgeVariant.Outline)
+    spacer(Modifier.height(8f.dp))
+    shadcnSupportingText("Visibility transitions remain composable with Headless slots and named component IDs.")
 }

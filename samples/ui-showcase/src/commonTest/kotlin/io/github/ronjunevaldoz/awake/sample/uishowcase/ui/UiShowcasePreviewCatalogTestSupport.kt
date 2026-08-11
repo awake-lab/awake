@@ -10,14 +10,13 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
-import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltip
@@ -29,6 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnScrollArea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
@@ -37,28 +37,28 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement as HeadlessArrangement
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.layouts.spacer
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.offset
+import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.uiScope
+import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.scrollPanel
-import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 
 internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseOverviewPreview,
@@ -94,22 +94,17 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
 )
 
 private val PreviewOverlayMenuItems = listOf(
-    UiDropdownMenuItem(
+    ShadcnDropdownMenuItem(
         label = "Pinned action",
         enabled = false,
-        shadcnSupportingText = "Disabled rows stay visible in the popover.",
     ),
-    UiDropdownMenuSeparator,
-    UiDropdownMenuItem(
+    ShadcnDropdownMenuSeparator,
+    ShadcnDropdownMenuItem(
         label = "Duplicate panel",
-        trailingLabel = "Cmd+D",
-        shadcnSupportingText = "Secondary action metadata sits on the trailing edge.",
     ),
-    UiDropdownMenuItem(
+    ShadcnDropdownMenuItem(
         label = "Delete scene",
         destructive = true,
-        trailingLabel = "Del",
-        shadcnSupportingText = "Destructive actions use the red foreground treatment.",
     ),
 )
 
@@ -784,22 +779,23 @@ private fun renderUiShowcaseEasingPreviewFrame(
         )
         ui.pushFont(font)
         ui.pushTheme(theme)
-        ui.column(
+        ui.headlessRoot().column(
             modifier = Modifier
                 .offset(insetPx.px, insetPx.px)
-                .width((metadata.rasterWidth.toFloat() - insetPx * 2f).px)
-                .height((metadata.rasterHeight.toFloat() - insetPx * 2f).px),
-            verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp),
+                .width((metadata.rasterWidth.toFloat() - insetPx * 2f).dp)
+                .height((metadata.rasterHeight.toFloat() - insetPx * 2f).dp),
+            verticalArrangement = HeadlessArrangement.spacedBy((contentGapPx / previewScale).dp),
         ) {
-            shadcnSurface(
+            surface(
                 id = "ui-showcase-preview-${metadata.id}",
-                style = Style { shape(16f.dp) },
-                modifier = Modifier.copy(
-                    widthDimension = Dimension.FillMax,
-                    heightDimension = Dimension.WrapContent,
-                ),
+                style = SurfaceStyle(cornerRadius = 16f.dp),
+                modifier = Modifier,
             ) {
-                shadcnBadge(page.category.title.uppercase(), variant = ShadcnBadgeVariant.Outline)
+                shadcnBadge(
+                    id = "${metadata.id}.category",
+                    label = page.category.title.uppercase(),
+                    variant = ShadcnBadgeVariant.Outline,
+                )
                 shadcnSectionHeader(title = metadata.title, description = metadata.summary)
                 spacer(Modifier.height(10f.dp))
                 renderUiShowcasePagePreview(page, state)
@@ -845,22 +841,18 @@ private fun renderUiShowcaseCardPreviewFrame(
         }
         ui.pushFont(font)
         ui.pushTheme(theme)
-        ui.column(
+        ui.headlessRoot().column(
             modifier = Modifier
                 .offset(insetPx.px, insetPx.px)
-                .width((metadata.rasterWidth.toFloat() - insetPx * 2f).px)
-                .height((metadata.rasterHeight.toFloat() - insetPx * 2f).px),
-            verticalArrangement = Arrangement.spacedBy((contentGapPx / previewScale).dp),
+                .width((metadata.rasterWidth.toFloat() - insetPx * 2f).dp)
+                .height((metadata.rasterHeight.toFloat() - insetPx * 2f).dp),
+            verticalArrangement = HeadlessArrangement.spacedBy((contentGapPx / previewScale).dp),
         ) {
             shadcnSurface(
                 id = "ui-showcase-preview-$surfaceId",
-                style = Style { shape(16f.dp) },
-                modifier = Modifier.copy(
-                    widthDimension = Dimension.FillMax,
-                    heightDimension = Dimension.WrapContent,
-                ),
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                shadcnBadge(badge, variant = ShadcnBadgeVariant.Outline)
+                shadcnBadge(id = "${surfaceId}.badge", label = badge, variant = ShadcnBadgeVariant.Outline)
                 shadcnSectionHeader(
                     title = title,
                     description = summary,
@@ -881,7 +873,7 @@ private fun renderUiShowcaseCardPreviewFrame(
 
 private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
     row(
-        horizontalArrangement = Arrangement.spacedBy(10f.dp),
+        horizontalArrangement = HeadlessArrangement.spacedBy(10f.dp),
         modifier = Modifier.height(36f.dp),
     ) {
         shadcnButton(
@@ -904,8 +896,8 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
         )
     }
     row(
-        horizontalArrangement = Arrangement.spacedBy(10f.dp),
-        modifier = Modifier.height(36f.dp.toDimension()),
+        horizontalArrangement = HeadlessArrangement.spacedBy(10f.dp),
+        modifier = Modifier.height(36f.dp),
     ) {
         shadcnButton(
             id = "showcase-matrix-button-ghost",
@@ -931,8 +923,8 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
 
 private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
     row(
-        horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension()),
+        horizontalArrangement = HeadlessArrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(36f.dp),
     ) {
         shadcnInput(
             id = "showcase-matrix-field-empty",
@@ -947,8 +939,8 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
         )
     }
     row(
-        horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension()),
+        horizontalArrangement = HeadlessArrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(36f.dp),
     ) {
         shadcnSelect(
             id = "showcase-matrix-dropdown-theme",
@@ -964,8 +956,8 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
         )
     }
     row(
-        horizontalArrangement = Arrangement.spacedBy(16f.dp),
-        modifier = Modifier.height(24f.dp.toDimension()),
+        horizontalArrangement = HeadlessArrangement.spacedBy(16f.dp),
+        modifier = Modifier.height(24f.dp),
     ) {
         shadcnToggle(
             id = "showcase-matrix-toggle-off",
@@ -981,8 +973,8 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
         )
     }
     row(
-        horizontalArrangement = Arrangement.spacedBy(16f.dp),
-        modifier = Modifier.height(24f.dp.toDimension()),
+        horizontalArrangement = HeadlessArrangement.spacedBy(16f.dp),
+        modifier = Modifier.height(24f.dp),
     ) {
         shadcnCheckbox(
             id = "showcase-matrix-checkbox-off",
@@ -1034,25 +1026,22 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
     )
     spacer(Modifier.height(8f.dp))
     row(
-        horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension()),
+        horizontalArrangement = HeadlessArrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(36f.dp),
     ) {
         val trigger = buttonSlot(
             id = "showcase-matrix-dropdown-trigger",
             label = "Actions",
             modifier = Modifier.width(124f.px).height(36f.dp),
-            style = theme.components.button,
         )
-        shadcnDropdownMenu(
+        uiScope().shadcnDropdownMenu(
             id = "showcase-matrix-dropdown-menu",
             anchorSlot = trigger.slot,
             expanded = true,
             items = PreviewOverlayMenuItems,
             selectedIndex = 1,
             width = Dimension.Fixed(340f.px),
-            itemHeight = 32f,
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
-            style = Style { contentPadding(4f.dp) },
         )
         shadcnButton(
             id = "showcase-matrix-dropdown-secondary",
@@ -1069,17 +1058,16 @@ private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
     )
     spacer(Modifier.height(8f.dp))
     row(
-        horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension()),
+        horizontalArrangement = HeadlessArrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(36f.dp),
     ) {
         spacer(Modifier.width(100f.px))
         val trigger = buttonSlot(
             id = "showcase-matrix-popover-trigger",
             label = "Share",
             modifier = Modifier.width(120f.px).height(36f.dp),
-            style = theme.components.button,
         )
-        shadcnPopover(
+        uiScope().shadcnPopover(
             id = "showcase-matrix-popover",
             anchorSlot = trigger.slot,
             expanded = true,
@@ -1090,10 +1078,6 @@ private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
                 wrap = UiTextWrap.Word,
                 overflow = UiTextOverflow.Ellipsis,
                 maxLines = 1,
-                style = Style {
-                    foreground(theme.colors.foreground)
-                    textSize(theme.typography.body)
-                },
             )
             shadcnSupportingText("Anyone with the link can view this scene until you revoke it.")
         }
@@ -1110,16 +1094,15 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
     shadcnSupportingText("A tooltip is a tiny overlay, but it still needs proper container chrome, spacing, and wrap behavior.")
     spacer(Modifier.height(8f.dp))
     row(
-        horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension()),
+        horizontalArrangement = HeadlessArrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(36f.dp),
     ) {
         val trigger = buttonSlot(
             id = "showcase-matrix-tooltip-trigger",
             label = "Hover target",
             modifier = Modifier.width(156f.px).height(36f.dp),
-            style = theme.components.button,
         )
-        shadcnTooltip(
+        uiScope().shadcnTooltip(
             anchorSlot = trigger.slot,
             visible = true,
             width = Dimension.Fixed(260f.dp),
@@ -1143,16 +1126,15 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
     shadcnSupportingText("shadcnTooltipText is the text-only convenience wrapper: same anchor/popup composition, no custom content lambda.")
     spacer(Modifier.height(8f.dp))
     row(
-        horizontalArrangement = Arrangement.spacedBy(12f.dp),
-        modifier = Modifier.height(36f.dp.toDimension()),
+        horizontalArrangement = HeadlessArrangement.spacedBy(12f.dp),
+        modifier = Modifier.height(36f.dp),
     ) {
         val textTrigger = buttonSlot(
             id = "showcase-matrix-tooltip-text-trigger",
             label = "Text-only tooltip",
             modifier = Modifier.width(200f.px).height(36f.dp),
-            style = theme.components.button,
         )
-        shadcnTooltipText(
+        uiScope().shadcnTooltipText(
             id = "tooltip-text",
             anchorSlot = textTrigger.slot,
             visible = true,
@@ -1173,7 +1155,7 @@ private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
         modifier = Modifier.width(156f.px).height(36f.dp),
         variant = ShadcnButtonVariant.Outline,
     )
-    shadcnAlertDialog(
+    uiScope().shadcnAlertDialog(
         id = "showcase-matrix-alert-dialog",
         expanded = true,
         title = "Delete this long showcase card title before publishing the updated catalog?",
@@ -1195,20 +1177,20 @@ private fun ColumnScope.drawUiShowcaseCollapsibleOpenContent() {
         onExpandedChange = {},
     ) {
         column(
-            verticalArrangement = Arrangement.spacedBy(8f.dp),
-            modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent),
+            verticalArrangement = HeadlessArrangement.spacedBy(8f.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            shadcnSeparator(modifier = Modifier.padding(0f.dp, 4f.dp, 0f.dp, 4f.dp))
+            shadcnSeparator(modifier = Modifier.padding(horizontal = 0f.dp, vertical = 4f.dp))
             row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
                 text(
                     "@radix-ui/colors",
-                    style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) },
+                    modifier = Modifier.padding(12f.dp, 0f.dp),
                 )
             }
             row(modifier = Modifier.fillMaxWidth().height(32f.dp)) {
                 text(
                     "@stitches/react",
-                    style = Style { contentPadding(12f.dp, 0f.dp, 0f.dp, 0f.dp) },
+                    modifier = Modifier.padding(12f.dp, 0f.dp),
                 )
             }
         }
@@ -1216,16 +1198,18 @@ private fun ColumnScope.drawUiShowcaseCollapsibleOpenContent() {
 }
 
 private fun ColumnScope.drawUiShowcaseScrollPanelContent() {
-    val scrollState = UiScrollState(initialOffsetY = 34f)
+    val scrollState = uiScope().rememberScrollState(
+        id = "showcase-matrix-scroll-state",
+        initialOffsetY = 34f,
+    )
     shadcnSupportingText("This static proof starts partially scrolled so viewport clipping and the scrollbar thumb are visible immediately.")
     spacer(Modifier.height(8f.dp))
-    scrollPanel(
+    uiScope().shadcnScrollArea(
         id = "showcase-matrix-scroll-panel",
         modifier = Modifier
-            .width(Dimension.Fixed(420f.px))
-            .height(Dimension.Fixed(168f.px))
+            .width(420f.px)
+            .height(168f.px)
             .verticalScroll(scrollState),
-        style = Style { shape(14f.dp) },
     ) {
         repeat(8) { index ->
             shadcnButton(

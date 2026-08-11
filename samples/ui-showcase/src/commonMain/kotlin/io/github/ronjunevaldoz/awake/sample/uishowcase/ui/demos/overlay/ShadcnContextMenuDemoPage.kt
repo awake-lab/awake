@@ -1,50 +1,16 @@
-// Copyright (c) Ron June Valdoz
-// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.overlay
 
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.spacer
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.rememberPopupState
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
-
-private val ContextMenuItems = listOf(
-    UiDropdownMenuItem(label = "Back", trailingLabel = "Alt+Left"),
-    UiDropdownMenuItem(label = "Forward", trailingLabel = "Alt+Right", enabled = false),
-    UiDropdownMenuItem(label = "Reload", trailingLabel = "Cmd+R"),
-    UiDropdownMenuSeparator,
-    UiDropdownMenuItem(label = "Inspect Element", trailingLabel = "Cmd+Opt+I"),
-    UiDropdownMenuItem(label = "Delete Item", destructive = true),
-)
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.spacer
 
 internal fun ColumnScope.drawShadcnContextMenuDemoPreview() {
-    val contextMenuState = context.rememberPopupState("showcase-ctx-menu")
-
-    shadcnBadge("CONTEXT MENU", variant = ShadcnBadgeVariant.Secondary)
-    shadcnSupportingText("Right-click over the designated area to trigger floating action context items.")
+    shadcnBadge(id = "showcase-badge-context-menu", label = "CONTEXT MENU", variant = ShadcnBadgeVariant.Outline)
     spacer(Modifier.height(8f.dp))
-
-    shadcnContextMenu(
-        id = "showcase-ctx-menu-demo",
-        expanded = contextMenuState.expanded,
-        onExpandedChange = { if (it) contextMenuState.open() else contextMenuState.close() },
-        items = ContextMenuItems,
-    ) {
-        shadcnCard("ctx-card", modifier = Modifier.fillMaxWidth().height(100f.dp)) {
-            text(
-                "Right click anywhere inside this card area to open Context Menu",
-                verticallyCentered = true,
-            )
-        }
-    }
+    shadcnSupportingText("Context-menu trigger behavior is owned by Headless and can be wrapped by a design-system menu recipe.")
 }
