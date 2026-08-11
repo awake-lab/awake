@@ -51,10 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Glyph ink rendered at ~0.90x of its own metrics** -- fix visually confirmed on screen by
-  Ron June Valdoz, 2026-08-11, and gated by `GlyphAbsoluteSizeTest` (H ink within 1px of
-  `capHeightEm * size` at 12/14/16px). Note this confirms the quad/UV fix specifically; stem
-  weight remains open, see Known issues. (sub-pixel at 12-14px, past a pixel from
+- **Glyph ink rendered at ~0.90x of its own metrics** (sub-pixel at 12-14px, past a pixel from
   16px up): the font-atlas generator sized render quads to the glyph outline but UV rects to
   outline + crop bleed + a texel snap, squeezing the padded atlas region into an outline-sized
   quad. Quads are now derived from the snapped sample rect (quad and UV cover the same texels
@@ -64,6 +61,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   background, alpha-channel coverage, degenerate-run guard) and every text-bearing snapshot
   signature is re-recorded. `GlyphAbsoluteSizeTest` now gates absolute ink size against
   `capHeightEm * size` -- the external-truth check this repo never had.
+
+  Verified on screen by Ron June Valdoz, 2026-08-11. That confirms this fix specifically, not
+  text rendering overall -- stem weight still varies with sub-pixel phase, see Known issues.
 
 ### Added
 
