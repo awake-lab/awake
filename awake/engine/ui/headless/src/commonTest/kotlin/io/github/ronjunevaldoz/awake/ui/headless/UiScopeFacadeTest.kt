@@ -9,7 +9,6 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
-import io.github.ronjunevaldoz.awake.ui.unstyled.overlayScrim
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
