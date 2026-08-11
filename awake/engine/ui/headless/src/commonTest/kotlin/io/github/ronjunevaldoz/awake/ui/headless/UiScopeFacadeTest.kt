@@ -64,4 +64,54 @@ class UiScopeFacadeTest {
         assertEquals(UiBounds(20f, 40f, 80f, 40f), result.slot)
         assertTrue(receivedColumnScope)
     }
+
+    @Test
+    fun layoutsUseHeadlessScopesAndComposeStyleModifier() {
+        val context = UiContext()
+        context.beginFrame(200f, 120f, UiInputState())
+        val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
+
+        var receivedRowScope = false
+        val slot = scope.column(modifier = Modifier.fillMaxSize()) {
+            row(modifier = Modifier.fillMaxWidth()) {
+                receivedRowScope = true
+            }
+        }
+
+        assertEquals(UiBounds(0f, 0f, 200f, 120f), slot)
+        assertTrue(receivedRowScope)
+    }
+
+    @Test
+    fun surfaceUsesHeadlessVisualContracts() {
+        val context = UiContext()
+        context.beginFrame(200f, 120f, UiInputState())
+        val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
+
+        val slot = scope.surface(
+            id = "panel",
+            modifier = Modifier.width(80f.px).height(40f.px),
+            style = SurfaceStyle(background = Color.Black, cornerRadius = 4f.px),
+        ) { }
+
+        assertEquals(UiBounds(0f, 0f, 80f, 40f), slot)
+        assertTrue(context.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>().any { it.color == Color.Black })
+    }
+
+    @Test
+    fun buttonUsesHeadlessModifierAndStyle() {
+        val context = UiContext()
+        context.beginFrame(200f, 120f, UiInputState())
+        val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
+
+        val clicked = scope.button(
+            id = "confirm",
+            label = "Confirm",
+            modifier = Modifier.width(100f.px).height(40f.px),
+            style = SurfaceStyle(background = Color.Black),
+        )
+
+        assertTrue(!clicked)
+        assertTrue(context.endFrame().filterIsInstance<UiDrawPrimitive.Quad>().any { it.color == Color.Black })
+    }
 }
