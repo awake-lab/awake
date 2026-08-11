@@ -11,11 +11,13 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibl
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import java.io.File
 import kotlin.test.Test
@@ -50,9 +52,9 @@ class ShadcnCollapsibleRealRenderCollapseFrameCaptureTest {
             ui.beginFrame(480f, 800f, input.updateSnapshot().toUiInputState())
             ui.pushFont(font)
             ui.pushTheme(ShadcnTheme)
-            ui.createBox(x = 0f, y = 0f, width = 480f, height = 800f).shadcnSidebar(
+            ui.createUiScope(UiBounds(0f, 0f, 480f, 800f)).shadcnSidebar(
                 id = "capture-sidebar",
-                modifier = Modifier.width(280f.dp).height(Dimension.FillMax),
+                modifier = Modifier.width(280f.dp).fillMaxHeight(),
             ) {
                 shadcnCollapsible(
                     id = "capture-category-getting-started",
@@ -65,14 +67,14 @@ class ShadcnCollapsibleRealRenderCollapseFrameCaptureTest {
                             id = "capture-item-$index",
                             label = "Item $index",
                             modifier = Modifier.fillMaxWidth().height(32f.dp),
-                        ) {}
+                        )
                     }
                 }
                 shadcnButton(
                     id = "capture-inputs-header",
                     label = "Inputs",
                     modifier = Modifier.fillMaxWidth().height(32f.dp),
-                ) {}
+                )
             }
             return ui.endFrame()
         }

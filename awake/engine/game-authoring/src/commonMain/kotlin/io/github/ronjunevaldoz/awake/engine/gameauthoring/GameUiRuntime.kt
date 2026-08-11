@@ -30,6 +30,8 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
@@ -325,4 +327,12 @@ fun GameUiRuntime.frame(
             maxHeightPx = viewportHeight,
         ),
     )
+}
+
+/** Public Headless entry point for ordinary app/sample component trees. */
+fun GameUiRuntime.headlessFrame(
+    block: UiScope.() -> Unit,
+) {
+    val rootSlot = UiBounds(0f, 0f, viewportWidth, viewportHeight)
+    uiContext.createUiScope(rootSlot).block()
 }

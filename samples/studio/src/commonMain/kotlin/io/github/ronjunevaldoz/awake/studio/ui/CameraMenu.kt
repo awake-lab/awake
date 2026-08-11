@@ -4,14 +4,15 @@ package io.github.ronjunevaldoz.awake.studio.ui
 
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
-import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuEntry
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuSeparator
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuEntry
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.rememberPopupState
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.rememberPopupState
+import io.github.ronjunevaldoz.awake.ui.headless.contextMenuTrigger
 
 /** Camera mode + projection picker shared by the viewport's right-click menu and the icon
  * rail's camera dropdown, so both list and dispatch identically. */
@@ -31,14 +32,14 @@ private val CameraMenuActions: List<CameraMenuAction> = listOf(
     CameraMenuAction.Projection(StudioContract.Projection.Orthographic),
 )
 
-internal val CameraMenuItems: List<UiDropdownMenuEntry> = listOf(
-    UiDropdownMenuItem(label = "Third Person"),
-    UiDropdownMenuItem(label = "First Person"),
-    UiDropdownMenuItem(label = "Cinematic"),
-    UiDropdownMenuItem(label = "Top Down"),
-    UiDropdownMenuSeparator,
-    UiDropdownMenuItem(label = "Perspective"),
-    UiDropdownMenuItem(label = "Orthographic"),
+internal val CameraMenuItems: List<ShadcnDropdownMenuEntry> = listOf(
+    ShadcnDropdownMenuItem(label = "Third Person"),
+    ShadcnDropdownMenuItem(label = "First Person"),
+    ShadcnDropdownMenuItem(label = "Cinematic"),
+    ShadcnDropdownMenuItem(label = "Top Down"),
+    ShadcnDropdownMenuSeparator,
+    ShadcnDropdownMenuItem(label = "Perspective"),
+    ShadcnDropdownMenuItem(label = "Orthographic"),
 )
 
 /** Maps a picked item index to the matching narrowed callback -- keeps this file store-agnostic
@@ -62,7 +63,7 @@ internal fun dispatchCameraMenuPick(
  *
  * `shadcnContextMenu` (ui-designsystem) opens the same way on a secondary click, but reports no
  * picked item back to its caller -- no return value, no per-item callback on
- * [UiDropdownMenuItem] -- so this composes the same public primitives it uses internally
+ * [ShadcnDropdownMenuItem] -- so this composes the same public primitives it uses internally
  * (hover + secondary click -> [shadcnDropdownMenu] anchored at the click point) directly here,
  * to get [onPick]'s index back.
  */
@@ -71,26 +72,13 @@ internal fun UiScope.viewportCameraMenu(
     bounds: UiBounds,
     onPick: (Int) -> Unit,
 ) {
-    val input = context.inputState
-    val state = widgetState(id)
     val popup = rememberPopupState(id)
-    val isHovered = input.pointerX >= bounds.x &&
-        input.pointerX <= bounds.x + bounds.width &&
-        input.pointerY >= bounds.y &&
-        input.pointerY <= bounds.y + bounds.height
-
-    if (isHovered && input.secondaryPointerDown) {
-        state.set("clickX", input.pointerX)
-        state.set("clickY", input.pointerY)
-        if (!popup.expanded) popup.open()
-    }
-
+    val trigger = contextMenuTrigger(id = id, expanded = popup.expanded, target = bounds)
+    if (trigger.shouldOpen) popup.open()
     if (popup.expanded) {
-        val clickX = state.get("clickX", input.pointerX)
-        val clickY = state.get("clickY", input.pointerY)
         val result = shadcnDropdownMenu(
             id = "$id.menu",
-            anchorSlot = UiBounds(clickX, clickY, 0f, 0f),
+            anchorSlot = trigger.anchor,
             expanded = true,
             items = CameraMenuItems,
             width = Dimension.WrapContent,

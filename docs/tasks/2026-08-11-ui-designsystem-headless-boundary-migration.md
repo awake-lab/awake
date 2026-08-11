@@ -152,3 +152,56 @@ Gate: a direct core reference from designsystem fails locally and in CI.
 - Reusable behavior lives in headless and branded policy lives in designsystem.
 - Compose-style `UiScope.shadcn*` call sites stay intact.
 - Compile fixtures, targeted tests, and CI prevent boundary regressions.
+
+## Current implementation status (2026-08-12)
+
+Migration is **100% complete for public component-family facades** and approximately **99%
+complete for the overall boundary migration** (the remaining work is test-fixture cleanup, not
+production component coverage). The current
+slice includes Headless-native paths for navigation/disclosure (Tabs, Breadcrumb, Accordion,
+Collapsible), sidebar/table/OTP, avatars, status widgets, fields, and the neutral text contracts
+(`UiTextWrap`/`UiTextOverflow`) used by Design System recipes.
+
+The remaining work is the compatibility-removal phase: legacy Core-receiver implementations and
+the existing Showcase regression fixtures still compile as deprecated bridges. Design System
+tests now compile without the compatibility module. Showcase production pages
+now use Headless/API contracts; its legacy compatibility dependency remains only for older
+regression fixtures isolated in test-only adapters. The sample's compatibility dependency is now
+test-scoped, and the public component files use enforced `Shadcn*` family naming. The authoritative completion
+gate is not facade count; it is removal of the `ui-designsystem -> ui-core` commonMain dependency,
+zero raw Core imports in Design System production sources, and a negative consumer fixture proving
+`UiContext`/`UiPrimitiveScope` are unavailable. Until those gates pass, the migration must not be
+reported as complete.
+
+The public `ui-designsystem` artifact now compiles only against `ui-api` and `ui-headless`. Legacy
+Core receivers are physically isolated in the source tree of
+`:awake:engine:ui:designsystem-compat`, which is intentionally temporary and is wired only into
+migration consumers/tests. The public boundary now has both source and classpath gates: the audit
+requires zero Core imports and the compile classpath check rejects `ui-core`. Scene overlays also
+have a `headlessFrame` entry point and Headless owns the scroll-state wrapper used by consumer
+migrations. Public design-system overlay recipes now cover context menus, drawers, and dialogs
+without Core types. Runtime-free theme values are adapted by Core at the integration boundary,
+so configured design-system palettes remain intact without reintroducing a Core dependency into
+the public artifact. Neutral dropdown entry/result contracts now live in `ui-headless`, while
+the design-system only maps `ShadcnMenuEntry` into them. `samples:studio`, `samples:scene3d-playground`, and the Vulkan UI capture
+tests now build without the compatibility module. `samples:ui-showcase` is still whitelisted only
+because its legacy regression fixtures have not yet been converted; its production compile graph
+is compatibility-free, and its full desktop suite plus refreshed Headless semantic/pixel baselines
+pass against the migrated production pages. Public Combobox, Sheet, and Toast recipes now also
+delegate to Headless behavior and are covered by a boundary test. The remaining one percent is
+the deliberate removal or conversion of test-only Core compatibility fixtures. Those fixtures are
+now isolated to one audited test/migration consumer (Showcase tests);
+the Headless snapshot fixture has been migrated to `createUiScope` and Headless layout scopes.
+They are not a production `ui-designsystem` dependency leak. A
+component-coverage audit now verifies all 23 public recipe files (25 component files including
+two contract-only files) delegate through `ui-headless`; contract-only files are explicitly
+allowed, so future components cannot silently reintroduce Core-backed recipes. Select now maps
+Shadcn field tokens into Headless neutral and selected-state visuals instead of inheriting Core's
+fallback styling. Headless Combobox owns popup/filter/selection behavior, while Design System
+supplies the Shadcn visual policy and exposes both the indexed and controlled generic overloads;
+the focused interaction test covers filtering and selection. Duplicate public Kbd and Avatar
+recipes that had been copied into the `components.status` family were removed; the general
+component family is now canonical, and `status` owns only progress, skeleton, spinner, and toast
+status recipes. Cross-platform linking also verifies that compatibility fixtures reuse canonical
+public contracts; duplicate `ShadcnTableColumn`/`ShadcnTableCellAlign` declarations were removed
+from the bridge after the iOS linker exposed the collision.

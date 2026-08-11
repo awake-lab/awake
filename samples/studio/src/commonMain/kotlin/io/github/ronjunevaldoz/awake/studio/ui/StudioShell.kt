@@ -6,10 +6,10 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.frame
+import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableHandle
@@ -17,20 +17,21 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableP
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.modifier.weight
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.weight
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.headless.UiResizableDirection
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.unstyled.ResizableDirection
 
 private val StudioTheme = shadcnTheme(dark = true)
 
@@ -43,7 +44,7 @@ private val ViewportClearColor = floatArrayOf(0.14f, 0.14f, 0.16f, 1f)
 internal fun SceneGameRuntime.drawStudioShell(store: StudioStore, viewportWidth: Float, viewportHeight: Float) {
     renderer.clearColor = ViewportClearColor
     uiContext.pushTheme(StudioTheme)
-    frame(viewportWidth, viewportHeight) {
+    headlessFrame(viewportWidth, viewportHeight) {
         drawStudioShellBody(store, world, renderer)
     }
 }
@@ -84,9 +85,8 @@ private val SEPARATOR_THICKNESS = 1f.dp
  */
 internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, renderer: Renderer) {
     column(
-        id = "studio-shell",
         verticalArrangement = Arrangement.spacedBy(0f.dp),
-        modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
+        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
     ) { shellSlot ->
         drawStudioTopBar(
             // "Play" replays the active example -- re-selecting it queues LoadExample, which
@@ -118,8 +118,8 @@ private fun UiScope.drawStudioWorkspace(
 ) {
     shadcnResizablePanelGroup(
         id = "studio-workspace-group",
-        direction = ResizableDirection.Vertical,
-        modifier = Modifier.width(Dimension.FillMax).height(heightPx.px),
+        direction = UiResizableDirection.Vertical,
+        modifier = Modifier.fillMaxWidth().height(heightPx.dp),
     ) {
         shadcnResizablePanel(
             id = "studio-workspace-main",
@@ -129,8 +129,8 @@ private fun UiScope.drawStudioWorkspace(
         ) {
             shadcnResizablePanelGroup(
                 id = "studio-panels-group",
-                direction = ResizableDirection.Horizontal,
-                modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
+                direction = UiResizableDirection.Horizontal,
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
             ) {
                 shadcnResizablePanel(
                     id = "studio-panel-sidebar",
@@ -175,11 +175,10 @@ private fun UiScope.drawStudioWorkspace(
  * viewport region (the toolbar used to float here too -- it lives in the top bar now), and the
  * right-click camera menu hooked to that same region's bounds. */
 private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Renderer) {
-    column(modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)) {
+    column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
         drawStudioViewportHeader(store)
         row(
-            id = "studio-viewport-row",
-            modifier = Modifier.width(Dimension.FillMax).weight(1f),
+            modifier = Modifier.fillMaxWidth().weight(1f),
         ) {
             drawIconRail(
                 activeTool = store.state.value.toolRail.activeTool,
@@ -189,8 +188,7 @@ private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Render
                 onSelectCameraProjection = { store.dispatch(StudioContract.Intent.SetProjection(it)) },
             )
             val viewportBounds = column(
-                id = "studio-viewport-column",
-                modifier = Modifier.weight(1f).height(Dimension.FillMax).padding(8f.dp),
+                modifier = Modifier.weight(1f).fillMaxHeight().padding(8f.dp),
             ) { }
             drawDisplayRail(
                 wireframe = renderer.wireframe,
@@ -218,9 +216,8 @@ private fun UiScope.drawStudioViewportHeader(store: StudioStore) {
     val modes = CameraMode.entries
     val projections = StudioContract.Projection.entries
     row(
-        id = "studio-viewport-header",
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.width(Dimension.FillMax).height(40f.dp),
+        modifier = Modifier.fillMaxWidth().height(40f.dp),
     ) {
         shadcnSelect(
             id = "studio-viewport-camera-mode",

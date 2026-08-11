@@ -4,26 +4,27 @@ package io.github.ronjunevaldoz.awake.studio.ui
 
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
-import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.shadcnTabs
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.modifier.weight
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.weight
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
 
 private val BOTTOM_DOCK_TABS = listOf("Console", "Timeline", "Assets")
 private val BOTTOM_DOCK_INSET = 8f.dp
@@ -32,16 +33,16 @@ private val BOTTOM_DOCK_INSET = 8f.dp
  * ui-showcase Tabs preview, so selection survives immediate-mode frames without adding another
  * Studio store concern for temporary chrome state. */
 internal fun UiScope.drawStudioBottomDock(store: StudioStore) {
-    var selectedTab by context.rememberStateValue("studio-bottom-dock", "selected-tab") { 0 }
+    val selectedState = rememberStateValue("studio-bottom-dock", "selected-tab") { 0 }
+    var selectedTab by selectedState::value
     // A tab click is resolved while this column is rendering. Keep this frame's content tied to
     // the selection that its measurement pass saw, then apply the requested tab for next frame.
     // Switching immediately makes the render pass claim a different number of child slots than
     // the measured plan and crashes ColumnScope.claimSlot().
     val renderedTab = selectedTab
     column(
-        id = "studio-bottom-dock-content",
         verticalArrangement = Arrangement.spacedBy(8f.dp),
-        modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax).padding(BOTTOM_DOCK_INSET),
+        modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(BOTTOM_DOCK_INSET),
     ) {
         val requestedTab = shadcnTabs(
             id = "studio-bottom-dock",
@@ -63,11 +64,11 @@ private fun ColumnScope.drawStudioConsole(store: StudioStore) {
     val warnings = entries.count { it.level == StudioContract.ConsoleLevel.Warning }
     row(
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.width(Dimension.FillMax),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         row(horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
-            shadcnBadge("$errors errors", variant = ShadcnBadgeVariant.Outline)
-            shadcnBadge("$warnings warnings", variant = ShadcnBadgeVariant.Outline)
+            shadcnBadge(id = "studio-console-errors", label = "$errors errors", variant = ShadcnBadgeVariant.Outline)
+            shadcnBadge(id = "studio-console-warnings", label = "$warnings warnings", variant = ShadcnBadgeVariant.Outline)
         }
         shadcnButton(
             id = "studio-console-clear",
@@ -89,14 +90,14 @@ private fun ColumnScope.drawStudioConsole(store: StudioStore) {
 private const val MAX_VISIBLE_CONSOLE_ENTRIES = 4
 
 private fun ColumnScope.drawStudioTimelinePlaceholder() {
-    column(modifier = Modifier.width(Dimension.FillMax).weight(1f)) {
+    column(modifier = Modifier.fillMaxWidth().weight(1f)) {
         shadcnText("Timeline", muted = true)
         shadcnText("Animation clips will appear here.", muted = true)
     }
 }
 
 private fun ColumnScope.drawStudioAssetsPlaceholder() {
-    column(modifier = Modifier.width(Dimension.FillMax).weight(1f)) {
+    column(modifier = Modifier.fillMaxWidth().weight(1f)) {
         shadcnText("Assets", muted = true)
         shadcnText("Project assets will appear here.", muted = true)
     }

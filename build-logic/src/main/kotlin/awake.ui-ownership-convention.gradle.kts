@@ -46,6 +46,12 @@ val forbiddenUiTypeReferences = when (project.path) {
 val forbiddenUiSourcePatterns = when (project.path) {
     ":awake:engine:ui:ui-designsystem" -> listOf(
         "\\bcontext\\s*\\.",
+        // The public design-system artifact is deliberately runtime-free.  Keep this
+        // convention in addition to the module dependency graph so a Core import cannot
+        // quietly return through a transitive dependency or a newly added source file.
+        "(?m)^import\\s+io\\.github\\.ronjunevaldoz\\.awake\\.ui\\.UiScope",
+        "(?m)^import\\s+io\\.github\\.ronjunevaldoz\\.awake\\.ui\\.(layouts|modifier|style|theme|popup|scope|font|animate|child)",
+        "(?m)^import\\s+io\\.github\\.ronjunevaldoz\\.awake\\.ui\\.context\\.",
     )
     else -> emptyList()
 }

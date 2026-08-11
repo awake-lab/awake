@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.vulkan
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
@@ -14,12 +13,14 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMen
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.ScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import java.io.File
 import kotlin.test.Test
@@ -65,16 +66,16 @@ class ShadcnCollapsibleScrolledCollapseFrameCaptureTest {
             "Animations" to 3,
         )
         val expandedByCategory = categories.associate { (title, _) -> title to true }.toMutableMap()
-        lateinit var sidebarScroll: UiScrollState
+        lateinit var sidebarScroll: ScrollState
 
         fun frame(): List<UiDrawPrimitive> {
             ui.beginFrame(480f, 800f, input.updateSnapshot().toUiInputState())
             ui.pushFont(font)
             ui.pushTheme(ShadcnTheme)
             sidebarScroll = ui.rememberScrollState("scrolled-capture-sidebar-scroll")
-            ui.createBox(x = 0f, y = 0f, width = 480f, height = 800f).shadcnSidebar(
+            ui.createUiScope(UiBounds(0f, 0f, 480f, 800f)).shadcnSidebar(
                 id = "scrolled-capture-sidebar",
-                modifier = Modifier.verticalScroll(sidebarScroll).width(280f.dp).height(Dimension.FillMax),
+                modifier = Modifier.verticalScroll(sidebarScroll).width(280f.dp).fillMaxHeight(),
             ) {
                 categories.forEach { (title, pageCount) ->
                     shadcnCollapsible(

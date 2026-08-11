@@ -52,6 +52,8 @@ object SceneLoader {
             if (document.version > SCENE_SCHEMA_VERSION) throw SceneSchemaVersionException(document.version)
         }
 
+    /** See [fromWorld] for the reverse, live-world-to-document conversion. */
+
     suspend fun loadFromResource(path: String, json: Json = SceneJson): SceneDocument =
         decode(readResourceBytes(path).decodeToString(), json)
 

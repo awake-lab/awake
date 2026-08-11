@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import kotlin.math.PI
 
 /**
@@ -74,7 +74,7 @@ internal object RotatingCubeDemo {
                 id = "cube-controls-display",
                 expanded = displayGroupExpanded,
                 onExpandedChange = { displayGroupExpanded = it },
-                header = { text("Display", verticallyCentered = true) },
+                header = { _, _ -> shadcnText("Display") },
             ) {
                 wireframe =
                     shadcnSwitch(id = "cube-wireframe", checked = wireframe, label = "Wireframe")
@@ -91,7 +91,7 @@ internal object RotatingCubeDemo {
                     value = timeController.hours,
                     enabled = !timeController.autoPlay,
                 )
-                text(label = "Turn off Auto-spin to freeze the cube at an exact time (0-24h = one full turn).")
+                shadcnText(label = "Turn off Auto-spin to freeze the cube at an exact time (0-24h = one full turn).")
                 cubeMaterialParams?.let { pbr ->
                     pbr.metallic = shadcnFieldSliderWithValue(
                         id = "cube-metallic",

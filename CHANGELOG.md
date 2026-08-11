@@ -9,12 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known issues
 
-- **A `shadcnToggleGroup` in the same panel stops a popup opening.** Bisected: studio's viewport
-  panel passes with an empty header row, and fails as soon as one toggle group is added -- the
-  icon rail's camera button is still found and clicked, the dropdown never appears. Not a layout
-  or nesting problem (that half was fixed in `d3f270c7`). **Blocks the viewport header**, and
-  matters more widely because the design pairs toggle groups with popups in several places.
-  Suspects and the next step are in `docs/tasks/2026-08-11-studio-layout-design.md`.
+- **A wrap-height `shadcnToggleGroup` creates a 100,000px hit rectangle.** Its internal
+  `fillMaxHeight()` resolves against the trial-measurement sentinel, so a viewport header pushes
+  the rail offscreen and then intercepts the popup's clamped-on-screen menu clicks. It is not an
+  active/focus claim failure or the nesting defect fixed in `d3f270c7`. **Blocks the viewport
+  header**, and matters anywhere a wrap-height toggle group can overlap a popup. Diagnosis and
+  the required regression shape are in `docs/tasks/2026-08-11-studio-layout-design.md`.
 
 - **Glyph stem weight varies with sub-pixel phase.** The same character repeated on one line
   renders 1px and 2px stems in alternation (`'i' @14px: [1,1,1,2,1,2,1,2,...]`), which reads as

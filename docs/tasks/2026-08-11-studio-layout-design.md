@@ -206,18 +206,24 @@ BISECTED (2026-08-11). Results:
 | wrapper + header row with ONE `shadcnToggleGroup` | FAILS |
 
 So it is neither the nesting nor two toggle groups interacting: a single `shadcnToggleGroup`
-anywhere in the viewport panel stops the icon rail's camera dropdown from opening. The rail
-button is still found and still clicked -- only the popup fails to appear.
+in the viewport header corrupts the panel's measured height. The rail button is still found and
+clicked, but ends up far below the frame; the popup position provider then clamps its menu back
+onto the visible frame.
 
-That is a `shadcnToggleGroup` defect, not a layout one, and it is worth chasing on its own: any
-screen combining a toggle group with a popup is affected, which the design puts in several places
-(the tool pill is a toggle group, the display pill sits beside it, the hierarchy has context
-menus).
+DIAGNOSED (2026-08-11). This is a `shadcnToggleGroup` sizing defect, not an active/focus or
+popup defect. `shadcnToggleGroupContainer` sends its child `toggleGroup` a
+`Modifier.fillMaxWidth().fillMaxHeight()`. Its `shadcnSurface` is wrap-height, so the trial
+measurement gives that fill-height child the measurement sentinel (100,000px); that value is
+then retained as the header's real height. In the real reproduction the camera rail button is at
+`y = 100,348`, while the popup clamps its "Top" item to `y = 507`, inside the oversized first
+toggle segment.
 
-Suspects, in order: the toggle group claiming `activeId` or focus on pointer-down without a hover
-check, so the popup's own claim is refused; or it emitting/consuming input in a way that
-suppresses the rail button's release. Instrument `activeId` across the frames the test drives
-before changing anything.
+`activeId` was instrumented across the exact test frames before changing behavior: frames 2--3
+claim and release `studio-tool-camera`, proving the trigger opens normally; frames 5--6 instead
+claim and release `studio-diagnosis-toggle-group.0`, proving that the giant segment receives the
+popup item's click. The dropdown is not refused -- its item is occluded by the toggle group's
+erroneous hit rectangle. Fix the toggle-group's wrap-content/fill-height contract and add a
+regression that fails without it; do not change `tryClaimActive`'s hover gate.
 
 ### Right dock -- `InspectorPanel`
 
