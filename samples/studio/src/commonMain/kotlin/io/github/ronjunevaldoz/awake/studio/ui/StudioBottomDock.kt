@@ -2,12 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.ui
 
+import io.github.ronjunevaldoz.awake.studio.state.StudioContract
+import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnScrollArea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -27,7 +32,7 @@ private val BOTTOM_DOCK_INSET = 8f.dp
 /** Docked workspace panel. Its tabs intentionally use the same remembered-index pattern as the
  * ui-showcase Tabs preview, so selection survives immediate-mode frames without adding another
  * Studio store concern for temporary chrome state. */
-internal fun UiScope.drawStudioBottomDock() {
+internal fun UiScope.drawStudioBottomDock(store: StudioStore) {
     var selectedTab by context.rememberStateValue("studio-bottom-dock", "selected-tab") { 0 }
     column(
         id = "studio-bottom-dock-content",
@@ -40,26 +45,44 @@ internal fun UiScope.drawStudioBottomDock() {
             selectedIndex = selectedTab,
         )
         when (selectedTab) {
-            0 -> drawStudioConsole()
+            0 -> drawStudioConsole(store)
             1 -> drawStudioTimelinePlaceholder()
             2 -> drawStudioAssetsPlaceholder()
         }
     }
 }
 
-private fun ColumnScope.drawStudioConsole() {
+private fun ColumnScope.drawStudioConsole(store: StudioStore) {
+    val entries = store.state.value.console.entries
+    val errors = entries.count { it.level == StudioContract.ConsoleLevel.Error }
+    val warnings = entries.count { it.level == StudioContract.ConsoleLevel.Warning }
     row(
-        horizontalArrangement = Arrangement.spacedBy(8f.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.width(Dimension.FillMax),
     ) {
-        shadcnBadge("0 errors", variant = ShadcnBadgeVariant.Outline)
-        shadcnBadge("0 warnings", variant = ShadcnBadgeVariant.Outline)
+        row(horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
+            shadcnBadge("$errors errors", variant = ShadcnBadgeVariant.Outline)
+            shadcnBadge("$warnings warnings", variant = ShadcnBadgeVariant.Outline)
+        }
+        shadcnButton(
+            id = "studio-console-clear",
+            label = "Clear",
+            size = ShadcnButtonSize.Xs,
+            variant = ShadcnButtonVariant.Ghost,
+            onClick = { store.dispatch(StudioContract.Intent.ClearConsole) },
+        )
     }
     shadcnScrollArea(
         id = "studio-console-log",
         modifier = Modifier.width(Dimension.FillMax).weight(1f),
     ) {
-        shadcnText("Studio ready", muted = true)
+        if (entries.isEmpty()) {
+            shadcnText("No console output.", muted = true)
+        } else {
+            entries.forEach { entry ->
+                shadcnText(entry.message, muted = entry.level == StudioContract.ConsoleLevel.Info)
+            }
+        }
     }
 }
 

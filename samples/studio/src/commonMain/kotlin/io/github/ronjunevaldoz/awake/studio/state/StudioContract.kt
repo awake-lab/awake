@@ -20,6 +20,12 @@ internal object StudioContract {
 
     data class ToolRailState(val activeTool: Tool = Tool.Layers)
 
+    enum class ConsoleLevel { Info, Warning, Error }
+
+    data class ConsoleEntry(val level: ConsoleLevel, val message: String)
+
+    data class ConsoleState(val entries: List<ConsoleEntry> = emptyList())
+
     data class CameraState(
         val mode: CameraPresetMode = CameraPresetMode.Orbit,
         val yaw: Float = 0f,
@@ -33,6 +39,7 @@ internal object StudioContract {
         val inspector: InspectorState = InspectorState(),
         val toolRail: ToolRailState = ToolRailState(),
         val camera: CameraState = CameraState(),
+        val console: ConsoleState = ConsoleState(),
     )
 
     sealed interface Intent {
@@ -42,6 +49,8 @@ internal object StudioContract {
         data class SetCameraMode(val mode: CameraPresetMode) : Intent
         data class OrbitBy(val deltaYaw: Float, val deltaPitch: Float) : Intent
         data class SetProjection(val projection: Projection) : Intent
+        data class AppendConsole(val level: ConsoleLevel, val message: String) : Intent
+        data object ClearConsole : Intent
     }
 
     sealed interface Effect {

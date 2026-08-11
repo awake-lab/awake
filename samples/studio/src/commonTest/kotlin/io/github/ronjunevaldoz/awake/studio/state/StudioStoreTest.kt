@@ -93,6 +93,26 @@ class StudioStoreTest {
         assertEquals(StudioContract.Projection.Perspective, store.state.value.camera.projection)
     }
 
+    @Test
+    fun consoleEntriesAreRecordedAndCanBeCleared() {
+        val store = StudioStore()
+
+        store.dispatch(StudioContract.Intent.AppendConsole(StudioContract.ConsoleLevel.Info, "Example loaded"))
+        store.dispatch(StudioContract.Intent.AppendConsole(StudioContract.ConsoleLevel.Warning, "Missing optional asset"))
+
+        assertEquals(
+            listOf(
+                StudioContract.ConsoleEntry(StudioContract.ConsoleLevel.Info, "Example loaded"),
+                StudioContract.ConsoleEntry(StudioContract.ConsoleLevel.Warning, "Missing optional asset"),
+            ),
+            store.state.value.console.entries,
+        )
+
+        store.dispatch(StudioContract.Intent.ClearConsole)
+
+        assertTrue(store.state.value.console.entries.isEmpty())
+    }
+
     private companion object {
         const val ORBIT_TOLERANCE = 1e-4f
     }

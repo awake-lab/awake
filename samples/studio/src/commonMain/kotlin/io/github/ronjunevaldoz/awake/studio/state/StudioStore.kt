@@ -45,6 +45,17 @@ internal class StudioStore {
             is StudioContract.Intent.SetProjection -> {
                 _state.update { it.copy(camera = it.camera.copy(projection = intent.projection)) }
             }
+
+            is StudioContract.Intent.AppendConsole -> {
+                _state.update {
+                    val entry = StudioContract.ConsoleEntry(intent.level, intent.message)
+                    it.copy(console = it.console.copy(entries = it.console.entries + entry))
+                }
+            }
+
+            StudioContract.Intent.ClearConsole -> {
+                _state.update { it.copy(console = it.console.copy(entries = emptyList())) }
+            }
         }
     }
 

@@ -73,7 +73,15 @@ private class StudioExampleDriverSystem(
     override fun update(world: World, delta: Float) {
         store.drainEffects().forEach { effect ->
             when (effect) {
-                is StudioContract.Effect.LoadExample -> loader.activate(effect.exampleId, runtime)
+                is StudioContract.Effect.LoadExample -> {
+                    loader.activate(effect.exampleId, runtime)
+                    store.dispatch(
+                        StudioContract.Intent.AppendConsole(
+                            level = StudioContract.ConsoleLevel.Info,
+                            message = "Loaded ${effect.exampleId}",
+                        ),
+                    )
+                }
             }
         }
         val activeId = store.state.value.examples.activeExampleId

@@ -166,7 +166,7 @@ private fun UiScope.drawStudioWorkspace(
             minSize = 0.14f,
             maxSize = 0.6f,
         ) {
-            drawStudioBottomDock()
+            drawStudioBottomDock(store)
         }
     }
 }
