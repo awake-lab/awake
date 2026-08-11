@@ -67,10 +67,6 @@ internal fun UiScope.drawStudioTopBar(renderer: Renderer, onPlay: () -> Unit) {
             )
         }
     }
-    // row() itself never records a semantic node (only column()'s ColumnScope/RowScope/BoxScope
-    // overloads do, and only when they resolve to a visual surface) -- record this one directly
-    // so layout tests can find the top bar's own bounds by id.
-//    recordSemantic(role = UiSemanticRole.Panel, id = "studio-top-bar", bounds = bounds)
 }
 
 /** Full-width status bar: edit-mode label at the left, the active render backend at the right --
@@ -88,6 +84,4 @@ internal fun UiScope.drawStudioStatusBar() {
         shadcnText("Edit mode", muted = true, style = Style { textSize(theme.typography.caption) })
         shadcnBadge("Vulkan", variant = ShadcnBadgeVariant.Outline)
     }
-    // See drawStudioTopBar's matching comment -- row() records no semantic node on its own.
-//    recordSemantic(role = UiSemanticRole.Panel, id = "studio-status-bar", bounds = bounds)
 }
