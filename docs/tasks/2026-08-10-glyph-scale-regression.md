@@ -47,18 +47,38 @@ So `BasicText` emits the right quad and the packed metrics are right. The INK in
 wrong, and asymmetrically so. That rules out metrics, resolveGlyphPx, density, quad math and font
 weight -- all of which were investigated and are correct.
 
-The remaining suspect is glyph PLACEMENT inside the atlas cell, introduced with MTSDF in
-e65c9eed. `sampleRect` derives the UV window from where `java.awt` would have drawn the glyph
-(its outline metrics), but the pixels are now placed by msdfgen using the hand-derived
-`-translate`/`-scale` in `blitGlyphCell`. If those two disagree, the UV window samples the wrong
-part of the cell: some ink is clipped out and empty distance field is included, which renders as
-a too-small glyph with the wrong aspect ratio. That is exactly the measured signature.
+Everything upstream of sampling is VERIFIED CORRECT, by measurement rather than reasoning:
 
-Next step: dump the atlas to a PNG and look at where each glyph actually sits inside its cell,
-against the rect `sampleRect` computes for it. Do not guess at the transform again -- the two
-must be checked against each other visually, once.
+- packed metrics -- `capHeightEm` 0.710938 matches Roboto's published value
+- `BasicText` quad emission -- 7.53 x 9.95 at 14px, exactly `heightEm * size`
+- atlas glyph placement -- dumped the atlas and looked: `H` sits inside its UV rect and fills it,
+  with the expected ~1px bleed. An msdfgen `-translate`/`-scale` mistake was suspected here and
+  is DISPROVED.
+- the UV rect itself -- 20x26 texels, matching the ink
+- the rasterizer's UV mapping -- `u` spans 0..1 across the quad and maps to `u0..u1` correctly
 
-## Earlier suspect (superseded)
+So every input is right and the output is wrong. The defect is in the sampling/coverage
+resolution between them.
+
+Note `screenPxRange` evaluates to `max(distanceFieldRangePx * (glyph.w / texelWidth), 1.0)` =
+`max(2 * 7.53/20, 1.0)` = `max(0.75, 1.0)` = **1.0** at every real UI size, in both the rasterizer
+and the shaders. The clamp makes the edge-sharpening term inert, so alpha collapses to the raw
+signed distance. Whether that alone explains a 0.4x-wide glyph is NOT yet established -- it is
+where to look first, not a conclusion.
+
+Next step, and keep it to one thing: instrument `sampleGlyphAlpha` for a single `H` at 14px and
+log `u`, `v`, `signedDistance`, `screenPxRange` and the resulting alpha across the quad. That
+shows directly where the coverage ramp lands relative to where the ink should be. Do not change
+code before that log exists -- four hypotheses have now been disproved by measurement after
+looking plausible on paper.
+
+## Disproved suspects (kept so they are not re-tried)
+
+**Quad-vs-UV padding mismatch.** Tried: deriving the quad from the sampled rect instead of the
+ink bbox. It did NOT fix the scale (ink stayed 7px at 14px) and it CORRUPTED the metrics --
+`capHeightEm` is derived from the glyph rects, so padding them inflated the metric itself from
+9.95 to 11.375 expected, meaning the bug would begin hiding itself. Reverted. The original
+reasoning follows.
 
 The quad-vs-UV mismatch that MTSDF made significant. The glyph quad is sized to the INK
 (`widthEm * glyphPx` in `BasicText`), while `uvBoundsPx` (see `sampleRect` in the generator)
