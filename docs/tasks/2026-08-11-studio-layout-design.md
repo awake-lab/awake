@@ -184,8 +184,23 @@ So the header cannot simply be nested inside another `column`. Options, untested
    `ResizablePanelGroup.handle()` and `animatedHeight` -- this is the general fix, and it likely
    affects every popup nested in an uncached column, not just this one.
 
-Option 2 is the real fix and probably wants doing before any further layout nesting, since every
-remaining phase adds containers.
+Option 2 SHIPPED (`d3f270c7`): `UiStateValue`'s setter now drops writes during a measuring pass,
+which covers every `remember*State` hook at once. Verified against the real reproduction -- the
+bare `column` wrapper that previously broke `StudioModuleCameraTest` now passes with it.
+
+That was necessary but NOT sufficient. Adding the header's actual CONTENT (two
+`shadcnToggleGroup`s) breaks the same test again, while the bare wrapper alone passes. So there
+is a second, independent cause in the header content, not in the nesting.
+
+Not yet diagnosed. What is known:
+
+- bare `column` wrapper + guard: camera menu opens, test passes
+- same wrapper + two toggle groups in a header row: menu never opens
+
+Next step is to bisect that: add the header row EMPTY first and confirm it still passes, then add
+one toggle group, then the second. That isolates whether it is the extra row, the toggle groups'
+own state, or something about two of them sharing a row. Do not add the header wholesale again
+without that bisect -- it has now cost two attempts.
 
 ### Right dock -- `InspectorPanel`
 
