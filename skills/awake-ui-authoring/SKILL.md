@@ -66,6 +66,20 @@ x += LABEL_GAP.toPx()
 If surrounding arithmetic is genuinely px-based, still source the value from a `Dp` and convert
 at use. `awake.ui-authored-units-convention` is meant to police this; do not rely on it alone.
 
+## Fill the axis through `Modifier`, never `Dimension.FillMax`
+
+`Dimension.FillMax` is a Core layout-resolution sentinel, not authored UI vocabulary. Public
+Headless calls express intent with Compose-style modifiers:
+
+```kotlin
+Modifier.fillMaxWidth()
+Modifier.fillMaxHeight()
+Modifier.fillMaxSize()
+```
+
+Use `width(48.dp)` or `height(48.dp)` for a fixed authored dimension. Do not expose a public
+`width(Dimension)` or `height(Dimension)` overload just to make `FillMax` available.
+
 ## Naming: Radix is canonical
 
 Adopt the Compose name only where Compose and Radix agree, or where Radix has no concept.

@@ -184,6 +184,9 @@ For authored UI in shared and sample-facing layers:
 - use `Sp` for text sizing
 - use `Arrangement.*` for row/column spacing instead of authored `gap = ...` call sites
 - use `UiModifier.padding(...)` instead of authored public `insets = ...` call sites
+- express parent-axis fill through `fillMaxWidth()`, `fillMaxHeight()`, or `fillMaxSize()`;
+  `Dimension.FillMax` is a Core layout-resolution sentinel and must not appear in public
+  Headless or Design System authoring APIs
 
 Keep raw pixel literals such as `12f.px` in low-level layout/render internals only, where the
 code is already operating in measured pixel space. Shared UI modules, DSL layers, and samples

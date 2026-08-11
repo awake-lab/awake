@@ -44,7 +44,7 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import io.github.ronjunevaldoz.awake.ui.theme.CoreUiComponentStyles
-import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.uiImageVector

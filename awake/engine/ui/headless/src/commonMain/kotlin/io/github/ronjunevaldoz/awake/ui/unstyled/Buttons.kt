@@ -52,6 +52,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
         style = style,
         defaults = defaults,
         selected = false,
+        disabled = !enabled,
         enabled = enabled,
     )
     val baseFill = surface.resolved.background ?: theme.colors.background

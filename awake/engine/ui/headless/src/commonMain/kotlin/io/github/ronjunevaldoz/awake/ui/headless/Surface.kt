@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.Sp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.layouts.surface as primitiveSurface
@@ -16,6 +17,7 @@ data class SurfaceStyle(
     val border: SurfaceBorder? = null,
     val cornerRadius: Dp? = null,
     val contentPadding: UiInsets = UiInsets.Zero,
+    val textSize: Sp? = null,
 )
 
 /** Optional border decoration for [SurfaceStyle]. */
@@ -30,6 +32,41 @@ internal fun SurfaceStyle.asPrimitiveStyle(): PrimitiveStyle = PrimitiveStyle {
     border?.let { border(it.width, it.color) }
     cornerRadius?.let(::shape)
     contentPadding(contentPadding.start, contentPadding.top, contentPadding.end, contentPadding.bottom)
+    textSize?.let(::textSize)
+}
+
+/**
+ * Neutral visual values for the interaction states of a Headless surface.
+ *
+ * The names describe runtime state only. Design-system variants such as primary, outline, and
+ * ghost are mapped to these values above Headless rather than becoming part of a widget API.
+ */
+data class SurfaceVisuals(
+    val rest: SurfaceStyle = SurfaceStyle(),
+    val hovered: SurfaceStyle? = null,
+    val pressed: SurfaceStyle? = null,
+    val disabled: SurfaceStyle? = null,
+)
+
+internal fun SurfaceVisuals.asPrimitiveStyle(): PrimitiveStyle =
+    rest.asPrimitiveStyle() then PrimitiveStyle {
+        hovered?.let { visual -> hovered { apply(visual) } }
+        pressed?.let { visual -> active { apply(visual) } }
+        disabled?.let { visual -> disabled { apply(visual) } }
+    }
+
+private fun io.github.ronjunevaldoz.awake.ui.style.StyleScope.apply(surface: SurfaceStyle) {
+    surface.background?.let(::background)
+    surface.foreground?.let(::foreground)
+    surface.border?.let { border(it.width, it.color) }
+    surface.cornerRadius?.let(::shape)
+    contentPadding(
+        surface.contentPadding.start,
+        surface.contentPadding.top,
+        surface.contentPadding.end,
+        surface.contentPadding.bottom,
+    )
+    surface.textSize?.let(::textSize)
 }
 
 /**

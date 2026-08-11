@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.theme
 
-import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiShapeTokens
 
 /**
  * Semantic corner-radius roles, the third theme pillar alongside [UiColorTokens] and
@@ -12,15 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
  * had two). [full] is meant for pill/circular shapes (e.g. a switch track), not a literal
  * radius value a caller should read as a `Dp` to reason about.
  */
-interface UiShapeTokens {
-    val xs: Dp
-    val sm: Dp
-    val md: Dp
-    val lg: Dp
-    val xl: Dp
-    val full: Dp
-}
-
 /** Neutral fallback shape scale -- same role as [UiDefaultTheme]'s generic color tokens, a
  * reasonable default with no branded opinion. Named authored radius scales (e.g. shadcn's
  * `ShadcnRadiusScale`) belong in `ui-designsystem`, same placement rule as themes/tokens.
