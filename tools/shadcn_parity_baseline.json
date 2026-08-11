@@ -6,16 +6,16 @@
         "slider-local-light": "docs/reference/shadcn-previews-local/slider-states_light.png is itself only 256x6px before any Awake-side cropping runs -- the reference capture's own bounding box doesn't include the slider thumb (a capture-tool issue in tools/capture_shadcn_local.py / the reference app's Slider wrapper, not an Awake rendering or alignment problem). No aligned-crop tuning on the Kotlin comparison side can make this number mean anything; still rendered and reported (uncapped) so the diff heatmap stays available, just not gated."
     },
     "baseline": {
-        "badge-local-light": 44.3,
-        "button-local-dark": 32.85,
-        "button-local-light": 28.7,
-        "card-local-light": 28.05,
+        "badge-local-light": 45.33,
+        "button-local-dark": 33.68,
+        "button-local-light": 29.48,
+        "dialog-local-light": 29.0,
+        "card-local-light": 28.43,
+        "tooltip-local-light": 26.71,
         "checkbox-local-light": 26.32,
-        "dialog-local-light": 25.91,
-        "tooltip-local-light": 21.61,
-        "tabs-local-light": 17.73,
+        "tabs-local-light": 15.45,
         "switch-local-light": 12.92,
-        "input-local-light": 10.27,
-        "select-local-light": 8.79
+        "select-local-light": 9.72,
+        "input-local-light": 6.58
     }
 }

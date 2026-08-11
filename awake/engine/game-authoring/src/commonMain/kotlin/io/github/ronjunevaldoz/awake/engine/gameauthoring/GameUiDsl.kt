@@ -6,6 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 
 typealias GameUiOverlayBlock = GameUiRuntime.() -> Unit
 typealias GameUiReadyBlock = suspend GameUiRuntime.() -> Unit
@@ -30,6 +32,11 @@ class GameUiDsl internal constructor() {
 
     fun theme(theme: UiTheme) {
         defaultTheme = theme
+    }
+
+    /** Installs a public runtime-free theme contract through Core's neutral runtime adapter. */
+    fun theme(theme: UiThemeValues) {
+        defaultTheme = theme.asRuntimeTheme()
     }
 
     fun font(font: UiFont) {

@@ -11,6 +11,9 @@ __pycache__/
 !.claude/commands/
 .agents/skills/
 .agents/commands/
+# `skills add` mirrors the kmp-* skills here as symlinks into .agents/skills/,
+# which is ignored — committing them would only ship broken links.
+skills/kmp-*
 .artifacts/
 .codex/
 .DS_Store

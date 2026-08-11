@@ -305,6 +305,11 @@ This policy is build-enforced in Awake's reusable UI modules.
 
 - `:awake:engine:ui:ui-core:check`
 - `:awake:engine:ui:ui-headless:check`
+- `:awake:engine:ui:designsystem:auditUiDesignsystemHeadlessBoundary`
+- `:awake:engine:ui:designsystem:auditUiDesignsystemComponentNaming`
+- `:awake:engine:ui:designsystem:auditUiDesignsystemRecipeDuplicates`
+- `:awake:engine:ui:designsystem:auditUiDesignsystemComponentCoverage`
+- `:awake:engine:ui:designsystem-compat:auditUiDesignsystemCompatConsumers`
 
 run a `verifyUiOwnership` task that rejects:
 
@@ -312,9 +317,29 @@ run a `verifyUiOwnership` task that rejects:
 - `propertyRow` and `propertyCheckbox` in `ui-core`/`ui-headless`
 - `ShadcnDefaultTheme`, `DarkUiTheme`, and `LightUiTheme` in `ui-core`
 - direct sample/runtime-bound references such as `SceneGameRuntime` or `HelloCube*`
+- Core imports and a leaked `ui-core` compile classpath in the public design-system artifact
+- component files that do not use the `Shadcn*` family prefix or matching subpackage
+- duplicate `shadcn*` recipes with the same receiver across component packages (receiver-specific
+  overloads such as `ColumnScope` and `UiScope` remain valid)
+- public component files that do not delegate through `ui-headless` (contract-only files are
+  explicitly exempt)
+
+Legacy Core-receiver implementations are kept physically under the temporary
+`:awake:engine:ui:designsystem-compat` module while consumers migrate. They are not part of the
+public design-system source tree or compile classpath.
+
+The compatibility module also audits its dependency graph. At present only `samples:ui-showcase`
+test source sets may depend on it; adding another consumer fails the
+verification task until that consumer is explicitly classified and migrated. No production source
+set may depend on it.
 
 The check is intentionally lightweight and curated. It is not a theorem prover. When the
 policy grows, expand the canonical doc first, then update the check.
+
+Theme values follow the same boundary: design-system modules publish `UiThemeValues`, while
+Core-owned runtime installers such as `GameUiDsl` may pass those values through
+`UiThemeValues.asRuntimeTheme()`. This keeps the runtime facade in Core without making
+design-system code depend on Core's component recipes.
 
 Awake also build-enforces authored-unit usage in:
 

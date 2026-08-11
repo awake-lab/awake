@@ -31,7 +31,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /**
@@ -100,7 +100,7 @@ internal object SkinnedMeshDemo {
                 id = "skinned-controls-display",
                 expanded = displayGroupExpanded,
                 onExpandedChange = { displayGroupExpanded = it },
-                header = { text("Display", verticallyCentered = true) },
+                header = { _, _ -> shadcnText("Display") },
             ) {
                 timeController.autoPlay = shadcnSwitch(
                     id = "skinned-auto-play",
@@ -115,7 +115,7 @@ internal object SkinnedMeshDemo {
                     value = timeController.hours,
                     enabled = !timeController.autoPlay,
                 )
-                text(label = "Turn off Auto-play to scrub the walk-cycle clip by hand.")
+                shadcnText(label = "Turn off Auto-play to scrub the walk-cycle clip by hand.")
             }
         },
         onActivate = { ensureSpawned(this) },

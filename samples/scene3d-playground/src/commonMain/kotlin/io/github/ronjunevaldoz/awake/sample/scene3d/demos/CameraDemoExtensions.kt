@@ -12,10 +12,10 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.MovementControl
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
 
 internal fun ColumnScope.renderCameraModeToggle(
     mode: CameraMode,

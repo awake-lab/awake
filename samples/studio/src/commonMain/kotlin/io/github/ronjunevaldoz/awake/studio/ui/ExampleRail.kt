@@ -2,42 +2,29 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.ui
 
-import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
-import io.github.ronjunevaldoz.awake.ui.UiImageVector
-import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnIcons
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.weight
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.rememberBooleanState
-import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
-import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.headless.weight
+import io.github.ronjunevaldoz.awake.ui.headless.rememberBooleanState
 
 // Sample-local, not part of the shared shadcn icon vocabulary -- HeroIcons directly, same
 // reasoning IconRail.kt documents for its own tool glyphs. rotating-cube uses ShadcnIcons.cube
 // specifically, since that glyph is already registered there.
-private val ExampleIcons: Map<String, UiImageVector> = mapOf(
-    "rotating-cube" to ShadcnIcons.cube,
-    "gltf-viewer" to HeroIcons.Solid20Mini.eye,
-    "skinned-mesh" to HeroIcons.Solid20Mini.sparkles,
-)
-
 /**
  * Docked "Scene Browser" panel -- flush to the window edge, no card border/radius of its own;
  * the resizable group's own handle line (see `drawStudioShellBody`) is the seam against the
@@ -56,26 +43,21 @@ internal fun UiScope.drawExampleRail(
     val expanded = rememberBooleanState(id = "studio-example-rail-expanded", initial = true)
     shadcnSidebar(
         id = "studio-example-rail",
-        modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
-        style = Style {
-            shape(0f.dp)
-            borderWidth(0f.dp)
-        },
+        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         header = {
             row(
                 horizontalArrangement = Arrangement.spacedBy(8f.dp),
                 verticalAlignment = UiAlignment.Vertical.Center,
-                modifier = Modifier.width(Dimension.FillMax),
+                    modifier = Modifier.fillMaxWidth(),
             ) {
                 shadcnButton(
                     id = "studio-example-rail-toggle",
+                    label = if (expanded.value) "⌄" else "›",
                     modifier = Modifier.width(ShadcnButtonSize.Icon.heightDp),
                     variant = ShadcnButtonVariant.Ghost,
                     size = ShadcnButtonSize.Icon,
                     onClick = { expanded.value = !expanded.value },
-                ) {
-                    icon(if (expanded.value) ShadcnIcons.chevronDown else ShadcnIcons.chevronRight)
-                }
+                )
                 shadcnText("Scene Browser", modifier = Modifier.weight(1f))
             }
         },
@@ -87,7 +69,6 @@ internal fun UiScope.drawExampleRail(
                     exampleMenuItem(
                         id = "studio-example-${example.id}",
                         label = example.title,
-                        glyph = ExampleIcons[example.id] ?: ShadcnIcons.cube,
                         active = active,
                         onClick = { onSelectExample(example.id) },
                     )
@@ -115,10 +96,9 @@ internal fun UiScope.drawExampleRail(
  * `IconRail.kt`'s own `railButton` already uses for its active tool, and the one landing in
  * `shadcnSidebarMenuItem` itself.
  */
-private fun UiScope.exampleMenuItem(
+private fun io.github.ronjunevaldoz.awake.ui.headless.ColumnScope.exampleMenuItem(
     id: String,
     label: String,
-    glyph: UiImageVector,
     active: Boolean,
     onClick: () -> Unit,
 ) {
@@ -126,26 +106,7 @@ private fun UiScope.exampleMenuItem(
         id = id,
         modifier = Modifier.fillMaxWidth().height(32f.dp),
         variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
-        style = Style {
-            contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
-            background(if (active) theme.colors.accent else Color.Transparent)
-            foreground(if (active) theme.colors.accentForeground else theme.colors.foreground)
-            hovered {
-                background(theme.colors.accent)
-                foreground(theme.colors.accentForeground)
-            }
-        },
-        centered = false,
-        verticallyCentered = true,
+        label = label,
         onClick = onClick,
-    ) { slot ->
-        row(
-            horizontalArrangement = Arrangement.spacedBy(8f.dp),
-            verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(slot.height.dp)),
-        ) {
-            icon(glyph, tint = if (active) theme.colors.accentForeground else theme.colors.foreground)
-            shadcnText(label, modifier = Modifier.weight(1f))
-        }
-    }
+    )
 }

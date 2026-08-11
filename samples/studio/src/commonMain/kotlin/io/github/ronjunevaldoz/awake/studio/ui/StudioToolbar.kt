@@ -2,28 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.ui
 
-import io.github.ronjunevaldoz.awake.render.renderer.Renderer
-import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.RowScope
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
-import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.padding
 
 // internal, not private -- StudioShell.kt reads both to size the panels group's own height
 // explicitly (see its doc comment for why that's computed rather than a weight(1f) fill).
@@ -38,22 +32,20 @@ private val BAR_INSET = 12f.dp
  * viewport. */
 internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
     row(
-        id = "studio-top-bar",
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.width(Dimension.FillMax).height(TOP_BAR_HEIGHT)
+        modifier = Modifier.fillMaxWidth().height(TOP_BAR_HEIGHT)
             .padding(BAR_INSET, 0f.dp),
     ) {
         shadcnText("Awake Studio")
         shadcnButton(
             id = "studio-top-bar-play",
-            modifier = Modifier.width(ShadcnButtonSize.Icon.heightDp),
+            label = "Play",
+            modifier = Modifier.height(ShadcnButtonSize.Icon.heightDp),
             variant = ShadcnButtonVariant.Ghost,
             size = ShadcnButtonSize.Icon,
             onClick = onPlay,
-        ) {
-            icon(HeroIcons.Solid20Mini.play)
-        }
+        )
     }
 }
 
@@ -63,13 +55,12 @@ internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
  * depending on `app`. */
 internal fun UiScope.drawStudioStatusBar() {
     row(
-        id = "studio-status-bar",
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.width(Dimension.FillMax).height(STATUS_BAR_HEIGHT)
+        modifier = Modifier.fillMaxWidth().height(STATUS_BAR_HEIGHT)
             .padding(BAR_INSET, 0f.dp),
     ) {
-        shadcnText("Edit mode", muted = true, style = Style { textSize(theme.typography.caption) })
-        shadcnBadge("Vulkan", variant = ShadcnBadgeVariant.Outline)
+        shadcnText("Edit mode", muted = true)
+        shadcnBadge(id = "studio-status-backend", label = "Vulkan", variant = ShadcnBadgeVariant.Outline)
     }
 }

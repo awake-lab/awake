@@ -7,6 +7,8 @@ import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textLayoutCacheStats
 import kotlin.math.roundToInt
 
@@ -32,6 +34,20 @@ fun SceneGameRuntime.frame(
             maxHeightPx = viewportHeight,
         ),
     )
+}
+
+/**
+ * Headless facade entry point for scene overlays.
+ *
+ * [frame] remains available for advanced Core layout authors, while ordinary component trees
+ * should start here so the callback receives only the public Headless [UiScope].
+ */
+fun SceneGameRuntime.headlessFrame(
+    viewportWidth: Float,
+    viewportHeight: Float,
+    block: UiScope.() -> Unit,
+) {
+    uiContext.createUiScope(UiBounds(0f, 0f, viewportWidth, viewportHeight)).block()
 }
 
 /** Same shape as [io.github.ronjunevaldoz.awake.engine.application.GameFrameStats] -- see that

@@ -7,8 +7,8 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import kotlin.math.PI
 
 /**
@@ -27,7 +27,7 @@ internal fun ColumnScope.renderProjectionControls(
         id = "$idPrefix-controls-projection",
         expanded = true, // Simplified
         onExpandedChange = { },
-        header = { text("Projection", verticallyCentered = true) },
+        header = { _, _ -> shadcnText("Projection") },
     ) {
         core.near = shadcnFieldSliderWithValue(
             id = "$idPrefix-near",

@@ -107,4 +107,3 @@ awakeTestResources {
     roots.from(layout.projectDirectory.dir("src/appMain/resources"))
     roots.from(layout.projectDirectory.dir("src/commonMain/resources"))
 }
-
