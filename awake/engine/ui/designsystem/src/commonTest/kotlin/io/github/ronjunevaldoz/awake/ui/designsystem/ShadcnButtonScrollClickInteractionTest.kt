@@ -3,20 +3,18 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -50,17 +48,16 @@ class ShadcnButtonScrollClickInteractionTest {
         ui.beginFrame(300f, 220f, testSnapshot(x = x, y = y, down = down, scrollDeltaY = scrollDeltaY))
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
-        val scroll = ui.rememberScrollState("interleave-sidebar-scroll")
-        ui.createBox(x = 0f, y = 0f, width = 300f, height = 220f).run {
-            shadcnSidebar(
-                id = "interleave-sidebar",
-                modifier = Modifier.verticalScroll(scroll).width(260f.dp.toDimension()).height(Dimension.FillMax),
-            ) {
-                shadcnSidebarGroup {
-                    shadcnSidebarMenu {
-                        pages.forEach { id ->
-                            shadcnSidebarMenuItem(id = id, label = id, active = false, onClick = { clicked += id })
-                        }
+        val root = ui.headlessRoot()
+        val scroll = root.rememberScrollState("interleave-sidebar-scroll")
+        root.shadcnSidebar(
+            id = "interleave-sidebar",
+            modifier = Modifier.verticalScroll(scroll).width(260f.dp).height(220f.dp),
+        ) {
+            shadcnSidebarGroup {
+                shadcnSidebarMenu {
+                    pages.forEach { id ->
+                        shadcnSidebarMenuItem(id = id, label = id, active = false, onClick = { clicked += id })
                     }
                 }
             }

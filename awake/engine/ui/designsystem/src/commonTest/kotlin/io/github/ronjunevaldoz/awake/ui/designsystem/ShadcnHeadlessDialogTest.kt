@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -28,7 +28,7 @@ class ShadcnHeadlessDialogTest {
         ) { }
 
         assertTrue(
-            context.endFrame()
+            context.finishFrame().primitives
                 .filterIsInstance<UiDrawPrimitive.RoundedQuad>()
                 .any { it.color == ShadcnTheme.colors.card },
             "the branded surface must resolve in the design-system adapter",

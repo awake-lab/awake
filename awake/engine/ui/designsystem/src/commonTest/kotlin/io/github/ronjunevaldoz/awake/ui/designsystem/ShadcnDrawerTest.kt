@@ -7,8 +7,9 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -22,16 +23,11 @@ class ShadcnDrawerTest {
         ui.beginFrame(400f, 600f, UiInputState())
 
         var dismissed = false
-        ui.column {
-            shadcnDrawer(
-                id = "drawer-1",
-                expanded = true,
-                onDismissRequest = { dismissed = true },
-                header = { text("Settings Drawer") },
-            ) {
-                text("Drawer Content")
-            }
-        }
+        ui.createUiScope(UiBounds(0f, 0f, 400f, 600f)).shadcnDrawer(
+            id = "drawer-1",
+            expanded = true,
+            onDismissRequest = { dismissed = true },
+        ) { text("Settings Drawer\nDrawer Content") }
 
         assertFalse(dismissed)
     }
@@ -45,17 +41,13 @@ class ShadcnDrawerTest {
         ui.pushFont(BitmapFont())
         ui.beginFrame(400f, 600f, UiInputState())
 
-        ui.column {
-            shadcnDrawer(
-                id = "drawer-close",
-                expanded = true,
-                onDismissRequest = {},
-            ) {
-                text("Drawer Content")
-            }
-        }
+        ui.createUiScope(UiBounds(0f, 0f, 400f, 600f)).shadcnDrawer(
+            id = "drawer-close",
+            expanded = true,
+            onDismissRequest = {},
+        ) { text("Drawer Content") }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         assertTrue(
             primitives.any { it is UiDrawPrimitive.FilledPath },
             "expected the close button to draw a vector icon path, found: $primitives",

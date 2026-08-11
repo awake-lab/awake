@@ -8,10 +8,12 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -30,17 +32,14 @@ class ShadcnToggleSlotAndGroupTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(200f, 80f, testSnapshot())
 
-        ui.createAbsolute(x = 20f, y = 20f)
-            .shadcnToggle(
+        ui.createUiScope(UiBounds(0f, 0f, 200f, 80f)).shadcnToggle(
                 id = "bold",
                 checked = true,
-                modifier = Modifier.width(40f.px).height(40f.px),
-            ) {
-                // Icon-only content: no text() call at all, proving the slot isn't forced
-                // through a String label like the old shadcnToggle(label: String?) API.
-            }
+                modifier = Modifier.width(40f.dp).height(40f.dp),
+                label = null,
+            )
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         assertTrue(primitives.isNotEmpty(), "icon-only toggle should still paint its surface")
         assertTrue(
             primitives.filterIsInstance<UiDrawPrimitive.Glyph>().isEmpty(),
@@ -59,23 +58,21 @@ class ShadcnToggleSlotAndGroupTest {
         // Click index 1 ("Italic") while index 0 ("Bold") is already selected -- the exact case
         // the audit found impossible with the old selectedIndex: Int single-select API.
         ui.beginFrame(200f, 80f, testSnapshot(x = 90f, y = 20f, down = true))
-        ui.createColumn(x = 0f, y = 0f, width = 200f)
-            .shadcnToggleGroup(
+        ui.createUiScope(UiBounds(0f, 0f, 200f, 80f)).shadcnToggleGroup(
                 id = "format",
                 options = listOf("Bold", "Italic"),
                 selectedIndices = selected,
-                modifier = Modifier.width(160f.px).height(40f.px),
+                modifier = Modifier.width(160f.dp).height(40f.dp),
                 onSelectedIndicesChange = { selected = it },
             )
-        ui.endFrame()
+        ui.finishFrame()
 
         ui.beginFrame(200f, 80f, testSnapshot(x = 90f, y = 20f, down = false))
-        ui.createColumn(x = 0f, y = 0f, width = 200f)
-            .shadcnToggleGroup(
+        ui.createUiScope(UiBounds(0f, 0f, 200f, 80f)).shadcnToggleGroup(
                 id = "format",
                 options = listOf("Bold", "Italic"),
                 selectedIndices = selected,
-                modifier = Modifier.width(160f.px).height(40f.px),
+                modifier = Modifier.width(160f.dp).height(40f.dp),
                 onSelectedIndicesChange = { selected = it },
             )
         val semantics = ui.finishFrame().semantics.filter { it.role == UiSemanticRole.Toggle }

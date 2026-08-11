@@ -3,15 +3,17 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableHandle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
-import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.unstyled.ResizableDirection
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.UiResizableDirection
 import kotlinx.coroutines.test.runTest
 import kotlin.math.abs
 import kotlin.test.Test
@@ -25,9 +27,9 @@ class ShadcnResizableFidelityTest {
     private fun UiContext.drawGroup(withHandle: Boolean) {
         pushTheme(ShadcnTheme)
         beginFrame(400f, 200f, testSnapshot())
-        createAbsolute(x = 0f, y = 0f).shadcnResizablePanelGroup(
+        createUiScope(UiBounds(0f, 0f, 400f, 200f)).shadcnResizablePanelGroup(
             id = "fidelity-group",
-            direction = ResizableDirection.Horizontal,
+            direction = UiResizableDirection.Horizontal,
             modifier = Modifier.width(300f.dp).height(100f.dp),
         ) {
             shadcnResizablePanel(id = "left", defaultSize = 0.5f) { }

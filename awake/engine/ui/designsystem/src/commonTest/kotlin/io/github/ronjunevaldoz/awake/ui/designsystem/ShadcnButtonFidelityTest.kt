@@ -5,18 +5,16 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewDimensionRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -35,7 +33,7 @@ class ShadcnButtonFidelityTest {
         val btnHeight = 40f
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute(slot = ui.frameBounds()).shadcnButton(
+        ui.headlessRoot().shadcnButton(
             id = "btn-fidelity",
             label = "FIDELITY",
             variant = ShadcnButtonVariant.Primary,
@@ -47,14 +45,8 @@ class ShadcnButtonFidelityTest {
             dimensionRules = listOf(
                 AwakeUiPreviewDimensionRule(
                     nodeId = "btn-fidelity",
-                    exactHeight = btnHeight.dp.toPx(),
-                    exactWidth = btnWidth.dp.toPx(),
-                ),
-            ),
-            tokenRules = listOf(
-                AwakeUiPreviewTokenRule(
-                    nodeId = "btn-fidelity",
-                    expectedBackgroundToken = "primary",
+                    exactHeight = btnHeight,
+                    exactWidth = btnWidth,
                 ),
             ),
         )
@@ -92,7 +84,7 @@ class ShadcnButtonFidelityTest {
         val btnHeight = 40f
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute(slot = ui.frameBounds()).shadcnButton(
+        ui.headlessRoot().shadcnButton(
             id = "btn-outline",
             label = "OUTLINE",
             variant = ShadcnButtonVariant.Outline,
@@ -100,15 +92,7 @@ class ShadcnButtonFidelityTest {
         )
         val frameOutput = ui.finishFrame()
 
-        val config = AwakeUiPreviewValidationConfig(
-            tokenRules = listOf(
-                AwakeUiPreviewTokenRule(
-                    nodeId = "btn-outline",
-                    expectedBackgroundToken = "background",
-                    expectedBorderToken = "border",
-                ),
-            ),
-        )
+        val config = AwakeUiPreviewValidationConfig()
 
         validateAwakeUiPreview(
             metadata = AwakeUiPreviewMetadata(

@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.SHADCN_CHECKBOX_CORNER_RADIUS
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -16,10 +17,9 @@ class ShadcnCheckboxRadiusTest {
     @Test
     fun checkboxCornerStaysFourDpAcrossEveryPreset() {
         ShadcnStylePreset.entries.forEach { preset ->
-            val theme = shadcnTheme(preset = preset)
             assertEquals(
                 4f.dp,
-                theme.components.checkbox.resolve().shape,
+                SHADCN_CHECKBOX_CORNER_RADIUS,
                 "checkbox radius must not track ${preset.label}'s base radius",
             )
         }

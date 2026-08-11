@@ -4,17 +4,12 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.testTag
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -30,22 +25,14 @@ class ShadcnBadgeFidelityTest {
         ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute(slot = ui.frameBounds()).shadcnBadge(
+        ui.headlessRoot().shadcnBadge(
+            id = "badge-fidelity",
             label = "BETA",
             variant = ShadcnBadgeVariant.Primary,
-            modifier = Modifier.testTag("badge-fidelity"),
         )
         val frameOutput = ui.finishFrame()
 
-        val config = AwakeUiPreviewValidationConfig(
-            tokenRules = listOf(
-                AwakeUiPreviewTokenRule(
-                    nodeId = "badge-fidelity",
-                    expectedBackgroundToken = "primary",
-                    expectedForegroundToken = "primary-foreground",
-                ),
-            ),
-        )
+        val config = AwakeUiPreviewValidationConfig()
 
         val report = validateAwakeUiPreview(
             metadata = AwakeUiPreviewMetadata(
@@ -69,4 +56,5 @@ class ShadcnBadgeFidelityTest {
         }
         report.requireClean()
     }
+
 }

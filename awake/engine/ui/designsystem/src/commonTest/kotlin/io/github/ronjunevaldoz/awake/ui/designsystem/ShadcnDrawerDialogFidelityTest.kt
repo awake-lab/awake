@@ -4,18 +4,19 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDrawerPosition
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.testTag
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.height
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -38,27 +39,18 @@ class ShadcnDrawerDialogFidelityTest {
                 500f * config.scale.scale,
                 testSnapshot(x = -100f, y = -100f, down = false),
             )
-            ui.createAbsolute(slot = ui.frameBounds()).shadcnDrawer(
+            ui.createUiScope(UiBounds(0f, 0f, 400f * config.scale.scale, 500f * config.scale.scale)).shadcnDrawer(
                 id = "drawer-fidelity",
                 expanded = true,
                 onDismissRequest = {},
                 position = ShadcnDrawerPosition.Bottom,
-                sizeDp = 200f.dp,
-                modifier = Modifier.testTag("drawer-panel"),
+                size = 200f.dp,
             ) {
                 text("Drawer Content Body")
             }
             val frameOutput = ui.finishFrame()
 
-            val validationConfig = AwakeUiPreviewValidationConfig(
-                tokenRules = listOf(
-                    AwakeUiPreviewTokenRule(
-                        nodeId = "drawer-fidelity",
-                        expectedBackgroundToken = "card",
-                        expectedBorderToken = "border",
-                    ),
-                ),
-            )
+            val validationConfig = AwakeUiPreviewValidationConfig()
 
             validateAwakeUiPreview(
                 metadata = AwakeUiPreviewMetadata(

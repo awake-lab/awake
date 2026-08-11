@@ -6,15 +6,15 @@ import io.github.ronjunevaldoz.awake.testing.ui.UiInspectionIssueKind
 import io.github.ronjunevaldoz.awake.testing.ui.inspectUiFrame
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAccordion
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
 
 /**
@@ -50,7 +50,7 @@ class ShadcnAccordionBodyOverlapProbeTest {
 
         fun frame(): List<UiDrawPrimitive> {
             ui.beginFrame(320f, 600f, UiInputState())
-            ui.column(modifier = Modifier.width(columnWidth.dp)) {
+            ui.headlessRoot().column(modifier = Modifier.width(columnWidth.dp)) {
                 shadcnAccordion(
                     items = items,
                     selectedId = selectedId,

@@ -9,7 +9,14 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatarBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatarGroup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.box
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.offset
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -27,7 +34,9 @@ class ShadcnAvatarTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(200f, 200f, testSnapshot())
 
-        ui.createColumn(slot = ui.frameBounds()).shadcnAvatar("A", size = ShadcnAvatarSize.Sm)
+        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
+            shadcnAvatar(id = "avatar", initials = "A", size = ShadcnAvatarSize.Sm)
+        }
 
         val output = ui.finishFrame()
         val circle = output.primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().first()
@@ -41,7 +50,9 @@ class ShadcnAvatarTest {
             ui.pushFont(BitmapFont())
             ui.pushTheme(ShadcnTheme)
             ui.beginFrame(200f, 200f, testSnapshot())
-            ui.createColumn(slot = ui.frameBounds()).shadcnAvatar("A", size = size)
+            ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
+                shadcnAvatar(id = "avatar", initials = "A", size = size)
+            }
             return ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().first().h
         }
 
@@ -58,8 +69,20 @@ class ShadcnAvatarTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(200f, 200f, testSnapshot())
 
-        ui.createColumn(slot = ui.frameBounds()).shadcnAvatar(modifier = Modifier, size = ShadcnAvatarSize.Default) {
-            shadcnAvatarBadge()
+        ui.headlessRoot().box(modifier = Modifier.fillMaxSize()) {
+            column(
+                modifier = Modifier
+                    .width(ShadcnAvatarSize.Default.boxSize)
+                    .height(ShadcnAvatarSize.Default.boxSize),
+            ) {
+                shadcnAvatar(id = "avatar", initials = "A", size = ShadcnAvatarSize.Default)
+            }
+            shadcnAvatarBadge(
+                modifier = Modifier.offset(
+                    x = ShadcnAvatarSize.Default.boxSize - ShadcnAvatarSize.Default.badgeSize,
+                    y = ShadcnAvatarSize.Default.boxSize - ShadcnAvatarSize.Default.badgeSize,
+                ),
+            )
         }
 
         // The badge's own border ring draws as an outer + inner RoundedQuad pair (see
@@ -83,7 +106,9 @@ class ShadcnAvatarTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(300f, 200f, testSnapshot())
 
-        ui.createRow(slot = ui.frameBounds()).shadcnAvatarGroup(initials = listOf("A", "B", "C"))
+        ui.headlessRoot().row(modifier = Modifier.fillMaxSize()) {
+            shadcnAvatarGroup(initials = listOf("A", "B", "C"))
+        }
 
         val semantics = ui.finishFrame().semantics
         val a = assertNotNull(semantics.firstOrNull { it.label == "A" })

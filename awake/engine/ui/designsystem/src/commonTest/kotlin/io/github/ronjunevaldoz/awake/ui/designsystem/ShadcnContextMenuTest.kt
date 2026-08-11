@@ -4,16 +4,16 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -33,16 +33,13 @@ class ShadcnContextMenuTest {
         )
 
         var open = false
-        ui.column {
-            shadcnContextMenu(
-                id = "ctx-1",
-                expanded = open,
-                onExpandedChange = { open = it },
-                items = listOf(UiDropdownMenuItem(label = "Copy")),
-            ) {
-                text("Right click me", modifier = Modifier.width(100f.dp).height(40f.dp))
-            }
-        }
+        ui.createUiScope(io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, 240f, 160f)).shadcnContextMenu(
+            id = "ctx-1",
+            expanded = open,
+            onExpandedChange = { open = it },
+            items = listOf(ShadcnMenuItem(label = "Copy")),
+            target = { text("Right click me", modifier = Modifier.width(100f.dp).height(40f.dp)) },
+        )
 
         assertTrue(open)
     }
@@ -66,19 +63,13 @@ class ShadcnContextMenuTest {
             UiInputState(pointerX = 50f, pointerY = 20f, secondaryPointerDown = false),
         )
 
-        ui.column {
-            shadcnContextMenu(
-                id = "ctx-width",
-                expanded = true,
-                onExpandedChange = {},
-                items = listOf(
-                    UiDropdownMenuItem(label = "Copy"),
-                    UiDropdownMenuItem(label = "Paste"),
-                ),
-            ) {
-                text("Right click me", modifier = Modifier.width(100f.dp).height(40f.dp))
-            }
-        }
+        ui.createUiScope(io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, frameWidth, 400f)).shadcnContextMenu(
+            id = "ctx-width",
+            expanded = true,
+            onExpandedChange = {},
+            items = listOf(ShadcnMenuItem(label = "Copy"), ShadcnMenuItem(label = "Paste")),
+            target = { text("Right click me", modifier = Modifier.width(100f.dp).height(40f.dp)) },
+        )
 
         val menu = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>()
             .maxByOrNull { it.w * it.h }

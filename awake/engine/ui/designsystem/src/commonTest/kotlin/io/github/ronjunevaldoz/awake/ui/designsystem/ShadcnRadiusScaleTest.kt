@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertTrue

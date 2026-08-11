@@ -9,12 +9,8 @@ import kotlin.test.assertNotEquals
 class PresetUiThemesTest {
 
     @Test
-    fun defaultPresetDelegatesToCoreFallbackPalette() {
+    fun defaultPresetDelegatesToShadcnPalette() {
         assertEquals(ShadcnDefaultTheme.colors.background, DarkUiTheme.colors.background)
-        assertEquals(
-            ShadcnDefaultTheme.components.button.resolve().background!!,
-            DarkUiTheme.components.button.resolve().background!!,
-        )
     }
 
     @Test

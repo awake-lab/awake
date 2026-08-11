@@ -3,19 +3,19 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.offset
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -34,15 +34,14 @@ class ShadcnCheckboxRadioSlotTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(x = 20f, y = 20f)
-            .shadcnCheckbox(
+        ui.headlessRoot().shadcnCheckbox(
                 id = "select-all",
                 checked = false,
                 indeterminate = true,
                 modifier = Modifier.width(20f.dp).height(20f.dp),
             )
 
-        val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>()
+        val quads = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
         assertTrue(
             quads.any { it.w > it.h * 2f },
             "indeterminate checkbox should draw a wide dash mark, not a checkmark-shaped accent",
@@ -57,7 +56,7 @@ class ShadcnCheckboxRadioSlotTest {
         ui.beginFrame(320f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
 
         var selected = "a"
-        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
+        ui.headlessRoot().column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
             shadcnRadioGroup(id = "plan") {
                 row {
                     shadcnRadioButton(

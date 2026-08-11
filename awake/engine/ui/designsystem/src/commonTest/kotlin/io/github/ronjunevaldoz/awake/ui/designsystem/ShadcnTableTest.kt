@@ -4,17 +4,17 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.inspectUiFrame
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTableCellAlign
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTableColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTable
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTableColumnWidthsPx
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -44,7 +44,7 @@ class ShadcnTableTest {
         ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(400f, 300f, testSnapshot())
-        ui.createAbsolute(x = 0f, y = 0f).column(modifier = Modifier.width(400f.dp)) {
+        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
             shadcnTable(
                 id = "people",
                 columns = listOf(

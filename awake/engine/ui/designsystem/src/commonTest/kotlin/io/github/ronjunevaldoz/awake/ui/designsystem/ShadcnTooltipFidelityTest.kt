@@ -4,14 +4,13 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -30,7 +29,7 @@ class ShadcnTooltipFidelityTest {
 
             ui.beginFrame(300f * config.scale.scale, 150f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
             val anchor = UiBounds(x = 100f, y = 50f, width = 100f, height = 30f)
-            ui.createAbsolute(slot = ui.frameBounds()).shadcnTooltipText(
+            ui.headlessRoot().shadcnTooltipText(
                 anchorSlot = anchor,
                 visible = true,
                 text = "Tooltip Info",
@@ -40,14 +39,10 @@ class ShadcnTooltipFidelityTest {
 
             // Real shadcn's TooltipContent is a solid inverted-color pill (`bg-foreground
             // text-background`), not a card -- no border either.
-            val validationConfig = AwakeUiPreviewValidationConfig(
-                tokenRules = listOf(
-                    AwakeUiPreviewTokenRule(
-                        nodeId = "tooltip-fidelity",
-                        expectedBackgroundToken = "foreground",
-                    ),
-                ),
-            )
+            // Headless intentionally exposes resolved visuals rather than Core token metadata.
+            // Token-to-color contrast is covered by ShadcnTooltipContrastTest; this matrix checks
+            // the portable geometry/semantic output instead of depending on Core internals.
+            val validationConfig = AwakeUiPreviewValidationConfig()
 
             validateAwakeUiPreview(
                 metadata = AwakeUiPreviewMetadata(

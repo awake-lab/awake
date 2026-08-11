@@ -7,15 +7,15 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,7 +35,7 @@ class ShadcnSliderFidelityTest {
         val sliderWidth = 240f
 
         ui.beginFrame(400f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute(slot = ui.frameBounds()).shadcnSlider(
+        ui.headlessRoot().shadcnSlider(
             id = "test-slider",
             min = 0f,
             max = 100f,
@@ -48,7 +48,7 @@ class ShadcnSliderFidelityTest {
         requireNotNull(sliderNode) { "Slider node 'test-slider' must exist in semantic tree" }
 
         // Assert slider height matches shadcn 20dp spec (20px) exactly
-        assertEquals(20f.dp.toPx(), sliderNode.bounds.height, 0.5f, "Slider height must be 20dp")
+        assertEquals(20f, sliderNode.bounds.height, 0.5f, "Slider height must be 20dp")
 
         // Assert slider contains no internal child text nodes overlaying the track
         val overlayTextNodes = frameOutput.semantics.filter { it.id?.startsWith("test-slider.") == true }
@@ -58,8 +58,8 @@ class ShadcnSliderFidelityTest {
             dimensionRules = listOf(
                 AwakeUiPreviewDimensionRule(
                     nodeId = "test-slider",
-                    exactHeight = 20f.dp.toPx(),
-                    exactWidth = sliderWidth.dp.toPx(),
+                    exactHeight = 20f,
+                    exactWidth = sliderWidth,
                 ),
             ),
         )
@@ -90,7 +90,7 @@ class ShadcnSliderFidelityTest {
         ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(400f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute(slot = ui.frameBounds()).column(modifier = Modifier.width(300f.dp)) {
+        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
             shadcnFieldSliderWithValue(
                 id = "field-slider-test",
                 label = "Exposure",
@@ -105,13 +105,13 @@ class ShadcnSliderFidelityTest {
         requireNotNull(sliderNode) { "Slider node 'field-slider-test' must exist" }
 
         // Assert slider widget height is 20dp (not 32dp or 40dp)
-        assertEquals(20f.dp.toPx(), sliderNode.bounds.height, 0.5f, "Field slider control height must be 20dp")
+        assertEquals(20f, sliderNode.bounds.height, 0.5f, "Field slider control height must be 20dp")
 
         val config = AwakeUiPreviewValidationConfig(
             dimensionRules = listOf(
                 AwakeUiPreviewDimensionRule(
                     nodeId = "field-slider-test",
-                    exactHeight = 20f.dp.toPx(),
+                    exactHeight = 20f,
                 ),
             ),
         )
