@@ -40,10 +40,11 @@ dock appears at the bottom.
 | Title | `shadcnText` | unchanged |
 | Scene picker | `shadcnSelect` or `shadcnDropdownMenu` | this is where the demo list goes, freeing the left dock |
 | Play / Pause / Step | `shadcnButton` x3 | today's single Play is really "reload example"; separate the concepts |
-| Wireframe, Shadows | `shadcnSwitch` | unchanged, already work |
 
-Transform tools deliberately do NOT go here -- see the viewport section. The top bar is
-document-level: which scene, play state, render toggles.
+Nothing viewport-scoped goes here. Transform tools, camera mode, projection, wireframe and
+shadows all move to the viewport -- see below. Wireframe and shadows sat in the top bar in an
+earlier draft, which was the same scoping mistake as the tools: they govern how ONE VIEWPORT
+displays, not the document.
 
 ### Left dock -- new `HierarchyPanel`
 
@@ -64,7 +65,26 @@ Nesting: there is no tree component in `ui-designsystem`. Two options, in prefer
 
 ### Viewport
 
-Unchanged in structure. Two additions once selection works:
+Gains a header strip, and keeps its left pill. The split follows Blender (the `T` toolbar holds
+only tools; the header along the top holds shading, overlays and view) and Unity (tools top-left,
+display toolbar beside them).
+
+| Control | Home | Component | Interaction |
+|---|---|---|---|
+| Select / Move / Rotate / Scale | left pill | `shadcnToggleGroup` | modal, mutually exclusive |
+| Camera mode | header | `shadcnSelect` | 4 options, needs labels |
+| Perspective / Ortho | header | `shadcnToggleGroup` | 2-way modal |
+| Wireframe, Shadows | header | `shadcnToggle` | independent booleans |
+
+They are deliberately NOT all in the pill. The pill is a single-select control; wireframe and
+shadows are independent booleans and camera mode is a picker. Three interaction models in one
+strip muddles all three, and `shadcnToggleGroup`'s single-select semantics only fit the first.
+
+This also fixes a discoverability problem in the current build: camera mode lives in a
+right-click menu (`viewportCameraMenu`), so it is invisible until you know it exists. A header
+puts it on screen.
+
+Two further additions once selection works:
 
 - click-to-select, hit-testing against entity bounds
 - a transform gizmo reflecting the active tool
