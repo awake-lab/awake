@@ -3,14 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.childAbsolute
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.withIntrinsicLabelWidth
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 /** [button] with the resolved [UiBounds] alongside the click result. */
@@ -36,6 +37,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
     semanticLabel: String? = null,
+    intrinsicWidth: Dimension? = null,
     enabled: Boolean = true,
     crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): UiButtonResult {
@@ -48,7 +50,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
     }
     val surface = resolveInteractiveSurface(
         id = id,
-        modifier = modifier,
+        modifier = modifier.withSizeFallback(intrinsicWidth ?: Dimension.FillMax, Dimension.Fixed(40f.dp)),
         style = style,
         defaults = defaults,
         selected = false,
@@ -134,11 +136,26 @@ fun UiPrimitiveScope.buttonSlot(
     enabled: Boolean = true,
 ): UiButtonResult = buttonSlotInternal(
     id = id,
-    modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
+    modifier = modifier,
     style = style,
     variant = variant,
     radius = radius,
     semanticLabel = label,
+    intrinsicWidth = label?.let { labelText ->
+        val theme = context.currentTheme
+        val defaults = theme.components.button then Style.Companion {
+            shape(radius)
+            if (variant == UiButtonVariant.Outline) {
+                borderWidth(1f.dp)
+            }
+        }
+        withIntrinsicLabelWidth(
+            modifier = modifier,
+            label = labelText,
+            style = style,
+            defaults = defaults,
+        ).widthDimension
+    },
     enabled = enabled,
     drawContent = { contentSlot, resolved ->
         if (label != null) {
@@ -168,7 +185,7 @@ fun UiPrimitiveScope.buttonSlot(
     content: AbsoluteScope.(slot: UiBounds) -> Unit,
 ): UiButtonResult = buttonSlotInternal(
     id = id,
-    modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
+    modifier = modifier,
     style = style,
     variant = variant,
     radius = radius,

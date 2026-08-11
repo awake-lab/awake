@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled.input.selection
 
-import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetAccent
-import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetDash
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetAccent
+import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetDash
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -20,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.withIntrinsicLabelWidth
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 // Dp, not raw px: every coordinate it is added to below (`boxPx`, `surface.interaction.slot`)
@@ -42,11 +43,24 @@ fun UiPrimitiveScope.checkbox(
     enabled: Boolean = true,
 ): Boolean {
     val theme = context.currentTheme
+    val defaults = theme.components.checkbox
+    val sizedModifier = modifier.withSizeFallback(
+        label?.let {
+            withIntrinsicLabelWidth(
+                modifier = modifier,
+                label = it,
+                style = style,
+                defaults = defaults,
+                extraWidth = boxSize + CHECKBOX_LABEL_GAP,
+            ).widthDimension
+        } ?: Dimension.FillMax,
+        Dimension.Fixed(24f.dp),
+    )
     val surface = resolveInteractiveSurface(
         id = id,
-        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(24f.dp)),
+        modifier = sizedModifier,
         style = style,
-        defaults = theme.components.checkbox,
+        defaults = defaults,
         selected = checked,
         enabled = enabled,
     )
