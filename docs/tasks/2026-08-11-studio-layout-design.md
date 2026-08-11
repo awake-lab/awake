@@ -165,6 +165,28 @@ broken. Reasons the pill is the right home:
 The pill's problem was never where it sits -- it was five buttons wired to nothing. Deleting the
 container would have been fixing the wrong thing.
 
+#### Adding the header is not free -- read this first
+
+An attempt to add the header wrapped the viewport panel in an extra `column` so the strip could
+sit above the existing row. That broke `clickingTopInTheIconRailCameraMenuMovesTheRenderedCamera`:
+the rail's camera button is found and clicked, but the dropdown never opens.
+
+The likely cause is the measuring-pass bug class that already produced two shipped defects (see
+`bff8417d` for the resize handle and the `animatedHeight` fix). `column()` runs an unconditional
+trial pass over its content when given no `cacheKey`, against a scratch context that shares the
+real `WidgetState` but has blank input. `rememberPopupState(...).toggle()` mutates that shared
+state, so a trial pass can clobber the toggle before the real pass reads it.
+
+So the header cannot simply be nested inside another `column`. Options, untested:
+
+1. Give the wrapping `column` a `cacheKey`, which skips the trial pass entirely.
+2. Gate `rememberPopupState`'s mutation on `isMeasuring()`, the same fix applied to
+   `ResizablePanelGroup.handle()` and `animatedHeight` -- this is the general fix, and it likely
+   affects every popup nested in an uncached column, not just this one.
+
+Option 2 is the real fix and probably wants doing before any further layout nesting, since every
+remaining phase adds containers.
+
 ### Right dock -- `InspectorPanel`
 
 Becomes selection-driven and editable:
