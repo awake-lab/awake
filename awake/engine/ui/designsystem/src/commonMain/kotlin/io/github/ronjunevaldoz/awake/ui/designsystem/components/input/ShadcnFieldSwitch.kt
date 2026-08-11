@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.input
 
-import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField

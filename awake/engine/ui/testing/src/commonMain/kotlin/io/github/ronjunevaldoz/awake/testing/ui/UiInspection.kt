@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
 import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.intersect
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 enum class UiInspectionIssueKind {
@@ -51,9 +51,9 @@ fun inspectUiFrame(
 ): UiInspectionReport {
     val frameSlot = frame
     val issues = ArrayList<UiInspectionIssue>()
-    val clipStack = ArrayDeque<io.github.ronjunevaldoz.awake.ui.layout.UiBounds>()
+    val clipStack = ArrayDeque<io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds>()
 
-    fun currentClip(): io.github.ronjunevaldoz.awake.ui.layout.UiBounds = clipStack.lastOrNull() ?: frameSlot
+    fun currentClip(): io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds = clipStack.lastOrNull() ?: frameSlot
 
     fun addIssue(kind: UiInspectionIssueKind, primitiveIndex: Int? = null, message: String) {
         issues += UiInspectionIssue(kind = kind, primitiveIndex = primitiveIndex, message = message)
@@ -61,15 +61,15 @@ fun inspectUiFrame(
 
     fun Float.isFiniteCoordinate(): Boolean = isFinite() && !isNaN()
 
-    fun slotHasFiniteBounds(slot: io.github.ronjunevaldoz.awake.ui.layout.UiBounds): Boolean =
+    fun slotHasFiniteBounds(slot: io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds): Boolean =
         slot.x.isFiniteCoordinate() &&
             slot.y.isFiniteCoordinate() &&
             slot.width.isFiniteCoordinate() &&
             slot.height.isFiniteCoordinate()
 
-    fun slotHasValidSize(slot: io.github.ronjunevaldoz.awake.ui.layout.UiBounds): Boolean = slot.width >= 0f && slot.height >= 0f
+    fun slotHasValidSize(slot: io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds): Boolean = slot.width >= 0f && slot.height >= 0f
 
-    fun visibleOutsideFrame(slot: io.github.ronjunevaldoz.awake.ui.layout.UiBounds): Boolean {
+    fun visibleOutsideFrame(slot: io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds): Boolean {
         val visible = slot.intersect(currentClip())
         if (visible.width <= 0f || visible.height <= 0f) {
             return false
@@ -80,13 +80,13 @@ fun inspectUiFrame(
             visible.y + visible.height > frameSlot.y + frameSlot.height
     }
 
-    fun primitiveBounds(primitive: UiDrawPrimitive): io.github.ronjunevaldoz.awake.ui.layout.UiBounds? = when (primitive) {
-        is UiDrawPrimitive.Quad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
-        is UiDrawPrimitive.GradientQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
-        is UiDrawPrimitive.RoundedQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
-        is UiDrawPrimitive.Glyph -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
-        is UiDrawPrimitive.Texture -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
-        is UiDrawPrimitive.ShadowQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+    fun primitiveBounds(primitive: UiDrawPrimitive): io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds? = when (primitive) {
+        is UiDrawPrimitive.Quad -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
+        is UiDrawPrimitive.GradientQuad -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
+        is UiDrawPrimitive.RoundedQuad -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
+        is UiDrawPrimitive.Glyph -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
+        is UiDrawPrimitive.Texture -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(primitive.x, primitive.y, primitive.w, primitive.h)
+        is UiDrawPrimitive.ShadowQuad -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(
             primitive.x + primitive.offsetX - primitive.blurRadius - primitive.spread,
             primitive.y + primitive.offsetY - primitive.blurRadius - primitive.spread,
             primitive.w + (primitive.blurRadius + primitive.spread) * 2f,
@@ -171,10 +171,10 @@ fun inspectUiFrame(
     return UiInspectionReport(frame = frame, issues = issues)
 }
 
-private fun strokedPathBounds(path: UiPath, strokeWidthPx: Float): io.github.ronjunevaldoz.awake.ui.layout.UiBounds {
+private fun strokedPathBounds(path: UiPath, strokeWidthPx: Float): io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds {
     val bounds = path.bounds()
     val inset = strokeWidthPx / 2f
-    return io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+    return io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(
         x = bounds.x - inset,
         y = bounds.y - inset,
         width = bounds.width + inset * 2f,

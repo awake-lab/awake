@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier

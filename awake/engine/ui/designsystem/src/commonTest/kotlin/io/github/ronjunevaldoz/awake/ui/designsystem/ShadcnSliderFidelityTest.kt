@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier

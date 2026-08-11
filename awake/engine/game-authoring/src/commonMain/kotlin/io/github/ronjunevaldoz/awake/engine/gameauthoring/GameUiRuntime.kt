@@ -24,7 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.debugOverlayPrimitives
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.place
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope

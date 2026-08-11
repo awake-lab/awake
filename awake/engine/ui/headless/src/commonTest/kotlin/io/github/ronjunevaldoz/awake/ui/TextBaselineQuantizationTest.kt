@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.GlyphRect
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals

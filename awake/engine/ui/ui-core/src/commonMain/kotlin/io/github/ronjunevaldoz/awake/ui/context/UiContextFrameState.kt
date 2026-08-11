@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.context
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.intersect
 
 internal class UiContextFrameState {

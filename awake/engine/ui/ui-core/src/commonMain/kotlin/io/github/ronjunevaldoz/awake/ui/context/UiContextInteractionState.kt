@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
 internal class UiContextInteractionState {
     private var activeId: String? = null

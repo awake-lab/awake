@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext

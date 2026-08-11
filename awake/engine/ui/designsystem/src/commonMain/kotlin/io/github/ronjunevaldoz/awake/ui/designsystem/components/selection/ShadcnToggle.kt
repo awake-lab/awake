@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnToggleVariant
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier

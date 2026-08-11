@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.vulkan
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiStroke
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.uiPath
 import io.github.ronjunevaldoz.awake.vulkan.renderer.renderUiToTexture
 import kotlinx.coroutines.runBlocking

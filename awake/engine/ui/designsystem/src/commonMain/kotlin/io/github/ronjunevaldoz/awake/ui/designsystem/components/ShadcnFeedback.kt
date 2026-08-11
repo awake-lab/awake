@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier

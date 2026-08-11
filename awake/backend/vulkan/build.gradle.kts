@@ -43,6 +43,11 @@ kotlin {
             // and Bitmap/readResourceBytes -- see docs/MVP_PLAN.md's Decision Log, D11, for
             // the awake-core split this module boundary comes from.
             implementation(project(":awake:core"))
+            // The backend consumes raw UI draw primitives and mesh utilities to submit the
+            // frame to Vulkan. Keep this direct rather than relying on render-contract's
+            // transitive ui-core dependency; authored value contracts come from ui-api.
+            implementation(project(":awake:engine:ui:ui-core"))
+            implementation(project(":awake:engine:ui:ui-api"))
             // Module restructuring slice 1 (see docs/MVP_PLAN.md): Mesh/Material/Renderer's
             // expect declarations now implement the narrow backend-neutral interfaces this
             // module owns, so RenderSystem (awake-scene) can depend on just that module

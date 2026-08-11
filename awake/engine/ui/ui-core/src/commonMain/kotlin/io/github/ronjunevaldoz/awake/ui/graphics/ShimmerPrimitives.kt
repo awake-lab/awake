@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.animateFloatRepeatable
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.px
 
 /**

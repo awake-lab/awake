@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.UiStroke
 import io.github.ronjunevaldoz.awake.ui.UiStrokeCap
 import io.github.ronjunevaldoz.awake.ui.UiStrokeJoin
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
 
 /** [Heroicons](https://heroicons.com) vector paths, generated from the published SVG sources by

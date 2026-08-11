@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import kotlin.test.Test
 import kotlin.test.assertTrue

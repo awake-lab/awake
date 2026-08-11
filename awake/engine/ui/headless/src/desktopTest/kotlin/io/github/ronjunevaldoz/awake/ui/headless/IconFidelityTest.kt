@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width

@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnRangeSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLabel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column

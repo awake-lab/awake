@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.box

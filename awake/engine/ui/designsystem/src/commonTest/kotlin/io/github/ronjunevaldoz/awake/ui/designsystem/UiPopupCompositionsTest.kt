@@ -17,7 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDrop
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
@@ -47,7 +47,7 @@ class UiPopupCompositionsTest {
         var result: UiPopupResult? = null
         ui.column(modifier = Modifier.offset(0f.dp, 0f.dp).width(220f.dp)) {
             result = shadcnTooltipText(
-                anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(48f, 24f, 96f, 28f),
+                anchorSlot = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(48f, 24f, 96f, 28f),
                 visible = true,
                 text = "Helpful hint",
             )
@@ -66,7 +66,7 @@ class UiPopupCompositionsTest {
     @Test
     fun dropdownMenuReturnsPickedIndex() {
         val ui = UiContext()
-        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 16f, 120f, 28f)
+        val anchor = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 16f, 120f, 28f)
         var result: UiDropdownMenuResult? = null
         ui.pushFont(BitmapFont())
 
@@ -108,7 +108,7 @@ class UiPopupCompositionsTest {
     @Test
     fun dropdownMenuSupportsSeparatorsAndDisabledItems() {
         val ui = UiContext()
-        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 16f, 120f, 28f)
+        val anchor = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 16f, 120f, 28f)
         var result: UiDropdownMenuResult? = null
         ui.pushFont(BitmapFont())
 
@@ -165,7 +165,7 @@ class UiPopupCompositionsTest {
         // with more items than fit its (caller-constrained) height used to clip the overflow
         // with no way to reach it -- shadcnDropdownMenu's surface never wired a scrollState.
         val ui = UiContext()
-        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 16f, 160f, 28f)
+        val anchor = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 16f, 160f, 28f)
         ui.pushFont(BitmapFont())
         ui.beginFrame(320f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
 
@@ -355,7 +355,7 @@ class UiPopupCompositionsTest {
         // (overflow=Ellipsis silently widened its claimed box to FillMax, leaving align(End)
         // nothing to shift into, so it drew left-anchored under the label).
         val ui = UiContext()
-        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 16f, 120f, 28f)
+        val anchor = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 16f, 120f, 28f)
         ui.pushFont(BitmapFont())
         ui.beginFrame(320f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
 
@@ -398,7 +398,7 @@ class UiPopupCompositionsTest {
         // item reserves space for its icon and shifts its label right to make room, while an
         // icon-less item in the same menu keeps the original 12dp label start untouched.
         val ui = UiContext()
-        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 16f, 120f, 28f)
+        val anchor = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 16f, 120f, 28f)
         ui.pushFont(BitmapFont())
         ui.beginFrame(320f, 260f, testSnapshot(x = -100f, y = -100f, down = false))
 

@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.RoundedQuad
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.ShadowQuad
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.StrokedPath
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Texture
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
 /**
  * Backend-neutral output of a [io.github.ronjunevaldoz.awake.ui.context.UiContext] frame -- each backend's `Renderer.drawUi` converts

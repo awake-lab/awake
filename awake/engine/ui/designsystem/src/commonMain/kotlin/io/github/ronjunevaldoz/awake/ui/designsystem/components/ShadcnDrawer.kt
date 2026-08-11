@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
@@ -11,10 +11,10 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope

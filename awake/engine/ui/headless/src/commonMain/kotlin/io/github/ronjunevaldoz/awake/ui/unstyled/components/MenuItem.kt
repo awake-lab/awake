@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled.components
 
-import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment

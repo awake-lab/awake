@@ -3,8 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui.theme
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.Sp
-import io.github.ronjunevaldoz.awake.ui.sp
+import io.github.ronjunevaldoz.awake.ui.api.Sp
+import io.github.ronjunevaldoz.awake.ui.api.sp
 
 /**
  * Groups text-related styling properties.

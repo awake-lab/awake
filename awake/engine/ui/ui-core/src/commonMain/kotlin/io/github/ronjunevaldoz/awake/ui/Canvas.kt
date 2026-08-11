@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.graphics.emitPrimitive
 import io.github.ronjunevaldoz.awake.ui.graphics.gradientBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.gradientRect
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback

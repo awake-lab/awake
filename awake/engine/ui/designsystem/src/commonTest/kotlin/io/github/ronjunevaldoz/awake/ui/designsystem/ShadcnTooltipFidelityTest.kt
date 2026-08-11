@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 

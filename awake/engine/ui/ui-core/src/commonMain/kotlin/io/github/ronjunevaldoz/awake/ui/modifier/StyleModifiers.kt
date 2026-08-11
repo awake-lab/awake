@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.modifier
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Marker effect for the shadcn-compose-style shimmer sweep, drawn by consuming widgets. */

@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnF
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldError
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLabel
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier

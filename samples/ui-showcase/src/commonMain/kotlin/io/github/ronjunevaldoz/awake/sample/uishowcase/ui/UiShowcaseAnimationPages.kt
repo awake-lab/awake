@@ -17,7 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -31,7 +31,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.shadcnShimmer
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.sp
+import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 internal fun ColumnScope.drawUiShowcaseShimmerPreview() {

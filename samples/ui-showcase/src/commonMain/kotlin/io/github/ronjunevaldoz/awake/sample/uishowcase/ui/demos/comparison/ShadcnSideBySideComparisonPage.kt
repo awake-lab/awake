@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer

@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled.components
 
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
 /**
  * [shouldOpen] is true exactly on the frame a fresh secondary-click lands over the trigger's

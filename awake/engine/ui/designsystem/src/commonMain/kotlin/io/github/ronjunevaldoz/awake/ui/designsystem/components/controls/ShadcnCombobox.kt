@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension

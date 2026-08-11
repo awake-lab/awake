@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx

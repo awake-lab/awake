@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -41,8 +41,8 @@ class UiInspectionTest {
     fun reportsClipStackUnderflowAndUnbalancedPushes() {
         val report = inspectUiFrame(
             primitives = listOf(
-                UiDrawPrimitive.ClipPop(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 80f, 40f)),
-                UiDrawPrimitive.ClipPush(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(8f, 8f, 24f, 24f)),
+                UiDrawPrimitive.ClipPop(io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, 80f, 40f)),
+                UiDrawPrimitive.ClipPush(io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(8f, 8f, 24f, 24f)),
             ),
             frame = UiBounds(0f, 0f, 80f, 40f),
         )
@@ -61,7 +61,7 @@ class UiInspectionTest {
         val font = BitmapFont()
         val report = inspectUiFrame(
             primitives = listOf(
-                UiDrawPrimitive.ClipPush(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 40f, 20f)),
+                UiDrawPrimitive.ClipPush(io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, 40f, 20f)),
                 UiDrawPrimitive.Glyph(
                     x = 8f,
                     y = 4f,
@@ -73,7 +73,7 @@ class UiInspectionTest {
                     v1 = 1f,
                     color = Color.White,
                 ),
-                UiDrawPrimitive.ClipPop(io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 80f, 40f)),
+                UiDrawPrimitive.ClipPop(io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, 80f, 40f)),
             ),
             frame = UiBounds(0f, 0f, 80f, 40f),
             font = font,

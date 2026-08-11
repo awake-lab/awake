@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension

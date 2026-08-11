@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
 import io.github.ronjunevaldoz.awake.ui.bounds
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.abs
 import kotlin.math.max
@@ -63,7 +63,7 @@ fun measureUiFrame(
     frame: UiBounds,
 ): UiFrameMetrics {
     val counts = linkedMapOf<UiPrimitiveMetricKind, Int>()
-    var contentBounds: io.github.ronjunevaldoz.awake.ui.layout.UiBounds? = null
+    var contentBounds: io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds? = null
 
     primitives.forEach { primitive ->
         counts[primitive.metricKind()] = (counts[primitive.metricKind()] ?: 0) + 1
@@ -197,13 +197,13 @@ private fun UiDrawPrimitive.metricKind(): UiPrimitiveMetricKind = when (this) {
     is UiDrawPrimitive.ClipPop -> UiPrimitiveMetricKind.ClipPop
 }
 
-private fun UiDrawPrimitive.metricBounds(): io.github.ronjunevaldoz.awake.ui.layout.UiBounds? = when (this) {
-    is UiDrawPrimitive.Quad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
-    is UiDrawPrimitive.GradientQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
-    is UiDrawPrimitive.RoundedQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
-    is UiDrawPrimitive.Glyph -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
-    is UiDrawPrimitive.Texture -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(x, y, w, h)
-    is UiDrawPrimitive.ShadowQuad -> io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+private fun UiDrawPrimitive.metricBounds(): io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds? = when (this) {
+    is UiDrawPrimitive.Quad -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(x, y, w, h)
+    is UiDrawPrimitive.GradientQuad -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(x, y, w, h)
+    is UiDrawPrimitive.RoundedQuad -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(x, y, w, h)
+    is UiDrawPrimitive.Glyph -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(x, y, w, h)
+    is UiDrawPrimitive.Texture -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(x, y, w, h)
+    is UiDrawPrimitive.ShadowQuad -> io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(
         x + offsetX - blurRadius - spread,
         y + offsetY - blurRadius - spread,
         w + (blurRadius + spread) * 2f,
@@ -216,10 +216,10 @@ private fun UiDrawPrimitive.metricBounds(): io.github.ronjunevaldoz.awake.ui.lay
     is UiDrawPrimitive.ClipPop -> null
 }
 
-private fun strokedBounds(path: UiPath, strokeWidthPx: Float): io.github.ronjunevaldoz.awake.ui.layout.UiBounds {
+private fun strokedBounds(path: UiPath, strokeWidthPx: Float): io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds {
     val bounds = path.bounds()
     val inset = strokeWidthPx / 2f
-    return io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+    return io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(
         x = bounds.x - inset,
         y = bounds.y - inset,
         width = bounds.width + inset * 2f,
@@ -227,12 +227,12 @@ private fun strokedBounds(path: UiPath, strokeWidthPx: Float): io.github.ronjune
     )
 }
 
-private fun io.github.ronjunevaldoz.awake.ui.layout.UiBounds.union(other: io.github.ronjunevaldoz.awake.ui.layout.UiBounds): io.github.ronjunevaldoz.awake.ui.layout.UiBounds {
+private fun io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds.union(other: io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds): io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds {
     val minX = min(x, other.x)
     val minY = min(y, other.y)
     val maxX = max(x + width, other.x + other.width)
     val maxY = max(y + height, other.y + other.height)
-    return io.github.ronjunevaldoz.awake.ui.layout.UiBounds(
+    return io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(
         x = minX,
         y = minY,
         width = maxX - minX,

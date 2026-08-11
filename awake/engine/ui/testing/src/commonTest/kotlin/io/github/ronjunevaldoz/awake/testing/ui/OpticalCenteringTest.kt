@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

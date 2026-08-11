@@ -32,6 +32,7 @@ flowchart TD
     gameDsl["awake:engine:game-authoring"]
     physicsApi["awake:physics:api"]
     jolt["awake:backend:jolt"]
+    uiApi["awake:engine:ui:ui-api"]
     uiCore["awake:engine:ui:ui-core"]
     uiWidgets["awake:engine:ui:ui-headless"]
     ui["awake:engine:ui"]
@@ -56,6 +57,7 @@ flowchart TD
     sceneRendering --> sceneRuntime
     render --> sceneRuntime
     game --> sceneRuntime
+    uiApi --> uiCore
     uiCore --> sceneRuntime
     render --> sceneRendering
     physicsApi --> scenePhysics
@@ -74,8 +76,10 @@ flowchart TD
     game --> gameDsl
     sceneDsl --> gameDsl
     physicsApi --> jolt
+    uiApi --> uiWidgets
     uiCore --> uiWidgets
     uiWidgets --> ui
+    uiApi --> uiDs
     ui --> uiDs
     game --> samples
     render --> vulkan
@@ -105,6 +109,7 @@ flowchart TD
 | `:awake-engine:render-api` | Renderer-facing abstractions and draw orchestration | not published |
 | `:awake-physics:api` | Backend-agnostic physics contracts: `PhysicsWorld`, `BodyHandle`, `BodyTransform`, `PhysicsShape`, `MotionType`, `RaycastHit` | not published |
 | `:awake-backend:jolt` | Jolt Physics binding (JNI on desktop/Android via `jolt-jni`, JoltC cinterop on iOS) implementing `awake:physics:api` | not published |
+| `:awake-engine:ui:ui-api` | Stable UI value contracts shared above and below the runtime split; first extracted contract is `UiBounds` | not published |
 | `:awake-engine:ui:ui-core` | Foundational UI drawing and layout primitives | not published |
 | `:awake-engine:ui:ui-headless` | Reusable widget-level primitives built on `ui-core` | not published |
 | `:awake-engine:ui` | Style-agnostic UI composition templates and DSL surfaces | not published |

@@ -41,9 +41,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnLabel
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier

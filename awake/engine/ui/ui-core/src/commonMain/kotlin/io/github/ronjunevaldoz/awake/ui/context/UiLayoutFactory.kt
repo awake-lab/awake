@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
