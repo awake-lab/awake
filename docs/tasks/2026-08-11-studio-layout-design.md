@@ -197,10 +197,27 @@ Not yet diagnosed. What is known:
 - bare `column` wrapper + guard: camera menu opens, test passes
 - same wrapper + two toggle groups in a header row: menu never opens
 
-Next step is to bisect that: add the header row EMPTY first and confirm it still passes, then add
-one toggle group, then the second. That isolates whether it is the extra row, the toggle groups'
-own state, or something about two of them sharing a row. Do not add the header wholesale again
-without that bisect -- it has now cost two attempts.
+BISECTED (2026-08-11). Results:
+
+| Header content | `StudioModuleCameraTest` |
+|---|---|
+| wrapper only, no header row | passes |
+| wrapper + EMPTY header row | passes |
+| wrapper + header row with ONE `shadcnToggleGroup` | FAILS |
+
+So it is neither the nesting nor two toggle groups interacting: a single `shadcnToggleGroup`
+anywhere in the viewport panel stops the icon rail's camera dropdown from opening. The rail
+button is still found and still clicked -- only the popup fails to appear.
+
+That is a `shadcnToggleGroup` defect, not a layout one, and it is worth chasing on its own: any
+screen combining a toggle group with a popup is affected, which the design puts in several places
+(the tool pill is a toggle group, the display pill sits beside it, the hierarchy has context
+menus).
+
+Suspects, in order: the toggle group claiming `activeId` or focus on pointer-down without a hover
+check, so the popup's own claim is refused; or it emitting/consuming input in a way that
+suppresses the rail button's release. Instrument `activeId` across the frames the test drives
+before changing anything.
 
 ### Right dock -- `InspectorPanel`
 
