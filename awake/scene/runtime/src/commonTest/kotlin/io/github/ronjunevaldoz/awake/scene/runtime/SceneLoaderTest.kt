@@ -4,7 +4,9 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
+import io.github.ronjunevaldoz.awake.scene.core.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import kotlinx.coroutines.test.runTest
 import kotlin.math.PI
@@ -13,9 +15,92 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera as SceneCameraComponent
 
 class SceneLoaderTest {
+    @Test
+    fun fromWorldExportsLocalTransformsComponentsAndHierarchy() {
+        val world = World()
+        val parent = world.create()
+        val child = world.create()
+        world.add(parent, Name("parent"))
+        world.add(parent, Transform(position = io.github.ronjunevaldoz.awake.core.math.Vec3(1f, 2f, 3f)))
+        world.add(parent, PbrMaterial(metallic = 0.25f, roughness = 0.4f))
+        world.add(
+            parent,
+            SpinControl().also {
+                it.radians = 1.5f
+                it.speed = 2f
+            },
+        )
+        world.add(child, Name("child"))
+        world.add(
+            child,
+            Transform(
+                position = io.github.ronjunevaldoz.awake.core.math.Vec3(4f, 5f, 6f),
+                parent = parent,
+            ),
+        )
+        world.add(
+            child,
+            SceneCameraComponent(
+                CoreCamera(
+                    eye = io.github.ronjunevaldoz.awake.core.math.Vec3(7f, 8f, 9f),
+                    center = io.github.ronjunevaldoz.awake.core.math.Vec3(1f, 2f, 3f),
+                    fovYRadians = (PI / 3.0).toFloat(),
+                    near = 0.1f,
+                    far = 100f,
+                ),
+                isPrimary = false,
+            ),
+        )
+        world.add(
+            child,
+            Light(
+                color = io.github.ronjunevaldoz.awake.core.math.Vec3(0.1f, 0.2f, 0.3f),
+                intensity = 0.75f,
+                type = Light.Type.Point,
+            ),
+        )
+
+        val exported = SceneLoader.fromWorld(world, name = "authored")
+
+        assertEquals("authored", exported.name)
+        assertEquals(
+            listOf(
+                SceneNode(
+                    name = "parent",
+                    transform = SceneTransform(position = SceneVec3(1f, 2f, 3f)),
+                    components = listOf(
+                        ScenePbrMaterial(metallic = 0.25f, roughness = 0.4f),
+                        SceneSpinControl(radians = 1.5f, speed = 2f),
+                    ),
+                    children = listOf(
+                        SceneNode(
+                            name = "child",
+                            transform = SceneTransform(position = SceneVec3(4f, 5f, 6f)),
+                            components = listOf(
+                                SceneCamera(
+                                    eye = SceneVec3(7f, 8f, 9f),
+                                    center = SceneVec3(1f, 2f, 3f),
+                                    fovYDegrees = 60f,
+                                    primary = false,
+                                ),
+                                SceneLight(
+                                    color = SceneVec3(0.1f, 0.2f, 0.3f),
+                                    intensity = 0.75f,
+                                    type = SceneLight.Type.Point,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            exported.nodes,
+        )
+    }
+
     @Test
     fun documentRoundTripsThroughJson() {
         val document = SceneDocument(
