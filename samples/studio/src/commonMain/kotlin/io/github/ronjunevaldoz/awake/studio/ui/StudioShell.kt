@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.studio.ui
 
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.frame
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
@@ -19,7 +20,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
@@ -173,7 +173,7 @@ private fun UiScope.drawStudioWorkspace(
 
 /** The viewport panel's own content: the floating icon rail hugging its left edge, the 3D
  * viewport region (the toolbar used to float here too -- it lives in the top bar now), and the
- * right-click camera menu/orbit-drag hooked to that same region's bounds. */
+ * right-click camera menu hooked to that same region's bounds. */
 private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Renderer) {
     column(modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)) {
         drawStudioViewportHeader(store)
@@ -181,42 +181,41 @@ private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Render
             id = "studio-viewport-row",
             modifier = Modifier.width(Dimension.FillMax).weight(1f),
         ) {
-        drawIconRail(
-            activeTool = store.state.value.toolRail.activeTool,
-            onSelectTool = { store.dispatch(StudioContract.Intent.SelectTool(it)) },
-            onResetExample = { store.dispatch(StudioContract.Intent.SelectExample(store.state.value.examples.activeExampleId)) },
-            onSelectCameraMode = { store.dispatch(StudioContract.Intent.SetCameraMode(it)) },
-            onSelectCameraProjection = { store.dispatch(StudioContract.Intent.SetProjection(it)) },
-        )
-        val viewportBounds = column(
-            id = "studio-viewport-column",
-            modifier = Modifier.weight(1f).height(Dimension.FillMax).padding(8f.dp),
-        ) { }
-        drawDisplayRail(
-            wireframe = renderer.wireframe,
-            shadows = renderer.shadowsEnabled,
-            onWireframeChange = { renderer.wireframe = it },
-            onShadowsChange = { renderer.shadowsEnabled = it },
-        )
-        viewportCameraMenu(
-            id = "studio-viewport-camera-menu",
-            bounds = viewportBounds,
-            onPick = { index ->
-                dispatchCameraMenuPick(
-                    index,
-                    onSelectMode = { store.dispatch(StudioContract.Intent.SetCameraMode(it)) },
-                    onSelectProjection = { store.dispatch(StudioContract.Intent.SetProjection(it)) },
-                )
-            },
-        )
-            driveViewportOrbitDrag(store, viewportBounds)
+            drawIconRail(
+                activeTool = store.state.value.toolRail.activeTool,
+                onSelectTool = { store.dispatch(StudioContract.Intent.SelectTool(it)) },
+                onResetExample = { store.dispatch(StudioContract.Intent.SelectExample(store.state.value.examples.activeExampleId)) },
+                onSelectCameraMode = { store.dispatch(StudioContract.Intent.SetCameraMode(it)) },
+                onSelectCameraProjection = { store.dispatch(StudioContract.Intent.SetProjection(it)) },
+            )
+            val viewportBounds = column(
+                id = "studio-viewport-column",
+                modifier = Modifier.weight(1f).height(Dimension.FillMax).padding(8f.dp),
+            ) { }
+            drawDisplayRail(
+                wireframe = renderer.wireframe,
+                shadows = renderer.shadowsEnabled,
+                onWireframeChange = { renderer.wireframe = it },
+                onShadowsChange = { renderer.shadowsEnabled = it },
+            )
+            viewportCameraMenu(
+                id = "studio-viewport-camera-menu",
+                bounds = viewportBounds,
+                onPick = { index ->
+                    dispatchCameraMenuPick(
+                        index,
+                        onSelectMode = { store.dispatch(StudioContract.Intent.SetCameraMode(it)) },
+                        onSelectProjection = { store.dispatch(StudioContract.Intent.SetProjection(it)) },
+                    )
+                },
+            )
         }
     }
 }
 
 private fun UiScope.drawStudioViewportHeader(store: StudioStore) {
     val camera = store.state.value.camera
-    val modes = StudioContract.CameraPresetMode.entries
+    val modes = CameraMode.entries
     val projections = StudioContract.Projection.entries
     row(
         id = "studio-viewport-header",
@@ -240,33 +239,4 @@ private fun UiScope.drawStudioViewportHeader(store: StudioStore) {
             projections.getOrNull(index)?.let { store.dispatch(StudioContract.Intent.SetProjection(it)) }
         }
     }
-}
-
-// Same sensitivity as `awake:scene:controls`' CameraSystem.LOOK_SENSITIVITY -- consistent drag
-// feel with the engine's own gameplay camera.
-private const val ORBIT_DRAG_SENSITIVITY = 0.005f
-
-/** Primary-drag orbits the camera while [StudioContract.CameraPresetMode.Orbit] is active --
- * Front/Top ignore drag input entirely (core-math skill Rule 5: a mode that ignores an axis
- * must not accumulate it). */
-private fun UiScope.driveViewportOrbitDrag(store: StudioStore, bounds: UiBounds) {
-    if (store.state.value.camera.mode != StudioContract.CameraPresetMode.Orbit) return
-    val input = context.inputState
-    val isHovered = input.pointerX >= bounds.x &&
-        input.pointerX <= bounds.x + bounds.width &&
-        input.pointerY >= bounds.y &&
-        input.pointerY <= bounds.y + bounds.height
-    val dragging = input.pointerDown && isHovered
-    val state = widgetState("studio-viewport-orbit-drag")
-    val wasDragging = state.get("wasDragging", false)
-    if (dragging && wasDragging) {
-        val dx = input.pointerX - state.get("lastX", input.pointerX)
-        val dy = input.pointerY - state.get("lastY", input.pointerY)
-        if (dx != 0f || dy != 0f) {
-            store.dispatch(StudioContract.Intent.OrbitBy(dx * ORBIT_DRAG_SENSITIVITY, -dy * ORBIT_DRAG_SENSITIVITY))
-        }
-    }
-    state.set("lastX", input.pointerX)
-    state.set("lastY", input.pointerY)
-    state.set("wasDragging", dragging)
 }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.state
 
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -57,28 +58,12 @@ class StudioStoreTest {
     @Test
     fun setCameraModeUpdatesStateWithoutQueuingAnEffect() {
         val store = StudioStore()
-        assertEquals(StudioContract.CameraPresetMode.Orbit, store.state.value.camera.mode)
+        assertEquals(CameraMode.ThirdPerson, store.state.value.camera.mode)
 
-        store.dispatch(StudioContract.Intent.SetCameraMode(StudioContract.CameraPresetMode.Front))
+        store.dispatch(StudioContract.Intent.SetCameraMode(CameraMode.FirstPerson))
 
-        assertEquals(StudioContract.CameraPresetMode.Front, store.state.value.camera.mode)
+        assertEquals(CameraMode.FirstPerson, store.state.value.camera.mode)
         assertTrue(store.drainEffects().isEmpty())
-    }
-
-    @Test
-    fun orbitByAccumulatesYawAndClampsPitchAtThePoles() {
-        val store = StudioStore()
-
-        store.dispatch(StudioContract.Intent.OrbitBy(deltaYaw = 0.4f, deltaPitch = 0.1f))
-        store.dispatch(StudioContract.Intent.OrbitBy(deltaYaw = 0.4f, deltaPitch = 0.1f))
-
-        assertEquals(0.8f, store.state.value.camera.yaw, ORBIT_TOLERANCE)
-        assertEquals(0.2f, store.state.value.camera.pitch, ORBIT_TOLERANCE)
-
-        // A single huge drag would blow well past the pole -- pitch must clamp, not wrap.
-        store.dispatch(StudioContract.Intent.OrbitBy(deltaYaw = 0f, deltaPitch = 10f))
-
-        assertEquals(StudioContract.PITCH_LIMIT_RADIANS, store.state.value.camera.pitch, ORBIT_TOLERANCE)
     }
 
     @Test
@@ -111,9 +96,5 @@ class StudioStoreTest {
         store.dispatch(StudioContract.Intent.ClearConsole)
 
         assertTrue(store.state.value.console.entries.isEmpty())
-    }
-
-    private companion object {
-        const val ORBIT_TOLERANCE = 1e-4f
     }
 }

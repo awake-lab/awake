@@ -2,15 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.state
 
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
-import kotlin.math.PI
 
 internal object StudioContract {
     enum class Tool { Layers, Grid, Environment, History, Panels }
-
-    /** Orbit is continuous (yaw/pitch/distance); Front/Top are fixed axis-aligned presets --
-     * see [io.github.ronjunevaldoz.awake.studio.state.CameraPresetMath]. */
-    enum class CameraPresetMode { Orbit, Front, Top }
 
     enum class Projection { Perspective, Orthographic }
 
@@ -26,11 +22,11 @@ internal object StudioContract {
 
     data class ConsoleState(val entries: List<ConsoleEntry> = emptyList())
 
+    /** Mirrors [CameraComponent]'s own fields. Studio used to carry a parallel
+     * `CameraPresetMode` (Orbit/Front/Top) with hand-rolled preset math, which left the engine's
+     * Cinematic and TopDown unreachable and drag working only in Orbit. */
     data class CameraState(
-        val mode: CameraPresetMode = CameraPresetMode.Orbit,
-        val yaw: Float = 0f,
-        val pitch: Float = 0f,
-        val distance: Float = DEFAULT_ORBIT_DISTANCE,
+        val mode: CameraMode = CameraMode.ThirdPerson,
         val projection: Projection = Projection.Perspective,
     )
 
@@ -46,8 +42,7 @@ internal object StudioContract {
         data class SelectExample(val id: String) : Intent
         data class SelectEntity(val id: Int?) : Intent
         data class SelectTool(val tool: Tool) : Intent
-        data class SetCameraMode(val mode: CameraPresetMode) : Intent
-        data class OrbitBy(val deltaYaw: Float, val deltaPitch: Float) : Intent
+        data class SetCameraMode(val mode: CameraMode) : Intent
         data class SetProjection(val projection: Projection) : Intent
         data class AppendConsole(val level: ConsoleLevel, val message: String) : Intent
         data object ClearConsole : Intent
@@ -57,15 +52,4 @@ internal object StudioContract {
         // World mutation is a side effect; a reducer shouldn't perform it directly.
         data class LoadExample(val exampleId: String) : Effect
     }
-
-    // Distance chosen to match every authored example scene's own eye-to-center distance, so
-    // switching to Orbit (the default mode) doesn't jump the camera on load.
-    const val DEFAULT_ORBIT_DISTANCE = 3f
-
-    /** Matches `awake:scene:controls`' `CameraSystem` -- short of a right angle, where
-     * `setLookAt`'s cross product would degenerate (core-math skill Rule 5). */
-    val PITCH_LIMIT_RADIANS = (PITCH_LIMIT_DEGREES * DEGREES_TO_RADIANS).toFloat()
-
-    private const val PITCH_LIMIT_DEGREES = 85.0
-    private const val DEGREES_TO_RADIANS = PI / 180.0
 }
