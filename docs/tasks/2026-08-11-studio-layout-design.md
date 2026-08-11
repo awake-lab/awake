@@ -118,16 +118,24 @@ Gains a header strip, and keeps its left pill. The split follows Blender (the `T
 only tools; the header along the top holds shading, overlays and view) and Unity (tools top-left,
 display toolbar beside them).
 
+Controls are split by INTERACTION MODEL, not by topic -- two pills framing the viewport plus a
+header:
+
 | Control | Home | Component | Interaction |
 |---|---|---|---|
 | Select / Move / Rotate / Scale | left pill | `shadcnToggleGroup` | modal, mutually exclusive |
-| Camera mode | header | `shadcnSelect` | 4 options, needs labels |
+| Wireframe, Shadows, (Grid, Overlays) | right pill | `shadcnToggle` each | independent booleans |
+| Camera mode | header | `shadcnSelect` | picker, 4 options, needs labels |
 | Perspective / Ortho | header | `shadcnToggleGroup` | 2-way modal |
-| Wireframe, Shadows | header | `shadcnToggle` | independent booleans |
 
-They are deliberately NOT all in the pill. The pill is a single-select control; wireframe and
-shadows are independent booleans and camera mode is a picker. Three interaction models in one
-strip muddles all three, and `shadcnToggleGroup`'s single-select semantics only fit the first.
+Wireframe and shadows sat in the header in an earlier draft. Two reasons they moved:
+`shadcnToggleGroup`'s single-select semantics fit modal tools and nothing else, so mixing
+independent booleans into either the tool pill or a shared strip muddles both; and the header was
+already carrying four controls with grid, gizmo visibility and overlays all queued behind them.
+The display pill gives that family somewhere to grow.
+
+Blender splits the same way -- the `T` toolbar holds tools, shading and overlay toggles float at
+the viewport's top right -- and two pills frame the viewport symmetrically.
 
 This also fixes a discoverability problem in the current build: camera mode lives in a
 right-click menu (`viewportCameraMenu`), so it is invisible until you know it exists. A header
