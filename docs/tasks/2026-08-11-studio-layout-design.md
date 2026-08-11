@@ -38,13 +38,39 @@ dock appears at the bottom.
 | Element | Component | Notes |
 |---|---|---|
 | Title | `shadcnText` | unchanged |
-| Scene picker | `shadcnSelect` or `shadcnDropdownMenu` | this is where the demo list goes, freeing the left dock |
-| Play / Pause / Step | `shadcnButton` x3 | today's single Play is really "reload example"; separate the concepts |
+| Scene tabs | `shadcnTabs` + `+` button | open scenes, Godot's shape; `+` picks from `StudioExamples` |
+| Play | `shadcnToggle` | anchors the RIGHT edge; a MODE, not a transport -- see below |
+
+Layout is two populated zones -- tabs left, play right -- with nothing centred. Centring only
+reads as deliberate when both sides are flanked, and an earlier draft centred Play in a bar whose
+right side was empty, which read as floating. The scene control also sat directly against the
+title, so it looked like branding rather than a control.
+
+Scene tabs imply a concept studio does not have yet: OPEN scenes, plural. The model that fits
+what already exists is `StudioExamples` as the AVAILABLE set, tabs as the OPEN set, and `+`
+opening a picker over the available ones. That also settles where the demo list goes -- it stops
+being a left-dock panel and becomes the tab strip's source, which is what frees the left dock for
+the hierarchy.
+
+Until multi-scene exists, a single tab looks like a mistake. Ship the strip only when a second
+scene can be opened; before that, a labelled dropdown showing the CURRENT scene name (not the
+word "Scene") in the same left position is the honest interim.
 
 Nothing viewport-scoped goes here. Transform tools, camera mode, projection, wireframe and
 shadows all move to the viewport -- see below. Wireframe and shadows sat in the top bar in an
 earlier draft, which was the same scoping mistake as the tools: they govern how ONE VIEWPORT
 displays, not the document.
+
+#### Edit mode vs play mode
+
+Today's Play button re-dispatches `SelectExample`, i.e. it reloads. That is not a transport, and
+three always-enabled transport buttons imply a timeline that does not exist.
+
+Edit and play are MODES: in edit mode gameplay systems do not tick, in play mode they do. The
+status bar already renders `Edit mode` as a literal, so the concept was intended and never built.
+Pause and step are meaningful only INSIDE play mode, so they appear when it is entered rather
+than sitting disabled. Unity additionally tints the editor while in play mode; worth copying,
+since the failure mode is editing a scene that is about to be discarded on exit.
 
 ### Left dock -- new `HierarchyPanel`
 
@@ -53,8 +79,23 @@ displays, not the document.
 - **Scene** -- the entity tree, driven by `world.queryEach<Name>`
 - **Assets** -- placeholder now; the eventual content browser
 
-Rows are `shadcnContextMenu` triggers (rename, delete, focus). Clicking dispatches the
-`SelectEntity` intent that already exists and is currently discarded.
+Rows are `shadcnContextMenu` triggers. Clicking dispatches the `SelectEntity` intent that
+already exists and is currently discarded.
+
+Context menus, by target:
+
+| Target | Actions |
+|---|---|
+| Hierarchy row | Rename, Duplicate, Focus, Delete |
+| Viewport, over an entity | Focus, Duplicate, Delete |
+| Viewport, empty space | Add entity, Frame all |
+| Inspector component header | Reset, Remove component |
+| Console | Copy, Clear |
+
+Right-click currently opens the CAMERA menu (`viewportCameraMenu`), which squats on the gesture:
+right-click on a viewport conventionally acts on whatever is under the cursor, it does not open
+settings. Moving camera mode into the viewport header is therefore not only a discoverability
+fix -- it is what frees right-click to do its actual job.
 
 Nesting: there is no tree component in `ui-designsystem`. Two options, in preference order:
 
@@ -121,11 +162,15 @@ Becomes selection-driven and editable:
 The `Field*` wrappers already pair a label with a control, which is the exact shape an inspector
 row needs.
 
-### Bottom dock -- new `ConsolePanel`
+### Bottom dock -- tabbed
 
-Vertical `shadcnResizablePanelGroup` wrapping the horizontal one, so the console is draggable.
-`shadcnScrollArea` for the log, `shadcnBadge` counters for error/warning/info, `shadcnTabs` if
-an asset browser lands beside it later.
+Vertical `shadcnResizablePanelGroup` wrapping the horizontal one, so the dock is draggable.
+`shadcnTabs` across `Console | Timeline | Assets`.
+
+Timeline is a PANEL, not a mode -- worth stating because it is easy to conflate with play mode.
+Blender docks its timeline at the bottom and Unity docks the Animation window there; studio
+already ships `SkinnedAnimationPlayer` and glTF animation, so there is something to scrub.
+`shadcnScrollArea` for the console log, `shadcnBadge` counters for errors and warnings.
 
 Lowest priority of the four docks: it is additive, where the others fix things that currently
 mislead.
