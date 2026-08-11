@@ -35,7 +35,30 @@ every glyph flush on one baseline, ours just smaller. `GlyphStemWeightTest` asse
 renders at a CONSISTENT weight, not a correct one. Snapshot signatures only assert pixels match
 what was last recorded. Nothing asserted absolute size against an external truth.
 
-## Prime suspect
+## LOCALIZED (2026-08-10, later)
+
+One measurement splits it. At 14px, for `H`:
+
+    metrics:  widthEm=0.538086  heightEm=0.710938
+    emitted:  quad 7.53 x 9.95   <- exactly heightEm * 14, CORRECT
+    rendered: ink  3 x 7         <- 0.40 of quad width, 0.70 of quad height
+
+So `BasicText` emits the right quad and the packed metrics are right. The INK inside the quad is
+wrong, and asymmetrically so. That rules out metrics, resolveGlyphPx, density, quad math and font
+weight -- all of which were investigated and are correct.
+
+The remaining suspect is glyph PLACEMENT inside the atlas cell, introduced with MTSDF in
+e65c9eed. `sampleRect` derives the UV window from where `java.awt` would have drawn the glyph
+(its outline metrics), but the pixels are now placed by msdfgen using the hand-derived
+`-translate`/`-scale` in `blitGlyphCell`. If those two disagree, the UV window samples the wrong
+part of the cell: some ink is clipped out and empty distance field is included, which renders as
+a too-small glyph with the wrong aspect ratio. That is exactly the measured signature.
+
+Next step: dump the atlas to a PNG and look at where each glyph actually sits inside its cell,
+against the rect `sampleRect` computes for it. Do not guess at the transform again -- the two
+must be checked against each other visually, once.
+
+## Earlier suspect (superseded)
 
 The quad-vs-UV mismatch that MTSDF made significant. The glyph quad is sized to the INK
 (`widthEm * glyphPx` in `BasicText`), while `uvBoundsPx` (see `sampleRect` in the generator)
