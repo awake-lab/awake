@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupState as UiPopupStateContract
 import kotlin.reflect.KProperty
 
 /**
@@ -59,22 +60,22 @@ class UiStateValue<T> internal constructor(
 
 class UiPopupState internal constructor(
     private val expandedState: UiStateValue<Boolean>,
-) {
-    var expanded: Boolean
+) : UiPopupStateContract {
+    override var expanded: Boolean
         get() = expandedState.value
         set(value) {
             expandedState.value = value
         }
 
-    fun open() {
+    override fun open() {
         expanded = true
     }
 
-    fun close() {
+    override fun close() {
         expanded = false
     }
 
-    fun toggle() {
+    override fun toggle() {
         expanded = !expanded
     }
 }

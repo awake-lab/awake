@@ -104,3 +104,33 @@ fun ColumnScope.surface(
     verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
     clipContent = clipContent,
 ) { slot -> content(asHeadlessScope(), slot) }
+
+fun RowScope.surface(
+    id: String,
+    modifier: Modifier = Modifier,
+    style: SurfaceStyle = SurfaceStyle(),
+    verticalArrangement: Arrangement = Arrangement.Start,
+    clipContent: Boolean = false,
+    content: ColumnScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveSurface(
+    id = id,
+    modifier = modifier.asPrimitiveModifier(),
+    style = style.asPrimitiveStyle(),
+    verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
+    clipContent = clipContent,
+) { slot -> content(asHeadlessScope(), slot) }
+
+fun BoxScope.surface(
+    id: String,
+    modifier: Modifier = Modifier,
+    style: SurfaceStyle = SurfaceStyle(),
+    verticalArrangement: Arrangement = Arrangement.Start,
+    clipContent: Boolean = false,
+    content: ColumnScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveSurface(
+    id = id,
+    modifier = modifier.asPrimitiveModifier(),
+    style = style.asPrimitiveStyle(),
+    verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
+    clipContent = clipContent,
+) { slot -> content(asHeadlessScope(), slot) }

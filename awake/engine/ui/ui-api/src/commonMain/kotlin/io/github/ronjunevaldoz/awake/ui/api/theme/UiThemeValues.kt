@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.api.theme
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.Sp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.sp
 
 /** Immutable semantic color values shared by UI layers. */
@@ -52,6 +53,36 @@ interface UiThemeValues {
     val colors: UiColorTokens
     val typography: UiTypography
     val shapes: UiShapeTokens
+    /** Runtime-free component visuals consumed by Core's adapter and Headless recipes. */
+    val componentVisuals: UiThemeComponents get() = UiThemeComponents.Default
+}
+
+data class UiComponentVisuals(
+    val background: Color? = null,
+    val backgroundToken: String? = null,
+    val foreground: Color? = null,
+    val foregroundToken: String? = null,
+    val borderWidth: Dp? = null,
+    val borderColor: Color? = null,
+    val borderColorToken: String? = null,
+    val shape: Dp? = null,
+    val contentPadding: UiInsets = UiInsets.Zero,
+    val textSize: Sp? = null,
+)
+
+data class UiThemeComponents(
+    val button: UiComponentVisuals = UiComponentVisuals(),
+    val toggle: UiComponentVisuals = button,
+    val checkbox: UiComponentVisuals = UiComponentVisuals(),
+    val slider: UiComponentVisuals = UiComponentVisuals(),
+    val dropdown: UiComponentVisuals = UiComponentVisuals(),
+    val surface: UiComponentVisuals = UiComponentVisuals(),
+    val textField: UiComponentVisuals = UiComponentVisuals(),
+    val avatar: UiComponentVisuals = UiComponentVisuals(),
+) {
+    companion object {
+        val Default = UiThemeComponents()
+    }
 }
 
 /** Immutable semantic text-size values shared by UI layers. */

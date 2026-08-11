@@ -4,6 +4,15 @@ package io.github.ronjunevaldoz.awake.ui.api
 
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
+/** Shared popup state contract implemented by the runtime and exposed by Headless. */
+interface UiPopupState {
+    var expanded: Boolean
+
+    fun open()
+    fun close()
+    fun toggle()
+}
+
 /** Measured popup extent in runtime coordinates. */
 data class UiPopupSize(
     val width: Float,

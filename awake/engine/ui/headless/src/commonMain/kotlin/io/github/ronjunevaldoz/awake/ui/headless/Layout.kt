@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement as PrimitiveArrangem
 import io.github.ronjunevaldoz.awake.ui.layouts.box as primitiveBox
 import io.github.ronjunevaldoz.awake.ui.layouts.column as primitiveColumn
 import io.github.ronjunevaldoz.awake.ui.layouts.row as primitiveRow
+import io.github.ronjunevaldoz.awake.ui.layouts.spacer as primitiveSpacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier as primitiveModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier as PrimitiveModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align as primitiveAlign
@@ -16,7 +17,11 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight as primitiveFillM
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize as primitiveFillMaxSize
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth as primitiveFillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height as primitiveHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.heightIn as primitiveHeightIn
+import io.github.ronjunevaldoz.awake.ui.modifier.clickable as primitiveClickable
+import io.github.ronjunevaldoz.awake.ui.modifier.offset as primitiveOffset
 import io.github.ronjunevaldoz.awake.ui.modifier.padding as primitivePadding
+import io.github.ronjunevaldoz.awake.ui.modifier.testTag as primitiveTestTag
 import io.github.ronjunevaldoz.awake.ui.modifier.weight as primitiveWeight
 import io.github.ronjunevaldoz.awake.ui.modifier.width as primitiveWidth
 
@@ -25,7 +30,7 @@ interface Modifier {
     companion object : Modifier
 }
 
-private data class HeadlessModifier(val primitive: PrimitiveModifier) : Modifier
+internal data class HeadlessModifier(val primitive: PrimitiveModifier) : Modifier
 
 internal fun Modifier.asPrimitiveModifier(): PrimitiveModifier =
     (this as? HeadlessModifier)?.primitive ?: primitiveModifier
@@ -33,6 +38,14 @@ internal fun Modifier.asPrimitiveModifier(): PrimitiveModifier =
 fun Modifier.width(width: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveWidth(width))
 
 fun Modifier.height(height: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveHeight(height))
+
+/** Minimum/maximum height constraint that preserves an explicit caller height when present. */
+fun Modifier.heightIn(min: Dp? = null, max: Dp? = null): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveHeightIn(min = min, max = max))
+
+/** Attaches a stable click action to a Headless-owned widget or surface. */
+fun Modifier.clickable(enabled: Boolean = true, onClick: () -> Unit): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveClickable(enabled = enabled, onClick = onClick))
 
 fun Modifier.fillMaxWidth(): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveFillMaxWidth())
 
@@ -45,10 +58,23 @@ fun Modifier.padding(all: Dp): Modifier = HeadlessModifier(asPrimitiveModifier()
 fun Modifier.padding(horizontal: Dp, vertical: Dp): Modifier =
     HeadlessModifier(asPrimitiveModifier().primitivePadding(horizontal, vertical))
 
+fun Modifier.offset(x: Dp = Dp(0f), y: Dp = Dp(0f)): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveOffset(x, y))
+
 fun Modifier.weight(weight: Float, fill: Boolean = true): Modifier =
     HeadlessModifier(asPrimitiveModifier().primitiveWeight(weight, fill))
 
 fun Modifier.align(alignment: UiAlignment): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveAlign(alignment))
+
+/** Stable semantic/test identity for a Headless layout node. */
+fun Modifier.testTag(tag: String): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveTestTag(tag))
+
+fun ColumnScope.spacer(modifier: Modifier = Modifier): Unit =
+    primitive.primitiveSpacer(modifier.asPrimitiveModifier())
+
+fun RowScope.spacer(modifier: Modifier = Modifier): Unit =
+    primitive.primitiveSpacer(modifier.asPrimitiveModifier())
 
 /** Main-axis distribution for Headless [row] and [column] containers. */
 sealed interface Arrangement {
@@ -86,7 +112,40 @@ fun UiScope.column(
     horizontalAlignment = horizontalAlignment,
 ) { slot -> content(asHeadlessScope(), slot) }
 
+fun UiScope.row(
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement = Arrangement.Start,
+    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
+    content: RowScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveRow(
+    modifier = modifier.asPrimitiveModifier(),
+    horizontalArrangement = horizontalArrangement.asPrimitiveArrangement(),
+    verticalAlignment = verticalAlignment,
+) { slot -> content(asHeadlessScope(), slot) }
+
 fun ColumnScope.column(
+    modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement = Arrangement.Start,
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
+    content: ColumnScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveColumn(
+    modifier = modifier.asPrimitiveModifier(),
+    verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
+    horizontalAlignment = horizontalAlignment,
+) { slot -> content(asHeadlessScope(), slot) }
+
+fun RowScope.column(
+    modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement = Arrangement.Start,
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
+    content: ColumnScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveColumn(
+    modifier = modifier.asPrimitiveModifier(),
+    verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
+    horizontalAlignment = horizontalAlignment,
+) { slot -> content(asHeadlessScope(), slot) }
+
+fun BoxScope.column(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement = Arrangement.Start,
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
@@ -108,7 +167,56 @@ fun ColumnScope.row(
     verticalAlignment = verticalAlignment,
 ) { slot -> content(asHeadlessScope(), slot) }
 
+fun RowScope.row(
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement = Arrangement.Start,
+    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
+    content: RowScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveRow(
+    modifier = modifier.asPrimitiveModifier(),
+    horizontalArrangement = horizontalArrangement.asPrimitiveArrangement(),
+    verticalAlignment = verticalAlignment,
+) { slot -> content(asHeadlessScope(), slot) }
+
+fun BoxScope.row(
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement = Arrangement.Start,
+    verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
+    content: RowScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveRow(
+    modifier = modifier.asPrimitiveModifier(),
+    horizontalArrangement = horizontalArrangement.asPrimitiveArrangement(),
+    verticalAlignment = verticalAlignment,
+) { slot -> content(asHeadlessScope(), slot) }
+
 fun UiScope.box(
+    modifier: Modifier = Modifier,
+    contentAlignment: UiAlignment = UiAlignment.TopStart,
+    content: BoxScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveBox(
+    modifier = modifier.asPrimitiveModifier(),
+    contentAlignment = contentAlignment,
+) { slot -> content(asHeadlessScope(), slot) }
+
+fun ColumnScope.box(
+    modifier: Modifier = Modifier,
+    contentAlignment: UiAlignment = UiAlignment.TopStart,
+    content: BoxScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveBox(
+    modifier = modifier.asPrimitiveModifier(),
+    contentAlignment = contentAlignment,
+) { slot -> content(asHeadlessScope(), slot) }
+
+fun RowScope.box(
+    modifier: Modifier = Modifier,
+    contentAlignment: UiAlignment = UiAlignment.TopStart,
+    content: BoxScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveBox(
+    modifier = modifier.asPrimitiveModifier(),
+    contentAlignment = contentAlignment,
+) { slot -> content(asHeadlessScope(), slot) }
+
+fun BoxScope.box(
     modifier: Modifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     content: BoxScope.(slot: UiBounds) -> Unit,

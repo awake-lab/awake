@@ -18,13 +18,14 @@ kotlin {
         commonMain.dependencies {
             // Public headless contracts may use API values without exposing the runtime.
             api(project(":awake:engine:ui:ui-api"))
-            api(project(":awake:engine:ui:ui-core"))
+            implementation(project(":awake:engine:ui:ui-core"))
             implementation(project(":awake:core"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(project(":awake:engine:ui:testing"))
             implementation(project(":awake:engine:ui:designsystem"))
+            implementation(project(":awake:engine:ui:ui-core"))
         }
         named("desktopTest") {
             dependencies {

@@ -129,14 +129,16 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // UV sample rect (outline + crop bleed + texel snap, see PackedUiFontData.quadMetricsEm). Ink
 // previously rendered at ~0.90x of its own metrics because the padded atlas region was squeezed
 // into an outline-sized quad; every text-bearing scene's pixels moved when that closed.
+// 2026-08-12: re-recorded after the tutorial/review fixture migrated its public component scenes
+// from the temporary Core-receiver compatibility bridge to the Compose-style Headless facade.
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0x75b2d9d016fdbb90uL,
+    "ui-button-variants" to 0x2cac551e20d4e860uL,
     "ui-shaped-panel" to 0x9a1996d71ebbcd68uL,
-    "ui-panel-controls" to 0xf3e813985166c8e1uL,
-    "ui-alert-dialog" to 0x6540e2a029a0e0fcuL,
-    "ui-component-state-matrix" to 0xe9f5862e34b48479uL,
+    "ui-panel-controls" to 0x26dc5357d22f279auL,
+    "ui-alert-dialog" to 0xa81a49c3d5ad73beuL,
+    "ui-component-state-matrix" to 0xd5476f4512c1a495uL,
     "ui-rounded-clip-vector" to 0x12bc1c7b48d0bcb0uL,
-    "ui-awake-shadcn-showcase" to 0x369074a11da0f818uL,
+    "ui-awake-shadcn-showcase" to 0xdb55e5a04f46e55duL,
 )
 
 private fun ULong.toHexString(): String {

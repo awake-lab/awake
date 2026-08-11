@@ -6,16 +6,17 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectBoundsFit
 import io.github.ronjunevaldoz.awake.testing.ui.inspectDensityParity
 import io.github.ronjunevaldoz.awake.testing.ui.inspectThemeParity
 import io.github.ronjunevaldoz.awake.testing.ui.measureUiFrame
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.button
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 import kotlin.test.Test
 
 class UiCrossPlatformQualityTest {
@@ -23,8 +24,8 @@ class UiCrossPlatformQualityTest {
     @Test
     fun buttonStructureStaysStableAcrossShadcnThemes() {
         val font = UiFonts.default()
-        val dark = measureButtonMetrics(shadcnTheme(dark = true), font)
-        val light = measureButtonMetrics(shadcnTheme(dark = false), font)
+        val dark = measureButtonMetrics(shadcnTheme(dark = true).asRuntimeTheme(), font)
+        val light = measureButtonMetrics(shadcnTheme(dark = false).asRuntimeTheme(), font)
 
         inspectThemeParity(dark, light).requireClean()
     }
@@ -45,7 +46,7 @@ class UiCrossPlatformQualityTest {
         val context = UiContext()
         context.beginFrame(frame.width, frame.height, testSnapshot())
         context.pushFont(font)
-        context.pushTheme(shadcnTheme(dark = false))
+        context.pushTheme(shadcnTheme(dark = false).asRuntimeTheme())
         context.createAbsolute(x = 20f, y = 20f)
             .button("fit", label = "Awake Button", modifier = Modifier.width(180f.px).height(44f.px))
 
@@ -67,7 +68,7 @@ class UiCrossPlatformQualityTest {
         frameHeight: Float,
         buttonWidth: Float,
         buttonHeight: Float,
-        theme: UiTheme = shadcnTheme(dark = true),
+        theme: UiTheme = shadcnTheme(dark = true).asRuntimeTheme(),
     ) = UiContext().let { context ->
         context.beginFrame(frameWidth, frameHeight, testSnapshot())
         context.pushFont(font)

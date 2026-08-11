@@ -4,9 +4,9 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
+import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
@@ -66,6 +66,7 @@ class GlyphStemWeightTest {
         // of glyph sampling. That is exactly what happened -- see
         // docs/tasks/2026-08-10-glyph-scale-regression.md.
         val pixels = ui.endFrame().rasterize(width, height, background = Color.Black, font = UiFonts.default())
+
         // Coverage lives in the alpha channel: drawGlyph writes the tint's full RGB into any
         // pixel with nonzero coverage, so thresholding red would count the entire AA skirt.
         fun luma(x: Int, y: Int) = pixels[(y * width + x) * 4 + 3].toInt() and 0xFF

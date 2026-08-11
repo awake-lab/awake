@@ -13,14 +13,14 @@ import io.github.ronjunevaldoz.awake.ui.modifier.forceActive
 import io.github.ronjunevaldoz.awake.ui.modifier.forceFocus
 import io.github.ronjunevaldoz.awake.ui.modifier.forceHover
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 
 /**
  * Automates the rendering of a component in multiple interaction states using forced modifiers.
  */
 fun AwakeUiPreviewMetadata.componentStateMatrix(
     font: UiFont = UiFonts.default(),
-    theme: UiTheme? = null,
+    theme: UiThemeValues? = null,
     block: ColumnScope.(UiModifier) -> Unit,
 ): List<AwakeUiPreviewSample> {
     val states = listOf(

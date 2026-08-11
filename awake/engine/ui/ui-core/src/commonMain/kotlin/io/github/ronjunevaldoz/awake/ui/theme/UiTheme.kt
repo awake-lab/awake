@@ -21,3 +21,23 @@ interface UiTheme : UiThemeValues {
      * named radius scale, same as it already overrides [colors]. */
     override val shapes: UiShapeTokens get() = UiFallbackShapeTokens
 }
+
+/**
+ * Adapts a runtime-free theme value set for the Core context stack.
+ *
+ * Design-system modules must publish [UiThemeValues], not Core's [UiTheme]. Core supplies the
+ * neutral component-style fallback while Headless consumes the value contracts directly.
+ */
+/**
+ * Core runtime adapter for public, runtime-free theme contracts.
+ *
+ * Design-system modules should continue publishing [UiThemeValues]; callers that install a
+ * theme into a Core-owned runtime (for example GameUiDsl) may use this facade instead of
+ * depending on Core component recipes.
+ */
+fun UiThemeValues.asRuntimeTheme(): UiTheme = this as? UiTheme ?: object : UiTheme {
+    override val colors = this@asRuntimeTheme.colors
+    override val typography = this@asRuntimeTheme.typography
+    override val shapes = this@asRuntimeTheme.shapes
+    override val components: UiComponentStyles = CoreUiComponentStyles(colors, typography, componentVisuals)
+}

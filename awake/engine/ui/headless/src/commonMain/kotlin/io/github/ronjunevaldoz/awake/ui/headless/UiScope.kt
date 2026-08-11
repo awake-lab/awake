@@ -21,6 +21,9 @@ class UiScope internal constructor(
         get() = primitive.context.currentTheme
 }
 
+/** Requests keyboard focus for a Headless-owned input or composite widget. */
+fun UiScope.requestFocus(id: String) = primitive.context.requestFocus(id)
+
 /**
  * Creates the public Headless receiver for a root UI region.
  *
