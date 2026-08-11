@@ -17,11 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `GlyphStemWeightTest` -- which is currently `@Ignore`d, because its probe cannot isolate
   individual stems (a repeated 'i' at 12px collapses into one run at every threshold tried).
   Disabled deliberately rather than left green and lying. **Top open issue.**
-- **`rasterize()` silently draws a placeholder when `font` is null.** A frame full of glyphs
-  rendered without a font produces placeholder rects rather than failing, which cost a full
-  investigation and produced a confident but wrong "glyphs render at 0.6x" report (now retracted
-  in `docs/tasks/2026-08-10-glyph-scale-regression.md`). It should require the font, or make the
-  placeholder obviously not a glyph.
 - **Studio shows no custom cursor.** `SceneGameRuntime` has the cursor in its frame effects
   and discards it, unlike `GameUiRuntime`, and no service registration exposes the runtime to
   an entry point. `runVulkanDesktopGame`'s `cursor` defaults to null, so every request is
@@ -50,6 +45,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   inventoried.
 
 ### Fixed
+
+- **`rasterize()`'s missing-font placeholder is no longer glyph-shaped.** It drew a filled rect
+  in the glyph's own colour, inset 25%, which reads as a blob of text and -- worse -- measures as
+  one: probes scanning for ink found placeholder geometry and reported it as glyph metrics. That
+  produced a confident but wrong "glyphs render at 0.6x their metrics" investigation and left two
+  font gates green while they measured placeholders. Now a solid magenta box over the glyph's
+  full bounds, so neither a reader nor a pixel measurement can mistake it for text, and the
+  `font` parameter documents that it is required whenever a frame contains glyphs.
 
 - **Glyph ink rendered at ~0.90x of its own metrics** (sub-pixel at 12-14px, past a pixel from
   16px up): the font-atlas generator sized render quads to the glyph outline but UV rects to

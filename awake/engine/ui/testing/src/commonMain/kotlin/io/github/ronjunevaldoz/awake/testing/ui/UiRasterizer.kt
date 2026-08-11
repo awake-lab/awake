@@ -25,10 +25,20 @@ private const val GLYPH_GAMMA = 1.45f
  * by zero when deriving screen pixels per texel. */
 private const val MIN_TEXEL_WIDTH = 1e-4f
 
+/** Drawn for a glyph when no font was passed to [rasterize]. Magenta by convention -- it must be
+ * impossible to mistake for rendered text, in a screenshot or in a pixel measurement. */
+private val MissingFontColor = Color(1f, 0f, 1f, 1f)
+
 /**
  * Software-rasterizes a [UiDrawPrimitive] list into a tightly-packed RGBA8 buffer for
  * preview/docs/snapshot review. This is deliberately backend-agnostic and simpler than the
  * real GPU output: it exists to make UI regressions visible and diffable.
+ *
+ * [font] is REQUIRED whenever the frame contains glyphs. Omitting it does not fail -- every
+ * glyph renders as a solid magenta box instead -- so a test that forgets it silently measures
+ * placeholder geometry rather than text. That has happened, and cost an entire wrong
+ * investigation; see the placeholder branch and
+ * docs/tasks/2026-08-10-glyph-scale-regression.md.
  */
 fun List<UiDrawPrimitive>.rasterize(
     width: Int,
@@ -393,8 +403,17 @@ fun List<UiDrawPrimitive>.rasterize(
                 if (font != null) {
                     drawGlyph(scaledGlyph, font)
                 } else {
-                    val inset = min(w, h) * 0.25f
-                    fillRect(x + inset, y + inset, w - inset * 2, h - inset * 2, primitive.color)
+                    // Deliberately NOT glyph-shaped. This used to be a filled rect in the
+                    // glyph's own colour, inset 25% -- which reads as a blob of text and, worse,
+                    // MEASURES as one: probes scanning for ink found placeholder geometry and
+                    // reported it as glyph metrics. That produced a confident, wrong "glyphs
+                    // render at 0.6x their metrics" investigation, and left two font gates green
+                    // while they measured placeholders (see
+                    // docs/tasks/2026-08-10-glyph-scale-regression.md).
+                    //
+                    // Solid magenta over the glyph's FULL bounds: unmistakable to a reader, and
+                    // adjacent glyphs tile into one block rather than resembling letterforms.
+                    fillRect(x, y, w, h, MissingFontColor)
                 }
             }
             is UiDrawPrimitive.Texture -> {
