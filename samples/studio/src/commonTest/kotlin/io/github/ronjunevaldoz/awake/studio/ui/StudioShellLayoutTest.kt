@@ -114,6 +114,36 @@ class StudioShellLayoutTest {
         assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.1" })
         assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.2" })
     }
+
+    @Test
+    fun switchingBottomDockTabsKeepsMeasuredChildrenInSync() {
+        val ui = UiContext()
+        val store = StudioStore()
+        val world = World()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(shadcnTheme(dark = true))
+
+        fun frame(input: UiInputState): List<UiSemanticNode> {
+            ui.beginFrame(FRAME_WIDTH, FRAME_HEIGHT, input)
+            ui.createBox(slot = UiBounds(0f, 0f, FRAME_WIDTH, FRAME_HEIGHT))
+                .drawStudioShellBody(store, world, NoopRenderer())
+            return ui.finishFrame().semantics
+        }
+
+        fun click(tabId: String) {
+            val tab = assertNotNull(
+                frame(UiInputState(pointerX = -100f, pointerY = -100f))
+                    .firstOrNull { it.id == tabId },
+            )
+            val x = tab.bounds.x + tab.bounds.width / 2f
+            val y = tab.bounds.y + tab.bounds.height / 2f
+            frame(UiInputState(pointerX = x, pointerY = y, pointerDown = true))
+            frame(UiInputState(pointerX = x, pointerY = y, pointerDown = false))
+        }
+
+        click("studio-bottom-dock.1")
+        click("studio-bottom-dock.0")
+    }
 }
 
 private class NoopRenderer : Renderer {

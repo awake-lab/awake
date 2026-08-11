@@ -33,21 +33,27 @@ private val BOTTOM_DOCK_INSET = 8f.dp
  * Studio store concern for temporary chrome state. */
 internal fun UiScope.drawStudioBottomDock(store: StudioStore) {
     var selectedTab by context.rememberStateValue("studio-bottom-dock", "selected-tab") { 0 }
+    // A tab click is resolved while this column is rendering. Keep this frame's content tied to
+    // the selection that its measurement pass saw, then apply the requested tab for next frame.
+    // Switching immediately makes the render pass claim a different number of child slots than
+    // the measured plan and crashes ColumnScope.claimSlot().
+    val renderedTab = selectedTab
     column(
         id = "studio-bottom-dock-content",
         verticalArrangement = Arrangement.spacedBy(8f.dp),
         modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax).padding(BOTTOM_DOCK_INSET),
     ) {
-        selectedTab = shadcnTabs(
+        val requestedTab = shadcnTabs(
             id = "studio-bottom-dock",
             tabs = BOTTOM_DOCK_TABS,
-            selectedIndex = selectedTab,
+            selectedIndex = renderedTab,
         )
-        when (selectedTab) {
+        when (renderedTab) {
             0 -> drawStudioConsole(store)
             1 -> drawStudioTimelinePlaceholder()
             2 -> drawStudioAssetsPlaceholder()
         }
+        selectedTab = requestedTab
     }
 }
 
