@@ -16,12 +16,28 @@ class UiStateValue<T> internal constructor(
     private val state: WidgetState,
     private val key: String,
     initial: () -> T,
+    /**
+     * True while a trial measuring pass is running, in which case writes are DROPPED.
+     *
+     * `column()` re-executes its content against a scratch context that shares this real,
+     * persisted [WidgetState] but starts from blank input. Anything that writes state from that
+     * pass corrupts the value the real pass reads moments later, in the same frame. That has
+     * shipped three times: the resizable handle's drag anchor was deleted every frame,
+     * `animatedHeight` cached a stale height, and a popup nested in an extra column would not
+     * open because its toggle was clobbered.
+     *
+     * Suppressing at the setter fixes every hook built on this at once -- popup, boolean, float,
+     * scroll -- rather than each widget remembering to guard itself, which is what the previous
+     * per-widget `isMeasuring()` gates required and what kept letting new cases through.
+     */
+    private val isMeasuring: () -> Boolean = { false },
 ) {
     private val defaultValue: T = initial()
 
     var value: T
         get() = state.get(key, defaultValue)
         set(value) {
+            if (isMeasuring()) return
             state.set(key, value)
         }
 
@@ -30,6 +46,7 @@ class UiStateValue<T> internal constructor(
     }
 
     fun reset() {
+        if (isMeasuring()) return
         state.remove(key)
     }
 
@@ -71,7 +88,7 @@ fun <T> UiContext.rememberStateValue(
     id: String,
     key: String = "value",
     initial: () -> T,
-): UiStateValue<T> = widgetStateInternal(id).rememberStateValue(key, initial)
+): UiStateValue<T> = UiStateValue(widgetStateInternal(id), key, initial) { isMeasuringInternal() }
 
 fun <T> UiScope.rememberStateValue(
     id: String,
