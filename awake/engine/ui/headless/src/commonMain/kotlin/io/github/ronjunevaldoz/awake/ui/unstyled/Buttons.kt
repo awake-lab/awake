@@ -4,12 +4,12 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -29,7 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 /** [button] with the resolved [UiBounds] alongside the click result. */
 data class UiButtonResult(val clicked: Boolean, val slot: UiBounds)
 
-private inline fun UiScope.buttonSlotInternal(
+private inline fun UiPrimitiveScope.buttonSlotInternal(
     id: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
@@ -99,7 +99,7 @@ private inline fun UiScope.buttonSlotInternal(
     return UiButtonResult(surface.interaction.clicked, surface.interaction.slot)
 }
 
-fun UiScope.button(
+fun UiPrimitiveScope.button(
     id: String,
     label: String? = null,
     modifier: UiModifier = Modifier,
@@ -121,7 +121,7 @@ fun UiScope.button(
     enabled = enabled,
 ).clicked
 
-fun UiScope.buttonSlot(
+fun UiPrimitiveScope.buttonSlot(
     id: String,
     label: String? = null,
     modifier: UiModifier = Modifier,
@@ -157,7 +157,7 @@ fun UiScope.buttonSlot(
     },
 )
 
-fun UiScope.buttonSlot(
+fun UiPrimitiveScope.buttonSlot(
     id: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
@@ -176,7 +176,7 @@ fun UiScope.buttonSlot(
     content(contentSlot)
 }
 
-fun UiScope.button(
+fun UiPrimitiveScope.button(
     id: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
@@ -201,7 +201,7 @@ fun UiScope.button(
  * Ghost button reads as "just a border" / "just a label" the way shadcn's own CSS variants
  * do), and [Outline] additionally always draws a `theme.tokens.border` stroke regardless of
  * hover state. [buttonSlot] is the single place that interprets this -- a consumer widget
- * built on the same primitives ([UiScope.claimSlot]/[UiScope.emit]/[io.github.ronjunevaldoz.awake.ui.graphics.border]) can
+ * built on the same primitives ([UiPrimitiveScope.claimSlot]/[UiPrimitiveScope.emit]/[io.github.ronjunevaldoz.awake.ui.graphics.border]) can
  * define its own variant vocabulary instead of this one; nothing else in the library assumes
  * these three exist.
  */

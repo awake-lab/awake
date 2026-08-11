@@ -30,7 +30,7 @@ class UiOverlayLayerTest {
             .emit(UiDrawPrimitive.Quad(0f, 0f, 10f, 10f, Color(1f, 0f, 0f, 1f)))
 
         // buttonSlot's content-lambda overload (used by dropdown menu items, among others)
-        // routes its content through UiScope.childAbsolute(...) -- this must inherit the
+        // routes its content through UiPrimitiveScope.childAbsolute(...) -- this must inherit the
         // overlay flag from whatever scope is doing the popup rendering.
         val overlayColumn = ui.createColumn(x = 0f, y = 0f, width = 100f, overlayOnly = true)
         val overlayMarker = UiDrawPrimitive.Quad(0f, 0f, 10f, 10f, Color(0f, 0f, 1f, 1f))
@@ -84,8 +84,8 @@ class UiOverlayLayerTest {
     /**
      * Regression coverage for the "dialog wrap-height content clipped/missing" bug: a dialog/
      * popup's overlay content is always painted last, independent of the base layer -- but
-     * before this fix, `clip()`'s [UiScope.pushClipInternal] resolved every clip rect against ONE
-     * shared stack regardless of [UiScope.emitsToOverlay]. A popup's own composition still runs
+     * before this fix, `clip()`'s [UiPrimitiveScope.pushClipInternal] resolved every clip rect against ONE
+     * shared stack regardless of [UiPrimitiveScope.emitsToOverlay]. A popup's own composition still runs
      * synchronously nested inside whatever base-layer ancestor's content lambda called it (e.g. a
      * WrapContent card with rounded corners, auto-clipped per Surface.kt), so that ancestor's own
      * (possibly much smaller -- it's sized only around its normal-flow content, which never

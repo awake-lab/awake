@@ -39,7 +39,7 @@ fun UiContext.rememberTransition(
     return animateFloatTween(id = "__transition__$id", target = target, initial = target, durationMs = durationMs, easing = easing)
 }
 
-fun UiScope.rememberTransition(
+fun UiPrimitiveScope.rememberTransition(
     id: String,
     targetState: Any?,
     durationMs: Float = 300f,

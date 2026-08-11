@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
+import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.min
 
@@ -64,7 +64,7 @@ internal fun Arrangement.plan(containerSize: Float, childCount: Int, occupiedSiz
 /**
  * Distributes a row/column's main-axis space between non-weighted children (untouched, except
  * for the FillMax case below) and [LayoutWeight]-tagged children (share [remaining] proportionally
- * to their weight) -- shared by [io.github.ronjunevaldoz.awake.ui.UiScope.row]/[io.github.ronjunevaldoz.awake.ui.UiScope.column].
+ * to their weight) -- shared by [io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope.row]/[io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope.column].
  * [measuredSizes]/[weights]/[fillsMainAxis] are parallel lists (one entry per child, `weights[i]
  * == null` for a non-weighted child), matching
  * [io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent.slots]/[io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent.weights]/

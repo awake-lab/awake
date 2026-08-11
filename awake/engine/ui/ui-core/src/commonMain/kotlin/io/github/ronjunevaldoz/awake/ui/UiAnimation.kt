@@ -32,7 +32,7 @@ fun UiContext.animateFloat(
     return next
 }
 
-fun UiScope.animateFloat(
+fun UiPrimitiveScope.animateFloat(
     id: String,
     target: Float,
     initial: Float = target,
@@ -107,7 +107,7 @@ fun UiContext.animateFloatTween(
     return next
 }
 
-fun UiScope.animateFloatTween(
+fun UiPrimitiveScope.animateFloatTween(
     id: String,
     target: Float,
     initial: Float = target,
@@ -196,7 +196,7 @@ fun UiContext.animateFloatRepeatable(
     )
 }
 
-fun UiScope.animateFloatRepeatable(
+fun UiPrimitiveScope.animateFloatRepeatable(
     id: String,
     initialValue: Float,
     targetValue: Float,

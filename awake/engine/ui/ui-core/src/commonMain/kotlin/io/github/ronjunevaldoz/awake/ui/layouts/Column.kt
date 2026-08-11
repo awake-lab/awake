@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
@@ -33,7 +33,7 @@ import io.github.ronjunevaldoz.awake.ui.toPx
  * inspecting [modifier]. This is the one place that decides which strategy applies -- each
  * strategy itself is a plain, linearly-readable function, not a branch buried in a larger one.
  */
-internal fun UiScope.smartColumn(
+internal fun UiPrimitiveScope.smartColumn(
     id: String?,
     gap: Float,
     verticalArrangement: Arrangement,
@@ -47,7 +47,7 @@ internal fun UiScope.smartColumn(
     // own Start default. Thread it through those too if a scrollable/surfaced column ever needs
     // a non-default cross-axis alignment.
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
-    // Opt-in cross-frame hasWeightedChild cache -- see UiScope.column()'s doc comment. Only
+    // Opt-in cross-frame hasWeightedChild cache -- see UiPrimitiveScope.column()'s doc comment. Only
     // resolveMeasuredColumn()'s plain-measured strategy below consults this; the scrollable/
     // visual-surface strategies delegate to scrollPanel()/surface(), a separate widget surface
     // out of this task's row()/column() scope, so cacheKey is simply unused (not incorrect) on
@@ -70,7 +70,7 @@ internal fun UiScope.smartColumn(
 /** True if [effectiveStyle] (merged with this role's theme defaults) resolves to a real
  * background/border/shape -- the signal that a container should paint itself as a surface
  * rather than lay out as a plain, invisible column. */
-private fun UiScope.hasResolvedVisuals(
+private fun UiPrimitiveScope.hasResolvedVisuals(
     modifier: UiModifier,
     effectiveStyle: Style,
     role: UiSemanticRole,
@@ -90,7 +90,7 @@ private fun UiScope.hasResolvedVisuals(
     }
 }
 
-private fun UiScope.resolveScrollableContainer(
+private fun UiPrimitiveScope.resolveScrollableContainer(
     id: String,
     modifier: UiModifier,
     style: Style,
@@ -104,7 +104,7 @@ private fun UiScope.resolveScrollableContainer(
     content = content,
 ).slot
 
-private fun UiScope.resolveVisualSurface(
+private fun UiPrimitiveScope.resolveVisualSurface(
     id: String,
     modifier: UiModifier,
     effectiveStyle: Style,
@@ -123,7 +123,7 @@ private fun UiScope.resolveVisualSurface(
     )
 }
 
-private fun UiScope.resolveMeasuredColumn(
+private fun UiPrimitiveScope.resolveMeasuredColumn(
     id: String?,
     modifier: UiModifier,
     effectiveStyle: Style,
@@ -136,7 +136,7 @@ private fun UiScope.resolveMeasuredColumn(
     val insets = modifier.insets
     // A weight()-tagged column's width (its host row's main axis) is never actually decided by
     // its own WrapContent content -- it's decided later by the row's weight-distribution pass
-    // (see UiScope.row()/resolveWeightedMainAxis()). Falling through to WrapContent here like
+    // (see UiPrimitiveScope.row()/resolveWeightedMainAxis()). Falling through to WrapContent here like
     // any other column would let this function's own content trial below permanently bake a
     // Fixed(measuredWidth) into the modifier -- and because Dimension.Fixed.resolveAgainst()
     // always returns its own value regardless of the container slot it's placed into (see
@@ -239,11 +239,11 @@ fun ColumnScope.column(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     // Opt-in cross-frame hasWeightedChild cache -- forwarded to smartColumn()/
-    // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
-    // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
+    // resolveMeasuredColumn()/UiPrimitiveScope.column(). Defaults to null (existing call sites
+    // unaffected); pair with a stable [id] to opt in. See UiPrimitiveScope.column()'s doc comment.
     cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = (this as UiScope).smartColumn(
+): UiBounds = (this as UiPrimitiveScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
@@ -262,11 +262,11 @@ fun RowScope.column(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     // Opt-in cross-frame hasWeightedChild cache -- forwarded to smartColumn()/
-    // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
-    // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
+    // resolveMeasuredColumn()/UiPrimitiveScope.column(). Defaults to null (existing call sites
+    // unaffected); pair with a stable [id] to opt in. See UiPrimitiveScope.column()'s doc comment.
     cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = (this as UiScope).smartColumn(
+): UiBounds = (this as UiPrimitiveScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
@@ -295,11 +295,11 @@ fun AbsoluteScope.column(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     // Opt-in cross-frame hasWeightedChild cache -- forwarded to smartColumn()/
-    // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
-    // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
+    // resolveMeasuredColumn()/UiPrimitiveScope.column(). Defaults to null (existing call sites
+    // unaffected); pair with a stable [id] to opt in. See UiPrimitiveScope.column()'s doc comment.
     cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = (this as UiScope).smartColumn(
+): UiBounds = (this as UiPrimitiveScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
@@ -318,11 +318,11 @@ fun BoxScope.column(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     // Opt-in cross-frame hasWeightedChild cache -- forwarded to smartColumn()/
-    // resolveMeasuredColumn()/UiScope.column(). Defaults to null (existing call sites
-    // unaffected); pair with a stable [id] to opt in. See UiScope.column()'s doc comment.
+    // resolveMeasuredColumn()/UiPrimitiveScope.column(). Defaults to null (existing call sites
+    // unaffected); pair with a stable [id] to opt in. See UiPrimitiveScope.column()'s doc comment.
     cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = (this as UiScope).smartColumn(
+): UiBounds = (this as UiPrimitiveScope).smartColumn(
     id,
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
@@ -334,7 +334,7 @@ fun BoxScope.column(
     content = content,
 )
 
-fun UiScope.column(
+fun UiPrimitiveScope.column(
     verticalArrangement: Arrangement = defaultArrangement(),
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
     modifier: UiModifier = Modifier,
@@ -367,14 +367,14 @@ fun UiScope.column(
     val requestedWidth = sizedModifier.widthDimension ?: Dimension.FillMax
     val requestedHeight = sizedModifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = verticalArrangement
-    // ponytail: see the matching comment in UiScope.row() -- a plain Start/SpacedBy column
+    // ponytail: see the matching comment in UiPrimitiveScope.row() -- a plain Start/SpacedBy column
     // with no weighted children still takes the original fast childColumn() path below.
     // [precomputedMeasured] (when supplied) already answers "does this content have a weighted
     // child" -- weighted-ness is structural (which children called weight()), not dependent on
     // the width/height bound a trial measured against, so it's always safe to reuse for this
     // check alone, even though it was measured against resolveMeasuredColumn's wider
     // available-width bound rather than this column's real, tightened [slot].
-    // See the matching comment in UiScope.row() -- requiresMeasuredDistribution() alone already
+    // See the matching comment in UiPrimitiveScope.row() -- requiresMeasuredDistribution() alone already
     // forces the plannedSlots branch below regardless of hasWeightedChild's value, so `||`
     // short-circuits the trial to the right whenever it does, skipping a full throwaway
     // execution of [content] the branch decision below never needed anyway.
@@ -398,7 +398,7 @@ fun UiScope.column(
         // so always re-measure here regardless of whether a precomputed trial was supplied.
         val measured = context.measureColumnContent(
             width = slot.width,
-            // See the matching comment in UiScope.row() -- real gap so a FillMax child's trial
+            // See the matching comment in UiPrimitiveScope.row() -- real gap so a FillMax child's trial
             // height already accounts for the gap before its next sibling.
             gap = effectiveArrangement.baseSpacingPx(),
             height = slot.height,
@@ -443,7 +443,7 @@ fun UiScope.column(
             horizontalAlignment = horizontalAlignment,
         )
     }
-    // See the matching comment in UiScope.row() -- suppress recording while rendering this
+    // See the matching comment in UiPrimitiveScope.row() -- suppress recording while rendering this
     // column's own real children so a composite (e.g. weighted) child's grandchildren don't
     // corrupt an ancestor row/column's own in-progress measured.slots/weights trial.
     context.withMeasuredRecordingSuppressed { scope.content(slot) }

@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.ui.UiBoxConstraints
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textLayoutCacheStats

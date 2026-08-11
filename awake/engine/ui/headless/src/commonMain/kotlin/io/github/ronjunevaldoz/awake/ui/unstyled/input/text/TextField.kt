@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
@@ -13,8 +13,8 @@ import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -50,7 +50,7 @@ private val TEXT_FIELD_CARET_WIDTH = 1.5f.dp
  * user actually type and edit a value, not a mockup of one; those are real gaps to fill in
  * later, not corners silently cut and hoped nobody notices.
  */
-fun UiScope.textField(
+fun UiPrimitiveScope.textField(
     id: String,
     value: String,
     placeholder: String = "",
@@ -317,7 +317,7 @@ fun UiScope.textField(
     }
 }
 
-private fun UiScope.caretBlinkElapsedSeconds(id: String): Float {
+private fun UiPrimitiveScope.caretBlinkElapsedSeconds(id: String): Float {
     val state = widgetState(id)
     val elapsed = state.get("caretElapsed", 0f) + frameDeltaSeconds()
     state.set("caretElapsed", elapsed)

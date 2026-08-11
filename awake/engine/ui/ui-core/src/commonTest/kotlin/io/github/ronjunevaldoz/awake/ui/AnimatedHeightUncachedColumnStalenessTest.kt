@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 /**
  * Regression for [io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight]'s own
  * `wasExpanded`/`measuredHeight` bookkeeping getting corrupted by `column()`'s unconditional
- * hasWeightedChild trial pass (see `UiScope.column()`'s doc comment, and `ResizablePanelGroup
+ * hasWeightedChild trial pass (see `UiPrimitiveScope.column()`'s doc comment, and `ResizablePanelGroup
  * .handle()`'s identical fix) -- proof this widget is only safe when driven through the same
  * plain, UNCACHED `column()` a real caller (e.g. `shadcnCollapsible`) always uses, not the raw
  * `ui.createColumn()` scope the existing `AnimatedHeightCollapseProbeTest`/

@@ -2,23 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.childRow
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 
 /**
- * Nested layout entry points from an existing [UiScope].
+ * Nested layout entry points from an existing [UiPrimitiveScope].
  *
  * These keep nested authored code on the current receiver and avoid escaping back to an outer
  * runtime or needing `this@column` noise at call sites.
  */
-fun UiScope.column(
+fun UiPrimitiveScope.column(
     slot: UiBounds,
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
@@ -31,7 +31,7 @@ fun UiScope.column(
     ).block()
 }
 
-fun UiScope.row(
+fun UiPrimitiveScope.row(
     slot: UiBounds,
     horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
@@ -44,7 +44,7 @@ fun UiScope.row(
     ).block()
 }
 
-fun UiScope.absolute(
+fun UiPrimitiveScope.absolute(
     slot: UiBounds,
     modifier: UiModifier = Modifier,
     block: AbsoluteScope.() -> Unit,
@@ -52,7 +52,7 @@ fun UiScope.absolute(
     childAbsolute(slot, modifier).block()
 }
 
-fun UiScope.box(
+fun UiPrimitiveScope.box(
     slot: UiBounds,
     modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,

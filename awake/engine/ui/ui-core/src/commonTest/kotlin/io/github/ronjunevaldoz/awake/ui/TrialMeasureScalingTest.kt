@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
@@ -87,7 +87,7 @@ class TrialMeasureScalingTest {
         }
     }
 
-    private fun UiScope.buildSpaceBetweenWeightedChain(depth: Int) {
+    private fun UiPrimitiveScope.buildSpaceBetweenWeightedChain(depth: Int) {
         if (depth <= 0) {
             surface(id = "leaf", modifier = Modifier.width(Dimension.FillMax).height(16f.px)) {}
             return

@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.theme
 
 /**
- * A complete, swappable look for a [io.github.ronjunevaldoz.awake.ui.UiScope] -- assigned once at `ui.column(..., theme = ...)`.
+ * A complete, swappable look for a [io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope] -- assigned once at `ui.column(..., theme = ...)`.
  */
 interface UiTheme {
     val colors: UiColorTokens

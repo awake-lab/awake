@@ -9,10 +9,10 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.WidgetState
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -308,7 +308,7 @@ class UiContext internal constructor(
     }
 
     @Deprecated(
-        message = "Scrollable widget ownership should be coordinated from UiScope helpers, not public UiContext.",
+        message = "Scrollable widget ownership should be coordinated from UiPrimitiveScope helpers, not public UiContext.",
     )
     fun onOverScrollable() = onOverScrollableInternal()
 
@@ -317,7 +317,7 @@ class UiContext internal constructor(
     }
 
     @Deprecated(
-        message = "Scrollable widget ownership should be coordinated from UiScope helpers, not public UiContext.",
+        message = "Scrollable widget ownership should be coordinated from UiPrimitiveScope helpers, not public UiContext.",
     )
     fun onScrollConsumed() = onScrollConsumedInternal()
 
@@ -404,21 +404,21 @@ class UiContext internal constructor(
     internal fun pushClipInternal(rect: UiBounds, overlay: Boolean = false): UiBounds = runtime.pushClip(rect, overlay)
 
     @Deprecated(
-        message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly.",
+        message = "Prefer clip helpers or UiPrimitiveScope-scoped clipping instead of manipulating UiContext clip stacks directly.",
     )
     fun pushClip(rect: UiBounds): UiBounds = pushClipInternal(rect)
 
     internal fun popClipInternal(overlay: Boolean = false): UiBounds = runtime.popClip(overlay)
 
     @Deprecated(
-        message = "Prefer clip helpers or UiScope-scoped clipping instead of manipulating UiContext clip stacks directly.",
+        message = "Prefer clip helpers or UiPrimitiveScope-scoped clipping instead of manipulating UiContext clip stacks directly.",
     )
     fun popClip(): UiBounds = popClipInternal()
 
     internal fun pointerDownEdgeInternal(): Boolean = runtime.pointerDownEdge()
 
     @Deprecated(
-        message = "Pointer edge state should be read from UiScope helpers inside composition.",
+        message = "Pointer edge state should be read from UiPrimitiveScope helpers inside composition.",
     )
     fun pointerDownEdge(): Boolean = pointerDownEdgeInternal()
 
@@ -442,31 +442,31 @@ class UiContext internal constructor(
     }
 
     @Deprecated(
-        message = "Focus queries should go through UiScope helpers inside composition.",
+        message = "Focus queries should go through UiPrimitiveScope helpers inside composition.",
     )
     fun isFocused(id: String): Boolean = isFocusedInternal(id)
 
     @Deprecated(
-        message = "Focus mutation should go through UiScope helpers inside composition.",
+        message = "Focus mutation should go through UiPrimitiveScope helpers inside composition.",
     )
     fun requestFocus(id: String) = requestFocusInternal(id)
 
     @Deprecated(
-        message = "Focus mutation should go through UiScope helpers inside composition.",
+        message = "Focus mutation should go through UiPrimitiveScope helpers inside composition.",
     )
     fun clearFocusIfMatches(id: String) = clearFocusIfMatchesInternal(id)
 
     internal fun frameDeltaSecondsInternal(): Float = runtime.frameDeltaSeconds
 
     @Deprecated(
-        message = "Frame metrics should be read from UiScope helpers inside composition.",
+        message = "Frame metrics should be read from UiPrimitiveScope helpers inside composition.",
     )
     fun frameDeltaSeconds(): Float = frameDeltaSecondsInternal()
 
     internal fun frameBoundsInternal(): UiBounds = runtime.fullFrameRect
 
     @Deprecated(
-        message = "Frame metrics should be read from UiScope helpers inside composition.",
+        message = "Frame metrics should be read from UiPrimitiveScope helpers inside composition.",
     )
     fun frameBounds(): UiBounds = frameBoundsInternal()
 
@@ -480,7 +480,7 @@ class UiContext internal constructor(
     internal fun stateStoreInternal(): UiStateStore = stateStore
 
     @Deprecated(
-        message = "Measurement mode is engine plumbing; prefer UiScope/layout helpers instead of branching on UiContext.",
+        message = "Measurement mode is engine plumbing; prefer UiPrimitiveScope/layout helpers instead of branching on UiContext.",
     )
     fun isMeasuring(): Boolean = isMeasuringInternal()
 
@@ -495,7 +495,7 @@ class UiContext internal constructor(
     // grandchildren's claims would land in the same flat measuredSlots/measuredWeights lists as
     // the row's direct children, corrupting that index pairing. recordingSuppressionDepth is a
     // bracket around exactly that "rendering a composite child's own children" window (see
-    // UiScope.row()/UiScope.column()) -- it only excludes claims from measuredSlots/
+    // UiPrimitiveScope.row()/UiPrimitiveScope.column()) -- it only excludes claims from measuredSlots/
     // measuredWeights (via contributesToChildList below), NOT from measuredMaxRight/
     // measuredMaxBottom (see UiContextMeasureState.record()), which WrapContent width/height
     // resolution intentionally keeps hugging across the *whole* subtree (e.g. a WrapContent
@@ -593,7 +593,7 @@ class UiContext internal constructor(
     )
 
     @Deprecated(
-        message = "Measurement should be coordinated from UiScope/layout helpers, not from the public UiContext surface.",
+        message = "Measurement should be coordinated from UiPrimitiveScope/layout helpers, not from the public UiContext surface.",
     )
     fun measureColumnContent(
         width: Float,
@@ -625,7 +625,7 @@ class UiContext internal constructor(
     )
 
     @Deprecated(
-        message = "Measurement should be coordinated from UiScope/layout helpers, not from the public UiContext surface.",
+        message = "Measurement should be coordinated from UiPrimitiveScope/layout helpers, not from the public UiContext surface.",
     )
     fun measureRowContent(
         height: Float,
@@ -646,17 +646,17 @@ class UiContext internal constructor(
     internal fun pointerDownInternal(): Boolean = runtime.inputState.pointerDown
 
     @Deprecated(
-        message = "Pointer coordinates should be read from UiScope helpers inside composition.",
+        message = "Pointer coordinates should be read from UiPrimitiveScope helpers inside composition.",
     )
     fun pointerX(): Float = pointerXInternal()
 
     @Deprecated(
-        message = "Pointer coordinates should be read from UiScope helpers inside composition.",
+        message = "Pointer coordinates should be read from UiPrimitiveScope helpers inside composition.",
     )
     fun pointerY(): Float = pointerYInternal()
 
     @Deprecated(
-        message = "Pointer state should be read from UiScope helpers inside composition.",
+        message = "Pointer state should be read from UiPrimitiveScope helpers inside composition.",
     )
     fun pointerDown(): Boolean = pointerDownInternal()
 }

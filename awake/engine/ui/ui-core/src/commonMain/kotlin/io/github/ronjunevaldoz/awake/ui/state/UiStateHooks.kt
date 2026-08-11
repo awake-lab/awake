@@ -90,7 +90,7 @@ fun <T> UiContext.rememberStateValue(
     initial: () -> T,
 ): UiStateValue<T> = UiStateValue(widgetStateInternal(id), key, initial) { isMeasuringInternal() }
 
-fun <T> UiScope.rememberStateValue(
+fun <T> UiPrimitiveScope.rememberStateValue(
     id: String,
     key: String = "value",
     initial: () -> T,
@@ -102,7 +102,7 @@ fun UiContext.rememberBooleanState(
     initial: Boolean = false,
 ): UiStateValue<Boolean> = rememberStateValue(id, key) { initial }
 
-fun UiScope.rememberBooleanState(
+fun UiPrimitiveScope.rememberBooleanState(
     id: String,
     key: String = "value",
     initial: Boolean = false,
@@ -114,7 +114,7 @@ fun UiContext.rememberFloatState(
     initial: Float = 0f,
 ): UiStateValue<Float> = rememberStateValue(id, key) { initial }
 
-fun UiScope.rememberFloatState(
+fun UiPrimitiveScope.rememberFloatState(
     id: String,
     key: String = "value",
     initial: Float = 0f,
@@ -126,7 +126,7 @@ fun UiContext.rememberIntState(
     initial: Int = 0,
 ): UiStateValue<Int> = rememberStateValue(id, key) { initial }
 
-fun UiScope.rememberIntState(
+fun UiPrimitiveScope.rememberIntState(
     id: String,
     key: String = "value",
     initial: Int = 0,
@@ -138,7 +138,7 @@ fun UiContext.rememberPopupState(
     initial: Boolean = false,
 ): UiPopupState = UiPopupState(rememberBooleanState(id = id, key = key, initial = initial))
 
-fun UiScope.rememberPopupState(
+fun UiPrimitiveScope.rememberPopupState(
     id: String,
     key: String = "expanded",
     initial: Boolean = false,
@@ -150,7 +150,7 @@ fun UiContext.rememberScrollState(
     initialOffsetY: Float = 0f,
 ): UiScrollState = PersistedUiScrollState(widgetStateInternal(id), initialOffsetX, initialOffsetY)
 
-fun UiScope.rememberScrollState(
+fun UiPrimitiveScope.rememberScrollState(
     id: String,
     initialOffsetX: Float = 0f,
     initialOffsetY: Float = 0f,

@@ -6,10 +6,10 @@ import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.UiShape
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /**

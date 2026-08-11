@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -35,7 +35,7 @@ private val AVATAR_DEFAULT_DIAMETER = 40f.dp
  * Size is authored via `modifier` (`.size(...)`/`.width()`/`.height()`), not a separate
  * `diameter` param -- `UiModifier` already owns sizing, per the modifier-first policy.
  */
-fun UiScope.avatarFallback(
+fun UiPrimitiveScope.avatarFallback(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     content: BoxScope.(slot: UiBounds) -> Unit,
@@ -71,7 +71,7 @@ fun UiScope.avatarFallback(
  * caller-supplied text size (e.g. a size-driven `shadcnAvatar`) had no effect on the rendered
  * initials.
  */
-fun UiScope.avatarFallback(
+fun UiPrimitiveScope.avatarFallback(
     initials: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,

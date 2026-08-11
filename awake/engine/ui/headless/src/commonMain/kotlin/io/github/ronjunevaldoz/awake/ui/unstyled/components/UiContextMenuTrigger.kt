@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled.components
 
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
 /**
  * [shouldOpen] is true exactly on the frame a fresh secondary-click lands over the trigger's
  * target while not already expanded -- the caller reacts to it once (e.g. `onExpandedChange
  * (true)`), not every frame. [anchor] is the click position to open a popup at, remembered
- * across frames via [UiScope.widgetState] so it stays stable while the pointer moves after the
+ * across frames via [UiPrimitiveScope.widgetState] so it stays stable while the pointer moves after the
  * click that opened it.
  */
 data class UiContextMenuTrigger(
@@ -20,9 +20,9 @@ data class UiContextMenuTrigger(
 /**
  * Detect-secondary-click-over-target, remember-the-click-point, signal-open-once -- any
  * differently-skinned right-click menu needs the same interaction, independent of what
- * actually opens. Uses [UiScope.hitTest] rather than a manual point-in-rect comparison.
+ * actually opens. Uses [UiPrimitiveScope.hitTest] rather than a manual point-in-rect comparison.
  */
-fun UiScope.contextMenuTrigger(id: String, expanded: Boolean, target: UiBounds): UiContextMenuTrigger {
+fun UiPrimitiveScope.contextMenuTrigger(id: String, expanded: Boolean, target: UiBounds): UiContextMenuTrigger {
     val input = context.inputState
     val state = widgetState(id)
     var shouldOpen = false

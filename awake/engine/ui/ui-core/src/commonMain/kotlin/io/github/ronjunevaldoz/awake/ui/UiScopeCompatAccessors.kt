@@ -8,17 +8,17 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 /**
  * Scope-level environment accessors. Widgets and compositions should consume theme/font/text
- * state from [UiScope] instead of treating [io.github.ronjunevaldoz.awake.ui.context.UiContext]
+ * state from [UiPrimitiveScope] instead of treating [io.github.ronjunevaldoz.awake.ui.context.UiContext]
  * as a styling bag.
  */
-val UiScope.theme: UiTheme
+val UiPrimitiveScope.theme: UiTheme
     get() = context.currentTheme
 
-val UiScope.font: UiFont
+val UiPrimitiveScope.font: UiFont
     get() = context.currentFont
 
-val UiScope.textStyle: TextStyle
+val UiPrimitiveScope.textStyle: TextStyle
     get() = context.currentTextStyle
 
-val UiScope.resolvedThemeCaptionStyle: TextStyle
+val UiPrimitiveScope.resolvedThemeCaptionStyle: TextStyle
     get() = context.currentTextStyle then TextStyle(size = context.currentTheme.typography.caption)

@@ -5,10 +5,10 @@ package io.github.ronjunevaldoz.awake.ui.modifier
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 
 fun UiModifier.width(dp: Dp): UiModifier = copy(widthDimension = Dimension.Fixed(dp))
 fun UiModifier.height(dp: Dp): UiModifier = copy(heightDimension = Dimension.Fixed(dp))

@@ -4,14 +4,14 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
-import io.github.ronjunevaldoz.awake.ui.UiPopupResult
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope

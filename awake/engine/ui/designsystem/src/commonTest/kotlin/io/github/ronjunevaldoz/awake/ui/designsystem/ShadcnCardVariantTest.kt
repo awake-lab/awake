@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text

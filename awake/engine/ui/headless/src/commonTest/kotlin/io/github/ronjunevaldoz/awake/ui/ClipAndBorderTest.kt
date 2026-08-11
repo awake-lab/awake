@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.graphics.border
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.layouts.surface

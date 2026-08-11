@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.inset
@@ -44,7 +44,7 @@ data class UiScrollPanelResult(
  * Sizing, scrolling state, and configuration are extracted from [modifier].
  * Visuals are resolved from [style].
  */
-fun UiScope.scrollPanel(
+fun UiPrimitiveScope.scrollPanel(
     id: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,

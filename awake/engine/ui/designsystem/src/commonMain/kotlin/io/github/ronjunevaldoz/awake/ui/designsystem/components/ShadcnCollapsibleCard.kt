@@ -7,8 +7,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTransparent
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope

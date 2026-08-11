@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.graphics
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.RepeatMode
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.animateFloatRepeatable
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -28,7 +28,7 @@ data class ShimmerBand(val x: Float, val width: Float, val phase: Float)
  * -- not a ping-pong bounce -- via [RepeatMode.Restart]; see `UiAnimationTest.kt`'s
  * `shimmerSweepPhaseIsAOneDirectionalLoopNotAPingPongBounce`.
  */
-fun UiScope.shimmerBand(id: String, slot: UiBounds, durationMs: Float = 1200f): ShimmerBand {
+fun UiPrimitiveScope.shimmerBand(id: String, slot: UiBounds, durationMs: Float = 1200f): ShimmerBand {
     val phase = animateFloatRepeatable(
         id = "__shimmer_phase__$id",
         initialValue = 0f,
@@ -51,7 +51,7 @@ fun UiScope.shimmerBand(id: String, slot: UiBounds, durationMs: Float = 1200f): 
  * backends, ported from Modifier.shimmer's actual mechanism, if arbitrary-content shimmer is ever
  * needed.
  */
-fun UiScope.emitShimmerOverlay(
+fun UiPrimitiveScope.emitShimmerOverlay(
     id: String,
     slot: UiBounds,
     shapeSpec: UiShapeSpec? = null,

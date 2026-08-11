@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.scope
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -12,13 +12,13 @@ import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.style.StyleState
 
-fun UiScope.resolveStyle(
+fun UiPrimitiveScope.resolveStyle(
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,
     state: StyleState = MutableStyleState(),
 ): ResolvedStyle = (defaults then style).resolve(state, context.currentTextStyle)
 
-fun UiScope.recordSemantic(
+fun UiPrimitiveScope.recordSemantic(
     role: UiSemanticRole,
     bounds: UiBounds,
     id: String? = null,

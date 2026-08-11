@@ -3,14 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled.input
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.box
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -51,7 +51,7 @@ private const val RANGE_SLIDER_MIN_GAP_FRACTION = 0.01f
  * build that row themselves above this widget, the same way `shadcnFieldSlider` composes a label
  * beside [slider].
  */
-fun UiScope.rangeSlider(
+fun UiPrimitiveScope.rangeSlider(
     id: String,
     min: Float,
     max: Float,

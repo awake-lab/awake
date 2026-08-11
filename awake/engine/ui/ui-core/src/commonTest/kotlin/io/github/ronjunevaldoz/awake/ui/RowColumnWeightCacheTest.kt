@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
 import io.github.ronjunevaldoz.awake.ui.context.UiWeightCacheConsistencyCheck
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
@@ -21,7 +21,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 /**
- * Verifies `UiScope.row()`/`UiScope.column()`'s opt-in `id`/`cacheKey` hasWeightedChild cache --
+ * Verifies `UiPrimitiveScope.row()`/`UiPrimitiveScope.column()`'s opt-in `id`/`cacheKey` hasWeightedChild cache --
  * see docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md. Distinct failure mode from
  * [WrapContentMeasurementStateTest] (that file guards against a trial pass reading stale
  * *default* state instead of real state; this cache's own new risk is a caller-supplied

@@ -4,13 +4,13 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.fitTo
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -36,7 +36,7 @@ import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 // only a slice of it is painted as the track, and the knob is drawn on top, not "no knob at
 // all" (the previous version only drew a flat fill rectangle with no handle).
 
-fun UiScope.select(
+fun UiPrimitiveScope.select(
     id: String,
     options: List<String>,
     selectedIndex: Int,
@@ -124,7 +124,7 @@ fun UiScope.select(
  * Public so design-system layers building their own custom dropdown trigger (e.g. one that
  * also needs a popup menu shaped differently from [select]'s own) can reuse the same
  * label/chevron layout instead of re-deriving it. */
-fun UiScope.drawDropdownTriggerContent(
+fun UiPrimitiveScope.drawDropdownTriggerContent(
     slot: UiBounds,
     label: String,
     expanded: Boolean,

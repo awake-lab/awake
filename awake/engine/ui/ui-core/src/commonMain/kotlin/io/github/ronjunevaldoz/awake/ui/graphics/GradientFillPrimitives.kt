@@ -4,10 +4,10 @@ package io.github.ronjunevaldoz.awake.ui.graphics
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
-fun UiScope.gradientRect(
+fun UiPrimitiveScope.gradientRect(
     slot: UiBounds,
     gradient: UiLinearGradient,
     overlay: Boolean = false,

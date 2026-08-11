@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.childRow
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -25,7 +25,7 @@ fun ColumnScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
-    // Forwarded straight through to UiScope.row() below -- see that function's doc comment.
+    // Forwarded straight through to UiPrimitiveScope.row() below -- see that function's doc comment.
     // Both default to null (existing call sites unaffected).
     id: String? = null,
     cacheKey: Any? = null,
@@ -62,14 +62,14 @@ fun ColumnScope.row(
         else -> requestedHeight
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
-    return (this as UiScope).row(
+    return (this as UiPrimitiveScope).row(
         horizontalArrangement = effectiveArrangement,
         verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
-        // See the matching comment in resolveMeasuredColumn()/UiScope.column() -- reuse this
+        // See the matching comment in resolveMeasuredColumn()/UiPrimitiveScope.column() -- reuse this
         // WrapContent trial's already-known weighted-child answer instead of paying for a
-        // second, identical trial of [content] inside UiScope.row()'s own unconditional pass.
+        // second, identical trial of [content] inside UiPrimitiveScope.row()'s own unconditional pass.
         precomputedMeasured = measured,
         id = id,
         cacheKey = cacheKey,
@@ -81,7 +81,7 @@ fun RowScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
-    // Forwarded straight through to UiScope.row() below -- see that function's doc comment.
+    // Forwarded straight through to UiPrimitiveScope.row() below -- see that function's doc comment.
     id: String? = null,
     cacheKey: Any? = null,
     content: RowScope.(slot: UiBounds) -> Unit,
@@ -113,14 +113,14 @@ fun RowScope.row(
         else -> requestedHeight
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
-    return (this as UiScope).row(
+    return (this as UiPrimitiveScope).row(
         horizontalArrangement = effectiveArrangement,
         verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
-        // See the matching comment in resolveMeasuredColumn()/UiScope.column() -- reuse this
+        // See the matching comment in resolveMeasuredColumn()/UiPrimitiveScope.column() -- reuse this
         // WrapContent trial's already-known weighted-child answer instead of paying for a
-        // second, identical trial of [content] inside UiScope.row()'s own unconditional pass.
+        // second, identical trial of [content] inside UiPrimitiveScope.row()'s own unconditional pass.
         precomputedMeasured = measured,
         id = id,
         cacheKey = cacheKey,
@@ -132,7 +132,7 @@ fun AbsoluteScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
-    // Forwarded straight through to UiScope.row() below -- see that function's doc comment.
+    // Forwarded straight through to UiPrimitiveScope.row() below -- see that function's doc comment.
     id: String? = null,
     cacheKey: Any? = null,
     content: RowScope.(slot: UiBounds) -> Unit,
@@ -164,14 +164,14 @@ fun AbsoluteScope.row(
         else -> requestedHeight
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
-    return (this as UiScope).row(
+    return (this as UiPrimitiveScope).row(
         horizontalArrangement = effectiveArrangement,
         verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
-        // See the matching comment in resolveMeasuredColumn()/UiScope.column() -- reuse this
+        // See the matching comment in resolveMeasuredColumn()/UiPrimitiveScope.column() -- reuse this
         // WrapContent trial's already-known weighted-child answer instead of paying for a
-        // second, identical trial of [content] inside UiScope.row()'s own unconditional pass.
+        // second, identical trial of [content] inside UiPrimitiveScope.row()'s own unconditional pass.
         precomputedMeasured = measured,
         id = id,
         cacheKey = cacheKey,
@@ -183,7 +183,7 @@ fun BoxScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     modifier: UiModifier = Modifier,
-    // Forwarded straight through to UiScope.row() below -- see that function's doc comment.
+    // Forwarded straight through to UiPrimitiveScope.row() below -- see that function's doc comment.
     id: String? = null,
     cacheKey: Any? = null,
     content: RowScope.(slot: UiBounds) -> Unit,
@@ -215,14 +215,14 @@ fun BoxScope.row(
         else -> requestedHeight
     }
     val effectiveStyle = modifier.styleable ?: Style.Empty
-    return (this as UiScope).row(
+    return (this as UiPrimitiveScope).row(
         horizontalArrangement = effectiveArrangement,
         verticalAlignment = verticalAlignment,
         modifier = modifier.width(resolvedWidth).height(resolvedHeight),
         style = effectiveStyle,
-        // See the matching comment in resolveMeasuredColumn()/UiScope.column() -- reuse this
+        // See the matching comment in resolveMeasuredColumn()/UiPrimitiveScope.column() -- reuse this
         // WrapContent trial's already-known weighted-child answer instead of paying for a
-        // second, identical trial of [content] inside UiScope.row()'s own unconditional pass.
+        // second, identical trial of [content] inside UiPrimitiveScope.row()'s own unconditional pass.
         precomputedMeasured = measured,
         id = id,
         cacheKey = cacheKey,
@@ -230,7 +230,7 @@ fun BoxScope.row(
     )
 }
 
-fun UiScope.row(
+fun UiPrimitiveScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
     testTag: String? = null,
@@ -324,7 +324,7 @@ fun UiScope.row(
         }
         context.createRow(
             slot = slot,
-            // See the matching comment in UiScope.column() -- gap is unused whenever
+            // See the matching comment in UiPrimitiveScope.column() -- gap is unused whenever
             // plannedSlots is supplied (this branch always supplies it), so it's no longer
             // threaded here either.
             horizontalArrangement = effectiveArrangement,

@@ -3,50 +3,50 @@
 package io.github.ronjunevaldoz.awake.ui.scope
 
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.toPx
 
-val UiScope.inputState: UiInputState
+val UiPrimitiveScope.inputState: UiInputState
     get() = context.inputState
 
-fun UiScope.frameBounds(): UiBounds = context.frameBoundsInternal()
+fun UiPrimitiveScope.frameBounds(): UiBounds = context.frameBoundsInternal()
 
-fun UiScope.frameDeltaSeconds(): Float = context.frameDeltaSecondsInternal()
+fun UiPrimitiveScope.frameDeltaSeconds(): Float = context.frameDeltaSecondsInternal()
 
-fun UiScope.isMeasuring(): Boolean = context.isMeasuringInternal()
+fun UiPrimitiveScope.isMeasuring(): Boolean = context.isMeasuringInternal()
 
-fun UiScope.pointerDownEdge(): Boolean = context.pointerDownEdgeInternal()
+fun UiPrimitiveScope.pointerDownEdge(): Boolean = context.pointerDownEdgeInternal()
 
-fun UiScope.pointerX(): Float = context.pointerXInternal()
+fun UiPrimitiveScope.pointerX(): Float = context.pointerXInternal()
 
-fun UiScope.pointerY(): Float = context.pointerYInternal()
+fun UiPrimitiveScope.pointerY(): Float = context.pointerYInternal()
 
-fun UiScope.pointerDown(): Boolean = context.pointerDownInternal()
+fun UiPrimitiveScope.pointerDown(): Boolean = context.pointerDownInternal()
 
-fun UiScope.isFocused(id: String): Boolean = context.isFocusedInternal(id)
+fun UiPrimitiveScope.isFocused(id: String): Boolean = context.isFocusedInternal(id)
 
-fun UiScope.requestFocus(id: String) = context.requestFocusInternal(id)
+fun UiPrimitiveScope.requestFocus(id: String) = context.requestFocusInternal(id)
 
-fun UiScope.clearFocusIfMatches(id: String) = context.clearFocusIfMatchesInternal(id)
+fun UiPrimitiveScope.clearFocusIfMatches(id: String) = context.clearFocusIfMatchesInternal(id)
 
-fun UiScope.setActive(id: String?) = context.setActiveInternal(id)
+fun UiPrimitiveScope.setActive(id: String?) = context.setActiveInternal(id)
 
-fun UiScope.onOverScrollable() = context.onOverScrollableInternal()
+fun UiPrimitiveScope.onOverScrollable() = context.onOverScrollableInternal()
 
-fun UiScope.onScrollConsumed() = context.onScrollConsumedInternal()
+fun UiPrimitiveScope.onScrollConsumed() = context.onScrollConsumedInternal()
 
 /** Requests [cursor] as this frame's platform pointer shape -- see [UiCursor]'s doc comment.
  * Call while hovered/dragging; last call in the frame wins. */
-fun UiScope.requestCursor(cursor: UiCursor) = context.requestCursorInternal(cursor)
+fun UiPrimitiveScope.requestCursor(cursor: UiCursor) = context.requestCursorInternal(cursor)
 
-fun UiScope.measureColumnContent(
+fun UiPrimitiveScope.measureColumnContent(
     width: Float,
     gap: Float = UiSpacing.sm.toPx(),
     insets: UiInsets = UiInsets.Zero,
@@ -58,7 +58,7 @@ fun UiScope.measureColumnContent(
     content = content,
 )
 
-fun UiScope.measureRowContent(
+fun UiPrimitiveScope.measureRowContent(
     height: Float,
     gap: Float,
     insets: UiInsets = UiInsets.Zero,

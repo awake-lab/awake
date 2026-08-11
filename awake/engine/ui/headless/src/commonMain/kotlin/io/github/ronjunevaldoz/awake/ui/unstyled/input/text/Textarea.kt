@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiTextEditAction
@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -42,7 +42,7 @@ private const val TEXT_FIELD_CARET_WIDTH_PX = 1.5f
  * Multi-line text input. Immediate-mode like [textField].
  * Handles manual newlines (\n), automatic wrapping, and cursor navigation across visual lines.
  */
-fun UiScope.textarea(
+fun UiPrimitiveScope.textarea(
     id: String,
     value: String,
     placeholder: String = "",
@@ -335,7 +335,7 @@ fun UiScope.textarea(
     }
 }
 
-private fun UiScope.caretBlinkElapsedSeconds(id: String): Float {
+private fun UiPrimitiveScope.caretBlinkElapsedSeconds(id: String): Float {
     val state = widgetState(id)
     val elapsed = state.get("caretElapsed", 0f) + frameDeltaSeconds()
     state.set("caretElapsed", elapsed)

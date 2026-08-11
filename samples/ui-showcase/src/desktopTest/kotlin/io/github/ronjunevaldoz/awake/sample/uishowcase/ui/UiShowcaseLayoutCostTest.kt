@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
