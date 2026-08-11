@@ -49,6 +49,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Studio has no UI audit.** Component placement and dead action buttons have not been
   inventoried.
 
+### Fixed
+
+- **Glyph ink rendered at ~0.90x of its own metrics** (sub-pixel at 12-14px, past a pixel from
+  16px up): the font-atlas generator sized render quads to the glyph outline but UV rects to
+  outline + crop bleed + a texel snap, squeezing the padded atlas region into an outline-sized
+  quad. Quads are now derived from the snapped sample rect (quad and UV cover the same texels
+  1:1) and outline-true `inkMetricsEm` ships separately so `capHeightEm`/baseline/advance
+  metrics stay ink-exact. The per-glyph snap slack was also what scattered baselines; the
+  Chromium baseline-fidelity drift map is re-measured with an honest probe (transparent
+  background, alpha-channel coverage, degenerate-run guard) and every text-bearing snapshot
+  signature is re-recorded. `GlyphAbsoluteSizeTest` now gates absolute ink size against
+  `capHeightEm * size` -- the external-truth check this repo never had.
+
 ### Added
 
 - GPU-based 3D Camera System: a single `CameraComponent` carrying a `CameraMode` enum

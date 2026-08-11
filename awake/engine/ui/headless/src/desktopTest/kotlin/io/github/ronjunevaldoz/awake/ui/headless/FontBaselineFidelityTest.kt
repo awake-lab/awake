@@ -37,17 +37,23 @@ class FontBaselineFidelityTest {
         Sample("email-12", "Email", 12f),
     )
 
-    /** Baseline spread we currently render, against a reference spread of 0 everywhere.
-     * Every entry is a defect; the goal is an empty map. */
-    /** Baseline spread we render, against a reference spread of 0 everywhere. Every entry would
-     * be a defect; the map is EMPTY, meaning we match Chromium exactly at all four samples.
+    /** Baseline spread we render, against a reference spread of 0 everywhere. Every entry is a
+     * defect; the goal is an empty map, and entries may only shrink.
      *
-     * It previously held three entries. They were not real: `ourSpread` called `rasterize()`
-     * without `font =`, so it measured the null-font placeholder rect rather than glyph
-     * sampling, and thresholded the red channel, which is written full-strength into any pixel
-     * with nonzero coverage and so counted the whole antialiasing skirt. With the font passed
-     * and coverage read from alpha, all four samples measure 0. */
-    private val knownBaselineDrift = emptyMap<String, Int>()
+     * History: the map once held {roundvsflat-14: 1, roundvsflat-16: 1, email-12: 1}, but those
+     * were not real -- `ourSpread` called `rasterize()` without `font =`, measuring the
+     * null-font placeholder rect instead of glyph sampling. Measured honestly (font passed,
+     * coverage from alpha over a transparent background, half-coverage ink threshold) after
+     * glyph quads were fixed to cover their full UV sample rect, all four samples split by
+     * exactly one pixel: the round glyphs' designed baseline overshoot (~0.01em, sub-pixel)
+     * can quantize their ink bottom one row below the flat glyphs'. Chromium's hinter snaps
+     * that overshoot away; we render unhinted. */
+    private val knownBaselineDrift = mapOf(
+        "roundvsflat-12" to 1,
+        "roundvsflat-14" to 1,
+        "roundvsflat-16" to 1,
+        "email-12" to 1,
+    )
 
     private fun inkBottomsPerGlyph(luma: (Int, Int) -> Int, width: Int, height: Int): List<Int> {
         val lit = (0 until width).map { x -> (0 until height).any { y -> luma(x, y) > 40 } }
@@ -77,9 +83,23 @@ class FontBaselineFidelityTest {
         // rect for every glyph, and this gate silently measures placeholder geometry instead of
         // glyph sampling (see docs/tasks/2026-08-10-glyph-scale-regression.md). Coverage lives
         // in the alpha channel -- drawGlyph writes full RGB into any pixel with nonzero
-        // coverage, so thresholding red would count the entire AA skirt.
-        val pixels = ui.endFrame().rasterize(w, h, background = Color.Black, font = UiFonts.default())
+        // coverage, so thresholding red would count the entire AA skirt. The background must be
+        // TRANSPARENT: an opaque background fills alpha with 255, every pixel then passes the
+        // ink threshold, the whole canvas collapses into one full-width run and the spread is 0
+        // no matter what was drawn -- the gate passes vacuously.
+        val pixels = ui.endFrame().rasterize(
+            w,
+            h,
+            background = Color(0f, 0f, 0f, 0f),
+            font = UiFonts.default(),
+        )
         val bottoms = inkBottomsPerGlyph({ x, y -> pixels[(y * w + x) * 4 + 3].toInt() and 0xFF }, w, h)
+        assertTrue(
+            bottoms.size > 1,
+            "${sample.id}: probe found ${bottoms.size} ink run(s) for ${sample.text.length} glyphs; " +
+                "a single run means the measurement degenerated (all-lit canvas or merged glyphs) " +
+                "and the spread below would be meaningless",
+        )
         return bottoms.max() - bottoms.min()
     }
 

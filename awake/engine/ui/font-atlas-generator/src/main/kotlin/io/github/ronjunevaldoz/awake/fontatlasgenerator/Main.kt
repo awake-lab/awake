@@ -122,6 +122,7 @@ private class AtlasResult(
     val glyphOrder: String,
     val uvBoundsPx: IntArray,
     val quadMetricsEm: FloatArray,
+    val inkMetricsEm: FloatArray,
     val advancesEm: FloatArray,
     val encodedAtlasBase64: String,
 )
@@ -160,6 +161,7 @@ private fun generateAtlas(fontFile: File): AtlasResult {
 
     val uvBoundsPx = mutableListOf<Int>()
     val quadMetricsEm = mutableListOf<Float>()
+    val inkMetricsEm = mutableListOf<Float>()
     val advancesEm = mutableListOf<Float>()
 
     ASCII_GLYPHS.forEachIndexed { index, char ->
@@ -185,7 +187,26 @@ private fun generateAtlas(fontFile: File): AtlasResult {
         val (left, top, right, bottom) = sampleRect(metrics, cellX, cellY, cellWidthPx, cellHeightPx, baselineX, baselineY, ascentPxRender)
 
         uvBoundsPx += listOf(left, top, right, bottom)
-        quadMetricsEm += listOf(metrics.offsetXEm, metrics.offsetYEm, metrics.widthEm, metrics.heightEm)
+        // The RENDER quad must cover exactly what the UV rect samples -- the outline rect plus
+        // CROP_BLEED plus the integer texel snap -- or the atlas region gets squeezed into an
+        // outline-sized quad and every glyph renders at ink/(ink + bleed + snap) of its metrics
+        // (~0.90x, growing past a pixel from 16px up), with the per-glyph snap scattering
+        // baselines by a subpixel. Convert the snapped sample rect back to pen-relative em so
+        // quad and UV describe the same texels 1:1. Ink metrics ship separately below; blank
+        // glyphs keep a zero quad rather than the placeholder sample square.
+        val scale = LOGICAL_CELL * OVERSAMPLE
+        val lineTop = baselineY - ascentPxRender
+        if (metrics.widthEm <= 0f || metrics.heightEm <= 0f) {
+            quadMetricsEm += listOf(0f, 0f, 0f, 0f)
+        } else {
+            quadMetricsEm += listOf(
+                (left - baselineX).toFloat() / scale,
+                (top - lineTop) / scale,
+                (right - left).toFloat() / scale,
+                (bottom - top).toFloat() / scale,
+            )
+        }
+        inkMetricsEm += listOf(metrics.offsetXEm, metrics.offsetYEm, metrics.widthEm, metrics.heightEm)
         advancesEm += metrics.advanceEm
     }
 
@@ -196,6 +217,7 @@ private fun generateAtlas(fontFile: File): AtlasResult {
         glyphOrder = ASCII_GLYPHS.joinToString(""),
         uvBoundsPx = uvBoundsPx.toIntArray(),
         quadMetricsEm = quadMetricsEm.toFloatArray(),
+        inkMetricsEm = inkMetricsEm.toFloatArray(),
         advancesEm = advancesEm.toFloatArray(),
         encodedAtlasBase64 = Base64.getEncoder().encodeToString(rgbaBytes(atlasImage)),
     )
@@ -274,12 +296,13 @@ private fun measureGlyph(measureFont: Font, frc: FontRenderContext, ascentEm: Fl
 }
 
 /**
- * The atlas pixel rect sampled for a glyph's texture quad. Deliberately derived from the same
- * outline-based [metrics] used for the quad geometry, scaled into oversampled raster space, with
- * [CROP_BLEED] raster pixels of headroom added on every side purely so the antialiased edge isn't
- * hard-clipped when sampled. That bleed affects ONLY this sample rect -- unlike the old Python
- * generator, it is never fed back into [metrics]/quad geometry, so widening it cannot grow a
- * glyph's rendered quad without also growing its advance (the old overlap bug).
+ * The atlas pixel rect sampled for a glyph's texture quad: the outline-based [metrics] rect
+ * scaled into oversampled raster space, with [CROP_BLEED] texels of headroom on every side so
+ * the distance field's antialiased edge isn't hard-clipped, snapped outward to whole texels.
+ * The render quad (`quadMetricsEm`) is derived from THIS snapped rect so quad and UV always
+ * describe the same texels 1:1; only ink metrics (`inkMetricsEm`) and advances stay
+ * outline-true, so the bleed can never inflate a glyph's measured size or its advance (the old
+ * overlap bug).
  */
 private fun sampleRect(
     metrics: GlyphMetrics,
@@ -359,6 +382,7 @@ private fun buildFileSpec(atlas: AtlasResult): FileSpec {
         .addProperty(overrideProperty("glyphOrder", STRING, "%S", atlas.glyphOrder))
         .addProperty(intArrayProperty("uvBoundsPx", atlas.uvBoundsPx))
         .addProperty(floatArrayProperty("quadMetricsEm", atlas.quadMetricsEm))
+        .addProperty(floatArrayProperty("inkMetricsEm", atlas.inkMetricsEm))
         .addProperty(floatArrayProperty("advancesEm", atlas.advancesEm))
         .addProperty(base64Property(atlas.encodedAtlasBase64))
         .build()

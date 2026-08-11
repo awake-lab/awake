@@ -35,7 +35,18 @@ internal interface PackedUiFontData {
     val encodedAtlasBase64: String
     val glyphOrder: String
     val uvBoundsPx: IntArray
+
+    /** Per-glyph RENDER quad (offsetX, offsetY, width, height in em, pen/line-top relative),
+     * covering exactly the texels [uvBoundsPx] samples -- outline plus crop bleed plus the
+     * texel snap. Sizing the quad to anything smaller than the sampled rect squeezes the atlas
+     * region into it and every glyph renders below its own metrics. */
     val quadMetricsEm: FloatArray
+
+    /** Per-glyph INK bounds (same layout), outline-exact with no bleed. This is what metrics
+     * (cap height, baseline, visible band, advance clamping) must derive from; deriving them
+     * from [quadMetricsEm] bakes the bleed into the type's measurements. Defaults to
+     * [quadMetricsEm] for data generated before the split. */
+    val inkMetricsEm: FloatArray get() = quadMetricsEm
     val advancesEm: FloatArray
 }
 
@@ -73,11 +84,12 @@ class PackedUiFont internal constructor(
      */
     private val baselineEm: Float by lazy {
         BASELINE_REFERENCE_GLYPHS.firstNotNullOfOrNull { char ->
-            glyphsByChar[char]?.takeIf { it.heightEm > 0f }?.let { it.offsetYEm + it.heightEm }
+            inkByChar[char]?.takeIf { it.heightEm > 0f }?.let { it.offsetYEm + it.heightEm }
         } ?: visibleBottomEm
     }
 
     private val glyphsByChar: Map<Char, GlyphRect> by lazy(::decodeGlyphRects)
+    private val inkByChar: Map<Char, InkBounds> by lazy(::decodeInkBounds)
     private val advancesByChar: Map<Char, Float> by lazy(::decodeAdvances)
 
     override val lineHeightEm: Float get() = data.lineHeightEm
@@ -104,8 +116,11 @@ class PackedUiFont internal constructor(
      */
     override fun advanceFor(char: Char, glyphPx: Float): Float {
         val advanceEm = advancesByChar[char] ?: advancesByChar[data.fallbackChar] ?: 1f
-        val glyph = glyphsByChar[char] ?: glyphsByChar[data.fallbackChar]
-        val rightEdgeEm = if (glyph != null) glyph.offsetXEm + glyph.widthEm else 0f
+        // Clamp against the INK right edge, not the render quad's: the quad carries the crop
+        // bleed, and clamping to it would inflate spacing by a bleed-sized, per-glyph amount --
+        // the exact variable-inflation failure described above.
+        val ink = inkByChar[char] ?: inkByChar[data.fallbackChar]
+        val rightEdgeEm = if (ink != null) ink.offsetXEm + ink.widthEm else 0f
         return glyphPx * maxOf(advanceEm, rightEdgeEm)
     }
 
@@ -151,6 +166,21 @@ class PackedUiFont internal constructor(
         return result
     }
 
+    private fun decodeInkBounds(): Map<Char, InkBounds> {
+        val result = LinkedHashMap<Char, InkBounds>(data.glyphOrder.length)
+        var metricIndex = 0
+        data.glyphOrder.forEach { char ->
+            result[char] = InkBounds(
+                offsetXEm = data.inkMetricsEm[metricIndex],
+                offsetYEm = data.inkMetricsEm[metricIndex + 1],
+                widthEm = data.inkMetricsEm[metricIndex + 2],
+                heightEm = data.inkMetricsEm[metricIndex + 3],
+            )
+            metricIndex += 4
+        }
+        return result
+    }
+
     private fun decodeAdvances(): Map<Char, Float> {
         val result = LinkedHashMap<Char, Float>(data.glyphOrder.length)
         data.glyphOrder.forEachIndexed { index, char ->
@@ -159,11 +189,21 @@ class PackedUiFont internal constructor(
         return result
     }
 
+    /** Outline-exact ink rect, pen/line-top relative in em -- the measurement-facing twin of
+     * the render-facing [GlyphRect]. */
+    private data class InkBounds(
+        val offsetXEm: Float,
+        val offsetYEm: Float,
+        val widthEm: Float,
+        val heightEm: Float,
+    )
+
     /** Cap height is the reference capital's own ink height -- flat top, flat bottom, so the
-     * quad spans exactly baseline-to-cap with no overshoot to subtract. */
+     * ink rect spans exactly baseline-to-cap with no overshoot to subtract. Read from ink, not
+     * the render quad: the quad carries crop bleed and would overstate the metric. */
     private fun measureCapHeightEm(): Float =
         BASELINE_REFERENCE_GLYPHS.firstNotNullOfOrNull { char ->
-            glyphsByChar[char]?.heightEm?.takeIf { it > 0f }
+            inkByChar[char]?.heightEm?.takeIf { it > 0f }
         } ?: super.capHeightEm
 
     private fun computeVisibleBand(): Pair<Float, Float> {
@@ -171,8 +211,8 @@ class PackedUiFont internal constructor(
         var top = Float.POSITIVE_INFINITY
         var bottom = Float.NEGATIVE_INFINITY
         repeat(data.glyphOrder.length) {
-            val offsetYEm = data.quadMetricsEm[metricIndex + 1]
-            val heightEm = data.quadMetricsEm[metricIndex + 3]
+            val offsetYEm = data.inkMetricsEm[metricIndex + 1]
+            val heightEm = data.inkMetricsEm[metricIndex + 3]
             if (heightEm > 0f) {
                 top = minOf(top, offsetYEm)
                 bottom = maxOf(bottom, offsetYEm + heightEm)

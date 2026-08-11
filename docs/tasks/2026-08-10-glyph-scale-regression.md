@@ -1,23 +1,44 @@
-# Glyphs render ~0.6x their own metrics -- RETRACTED
+# Glyphs render ~0.6x their own metrics -- RETRACTED; real ~0.9x residual FIXED
 
-Status: **NOT A BUG. The measurement was wrong.**
+Status: **the 0.6x report was a measurement artifact; behind it sat a real, smaller defect,
+now fixed (2026-08-11).**
 
 Every number in the original investigation came from probes that called
 `rasterize(width, height, background = ...)` WITHOUT passing `font =`. With no font the
 rasterizer draws a null-font placeholder rect per glyph, so the probes measured placeholder
-geometry, not glyph sampling. The Chromium comparison ("our stems 1px vs their 2px") has the
-same defect and is equally invalid.
+geometry, not glyph sampling. The placeholder is `fillRect` inset by `min(w, h) * 0.25`, which
+reproduces every original number exactly: 3x7 ink for H at 14px, the "asymmetric" 0.40/0.70
+ratios (width loses 50% of a narrow quad, height only 38%), the 5/7/7 height table, and
+"stems 1px, bowls 3px" (every glyph's run is half its quad width). The Chromium comparison
+drawn from those probes is equally invalid.
 
-Re-measured with the font passed:
+## The real defect behind it (found by the honest re-measurement, fixed 2026-08-11)
 
-| size | rendered ink height | expected (`capHeightEm x size`) | ratio |
+With the font passed, ink measured ~0.90x of the quad horizontally and ~0.92x vertically at
+EVERY size -- sub-pixel at 12-14px, past a pixel from 16px up:
+
+| size | quad h | ink rows (thr=1) | ratio |
 |---|---|---|---|
-| 12px | 9px | 8.53px | 1.05 |
-| 14px | 9px | 9.95px | 0.90 |
-| 16px | 11px | 11.38px | 0.97 |
+| 14px | 9.95 | 9 | 0.90 |
+| 16px | 11.38 | 11 | 0.97 |
+| 20px | 14.22 | 13 | 0.91 |
 
-Glyphs render at the size their metrics predict, within antialiasing threshold effects. There is
-no scale regression.
+Mechanism: the generator sized the render quad (`quadMetricsEm`) to the glyph's OUTLINE rect,
+but the UV rect (`sampleRect`) to outline + `CROP_BLEED` + an outward integer-texel snap. The
+padded atlas region was squeezed into an outline-sized quad, shrinking ink by
+`outline / (outline + bleed + snap)` per glyph -- for H, 18/20 wide and 24/26 tall, matching
+the measured ratios exactly. The per-glyph snap slack also scattered baselines by a subpixel,
+which is where the baseline-fidelity drift came from. This is the "quad-vs-UV padding
+mismatch" the original doc listed as disproved: the mechanism was real all along -- it was
+only disproved as the cause of the 0.6x number, and its predicted ~0.92 is what the honest
+measurement found.
+
+Fix: the generator now derives `quadMetricsEm` from the snapped sample rect itself (quad and
+UV describe the same texels 1:1), and ships outline-true `inkMetricsEm` separately so metrics
+(`capHeightEm`, baseline, visible band, advance clamping) stay ink-exact -- the earlier failed
+attempt inflated `capHeightEm` precisely because quad metrics and ink metrics were one array.
+After the fix, H's ink at half-coverage threshold lands within 0.05-0.78px of
+`capHeightEm * size` at 12/14/16/18/20px, and `GlyphAbsoluteSizeTest` gates it.
 
 ## What is worth keeping from this
 

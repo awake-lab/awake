@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -130,24 +131,35 @@ class CheckboxTest {
             modifier = Modifier.width(160f.px).height(40f.px),
         )
 
-        val glyphBounds = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>().glyphBounds()
+        // Measure the RENDERED ink, not glyph quad bounds: the quad deliberately extends past
+        // the ink by the atlas crop bleed plus a texel snap (see PackedUiFontData.quadMetricsEm),
+        // so quad centers carry sub-pixel slack that says nothing about where the label sits.
+        val width = 220
+        val height = 100
+        val pixels = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>().rasterize(
+            width,
+            height,
+            background = Color(0f, 0f, 0f, 0f),
+            font = font,
+        )
+        var inkTop = -1
+        var inkBottom = -1
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                if ((pixels[(y * width + x) * 4 + 3].toInt() and 0xFF) >= 128) {
+                    if (inkTop < 0) inkTop = y
+                    inkBottom = y
+                }
+            }
+        }
+        assertTrue(inkTop >= 0, "expected the checkbox row to render some ink")
         val rowCenterY = 40f
-        val glyphCenterY = glyphBounds.y + glyphBounds.height / 2f
+        val inkCenterY = (inkTop + inkBottom + 1) / 2f
 
         assertTrue(
-            kotlin.math.abs(glyphCenterY - rowCenterY) <= 1f,
-            "checkbox label should stay vertically centered in its row with the true font: rowCenterY=$rowCenterY glyphCenterY=$glyphCenterY bounds=$glyphBounds",
+            kotlin.math.abs(inkCenterY - rowCenterY) <= 1f,
+            "checkbox label should stay vertically centered in its row with the true font: " +
+                "rowCenterY=$rowCenterY inkCenterY=$inkCenterY inkRows=$inkTop..$inkBottom",
         )
-    }
-}
-
-private fun List<UiDrawPrimitive.Glyph>.glyphBounds(): UiBounds {
-    require(isNotEmpty()) { "expected at least one glyph primitive" }
-    return drop(1).fold(UiBounds(first().x, first().y, first().w, first().h)) { acc, glyph ->
-        val minX = minOf(acc.x, glyph.x)
-        val minY = minOf(acc.y, glyph.y)
-        val maxX = maxOf(acc.x + acc.width, glyph.x + glyph.w)
-        val maxY = maxOf(acc.y + acc.height, glyph.y + glyph.h)
-        UiBounds(minX, minY, maxX - minX, maxY - minY)
     }
 }
