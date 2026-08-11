@@ -22,6 +22,8 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.drawDropdownTriggerContent
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope as HeadlessUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.select as headlessSelect
 
 /** Real shadcn's `Select`: a trigger button that opens a [shadcnDropdownMenu] of [options].
  * Owns trigger rendering + popup open/close state; the dropdown itself is composed rather
@@ -130,3 +132,16 @@ fun <T> UiScope.shadcnSelect(
     )
     resultIndex?.let { options.getOrNull(it)?.let(onValueChange) }
 }
+
+/** Headless-facade Select baseline; trigger and popup state stay outside Core's public API. */
+fun HeadlessUiScope.shadcnSelect(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int?,
+    enabled: Boolean = true,
+): Int? = headlessSelect(
+    id = id,
+    options = options,
+    selectedIndex = selectedIndex,
+    enabled = enabled,
+)

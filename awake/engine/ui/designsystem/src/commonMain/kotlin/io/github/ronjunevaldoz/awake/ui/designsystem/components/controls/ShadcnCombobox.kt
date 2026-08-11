@@ -42,6 +42,8 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.drawDropdownTriggerConten
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope as HeadlessUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.combobox as headlessCombobox
 
 private val COMBOBOX_OPTION_HEIGHT = 32f.dp
 private val COMBOBOX_LEADING_SLOT = 16f.dp
@@ -134,6 +136,19 @@ fun UiScope.shadcnCombobox(
     }
     return picked
 }
+
+/** Headless-facade Combobox baseline; filtering can be layered over the shared menu contract. */
+fun HeadlessUiScope.shadcnCombobox(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int?,
+    enabled: Boolean = true,
+): Int? = headlessCombobox(
+    id = id,
+    options = options,
+    selectedIndex = selectedIndex,
+    enabled = enabled,
+)
 
 /** Bundles [shadcnComboboxPopoverContent]'s per-render config -- keeps that function (and this
  * call site) under the parameter-count a single flat argument list would need. */
