@@ -1,5 +1,14 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
+// Suppressed deliberately, and only here. This is a build-time generator, not shipped code:
+// - LongParameterList: the cell-geometry arguments (cellX/cellY/cellWidth/cellHeight/baseline/
+//   ascent) travel together through the packing loop, and AtlasResult is a DTO mirroring the
+//   generated PackedUiFontData one-for-one. Grouping either into holder types would add
+//   indirection between this file and the interface it emits without making it easier to read.
+// - TooManyFunctions: 12 small top-level helpers, each named for one step of the pipeline,
+//   reads better here than fewer, larger ones.
+@file:Suppress("LongParameterList", "TooManyFunctions", "DestructuringDeclarationWithTooManyEntries")
+
 package io.github.ronjunevaldoz.awake.fontatlasgenerator
 
 import com.squareup.kotlinpoet.CHAR
@@ -23,8 +32,12 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
+
 private const val FONT_PACKAGE = "io.github.ronjunevaldoz.awake.ui.font"
-private val ASCII_GLYPHS: List<Char> = (32..126).map { it.toChar() }
+/** Printable ASCII, space through tilde -- the range this atlas packs. */
+private const val ASCII_FIRST = 32
+private const val ASCII_LAST = 126
+private val ASCII_GLYPHS: List<Char> = (ASCII_FIRST..ASCII_LAST).map { it.toChar() }
 
 private const val FONT_PATH = "../ui-core/src/commonMain/resources/fonts/Roboto-Regular.ttf"
 private const val OUT_DIR = "../ui-core/src/commonMain/kotlin"
@@ -44,6 +57,18 @@ private const val PADDING = 6
 private const val COLUMNS = 16
 private const val MSDFGEN = "msdfgen"
 private const val RGBA_CHANNELS = 4
+private const val BYTE_MASK = 0xFF
+private const val ALPHA_SHIFT = 24
+private const val RED_SHIFT = 16
+private const val GREEN_SHIFT = 8
+private const val ALPHA_BYTE = 3
+
+/** A blank glyph (space) has no ink, so its UV rect is a small placeholder square rather than a
+ * measured one -- a quarter of the cell, big enough to be obviously wrong if ever sampled. */
+private const val BLANK_GLYPH_DIVISOR = 4
+
+/** Wrap the base64 payload so the generated Kotlin stays diffable. */
+private const val BASE64_LINE_WIDTH = 120
 
 /** Distance-field spread in ATLAS TEXELS, passed to msdfgen as `-pxrange` and shipped as
  * `distanceFieldRangePx` so the glyph shader recovers the same range.
@@ -267,7 +292,7 @@ private fun sampleRect(
     ascentPxRender: Float,
 ): List<Int> {
     if (metrics.widthEm <= 0f || metrics.heightEm <= 0f) {
-        val placeholder = max(1, (LOGICAL_CELL * OVERSAMPLE) / 4)
+        val placeholder = max(1, (LOGICAL_CELL * OVERSAMPLE) / BLANK_GLYPH_DIVISOR)
         return listOf(baselineX, cellY + PADDING, baselineX + placeholder, cellY + PADDING + placeholder)
     }
     val scale = LOGICAL_CELL * OVERSAMPLE
@@ -294,10 +319,10 @@ private fun rgbaBytes(image: BufferedImage): ByteArray {
     for (y in 0 until image.height) {
         for (x in 0 until image.width) {
             val argb = image.getRGB(x, y)
-            bytes[index] = ((argb shr 16) and 0xFF).toByte()
-            bytes[index + 1] = ((argb shr 8) and 0xFF).toByte()
-            bytes[index + 2] = (argb and 0xFF).toByte()
-            bytes[index + 3] = ((argb ushr 24) and 0xFF).toByte()
+            bytes[index] = ((argb shr RED_SHIFT) and BYTE_MASK).toByte()
+            bytes[index + 1] = ((argb shr GREEN_SHIFT) and BYTE_MASK).toByte()
+            bytes[index + 2] = (argb and BYTE_MASK).toByte()
+            bytes[index + ALPHA_BYTE] = ((argb ushr ALPHA_SHIFT) and BYTE_MASK).toByte()
             index += RGBA_CHANNELS
         }
     }
@@ -369,7 +394,7 @@ private fun floatArrayProperty(name: String, values: FloatArray): PropertySpec =
 
 private fun base64Property(base64: String): PropertySpec {
     val block = CodeBlock.builder().add("\"\"\"\n")
-    base64.chunked(120).forEach { line -> block.add("%L\n", line) }
+    base64.chunked(BASE64_LINE_WIDTH).forEach { line -> block.add("%L\n", line) }
     block.add("\"\"\"")
     return PropertySpec.builder("encodedAtlasBase64", STRING)
         .addModifiers(KModifier.OVERRIDE)

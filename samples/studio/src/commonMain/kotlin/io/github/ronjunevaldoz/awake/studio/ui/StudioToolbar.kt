@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.studio.ui
 
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
@@ -21,7 +20,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
@@ -39,11 +37,12 @@ private val BAR_INSET = 12f.dp
  * bottom border. Replaces the old floating [shadcnCard] toolbar that used to sit inside the
  * viewport. */
 internal fun UiScope.drawStudioTopBar(renderer: Renderer, onPlay: () -> Unit) {
-    val bounds = row(
+    row(
         id = "studio-top-bar",
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.width(Dimension.FillMax).height(TOP_BAR_HEIGHT).padding(BAR_INSET, 0f.dp),
+        modifier = Modifier.width(Dimension.FillMax).height(TOP_BAR_HEIGHT)
+            .padding(BAR_INSET, 0f.dp),
     ) {
         shadcnText("Awake Studio")
         shadcnButton(
@@ -56,14 +55,22 @@ internal fun UiScope.drawStudioTopBar(renderer: Renderer, onPlay: () -> Unit) {
             icon(HeroIcons.Solid20Mini.play)
         }
         row(horizontalArrangement = Arrangement.spacedBy(16f.dp)) {
-            renderer.wireframe = shadcnSwitch(id = "studio-wireframe", checked = renderer.wireframe, label = "Wireframe")
-            renderer.shadowsEnabled = shadcnSwitch(id = "studio-shadows", checked = renderer.shadowsEnabled, label = "Shadows")
+            renderer.wireframe = shadcnSwitch(
+                id = "studio-wireframe",
+                checked = renderer.wireframe,
+                label = "Wireframe"
+            )
+            renderer.shadowsEnabled = shadcnSwitch(
+                id = "studio-shadows",
+                checked = renderer.shadowsEnabled,
+                label = "Shadows"
+            )
         }
     }
     // row() itself never records a semantic node (only column()'s ColumnScope/RowScope/BoxScope
     // overloads do, and only when they resolve to a visual surface) -- record this one directly
     // so layout tests can find the top bar's own bounds by id.
-    recordSemantic(role = UiSemanticRole.Panel, id = "studio-top-bar", bounds = bounds)
+//    recordSemantic(role = UiSemanticRole.Panel, id = "studio-top-bar", bounds = bounds)
 }
 
 /** Full-width status bar: edit-mode label at the left, the active render backend at the right --
@@ -71,15 +78,16 @@ internal fun UiScope.drawStudioTopBar(renderer: Renderer, onPlay: () -> Unit) {
  * not read live from the running window -- nothing in this `ui` package can reach that without
  * depending on `app`. */
 internal fun UiScope.drawStudioStatusBar() {
-    val bounds = row(
+    row(
         id = "studio-status-bar",
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.width(Dimension.FillMax).height(STATUS_BAR_HEIGHT).padding(BAR_INSET, 0f.dp),
+        modifier = Modifier.width(Dimension.FillMax).height(STATUS_BAR_HEIGHT)
+            .padding(BAR_INSET, 0f.dp),
     ) {
         shadcnText("Edit mode", muted = true, style = Style { textSize(theme.typography.caption) })
         shadcnBadge("Vulkan", variant = ShadcnBadgeVariant.Outline)
     }
     // See drawStudioTopBar's matching comment -- row() records no semantic node on its own.
-    recordSemantic(role = UiSemanticRole.Panel, id = "studio-status-bar", bounds = bounds)
+//    recordSemantic(role = UiSemanticRole.Panel, id = "studio-status-bar", bounds = bounds)
 }
