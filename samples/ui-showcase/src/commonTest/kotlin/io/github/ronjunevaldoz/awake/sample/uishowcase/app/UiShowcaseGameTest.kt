@@ -46,28 +46,29 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.testTag
+import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import kotlinx.coroutines.test.runTest
 import kotlin.math.abs
 import kotlin.test.Test
@@ -171,9 +172,8 @@ class UiShowcaseGameTest {
         }
         val game = spec.createGame()
 
-        val chromeColor = requireNotNull(ShadcnTheme.components.surface.resolve().background)
-        val contentColor =
-            requireNotNull(state.showcaseTheme().components.surface.resolve().background)
+        val chromeColor = ShadcnTheme.colors.card
+        val contentColor = state.showcaseTheme().colors.card
 
         assertTrue(
             chromeColor != contentColor,
@@ -228,8 +228,8 @@ class UiShowcaseGameTest {
         game.ready(renderer)
         game.render(0.016f, 1440f, 900f)
 
-        val expectedSidebarColor = renderSidebarSurfaceColor(shellTheme)
-        val darkSidebarColor = renderSidebarSurfaceColor(ShadcnTheme)
+        val expectedSidebarColor = renderSidebarSurfaceColor(shellTheme.asRuntimeTheme())
+        val darkSidebarColor = renderSidebarSurfaceColor(ShadcnTheme.asRuntimeTheme())
         val sidebarSurface = renderer.lastUiPrimitives
             .filterIsInstance<UiDrawPrimitive.RoundedQuad>()
             .largestWithin(xRange = 0f..300f, minWidth = 220f, minHeight = 400f)
@@ -320,19 +320,16 @@ class UiShowcaseGameTest {
 
         ui.pushFont(BitmapFont())
         ui.pushTheme(state.showcaseTheme())
-        ui.createColumn(x = 24f, y = 24f, width = 720f, height = 516f).run {
-            column(
-                id = "ui-showcase-content-viewport",
-                modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax)
-                    .height(Dimension.Fixed(320f.px)),
+        ui.createUiScope(UiBounds(24f, 24f, 720f, 516f)).column(
+            modifier = Modifier.testTag("ui-showcase-content-viewport")
+                .fillMaxWidth().height(320f.dp).verticalScroll(contentScroll),
+            verticalArrangement = Arrangement.Start,
+        ) {
+            shadcnSurface(
+                id = "ui-showcase-content",
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                shadcnSurface(
-                    id = "ui-showcase-content",
-                    style = Style { shape(16f.dp) },
-                    modifier = Modifier.height(Dimension.WrapContent),
-                ) {
-                    drawUiShowcasePageContent(state, showInlineMenu = false)
-                }
+                drawUiShowcasePageContent(state, showInlineMenu = false)
             }
         }
 
@@ -345,7 +342,7 @@ class UiShowcaseGameTest {
         )
 
         assertTrue(
-            contentScroll.canScrollY,
+            contentScroll.maxOffsetY > 0f,
             "the theming page should overflow a constrained viewport",
         )
         assertTrue(
@@ -371,33 +368,25 @@ class UiShowcaseGameTest {
 
         ui.pushFont(BitmapFont())
         ui.pushTheme(shadcnTheme(dark = false))
-        ui.createColumn(x = 0f, y = 0f, width = 1440f, height = 900f).run {
-            row(
-                horizontalArrangement = Arrangement.spacedBy(20f.dp),
-                modifier = (Modifier.fillMaxSize().padding(24f.dp)).width(Dimension.FillMax)
-                    .height(Dimension.Fixed(900f.px)),
+        ui.createUiScope(UiBounds(0f, 0f, 1440f, 900f)).row(
+            modifier = Modifier.fillMaxSize().padding(24f.dp),
+            horizontalArrangement = Arrangement.spacedBy(20f.dp),
+        ) {
+            shadcnSidebar(
+                id = "ui-showcase-sidebar",
+                modifier = Modifier.verticalScroll(sidebarScroll).width(264f.dp).fillMaxHeight(),
             ) {
-                shadcnSidebar(
-                    id = "ui-showcase-sidebar",
-                    style = Style { shape(16f.dp) },
-                    modifier = (Modifier.verticalScroll(sidebarScroll)).width(264f.dp.toDimension())
-                        .height(Dimension.FillMax),
-                ) {
-                    drawUiShowcaseSidebar(compact = false)
-                }
+                drawUiShowcaseSidebar(compact = false)
+            }
 
-                column(
-                    id = "ui-showcase-content-viewport",
-                    modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax)
-                        .height(Dimension.FillMax),
+            column(
+                modifier = Modifier.verticalScroll(contentScroll).fillMaxWidth().fillMaxHeight(),
+            ) {
+                shadcnSurface(
+                    id = "ui-showcase-content",
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    shadcnSurface(
-                        id = "ui-showcase-content",
-                        style = Style { shape(16f.dp) },
-                        modifier = Modifier.height(Dimension.WrapContent),
-                    ) {
-                        drawUiShowcasePageContent(state, showInlineMenu = false)
-                    }
+                    drawUiShowcasePageContent(state, showInlineMenu = false)
                 }
             }
         }
@@ -432,7 +421,7 @@ class UiShowcaseGameTest {
             ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState(), deltaSeconds = 5f)
             ui.pushFont(BitmapFont())
             ui.pushTheme(shadcnTheme(dark = false))
-            ui.createColumn(x = 0f, y = 0f, width = 264f, height = 900f).run {
+            ui.createUiScope(UiBounds(0f, 0f, 264f, 900f)).column {
                 drawUiShowcaseSidebar(compact = false)
             }
             ui.endFrame()
@@ -473,7 +462,7 @@ class UiShowcaseGameTest {
         ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState(), deltaSeconds = 5f)
         ui.pushFont(BitmapFont())
         ui.pushTheme(shadcnTheme(dark = false))
-        ui.createColumn(x = 0f, y = 0f, width = 264f, height = 900f).run {
+        ui.createUiScope(UiBounds(0f, 0f, 264f, 900f)).column {
             drawUiShowcaseSidebar(compact = false)
         }
         val primitives = ui.endFrame()
@@ -593,11 +582,10 @@ private fun renderSidebarSurfaceColor(theme: UiTheme): Color {
     )
     ui.pushFont(BitmapFont())
     ui.pushTheme(theme)
-    ui.createColumn(x = 24f, y = 24f, width = 264f, height = 180f).run {
+    ui.createUiScope(UiBounds(24f, 24f, 264f, 180f)).column {
         shadcnSidebar(
             id = "sidebar-probe",
-            style = Style { shape(16f.dp) },
-            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(120f.dp)),
+            modifier = Modifier.fillMaxWidth().height(120f.dp),
         ) {
             text("Probe")
         }

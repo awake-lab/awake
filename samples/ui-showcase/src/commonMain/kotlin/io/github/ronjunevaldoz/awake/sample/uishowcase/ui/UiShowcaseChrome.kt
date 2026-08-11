@@ -20,25 +20,22 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadc
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.layouts.spacer
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 
 internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
     var selectedPage by rememberStateValue("ui-showcase-page", "entry") {
         ShowcasePages.first().id
     }
-    shadcnBadge("SHADCN", variant = ShadcnBadgeVariant.Primary)
+    shadcnBadge(id = "ui-showcase-brand", label = "SHADCN", variant = ShadcnBadgeVariant.Primary)
     shadcnHeadline("Catalog")
     shadcnSupportingText(
         if (compact) {
@@ -73,19 +70,19 @@ internal fun ColumnScope.drawUiShowcasePageContent(
         spacer(Modifier.height(12f.dp))
     }
 
-    shadcnBadge(page.category.title.uppercase(), variant = ShadcnBadgeVariant.Outline)
-    shadcnSectionHeader(
-        title = { shadcnSectionTitle(page.title) },
-        description = { shadcnBodyText(page.description) },
+    shadcnBadge(
+        id = "ui-showcase-category-${page.id}",
+        label = page.category.title.uppercase(),
+        variant = ShadcnBadgeVariant.Outline,
     )
+    shadcnSectionHeader(title = page.title, description = page.description)
     spacer(Modifier.height(8f.dp))
     drawUiShowcasePreviewCodeSection(page, state)
     if (page.notes.isNotEmpty()) {
         spacer(Modifier.height(12f.dp))
         shadcnSurface(
             id = "ui-showcase-notes-${page.id}",
-            style = Style { shape(14f.dp) },
-            modifier = Modifier.height(Dimension.WrapContent),
+            modifier = Modifier,
         ) {
             shadcnSectionTitle("Notes")
             shadcnSupportingLines(page.notes)
@@ -118,7 +115,7 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                 }
             }
         } else {
-            var expanded by context.rememberStateValue(
+            var expanded by rememberStateValue(
                 "ui-showcase-sidebar-category",
                 category.name,
             ) { true }
@@ -139,14 +136,6 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                                 id = "ui-showcase-page-${page.id}",
                                 label = page.title,
                                 active = page.id == selectedPageId,
-                                style = Style {
-                                    contentPadding(
-                                        start = 24f.dp,
-                                        top = 0f.dp,
-                                        end = 14f.dp,
-                                        bottom = 0f.dp,
-                                    )
-                                },
                                 onClick = { onSelect(page) },
                             )
                         }
@@ -161,15 +150,8 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
     page: ShowcasePage,
     state: UiShowcaseRuntimeState,
 ) {
-    var showCode by context.rememberStateValue("ui-showcase-page", "${page.id}.show-code") { false }
+    var showCode by rememberStateValue("ui-showcase-page", "${page.id}.show-code") { false }
     row(
-        id = "ui-showcase-preview-code-tabs",
-        // Pilot cross-frame hasWeightedChild cache (see
-        // docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md): this row's two direct
-        // children (the Preview/Code shadcnButton calls below) never call .weight() regardless of
-        // `page`/`showCode` -- only their label/variant/id change per page, never their
-        // weight()-usage -- so a constant cacheKey is safe here too.
-        cacheKey = "static",
         modifier = Modifier.height(36.dp),
         horizontalArrangement = Arrangement.spacedBy(8f.dp),
     ) {
@@ -193,8 +175,7 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
     spacer(Modifier.height(8f.dp))
     shadcnSurface(
         id = "ui-showcase-preview-code-${page.id}",
-        style = Style { shape(14f.dp) },
-        modifier = Modifier.height(Dimension.WrapContent),
+        modifier = Modifier,
     ) {
         if (showCode) {
             drawUiShowcaseCodeBlock(page.usageCode)
@@ -207,10 +188,6 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
 private fun ColumnScope.drawUiShowcaseCodeBlock(code: String) {
     shadcnTextLines(
         lines = code.trimIndent().lines(),
-        style = Style {
-            foreground(theme.colors.foreground)
-            textSize(theme.typography.label)
-        },
         wrap = UiTextWrap.Word,
         overflow = UiTextOverflow.Clip,
         maxLines = Int.MAX_VALUE,

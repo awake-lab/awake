@@ -9,12 +9,12 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.offset
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -48,7 +48,7 @@ class UiShowcaseTextInputIntegrationTest {
             ui.beginFrame(width, height, input.updateSnapshot().toUiInputState())
             ui.pushFont(font)
             ui.pushTheme(theme)
-            ui.column(
+            ui.headlessRoot().column(
                 modifier = Modifier.offset(24f.dp, 24f.dp)
                     .width((width - 48f).dp)
                     .height((height - 48f).dp),
@@ -108,7 +108,7 @@ class UiShowcaseTextInputIntegrationTest {
         ui.beginFrame(900f, 460f, input.updateSnapshot().toUiInputState())
         ui.pushFont(font)
         ui.pushTheme(theme)
-        ui.column(
+        ui.headlessRoot().column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {
@@ -121,7 +121,7 @@ class UiShowcaseTextInputIntegrationTest {
         ui.beginFrame(900f, 460f, input.updateSnapshot().toUiInputState())
         ui.pushFont(font)
         ui.pushTheme(theme)
-        ui.column(
+        ui.headlessRoot().column(
             modifier = Modifier.offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
             verticalArrangement = Arrangement.spacedBy(10f.dp),
         ) {

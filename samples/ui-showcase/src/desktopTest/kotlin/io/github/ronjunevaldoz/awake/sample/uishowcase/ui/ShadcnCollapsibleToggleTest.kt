@@ -4,17 +4,16 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlin.test.Test
@@ -47,7 +46,7 @@ class ShadcnCollapsibleToggleTest {
     }
 
     private fun headerBounds(ui: UiContext, category: String): UiBounds {
-        val id = "ui-showcase-sidebar-category-$category.header"
+        val id = "ui-showcase-sidebar-category-$category.trigger"
         val semantics = ui.finishFrame().semantics
         val node = semantics.firstOrNull { it.id == id }
         requireNotNull(node) { "no semantic node recorded for $id -- got ids: ${semantics.map { it.id }}" }
@@ -58,11 +57,11 @@ class ShadcnCollapsibleToggleTest {
 
     private fun drawSidebar(ui: UiContext) {
         val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side")
-        ui.createBox(x = 0f, y = 0f, width = 1440f, height = 900f).shadcnSidebar(
+        ui.createUiScope(UiBounds(0f, 0f, 1440f, 900f)).shadcnSidebar(
             id = "ui-showcase-sidebar",
-            modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden))
+            modifier = Modifier.verticalScroll(sidebarScroll)
                 .width(264f.dp)
-                .height(Dimension.FillMax),
+                .height(900f.dp),
         ) {
             drawUiShowcaseSidebar(compact = false)
         }

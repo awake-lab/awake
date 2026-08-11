@@ -56,8 +56,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -1206,15 +1206,10 @@ internal object AwakeDropdownMenuStatesLightPreview : AwakeUiPreviewEntry {
             modifier = Modifier.offset(24f.dp, 16f.dp).width(160f.dp)
                 .height((metadata.height.toFloat() - 16f).dp),
         ) {
-            val trigger = buttonSlot(
-                id = "parity-dropdown-trigger",
-                label = "Open",
-                modifier = Modifier.width(80f.px).height(36f.px),
-                style = theme.components.button,
-            )
+            val triggerSlot = UiBounds(24f, 16f, 80f, 36f)
             shadcnDropdownMenu(
                 id = "parity-dropdown",
-                anchorSlot = trigger.slot,
+                anchorSlot = triggerSlot,
                 expanded = true,
                 items = listOf(
                     UiDropdownMenuItem(label = "My Account"),
@@ -1254,15 +1249,10 @@ internal object AwakePopoverStatesLightPreview : AwakeUiPreviewEntry {
             modifier = Modifier.offset(24f.dp, 16f.dp).width(260f.dp)
                 .height((metadata.height.toFloat() - 16f).dp),
         ) {
-            val trigger = buttonSlot(
-                id = "parity-popover-trigger",
-                label = "Open popover",
-                modifier = Modifier.width(130f.px).height(36f.px),
-                style = theme.components.button,
-            )
+            val triggerSlot = UiBounds(24f, 16f, 130f, 36f)
             shadcnPopover(
                 id = "parity-popover",
-                anchorSlot = trigger.slot,
+                anchorSlot = triggerSlot,
                 expanded = true,
                 width = Dimension.Fixed(260f.dp),
             ) {
