@@ -11,20 +11,20 @@ sample-specific adapters.
 
 These are placement rules, not style preferences.
 
-1. `awake:engine:ui:ui-core` may expose only geometry, drawing, anchoring, clipping, slot,
-   style primitives, theme contracts, and at most a neutral fallback theme.
-2. `awake:engine:ui:ui-headless` may expose only generic leaf widgets built on `ui-core`. It
-   must not own property-form, inspector, or tooling-shell composition.
+1. `awake:engine:ui:ui-core` may expose only runtime mechanics: geometry resolution, drawing,
+   anchoring, clipping, slots, input, focus, state, and a neutral fallback implementation. It
+   must not expose component recipes, variants, or branded policy.
+2. `awake:engine:ui:ui-headless` owns generic leaf-widget behavior and generic visual-state
+   contracts built on `ui-core`. It must not own property-form, inspector, tooling-shell, or
+   other multi-widget composition; those belong in `ui-dsl` (when that focused composition layer
+   is present). It also must not own named variants or a design language.
 3. `awake:engine:ui:ui-designsystem` owns branded or strongly opinionated recipes and every
    named authored theme intended for direct app/sample use.
 4. `samples:*` and future game modules own runtime-bound adapters, authored overlays,
    debug HUD wiring, and sample-specific compositions.
-5. **Superseded (2026-08-01):** `UiSlot` was merged into `UiBounds` -- there is now a single
-   `ui-core`-public measured-bounds type (`io.github.ronjunevaldoz.awake.ui.layout.UiBounds`),
-   not a public/internal pair. The dual-type split this rule described, and the mechanical
-   enforcement it called for, were dropped as not worth the maintenance cost once Batch 2 of
-   `docs/tasks/2026-07-24-uislot-narrowing.md` had already narrowed the public surface. See that
-   doc's Resolution section for the full rationale.
+5. `UiBounds` is an immutable resolved-bounds contract in `ui-api`. It is shared by Core,
+   Headless, Design System, renderers, and tests; it is not a Headless widget or a Core-only
+   runtime capability.
 6. **No authored param may duplicate what `UiModifier` or `Style` already expresses.** Not
    limited to params literally named `width`/`height`/`gap`/`insets` -- any `Dp`/`Float` param
    that's really a size, position, or spacing value under another name (`diameter`, `radius`
@@ -52,36 +52,35 @@ These are placement rules, not style preferences.
 Concrete rule for what belongs in each module, beyond "generic" vs "branded":
 
 - Every reusable leaf widget in `ui-headless` gets a bare, unbranded name (`checkbox`, `button`,
-  `slider`, `dropdown`, ...) and carries zero style opinion -- callers must supply a `Style`/theme
-  for it to look like anything.
+  `slider`, `dropdown`, ...) and carries no named visual recipe. It accepts neutral visual-state
+  data such as `SurfaceVisuals(rest, hovered, pressed, disabled)`, not `Primary`, `Ghost`,
+  `Outline`, Material, or shadcn vocabulary.
 - `ui-designsystem` provides exactly one themed wrapper per `ui-headless` widget it recipes,
   named `shadcn<Widget>` (brand prefix + the same widget name, e.g. `checkbox` ->
-  `shadcnCheckbox`). That wrapper's only job is supplying the brand's `Style`/theme
-  defaults on top of the existing `ui-headless` widget -- it must not add new structural or
-  behavioral logic the underlying widget doesn't already have. If a wrapper needs real new
-  logic, that logic belongs in `ui-headless` (generic) -- see the note on neutral
-  composition below.
+  `shadcnCheckbox`). The wrapper maps a branded variant to neutral Headless visual states; it
+  must not add new structural or behavioral logic the underlying widget doesn't already have.
+  If a wrapper needs real new logic, that logic belongs in `ui-headless` (generic) -- see the
+  note on neutral composition below.
 - `ui-designsystem` may also own branded *compositions* that don't map to a single
   `ui-headless` widget (`shadcnDialog`, `shadcnDropdownMenu`, `shadcnAlertDialog`,
   `shadcnTabs`, `shadcnPropertyDropdown`, ...) when the composition itself is
   brand-opinionated. Every `ui-designsystem` export is `shadcn`-prefixed, including these --
   there is no unprefixed variant.
 
-**Neutral composition currently has no dedicated module.** `awake:engine:ui-dsl` used to be
-that home but was deleted 2026-07-24 -- it had accumulated zero production code (every real
-composition had already migrated into `ui-headless`/`ui-designsystem`/`game-dsl` over time,
-leaving only stray test files behind). If a genuinely neutral (unbranded) composition need
-comes up again, don't default to recreating a `ui-dsl`-shaped module reflexively -- place it in
-`ui-headless` if it's still widget-shaped, or scope a new module deliberately if it's large
-enough to need one. Treat "we need a neutral composition layer" as a real decision to make at
-the time, not a foregone conclusion.
+**Neutral composition belongs in a focused `ui-dsl` layer, not in Headless.** The previous
+`ui-dsl` module was deleted on 2026-07-24 after reaching zero production code. That deletion did
+not make multi-widget composition a Headless responsibility. Reintroduce or create the focused
+composition layer only when production composition needs justify it; until then, keep the need
+out of Headless rather than letting a temporary exception become an ownership leak.
 
 ## Module Responsibilities
 
 | Module | Responsibility | Examples |
 |---|---|---|
-| `awake:engine:ui:ui-core` | Foundational drawing, layout, and surface primitives | low-level layout, drawing, clipping, slots, style plumbing, `UiTheme`, `CoreUiTheme` |
-| `awake:engine:ui:ui-headless` | Reusable widget primitives built on `ui-core` | button, checkbox, text field, slider, primitive panels |
+| `awake:engine:ui:ui-api` | Immutable cross-layer values and theme-value contracts | `UiBounds`, `Dimension`, `Dp`, `Sp`, color/shape/typography contracts |
+| `awake:engine:ui:ui-core` | Runtime layout, drawing, input, and state mechanics | low-level layout, clipping, slots, pixel resolution, neutral fallback resolver |
+| `awake:engine:ui:ui-headless` | Reusable leaf-widget behavior and neutral visual states | button mechanics, `SurfaceVisuals`, checkbox, text field, slider, primitive panels |
+| `awake:engine:ui:ui-dsl` | Neutral multi-widget and tooling composition when needed | property rows/lists, inspector scaffolds, tooling shells |
 | `awake:engine:ui:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
 | `samples:*` or game modules | Sample/game adapters and authored usage | scene inspector bindings, demo-specific overlays, debug HUD wiring |
 
@@ -120,23 +119,28 @@ Text ownership rule:
   internally with no slot alternative -- added a `content: BoxScope.(slot) -> Unit` primary
   overload (draws the circle only) with the string form as a convenience wrapper over it.
 
-## Theme Token Rule
+## Theme Values And Visual Policy
 
-Where a color/token comes from depends on the module:
+Theme *values* and component visual policy are deliberately separate:
 
-- `ui-core` owns the *contract* only -- `UiColorTokens` (the interface), `UiTheme`, and
-  `CoreUiTheme` (the one neutral fallback instance, generic gray/white values). No named or
-  branded token values live here.
-- `ui-headless` must never call `Color(...)` directly or hardcode a token value.
-  Widgets read colors exclusively through the ambient theme (`theme.tokens.background`,
-  `theme.tokens.primary`, etc.) or a resolved `Style` built from those tokens. This is already
-  true in practice -- `ui-headless` has zero raw `Color(...)` call sites.
-- `ui-designsystem` owns every named/branded theme and is the only module allowed to hardcode
-  `Color(...)`/`Color.fromOklch(...)` literals, and only inside theme-definition files
-  (`ShadcnTheme.kt`, `PresetUiThemes.kt`, `OklchColor.kt`) -- not inside individual
-  component files, which should still read `theme.tokens.*` like everything else.
-- `samples:*` may reference a named theme (`ShadcnTheme`, etc.) but must not hardcode
-  `Color(...)` for anything that a token already covers.
+- `ui-api` owns immutable, runtime-free value contracts such as `UiColorTokens`,
+  `UiShapeTokens`, and `UiTypography`. They describe values; they do not prescribe a component
+  recipe or a named design language.
+- `ui-core` resolves and applies those values while running the UI, and may provide one neutral
+  fallback theme. It must not expose a `UiComponentStyles`-like component-style registry: that
+  is component visual policy, not runtime mechanics.
+- `ui-headless` owns the generic visual-state shape a widget needs, for example target
+  `SurfaceVisuals(rest, hovered, pressed, disabled)`. The current generic `SurfaceStyle`
+  façade is an interim bridge toward that model, not permission to introduce named visual
+  recipes. Headless must not name a state `Primary`, `Ghost`, `Outline`, Material, or shadcn,
+  and must not hardcode `Color(...)` values.
+- `ui-designsystem` owns named themes, token instances, component recipes, and branded variants.
+  A wrapper maps its brand-specific variant onto Headless's neutral visual states. It is the only
+  module allowed to hardcode `Color(...)`/`Color.fromOklch(...)` literals, and only inside
+  theme-definition files (`ShadcnTheme.kt`, `PresetUiThemes.kt`, `OklchColor.kt`) -- not inside
+  individual component files.
+- `samples:*` select a named design-system theme and must not hardcode `Color(...)` for anything
+  a supplied theme or visual recipe already covers.
 
 ## Concrete Placement Examples
 
@@ -144,10 +148,12 @@ Where a color/token comes from depends on the module:
 |---|---|---|
 | `UiSlot.anchored(anchor, width, height, margin)` | `ui-core` | pure placement math returning a slot |
 | `button`, `checkbox`, `slider` | `ui-headless` | generic reusable leaf widgets |
-| `CoreUiTheme`, `UiTheme`, `UiColorTokens` | `ui-core` | theme contract and neutral fallback only |
-| `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-headless` (or a scoped-for-purpose new module, see Neutral composition note above) | reusable compositions of primitives/widgets |
+| `UiColorTokens`, `UiShapeTokens`, `UiTypography` | `ui-api` | immutable, runtime-free theme value contracts |
+| neutral fallback theme resolution | `ui-core` | runtime fallback only; no component-style registry |
+| `SurfaceVisuals` / generic interaction-state visuals | `ui-headless` | widget-state contract without branded names |
+| `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-dsl` | neutral multi-widget/tooling composition, not a leaf widget |
 | `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme` | `ui-designsystem` | named authored themes belong above engine core |
-| `ShadcnPanelStyle`, branded variants | `ui-designsystem` | visual opinion, not engine primitive |
+| `ShadcnPanelStyle`, `Primary`/`Ghost`/`Outline` variants | `ui-designsystem` | branded visual policy, not engine primitive |
 | hardcoded `Color(...)` token values | `ui-designsystem` theme-definition files only | everywhere else reads `theme.tokens.*` |
 | `HelloCubeHud`, `SceneInspectorBindings`, demo overlays | sample/game module | runtime-bound authored usage |
 
@@ -214,8 +220,9 @@ this rule, only new/moved files must comply.
   (`modifier/`, `style/`, `layout/`, `scope/`, `theme/`, `context/`, `font/`, `graphics/`, or a
   new one if none fit). The 16 existing root files (`UiAnchor.kt`, `Canvas.kt`, `Dp.kt`, etc.)
   are legacy debt, not a model to copy -- migrating them is a separate, not-yet-scoped cleanup.
-- Public types in `ui-core` are `Ui`-prefixed (`UiModifier`, `UiBounds`, `UiAnchor`, ...) -- the
-  prefix signals "engine contract type" the way it already does today.
+- Public runtime types in `ui-core` are `Ui`-prefixed (`UiModifier`, `UiAnchor`, ...) -- the
+  prefix signals an engine runtime type. Cross-layer immutable contracts such as `UiBounds`
+  belong in `ui-api`, not Core.
 
 **`ui-headless`**
 - No `Ui`-prefix requirement -- the module name already scopes these as generic widgets
