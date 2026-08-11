@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnScrollArea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
@@ -72,19 +71,16 @@ private fun ColumnScope.drawStudioConsole(store: StudioStore) {
             onClick = { store.dispatch(StudioContract.Intent.ClearConsole) },
         )
     }
-    shadcnScrollArea(
-        id = "studio-console-log",
-        modifier = Modifier.width(Dimension.FillMax).weight(1f),
-    ) {
-        if (entries.isEmpty()) {
-            shadcnText("No console output.", muted = true)
-        } else {
-            entries.forEach { entry ->
-                shadcnText(entry.message, muted = entry.level == StudioContract.ConsoleLevel.Info)
-            }
-        }
-    }
+    // The vertical resizable dock measures its direct children before placing them. A variable
+    // number of console rows can change between those passes on the first frame, so compose the
+    // bounded log as one stable direct child until ui-core's measurement contract is repaired.
+    val log = entries.takeLast(MAX_VISIBLE_CONSOLE_ENTRIES)
+        .joinToString(separator = "\n") { it.message }
+        .ifEmpty { "No console output." }
+    shadcnText(log, muted = entries.all { it.level == StudioContract.ConsoleLevel.Info })
 }
+
+private const val MAX_VISIBLE_CONSOLE_ENTRIES = 4
 
 private fun ColumnScope.drawStudioTimelinePlaceholder() {
     column(modifier = Modifier.width(Dimension.FillMax).weight(1f)) {
