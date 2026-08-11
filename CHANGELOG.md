@@ -38,6 +38,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   component; `shadcnAlertDialog` is parked at 320dp because of it.
 - **`docs/reference/ui-status.md` is stale** — it predates the MTSDF work, the resizable fix
   and the scale regression.
+- **Studio viewport canvas padding is wrong.** Reported, not yet diagnosed.
+- **Studio's vertical pill toolbar may not be the right pattern.** Its use case has not been
+  validated against how established editors (Unity, Godot, Unreal, Blender) place tool rails, and
+  no comparison has been done. Open design question, not a defect.
+- **Studio has no UI audit.** Component placement and dead action buttons have not been
+  inventoried.
 
 ### Added
 
