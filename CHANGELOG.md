@@ -52,23 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   select from, which is what the hierarchy dock is for.
 - **`StudioShellLayoutTest.panelsDockFlushToEveryFrameEdge` fails.** Pre-existing, confirmed
   against clean `main` with all local changes stashed. Never diagnosed.
-### Fixed
-
-- **Widget-state writes made during a measuring pass are dropped.** `column()` re-executes its
-  content against a scratch context sharing the real, persisted `WidgetState` but with blank
-  input, so anything writing state from that pass corrupted what the real pass read moments
-  later in the same frame. It had shipped three times: the resizable handle's drag anchor was
-  deleted every frame so dragging did nothing, `animatedHeight` kept a stale height across a
-  collapse, and a popup nested one container deeper would not open. The first two were fixed
-  per-widget, which left every other stateful widget exposed. Guarding `UiStateValue`'s setter
-  covers every hook at once, so a new widget cannot reintroduce it by forgetting to guard itself.
-- **Studio's display toggles moved to a viewport-edge pill.** Wireframe and shadows sat in the
-  top bar, which was a scoping error -- they govern how one viewport draws, not the document.
-  Kept out of the tool rail deliberately: that rail is modal, these are independent booleans.
-- **`popup()` honours `Modifier.widthIn()`/`heightIn()`**, so `max-w-*` is expressible for
-  popup-based components instead of hard-coded. `maxWidth` applies before measurement as well as
-  after, so wrapped content reflows within the cap rather than being clipped.
-
 
 ### Added
 
@@ -218,6 +201,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is now a companion function and only the layout handle is held.
 - Dark-theme `card` and `sidebar` colors corrected to oklch lightness 0.205, matching the
   published shadcn spec (they were 0.168 and 0.158).
+
+## [0.1.0-dev.4] - 2026-08-11
+
+UI correctness and the first piece of the studio layout redesign. Ships the general fix for a
+bug class that had produced three separate shipped defects.
+
+### Fixed
+
+- **Widget-state writes made during a measuring pass are dropped.** `column()` re-executes its
+  content against a scratch context sharing the real, persisted `WidgetState` but with blank
+  input, so anything writing state from that pass corrupted what the real pass read moments
+  later in the same frame. It had shipped three times: the resizable handle's drag anchor was
+  deleted every frame so dragging did nothing, `animatedHeight` kept a stale height across a
+  collapse, and a popup nested one container deeper would not open. The first two were fixed
+  per-widget, which left every other stateful widget exposed. Guarding `UiStateValue`'s setter
+  covers every hook at once, so a new widget cannot reintroduce it by forgetting to guard itself.
+- **Studio's display toggles moved to a viewport-edge pill.** Wireframe and shadows sat in the
+  top bar, which was a scoping error -- they govern how one viewport draws, not the document.
+  Kept out of the tool rail deliberately: that rail is modal, these are independent booleans.
+- **`popup()` honours `Modifier.widthIn()`/`heightIn()`**, so `max-w-*` is expressible for
+  popup-based components instead of hard-coded. `maxWidth` applies before measurement as well as
+  after, so wrapped content reflows within the cap rather than being clipped.
+
+### Added
+
+- Studio layout audit, target design and an SVG wireframe --
+  `docs/tasks/2026-08-11-studio-layout-audit.md`, `-design.md` and `-layout.svg`. The audit found
+  three inert controls; the design maps every region to components that already exist and
+  sequences the work in independently shippable phases.
 
 ## [0.1.0-dev.3] - 2026-08-11
 
