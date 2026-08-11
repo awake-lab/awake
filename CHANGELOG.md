@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   "some characters thin, some not". MTSDF was expected to close this and did not: the field
   resolves an edge analytically, but each quad still lands at a different sub-pixel phase as
   fractional advances accumulate. Recorded as `knownStemWidthSpread = 1` in
-  `GlyphStemWeightTest`, which can only shrink. **Top open issue.**
+  `GlyphStemWeightTest` -- which is currently `@Ignore`d, because its probe cannot isolate
+  individual stems (a repeated 'i' at 12px collapses into one run at every threshold tried).
+  Disabled deliberately rather than left green and lying. **Top open issue.**
 - **`rasterize()` silently draws a placeholder when `font` is null.** A frame full of glyphs
   rendered without a font produces placeholder rects rather than failing, which cost a full
   investigation and produced a confident but wrong "glyphs render at 0.6x" report (now retracted
@@ -36,9 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   separate grab margin was tried and reverted: it re-proportioned every panel, and because it
   required hit-testing outside `interact()` it killed the hover state the resize cursor reads.
   Closing this needs `interact()` to accept a hit rect distinct from its layout rect.
-- **`FontBaselineFidelityTest` records three drift entries** (`roundvsflat-14`,
-  `roundvsflat-16`, `email-12`) against the Chromium reference, recorded as measured rather
-  than force-closed.
 - **`popup()` cannot take min/max bounds**, so `max-w-*` is unportable for every popup-based
   component; `shadcnAlertDialog` is parked at 320dp because of it.
 - **`docs/reference/ui-status.md` is stale** — it predates the MTSDF work, the resizable fix
