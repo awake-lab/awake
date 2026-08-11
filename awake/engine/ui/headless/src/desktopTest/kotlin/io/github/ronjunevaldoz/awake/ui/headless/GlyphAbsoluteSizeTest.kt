@@ -40,6 +40,9 @@ class GlyphAbsoluteSizeTest {
 
     private data class InkBox(val width: Int, val height: Int)
 
+    /** A pixel scan is inherently a nested loop over rows and columns; flattening it into helpers
+     * would hide what is being measured. */
+    @Suppress("NestedBlockDepth")
     private fun renderedInk(sizePx: Float): InkBox {
         val width = 64
         val height = 64

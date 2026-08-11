@@ -48,7 +48,7 @@ class GlyphStemWeightTest {
     /** Half coverage. Thresholding lower counts the antialiasing skirt, which at 12px bridges
      * the ~1px gaps between adjacent stems and collapses the whole string into one run -- the
      * probe then silently measures nothing. Half-coverage isolates each stem's core. */
-    private val STEM_CORE_ALPHA = 128
+    private val stemCoreAlpha = 128
 
     /** Widths of each horizontal run of lit pixels on the row through the glyph bodies. With a
      * repeated single-stem glyph, one run == one stem. */
@@ -72,11 +72,11 @@ class GlyphStemWeightTest {
 
         // Sample the row with the most ink: guaranteed to cross every stem, and avoids the
         // ascender/dot rows where 'i' legitimately differs from 'l'.
-        val row = (0 until height).maxBy { y -> (0 until width).count { x -> luma(x, y) >= STEM_CORE_ALPHA } }
+        val row = (0 until height).maxBy { y -> (0 until width).count { x -> luma(x, y) >= stemCoreAlpha } }
         val runs = mutableListOf<Int>()
         var run = 0
         for (x in 0 until width) {
-            if (luma(x, row) >= STEM_CORE_ALPHA) {
+            if (luma(x, row) >= stemCoreAlpha) {
                 run++
             } else if (run > 0) {
                 runs += run

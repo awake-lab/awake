@@ -97,6 +97,31 @@ class PackedUiFont internal constructor(
     override fun uvFor(char: Char): GlyphRect? = glyphsByChar[char] ?: glyphsByChar[data.fallbackChar]
 
     /**
+     * A glyph's outline-exact ink box, in em, without the crop bleed and texel snap that
+     * [uvFor]'s quad carries.
+     *
+     * [uvFor] deliberately returns the RENDER quad, which covers the same texels the UV rect
+     * samples -- that equality is what keeps ink from being squeezed. It is therefore the wrong
+     * geometry to derive or verify type metrics against: measuring a baseline or cap height off
+     * it reads the padding as if it were ink. `ascentEm`/`descentEm`/`capHeightEm` already come
+     * from this ink data; exposing it lets a test check them against the same source rather
+     * than against the padded quad.
+     */
+    fun inkFor(char: Char): GlyphRect? =
+        (inkByChar[char] ?: inkByChar[data.fallbackChar])?.let { ink ->
+            GlyphRect(
+                u0 = 0f,
+                v0 = 0f,
+                u1 = 0f,
+                v1 = 0f,
+                offsetXEm = ink.offsetXEm,
+                offsetYEm = ink.offsetYEm,
+                widthEm = ink.widthEm,
+                heightEm = ink.heightEm,
+            )
+        }
+
+    /**
      * The embedded Roboto data's declared advance is supposed to trail the glyph's own quad
      * right edge (`offsetXEm + widthEm`) by only "a few percent" (see [measureTextWidth]'s
      * doc), just enough that the *next* glyph's quad redraws over the sliver of overhang.

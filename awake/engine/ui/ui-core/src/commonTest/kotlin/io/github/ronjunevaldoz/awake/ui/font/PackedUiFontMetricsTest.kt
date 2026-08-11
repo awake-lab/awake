@@ -15,13 +15,16 @@ import kotlin.test.assertTrue
  */
 class PackedUiFontMetricsTest {
 
-    private val font = UiFonts.default()
+    // Narrowed to PackedUiFont on purpose: metrics must be verified against inkFor()'s
+    // outline-exact box, not uvFor()'s render quad, which carries the crop bleed and texel
+    // snap. Checking a baseline against the quad reads padding as ink.
+    private val font = UiFonts.default() as PackedUiFont
 
     @Test
     fun baselineComesFromFlatCapitalsNotInkExtremes() {
         // Every flat-bottomed capital must agree, or the reference-glyph approach is unsound.
         val bottoms = listOf('H', 'I', 'E', 'T', 'X').map { char ->
-            val glyph = font.uvFor(char)!!
+            val glyph = font.inkFor(char)!!
             glyph.offsetYEm + glyph.heightEm
         }
         assertEquals(1, bottoms.distinct().size, "flat capitals disagree on the baseline: $bottoms")
@@ -46,8 +49,8 @@ class PackedUiFontMetricsTest {
         // makes every label's position hostage to which symbols the atlas happens to pack.
         // ('(' had a tied bottom with ')'; '@' no longer reaches as deep once outline geometry
         // replaced the raster bbox -- see the file header for why the qualifying glyph changed.)
-        assertEquals(font.visibleTopEm, font.uvFor('$')!!.offsetYEm)
-        val paren = font.uvFor('(')!!
+        assertEquals(font.visibleTopEm, font.inkFor('$')!!.offsetYEm)
+        val paren = font.inkFor('(')!!
         assertEquals(font.visibleBottomEm, paren.offsetYEm + paren.heightEm)
         assertTrue(
             font.visibleTopEm < font.ascentEm - font.capHeightEm,
@@ -59,7 +62,7 @@ class PackedUiFontMetricsTest {
     fun descendersSitBetweenTheBaselineAndTheDescentBound() {
         val descentBound = font.ascentEm + font.descentEm
         listOf('g', 'p', 'y', 'j').forEach { char ->
-            val glyph = font.uvFor(char)!!
+            val glyph = font.inkFor(char)!!
             val bottom = glyph.offsetYEm + glyph.heightEm
             assertTrue(bottom > font.ascentEm, "'$char' should fall below the baseline, got $bottom")
             assertTrue(bottom <= descentBound, "'$char' bottom $bottom exceeds descent $descentBound")

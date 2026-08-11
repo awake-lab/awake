@@ -7,7 +7,9 @@
 //   indirection between this file and the interface it emits without making it easier to read.
 // - TooManyFunctions: 12 small top-level helpers, each named for one step of the pipeline,
 //   reads better here than fewer, larger ones.
-@file:Suppress("LongParameterList", "TooManyFunctions", "DestructuringDeclarationWithTooManyEntries")
+// - LongMethod: generateAtlas is one linear pipeline -- measure, lay out the grid, walk the
+//   glyphs, emit. Splitting it would thread a dozen locals through helpers that each run once.
+@file:Suppress("LongParameterList", "TooManyFunctions", "DestructuringDeclarationWithTooManyEntries", "LongMethod")
 
 package io.github.ronjunevaldoz.awake.fontatlasgenerator
 

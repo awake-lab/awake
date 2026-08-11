@@ -119,6 +119,8 @@ class CheckboxTest {
     }
 
     @Test
+    /** Same reason as the other pixel-scanning gates: the row/column walk is the measurement. */
+    @Suppress("NestedBlockDepth")
     fun trueFontCheckboxLabelStaysVerticallyCenteredInTheRow() {
         val font = UiFonts.trueSans()
         val ui = UiContext()
