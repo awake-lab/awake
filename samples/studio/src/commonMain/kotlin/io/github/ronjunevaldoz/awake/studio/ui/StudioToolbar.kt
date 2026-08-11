@@ -36,7 +36,7 @@ private val BAR_INSET = 12f.dp
  * shell's own background and a hairline (drawn by the caller, see `drawStudioShellBody`) is the
  * bottom border. Replaces the old floating [shadcnCard] toolbar that used to sit inside the
  * viewport. */
-internal fun UiScope.drawStudioTopBar(renderer: Renderer, onPlay: () -> Unit) {
+internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
     row(
         id = "studio-top-bar",
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -53,18 +53,6 @@ internal fun UiScope.drawStudioTopBar(renderer: Renderer, onPlay: () -> Unit) {
             onClick = onPlay,
         ) {
             icon(HeroIcons.Solid20Mini.play)
-        }
-        row(horizontalArrangement = Arrangement.spacedBy(16f.dp)) {
-            renderer.wireframe = shadcnSwitch(
-                id = "studio-wireframe",
-                checked = renderer.wireframe,
-                label = "Wireframe",
-            )
-            renderer.shadowsEnabled = shadcnSwitch(
-                id = "studio-shadows",
-                checked = renderer.shadowsEnabled,
-                label = "Shadows",
-            )
         }
     }
 }

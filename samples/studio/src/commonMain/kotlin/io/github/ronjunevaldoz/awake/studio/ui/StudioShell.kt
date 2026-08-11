@@ -82,7 +82,6 @@ internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, rende
         modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
     ) { shellSlot ->
         drawStudioTopBar(
-            renderer = renderer,
             // "Play" replays the active example -- re-selecting it queues LoadExample, which
             // tears the scene down and re-instantiates it, same reset semantics the icon rail's
             // own reset button already uses.
@@ -106,7 +105,7 @@ internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, rende
             }
             shadcnResizableHandle(id = "studio-panel-handle-left", withHandle = true)
             shadcnResizablePanel(id = "studio-panel-viewport", defaultSize = VIEWPORT_FRACTION, minSize = 0.3f) {
-                drawStudioViewportPanel(store)
+                drawStudioViewportPanel(store, renderer)
             }
             shadcnResizableHandle(id = "studio-panel-handle-right", withHandle = true)
             shadcnResizablePanel(id = "studio-panel-inspector", defaultSize = INSPECTOR_FRACTION, minSize = 0.14f, maxSize = 0.32f) {
@@ -121,7 +120,7 @@ internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, rende
 /** The viewport panel's own content: the floating icon rail hugging its left edge, the 3D
  * viewport region (the toolbar used to float here too -- it lives in the top bar now), and the
  * right-click camera menu/orbit-drag hooked to that same region's bounds. */
-private fun UiScope.drawStudioViewportPanel(store: StudioStore) {
+private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Renderer) {
     row(
         id = "studio-viewport-row",
         modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
@@ -137,6 +136,12 @@ private fun UiScope.drawStudioViewportPanel(store: StudioStore) {
             id = "studio-viewport-column",
             modifier = Modifier.weight(1f).height(Dimension.FillMax).padding(8f.dp),
         ) { }
+        drawDisplayRail(
+            wireframe = renderer.wireframe,
+            shadows = renderer.shadowsEnabled,
+            onWireframeChange = { renderer.wireframe = it },
+            onShadowsChange = { renderer.shadowsEnabled = it },
+        )
         viewportCameraMenu(
             id = "studio-viewport-camera-menu",
             bounds = viewportBounds,

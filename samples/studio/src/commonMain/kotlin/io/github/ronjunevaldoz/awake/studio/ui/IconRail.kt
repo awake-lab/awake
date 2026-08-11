@@ -20,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.paddingEnd
+import io.github.ronjunevaldoz.awake.ui.modifier.paddingStart
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 import io.github.ronjunevaldoz.awake.ui.style.Style
@@ -124,6 +125,52 @@ private fun UiScope.cameraRailButton(
 }
 
 /** Primary filled square when [active], ghost (transparent, accent on hover) otherwise. */
+/**
+ * Display toggles, floating at the viewport's RIGHT edge opposite the tool rail.
+ *
+ * Separate from the tool rail on purpose: that rail is modal (one tool at a time), these are
+ * independent booleans, and mixing the two interaction models in one strip serves neither.
+ * Blender splits the same way -- tools in the `T` toolbar, shading and overlay toggles floating
+ * at the viewport's top right.
+ *
+ * They lived in the top bar before, which was a scoping error: wireframe and shadows govern how
+ * THIS VIEWPORT draws, not the document. Grid and gizmo visibility belong here too when they
+ * exist, which is the other reason they are not crammed into the header.
+ */
+internal fun RowScope.drawDisplayRail(
+    wireframe: Boolean,
+    shadows: Boolean,
+    onWireframeChange: (Boolean) -> Unit,
+    onShadowsChange: (Boolean) -> Unit,
+) {
+    column(
+        id = "studio-display-rail",
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.height(Dimension.FillMax).paddingStart(UiSpacing.sm),
+    ) {
+        shadcnCard(
+            id = "studio-display-rail-card",
+            modifier = Modifier.width(RailWidth),
+            style = Style { contentPadding(RailPadding) },
+        ) {
+            railButton(
+                id = "studio-display-wireframe",
+                // cube: a wireframe toggle is about mesh structure. squares2x2 is already the
+                // Grid tool's glyph, so reusing it here would collide.
+                glyph = HeroIcons.Solid20Mini.cube,
+                active = wireframe,
+                onClick = { onWireframeChange(!wireframe) },
+            )
+            railButton(
+                id = "studio-display-shadows",
+                glyph = HeroIcons.Solid20Mini.sun,
+                active = shadows,
+                onClick = { onShadowsChange(!shadows) },
+            )
+        }
+    }
+}
+
 private fun UiScope.railButton(
     id: String,
     glyph: UiImageVector,
