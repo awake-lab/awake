@@ -5,11 +5,11 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.childAbsolute
+import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.interact
 import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
+import io.github.ronjunevaldoz.awake.ui.unstyled.withIntrinsicLabelWidth
 
 /** Result of a [toggle]/[toggleSlot] press: the toggle's new checked state, alongside its slot. */
 private inline fun UiPrimitiveScope.toggleInternal(
@@ -36,9 +37,34 @@ private inline fun UiPrimitiveScope.toggleInternal(
     drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): Boolean {
     val theme = context.currentTheme
+    val defaults = theme.components.button then Style.Companion {
+        // Mirrors buttonSlotInternal's Outline treatment: always draw a border, regardless
+        // of checked state, so an idle Outline toggle still reads as a bordered control.
+        if (variant == UiButtonVariant.Outline) {
+            borderWidth(1f.dp)
+        }
+        if (checked) {
+            background(theme.colors.secondary)
+            foreground(theme.colors.secondaryForeground)
+        } else {
+            background(Color.Transparent)
+            foreground(theme.colors.mutedForeground)
+        }
+    }
+    val sizedModifier = modifier.withSizeFallback(
+        semanticLabel?.let {
+            withIntrinsicLabelWidth(
+                modifier = modifier,
+                label = it,
+                style = style,
+                defaults = defaults,
+            ).widthDimension
+        } ?: Dimension.FillMax,
+        Dimension.Fixed(40f.dp),
+    )
     val interaction = interact(
         id = id,
-        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(40f.dp)),
+        modifier = sizedModifier,
     )
 
     val newChecked = if (interaction.clicked && enabled) !checked else checked
@@ -48,22 +74,9 @@ private inline fun UiPrimitiveScope.toggleInternal(
 
     val surface = resolveInteractiveSurface(
         interaction = interaction,
-        modifier = modifier,
+        modifier = sizedModifier,
         style = style,
-        defaults = theme.components.button then Style.Companion {
-            // Mirrors buttonSlotInternal's Outline treatment: always draw a border, regardless
-            // of checked state, so an idle Outline toggle still reads as a bordered control.
-            if (variant == UiButtonVariant.Outline) {
-                borderWidth(1f.dp)
-            }
-            if (checked) {
-                background(theme.colors.secondary)
-                foreground(theme.colors.secondaryForeground)
-            } else {
-                background(Color.Transparent)
-                foreground(theme.colors.mutedForeground)
-            }
-        },
+        defaults = defaults,
         selected = newChecked,
         disabled = !enabled,
     )

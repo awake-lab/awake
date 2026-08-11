@@ -3,15 +3,15 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled.input
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.fitTo
-import io.github.ronjunevaldoz.awake.ui.headless.button
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.fitTo
+import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
+import io.github.ronjunevaldoz.awake.ui.headless.button
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -29,6 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.UiIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.unstyled.withIntrinsicLabelWidth
 
 // Real shadcn/ui slider shape: a thin track (not a full-height button-like bar) with a
 // circular knob straddling it at the current value -- the claimed slot stays the full
@@ -42,16 +43,28 @@ fun UiPrimitiveScope.select(
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
+    selectedStyle: Style? = null,
     enabled: Boolean = true,
+    placeholder: String = "",
 ): Int? {
     val theme = context.currentTheme
     val expandedState = rememberPopupState(id, key = "expanded")
     val resolvedDefaults = theme.components.dropdown
-    val selectedLabel = options.getOrNull(selectedIndex) ?: ""
+    val selectedLabel = options.getOrNull(selectedIndex) ?: placeholder
+    val triggerStyle = resolvedDefaults then style
+    val triggerModifier = withIntrinsicLabelWidth(
+        modifier = modifier,
+        label = selectedLabel,
+        style = Style.Empty,
+        defaults = triggerStyle,
+        // drawDropdownTriggerContent reserves a 16dp chevron and an 8dp gap in addition to
+        // the trigger's horizontal content padding.
+        extraWidth = 24f.dp,
+    )
     val (clicked, slot) = buttonSlot(
         id = "$id.trigger",
-        modifier = modifier.height(modifier.heightDimension ?: Dimension.Fixed(36f.dp)),
-        style = resolvedDefaults then style,
+        modifier = triggerModifier.height(modifier.heightDimension ?: Dimension.Fixed(36f.dp)),
+        style = triggerStyle,
         enabled = enabled,
     )
     if (clicked) {
@@ -68,6 +81,7 @@ fun UiPrimitiveScope.select(
             expanded = expandedState.expanded,
             style = resolvedDefaults then style,
             semanticId = "$id.label",
+            isPlaceholder = selectedIndex !in options.indices,
         )
     }
     recordSemantic(
@@ -89,7 +103,7 @@ fun UiPrimitiveScope.select(
     ) {
         options.forEachIndexed { index, option ->
             val optionStyle = if (index == selectedIndex) {
-                Style.Companion {
+                selectedStyle ?: Style.Companion {
                     background(theme.colors.accent)
                     foreground(theme.colors.accentForeground)
                 }
