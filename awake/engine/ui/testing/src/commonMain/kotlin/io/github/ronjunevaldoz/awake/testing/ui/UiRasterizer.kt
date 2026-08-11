@@ -21,6 +21,10 @@ import kotlin.math.pow
  * those produce, and silently diverging from them is what made the font gates decorative. */
 private const val GLYPH_GAMMA = 1.45f
 
+/** Floor for a glyph's sampled atlas width, so a degenerate (zero-area) UV rect cannot divide
+ * by zero when deriving screen pixels per texel. */
+private const val MIN_TEXEL_WIDTH = 1e-4f
+
 /**
  * Software-rasterizes a [UiDrawPrimitive] list into a tightly-packed RGBA8 buffer for
  * preview/docs/snapshot review. This is deliberately backend-agnostic and simpler than the
@@ -140,7 +144,7 @@ fun List<UiDrawPrimitive>.rasterize(
             UiFontSamplingMode.CoverageAlpha -> rgba[3]
             UiFontSamplingMode.DistanceField -> {
                 val signedDistance = median3(rgba[0], rgba[1], rgba[2])
-                val texelWidth = max(1e-4f, (glyph.u1 - glyph.u0) * font.atlasWidth)
+                val texelWidth = max(MIN_TEXEL_WIDTH, (glyph.u1 - glyph.u0) * font.atlasWidth)
                 val screenPxPerTexel = glyph.w / texelWidth
                 val screenPxRange = max(font.distanceFieldRangePx * screenPxPerTexel, 1f)
                 (screenPxRange * (signedDistance - 0.5f) + 0.5f).coerceIn(0f, 1f)
