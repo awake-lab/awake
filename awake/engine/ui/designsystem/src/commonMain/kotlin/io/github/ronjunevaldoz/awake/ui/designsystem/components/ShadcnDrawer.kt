@@ -32,6 +32,13 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope as HeadlessColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.PanelEdge
+import io.github.ronjunevaldoz.awake.ui.headless.SlidePanelProperties
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle as HeadlessSurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope as HeadlessUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.slidePanel
 
 enum class ShadcnDrawerPosition {
     Bottom,
@@ -176,4 +183,39 @@ fun UiScope.shadcnDrawer(
     }
 
     return UiPopupResult(slot = popupResult.slot, dismissed = popupResult.dismissed)
+}
+
+/** Drawer recipe for the public Headless facade; Vaul/shadcn visuals resolve here. */
+fun HeadlessUiScope.shadcnDrawer(
+    id: String,
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    position: ShadcnDrawerPosition = ShadcnDrawerPosition.Bottom,
+    sizeDp: Dp = 320f.dp,
+    content: HeadlessColumnScope.(UiBounds) -> Unit,
+): UiPopupResult {
+    val result = slidePanel(
+        id = id,
+        expanded = expanded,
+        edge = position.asPanelEdge(),
+        size = sizeDp,
+        properties = SlidePanelProperties(
+            scrimColor = Color.Black.withAlpha(0.5f),
+            surface = HeadlessSurfaceStyle(
+                background = themeValues.colors.background,
+                foreground = themeValues.colors.foreground,
+                cornerRadius = if (position == ShadcnDrawerPosition.Top || position == ShadcnDrawerPosition.Bottom) themeValues.shapes.xl else null,
+            ),
+        ),
+        content = content,
+    )
+    if (result.dismissed) onDismissRequest()
+    return result
+}
+
+private fun ShadcnDrawerPosition.asPanelEdge(): PanelEdge = when (this) {
+    ShadcnDrawerPosition.Top -> PanelEdge.Top
+    ShadcnDrawerPosition.Right -> PanelEdge.Right
+    ShadcnDrawerPosition.Bottom -> PanelEdge.Bottom
+    ShadcnDrawerPosition.Left -> PanelEdge.Left
 }
