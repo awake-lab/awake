@@ -58,12 +58,12 @@ internal fun UiScope.drawStudioTopBar(renderer: Renderer, onPlay: () -> Unit) {
             renderer.wireframe = shadcnSwitch(
                 id = "studio-wireframe",
                 checked = renderer.wireframe,
-                label = "Wireframe"
+                label = "Wireframe",
             )
             renderer.shadowsEnabled = shadcnSwitch(
                 id = "studio-shadows",
                 checked = renderer.shadowsEnabled,
-                label = "Shadows"
+                label = "Shadows",
             )
         }
     }
