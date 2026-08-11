@@ -126,10 +126,20 @@ fun UiScope.popup(
     }
 
     val windowBounds = frameBounds()
+    // Bounds come from the modifier the caller already passes -- Modifier.widthIn(max = ...)
+    // .heightIn(max = ...) -- rather than from popup-specific parameters. Tailwind's `max-w-*`
+    // is a CAP on a size that stays content- or viewport-driven, which Dimension cannot express:
+    // Dimension.Fixed pins the popup to exactly that value. That gap is why every popup-based
+    // shadcn component parked its `sm:max-w-lg` at a hard-coded width.
+    val maxWidthPx = modifier.maxWidth?.toPx()
     val availableWidth = when (width) {
         is Dimension.Fixed -> width.dp.toPx()
         Dimension.FillMax, Dimension.WrapContent -> windowBounds.width
-    }.coerceAtLeast(0f)
+    }.coerceAtLeast(0f).let { available ->
+        // Cap BEFORE measuring, so wrapped content reflows within the cap instead of being
+        // measured at full width and then clipped.
+        if (maxWidthPx != null) minOf(available, maxWidthPx) else available
+    }
     val insets = modifier.insets
     val gap = verticalArrangement.baseSpacingPx()
 
@@ -148,12 +158,12 @@ fun UiScope.popup(
         width,
         measured?.width?.plus(insets.horizontalPx()),
         windowBounds.width,
-    )
+    ).constrain(modifier.minWidth?.toPx(), maxWidthPx)
     val popupHeight = resolvePopupDimension(
         height,
         measured?.height?.plus(insets.verticalPx()),
         windowBounds.height,
-    )
+    ).constrain(modifier.minHeight?.toPx(), modifier.maxHeight?.toPx())
     val resolvedSize = UiPopupSize(popupWidth, popupHeight)
     val anchorBoundsSlot = anchorSlot
     val placedSlot =
@@ -192,6 +202,17 @@ fun UiScope.popup(
     }
 
     return UiPopupResult(slot = popupSlot, dismissed = false)
+}
+
+/** Clamps a resolved popup extent to the modifier's bounds.
+ *
+ * `max` wins when the two conflict. A caller that sets a min above a max has asked for something
+ * impossible, and honouring the cap keeps the popup on screen, which is the property the cap
+ * exists to protect.
+ */
+private fun Float.constrain(min: Float?, max: Float?): Float {
+    val lowerBounded = if (min != null) maxOf(this, min) else this
+    return if (max != null) minOf(lowerBounded, max) else lowerBounded
 }
 
 private fun resolvePopupDimension(

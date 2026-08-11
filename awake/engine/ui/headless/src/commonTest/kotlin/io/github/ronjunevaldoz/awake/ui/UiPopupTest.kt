@@ -7,7 +7,9 @@ import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.heightIn
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.modifier.widthIn
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.select
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -34,6 +36,46 @@ class UiPopupTest {
         assertEquals(20f, popupSlot.x)
         assertEquals(62f, popupSlot.y)
         assertFalse(result.dismissed)
+    }
+
+    @Test
+    fun popupHonoursModifierWidthAndHeightBounds() {
+        // Bounds ride on the modifier popup() already takes, so Modifier.widthIn().heightIn()
+        // chains the way every other sized widget does. Before this, `max-w-*` had no
+        // expression -- Dimension.Fixed pins a popup to exactly one size rather than capping a
+        // content-driven one -- so shadcn's popup components hard-coded their caps.
+        val ui = UiContext()
+        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
+
+        val result = scope.popup(
+            anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 10f, 10f),
+            expanded = true,
+            width = Dimension.FillMax,
+            height = Dimension.FillMax,
+            modifier = Modifier.widthIn(max = 120f.px).heightIn(min = 80f.px),
+        ) { }
+
+        val slot = assertNotNull(result.slot)
+        assertEquals(120f, slot.width, "FillMax must be capped by the modifier's maxWidth")
+        assertEquals(200f, slot.height, "a min below the resolved height must not shrink it")
+    }
+
+    @Test
+    fun popupClampsBelowMinWidth() {
+        val ui = UiContext()
+        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        val scope = ui.createAbsolute(x = 0f, y = 0f)
+
+        val result = scope.popup(
+            anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 10f, 10f),
+            expanded = true,
+            width = Dimension.Fixed(40f.px),
+            height = Dimension.Fixed(20f.px),
+            modifier = Modifier.widthIn(min = 90f.px),
+        ) { }
+
+        assertEquals(90f, assertNotNull(result.slot).width, "a fixed width below minWidth must grow")
     }
 
     @Test
