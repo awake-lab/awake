@@ -73,4 +73,23 @@ class ShadcnToggleGroupTest {
         assertTrue(widths.isNotEmpty(), "expected recorded segment semantics")
         widths.forEach { assertTrue(it > 0f, "every segment must keep a positive width, was $it") }
     }
+
+    @Test
+    fun wrapHeightDoesNotExpandSegmentsToTheMeasurementSentinel() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.beginFrame(300f, 120f, UiInputState())
+
+        ui.createColumn(x = 0f, y = 0f, width = 300f, height = 120f).column {
+            shadcnToggleGroup(
+                id = "wrap-height-group",
+                options = listOf("Left", "Right"),
+                selectedIndex = 0,
+                modifier = Modifier.width(Dimension.Fixed(300f.px)),
+            )
+        }
+
+        val firstSegment = ui.finishFrame().semantics.first { it.id == "wrap-height-group.0" }
+        assertEquals(40f, firstSegment.bounds.height, "wrap-height groups must use the toggle height")
+    }
 }

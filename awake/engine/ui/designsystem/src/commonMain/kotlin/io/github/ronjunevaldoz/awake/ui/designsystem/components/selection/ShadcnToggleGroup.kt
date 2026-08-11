@@ -10,9 +10,12 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle.toggleGroup
+
+private val ToggleGroupItemHeight = 40f.dp
 
 /** Real shadcn's `ToggleGroup` multi-select form: toggles in [selectedIndices] can be active
  * simultaneously (e.g. bold+italic both pressed). */
@@ -22,12 +25,12 @@ fun UiScope.shadcnToggleGroup(
     selectedIndices: Set<Int>,
     modifier: UiModifier = Modifier,
     onSelectedIndicesChange: (Set<Int>) -> Unit = {},
-) = shadcnToggleGroupContainer(id, modifier) { itemStyle ->
+) = shadcnToggleGroupContainer(id, modifier) { itemStyle, itemModifier ->
     toggleGroup(
         id = id,
         options = options,
         selectedIndices = selectedIndices,
-        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+        modifier = itemModifier,
         itemStyle = itemStyle,
         onSelectedIndicesChange = onSelectedIndicesChange,
     )
@@ -41,12 +44,12 @@ fun UiScope.shadcnToggleGroup(
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
     onIndexChange: (Int) -> Unit = {},
-) = shadcnToggleGroupContainer(id, modifier) { itemStyle ->
+) = shadcnToggleGroupContainer(id, modifier) { itemStyle, itemModifier ->
     toggleGroup(
         id = id,
         options = options,
         selectedIndex = selectedIndex,
-        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+        modifier = itemModifier,
         itemStyle = itemStyle,
         onIndexChange = onIndexChange,
     )
@@ -64,7 +67,7 @@ fun UiScope.shadcnToggleGroup(
 private inline fun UiScope.shadcnToggleGroupContainer(
     id: String,
     modifier: UiModifier,
-    crossinline body: UiScope.(itemStyle: Style) -> Unit,
+    crossinline body: UiScope.(itemStyle: Style, itemModifier: UiModifier) -> Unit,
 ) {
     val shadcnResolvedTheme = theme.asShadcnTheme()
     val colors = shadcnResolvedTheme.colors
@@ -82,11 +85,22 @@ private inline fun UiScope.shadcnToggleGroupContainer(
             shape(shadcnResolvedTheme.radii.md)
         },
     ) {
+        // A wrap-height surface measures its content in a deliberately unbounded trial slot.
+        // Passing fillMaxHeight() through in that case makes every segment report the trial
+        // sentinel (100,000px) as its intrinsic height, so the real group receives the same
+        // giant hit rectangle. An explicitly sized group is bounded and still needs its
+        // segments to stretch to that caller-provided height.
+        val itemModifier = if (modifier.heightDimension != null) {
+            Modifier.fillMaxWidth().fillMaxHeight()
+        } else {
+            Modifier.fillMaxWidth().height(ToggleGroupItemHeight)
+        }
         body(
             Style {
                 foreground(colors.foreground)
                 hovered { foreground(colors.foreground) }
             },
+            itemModifier,
         )
     }
 }
