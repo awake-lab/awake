@@ -69,27 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   popup-based components instead of hard-coded. `maxWidth` applies before measurement as well as
   after, so wrapped content reflows within the cap rather than being clipped.
 
-- **`rasterize()`'s missing-font placeholder is no longer glyph-shaped.** It drew a filled rect
-  in the glyph's own colour, inset 25%, which reads as a blob of text and -- worse -- measures as
-  one: probes scanning for ink found placeholder geometry and reported it as glyph metrics. That
-  produced a confident but wrong "glyphs render at 0.6x their metrics" investigation and left two
-  font gates green while they measured placeholders. Now a solid magenta box over the glyph's
-  full bounds, so neither a reader nor a pixel measurement can mistake it for text, and the
-  `font` parameter documents that it is required whenever a frame contains glyphs.
-
-- **Glyph ink rendered at ~0.90x of its own metrics** (sub-pixel at 12-14px, past a pixel from
-  16px up): the font-atlas generator sized render quads to the glyph outline but UV rects to
-  outline + crop bleed + a texel snap, squeezing the padded atlas region into an outline-sized
-  quad. Quads are now derived from the snapped sample rect (quad and UV cover the same texels
-  1:1) and outline-true `inkMetricsEm` ships separately so `capHeightEm`/baseline/advance
-  metrics stay ink-exact. The per-glyph snap slack was also what scattered baselines; the
-  Chromium baseline-fidelity drift map is re-measured with an honest probe (transparent
-  background, alpha-channel coverage, degenerate-run guard) and every text-bearing snapshot
-  signature is re-recorded. `GlyphAbsoluteSizeTest` now gates absolute ink size against
-  `capHeightEm * size` -- the external-truth check this repo never had.
-
-  Verified on screen by Ron June Valdoz, 2026-08-11. That confirms this fix specifically, not
-  text rendering overall -- stem weight still varies with sub-pixel phase, see Known issues.
 
 ### Added
 
@@ -240,7 +219,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dark-theme `card` and `sidebar` colors corrected to oklch lightness 0.205, matching the
   published shadcn spec (they were 0.168 and 0.158).
 
-## [1.0.0-SNAPSHOT] - YYYY-MM-DD
+## [0.1.0-dev.3] - 2026-08-11
+
+Font rendering: the atlas moved to MTSDF and the verification gaps that let font bugs ship were
+closed. Text rendering is NOT finished at this tag -- stem weight still varies with sub-pixel
+phase, tracked under Unreleased / Known issues.
+
+### Fixed
+
+- **`rasterize()`'s missing-font placeholder is no longer glyph-shaped.** It drew a filled rect
+  in the glyph's own colour, inset 25%, which reads as a blob of text and -- worse -- measures as
+  one: probes scanning for ink found placeholder geometry and reported it as glyph metrics. That
+  produced a confident but wrong "glyphs render at 0.6x their metrics" investigation and left two
+  font gates green while they measured placeholders. Now a solid magenta box over the glyph's
+  full bounds, so neither a reader nor a pixel measurement can mistake it for text, and the
+  `font` parameter documents that it is required whenever a frame contains glyphs.
+
+- **Glyph ink rendered at ~0.90x of its own metrics** (sub-pixel at 12-14px, past a pixel from
+  16px up): the font-atlas generator sized render quads to the glyph outline but UV rects to
+  outline + crop bleed + a texel snap, squeezing the padded atlas region into an outline-sized
+  quad. Quads are now derived from the snapped sample rect (quad and UV cover the same texels
+  1:1) and outline-true `inkMetricsEm` ships separately so `capHeightEm`/baseline/advance
+  metrics stay ink-exact. The per-glyph snap slack was also what scattered baselines; the
+  Chromium baseline-fidelity drift map is re-measured with an honest probe (transparent
+  background, alpha-channel coverage, degenerate-run guard) and every text-bearing snapshot
+  signature is re-recorded. `GlyphAbsoluteSizeTest` now gates absolute ink size against
+  `capHeightEm * size` -- the external-truth check this repo never had.
+
+  Verified on screen by Ron June Valdoz, 2026-08-11. That confirms this fix specifically, not
+  text rendering overall -- stem weight still varies with sub-pixel phase, see Known issues.
+
+## [1.0.0-SNAPSHOT] - not released
+
+Placeholder retained from the Keep a Changelog template. It was never filled in, which is why
+every entry above accumulated in Unreleased instead of being cut into a section at tag time --
+`v0.1.0-dev.1` through `dev.3` all shipped without one. Sections are cut at tag time from here
+on.
 
 ### TODO
 
