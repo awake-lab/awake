@@ -220,9 +220,41 @@ and add the rest with the gizmo. Do not ship four more buttons that look pressed
 Phases 1-3 address everything the audit found actually broken. 4-6 are the editor-shaped
 features on top.
 
-## Open questions
+## Decided
 
-- Should the demo picker stay at all once real scene loading exists, or is it a samples-only
-  affordance?
-- Is studio meant to edit scenes (write back to a scene document) or only inspect a running
-  world? Phase 5 and the gizmo only make sense under the first reading.
+**Studio is a scene editor, and the viewer is its play mode.** They are not two products. This is
+Unity's and Godot's model: an authoring tool whose play mode runs what you authored. So the
+gizmo and the editable inspector are in scope, and edit/play is the mode split described above.
+
+**Edits are saved, and most of the machinery exists.** `SceneDocument` is `@Serializable` and
+`SceneLoader` already provides `encode` (document -> JSON), `decode` (JSON -> document) and
+`instantiate` (document -> `World`). The one missing direction is `World -> SceneDocument`.
+
+That single function is the whole gap between "studio cannot save" and "studio can save".
+`SceneNode` already carries `name`, `transform`, `components` and `children`, which is exactly
+what a walk of the `World` has to produce. Note it encodes hierarchy through `children` nesting,
+so writing it forces the parenting model that the hierarchy panel also needs -- do them together.
+
+Persistence rules, matching Unity:
+
+| Mode | Edits |
+|---|---|
+| Edit | persist; `Save` writes the document |
+| Play | live, DISCARDED on stop |
+
+The discard is deliberate rather than a limitation: it is what makes play mode safe to
+experiment in. Without it a play session silently mutates the scene on disk.
+
+## Revised sequencing
+
+1. **Camera** -- adopt `CameraMode`/`CameraInputSystem`. Independent of everything else.
+2. **Hierarchy + selection** -- unblocked by moving the demo list into the tab strip.
+3. **`World -> SceneDocument`** -- the missing function. Moved EARLIER than the original plan:
+   editing without saving is worse than not editing, because the tool would lose work. Small,
+   since the serialization already exists, and it forces the parenting model.
+4. **Gizmo + transform tools** -- justified now that authoring is in scope.
+5. **Editable inspector** -- `Field*` controls writing into the live world.
+6. **Edit/play mode split** -- needs a runtime system partition; `SceneGameRuntime` currently
+   ticks everything through `fixedTimestepLoop`.
+7. **Multi-scene tabs, console, timeline** -- the tab strip needs more than one scene open before
+   it stops looking like a mistake.
