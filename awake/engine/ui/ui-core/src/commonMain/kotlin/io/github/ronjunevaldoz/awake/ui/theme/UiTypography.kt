@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.theme
 
-import io.github.ronjunevaldoz.awake.ui.Sp
-import io.github.ronjunevaldoz.awake.ui.sp
+import io.github.ronjunevaldoz.awake.ui.api.Sp
+import io.github.ronjunevaldoz.awake.ui.api.sp
 
 data class UiTypography(
     val caption: Sp = 12.sp,

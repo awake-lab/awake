@@ -21,7 +21,7 @@ import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.authoring.blueprints.cameraEntity
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterRuntime
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset

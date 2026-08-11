@@ -3,11 +3,11 @@
 package io.github.ronjunevaldoz.awake.ui.style
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.Sp
+import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.Sp
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.theme.FontWeight
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle

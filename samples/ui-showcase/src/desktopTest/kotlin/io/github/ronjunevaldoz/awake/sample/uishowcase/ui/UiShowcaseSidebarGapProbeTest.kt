@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGro
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -241,7 +241,7 @@ private fun ColumnScope.drawOldSidebarCategory(
 private fun ColumnScope.oldSidebarPageButton(
     page: ShowcasePage,
     onSelect: (ShowcasePage) -> Unit,
-    startPadding: io.github.ronjunevaldoz.awake.ui.Dp,
+    startPadding: io.github.ronjunevaldoz.awake.ui.api.Dp,
 ) {
     if (
         shadcnButton(

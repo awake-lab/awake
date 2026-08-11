@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.controls.components.MovementControl
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth

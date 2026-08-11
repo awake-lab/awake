@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableHandle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width

@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.modifier
 
 import io.github.ronjunevaldoz.awake.ui.UiScope
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.scope.inputState
 import io.github.ronjunevaldoz.awake.ui.scope.isFocused
 import io.github.ronjunevaldoz.awake.ui.scope.requestFocus

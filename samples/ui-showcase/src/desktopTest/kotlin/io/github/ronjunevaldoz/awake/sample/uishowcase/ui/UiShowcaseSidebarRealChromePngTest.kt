@@ -17,7 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
@@ -139,7 +139,7 @@ private fun ColumnScope.drawOldUiShowcaseSidebar(compact: Boolean) {
 private fun ColumnScope.drawOldSidebarPageButton(
     page: ShowcasePage,
     selectedPageId: String,
-    startPadding: io.github.ronjunevaldoz.awake.ui.Dp = 14f.dp,
+    startPadding: io.github.ronjunevaldoz.awake.ui.api.Dp = 14f.dp,
     onSelect: (ShowcasePage) -> Unit,
 ) {
     if (

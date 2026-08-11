@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled.components
 
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
 /** Which viewport edge a slide-in panel (sheet, drawer, side nav) is anchored to. */
 enum class UiEdge {

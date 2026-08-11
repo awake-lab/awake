@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.vulkan
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.vulkan.renderer.renderUiToTexture

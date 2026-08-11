@@ -26,7 +26,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
-            anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f),
+            anchorSlot = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 30f, 120f, 32f),
             expanded = true,
             width = Dimension.Fixed(120f.px),
             height = Dimension.Fixed(64f.px),
@@ -49,7 +49,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
-            anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 10f, 10f),
+            anchorSlot = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, 10f, 10f),
             expanded = true,
             width = Dimension.FillMax,
             height = Dimension.FillMax,
@@ -68,7 +68,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
-            anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(0f, 0f, 10f, 10f),
+            anchorSlot = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, 10f, 10f),
             expanded = true,
             width = Dimension.Fixed(40f.px),
             height = Dimension.Fixed(20f.px),
@@ -85,7 +85,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
-            anchorSlot = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f),
+            anchorSlot = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 30f, 120f, 32f),
             expanded = true,
             width = Dimension.Fixed(120f.px),
             height = Dimension.Fixed(64f.px),
@@ -103,7 +103,7 @@ class UiPopupTest {
         // expanded flips false. It must now keep drawing (dimmed) through the exit fade instead.
         val ui = UiContext()
         val scope = ui.createAbsolute(x = 0f, y = 0f)
-        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f)
+        val anchor = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 30f, 120f, 32f)
 
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
         scope.popup(
@@ -141,7 +141,7 @@ class UiPopupTest {
     fun popupReallyStopsRenderingOnceItsExitFadeSettles() {
         val ui = UiContext()
         val scope = ui.createAbsolute(x = 0f, y = 0f)
-        val anchor = io.github.ronjunevaldoz.awake.ui.layout.UiBounds(20f, 30f, 120f, 32f)
+        val anchor = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 30f, 120f, 32f)
 
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
         scope.popup(

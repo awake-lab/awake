@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.place
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx

@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnResolvedTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.dp
-import io.github.ronjunevaldoz.awake.ui.sp
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 internal val ShadcnTransparent = Color.Transparent

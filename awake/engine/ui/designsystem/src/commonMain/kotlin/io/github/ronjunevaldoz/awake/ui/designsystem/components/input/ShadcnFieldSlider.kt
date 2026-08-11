@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.input
 
-import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.asShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnF
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnField
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.shadcnFieldLabel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column

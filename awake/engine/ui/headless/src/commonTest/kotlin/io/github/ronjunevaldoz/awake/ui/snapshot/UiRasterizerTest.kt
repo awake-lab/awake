@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.test.Test

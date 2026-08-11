@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.theme
 
-import io.github.ronjunevaldoz.awake.ui.Dp
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 
 /**
  * Semantic corner-radius roles, the third theme pillar alongside [UiColorTokens] and

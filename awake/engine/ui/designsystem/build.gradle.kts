@@ -16,6 +16,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":awake:core"))
+            // Design-system signatures may expose stable UI values, never raw runtime types.
+            api(project(":awake:engine:ui:ui-api"))
             api(project(":awake:engine:ui:headless"))
         }
         commonTest.dependencies {

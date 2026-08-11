@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.theme
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.Dp
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.theme.UiShapeTokens
 
 internal data class ShadcnRadiusScale(

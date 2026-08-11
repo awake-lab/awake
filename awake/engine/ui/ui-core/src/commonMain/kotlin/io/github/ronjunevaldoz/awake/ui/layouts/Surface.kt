@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
