@@ -43,6 +43,14 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
 import io.github.ronjunevaldoz.awake.ui.unstyled.separator
+import io.github.ronjunevaldoz.awake.ui.headless.UiMenuEntry
+import io.github.ronjunevaldoz.awake.ui.headless.UiMenuItem
+import io.github.ronjunevaldoz.awake.ui.headless.UiMenuSeparator
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope as HeadlessUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle as HeadlessSurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
+import io.github.ronjunevaldoz.awake.ui.headless.menu
+import io.github.ronjunevaldoz.awake.ui.headless.menuItem
 
 fun UiScope.shadcnDropdownMenu(
     id: String,
@@ -336,3 +344,68 @@ data class UiDropdownMenuItem(
 
 sealed interface UiDropdownMenuEntry
 data object UiDropdownMenuSeparator : UiDropdownMenuEntry
+
+/**
+ * Headless-facade dropdown recipe. Popup behavior and selection now come from [menu]; this
+ * overload intentionally renders the stable label-only baseline while richer Shadcn item slots
+ * remain on the legacy overload until their icon/supporting-text contracts are facade-native.
+ */
+fun HeadlessUiScope.shadcnDropdownMenu(
+    id: String,
+    anchorSlot: UiBounds,
+    expanded: Boolean,
+    items: List<UiDropdownMenuEntry>,
+    selectedIndex: Int? = null,
+    width: Dimension = Dimension.WrapContent,
+    height: Dimension = Dimension.WrapContent,
+    positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
+    properties: UiPopupProperties = UiPopupProperties(),
+): UiDropdownMenuResult {
+    val entries = buildList<UiMenuEntry> {
+        var index = 0
+        items.forEach { entry ->
+            when (entry) {
+                UiDropdownMenuSeparator -> add(UiMenuSeparator)
+                is UiDropdownMenuItem -> {
+                    add(UiMenuItem("$id.item.$index", index, entry.enabled))
+                    index += 1
+                }
+            }
+        }
+    }
+    val result = menu(
+        id = id,
+        anchorSlot = anchorSlot,
+        expanded = expanded,
+        entries = entries,
+        width = width,
+        height = height,
+        positionProvider = positionProvider,
+        properties = properties,
+        item = { item ->
+            val source = items.filterIsInstance<UiDropdownMenuItem>().getOrNull(item.index)
+            if (source == null) {
+                false
+            } else {
+                val selected = item.index == selectedIndex
+                menuItem(
+                    item = item,
+                    label = source.label,
+                    visuals = SurfaceVisuals(
+                        rest = HeadlessSurfaceStyle(
+                            background = if (selected) themeValues.colors.accent else themeValues.colors.background,
+                            foreground = when {
+                                !source.enabled -> themeValues.colors.mutedForeground
+                                selected -> themeValues.colors.accentForeground
+                                source.destructive -> themeValues.colors.destructive
+                                else -> themeValues.colors.foreground
+                            },
+                        ),
+                    ),
+                )
+            }
+        },
+        separator = {},
+    )
+    return UiDropdownMenuResult(result.slot, result.selectedIndex, result.dismissed)
+}
