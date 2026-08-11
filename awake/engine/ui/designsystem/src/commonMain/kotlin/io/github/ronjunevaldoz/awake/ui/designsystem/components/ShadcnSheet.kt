@@ -40,6 +40,13 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.components.UiEdge
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import io.github.ronjunevaldoz.awake.ui.unstyled.overlayScrim
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.slideInPanelBounds
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope as HeadlessColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.PanelEdge
+import io.github.ronjunevaldoz.awake.ui.headless.SlidePanelProperties
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle as HeadlessSurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope as HeadlessUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.slidePanel
 
 private const val SHEET_SCRIM_ALPHA = 0.5f
 private val DefaultSheetScrimColor = Color.Black.withAlpha(SHEET_SCRIM_ALPHA)
@@ -250,4 +257,39 @@ fun UiScope.shadcnSheet(
         onDismissRequest()
     }
     return popupResult
+}
+
+/** Minimal Headless-facade Sheet recipe; branded panel decoration stays in Design System. */
+fun HeadlessUiScope.shadcnSheet(
+    id: String,
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    side: ShadcnSheetSide = ShadcnSheetSide.Right,
+    sizeDp: Dp = 384f.dp,
+    content: HeadlessColumnScope.(UiBounds) -> Unit,
+): UiPopupResult {
+    val result = slidePanel(
+        id = id,
+        expanded = expanded,
+        edge = side.asPanelEdge(),
+        size = sizeDp,
+        properties = SlidePanelProperties(
+            scrimColor = DefaultSheetScrimColor,
+            surface = HeadlessSurfaceStyle(
+                background = themeValues.colors.background,
+                foreground = themeValues.colors.foreground,
+                border = SurfaceBorder(1f.dp, themeValues.colors.border),
+            ),
+        ),
+        content = content,
+    )
+    if (result.dismissed) onDismissRequest()
+    return result
+}
+
+private fun ShadcnSheetSide.asPanelEdge(): PanelEdge = when (this) {
+    ShadcnSheetSide.Top -> PanelEdge.Top
+    ShadcnSheetSide.Right -> PanelEdge.Right
+    ShadcnSheetSide.Bottom -> PanelEdge.Bottom
+    ShadcnSheetSide.Left -> PanelEdge.Left
 }
