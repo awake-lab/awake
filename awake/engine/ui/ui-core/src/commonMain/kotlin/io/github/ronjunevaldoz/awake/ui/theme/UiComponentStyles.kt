@@ -5,6 +5,8 @@ package io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 interface UiComponentStyles {

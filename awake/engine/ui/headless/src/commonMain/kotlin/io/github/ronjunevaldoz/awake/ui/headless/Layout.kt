@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement as PrimitiveArrangement
@@ -33,11 +32,7 @@ internal fun Modifier.asPrimitiveModifier(): PrimitiveModifier =
 
 fun Modifier.width(width: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveWidth(width))
 
-fun Modifier.width(width: Dimension): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveWidth(width))
-
 fun Modifier.height(height: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveHeight(height))
-
-fun Modifier.height(height: Dimension): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveHeight(height))
 
 fun Modifier.fillMaxWidth(): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveFillMaxWidth())
 

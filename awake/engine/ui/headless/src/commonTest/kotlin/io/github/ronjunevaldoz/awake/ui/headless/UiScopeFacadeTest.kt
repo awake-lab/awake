@@ -6,7 +6,9 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.unstyled.overlayScrim
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,6 +21,9 @@ class UiScopeFacadeTest {
         val scope = UiContext().createUiScope(UiBounds(0f, 0f, 320f, 240f))
 
         assertNotNull(scope)
+        assertEquals(UiDefaultTheme.colors, scope.themeValues.colors)
+        assertEquals(UiDefaultTheme.typography, scope.themeValues.typography)
+        assertEquals(UiDefaultTheme.shapes, scope.themeValues.shapes)
     }
 
     @Test
@@ -99,7 +104,7 @@ class UiScopeFacadeTest {
     }
 
     @Test
-    fun buttonUsesHeadlessModifierAndStyle() {
+    fun buttonUsesHeadlessModifierAndNeutralVisuals() {
         val context = UiContext()
         context.beginFrame(200f, 120f, UiInputState())
         val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
@@ -108,10 +113,25 @@ class UiScopeFacadeTest {
             id = "confirm",
             label = "Confirm",
             modifier = Modifier.width(100f.px).height(40f.px),
-            style = SurfaceStyle(background = Color.Black),
+            visuals = SurfaceVisuals(rest = SurfaceStyle(background = Color.Black)),
         )
 
         assertTrue(!clicked)
         assertTrue(context.endFrame().filterIsInstance<UiDrawPrimitive.Quad>().any { it.color == Color.Black })
+    }
+
+    @Test
+    fun surfaceVisualsMapInteractionStatesWithoutNamingARecipe() {
+        val visuals = SurfaceVisuals(
+            rest = SurfaceStyle(background = Color.Black),
+            hovered = SurfaceStyle(background = Color.White),
+            pressed = SurfaceStyle(background = Color.Transparent),
+            disabled = SurfaceStyle(background = Color(0.2f, 0.2f, 0.2f)),
+        )
+
+        assertEquals(Color.Black, visuals.asPrimitiveStyle().resolve().background)
+        assertEquals(Color.White, visuals.asPrimitiveStyle().resolve(MutableStyleState(hovered = true)).background)
+        assertEquals(Color.Transparent, visuals.asPrimitiveStyle().resolve(MutableStyleState(active = true)).background)
+        assertEquals(Color(0.2f, 0.2f, 0.2f), visuals.asPrimitiveStyle().resolve(MutableStyleState(disabled = true)).background)
     }
 }

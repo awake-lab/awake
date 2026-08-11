@@ -11,6 +11,10 @@ kotlin {
     }
 
     sourceSets {
+        commonMain.dependencies {
+            // Theme value contracts use Awake's portable color value, not UI runtime types.
+            api(project(":awake:core"))
+        }
         commonTest.dependencies {
             implementation(kotlin("test"))
         }

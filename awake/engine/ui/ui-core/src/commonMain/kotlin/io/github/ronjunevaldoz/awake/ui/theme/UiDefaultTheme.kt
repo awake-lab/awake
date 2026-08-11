@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui.theme
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
 
 /**
  * Neutral fallback theme for low-level UI APIs.

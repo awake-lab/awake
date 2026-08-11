@@ -10,12 +10,12 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.sp
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiShapeTokens
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.theme.UiComponentStyles
-import io.github.ronjunevaldoz.awake.ui.theme.UiShapeTokens
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.theme.UiTypography
 
 /**
  * A neutral-first, shadcn-inspired design-system theme that lives OUTSIDE the engine core.

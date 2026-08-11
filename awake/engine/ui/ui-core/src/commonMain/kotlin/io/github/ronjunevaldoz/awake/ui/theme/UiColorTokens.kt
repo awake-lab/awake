@@ -2,34 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.theme
 
-import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.style.Style
-
-/**
- * Semantic color roles consumed by widgets and higher-level UI compositions.
- *
- * These names are general-purpose enough to support both neutral built-ins and authored
- * design-system themes without growing [io.github.ronjunevaldoz.awake.ui.theme.UiTheme] every time the widget surface expands.
- */
-interface UiColorTokens {
-    val background: Color
-    val foreground: Color
-
-    /** The brand/emphasis color -- use this for a widget's persistent "on" state. */
-    val primary: Color
-    val primaryForeground: Color
-    val secondary: Color
-    val secondaryForeground: Color
-    val muted: Color
-    val mutedForeground: Color
-
-    /** A transient surface-highlight color for hover/press/selection feedback. */
-    val accent: Color
-    val accentForeground: Color
-    val destructive: Color
-    val destructiveForeground: Color
-    val border: Color
-}
 
 /** hovered -> muted, active -> accent, base -> background. */
 fun UiColorTokens.neutralStyle(): Style =
@@ -49,4 +23,7 @@ fun UiColorTokens.destructiveStyle(): Style =
         active { background(brighten(destructive, 1.15f)) }
     }
 
-private fun brighten(color: Color, brightness: Float): Color = color.brighten(brightness)
+private fun brighten(
+    color: io.github.ronjunevaldoz.awake.core.colors.Color,
+    brightness: Float,
+): io.github.ronjunevaldoz.awake.core.colors.Color = color.brighten(brightness)

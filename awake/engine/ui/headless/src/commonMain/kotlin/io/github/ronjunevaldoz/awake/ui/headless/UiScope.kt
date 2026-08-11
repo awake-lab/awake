@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 
 /**
@@ -14,7 +15,11 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
  */
 class UiScope internal constructor(
     internal val primitive: UiPrimitiveScope,
-)
+) {
+    /** Immutable values from the currently installed theme, without Core runtime access. */
+    val themeValues: UiThemeValues
+        get() = primitive.context.currentTheme
+}
 
 /**
  * Creates the public Headless receiver for a root UI region.
