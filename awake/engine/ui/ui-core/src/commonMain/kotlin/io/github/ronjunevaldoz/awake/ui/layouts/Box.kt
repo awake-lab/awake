@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.childBox
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
  * Fixed-rect and alignment container.
  * Sizing and content alignment are handled via [modifier].
  */
-fun UiScope.box(
+fun UiPrimitiveScope.box(
     modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     content: BoxScope.(slot: UiBounds) -> Unit,
@@ -33,7 +33,7 @@ fun UiScope.box(
 
     context.pushTextStyle(textStyle)
     val scope = childBox(slot, contentAlignment = contentAlignment)
-    // Matches UiScope.row()/column()/surface()'s own withMeasuredRecordingSuppressed { scope.
+    // Matches UiPrimitiveScope.row()/column()/surface()'s own withMeasuredRecordingSuppressed { scope.
     // content(slot) } -- box() is just as much a composite widget as those, so its children's
     // claimSlot() calls must not leak into an ancestor row/column's in-progress measuredSlots/
     // measuredWeights trial when this box sits next to (or, as here, itself IS) a weight()-

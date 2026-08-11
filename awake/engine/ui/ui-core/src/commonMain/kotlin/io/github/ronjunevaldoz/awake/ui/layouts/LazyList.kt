@@ -3,12 +3,12 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.childRow
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -50,7 +50,7 @@ import io.github.ronjunevaldoz.awake.ui.toPx
  * `Modifier.verticalScroll(state)` -- reuses the existing scroll-offset machinery in
  * `ScrollContainers.kt`/`ScrollModifiers.kt` rather than inventing a parallel one.
  */
-fun UiScope.lazyColumn(
+fun UiPrimitiveScope.lazyColumn(
     id: String,
     itemCount: Int,
     itemHeight: Dp,
@@ -124,7 +124,7 @@ fun UiScope.lazyColumn(
 
 /** Horizontal counterpart to [lazyColumn] -- see its doc comment for the fixed-height decision,
  * keying convention, and scroll-state requirement (here via `Modifier.horizontalScroll(state)`). */
-fun UiScope.lazyRow(
+fun UiPrimitiveScope.lazyRow(
     id: String,
     itemCount: Int,
     itemWidth: Dp,

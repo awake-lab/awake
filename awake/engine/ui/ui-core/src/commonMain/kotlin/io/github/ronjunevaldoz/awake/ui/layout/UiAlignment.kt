@@ -2,58 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layout
 
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-
-/**
- * Child placement inside a parent slot. This is the Box-style alignment API; unlike
- * [io.github.ronjunevaldoz.awake.ui.UiAnchor], which is a shell-placement helper for screen
- * corners, [UiAlignment] is about how content sits INSIDE an already-claimed container.
- */
-enum class UiAlignment {
-    TopStart,
-    TopCenter,
-    TopEnd,
-    CenterStart,
-    Center,
-    CenterEnd,
-    BottomStart,
-    BottomCenter,
-    BottomEnd,
-    ;
-
-    /** Cross-axis-only vertical component, matching Jetpack Compose's `Alignment.Vertical` --
-     * this is what [io.github.ronjunevaldoz.awake.ui.layouts.Row]'s container-level
-     * `verticalAlignment` default is expressed in (a row's horizontal position is already fully
-     * determined by its main-axis arrangement, so there's no matching horizontal knob to expose
-     * there). */
-    enum class Vertical { Top, Center, Bottom }
-
-    /** Cross-axis-only horizontal component, matching Jetpack Compose's `Alignment.Horizontal`
-     * -- the [io.github.ronjunevaldoz.awake.ui.layouts.Column] counterpart to [Vertical]. */
-    enum class Horizontal { Start, Center, End }
-
-    companion object {
-        /** Combines a cross-axis-only [Vertical]/[Horizontal] pair back into the full
-         * [UiAlignment] that [place] actually understands. */
-        fun of(vertical: Vertical, horizontal: Horizontal): UiAlignment = when (vertical) {
-            Vertical.Top -> when (horizontal) {
-                Horizontal.Start -> TopStart
-                Horizontal.Center -> TopCenter
-                Horizontal.End -> TopEnd
-            }
-            Vertical.Center -> when (horizontal) {
-                Horizontal.Start -> CenterStart
-                Horizontal.Center -> Center
-                Horizontal.End -> CenterEnd
-            }
-            Vertical.Bottom -> when (horizontal) {
-                Horizontal.Start -> BottomStart
-                Horizontal.Center -> BottomCenter
-                Horizontal.End -> BottomEnd
-            }
-        }
-    }
-}
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 
 fun UiBounds.place(
     width: Float,

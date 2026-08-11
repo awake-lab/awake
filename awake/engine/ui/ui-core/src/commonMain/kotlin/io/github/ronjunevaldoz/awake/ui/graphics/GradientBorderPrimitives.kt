@@ -4,12 +4,12 @@ package io.github.ronjunevaldoz.awake.ui.graphics
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.toPx
 
-internal fun UiScope.gradientBorder(
+internal fun UiPrimitiveScope.gradientBorder(
     slot: UiBounds,
     width: Dp = 1f.dp,
     gradient: UiLinearGradient,

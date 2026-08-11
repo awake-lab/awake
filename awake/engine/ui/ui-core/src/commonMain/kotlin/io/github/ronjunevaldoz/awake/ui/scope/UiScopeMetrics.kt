@@ -4,11 +4,11 @@ package io.github.ronjunevaldoz.awake.ui.scope
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDensity
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.place
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -31,10 +31,10 @@ fun pixelPerfectTextScale(requestedScale: Float, step: Float = 0.25f): Float {
 
 fun pixelPerfectPixel(value: Float): Float = value.roundToInt().toFloat()
 
-fun UiScope.resolvedTextScale(): Float =
+fun UiPrimitiveScope.resolvedTextScale(): Float =
     pixelPerfectTextScale(context.currentTextStyle.scale, context.currentFont.textScaleStep)
 
-fun UiScope.resolveGlyphPx(
+fun UiPrimitiveScope.resolveGlyphPx(
     font: UiFont = context.currentFont,
     textStyle: TextStyle = context.currentTextStyle,
 ): Float {
@@ -44,21 +44,21 @@ fun UiScope.resolveGlyphPx(
         .coerceAtLeast(1f)
 }
 
-fun UiScope.fillWidthOrNull(): Float? = (this as? FillAwareScope)?.fillWidth
+fun UiPrimitiveScope.fillWidthOrNull(): Float? = (this as? FillAwareScope)?.fillWidth
 
-fun UiScope.fillHeightOrNull(): Float? = (this as? FillAwareScope)?.fillHeight
+fun UiPrimitiveScope.fillHeightOrNull(): Float? = (this as? FillAwareScope)?.fillHeight
 
-fun UiScope.hasBoundedFillWidth(): Boolean = (this as? FillAwareScope)?.hasBoundedFillWidth == true
+fun UiPrimitiveScope.hasBoundedFillWidth(): Boolean = (this as? FillAwareScope)?.hasBoundedFillWidth == true
 
-fun UiScope.hasBoundedFillHeight(): Boolean = (this as? FillAwareScope)?.hasBoundedFillHeight == true
+fun UiPrimitiveScope.hasBoundedFillHeight(): Boolean = (this as? FillAwareScope)?.hasBoundedFillHeight == true
 
-fun UiScope.debugScopeLabel(): String {
-    val typeName = this::class.simpleName ?: "UiScope"
+fun UiPrimitiveScope.debugScopeLabel(): String {
+    val typeName = this::class.simpleName ?: "UiPrimitiveScope"
     val name = (this as? FillAwareScope)?.testTag
     return if (name.isNullOrBlank()) typeName else "'$name' ($typeName)"
 }
 
-fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiBounds {
+fun UiPrimitiveScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiBounds {
     // A weighted child's own width/height defaults to WrapContent below (no Dimension set by
     // weight() itself, see UiModifier), which Dimension.resolveAgainst() can't handle -- weight
     // only sizes the row/column's main axis, so on that axis "unset" must resolve like FillMax
@@ -92,7 +92,7 @@ fun UiScope.claimModifiedSlot(modifier: UiModifier = Modifier): UiBounds {
     )
 }
 
-private fun UiScope.defaultAlignment(): UiAlignment = when (this) {
+private fun UiPrimitiveScope.defaultAlignment(): UiAlignment = when (this) {
     is BoxScope -> contentAlignment
     // A row's own horizontal position on the main axis is already fully determined by
     // arrangement/cursor placement (see RowScope.claimSlot) -- Horizontal.Start here is a
@@ -117,7 +117,7 @@ private fun UiScope.defaultAlignment(): UiAlignment = when (this) {
  * growing the container guarantees this can't regress a single existing call site; it just
  * silently gives up centering for that (already degenerate) one.
  */
-private fun UiScope.crossAxisAlignmentContainer(containerSlot: UiBounds): UiBounds = when (this) {
+private fun UiPrimitiveScope.crossAxisAlignmentContainer(containerSlot: UiBounds): UiBounds = when (this) {
     is RowScope -> containerSlot.copy(height = height.coerceAtLeast(containerSlot.height))
     is ColumnScope -> containerSlot.copy(width = width.coerceAtLeast(containerSlot.width))
     else -> containerSlot

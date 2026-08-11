@@ -3,12 +3,12 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -24,7 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.unstyled.paintSurface
 import io.github.ronjunevaldoz.awake.ui.unstyled.resolveInteractiveSurface
 
 /** Result of a [toggle]/[toggleSlot] press: the toggle's new checked state, alongside its slot. */
-private inline fun UiScope.toggleInternal(
+private inline fun UiPrimitiveScope.toggleInternal(
     id: String,
     checked: Boolean,
     modifier: UiModifier = Modifier,
@@ -87,7 +87,7 @@ private inline fun UiScope.toggleInternal(
  * Pressable two-state button (e.g. bold/italic toolbar buttons).
  * Different from [io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.switch] which is a boolean pill-shaped switch.
  */
-fun UiScope.toggle(
+fun UiPrimitiveScope.toggle(
     id: String,
     checked: Boolean,
     label: String? = null,
@@ -126,7 +126,7 @@ fun UiScope.toggle(
  * The [content] lambda receives an [AbsoluteScope], allowing arbitrary layouts (e.g. an icon-only
  * toggle) inside the toggle instead of the fixed [toggle] text label.
  */
-fun UiScope.toggleSlot(
+fun UiPrimitiveScope.toggleSlot(
     id: String,
     checked: Boolean,
     modifier: UiModifier = Modifier,

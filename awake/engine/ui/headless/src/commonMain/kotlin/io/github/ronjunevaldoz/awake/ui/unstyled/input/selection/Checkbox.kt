@@ -3,12 +3,12 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled.input.selection
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetAccent
 import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetDash
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -31,7 +31,7 @@ private val CHECKBOX_LABEL_GAP = 8f.dp
 // natural size, unlike a button/row that should fill available width), pill-shaped track, and
 // a sliding circular knob instead of checkbox's centered inset-square "check" mark.
 
-fun UiScope.checkbox(
+fun UiPrimitiveScope.checkbox(
     id: String,
     checked: Boolean,
     label: String? = null,

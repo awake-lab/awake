@@ -9,25 +9,25 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
-fun UiScope.ProvideTextStyle(style: TextStyle, content: UiScope.() -> Unit) {
+fun UiPrimitiveScope.ProvideTextStyle(style: TextStyle, content: UiPrimitiveScope.() -> Unit) {
     context.pushTextStyle(style)
     this.content()
     context.popTextStyle()
 }
 
-fun UiScope.ProvideTheme(theme: UiTheme, content: UiScope.() -> Unit) {
+fun UiPrimitiveScope.ProvideTheme(theme: UiTheme, content: UiPrimitiveScope.() -> Unit) {
     context.pushTheme(theme)
     this.content()
     context.popTheme()
 }
 
-fun UiScope.ProvideFont(font: UiFont, content: UiScope.() -> Unit) {
+fun UiPrimitiveScope.ProvideFont(font: UiFont, content: UiPrimitiveScope.() -> Unit) {
     context.pushFont(font)
     this.content()
     context.popFont()
 }
 
-fun UiScope.ProvideShapeSpec(spec: UiShapeSpec?, content: UiScope.() -> Unit) {
+fun UiPrimitiveScope.ProvideShapeSpec(spec: UiShapeSpec?, content: UiPrimitiveScope.() -> Unit) {
     context.pushShapeSpec(spec)
     this.content()
     context.popShapeSpec()

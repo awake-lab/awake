@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
  */
 class UiAnimatedVisibilityTest {
 
-    private fun UiScope.emitMarkerQuad() {
+    private fun UiPrimitiveScope.emitMarkerQuad() {
         emit(UiDrawPrimitive.Quad(x = 0f, y = 0f, w = 10f, h = 10f, color = Color.White))
     }
 

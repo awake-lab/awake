@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled.input.toggle
 
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.row
@@ -21,7 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
  * [io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup].
  * [itemStyle] is how that wrapper retints the segments to stay readable on its background.
  */
-fun UiScope.toggleGroup(
+fun UiPrimitiveScope.toggleGroup(
     id: String,
     options: List<String>,
     selectedIndices: Set<Int>,
@@ -55,7 +55,7 @@ fun UiScope.toggleGroup(
 
 /** Single-select convenience wrapper over the multi-select [toggleGroup] above; clicking the
  * already-selected option is a no-op (mirrors [io.github.ronjunevaldoz.awake.ui.headless.input.selection.radioGroup]). */
-fun UiScope.toggleGroup(
+fun UiPrimitiveScope.toggleGroup(
     id: String,
     options: List<String>,
     selectedIndex: Int,

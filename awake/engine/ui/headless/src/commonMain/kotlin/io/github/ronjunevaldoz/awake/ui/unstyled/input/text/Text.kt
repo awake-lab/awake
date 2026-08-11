@@ -3,12 +3,12 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.inset
@@ -28,7 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
 
-internal fun UiScope.drawResolvedText(
+internal fun UiPrimitiveScope.drawResolvedText(
     label: String,
     slot: UiBounds,
     resolvedFont: UiFont,
@@ -85,7 +85,7 @@ internal fun UiScope.drawResolvedText(
     return slot
 }
 
-fun UiScope.text(
+fun UiPrimitiveScope.text(
     label: String,
     slot: UiBounds,
     style: Style = Style.Empty,
@@ -136,7 +136,7 @@ fun UiScope.text(
  * DSL version of [text] that supports [UiModifier] and [Style] resolution.
  * It claims a slot and draws the text within it.
  */
-fun UiScope.text(
+fun UiPrimitiveScope.text(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,

@@ -3,11 +3,11 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.layout.contains
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -124,7 +124,7 @@ class LayoutTest {
         // original claimSlot(width: Float, ...) never rejected 0f either -- it passed it
         // straight through (harmless when a caller doesn't need a real slot size, e.g.
         // text()'s own default slot for a standalone, non-centered HUD label). FillMax must
-        // resolve the same way (0f), not throw, or every UiScope.text() call on an
+        // resolve the same way (0f), not throw, or every UiPrimitiveScope.text() call on an
         // AbsoluteScope -- exactly DemoCatalog's debug HUD -- crashes at runtime.
         val ui = UiContext()
         val scope = ui.createAbsolute(x = 15f, y = 25f)
@@ -723,7 +723,7 @@ class LayoutTest {
         // Task #34 (checkout-form "laggy" report): a plain (non-weighted) WrapContent column
         // nested N levels deep -- e.g. shadcnFieldGroup > shadcnFieldSet > shadcnFieldGroup >
         // shadcnField -- used to pay for 3 full re-executions of [content] per level (the
-        // resolveMeasuredColumn() sizing trial, UiScope.column()'s own unconditional
+        // resolveMeasuredColumn() sizing trial, UiPrimitiveScope.column()'s own unconditional
         // weight-detection trial, and the real render), compounding to 3^N leaf calls for a
         // single real leaf widget. resolveMeasuredColumn() now hands its already-computed trial
         // to column() so the redundant second trial is skipped whenever there's no weighted
@@ -757,7 +757,7 @@ class LayoutTest {
         // weight(1f)-tagged column() with NO explicit .height(...) -- exactly
         // `row(...) { column(modifier = Modifier.weight(1f)) { ... } }`, the checkout form's real
         // Month/Year/CVV grid shape -- used to report a WrapContent row height of ~4096px (the
-        // row-sizing trial's arbitrary upper-bound placeholder, see UiScope.row()) instead of the
+        // row-sizing trial's arbitrary upper-bound placeholder, see UiPrimitiveScope.row()) instead of the
         // real ~40px content height. RowScope.column() defaults every column's height to FillMax
         // (stretch to the row's cross axis); during the row's own WrapContent-height sizing
         // trial, that FillMax resolved against the trial's placeholder bound, and (with no

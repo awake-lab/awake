@@ -3,14 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled.input.selection
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -42,7 +42,7 @@ private val TOGGLE_KNOB_INSET = 2f.dp
 // Dp, not raw px: it is added to `trackSlot`/`surface.interaction.slot` coordinates that are
 // already density-scaled, so a raw literal would render a half-size gap at 2x.
 private val TOGGLE_LABEL_GAP = 8f.dp
-fun UiScope.switch(
+fun UiPrimitiveScope.switch(
     id: String,
     checked: Boolean,
     label: String? = null,

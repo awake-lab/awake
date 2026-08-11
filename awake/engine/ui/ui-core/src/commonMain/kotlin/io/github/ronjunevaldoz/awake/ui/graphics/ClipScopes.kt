@@ -4,14 +4,14 @@ package io.github.ronjunevaldoz.awake.ui.graphics
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPath
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.safeInteriorMargin
 import io.github.ronjunevaldoz.awake.ui.toPath
 
-fun UiScope.clip(rect: UiBounds, content: UiScope.() -> Unit) {
+fun UiPrimitiveScope.clip(rect: UiBounds, content: UiPrimitiveScope.() -> Unit) {
     val resolved = context.pushClipInternal(rect, overlay = emitsToOverlay)
     emit(UiDrawPrimitive.ClipPush(resolved))
     content()
@@ -19,9 +19,9 @@ fun UiScope.clip(rect: UiBounds, content: UiScope.() -> Unit) {
     emit(UiDrawPrimitive.ClipPop(restore))
 }
 
-fun UiScope.clip(path: UiPath, content: UiScope.() -> Unit) = clipPath(path, safeInteriorRect = null, content)
+fun UiPrimitiveScope.clip(path: UiPath, content: UiPrimitiveScope.() -> Unit) = clipPath(path, safeInteriorRect = null, content)
 
-fun UiScope.clip(shape: UiShapeSpec, rect: UiBounds, content: UiScope.() -> Unit) {
+fun UiPrimitiveScope.clip(shape: UiShapeSpec, rect: UiBounds, content: UiPrimitiveScope.() -> Unit) {
     val margin = shape.safeInteriorMargin(rect)
     val safeInteriorRect = UiBounds(
         x = rect.x + margin,
@@ -32,7 +32,7 @@ fun UiScope.clip(shape: UiShapeSpec, rect: UiBounds, content: UiScope.() -> Unit
     clipPath(shape.toPath(rect), safeInteriorRect, content)
 }
 
-private fun UiScope.clipPath(path: UiPath, safeInteriorRect: UiBounds?, content: UiScope.() -> Unit) {
+private fun UiPrimitiveScope.clipPath(path: UiPath, safeInteriorRect: UiBounds?, content: UiPrimitiveScope.() -> Unit) {
     val resolvedBounds = context.pushClipInternal(path.bounds(), overlay = emitsToOverlay)
     emit(UiDrawPrimitive.ClipPathPush(path, resolvedBounds, safeInteriorRect))
     content()

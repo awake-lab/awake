@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -16,7 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 /**
  * Nested-scope factories that inherit the receiver's overlay behavior automatically.
  */
-fun UiScope.childColumn(
+fun UiPrimitiveScope.childColumn(
     slot: UiBounds,
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
@@ -34,7 +34,7 @@ fun UiScope.childColumn(
     horizontalAlignment = horizontalAlignment,
 )
 
-fun UiScope.childRow(
+fun UiPrimitiveScope.childRow(
     slot: UiBounds,
     horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
@@ -52,7 +52,7 @@ fun UiScope.childRow(
     verticalAlignment = verticalAlignment,
 )
 
-fun UiScope.childAbsolute(
+fun UiPrimitiveScope.childAbsolute(
     slot: UiBounds,
     modifier: UiModifier = Modifier,
 ): AbsoluteScope = context.createAbsolute(
@@ -62,7 +62,7 @@ fun UiScope.childAbsolute(
     overlayOnly = emitsToOverlay,
 )
 
-fun UiScope.childBox(
+fun UiPrimitiveScope.childBox(
     slot: UiBounds,
     modifier: UiModifier = Modifier,
     contentAlignment: UiAlignment = UiAlignment.TopStart,

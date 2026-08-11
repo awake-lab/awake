@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.WidgetState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.AbstractUiScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
@@ -219,7 +219,7 @@ class ResizablePanelGroupScope internal constructor(
  * [direction] among [ResizablePanelGroupScope.panel] children separated by draggable
  * [ResizablePanelGroupScope.handle]s.
  */
-fun UiScope.resizablePanelGroup(
+fun UiPrimitiveScope.resizablePanelGroup(
     id: String,
     direction: ResizableDirection = ResizableDirection.Horizontal,
     modifier: UiModifier = Modifier,

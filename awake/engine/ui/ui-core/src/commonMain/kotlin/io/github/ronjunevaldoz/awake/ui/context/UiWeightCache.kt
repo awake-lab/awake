@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.context
 
 /**
  * Debug/test-only consistency check for [resolveHasWeightedChild]'s opt-in cross-frame cache
- * (see `UiScope.row()`/`UiScope.column()`'s `id`/`cacheKey` params and
+ * (see `UiPrimitiveScope.row()`/`UiPrimitiveScope.column()`'s `id`/`cacheKey` params and
  * docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md). Off by default -- zero cost in
  * normal builds -- mirroring [UiMeasureTrialStats.enabled]'s same zero-cost-when-disabled
  * contract. Flip this on in a test to catch a caller-supplied `cacheKey` that didn't actually
@@ -16,7 +16,7 @@ object UiWeightCacheConsistencyCheck {
 }
 
 /**
- * Backs `UiScope.row()`/`UiScope.column()`'s opt-in `id`/`cacheKey` cache for the
+ * Backs `UiPrimitiveScope.row()`/`UiPrimitiveScope.column()`'s opt-in `id`/`cacheKey` cache for the
  * `hasWeightedChild` trial-detection boolean -- never sizes/positions, see the design doc for why.
  * Namespaced like `UiAnimation.kt`'s `animateFloat`'s `"__animation__$id"` convention, and
  * stored in the same real widget-state store `rememberStateValue` uses, so its
@@ -39,7 +39,7 @@ internal fun UiContext.resolveHasWeightedChild(
         if (UiWeightCacheConsistencyCheck.enabled) {
             val fresh = trial()
             check(fresh == storedValue) {
-                "UiScope.row()/column() weight cache for id=\"$id\" returned stale " +
+                "UiPrimitiveScope.row()/column() weight cache for id=\"$id\" returned stale " +
                     "hasWeightedChild=$storedValue but a fresh trial computed $fresh -- cacheKey " +
                     "($cacheKey) did not change even though the content's weight()-usage " +
                     "structure did. Fix: make cacheKey depend on whatever changed."

@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.text
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
@@ -30,7 +30,7 @@ enum class UiTextOverflow {
     Ellipsis,
 }
 
-internal fun UiScope.renderTextBlock(
+internal fun UiPrimitiveScope.renderTextBlock(
     label: String,
     slot: UiBounds,
     font: UiFont,

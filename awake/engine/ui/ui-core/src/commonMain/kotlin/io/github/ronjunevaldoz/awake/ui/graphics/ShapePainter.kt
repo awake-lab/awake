@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.graphics
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiStroke
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -26,7 +26,7 @@ private fun UiBounds.pixelSnapped(): UiBounds = UiBounds(
     pixelPerfectPixel(height).coerceAtLeast(1f),
 )
 
-fun UiScope.emitPrimitive(primitive: UiDrawPrimitive, overlay: Boolean) {
+fun UiPrimitiveScope.emitPrimitive(primitive: UiDrawPrimitive, overlay: Boolean) {
     if (overlay) emitOverlay(primitive) else emit(primitive)
 }
 
@@ -42,14 +42,14 @@ private fun roundedRadiusFor(slot: UiBounds, radiusPx: Float, shapeSpec: UiShape
         is UiShapeSpec.CutCorner -> 0f
     }
 
-private fun UiScope.pathOnlyShape(slot: UiBounds, shapeSpec: UiShapeSpec?): UiShapeSpec? =
+private fun UiPrimitiveScope.pathOnlyShape(slot: UiBounds, shapeSpec: UiShapeSpec?): UiShapeSpec? =
     when (shapeSpec) {
         null, UiShapeSpec.Rectangle, UiShapeSpec.Pill, is UiShapeSpec.RoundedRectangle -> null
         UiShapeSpec.Circle -> if (slot.width == slot.height) null else shapeSpec
         is UiShapeSpec.CutCorner -> shapeSpec
     }
 
-private fun UiScope.emitFillShape(
+private fun UiPrimitiveScope.emitFillShape(
     slot: UiBounds,
     color: Color,
     radiusPx: Float,
@@ -74,7 +74,7 @@ private fun UiScope.emitFillShape(
 }
 
 /** Fill + border for one widget slot, sharing the corner radius correctly between the two. */
-fun UiScope.emitFillAndBorder(
+fun UiPrimitiveScope.emitFillAndBorder(
     slot: UiBounds,
     fillColor: Color,
     radiusPx: Float,
@@ -167,7 +167,7 @@ fun UiScope.emitFillAndBorder(
     if (borderPx > 0f) border(slot, borderWidth, borderColor, overlay, tokenId = borderTokenId)
 }
 
-fun UiScope.emitInsetAccent(
+fun UiPrimitiveScope.emitInsetAccent(
     slot: UiBounds,
     inset: Float,
     radiusPx: Float,
@@ -188,7 +188,7 @@ fun UiScope.emitInsetAccent(
 /** Tri-state checkbox's "indeterminate" mark: a horizontal dash instead of the filled
  * inset square [emitInsetAccent] draws for "checked" -- mirrors real shadcn's checkbox
  * drawing a horizontal line (not a checkmark) when its ToggleableState is Indeterminate. */
-fun UiScope.emitInsetDash(
+fun UiPrimitiveScope.emitInsetDash(
     slot: UiBounds,
     inset: Float,
 ) {

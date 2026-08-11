@@ -3,13 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.emitShimmerOverlay
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -33,7 +33,7 @@ private const val SKELETON_PULSE_MAX_ALPHA = 1f
  * not a global animation clock, so multiple skeletons on screen don't visibly sync/desync
  * relative to when each was first composed.
  */
-fun UiScope.skeleton(
+fun UiPrimitiveScope.skeleton(
     id: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,

@@ -95,7 +95,7 @@ class ResizablePanelGroupTest {
     // Regression for the real "drag does nothing" bug (studio sample's resizable panel divider):
     // any column() whose caller doesn't supply a cacheKey (the default -- every existing call
     // site) re-executes its content once per frame through a *separate* measuring UiContext to
-    // check for a weighted child (see UiScope.column()'s hasWeightedChild trial). That trial
+    // check for a weighted child (see UiPrimitiveScope.column()'s hasWeightedChild trial). That trial
     // shares the real, persisted WidgetState store but starts with its own blank input/
     // activation state, so handle()'s own `dragging` reads false there -- and unguarded, its
     // `else` branch deleted the real pass's lastPointerMain out from under it every single frame,

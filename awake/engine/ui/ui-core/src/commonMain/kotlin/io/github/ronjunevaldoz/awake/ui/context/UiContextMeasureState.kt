@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.context
 
 import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
+import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
@@ -31,7 +31,7 @@ internal class UiContextMeasureState {
     // (e.g. a weight()-tagged column() inside a row, which defaults to FillMax height to stretch
     // to the row's cross axis) has no real "intrinsic" height of its own -- during a WrapContent-
     // height row's *own* sizing trial, that child's resolved height is bounded by the trial's
-    // arbitrary upper-bound placeholder (see UiScope.row()'s 4096f fallback), not the row's real
+    // arbitrary upper-bound placeholder (see UiPrimitiveScope.row()'s 4096f fallback), not the row's real
     // final height, so it must not be allowed to dictate that WrapContent row's own measured
     // height (see snapshot()) -- task #34's "checkout form has a huge blank gap" report traced to
     // exactly this: a weight(1f) column with no explicit height defaulted to FillMax, inherited

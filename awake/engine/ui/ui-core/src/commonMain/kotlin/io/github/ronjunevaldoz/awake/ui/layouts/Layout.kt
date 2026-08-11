@@ -3,20 +3,20 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /**
- * Everything a [io.github.ronjunevaldoz.awake.ui.UiScope] needs except `claimSlot` -- shared once here instead of repeated per
- * layout strategy. Not part of the public widget-authoring surface (that's [io.github.ronjunevaldoz.awake.ui.UiScope]); a
+ * Everything a [io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope] needs except `claimSlot` -- shared once here instead of repeated per
+ * layout strategy. Not part of the public widget-authoring surface (that's [io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope]); a
  * consumer writing a custom *layout* strategy (not just a custom widget) extends this the
  * same way [ColumnScope]/[AbsoluteScope] do.
  */
 abstract class AbstractUiScope(
     final override val context: UiContext,
     private val emitToOverlay: Boolean = false,
-) : io.github.ronjunevaldoz.awake.ui.UiScope {
+) : io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope {
     final override val emitsToOverlay: Boolean = emitToOverlay
     final override fun hitTest(slot: UiBounds) =
         context.hitTestInternal(slot)

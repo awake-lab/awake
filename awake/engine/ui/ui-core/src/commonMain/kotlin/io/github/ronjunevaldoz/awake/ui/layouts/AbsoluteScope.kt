@@ -3,14 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
 /**
  * Manual placement at an exact x/y, ignoring whatever width/height a widget requests as a
  * layout hint -- the escape hatch for HUD text or a minimap thumbnail that isn't part of any
- * auto-layout column, still going through the same [io.github.ronjunevaldoz.awake.ui.UiScope] surface as everything else.
+ * auto-layout column, still going through the same [io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope] surface as everything else.
  */
 class AbsoluteScope internal constructor(
     context: UiContext,

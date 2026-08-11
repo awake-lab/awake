@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.LayoutWeight
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
 /**
@@ -55,7 +55,7 @@ class RowScope internal constructor(
         }
         // A weighted child's own width defaults to WrapContent (see claimModifiedSlot), which
         // Dimension.resolve() can't handle -- weight() replaces it with the width axis's normal
-        // FillMax behavior here so [io.github.ronjunevaldoz.awake.ui.layouts.UiScope.row]'s weight-distribution pass
+        // FillMax behavior here so [io.github.ronjunevaldoz.awake.ui.layouts.UiPrimitiveScope.row]'s weight-distribution pass
         // (over the resulting measured widths) has something meaningful to work with.
         val effectiveWidth = if (weight != null && width == Dimension.WrapContent) Dimension.FillMax else width
         val resolvedWidth = effectiveWidth.resolve {

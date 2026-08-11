@@ -2,9 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupSize
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.place
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
@@ -18,29 +22,6 @@ import io.github.ronjunevaldoz.awake.ui.scope.frameBounds
 import io.github.ronjunevaldoz.awake.ui.scope.isMeasuring
 import io.github.ronjunevaldoz.awake.ui.scope.measureColumnContent
 import io.github.ronjunevaldoz.awake.ui.scope.pointerDown
-
-data class UiPopupSize(
-    val width: Float,
-    val height: Float,
-)
-
-data class UiPopupProperties(
-    val dismissOnClickOutside: Boolean = true,
-    val clippingEnabled: Boolean = true,
-)
-
-data class UiPopupResult(
-    val slot: UiBounds?,
-    val dismissed: Boolean,
-)
-
-fun interface UiPopupPositionProvider {
-    fun calculatePosition(
-        anchorBounds: UiBounds,
-        windowBounds: UiBounds,
-        popupContentSize: UiPopupSize,
-    ): UiBounds
-}
 
 object UiPopupDefaults {
     fun aligned(
@@ -94,7 +75,7 @@ object UiPopupDefaults {
     )
 }
 
-fun UiScope.popup(
+fun UiPrimitiveScope.popup(
     anchorSlot: UiBounds,
     expanded: Boolean,
     width: Dimension = Dimension.WrapContent,

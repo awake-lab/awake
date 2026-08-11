@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.modifier
 
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.scope.inputState
 import io.github.ronjunevaldoz.awake.ui.scope.isFocused
@@ -19,7 +19,7 @@ data class UiClickable(val enabled: Boolean = true, val onClick: () -> Unit)
  * `Modifier.clickable(enabled, onClick)` call shape. This does not, by itself, make every
  * widget interactive -- unlike Compose, where any layout node wired to the input pipeline
  * automatically honors `Modifier.clickable`, Awake widgets must opt in by calling
- * [UiScope.resolveClickable] once they've claimed their own slot (the same point
+ * [UiPrimitiveScope.resolveClickable] once they've claimed their own slot (the same point
  * `forceHover`/`forceActive`/`forceFocus` are already resolved). See [resolveClickable]'s doc
  * for why: Awake's click detection is id-based (`tryClaimActive`/`isActive`), and only the
  * widget itself knows the stable `id` to key that state on. */
@@ -33,7 +33,7 @@ fun UiModifier.clickable(enabled: Boolean = true, onClick: () -> Unit): UiModifi
  * `ui-headless`'s `interact()` (see `Buttons.kt`'s call chain) already uses for `button`/
  * `checkbox`/etc., just generalized to any widget that owns a stable `id` and a claimed slot,
  * not a parallel input pipeline. No-op if `modifier.clickAction` is null. */
-fun UiScope.resolveClickable(id: String, slot: UiBounds, modifier: UiModifier) {
+fun UiPrimitiveScope.resolveClickable(id: String, slot: UiBounds, modifier: UiModifier) {
     val click = modifier.clickAction ?: return
     val hovered = hitTest(slot)
     tryClaimActive(id, hovered && click.enabled)

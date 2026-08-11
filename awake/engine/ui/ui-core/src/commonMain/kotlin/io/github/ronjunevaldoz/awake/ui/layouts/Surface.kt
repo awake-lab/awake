@@ -3,14 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
@@ -29,7 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
 
-fun UiScope.surface(
+fun UiPrimitiveScope.surface(
     id: String,
     verticalArrangement: Arrangement = defaultArrangement(),
     style: Style = Style.Empty,
@@ -57,7 +57,7 @@ fun ColumnScope.surface(
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = (this as UiScope).surface(
+): UiBounds = (this as UiPrimitiveScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
@@ -73,7 +73,7 @@ fun RowScope.surface(
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = (this as UiScope).surface(
+): UiBounds = (this as UiPrimitiveScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
@@ -89,7 +89,7 @@ fun AbsoluteScope.surface(
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = (this as UiScope).surface(
+): UiBounds = (this as UiPrimitiveScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
@@ -105,7 +105,7 @@ fun BoxScope.surface(
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
     content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = (this as UiScope).surface(
+): UiBounds = (this as UiPrimitiveScope).surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
@@ -114,7 +114,7 @@ fun BoxScope.surface(
     content = content,
 )
 
-fun UiScope.surface(
+fun UiPrimitiveScope.surface(
     id: String,
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
@@ -224,7 +224,7 @@ fun UiScope.surface(
     // want clipping on an otherwise-square surface (e.g. Dialog/DropdownMenu clip *and* have
     // a real corner radius, so this condition already covers them too).
     //
-    // Matches UiScope.row()/UiScope.column()'s own `withMeasuredRecordingSuppressed { scope.
+    // Matches UiPrimitiveScope.row()/UiPrimitiveScope.column()'s own `withMeasuredRecordingSuppressed { scope.
     // content(slot) }` (see the comment there) -- surface() is just as much a composite widget
     // as a plain row()/column(), so its own real children's claimSlot() calls must not leak
     // into an ancestor row/column's in-progress measuredSlots/measuredWeights/fillsMainAxis

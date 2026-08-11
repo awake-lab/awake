@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.emitPrimitive
 import io.github.ronjunevaldoz.awake.ui.graphics.gradientBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.gradientRect
-import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -20,7 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 @AwakeUiDsl
 class CanvasScope internal constructor(
-    private val scope: UiScope,
+    private val scope: UiPrimitiveScope,
     val bounds: UiBounds,
 ) {
     val context get() = scope.context
@@ -314,7 +314,7 @@ class CanvasScope internal constructor(
     }
 }
 
-fun UiScope.canvas(
+fun UiPrimitiveScope.canvas(
     modifier: UiModifier = Modifier,
     content: CanvasScope.() -> Unit,
 ): UiBounds {
@@ -323,7 +323,7 @@ fun UiScope.canvas(
     return slot
 }
 
-fun UiScope.canvas(
+fun UiPrimitiveScope.canvas(
     slot: UiBounds,
     content: CanvasScope.() -> Unit,
 ) {

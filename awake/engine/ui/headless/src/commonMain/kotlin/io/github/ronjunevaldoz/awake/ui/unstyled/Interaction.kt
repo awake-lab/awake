@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -22,7 +22,7 @@ internal data class UiInteraction(
  * shape: when `false`, [tryClaimActive] is simply never called with a claimable state, so
  * `active`/`clicked` (and, for widgets that drive dragging off `isActive`, like `slider`, the
  * drag itself) can never fire -- no separate `enabled` check needed at each call site below. */
-internal fun UiScope.interact(
+internal fun UiPrimitiveScope.interact(
     id: String,
     modifier: UiModifier = Modifier,
     enabled: Boolean = true,

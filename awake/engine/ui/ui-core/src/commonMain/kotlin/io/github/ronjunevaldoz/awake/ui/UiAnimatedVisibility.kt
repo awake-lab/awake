@@ -21,7 +21,7 @@ fun <T> UiContext.withGraphicsLayerAlpha(alpha: Float, block: () -> T): T {
     }
 }
 
-fun <T> UiScope.withGraphicsLayerAlpha(alpha: Float, block: () -> T): T =
+fun <T> UiPrimitiveScope.withGraphicsLayerAlpha(alpha: Float, block: () -> T): T =
     context.withGraphicsLayerAlpha(alpha, block)
 
 /**
@@ -47,7 +47,7 @@ fun <T> UiContext.withGraphicsLayerScale(
     }
 }
 
-fun <T> UiScope.withGraphicsLayerScale(
+fun <T> UiPrimitiveScope.withGraphicsLayerScale(
     scaleX: Float,
     scaleY: Float = scaleX,
     pivotX: Float = 0f,
@@ -67,12 +67,12 @@ fun <T> UiScope.withGraphicsLayerScale(
  * retargets smoothly from the current alpha (the same behavior [animateFloatTween] already
  * guarantees) rather than jumping.
  */
-fun UiScope.animatedVisibility(
+fun UiPrimitiveScope.animatedVisibility(
     id: String,
     visible: Boolean,
     durationMs: Float = 200f,
     easing: Easing = LinearEasing,
-    content: UiScope.() -> Unit,
+    content: UiPrimitiveScope.() -> Unit,
 ) {
     val alpha = animateFloatTween(
         id = "__animated_visibility__$id",

@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.graphics
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiScope
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.toPx
  * [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Quad] strips (top/right/bottom/left).
  * Every strip is pixel-snapped the same way [BasicText.kt]'s glyph emission already is -- a
  * sub-pixel border position/thickness reads as a soft/antialiased edge next to crisp text. */
-fun UiScope.border(
+fun UiPrimitiveScope.border(
     slot: UiBounds,
     width: Dp = 1f.dp,
     color: Color? = null,
