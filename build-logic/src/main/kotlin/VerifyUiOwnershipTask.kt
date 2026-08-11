@@ -20,6 +20,14 @@ abstract class VerifyUiOwnershipTask : DefaultTask() {
     @get:Input
     abstract val forbiddenTypeReferences: ListProperty<String>
 
+    /**
+     * Source-level patterns for boundaries Kotlin visibility cannot express.  For example, a
+     * downstream module can legally see a public [UiScope] member even when using it violates
+     * the UI layering policy.
+     */
+    @get:Input
+    abstract val forbiddenSourcePatterns: ListProperty<String>
+
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sourceFiles: ConfigurableFileCollection
@@ -28,6 +36,7 @@ abstract class VerifyUiOwnershipTask : DefaultTask() {
     fun verify() {
         val forbiddenDeclarations = forbiddenDeclarationNames.get().toSet()
         val forbiddenReferences = forbiddenTypeReferences.get().toSet()
+        val forbiddenPatterns = forbiddenSourcePatterns.get()
         val violations = mutableListOf<String>()
 
         sourceFiles.files
@@ -46,6 +55,13 @@ abstract class VerifyUiOwnershipTask : DefaultTask() {
                     val line = lineNumber(code, match.range.first)
                     violations += "${file.relativeTo(project.projectDir).invariantSeparatorsPath}:$line " +
                         "references runtime/sample-bound symbol `$reference` in ${modulePath.get()}"
+                }
+                forbiddenPatterns.forEach { pattern ->
+                    Regex(pattern).findAll(code).forEach { match ->
+                        val line = lineNumber(code, match.range.first)
+                        violations += "${file.relativeTo(project.projectDir).invariantSeparatorsPath}:$line " +
+                            "uses forbidden UI boundary escape hatch `${match.value}` in ${modulePath.get()}"
+                    }
                 }
             }
 

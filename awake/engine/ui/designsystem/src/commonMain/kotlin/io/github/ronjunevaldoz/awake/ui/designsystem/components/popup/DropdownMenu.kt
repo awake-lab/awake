@@ -58,7 +58,6 @@ fun UiScope.shadcnDropdownMenu(
     style: Style = Style.Empty,
     itemStyle: Style = Style.Empty,
 ): UiDropdownMenuResult {
-    val theme = context.currentTheme
     // WrapContent cannot shrink this menu on its own. popup() resolves it by measuring the
     // content inside a box the full window wide, and every item below sizes to the width it is
     // handed (`Modifier.width(width.px)`) -- so the measure returns the window width back, and
@@ -87,7 +86,7 @@ fun UiScope.shadcnDropdownMenu(
     // route even the WrapContent case through scrollPanel()'s claimSlot(), which cannot resolve
     // WrapContent while it's still inside popup()'s own WrapContent-sizing measure pass.
     val scrollState =
-        if (height != Dimension.WrapContent) context.rememberScrollState("$id.scroll") else null
+        if (height != Dimension.WrapContent) rememberScrollState("$id.scroll") else null
     var picked: Int? = null
     val popupResult = popup(
         id = id,

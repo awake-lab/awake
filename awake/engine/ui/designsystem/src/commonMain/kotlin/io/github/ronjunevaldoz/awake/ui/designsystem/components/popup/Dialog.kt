@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -29,6 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.frameBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.unstyled.overlayScrim
 
 private val DetachedPopupAnchor = UiBounds(-1f, -1f, 0f, 0f)
 private val DefaultDialogScrimColor = Color.Black.withAlpha(0.48f)
@@ -51,19 +51,7 @@ fun UiScope.shadcnDialog(
 
     val frameBounds = frameBounds()
     if (properties.showScrim) {
-        context.createAbsolute(
-            x = frameBounds.x,
-            y = frameBounds.y,
-            overlayOnly = true,
-        ).emit(
-            UiDrawPrimitive.Quad(
-                frameBounds.x,
-                frameBounds.y,
-                frameBounds.width,
-                frameBounds.height,
-                properties.scrimColor ?: DefaultDialogScrimColor,
-            ),
-        )
+        overlayScrim(frameBounds, properties.scrimColor ?: DefaultDialogScrimColor)
     }
 
     val popupResult = popup(

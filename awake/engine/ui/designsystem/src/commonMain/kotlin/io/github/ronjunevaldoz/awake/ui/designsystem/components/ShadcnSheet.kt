@@ -38,6 +38,7 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.UiEdge
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
+import io.github.ronjunevaldoz.awake.ui.unstyled.overlayScrim
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.slideInPanelBounds
 
 private const val SHEET_SCRIM_ALPHA = 0.5f
@@ -223,9 +224,7 @@ fun UiScope.shadcnSheet(
     )
 
     val frame = frameBounds()
-    context.createAbsolute(x = frame.x, y = frame.y, overlayOnly = true).emit(
-        UiDrawPrimitive.Quad(frame.x, frame.y, frame.width, frame.height, DefaultSheetScrimColor),
-    )
+    overlayScrim(frame, DefaultSheetScrimColor)
 
     val popupResult = popup(
         id = id,

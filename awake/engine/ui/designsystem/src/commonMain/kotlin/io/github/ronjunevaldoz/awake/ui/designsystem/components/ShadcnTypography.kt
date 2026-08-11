@@ -38,7 +38,7 @@ fun ColumnScope.shadcnSectionTitle(
     modifier = modifier,
     style = Style {
         val shadcnTheme = theme.asShadcnTheme()
-        if (context.currentTextStyle.color == null) {
+        if (textStyle.color == null) {
             foreground(shadcnTheme.colors.foreground)
         }
         textSize(shadcnTheme.typography.title)
@@ -55,7 +55,7 @@ fun ColumnScope.shadcnHeadline(
     modifier = modifier,
     style = Style {
         val shadcnTheme = theme.asShadcnTheme()
-        if (context.currentTextStyle.color == null) {
+        if (textStyle.color == null) {
             foreground(shadcnTheme.colors.foreground)
         }
         textSize(shadcnTheme.typography.headline)
@@ -80,7 +80,7 @@ fun ColumnScope.shadcnBodyText(
     modifier = modifier,
     style = Style {
         val shadcnTheme = theme.asShadcnTheme()
-        if (context.currentTextStyle.color == null) {
+        if (textStyle.color == null) {
             foreground(shadcnTheme.colors.foreground)
         }
         textSize(shadcnTheme.typography.body)
@@ -100,7 +100,7 @@ fun ColumnScope.shadcnSupportingText(
     modifier = modifier,
     style = Style {
         val shadcnTheme = theme.asShadcnTheme()
-        if (context.currentTextStyle.color == null) {
+        if (textStyle.color == null) {
             foreground(shadcnTheme.colors.mutedForeground)
         }
         textSize(shadcnTheme.typography.caption)
@@ -126,7 +126,7 @@ fun UiScope.shadcnText(
         val shadcnTheme = theme.asShadcnTheme()
         if (muted) {
             foreground(shadcnTheme.colors.mutedForeground)
-        } else if (context.currentTextStyle.color == null) {
+        } else if (textStyle.color == null) {
             foreground(shadcnTheme.colors.foreground)
         }
         textSize(shadcnTheme.typography.body)

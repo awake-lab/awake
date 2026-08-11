@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.dp
+import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
@@ -106,7 +107,7 @@ fun ColumnScope.shadcnTabs(
                 // unrounded width leaves the label zero sub-pixel slack and the renderer
                 // truncates on a fractional remainder.
                 val tabWidthPx =
-                    ceil(context.currentFont.measureTextWidth(item.label, glyphPx)) + horizontalPaddingPx
+                    ceil(font.measureTextWidth(item.label, glyphPx)) + horizontalPaddingPx
                 val tabModifier = UiModifier(
                     widthDimension = Dimension.Fixed(tabWidthPx.px),
                     heightDimension = Dimension.FillMax,
