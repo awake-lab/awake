@@ -13,9 +13,12 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableH
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.dp
 import io.github.ronjunevaldoz.awake.ui.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
@@ -121,10 +124,12 @@ internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, rende
  * viewport region (the toolbar used to float here too -- it lives in the top bar now), and the
  * right-click camera menu/orbit-drag hooked to that same region's bounds. */
 private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Renderer) {
-    row(
-        id = "studio-viewport-row",
-        modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
-    ) {
+    column(modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax)) {
+        drawStudioViewportHeader(store)
+        row(
+            id = "studio-viewport-row",
+            modifier = Modifier.width(Dimension.FillMax).weight(1f),
+        ) {
         drawIconRail(
             activeTool = store.state.value.toolRail.activeTool,
             onSelectTool = { store.dispatch(StudioContract.Intent.SelectTool(it)) },
@@ -153,7 +158,36 @@ private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Render
                 )
             },
         )
-        driveViewportOrbitDrag(store, viewportBounds)
+            driveViewportOrbitDrag(store, viewportBounds)
+        }
+    }
+}
+
+private fun UiScope.drawStudioViewportHeader(store: StudioStore) {
+    val camera = store.state.value.camera
+    val modes = StudioContract.CameraPresetMode.entries
+    val projections = StudioContract.Projection.entries
+    row(
+        id = "studio-viewport-header",
+        verticalAlignment = UiAlignment.Vertical.Center,
+        modifier = Modifier.width(Dimension.FillMax).height(40f.dp),
+    ) {
+        shadcnSelect(
+            id = "studio-viewport-camera-mode",
+            options = modes.map { it.name },
+            selectedIndex = modes.indexOf(camera.mode),
+            modifier = Modifier.width(156f.dp),
+        )?.let { index ->
+            modes.getOrNull(index)?.let { store.dispatch(StudioContract.Intent.SetCameraMode(it)) }
+        }
+        shadcnToggleGroup(
+            id = "studio-viewport-projection",
+            options = listOf("Perspective", "Ortho"),
+            selectedIndex = projections.indexOf(camera.projection),
+            modifier = Modifier.width(176f.dp).height(36f.dp),
+        ) { index ->
+            projections.getOrNull(index)?.let { store.dispatch(StudioContract.Intent.SetProjection(it)) }
+        }
     }
 }
 

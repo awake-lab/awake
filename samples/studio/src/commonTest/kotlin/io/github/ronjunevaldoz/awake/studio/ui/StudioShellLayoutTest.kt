@@ -96,6 +96,15 @@ class StudioShellLayoutTest {
         // (which always honors the resolved background) for the active item instead.
         assertTrue((item.backgroundColor?.a ?: 0f) > 0f, "active item background: ${item.backgroundColor}")
     }
+
+    @Test
+    fun viewportHeaderExposesCameraModeAndProjectionControls() {
+        val semantics = renderShell()
+
+        assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-camera-mode" })
+        assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-projection.0" })
+        assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-projection.1" })
+    }
 }
 
 private class NoopRenderer : Renderer {
