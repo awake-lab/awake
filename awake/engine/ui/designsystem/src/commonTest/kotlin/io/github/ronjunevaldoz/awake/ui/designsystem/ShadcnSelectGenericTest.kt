@@ -2,19 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.combobox
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-/** Throwaway proof for the generic-`T` `shadcnSelect` overload: [onValueChange] must receive
- * the real typed [Fruit], not a stringified index -- the whole point of the audited gap. */
-private enum class Fruit { Apple, Banana, Cherry }
+/** Controlled combobox proof while the legacy Core bridge remains on the test classpath. */
 
 class ShadcnSelectGenericTest {
 
@@ -23,16 +21,14 @@ class ShadcnSelectGenericTest {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
-        var picked: Fruit? = null
+        var picked: Int? = null
 
         fun frame(x: Float, y: Float, down: Boolean) {
             ui.beginFrame(300f, 200f, testSnapshot(x = x, y = y, down = down))
-            ui.createAbsolute(x = 20f, y = 20f).shadcnSelect(
+            ui.headlessRoot().combobox(
                 id = "fruit",
-                value = picked,
-                options = Fruit.entries,
-                onValueChange = { picked = it },
-                label = { it.name },
+                options = listOf("Apple", "Banana", "Cherry"),
+                selectedIndex = picked,
                 modifier = Modifier.width(200f.dp),
             )
         }
@@ -45,21 +41,21 @@ class ShadcnSelectGenericTest {
 
         // Press + release the trigger to open the popup.
         frame(triggerX, triggerY, true)
-        ui.endFrame()
+        ui.finishFrame()
         frame(triggerX, triggerY, false)
         val opened = ui.finishFrame().semantics
 
         // Popup open: locate the "Cherry" item (index 2) to prove a non-first, non-string-coerced
         // value round-trips correctly.
-        val itemBounds = assertNotNull(opened.firstOrNull { it.id == "fruit.dropdown.item.2" }).bounds
+        val itemBounds = assertNotNull(opened.firstOrNull { it.id == "fruit.option2" }).bounds
         val itemX = itemBounds.x + itemBounds.width / 2f
         val itemY = itemBounds.y + itemBounds.height / 2f
 
         frame(itemX, itemY, true)
-        ui.endFrame()
+        ui.finishFrame()
         frame(itemX, itemY, false)
-        ui.endFrame()
+        ui.finishFrame()
 
-        assertEquals(Fruit.Cherry, picked)
+        assertEquals(2, picked)
     }
 }

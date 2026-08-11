@@ -4,18 +4,19 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.sp
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiComponentVisuals
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiShapeTokens
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeComponents
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnPalette
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
-import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.sp
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiShapeTokens
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
-import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.theme.UiComponentStyles
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
 /**
  * A neutral-first, shadcn-inspired design-system theme that lives OUTSIDE the engine core.
@@ -121,7 +122,7 @@ data class ShadcnThemeConfig(
     val dark: Boolean = true,
 )
 
-fun shadcnTheme(preset: ShadcnStylePreset = ShadcnStylePreset.Vega, baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral, accent: ShadcnAccent = ShadcnAccent.Base, dark: Boolean = true): UiTheme =
+fun shadcnTheme(preset: ShadcnStylePreset = ShadcnStylePreset.Vega, baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral, accent: ShadcnAccent = ShadcnAccent.Base, dark: Boolean = true): UiThemeValues =
     shadcnThemeData(
         ShadcnThemeConfig(
             preset = preset,
@@ -131,7 +132,7 @@ fun shadcnTheme(preset: ShadcnStylePreset = ShadcnStylePreset.Vega, baseColor: S
         ),
     )
 
-internal interface ShadcnResolvedTheme : UiTheme {
+interface ShadcnResolvedTheme : UiThemeValues {
     val config: ShadcnThemeConfig
     val palette: ShadcnPalette
     val radii: ShadcnRadiusScale
@@ -154,7 +155,70 @@ internal interface ShadcnResolvedTheme : UiTheme {
     val ring: Color get() = palette.ring
 }
 
-internal fun UiTheme.asShadcnTheme(): ShadcnResolvedTheme = this as? ShadcnResolvedTheme ?: ShadcnTheme
+fun UiThemeValues.asShadcnTheme(): ShadcnResolvedTheme = this as? ShadcnResolvedTheme ?: RuntimeShadcnTheme(this)
+
+/**
+ * Runtime-free values can be wrapped by Core when they are pushed onto a [UiContext]. That
+ * wrapper intentionally exposes only the API contracts, so it is not a [ShadcnResolvedTheme]
+ * anymore. The deprecated Core receiver bridge still needs the richer recipe view; this adapter
+ * reconstructs it from the stable values without falling back to the unrelated default palette.
+ */
+private class RuntimeShadcnTheme(
+    private val values: UiThemeValues,
+) : ShadcnResolvedTheme {
+    private val tokens = values.colors
+
+    override val config: ShadcnThemeConfig = ShadcnThemeConfig()
+    override val typography: UiTypography = values.typography
+    override val radii: ShadcnRadiusScale = ShadcnRadiusScale(
+        xs = values.shapes.xs,
+        sm = values.shapes.sm,
+        md = values.shapes.md,
+        lg = values.shapes.lg,
+        xl = values.shapes.xl,
+        full = values.shapes.full,
+    )
+    override val metrics: ShadcnMetrics = ShadcnStylePreset.Vega.metrics
+    override val colors: UiColorTokens = tokens
+    override val componentVisuals: UiThemeComponents = values.componentVisuals
+    override val palette: ShadcnPalette = ShadcnPalette(
+        background = tokens.background,
+        foreground = tokens.foreground,
+        primary = tokens.primary,
+        primaryForeground = tokens.primaryForeground,
+        primaryHover = tokens.primary,
+        primaryPressed = tokens.primary,
+        secondary = tokens.secondary,
+        secondaryForeground = tokens.secondaryForeground,
+        secondaryHover = tokens.secondary,
+        secondaryPressed = tokens.secondary,
+        muted = tokens.muted,
+        mutedForeground = tokens.mutedForeground,
+        accent = tokens.accent,
+        accentForeground = tokens.accentForeground,
+        accentHover = tokens.accent,
+        accentPressed = tokens.accent,
+        destructive = tokens.destructive,
+        destructiveForeground = tokens.destructiveForeground,
+        destructiveHover = tokens.destructive,
+        destructivePressed = tokens.destructive,
+        border = tokens.border,
+        ring = tokens.accent,
+        input = tokens.border,
+        card = tokens.card,
+        cardForeground = tokens.cardForeground,
+        popover = tokens.popover,
+        popoverForeground = tokens.popoverForeground,
+        sidebar = tokens.background,
+        sidebarForeground = tokens.foreground,
+        sidebarPrimary = tokens.primary,
+        sidebarPrimaryForeground = tokens.primaryForeground,
+        sidebarAccent = tokens.accent,
+        sidebarAccentForeground = tokens.accentForeground,
+        sidebarBorder = tokens.border,
+        sidebarRing = tokens.accent,
+    )
+}
 
 private fun shadcnThemeData(config: ShadcnThemeConfig = ShadcnThemeConfig()): ShadcnResolvedTheme = ConfiguredShadcnTheme(config)
 
@@ -184,72 +248,88 @@ private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : Sh
         override val border = palette.border
     }
 
-    override val components: UiComponentStyles = object : UiComponentStyles {
-        override val button: Style = Style {
-            background(palette.secondary, tokenId = "secondary")
-            foreground(palette.secondaryForeground, tokenId = "secondary-foreground")
-            shape(radii.md)
-            textSize(typography.label, tokenId = "label")
-        }
-        override val toggle: Style = button
-        override val checkbox: Style = Style {
-            background(palette.background, tokenId = "background")
-            foreground(palette.foreground, tokenId = "foreground")
-            borderWidth(1f.dp)
-            borderColor(palette.input, tokenId = "input")
-            // shadcn v4's checkbox is `size-4 rounded-[4px]` -- a literal 4px, deliberately off
-            // the radius scale. Taking radii.md instead made the corner half the box: at the
-            // default 10dp base that is 8dp on a 16dp square, i.e. a circle, and it tracked the
-            // preset's base radius so bigger presets rounded it further.
-            shape(CHECKBOX_RADIUS)
-            textSize(typography.label, tokenId = "label")
-        }
-        override val avatar: Style = Style {
-            background(palette.muted, tokenId = "muted")
-            foreground(palette.foreground, tokenId = "foreground")
-            textSize(typography.label, tokenId = "label")
-        }
-        override val slider: Style = Style {
-            background(palette.input, tokenId = "input")
-            foreground(palette.foreground, tokenId = "foreground")
-            borderWidth(1f.dp)
-            borderColor(palette.input, tokenId = "input")
-            shape(radii.full)
-            textSize(typography.label, tokenId = "label")
-        }
-        override val dropdown: Style = Style {
-            background(palette.background, tokenId = "background")
-            foreground(palette.foreground, tokenId = "foreground")
-            borderWidth(1f.dp)
-            borderColor(palette.input, tokenId = "input")
-            shape(radii.md)
-            contentPadding(metrics.fieldPaddingX, metrics.fieldPaddingY)
-            textSize(typography.label, tokenId = "label")
-        }
-        override val surface: Style = Style {
-            background(palette.card, tokenId = "card")
-            foreground(palette.cardForeground, tokenId = "card-foreground")
-            borderWidth(1f.dp)
-            borderColor(palette.border, tokenId = "border")
-            shape(radii.xl)
-            contentPadding(metrics.panelPadding)
-        }
-        override val textField: Style = Style {
-            background(palette.background, tokenId = "background")
-            foreground(palette.foreground, tokenId = "foreground")
-            borderWidth(1f.dp)
-            borderColor(palette.input, tokenId = "input")
-            shape(radii.md)
-            contentPadding(metrics.fieldPaddingX, metrics.inputPaddingY)
-            textSize(typography.label, tokenId = "label")
-            focused { borderColor(palette.ring, tokenId = "ring") }
-            disabled {
-                background(palette.muted, tokenId = "muted")
-                foreground(palette.mutedForeground, tokenId = "muted-foreground")
-                borderColor(palette.input, tokenId = "input")
-            }
-        }
-    }
+    override val componentVisuals: UiThemeComponents = UiThemeComponents(
+        button = UiComponentVisuals(
+            background = palette.primary,
+            backgroundToken = "primary",
+            foreground = palette.primaryForeground,
+            foregroundToken = "primary-foreground",
+            shape = radii.md,
+            textSize = typography.label,
+        ),
+        toggle = UiComponentVisuals(
+            background = palette.secondary,
+            backgroundToken = "secondary",
+            foreground = palette.secondaryForeground,
+            foregroundToken = "secondary-foreground",
+            shape = radii.md,
+            textSize = typography.label,
+        ),
+        checkbox = UiComponentVisuals(
+            background = palette.background,
+            backgroundToken = "background",
+            foreground = palette.foreground,
+            foregroundToken = "foreground",
+            borderWidth = 1f.dp,
+            borderColor = palette.input,
+            borderColorToken = "input",
+            shape = 4f.dp,
+            textSize = typography.label,
+        ),
+        slider = UiComponentVisuals(
+            background = palette.input,
+            backgroundToken = "input",
+            foreground = palette.foreground,
+            foregroundToken = "foreground",
+            borderWidth = 1f.dp,
+            borderColor = palette.input,
+            borderColorToken = "input",
+            shape = radii.full,
+            textSize = typography.label,
+        ),
+        dropdown = UiComponentVisuals(
+            background = palette.background,
+            backgroundToken = "background",
+            foreground = palette.foreground,
+            foregroundToken = "foreground",
+            borderWidth = 1f.dp,
+            borderColor = palette.input,
+            borderColorToken = "input",
+            shape = radii.md,
+            contentPadding = UiInsets(metrics.fieldPaddingX, metrics.fieldPaddingY),
+            textSize = typography.label,
+        ),
+        surface = UiComponentVisuals(
+            background = palette.card,
+            backgroundToken = "card",
+            foreground = palette.cardForeground,
+            foregroundToken = "card-foreground",
+            borderWidth = 1f.dp,
+            borderColor = palette.border,
+            borderColorToken = "border",
+            shape = radii.xl,
+            contentPadding = UiInsets(metrics.panelPadding),
+        ),
+        textField = UiComponentVisuals(
+            background = palette.background,
+            backgroundToken = "background",
+            foreground = palette.foreground,
+            foregroundToken = "foreground",
+            borderWidth = 1f.dp,
+            borderColor = palette.input,
+            borderColorToken = "input",
+            shape = radii.md,
+            contentPadding = UiInsets(metrics.fieldPaddingX, metrics.inputPaddingY),
+            textSize = typography.label,
+        ),
+        avatar = UiComponentVisuals(
+            background = palette.muted,
+            backgroundToken = "muted",
+            foreground = palette.foreground,
+            foregroundToken = "foreground",
+            textSize = typography.label,
+        ),
+    )
 }
 
 private fun createTypography(config: ShadcnThemeConfig): UiTypography = when (config.preset) {
@@ -383,4 +463,3 @@ internal fun hex(rgb: Int, alpha: Float = 1f): Color = Color(
 )
 
 /** shadcn v4's checkbox corner: a literal `rounded-[4px]`, not a step on the radius scale. */
-private val CHECKBOX_RADIUS = 4f.dp

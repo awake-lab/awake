@@ -3,10 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -27,7 +27,7 @@ class ShadcnTooltipContrastTest {
         ui.pushTheme(theme)
 
         ui.beginFrame(300f, 150f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute(slot = ui.frameBounds()).shadcnTooltipText(
+        ui.headlessRoot().shadcnTooltipText(
             anchorSlot = UiBounds(x = 100f, y = 60f, width = 100f, height = 30f),
             visible = true,
             text = "Tooltip Info",

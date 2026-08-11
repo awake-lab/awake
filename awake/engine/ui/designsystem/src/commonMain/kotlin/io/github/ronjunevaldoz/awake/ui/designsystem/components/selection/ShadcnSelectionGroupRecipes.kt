@@ -1,0 +1,207 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+@file:Suppress("UnusedParameter")
+
+package io.github.ronjunevaldoz.awake.ui.designsystem.components.selection
+
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.RowScope
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.radio
+import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.toggleGroup
+
+fun UiScope.shadcnToggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndices: Set<Int>,
+    modifier: Modifier = Modifier,
+    onSelectedIndicesChange: (Set<Int>) -> Unit = {},
+) {
+    toggleGroup(
+        id = id,
+        options = options,
+        selectedIndices = selectedIndices,
+        modifier = modifier,
+        visuals = SurfaceVisuals(
+            rest = SurfaceStyle(
+                background = themeValues.colors.card,
+                foreground = themeValues.colors.foreground,
+                border = SurfaceBorder(1f.dp, themeValues.colors.border),
+                cornerRadius = themeValues.shapes.md,
+            ),
+        ),
+        onSelectedIndicesChange = onSelectedIndicesChange,
+    )
+}
+
+fun RowScope.shadcnToggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    modifier: Modifier = Modifier,
+    onIndexChange: (Int) -> Unit = {},
+) {
+    toggleGroup(
+        id = id,
+        options = options,
+        selectedIndex = selectedIndex,
+        modifier = modifier,
+        visuals = SurfaceVisuals(
+            rest = SurfaceStyle(
+                background = themeValues.colors.card,
+                foreground = themeValues.colors.foreground,
+                border = SurfaceBorder(1f.dp, themeValues.colors.border),
+                cornerRadius = themeValues.shapes.md,
+            ),
+        ),
+        onIndexChange = onIndexChange,
+    )
+}
+
+fun ColumnScope.shadcnToggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    modifier: Modifier = Modifier,
+    onIndexChange: (Int) -> Unit = {},
+) {
+    toggleGroup(
+        id = id,
+        options = options,
+        selectedIndex = selectedIndex,
+        modifier = modifier,
+        visuals = SurfaceVisuals(
+            rest = SurfaceStyle(
+                background = themeValues.colors.card,
+                foreground = themeValues.colors.foreground,
+                border = SurfaceBorder(1f.dp, themeValues.colors.border),
+                cornerRadius = themeValues.shapes.md,
+            ),
+        ),
+        onIndexChange = onIndexChange,
+    )
+}
+
+fun UiScope.shadcnToggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    modifier: Modifier = Modifier,
+    onIndexChange: (Int) -> Unit = {},
+) {
+    toggleGroup(
+        id = id,
+        options = options,
+        selectedIndex = selectedIndex,
+        modifier = modifier,
+        visuals = SurfaceVisuals(
+            rest = SurfaceStyle(
+                background = themeValues.colors.card,
+                foreground = themeValues.colors.foreground,
+                border = SurfaceBorder(1f.dp, themeValues.colors.border),
+                cornerRadius = themeValues.shapes.md,
+            ),
+        ),
+        onIndexChange = onIndexChange,
+    )
+}
+
+fun UiScope.shadcnRadioButton(
+    id: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+): Boolean = radio(
+    id = id,
+    selected = selected,
+    modifier = modifier,
+    enabled = enabled,
+    visuals = SurfaceStyle(
+        background = themeValues.colors.background,
+        foreground = themeValues.colors.primary,
+        border = SurfaceBorder(1f.dp, themeValues.colors.border),
+        cornerRadius = themeValues.shapes.full,
+    ),
+    onClick = onClick,
+)
+
+fun RowScope.shadcnRadioButton(
+    id: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+): Boolean = radio(
+    id = id,
+    selected = selected,
+    modifier = modifier,
+    enabled = enabled,
+    visuals = SurfaceStyle(
+        background = themeValues.colors.background,
+        foreground = themeValues.colors.primary,
+        border = SurfaceBorder(1f.dp, themeValues.colors.border),
+        cornerRadius = themeValues.shapes.full,
+    ),
+    onClick = onClick,
+)
+
+fun ColumnScope.shadcnRadioGroup(
+    id: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: ColumnScope.() -> Unit,
+) {
+    surface(
+        id = id,
+        modifier = modifier,
+        style = SurfaceStyle(contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(12f.dp)),
+        verticalArrangement = Arrangement.spacedBy(12f.dp),
+        content = { content() },
+    )
+}
+
+fun ColumnScope.shadcnRadioGroup(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    gap: io.github.ronjunevaldoz.awake.ui.api.Dp = 12f.dp,
+    onIndexChange: (Int) -> Unit = {},
+): Int {
+    var resolved = selectedIndex
+    options.forEachIndexed { index, label ->
+        val wasSelected = index == selectedIndex
+        val next = radio(
+            id = "$id.$index",
+            selected = wasSelected,
+            modifier = Modifier.height(24f.dp),
+            enabled = enabled,
+            visuals = SurfaceStyle(
+                background = themeValues.colors.background,
+                foreground = themeValues.colors.primary,
+                border = SurfaceBorder(1f.dp, themeValues.colors.border),
+                cornerRadius = themeValues.shapes.full,
+            ),
+            onClick = {
+                resolved = index
+                onIndexChange(index)
+            },
+        )
+        text(label = label, visuals = SurfaceStyle(textSize = themeValues.typography.label))
+        if (index != options.lastIndex) spacer(Modifier.height(gap))
+        if (next != wasSelected && next && !wasSelected) resolved = index
+    }
+    return resolved
+}

@@ -8,10 +8,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.headless.text
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -27,11 +27,10 @@ class ShadcnCardVariantTest {
             ui.pushFont(BitmapFont())
             ui.pushTheme(ShadcnTheme)
             ui.beginFrame(200f, 200f, testSnapshot())
-            ui.createColumn(x = 10f, y = 10f, width = 120f)
-                .shadcnCard(
+            ui.headlessRoot().shadcnCard(
                     id = "card",
                     variant = variant,
-                    modifier = Modifier.height(Dimension.WrapContent),
+                    modifier = Modifier,
                 ) {
                     // no body content needed
                 }
@@ -51,10 +50,10 @@ class ShadcnCardVariantTest {
             ui.pushFont(BitmapFont())
             ui.pushTheme(ShadcnTheme)
             ui.beginFrame(280f, 260f, testSnapshot())
-            ui.createColumn(x = 10f, y = 10f, width = 200f).shadcnCard(
+            ui.headlessRoot().shadcnCard(
                 id = "card",
                 size = size,
-                modifier = Modifier.height(Dimension.WrapContent),
+                modifier = Modifier,
                 header = { text("Title") },
                 footer = { text("Footer") },
             ) {

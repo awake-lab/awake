@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -28,8 +28,7 @@ class ShadcnInputIconSelectPlaceholderTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(300f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(x = 20f, y = 20f)
-            .shadcnInput(
+        ui.headlessRoot().shadcnInput(
                 id = "search",
                 value = "hello",
                 modifier = Modifier.width(240f.dp).height(40f.dp),
@@ -55,8 +54,7 @@ class ShadcnInputIconSelectPlaceholderTest {
         ui.beginFrame(300f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
         val real = "secret"
-        val returned = ui.createAbsolute(x = 20f, y = 20f)
-            .shadcnInput(
+        val returned = ui.headlessRoot().shadcnInput(
                 id = "password",
                 value = real,
                 modifier = Modifier.width(240f.dp).height(40f.dp),
@@ -80,8 +78,7 @@ class ShadcnInputIconSelectPlaceholderTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.createAbsolute(x = 20f, y = 20f)
-            .shadcnSelect(
+        ui.headlessRoot().shadcnSelect(
                 id = "fruit",
                 options = listOf("Apple", "Banana"),
                 selectedIndex = null,

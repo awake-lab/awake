@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuSubItem
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.headless.column
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -27,7 +27,7 @@ class ShadcnSidebarMenuItemTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(320f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.column {
+        ui.headlessRoot().column {
             shadcnSidebarMenuItem(id = "item", label = "Scene", active = true)
         }
 
@@ -48,7 +48,7 @@ class ShadcnSidebarMenuItemTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(320f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.column {
+        ui.headlessRoot().column {
             shadcnSidebarMenuItem(id = "item", label = "Scene", active = false)
         }
 
@@ -68,7 +68,7 @@ class ShadcnSidebarMenuItemTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(320f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.column {
+        ui.headlessRoot().column {
             shadcnSidebarMenuSubItem(id = "sub-item", label = "Detail", active = true)
         }
 

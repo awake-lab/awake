@@ -6,12 +6,12 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectUiFrame
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnIcons
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnEmpty
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -27,12 +27,11 @@ class ShadcnEmptyTest {
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(FRAME_WIDTH, FRAME_HEIGHT, UiInputState())
-        ui.column {
+        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
             shadcnEmpty(
                 id = "empty-1",
                 title = "No results",
                 description = "Try adjusting your filters.",
-                icon = { icon(ShadcnIcons.squares2x2) },
                 action = { shadcnButton(id = "empty-1.action", label = "Reset filters", onClick = {}) },
             )
         }
@@ -80,7 +79,7 @@ class ShadcnEmptyTest {
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(FRAME_WIDTH, FRAME_HEIGHT, UiInputState())
-        ui.column {
+        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
             shadcnEmpty(id = "empty-2", title = "Nothing here")
         }
         val output = ui.finishFrame()

@@ -10,6 +10,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumb
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumbPage
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumbSeparator
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -27,12 +31,14 @@ class ShadcnBreadcrumbTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(300f, 60f, testSnapshot())
 
-        ui.createColumn(slot = ui.frameBounds()).shadcnBreadcrumb {
-            shadcnBreadcrumbLink("Home", onClick = {})
-            shadcnBreadcrumbSeparator()
-            shadcnBreadcrumbEllipsis()
-            shadcnBreadcrumbSeparator()
-            shadcnBreadcrumbPage("Current")
+        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
+            row {
+                shadcnBreadcrumbLink(id = "breadcrumb.home", label = "Home", onClick = {})
+                shadcnBreadcrumbSeparator()
+                shadcnBreadcrumbEllipsis()
+                shadcnBreadcrumbSeparator()
+                shadcnBreadcrumbPage("Current")
+            }
         }
 
         val semantics = ui.finishFrame().semantics
@@ -52,8 +58,10 @@ class ShadcnBreadcrumbTest {
             val input = Input()
             input.setPointer(down, x, y)
             ui.beginFrame(300f, 60f, input.updateSnapshot().toUiInputState())
-            ui.createColumn(slot = ui.frameBounds()).shadcnBreadcrumb {
-                shadcnBreadcrumbLink("Home", onClick = { clicked = true })
+            ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
+                row {
+                    shadcnBreadcrumbLink(id = "breadcrumb.home", label = "Home", onClick = { clicked = true })
+                }
             }
             ui.finishFrame()
         }
@@ -64,7 +72,11 @@ class ShadcnBreadcrumbTest {
         ui2.pushFont(BitmapFont())
         ui2.pushTheme(ShadcnTheme)
         ui2.beginFrame(300f, 60f, testSnapshot())
-        ui2.createColumn(slot = ui2.frameBounds()).shadcnBreadcrumb { shadcnBreadcrumbLink("Home", onClick = {}) }
+        ui2.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
+            row {
+                shadcnBreadcrumbLink(id = "breadcrumb.home", label = "Home", onClick = {})
+            }
+        }
         val bounds = assertNotNull(ui2.finishFrame().semantics.firstOrNull { it.label == "Home" }).bounds
         val cx = bounds.x + bounds.width / 2f
         val cy = bounds.y + bounds.height / 2f

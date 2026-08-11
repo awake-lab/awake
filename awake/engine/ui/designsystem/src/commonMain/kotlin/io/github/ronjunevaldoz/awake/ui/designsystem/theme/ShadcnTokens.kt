@@ -4,11 +4,10 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.theme
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
-import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiShapeTokens
 
-internal data class ShadcnRadiusScale(
+data class ShadcnRadiusScale(
     override val xs: Dp,
     override val sm: Dp,
     override val md: Dp,
@@ -46,16 +45,16 @@ internal data class ShadcnRadiusScale(
  * past it to [Tw.Spacing] directly inside a component is what splits the module into two competing
  * vocabularies for the same concept -- add the missing step here instead, the way [smd]/[lgx] were.
  * `Tw` is this object's source of truth, not a parallel API for call sites. */
-internal object ShadcnSpacing {
-    val xs: Dp = UiSpacing.xs
-    val sm: Dp = UiSpacing.sm
-    val md: Dp = UiSpacing.md
-    val lg: Dp = UiSpacing.lg
-    val xl: Dp = UiSpacing.xl
+object ShadcnSpacing {
+    val xs: Dp = 4f.dp
+    val sm: Dp = 8f.dp
+    val md: Dp = 16f.dp
+    val lg: Dp = 24f.dp
+    val xl: Dp = 32f.dp
     val xxl: Dp = 48f.dp
 }
 
-internal data class ShadcnMetrics(
+data class ShadcnMetrics(
     // Card/Dialog/Muted-surface/Alert inset -- real shadcn's Card/Dialog p-6.
     val panelPadding: Dp,
     // Popover's own inset -- real shadcn's Popover p-4, deliberately smaller than
@@ -74,7 +73,7 @@ internal data class ShadcnMetrics(
     val inputPaddingY: Dp,
 )
 
-internal data class ShadcnPalette(
+data class ShadcnPalette(
     val background: Color,
     val foreground: Color,
     val primary: Color,

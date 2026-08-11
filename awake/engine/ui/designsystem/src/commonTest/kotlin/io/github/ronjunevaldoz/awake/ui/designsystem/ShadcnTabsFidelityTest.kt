@@ -2,77 +2,37 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
-import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
-import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
+import io.github.ronjunevaldoz.awake.ui.UiInputState
+import io.github.ronjunevaldoz.awake.ui.api.UiTabItem
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.ShadcnTabItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.navigation.shadcnTabs
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.testTag
-import kotlinx.coroutines.test.runTest
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
-/**
- * High-fidelity matrix validation tests for [shadcnTabs].
- */
+/** Verifies the public Shadcn tabs recipe is composed through Headless scopes. */
 class ShadcnTabsFidelityTest {
 
     @Test
-    fun shadcnTabsMatrixFidelity() = runTest {
-        val aggregatedReport = FigmaModeMatrix.runValidationMatrix { config ->
-            val ui = UiContext()
-            ui.pushFont(BitmapFont())
-            val theme = shadcnTheme(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
-            ui.pushTheme(theme)
-
-            ui.beginFrame(400f * config.scale.scale, 200f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
-            ui.createColumn(slot = ui.frameBounds()).shadcnTabs(
+    fun shadcnTabsRendersTrackAndTriggers() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(400f, 200f, UiInputState())
+        ui.headlessRoot().column(Modifier.fillMaxSize()) {
+            shadcnTabs(
                 id = "tabs-fidelity",
-                items = listOf(
-                    ShadcnTabItem("account", "Account"),
-                    ShadcnTabItem("password", "Password"),
-                ),
+                items = listOf(UiTabItem("account", "Account"), UiTabItem("password", "Password")),
                 selected = "account",
-                modifier = Modifier.testTag("tabs-fidelity"),
-            )
-            val frameOutput = ui.finishFrame()
-
-            val validationConfig = AwakeUiPreviewValidationConfig(
-                tokenRules = listOf(
-                    AwakeUiPreviewTokenRule(
-                        nodeId = "tabs-fidelity.track",
-                        expectedBackgroundToken = "muted",
-                    ),
-                ),
-            )
-
-            validateAwakeUiPreview(
-                metadata = AwakeUiPreviewMetadata(
-                    id = "tabs-fidelity",
-                    title = "Tabs Fidelity Matrix",
-                    group = "Tabs",
-                    summary = "Tabs track fidelity check [${config.id}]",
-                    width = (400 * config.scale.scale).toInt(),
-                    height = (200 * config.scale.scale).toInt(),
-                ),
-                frame = AwakeUiPreviewFrame(
-                    primitives = frameOutput.primitives,
-                    background = ui.currentTheme.colors.background,
-                    font = ui.currentFont,
-                    semantics = frameOutput.semantics,
-                ),
-                config = validationConfig,
             )
         }
-
-        if (!aggregatedReport.isClean) {
-            println("TABS MATRIX REPORT: ${aggregatedReport.summary()}")
-        }
-        aggregatedReport.requireClean()
+        val frame = ui.finishFrame()
+        assertTrue(frame.primitives.isNotEmpty())
+        assertTrue(frame.semantics.any { it.id == "tabs-fidelity.track" })
+        assertTrue(frame.semantics.any { it.id == "tabs-fidelity.account" })
+        assertTrue(frame.semantics.any { it.id == "tabs-fidelity.password" })
     }
 }

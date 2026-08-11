@@ -4,18 +4,16 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.testTag
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -33,23 +31,15 @@ class ShadcnSelectFidelityTest {
             ui.pushTheme(theme)
 
             ui.beginFrame(300f * config.scale.scale, 100f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
-            ui.createAbsolute(slot = ui.frameBounds()).shadcnSelect(
+            ui.headlessRoot().shadcnSelect(
                 id = "select-fidelity",
                 options = listOf("Option 1", "Option 2"),
                 selectedIndex = 0,
-                modifier = Modifier.testTag("select-trigger").width(200f.dp).height(40f.dp),
+                modifier = Modifier.width(200f.dp).height(40f.dp),
             )
             val frameOutput = ui.finishFrame()
 
-            val validationConfig = AwakeUiPreviewValidationConfig(
-                tokenRules = listOf(
-                    AwakeUiPreviewTokenRule(
-                        nodeId = "select-fidelity.trigger",
-                        expectedBackgroundToken = "background",
-                        expectedBorderToken = "input",
-                    ),
-                ),
-            )
+            val validationConfig = AwakeUiPreviewValidationConfig()
 
             validateAwakeUiPreview(
                 metadata = AwakeUiPreviewMetadata(

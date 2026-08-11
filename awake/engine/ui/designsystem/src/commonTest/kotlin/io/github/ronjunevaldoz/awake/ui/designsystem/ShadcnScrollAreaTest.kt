@@ -3,17 +3,16 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameOutput
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnScrollArea
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.spacer
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -23,27 +22,26 @@ import kotlin.test.assertTrue
  * these prove the thumb only appears (and is sized/positioned right) when content overflows. */
 class ShadcnScrollAreaTest {
 
-    private fun buildFrame(contentHeightDp: Float): Pair<UiContext, List<UiDrawPrimitive>> {
+    private fun buildFrame(contentHeightDp: Float): UiFrameOutput {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(300f, 220f, UiInputState())
-        ui.column {
-            shadcnScrollArea(
-                id = "scroll-area",
-                modifier = Modifier.width(200f.dp).height(100f.dp),
-            ) {
-                spacer(Modifier.height(contentHeightDp.dp))
-            }
+        ui.beginFrame(300f, 220f, testSnapshot())
+        ui.headlessRoot().shadcnScrollArea(
+            id = "scroll-area",
+            modifier = Modifier.width(200f.dp).height(100f.dp),
+        ) {
+            spacer(Modifier.height(contentHeightDp.dp))
         }
-        return ui to ui.endFrame()
+        return ui.finishFrame()
     }
 
     @Test
     fun overflowingContentDrawsProportionalThumbOnRightEdge() {
-        val (ui, primitives) = buildFrame(contentHeightDp = 400f)
+        val output = buildFrame(contentHeightDp = 400f)
+        val primitives = output.primitives
 
-        val viewport = ui.semanticNodes()
+        val viewport = output.semantics
             .first { it.role == UiSemanticRole.ScrollPanel && it.id == "scroll-area" }
             .contentBounds!!
 
@@ -70,7 +68,7 @@ class ShadcnScrollAreaTest {
 
     @Test
     fun fittingContentDrawsNoThumb() {
-        val (_, primitives) = buildFrame(contentHeightDp = 50f)
+        val primitives = buildFrame(contentHeightDp = 50f).primitives
 
         val thumbs = primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
         assertTrue(thumbs.isEmpty(), "content that fits the viewport must draw no thumb, found: $thumbs")

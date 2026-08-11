@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.styles
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
-import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
+import io.github.ronjunevaldoz.awake.ui.api.dp
 
 enum class ShadcnButtonVariant {
     Primary,
@@ -24,11 +24,11 @@ enum class ShadcnButtonVariant {
 //   lg      -> "h-10 rounded-md px-6"                   -> 40dp / px-6
 //   icon    -> "size-9"                                 -> 36dp / no horizontal padding
 enum class ShadcnButtonSize(val heightDp: Dp, val paddingX: Dp) {
-    Xs(Tw.Spacing.s6, Tw.Spacing.s2),
-    Sm(Tw.Spacing.s8, Tw.Spacing.s3),
-    Md(Tw.Spacing.s9, Tw.Spacing.s4),
-    Lg(Tw.Spacing.s10, Tw.Spacing.s6),
-    Icon(Tw.Spacing.s9, Tw.Spacing.s0),
+    Xs(24f.dp, 8f.dp),
+    Sm(32f.dp, 12f.dp),
+    Md(36f.dp, 16f.dp),
+    Lg(40f.dp, 24f.dp),
+    Icon(36f.dp, 0f.dp),
 }
 
 enum class ShadcnBadgeVariant {

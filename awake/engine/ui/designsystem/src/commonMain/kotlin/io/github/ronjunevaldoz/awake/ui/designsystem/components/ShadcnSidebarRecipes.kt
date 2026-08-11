@@ -1,0 +1,169 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.ui.designsystem.components
+
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.RowScope
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.headless.text
+
+private fun sidebarStyle(scope: UiScope): SurfaceStyle = SurfaceStyle(
+    background = scope.themeValues.colors.card,
+    foreground = scope.themeValues.colors.foreground,
+    border = SurfaceBorder(1f.dp, scope.themeValues.colors.border),
+    contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp),
+)
+
+fun UiScope.shadcnSidebar(
+    id: String,
+    modifier: Modifier = Modifier,
+    expanded: Boolean = true,
+    header: (ColumnScope.() -> Unit)? = null,
+    footer: (ColumnScope.() -> Unit)? = null,
+    content: ColumnScope.(UiBounds) -> Unit,
+): UiBounds = surface(id, modifier, sidebarStyle(this)) {
+    if (expanded) {
+        header?.invoke(this)
+        content(it)
+        footer?.invoke(this)
+    }
+}
+
+fun ColumnScope.shadcnSidebar(
+    id: String,
+    modifier: Modifier = Modifier,
+    expanded: Boolean = true,
+    header: (ColumnScope.() -> Unit)? = null,
+    footer: (ColumnScope.() -> Unit)? = null,
+    content: ColumnScope.(UiBounds) -> Unit,
+): UiBounds = surface(
+    id,
+    modifier,
+    SurfaceStyle(
+        background = themeValues.colors.card,
+        foreground = themeValues.colors.foreground,
+        border = SurfaceBorder(1f.dp, themeValues.colors.border),
+        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp),
+    ),
+) {
+    if (expanded) {
+        header?.invoke(this)
+        content(it)
+        footer?.invoke(this)
+    }
+}
+
+fun RowScope.shadcnSidebar(
+    id: String,
+    modifier: Modifier = Modifier,
+    expanded: Boolean = true,
+    header: (ColumnScope.() -> Unit)? = null,
+    footer: (ColumnScope.() -> Unit)? = null,
+    content: ColumnScope.(UiBounds) -> Unit,
+): UiBounds = surface(
+    id,
+    modifier,
+    SurfaceStyle(
+        background = themeValues.colors.card,
+        foreground = themeValues.colors.foreground,
+        border = SurfaceBorder(1f.dp, themeValues.colors.border),
+        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp),
+    ),
+) {
+    if (expanded) {
+        header?.invoke(this)
+        content(it)
+        footer?.invoke(this)
+    }
+}
+
+fun BoxScope.shadcnSidebar(
+    id: String,
+    modifier: Modifier = Modifier,
+    expanded: Boolean = true,
+    header: (ColumnScope.() -> Unit)? = null,
+    footer: (ColumnScope.() -> Unit)? = null,
+    content: ColumnScope.(UiBounds) -> Unit,
+): UiBounds = surface(
+    id,
+    modifier,
+    SurfaceStyle(
+        background = themeValues.colors.card,
+        foreground = themeValues.colors.foreground,
+        border = SurfaceBorder(1f.dp, themeValues.colors.border),
+        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp),
+    ),
+) {
+    if (expanded) {
+        header?.invoke(this)
+        content(it)
+        footer?.invoke(this)
+    }
+}
+
+fun ColumnScope.shadcnSidebarGroup(
+    modifier: Modifier = Modifier,
+    label: String? = null,
+    content: ColumnScope.() -> Unit,
+) {
+    column(modifier.fillMaxWidth(), Arrangement.spacedBy(4f.dp)) {
+        label?.let { text(it, visuals = SurfaceStyle(foreground = themeValues.colors.mutedForeground, textSize = themeValues.typography.caption)) }
+        content()
+    }
+}
+
+fun ColumnScope.shadcnSidebarMenu(
+    modifier: Modifier = Modifier,
+    content: ColumnScope.() -> Unit,
+) {
+    column(modifier.fillMaxWidth(), Arrangement.spacedBy(4f.dp)) { content() }
+}
+
+fun ColumnScope.shadcnSidebarMenuItem(
+    id: String,
+    label: String,
+    active: Boolean = false,
+    modifier: Modifier = Modifier,
+    badge: String? = null,
+    onClick: () -> Unit = {},
+): Boolean = shadcnButton(
+    id = id,
+    label = if (badge == null) label else "$label  $badge",
+    modifier = modifier.fillMaxWidth().height(32f.dp),
+    variant = if (active) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+    onClick = onClick,
+)
+
+fun ColumnScope.shadcnSidebarMenuSub(
+    modifier: Modifier = Modifier,
+    content: ColumnScope.() -> Unit,
+) {
+    column(modifier.fillMaxWidth().padding(horizontal = 14f.dp, vertical = 0f.dp), Arrangement.spacedBy(2f.dp)) { content() }
+}
+
+fun ColumnScope.shadcnSidebarMenuSubItem(
+    id: String,
+    label: String,
+    active: Boolean = false,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+): Boolean = shadcnButton(
+    id = id,
+    label = label,
+    modifier = modifier.fillMaxWidth().height(28f.dp),
+    variant = if (active) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+    onClick = onClick,
+)

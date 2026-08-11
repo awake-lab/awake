@@ -3,13 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -31,18 +31,16 @@ class DropdownMenuIntrinsicWidthTest {
         ui.pushTheme(ShadcnTheme)
         ui.beginFrame(640f, 400f, testSnapshot(x = -100f, y = -100f, down = false))
 
-        ui.column {
-            shadcnDropdownMenu(
-                id = "camera-menu",
-                anchorSlot = UiBounds(120f, 80f, 0f, 0f),
-                expanded = true,
-                items = listOf(
-                    UiDropdownMenuItem(label = "Perspective"),
-                    UiDropdownMenuItem(label = "Orthographic"),
-                ),
-                width = Dimension.WrapContent,
-            )
-        }
+        ui.createUiScope(UiBounds(0f, 0f, 640f, 400f)).shadcnDropdownMenu(
+            id = "camera-menu",
+            anchorSlot = UiBounds(120f, 80f, 0f, 0f),
+            expanded = true,
+            items = listOf(
+                ShadcnDropdownMenuItem(label = "Perspective"),
+                ShadcnDropdownMenuItem(label = "Orthographic"),
+            ),
+            width = Dimension.WrapContent,
+        )
 
         val semantics = ui.finishFrame().semantics
         val report = inspectTextTruncation(semantics)

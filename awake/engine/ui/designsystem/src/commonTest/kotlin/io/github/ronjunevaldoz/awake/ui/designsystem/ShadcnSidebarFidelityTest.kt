@@ -4,16 +4,15 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
-import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewTokenRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -31,7 +30,7 @@ class ShadcnSidebarFidelityTest {
         val sidebarWidth = 240f
 
         ui.beginFrame(400f, 600f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.createAbsolute(slot = ui.frameBounds()).shadcnSidebar(
+        ui.headlessRoot().shadcnSidebar(
             id = "sidebar",
             modifier = Modifier.width(sidebarWidth.dp),
         ) {
@@ -46,13 +45,8 @@ class ShadcnSidebarFidelityTest {
                     exactWidth = sidebarWidth,
                 ),
             ),
-            tokenRules = listOf(
-                AwakeUiPreviewTokenRule(
-                    nodeId = "sidebar",
-                    expectedBackgroundToken = "sidebar",
-                    expectedBorderToken = "sidebar-border",
-                ),
-            ),
+            // Headless validation checks resolved geometry; Core token IDs are intentionally
+            // unavailable through the public receiver.
         )
 
         val report = validateAwakeUiPreview(

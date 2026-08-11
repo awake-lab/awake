@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.ui.theme.CoreUiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
-import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 
 /**
  * Neutral preset themes intended for authored app and sample UI.
@@ -13,11 +11,11 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
  * These remain visually conservative, but they live in `ui-designsystem` so `ui-core` stays
  * limited to theme contracts plus a low-level fallback.
  */
-object ShadcnDefaultTheme : UiTheme by UiDefaultTheme
+object ShadcnDefaultTheme : UiThemeValues by ShadcnTheme
 
-object DarkUiTheme : UiTheme by ShadcnDefaultTheme
+object DarkUiTheme : UiThemeValues by ShadcnDefaultTheme
 
-object LightUiTheme : UiTheme {
+object LightUiTheme : UiThemeValues {
     override val colors: UiColorTokens = object : UiColorTokens {
         override val background = oklch(1f, 0f)
         override val foreground = oklch(0.145f, 0f)
@@ -38,5 +36,6 @@ object LightUiTheme : UiTheme {
         override val border = oklch(0.922f, 0f)
     }
 
-    override val components = CoreUiComponentStyles(colors)
+    override val typography = ShadcnTheme.typography
+    override val shapes = ShadcnTheme.shapes
 }

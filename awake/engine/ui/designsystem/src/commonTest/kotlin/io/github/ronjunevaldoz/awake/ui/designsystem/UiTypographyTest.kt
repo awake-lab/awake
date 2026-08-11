@@ -3,19 +3,18 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.surface
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.headless.offset
+import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -30,8 +29,8 @@ class UiTypographyTest {
 
         var panelSlot: UiBounds? = null
 
-        ui.column(modifier = Modifier.offset(20f.dp, 20f.dp).width(180f.dp)) {
-            surface(id = "copy", modifier = Modifier.height(Dimension.WrapContent)) { slot ->
+        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
+            surface(id = "copy", modifier = Modifier.offset(20f.dp, 20f.dp).width(180f.dp)) { slot ->
                 panelSlot = slot
                 text("Copy")
                 shadcnSupportingText(
@@ -41,7 +40,7 @@ class UiTypographyTest {
             }
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val glyphs = primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
         val resolvedPanel = assertNotNull(panelSlot)
         assertTrue(
