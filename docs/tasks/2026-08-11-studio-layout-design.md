@@ -7,15 +7,15 @@ components that already exist in `ui-designsystem`.
 ## Target
 
     +------------------------------------------------------------------------------+
-    | Awake Studio | Scene v | Select Move Rotate Scale | > Play || | Wire Shadows  |
+    | Awake Studio | Scene v |          > Play || >|          | Wire  Shadows      |
     +--------------------+-------------------------------------+-------------------+
-    | HIERARCHY          |                                     | INSPECTOR         |
-    | [Scene] [Assets]   |                                     | Transform      v  |
-    |                    |                                     |   Position x y z  |
-    |  v Scene           |                                     |   Rotation x y z  |
-    |    > Camera        |            VIEWPORT                 |   Scale    x y z  |
+    | HIERARCHY          |[S]|                                 | INSPECTOR         |
+    | [Scene] [Assets]   |[M]|                                 | Transform      v  |
+    |                    |[R]|                                 |   Position x y z  |
+    |  v Scene           |[S]|                                 |   Rotation x y z  |
+    |    > Camera        +---+         VIEWPORT                |   Scale    x y z  |
     |    > Light         |                                     | Mesh           v  |
-    |    v Cube          |         (gizmo on selection)        |   Material ...    |
+    |    v Cube          |     (gizmo on selection)            |   Material ...    |
     |        Transform   |                                     | Light          >  |
     |    > Ground        |                                     |                   |
     |                    |                                     |                   |
@@ -28,8 +28,8 @@ components that already exist in `ui-designsystem`.
 
 Four docks around a viewport, which is the arrangement Unity, Godot, Unreal and Blender all
 converge on. The differences from today are: the left dock holds the scene, not the demo list;
-the tool rail becomes real transform tools in the top bar; and a console dock appears at the
-bottom.
+the tool rail keeps its place at the viewport edge but gains real transform tools; and a console
+dock appears at the bottom.
 
 ## Region by region
 
@@ -39,12 +39,11 @@ bottom.
 |---|---|---|
 | Title | `shadcnText` | unchanged |
 | Scene picker | `shadcnSelect` or `shadcnDropdownMenu` | this is where the demo list goes, freeing the left dock |
-| Transform tools | `shadcnToggleGroup` | Select / Move / Rotate / Scale, single-select -- this is what the icon rail should have been |
 | Play / Pause / Step | `shadcnButton` x3 | today's single Play is really "reload example"; separate the concepts |
 | Wireframe, Shadows | `shadcnSwitch` | unchanged, already work |
 
-`shadcnToggleGroup` gives single-select with a pressed state for free, which is exactly the
-semantics the icon rail hand-rolled and then never used.
+Transform tools deliberately do NOT go here -- see the viewport section. The top bar is
+document-level: which scene, play state, render toggles.
 
 ### Left dock -- new `HierarchyPanel`
 
@@ -70,9 +69,24 @@ Unchanged in structure. Two additions once selection works:
 - click-to-select, hit-testing against entity bounds
 - a transform gizmo reflecting the active tool
 
-The floating icon rail is **removed** -- its function moves to the top bar's toggle group. Its
-placement was never the problem (Blender and Unity float tools at the viewport edge too); having
-five controls that only look pressed was.
+The floating vertical pill **stays**, with its contents replaced by real transform tools --
+Select / Move / Rotate / Scale, backed by `shadcnToggleGroup` for single-select and a pressed
+state, which is the semantics the current rail hand-rolls and never uses.
+
+An earlier draft of this document moved them to the top bar. That was wrong, and contradicted
+this design's own audit, which had already found the placement conventional and only the wiring
+broken. Reasons the pill is the right home:
+
+- It is the convention. Blender's toolbar is a vertical strip at viewport left; Unity puts
+  transform tools at the viewport's top-left.
+- Scope. Transform mode governs how you interact with A VIEWPORT, not the document. A top-bar
+  control implies global state.
+- It survives a second viewport. A split view or a second camera pane makes a global tool
+  selector immediately wrong; a per-viewport pill stays correct.
+- Proximity. You are already looking at the viewport when you switch tools.
+
+The pill's problem was never where it sits -- it was five buttons wired to nothing. Deleting the
+container would have been fixing the wrong thing.
 
 ### Right dock -- `InspectorPanel`
 
@@ -130,8 +144,8 @@ dock as a flat list, wire click -> `SelectEntity`.
 **Phase 3 -- selection.** Inspector reads `selectedEntityId`, shows one entity, `shadcnEmpty`
 otherwise. Phases 2 and 3 together are what make the existing inert plumbing mean something.
 
-**Phase 4 -- tools.** Replace the icon rail with a top-bar `shadcnToggleGroup`. Until a gizmo
-exists the tools only set state -- so either land a gizmo in the same phase, or ship Select alone
+**Phase 4 -- tools.** Replace the icon rail's CONTENTS with a `shadcnToggleGroup` of real
+transform tools, keeping it where it is. Until a gizmo exists the tools only set state -- so either land a gizmo in the same phase, or ship Select alone
 and add the rest with the gizmo. Do not ship four more buttons that look pressed.
 
 **Phase 5 -- editable inspector.** `Field*` controls writing back to components.
