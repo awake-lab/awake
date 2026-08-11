@@ -3,8 +3,10 @@ package io.github.ronjunevaldoz.awake.ui.headless
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.unstyled.overlayScrim
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -41,5 +43,25 @@ class UiScopeFacadeTest {
         assertEquals(320f, overlay.w)
         assertEquals(240f, overlay.h)
         assertTrue(overlay.color == Color.Black)
+    }
+
+    @Test
+    fun popupUsesHeadlessContractsAndColumnScope() {
+        val context = UiContext()
+        context.beginFrame(200f, 120f, UiInputState())
+        val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
+
+        var receivedColumnScope = false
+        val result = scope.popup(
+            anchorSlot = UiBounds(20f, 20f, 40f, 20f),
+            expanded = true,
+            width = Dimension.Fixed(80f.px),
+            height = Dimension.Fixed(40f.px),
+        ) { _ ->
+            receivedColumnScope = true
+        }
+
+        assertEquals(UiBounds(20f, 40f, 80f, 40f), result.slot)
+        assertTrue(receivedColumnScope)
     }
 }
