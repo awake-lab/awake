@@ -14,24 +14,32 @@ uiScope.shadcnButton(...)
 
 ```text
 ui-api
-  Stable value contracts only: UiModifier, Style, UiTheme, UiBounds, Dimension,
-  Dp, Sp, semantic values, and other immutable API types.
+  Stable, runtime-free value contracts only: UiBounds, Dimension, Dp, Sp, and
+  color/shape/typography value contracts. Move structural contracts here only
+  when they have no UiContext, renderer, or runtime dependency.
   May depend only on genuine lower-level contracts such as awake-core Color.
 
 ui-core
   UiContext, UiPrimitiveScope, frame lifecycle, layout, draw collection,
-  hit testing, input/focus/state, and renderer-facing mechanics.
+  hit testing, input/focus/state, renderer-facing mechanics, and a neutral
+  fallback resolver. No public UiComponentStyles-style component recipe registry.
   Depends on ui-api.
 
 ui-headless
   Public UiScope, ColumnScope, RowScope, BoxScope, and AbsoluteScope facades;
-  generic widgets, compositions, and interaction behavior. These scopes hold
-  internal raw primitive-scope references.
+  generic leaf widgets, interaction behavior, and neutral visual-state
+  contracts such as SurfaceVisuals(rest, hovered, pressed, disabled). These
+  scopes hold internal raw primitive-scope references. No named variants.
   Depends on ui-api and implementation(ui-core).
 
 ui-designsystem
-  UiScope.shadcn* recipes, named themes, tokens, variants, icons, and branded
-  composition. Depends on ui-api and ui-headless. Never depends on ui-core.
+  UiScope.shadcn* recipes, named themes, token instances, branded variants,
+  icons, and branded composition. It maps branded variants to Headless neutral
+  visual states. Depends on ui-api and ui-headless. Never depends on ui-core.
+
+ui-dsl (when production composition warrants the module)
+  Neutral multi-widget/tooling composition such as property rows, inspector
+  scaffolds, and tooling shells. Depends on Headless; it is not a Headless export.
 
 apps/samples
   May assemble ui-core, ui-headless, and designsystem. Root integration creates
@@ -53,6 +61,8 @@ apps/samples
   dependency/API for consumers that genuinely need `UiPrimitiveScope`; do not expose it through
   designsystem or ordinary headless APIs.
 - `awake.ui-ownership-convention` remains defense in depth, not the primary boundary.
+- Named variants (`Primary`, `Ghost`, `Outline`, and brand vocabulary) are forbidden in
+  `ui-headless`; a public Core component-style registry is forbidden in `ui-core`.
 
 ## Implementation Sequence
 
@@ -66,12 +76,16 @@ apps/samples
 
 Gate: the inventory has a target module and test owner for every item.
 
-### Phase 1 — Introduce `ui-api`
+### Phase 1 — Classify contracts and introduce `ui-api`
 
 1. Create `:awake:engine:ui:ui-api`.
-2. Move pure value/contracts first: units, bounds/dimensions, modifiers, styles, themes, and
-   semantic values. Do not move behavioral scope receivers to `ui-api`.
-3. Make `ui-core` depend on `ui-api`; update imports with no behavior changes.
+2. Move pure values first: units, bounds/dimensions, and color/shape/typography contracts. Keep
+   `UiContext`, drawing/layout machinery, and any type with runtime behavior in Core. Do not
+   move behavioral scope receivers to `ui-api` merely to make a dependency graph compile.
+3. Replace Core's `UiComponentStyles`/`CoreUiComponentStyles` direction with a Headless generic
+   visual-state model. Do not move the registry wholesale: its component-specific fields are the
+   visual-policy leak this migration is eliminating.
+4. Make `ui-core` depend on `ui-api`; update imports with no behavior changes.
 
 Gate: all moved types compile on every existing KMP target and `ui-api` has no dependency on
 `ui-core`.
@@ -97,19 +111,20 @@ Gate: app roots can create the new `UiScope`; existing headless desktop tests re
 Gate: designsystem's `commonMain` compile classpath has no ui-core and the consumer fixture
 compiles.
 
-### Phase 4 — Vertical behavior migration
+### Phase 4 — Vertical behavior and visual-policy migration
 
 Migrate one behavior at a time, always retaining `UiScope.shadcn*` syntax:
 
-1. Dialog plus `overlayScrim` (proof slice).
-2. Sheet and drawer mechanics.
-3. Popup/dropdown/menu position, selection, and scrolling.
-4. Tabs and collapsible state/measurement.
-5. OTP focus traversal and resize drag handling.
-6. Remaining reusable drawing/layout helpers.
+1. Button plus its generic visual states and `shadcnButton` variant mapping (proof slice).
+2. Dialog plus `overlayScrim`.
+3. Sheet and drawer mechanics.
+4. Popup/dropdown/menu position, selection, and scrolling.
+5. Tabs and collapsible state/measurement.
+6. OTP focus traversal, resize drag handling, and remaining reusable drawing/layout helpers.
 
-For each slice: move generic behavior to headless, leave Shadcn tokens/variants/composition in
-designsystem, and add a headless behavior test plus designsystem desktop regression coverage.
+For each slice: move generic behavior and neutral state contracts to Headless; leave Shadcn
+tokens, named variants, and composition in Design System; and add a Headless behavior test plus
+Design System desktop regression coverage.
 
 ### Phase 5 — Defense-in-depth enforcement
 

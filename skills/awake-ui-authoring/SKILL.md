@@ -11,8 +11,8 @@ else's design language.
 
 | Layer | Owns | Never contains |
 |---|---|---|
-| `ui-core` | Geometry, layout, slots, drawing, anchoring, clipping, modifiers, the theme *contract* | Any widget; any brand name |
-| `ui-headless` | Widget **behaviour** and structure -- what a checkbox *is* and does | Any size or colour it cannot derive; any design language's vocabulary |
+| `ui-core` | Geometry, layout, slots, drawing, anchoring, clipping, input/state mechanics, neutral fallback resolution | Any widget recipe, variant, or brand name |
+| `ui-headless` | Widget **behaviour**, structure, and neutral interaction visual states | Any named design-language vocabulary or branded visual policy |
 | `ui-designsystem` | The shadcn **look** -- sizes, colours, radii, variants | Behaviour that another skin would also need |
 
 Decide with one question: **"would a differently-skinned product still need this code?"** Yes ->
@@ -22,7 +22,7 @@ Decide with one question: **"would a differently-skinned product still need this
 
 > A `ui-headless` widget may only fall back to a size it can derive from **its own content**,
 > **its own font/vector metrics**, or a **physical constraint** (1 device pixel). Any size it
-> cannot derive must come from `UiTheme`.
+> cannot derive must be supplied as neutral widget visual/layout data by the caller above it.
 
 Not "no defaults". Defaults are mandatory here -- this is an immediate-mode UI with a single
 measure pass, so a widget with no intrinsic size measures to **zero** and silently draws
@@ -42,10 +42,11 @@ module's pre-existing 40dp default", not to match shadcn (`size-8` = 32px).
 
 An headless default is not a neutral placeholder. It becomes the spec.
 
-Sizes belong in `UiComponentStyles` (`ui-core`), which already carries a per-component slot for
-button, toggle, checkbox, slider, dropdown, surface, textField and avatar. `CoreUiComponentStyles`
-supplies neutral values; `ShadcnTheme` overrides with the real shadcn figures. Add a field there
-rather than a constant in a widget.
+Do not add a `UiComponentStyles` registry to `ui-core`. A per-component size/recipe registry is
+visual policy and inevitably turns Core into a hidden design system. Headless may accept a
+generic visual-state contract; `ui-designsystem` supplies the actual branded sizes, colours, and
+radii by mapping its named variant to that neutral contract. A Headless fallback must remain
+content-derived, metric-derived, or a physical constraint.
 
 ## Units: authored values are `Dp`, never raw pixels
 
@@ -97,22 +98,26 @@ in. That is a debt, not a pattern to copy.
 The exception is genuine *composition*: a branded arrangement of existing primitives with no new
 behaviour is correctly design-system-only.
 
-## Theme access from `ui-headless` is correct, and not a layering violation
+## Headless consumes neutral visuals, not a theme recipe
 
-`UiTheme` lives in `ui-core`, one layer *below* headless -- reading it is depending downward on
-an injected abstraction. `?: theme.colors.foreground` fallbacks are sanctioned and there are
-~45 of them; leave them alone.
+Runtime-free theme value contracts live in `ui-api`; the Core runtime resolves them. Headless
+may consume injected **neutral** values or generic visual states, but it must not choose a
+semantic role for itself (for example, deciding `secondary` means "checked"), select a border
+width, or name a visual variant. Existing direct `UiTheme`/Core-style reads are migration bridges
+to remove from new APIs, not a model for new widget code.
 
-The violation is different: headless deciding *which* semantic token carries meaning (choosing
-`secondary` to mean "checked"), or baking in decoration such as a border width. That is a design
-decision wearing a theme lookup's clothing.
+The target is a generic state model such as
+`SurfaceVisuals(rest, hovered, pressed, disabled)`. `ui-designsystem` maps `Primary`, `Ghost`,
+or a shadcn preset to that model; Headless only applies the state it receives.
 
 ## Checklist
 
 - [ ] Would another skin need this code? If yes it is not design-system code.
-- [ ] Every size in an headless widget is content-derived, metric-derived, a physical minimum,
-      or read from `UiTheme`.
+- [ ] Every size in a Headless widget is content-derived, metric-derived, a physical minimum,
+      or provided through a generic Headless visual/layout contract -- never Core's component
+      style registry.
 - [ ] No raw-pixel `Float` constants; authored values are `Dp`, converted at use.
-- [ ] No decoration (border width, chosen semantic colour) in `ui-headless`.
+- [ ] No decoration choice (border width, chosen semantic colour) or named variant in
+      `ui-headless`.
 - [ ] Name matches the Radix concept; file name matches what the file exports.
 - [ ] New behaviour landed in `ui-headless`, not in the `shadcn*` wrapper.
