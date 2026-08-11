@@ -47,7 +47,7 @@ private val InspectorFieldLabelWidth = 72f.dp
  * add one once that state is actually queryable, rather than fabricate a section with nothing
  * real to show.
  */
-internal fun UiScope.drawInspectorPanel(world: World) {
+internal fun UiScope.drawInspectorPanel(world: World, selectedEntityId: Int?) {
     val expanded = rememberBooleanState(id = "studio-inspector-expanded", initial = true)
     shadcnSidebar(
         id = "studio-inspector",
@@ -77,6 +77,7 @@ internal fun UiScope.drawInspectorPanel(world: World) {
     ) {
         if (expanded.value) {
             world.queryEach<Name> { entity, name ->
+                if (entity.id != selectedEntityId) return@queryEach
                 val rowExpanded =
                     rememberBooleanState(id = "studio-inspector-row-${entity.id}", initial = false)
                 shadcnCollapsible(

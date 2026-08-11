@@ -101,9 +101,10 @@ internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, rende
             modifier = Modifier.width(Dimension.FillMax).height(panelsHeightPx.px),
         ) {
             shadcnResizablePanel(id = "studio-panel-sidebar", defaultSize = SIDEBAR_FRACTION, minSize = 0.12f, maxSize = 0.32f) {
-                drawExampleRail(
-                    activeExampleId = store.state.value.examples.activeExampleId,
-                    onSelectExample = { store.dispatch(StudioContract.Intent.SelectExample(it)) },
+                drawHierarchyPanel(
+                    world = world,
+                    selectedEntityId = store.state.value.inspector.selectedEntityId,
+                    onSelectEntity = { store.dispatch(StudioContract.Intent.SelectEntity(it)) },
                 )
             }
             shadcnResizableHandle(id = "studio-panel-handle-left", withHandle = true)
@@ -112,7 +113,7 @@ internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, rende
             }
             shadcnResizableHandle(id = "studio-panel-handle-right", withHandle = true)
             shadcnResizablePanel(id = "studio-panel-inspector", defaultSize = INSPECTOR_FRACTION, minSize = 0.14f, maxSize = 0.32f) {
-                drawInspectorPanel(world)
+                drawInspectorPanel(world, selectedEntityId = store.state.value.inspector.selectedEntityId)
             }
         }
         shadcnSeparator(thickness = SEPARATOR_THICKNESS)
