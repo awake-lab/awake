@@ -1,32 +1,38 @@
-# Glyphs render ~0.6x their own metrics
+# Glyphs render ~0.6x their own metrics -- RETRACTED
 
-Status: **measured and localized, not fixed**. This is the cause of the long-running "text is
-thin" report, and it is not a font-weight problem.
+Status: **NOT A BUG. The measurement was wrong.**
 
-## Evidence
+Every number in the original investigation came from probes that called
+`rasterize(width, height, background = ...)` WITHOUT passing `font =`. With no font the
+rasterizer draws a null-font placeholder rect per glyph, so the probes measured placeholder
+geometry, not glyph sampling. The Chromium comparison ("our stems 1px vs their 2px") has the
+same defect and is equally invalid.
 
-Rendered `H` through `UiRasterizer` (which now matches the real shaders, `5e7c063c`) and compared
-its ink against what the font's own metrics predict:
+Re-measured with the font passed:
 
 | size | rendered ink height | expected (`capHeightEm x size`) | ratio |
 |---|---|---|---|
-| 12px | 5px | 8.53px | 0.59 |
-| 14px | 7px | 9.95px | 0.70 |
-| 16px | 7px | 11.38px | 0.62 |
+| 12px | 9px | 8.53px | 1.05 |
+| 14px | 9px | 9.95px | 0.90 |
+| 16px | 11px | 11.38px | 0.97 |
 
-An `H` at 14px also measures only 3px wide; it should be ~9px.
+Glyphs render at the size their metrics predict, within antialiasing threshold effects. There is
+no scale regression.
 
-Against the Chromium ground truth in `docs/reference/font-previews/` (`iliaeco`, same TTF, same
-canvas, `device_scale_factor=1` -- confirmed in `tools/capture_font_reference.py`, so there is NO
-DPR difference):
+## What is worth keeping from this
 
-| size | ours | Chromium |
-|---|---|---|
-| 14px | stems 1px, bowls 3px | stems 2px, bowls 6px |
-| 16px | stems 1px, bowls 3-4px | stems 2px, bowls 6-7px |
+- `rasterize()` silently substitutes a placeholder when `font` is null. It should either require
+  the font for frames containing glyphs, or make the placeholder obviously not a glyph, because
+  it cost a full investigation and produced a confident, wrong "top open issue".
+- `GlyphStemWeightTest` had the same omission and was therefore asserting uniform placeholder
+  widths. It now passes the font.
+- The absolute-size check proposed here is still worth adding, precisely because it would have
+  caught the bad probe: `H` at 14px must render `capHeightEm * 14 = 9.95px` of ink.
 
-Same ~0.6 factor. Half-size text reads as thin, spindly and washed out, which is exactly the
-reported symptom.
+## Original investigation
+
+Retained below only as a record of what was eliminated while chasing a measurement artifact.
+None of it should be treated as an open lead.
 
 ## Why no gate caught it
 

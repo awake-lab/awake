@@ -9,12 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known issues
 
-- **Glyphs render at roughly 0.6x their own metrics.** An `H` at 14px emits a correct
-  7.53 x 9.95 quad but renders 3 x 7 of ink, so text reads as thin and spindly. Packed
-  metrics, quad emission, atlas glyph placement, the UV rect and the rasterizer's UV mapping
-  are each verified correct by measurement; the defect is in coverage resolution. Full
-  investigation, including four hypotheses disproved by measurement, in
-  `docs/tasks/2026-08-10-glyph-scale-regression.md`. **Top open issue.**
+- **Glyph stem weight varies with sub-pixel phase.** The same character repeated on one line
+  renders 1px and 2px stems in alternation (`'i' @14px: [1,1,1,2,1,2,1,2,...]`), which reads as
+  "some characters thin, some not". MTSDF was expected to close this and did not: the field
+  resolves an edge analytically, but each quad still lands at a different sub-pixel phase as
+  fractional advances accumulate. Recorded as `knownStemWidthSpread = 1` in
+  `GlyphStemWeightTest`, which can only shrink. **Top open issue.**
+- **`rasterize()` silently draws a placeholder when `font` is null.** A frame full of glyphs
+  rendered without a font produces placeholder rects rather than failing, which cost a full
+  investigation and produced a confident but wrong "glyphs render at 0.6x" report (now retracted
+  in `docs/tasks/2026-08-10-glyph-scale-regression.md`). It should require the font, or make the
+  placeholder obviously not a glyph.
 - **Studio shows no custom cursor.** `SceneGameRuntime` has the cursor in its frame effects
   and discards it, unlike `GameUiRuntime`, and no service registration exposes the runtime to
   an entry point. `runVulkanDesktopGame`'s `cursor` defaults to null, so every request is
@@ -37,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`popup()` cannot take min/max bounds**, so `max-w-*` is unportable for every popup-based
   component; `shadcnAlertDialog` is parked at 320dp because of it.
 - **`docs/reference/ui-status.md` is stale** — it predates the MTSDF work, the resizable fix
-  and the scale regression.
+  and the MTSDF/resizable work.
 - **Studio viewport canvas padding is wrong.** Reported, not yet diagnosed.
 - **Studio's vertical pill toolbar may not be the right pattern.** Its use case has not been
   validated against how established editors (Unity, Godot, Unreal, Blender) place tool rails, and
