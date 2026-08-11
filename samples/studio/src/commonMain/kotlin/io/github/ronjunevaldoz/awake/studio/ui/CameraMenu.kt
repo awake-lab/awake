@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.ui
 
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.ui.UiScope
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.UiDropdownMenuEntry
@@ -15,24 +16,26 @@ import io.github.ronjunevaldoz.awake.ui.rememberPopupState
 /** Camera mode + projection picker shared by the viewport's right-click menu and the icon
  * rail's camera dropdown, so both list and dispatch identically. */
 private sealed interface CameraMenuAction {
-    data class Mode(val mode: StudioContract.CameraPresetMode) : CameraMenuAction
+    data class Mode(val mode: CameraMode) : CameraMenuAction
     data class Projection(val projection: StudioContract.Projection) : CameraMenuAction
 }
 
 // 1:1 with CameraMenuItems below, separator excluded -- shadcnDropdownMenu's own
 // selectedIndex/actionIndex numbering already skips separators the same way.
 private val CameraMenuActions: List<CameraMenuAction> = listOf(
-    CameraMenuAction.Mode(StudioContract.CameraPresetMode.Orbit),
-    CameraMenuAction.Mode(StudioContract.CameraPresetMode.Front),
-    CameraMenuAction.Mode(StudioContract.CameraPresetMode.Top),
+    CameraMenuAction.Mode(CameraMode.ThirdPerson),
+    CameraMenuAction.Mode(CameraMode.FirstPerson),
+    CameraMenuAction.Mode(CameraMode.Cinematic),
+    CameraMenuAction.Mode(CameraMode.TopDown),
     CameraMenuAction.Projection(StudioContract.Projection.Perspective),
     CameraMenuAction.Projection(StudioContract.Projection.Orthographic),
 )
 
 internal val CameraMenuItems: List<UiDropdownMenuEntry> = listOf(
-    UiDropdownMenuItem(label = "Orbit"),
-    UiDropdownMenuItem(label = "Front"),
-    UiDropdownMenuItem(label = "Top"),
+    UiDropdownMenuItem(label = "Third Person"),
+    UiDropdownMenuItem(label = "First Person"),
+    UiDropdownMenuItem(label = "Cinematic"),
+    UiDropdownMenuItem(label = "Top Down"),
     UiDropdownMenuSeparator,
     UiDropdownMenuItem(label = "Perspective"),
     UiDropdownMenuItem(label = "Orthographic"),
@@ -42,7 +45,7 @@ internal val CameraMenuItems: List<UiDropdownMenuEntry> = listOf(
  * (this module's panels take a value + a callback, never the whole store). */
 internal fun dispatchCameraMenuPick(
     index: Int,
-    onSelectMode: (StudioContract.CameraPresetMode) -> Unit,
+    onSelectMode: (CameraMode) -> Unit,
     onSelectProjection: (StudioContract.Projection) -> Unit,
 ) {
     when (val action = CameraMenuActions.getOrNull(index) ?: return) {

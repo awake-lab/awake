@@ -33,15 +33,6 @@ internal class StudioStore {
                 _state.update { it.copy(camera = it.camera.copy(mode = intent.mode)) }
             }
 
-            is StudioContract.Intent.OrbitBy -> {
-                _state.update {
-                    val camera = it.camera
-                    val pitch = (camera.pitch + intent.deltaPitch)
-                        .coerceIn(-StudioContract.PITCH_LIMIT_RADIANS, StudioContract.PITCH_LIMIT_RADIANS)
-                    it.copy(camera = camera.copy(yaw = camera.yaw + intent.deltaYaw, pitch = pitch))
-                }
-            }
-
             is StudioContract.Intent.SetProjection -> {
                 _state.update { it.copy(camera = it.camera.copy(projection = intent.projection)) }
             }

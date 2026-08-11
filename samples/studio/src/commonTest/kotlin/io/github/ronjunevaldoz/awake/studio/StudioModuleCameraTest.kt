@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio
 
+import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Vec3
@@ -18,6 +20,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
@@ -27,6 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlinx.coroutines.test.runTest
+import kotlin.math.sin
 import kotlin.math.tan
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -44,6 +48,25 @@ import kotlin.test.assertNotNull
 class StudioModuleCameraTest {
 
     @Test
+    fun cameraModeHotkeyUpdatesTheStudioHeaderState() = runTest {
+        val renderer = RecordingCameraRenderer()
+        val store = StudioStore()
+        val game = game { module(studioModule(store)) }
+
+        game.ready(renderer)
+        game.render(1f / 60f, 800f, 600f)
+
+        val input = game.requireService<Input>()
+        input.setKeyDown(Key.F5, true)
+        input.updateSnapshot()
+        game.render(1f / 60f, 800f, 600f)
+
+        // CameraInputSystem changes the component; Studio's bridge must reflect it back to the
+        // store so the visible header does not claim the old mode.
+        assertEquals(CameraMode.TopDown, store.state.value.camera.mode)
+    }
+
+    @Test
     fun setCameraModeMovesTheCameraTheRendererActuallyDraws() = runTest {
         val renderer = RecordingCameraRenderer()
         val store = StudioStore()
@@ -56,7 +79,7 @@ class StudioModuleCameraTest {
         val orbitEye =
             assertNotNull(renderer.lastEye, "No draw() call captured for the Orbit default.")
 
-        store.dispatch(StudioContract.Intent.SetCameraMode(StudioContract.CameraPresetMode.Top))
+        store.dispatch(StudioContract.Intent.SetCameraMode(CameraMode.TopDown))
         game.render(1f / 60f, 800f, 600f)
         val topEye =
             assertNotNull(renderer.lastEye, "No draw() call captured after SetCameraMode(Top).")
@@ -65,13 +88,13 @@ class StudioModuleCameraTest {
         // object the renderer never reads, so this eye position never moved.
         assertNotEquals(orbitEye, topEye)
 
-        // And it moved to exactly where CameraPresetMath.Top says it should -- not just
-        // "somewhere else". rotating-cube.scene.json authors the camera's center at
-        // (0, 0.5, 0); no preset ever touches center, so it stays put across mode switches.
+        // And it moved to CameraSystem's engine-owned TopDown pose -- not just "somewhere
+        // else". rotating-cube.scene.json authors the camera's center at (0, 0.5, 0), which
+        // Studio supplies as CameraComponent's target transform.
         val cubeCameraCenterY = 0.5f
         assertEquals(0f, topEye.x, TOLERANCE)
-        assertEquals(cubeCameraCenterY + StudioContract.DEFAULT_ORBIT_DISTANCE, topEye.y, TOLERANCE)
-        assertEquals(0f, topEye.z, TOLERANCE)
+        assertEquals(cubeCameraCenterY + TOP_DOWN_DISTANCE * sin(TOP_DOWN_ANGLE), topEye.y, TOLERANCE)
+        assertEquals(TOP_DOWN_DISTANCE * 0.5f, topEye.z, TOLERANCE)
 
         // Same object the driver system mutated -- confirms the renderer and the camera
         // entity the ECS world holds are one and the same, not two independent cameras.
@@ -117,11 +140,11 @@ class StudioModuleCameraTest {
         drive(UiInputState(pointerX = buttonX, pointerY = buttonY, pointerDown = true))
         drive(UiInputState(pointerX = buttonX, pointerY = buttonY, pointerDown = false))
 
-        // Frame 4: menu now open -- find "Top" (action index 2: Orbit, Front, Top).
+        // Frame 4: menu now open -- find Top Down (action index 3).
         val opened = drive(UiInputState(pointerX = -1f, pointerY = -1f)).semantics
         val itemBounds = assertNotNull(
-            opened.firstOrNull { it.id == "studio-tool-camera-menu.dropdown.item.2" },
-            "Top menu item not found -- menu never opened.",
+            opened.firstOrNull { it.id == "studio-tool-camera-menu.dropdown.item.3" },
+            "Top Down menu item not found -- menu never opened.",
         ).bounds
         val itemX = itemBounds.x + itemBounds.width / 2f
         val itemY = itemBounds.y + itemBounds.height / 2f
@@ -130,15 +153,15 @@ class StudioModuleCameraTest {
         drive(UiInputState(pointerX = itemX, pointerY = itemY, pointerDown = true))
         drive(UiInputState(pointerX = itemX, pointerY = itemY, pointerDown = false))
 
-        assertEquals(StudioContract.CameraPresetMode.Top, store.state.value.camera.mode)
+        assertEquals(CameraMode.TopDown, store.state.value.camera.mode)
 
         // And the next real frame moves the camera the renderer actually consumes.
         game.render(1f / 60f, 800f, 600f)
         val topEye = assertNotNull(renderer.lastEye)
         val cubeCameraCenterY = 0.5f
         assertEquals(0f, topEye.x, TOLERANCE)
-        assertEquals(cubeCameraCenterY + StudioContract.DEFAULT_ORBIT_DISTANCE, topEye.y, TOLERANCE)
-        assertEquals(0f, topEye.z, TOLERANCE)
+        assertEquals(cubeCameraCenterY + TOP_DOWN_DISTANCE * sin(TOP_DOWN_ANGLE), topEye.y, TOLERANCE)
+        assertEquals(TOP_DOWN_DISTANCE * 0.5f, topEye.z, TOLERANCE)
     }
 
     /**
@@ -164,15 +187,19 @@ class StudioModuleCameraTest {
 
         assertEquals(Camera.Projection.Orthographic, renderer.lastProjection)
 
-        // And it is framed to match what the perspective lens showed at the orbit distance,
+        // And it is framed to match what the perspective lens showed at CameraSystem's
+        // third-person distance,
         // so the toggle changes the projection without resizing the subject.
         val fovYRadians = assertNotNull(runtime.findCamera("camera")).camera.fovYRadians
-        val expectedHalfHeight = StudioContract.DEFAULT_ORBIT_DISTANCE * tan(fovYRadians / 2f)
+        val expectedHalfHeight = THIRD_PERSON_DISTANCE * tan(fovYRadians / 2f)
         assertEquals(expectedHalfHeight, renderer.lastOrthoHalfHeight, TOLERANCE)
     }
 
     private companion object {
         const val TOLERANCE = 1e-4f
+        const val THIRD_PERSON_DISTANCE = 5f
+        const val TOP_DOWN_DISTANCE = 15f
+        const val TOP_DOWN_ANGLE = (60.0 * Math.PI / 180.0).toFloat()
     }
 }
 

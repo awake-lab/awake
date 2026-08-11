@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.ui
 
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.UiScope
@@ -55,7 +56,7 @@ internal fun RowScope.drawIconRail(
     activeTool: StudioContract.Tool,
     onSelectTool: (StudioContract.Tool) -> Unit,
     onResetExample: () -> Unit,
-    onSelectCameraMode: (StudioContract.CameraPresetMode) -> Unit,
+    onSelectCameraMode: (CameraMode) -> Unit,
     onSelectCameraProjection: (StudioContract.Projection) -> Unit,
 ) {
     column(
@@ -94,7 +95,7 @@ internal fun RowScope.drawIconRail(
 /** Opens the camera-mode/projection menu anchored to this button -- the same list the
  * viewport's right-click menu shows (see CameraMenu.kt). */
 private fun UiScope.cameraRailButton(
-    onSelectMode: (StudioContract.CameraPresetMode) -> Unit,
+    onSelectMode: (CameraMode) -> Unit,
     onSelectProjection: (StudioContract.Projection) -> Unit,
 ) {
     val popup = rememberPopupState("studio-tool-camera-menu")
