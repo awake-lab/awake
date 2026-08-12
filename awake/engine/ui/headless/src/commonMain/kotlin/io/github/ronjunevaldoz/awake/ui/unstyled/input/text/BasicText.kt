@@ -48,6 +48,7 @@ internal fun UiPrimitiveScope.renderTextBlock(
     backgroundToken: String? = null,
     foregroundToken: String? = null,
     borderToken: String? = null,
+    semanticBounds: UiBounds? = null,
 ): UiBounds {
     val glyphPx = resolveGlyphPx(font, textStyle)
     val layout = cachedLayoutBitmapText(
@@ -58,12 +59,12 @@ internal fun UiPrimitiveScope.renderTextBlock(
         overflow = overflow,
         maxLines = maxLines,
         font = font,
+        weight = textStyle.weight,
     )
     // A line's ink band is glyphPx * lineHeightEm tall (Roboto ~1.19em), not glyphPx: a slot
     // sized at the font size alone cannot contain the text measured into it.
-    val lineHeightPx = glyphPx * font.lineHeightEm
-    val lineGap = glyphPx * 0.25f
-    val blockMetrics = measureTextBlock(layout, font, glyphPx, lineGap)
+    val lineMetrics = resolveTextLineMetrics(font, glyphPx, textStyle)
+    val blockMetrics = measureTextBlock(layout, font, glyphPx, lineMetrics)
     val shouldClip = wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || maxLines > 1
     val contentBounds = resolveTextContentBounds(
         slot = slot,
@@ -81,7 +82,11 @@ internal fun UiPrimitiveScope.renderTextBlock(
         role = semanticRole,
         id = semanticId,
         label = label,
-        bounds = slot,
+        // `slot` is the drawable/content rect after modifier insets. A semantic text node's
+        // bounds should describe the full claimed widget rect when a caller supplied padding;
+        // otherwise valid glyph ink can appear outside the node solely because the padding was
+        // removed before this function was called.
+        bounds = semanticBounds ?: slot,
         contentBounds = contentBounds,
         clippedBounds = clippedBounds,
         truncated = layout.truncated,
@@ -113,8 +118,8 @@ internal fun UiPrimitiveScope.renderTextBlock(
             var penX = pixelPerfectPixel(if (centered) slot.x + (slot.width - textWidth) / 2f else slot.x)
             val linePenY = pixelPerfectPixel(penY)
             for (char in line) {
-                val glyph = font.uvFor(char)
-                val advance = font.advanceFor(char, glyphPx)
+                val glyph = font.glyphFor(char, textStyle.weight)
+                val advance = font.advanceFor(char, glyphPx, textStyle.weight)
                 if (glyph != null) {
                     val glyphX = penX + glyph.offsetXEm * glyphPx
                     val glyphY = linePenY + glyph.offsetYEm * glyphPx
@@ -174,7 +179,7 @@ internal fun UiPrimitiveScope.renderTextBlock(
                 }
                 penX += advance
             }
-            penY += lineHeightPx + lineGap
+            penY += lineMetrics.lineHeightPx + lineMetrics.lineGapPx
         }
     }
 
@@ -274,6 +279,7 @@ private data class TextLayoutCacheKey(
     val overflow: UiTextOverflow,
     val maxLines: Int,
     val font: UiFont,
+    val weight: io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight,
 )
 
 private val textLayoutCache = LruCache<TextLayoutCacheKey, UiBitmapTextLayout>(maxSize = 256)
@@ -297,8 +303,9 @@ private fun cachedLayoutBitmapText(
     overflow: UiTextOverflow,
     maxLines: Int,
     font: UiFont,
+    weight: io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight,
 ): UiBitmapTextLayout {
-    val key = TextLayoutCacheKey(label, glyphPx, maxWidthPx, wrap, overflow, maxLines, font)
+    val key = TextLayoutCacheKey(label, glyphPx, maxWidthPx, wrap, overflow, maxLines, font, weight)
     if (textLayoutCache.containsKey(key)) textLayoutCacheHits++ else textLayoutCacheMisses++
     return textLayoutCache.getOrPut(key) {
         layoutBitmapText(
@@ -308,7 +315,7 @@ private fun cachedLayoutBitmapText(
             wrap = wrap,
             overflow = overflow,
             maxLines = maxLines,
-            advanceOf = { char -> font.advanceFor(char, glyphPx) },
+            advanceOf = { char -> font.advanceFor(char, glyphPx, weight) },
         )
     }
 }
@@ -338,9 +345,8 @@ private fun measureTextBlock(
     layout: UiBitmapTextLayout,
     font: UiFont,
     glyphPx: Float,
-    lineGap: Float,
+    lineMetrics: UiTextLineMetrics,
 ): UiMeasuredTextBlock {
-    val lineHeightPx = glyphPx * font.lineHeightEm
     if (layout.lines.isEmpty()) {
         return UiMeasuredTextBlock(topPx = 0f, heightPx = 0f)
     }
@@ -348,7 +354,7 @@ private fun measureTextBlock(
     var blockBottomPx = Float.NEGATIVE_INFINITY
     layout.lines.forEachIndexed { index, line ->
         val (lineTopEm, lineBottomEm) = measureVisibleLineBandEm(font)
-        val lineOriginY = index * (lineHeightPx + lineGap)
+        val lineOriginY = index * (lineMetrics.lineHeightPx + lineMetrics.lineGapPx)
         blockTopPx = minOf(blockTopPx, lineOriginY + lineTopEm * glyphPx)
         blockBottomPx = maxOf(blockBottomPx, lineOriginY + lineBottomEm * glyphPx)
     }

@@ -30,7 +30,9 @@ const float GLYPH_GAMMA = 1.45;
 float resolveGlyphAlpha() {
     vec4 atlas = texture(fontAtlas, fragUV);
     if (ubo.fontInfo.x < 0.5) {
-        return pow(atlas.a, 1.0 / GLYPH_GAMMA);
+        // Coverage atlases already contain the platform rasterizer's alpha. Applying the
+        // distance-field stem correction here makes system-ui text heavier than the reference.
+        return atlas.a;
     }
     vec2 atlasSize = vec2(textureSize(fontAtlas, 0));
     vec2 unitRange = vec2(ubo.fontInfo.y) / atlasSize;

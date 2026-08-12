@@ -43,6 +43,7 @@ internal fun UiPrimitiveScope.drawResolvedText(
     semanticId: String? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Text,
     shimmer: Boolean = false,
+    semanticBounds: UiBounds? = null,
 ): UiBounds {
     val theme = context.currentTheme
     if (
@@ -77,6 +78,7 @@ internal fun UiPrimitiveScope.drawResolvedText(
         semanticId = semanticId,
         semanticRole = semanticRole,
         shimmer = shimmer,
+        semanticBounds = semanticBounds,
         textStyleToken = resolvedStyle.textStyleToken,
         backgroundToken = resolvedStyle.backgroundToken,
         foregroundToken = resolvedStyle.foregroundToken,
@@ -181,7 +183,10 @@ fun UiPrimitiveScope.text(
         )
         val textStyle = textStyle ?: resolved.textStyle
         val glyphPx = resolveGlyphPx(resolvedFont, textStyle)
-        val labelWidthPx = resolvedFont.measureTextWidth(label, glyphPx)
+        // Intrinsic width must use the same authored weight as the draw/layout pass. Using the
+        // normal-weight advance here under-measured medium/bold text, so the claim slot was
+        // narrower than its semantic content bounds (notably in collapsible rows).
+        val labelWidthPx = resolvedFont.measureTextWidth(label, glyphPx, resolved.textStyle.weight)
         return resolved to labelWidthPx
     }
 
@@ -190,20 +195,34 @@ fun UiPrimitiveScope.text(
     var labelWidthPx = initialLabelWidthPx
     var textStyle = textStyle ?: resolved.textStyle
     var glyphPx = resolveGlyphPx(resolvedFont, textStyle)
+    val modifierHorizontalPaddingPx = modifier.insets.horizontalPx()
+    val modifierVerticalPaddingPx = modifier.insets.verticalPx()
+    val totalHorizontalPaddingPx = resolved.contentPadding.horizontalPx() + modifierHorizontalPaddingPx
+    val totalVerticalPaddingPx = resolved.contentPadding.verticalPx() + modifierVerticalPaddingPx
     val defaultWidth: Dimension = when {
         modifier.widthDimension != null -> requireNotNull(modifier.widthDimension)
         wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || label.contains('\n') -> {
-            if (fillWidthOrNull() != null) Dimension.FillMax else Dimension.Fixed((labelWidthPx + resolved.contentPadding.horizontalPx()).px)
+            // A wrapped text widget is only a fill-width widget when the label actually needs
+            // wrapping. Short single-line content (tooltips are the important example) follows
+            // shadcn's `w-fit` behaviour and keeps its intrinsic width; otherwise the parent
+            // viewport leaks into the child and every WrapContent popup becomes full-width.
+            val intrinsicWidthPx = labelWidthPx + totalHorizontalPaddingPx
+            val availableWidthPx = fillWidthOrNull()
+            if (availableWidthPx != null && intrinsicWidthPx > availableWidthPx) {
+                Dimension.FillMax
+            } else {
+                Dimension.Fixed(intrinsicWidthPx.px)
+            }
         }
 
-        else -> Dimension.Fixed((labelWidthPx + resolved.contentPadding.horizontalPx()).px)
+        else -> Dimension.Fixed((labelWidthPx + totalHorizontalPaddingPx).px)
     }
     val availableTextWidth = when (defaultWidth) {
-        is Dimension.Fixed -> (defaultWidth.dp.toPx() - resolved.contentPadding.horizontalPx()).coerceAtLeast(
+            is Dimension.Fixed -> (defaultWidth.dp.toPx() - totalHorizontalPaddingPx).coerceAtLeast(
             glyphPx,
         )
 
-        Dimension.FillMax -> (fillWidthOrNull()?.minus(resolved.contentPadding.horizontalPx()))?.coerceAtLeast(
+        Dimension.FillMax -> (fillWidthOrNull()?.minus(totalHorizontalPaddingPx))?.coerceAtLeast(
             glyphPx,
         ) ?: 4096f
 
@@ -216,14 +235,14 @@ fun UiPrimitiveScope.text(
         wrap = wrap,
         overflow = overflow,
         maxLines = maxLines,
-        advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) },
+        advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx, textStyle.weight) },
     )
-    val lineGap = glyphPx * 0.25f
-    val blockHeight = layout.blockHeight(glyphPx * resolvedFont.lineHeightEm, lineGap)
+    val lineMetrics = resolveTextLineMetrics(resolvedFont, glyphPx, textStyle)
+    val blockHeight = layout.blockHeight(lineMetrics.lineHeightPx, lineMetrics.lineGapPx)
     var slot = claimModifiedSlot(
         modifier.withSizeFallback(
             defaultWidth,
-            Dimension.Fixed((blockHeight + resolved.contentPadding.verticalPx()).px),
+            Dimension.Fixed((blockHeight + totalVerticalPaddingPx).px),
         ),
     )
 
@@ -246,11 +265,11 @@ fun UiPrimitiveScope.text(
             glyphPx = resolveGlyphPx(resolvedFont, textStyle)
             // re-measure layout with updated text metrics
             val newAvailableTextWidth = when (defaultWidth) {
-                is Dimension.Fixed -> (defaultWidth.dp.toPx() - resolved.contentPadding.horizontalPx()).coerceAtLeast(
+                is Dimension.Fixed -> (defaultWidth.dp.toPx() - totalHorizontalPaddingPx).coerceAtLeast(
                     glyphPx,
                 )
 
-                Dimension.FillMax -> (fillWidthOrNull()?.minus(resolved.contentPadding.horizontalPx()))?.coerceAtLeast(
+                Dimension.FillMax -> (fillWidthOrNull()?.minus(totalHorizontalPaddingPx))?.coerceAtLeast(
                     glyphPx,
                 ) ?: 4096f
 
@@ -263,7 +282,7 @@ fun UiPrimitiveScope.text(
                 wrap = wrap,
                 overflow = overflow,
                 maxLines = maxLines,
-                advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx) },
+                advanceOf = { char -> resolvedFont.advanceFor(char, glyphPx, textStyle.weight) },
             )
         }
     }
@@ -282,5 +301,11 @@ fun UiPrimitiveScope.text(
         semanticId = resolvedSemanticId,
         semanticRole = semanticRole,
         shimmer = modifier.shimmer,
+        semanticBounds = slot.copy(
+            x = slot.x - modifier.insets.start.toPx(),
+            y = slot.y - modifier.insets.top.toPx(),
+            width = slot.width + modifier.insets.horizontalPx(),
+            height = slot.height + modifier.insets.verticalPx(),
+        ),
     )
 }

@@ -227,7 +227,7 @@ class CanvasScope internal constructor(
         val baselineY = bounds.y + y
         text.forEach { char ->
             if (char == '\n') return@forEach
-            val glyph = font.uvFor(char)
+            val glyph = font.glyphFor(char, textStyle.weight)
             if (glyph != null) {
                 val glyphWidth = glyph.widthEm * glyphPx
                 val glyphHeight = glyph.heightEm * glyphPx
@@ -246,7 +246,7 @@ class CanvasScope internal constructor(
                     overlay = overlay,
                 )
             }
-            cursorX += font.advanceFor(char, glyphPx)
+            cursorX += font.advanceFor(char, glyphPx, textStyle.weight)
         }
     }
 

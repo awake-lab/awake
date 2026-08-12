@@ -10,7 +10,10 @@ object UiFonts {
     // caller evicted and rebuilt the other's pipeline (a full font-atlas GPU upload), every
     // frame, forever. See awake-render-backend-engineer's UiGlyphRenderPipeline fix.
     private val defaultCache = mutableMapOf<Int, UiFont>()
-    fun default(cellSize: Int = 12): UiFont = defaultCache.getOrPut(cellSize) { trueSans(cellSize = cellSize) }
+    /** Stable bundled atlas used by all targets unless a caller explicitly supplies another font. */
+    fun default(cellSize: Int = 12): UiFont = defaultCache.getOrPut(cellSize) {
+        trueSans(cellSize = cellSize)
+    }
 
     fun bitmap(cellSize: Int = 12): UiFont = BitmapFont(cellSize = cellSize)
 

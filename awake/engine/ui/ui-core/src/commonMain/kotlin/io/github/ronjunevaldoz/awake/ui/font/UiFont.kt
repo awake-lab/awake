@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.font
 
+import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
+
 enum class UiFontSamplingMode {
     CoverageAlpha,
     DistanceField,
@@ -45,7 +47,18 @@ interface UiFont {
 
     fun uvFor(char: Char): GlyphRect?
 
+    /** Glyph atlas entry for a requested weight. Fonts with one packed face fall back to [uvFor]. */
+    fun glyphFor(char: Char, weight: FontWeight): GlyphRect? = uvFor(char)
+
     fun advanceFor(char: Char, glyphPx: Float): Float = glyphPx
+
+    /**
+     * Advance for a requested weight. A single-face atlas must keep its original metrics; it
+     * cannot synthesize a different weight by widening the pen, because that changes intrinsic
+     * layout and can push the trailing glyph outside its slot. Platform providers may override
+     * this with measurements from a real weighted face.
+     */
+    fun advanceFor(char: Char, glyphPx: Float, weight: FontWeight): Float = advanceFor(char, glyphPx)
 }
 
 /**
@@ -58,18 +71,18 @@ interface UiFont {
  * that boxes text exactly to this width (see `shadcnLabel`) would otherwise clip that last
  * glyph's overhanging pixels. Widen the result to also cover the last glyph's real right edge.
  */
-fun UiFont.measureTextWidth(label: String, glyphPx: Float): Float {
+fun UiFont.measureTextWidth(label: String, glyphPx: Float, weight: FontWeight = FontWeight.Normal): Float {
     var width = 0f
     var lastChar: Char? = null
     label.forEach { char ->
         if (char != '\n') {
-            width += advanceFor(char, glyphPx)
+            width += advanceFor(char, glyphPx, weight)
             lastChar = char
         }
     }
     val trailingChar = lastChar ?: return width
-    val glyph = uvFor(trailingChar) ?: return width
-    val lastAdvance = advanceFor(trailingChar, glyphPx)
+    val glyph = glyphFor(trailingChar, weight) ?: return width
+    val lastAdvance = advanceFor(trailingChar, glyphPx, weight)
     val lastGlyphRightEdge = (width - lastAdvance) + (glyph.offsetXEm + glyph.widthEm) * glyphPx
     return maxOf(width, lastGlyphRightEdge)
 }
