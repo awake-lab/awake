@@ -25,12 +25,13 @@ class ShadcnSelectGenericTest {
 
         fun frame(x: Float, y: Float, down: Boolean) {
             ui.beginFrame(300f, 200f, testSnapshot(x = x, y = y, down = down))
-            ui.headlessRoot().combobox(
+            val result = ui.headlessRoot().combobox(
                 id = "fruit",
                 options = listOf("Apple", "Banana", "Cherry"),
                 selectedIndex = picked,
                 modifier = Modifier.width(200f.dp),
             )
+            if (result != null) picked = result
         }
 
         // Closed trigger: find its bounds to click it open.
@@ -47,7 +48,7 @@ class ShadcnSelectGenericTest {
 
         // Popup open: locate the "Cherry" item (index 2) to prove a non-first, non-string-coerced
         // value round-trips correctly.
-        val itemBounds = assertNotNull(opened.firstOrNull { it.id == "fruit.option2" }).bounds
+        val itemBounds = assertNotNull(opened.firstOrNull { it.id == "fruit.option.2" }).bounds
         val itemX = itemBounds.x + itemBounds.width / 2f
         val itemY = itemBounds.y + itemBounds.height / 2f
 

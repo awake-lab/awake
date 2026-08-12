@@ -25,6 +25,7 @@ class ShadcnSheetTest {
     /** Drives enough frames past [shadcnSheet]'s own 250ms slide-in tween for it to settle at
      * rest, mirroring how a real render loop would actually reach the resting frame. */
     private fun buildSettledFrame(side: ShadcnSheetSide): UiFrameOutput {
+        ensureShadcnTestIconsInitialized()
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)

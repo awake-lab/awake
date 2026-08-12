@@ -29,7 +29,7 @@ class ShadcnButtonFidelityTest {
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
 
-        val btnWidth = 120f
+        val btnWidth = 160f
         val btnHeight = 40f
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
@@ -80,7 +80,7 @@ class ShadcnButtonFidelityTest {
         ui.pushFont(BitmapFont())
         ui.pushTheme(ShadcnTheme)
 
-        val btnWidth = 120f
+        val btnWidth = 160f
         val btnHeight = 40f
 
         ui.beginFrame(200f, 100f, testSnapshot(x = -100f, y = -100f, down = false))

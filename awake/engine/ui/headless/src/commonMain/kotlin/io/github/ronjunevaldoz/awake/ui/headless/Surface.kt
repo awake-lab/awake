@@ -22,6 +22,7 @@ data class SurfaceStyle(
     val lineHeight: Sp? = null,
     val fontWeight: FontWeight? = null,
     val shadow: SurfaceShadow? = null,
+    val scrollThumbColor: Color? = null,
 )
 
 /** Neutral elevation decoration exposed by Headless without leaking Core's [UiShadow]. */

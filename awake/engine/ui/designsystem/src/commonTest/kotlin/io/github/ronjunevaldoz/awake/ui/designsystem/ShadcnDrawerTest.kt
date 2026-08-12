@@ -18,8 +18,10 @@ class ShadcnDrawerTest {
 
     @Test
     fun shadcnDrawerRendersWhenExpanded() {
+        ensureShadcnTestIconsInitialized()
         val ui = UiContext()
         ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
         ui.beginFrame(400f, 600f, UiInputState())
 
         var dismissed = false
@@ -37,8 +39,10 @@ class ShadcnDrawerTest {
     // atlas) draws nothing; this catches that regression instead of just "something painted".
     @Test
     fun shadcnDrawerCloseButtonDrawsIconPathNotGlyph() {
+        ensureShadcnTestIconsInitialized()
         val ui = UiContext()
         ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
         ui.beginFrame(400f, 600f, UiInputState())
 
         ui.createUiScope(UiBounds(0f, 0f, 400f, 600f)).shadcnDrawer(

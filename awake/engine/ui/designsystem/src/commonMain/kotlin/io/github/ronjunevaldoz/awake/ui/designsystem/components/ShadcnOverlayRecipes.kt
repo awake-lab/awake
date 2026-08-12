@@ -23,9 +23,12 @@ import io.github.ronjunevaldoz.awake.ui.headless.SlidePanelProperties
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.contextMenuTrigger
 import io.github.ronjunevaldoz.awake.ui.headless.dialog
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.slidePanel
 
@@ -114,7 +117,14 @@ fun UiScope.shadcnDrawer(
                 contentPadding = UiInsets(16f.dp),
             ),
         ),
-        content = content,
+        content = { slot ->
+            column {
+                row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                    icon(ShadcnIcons.xMark)
+                }
+                content(slot)
+            }
+        },
     )
     if (result.dismissed) onDismissRequest()
     return result
