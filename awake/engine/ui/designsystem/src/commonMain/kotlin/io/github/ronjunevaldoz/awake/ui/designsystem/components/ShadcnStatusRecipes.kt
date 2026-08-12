@@ -84,10 +84,10 @@ private fun badgeStyle(
         )
     }.copy(
         cornerRadius = values.shapes.full,
-        contentPadding = UiInsets(10.5f.dp, 2f.dp),
+        contentPadding = UiInsets(start = 10f.dp, top = 2.5f.dp, end = 10f.dp, bottom = 1.5f.dp),
         textSize = 12f.sp,
         lineHeight = 16f.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
     )
 }
 
@@ -301,7 +301,10 @@ fun ColumnScope.shadcnEmpty(
         shadcnText(
             title,
             centered = true,
-            visuals = SurfaceStyle(fontWeight = FontWeight.Medium, textSize = themeValues.typography.body),
+            visuals = SurfaceStyle(
+                fontWeight = FontWeight.Medium,
+                textSize = themeValues.typography.body
+            ),
         )
         if (description != null) {
             shadcnText(
