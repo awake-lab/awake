@@ -24,6 +24,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.textField
 import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 
+import io.github.ronjunevaldoz.awake.ui.api.layout.tw
+
 fun UiScope.shadcnInputOTP(
     id: String,
     value: String,
@@ -36,13 +38,13 @@ fun UiScope.shadcnInputOTP(
 ): String {
     var resolved = value
     surface(id = "$id.slots", modifier = modifier) {
-        row(horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.height(36f.dp)) {
+        row(horizontalArrangement = Arrangement.spacedBy(1.5.tw), modifier = Modifier.height(9.tw)) {
             repeat(length) { index ->
                 if (groupSize > 0 && index > 0 && index % groupSize == 0) text("-")
                 val char = value.getOrNull(index)?.toString().orEmpty()
                 surface(
                     id = "$id.slot.$index",
-                    modifier = Modifier.height(36f.dp).width(36f.dp).clickable { requestFocus(id) },
+                    modifier = Modifier.height(9.tw).width(9.tw).clickable { requestFocus(id) },
                     style = SurfaceStyle(
                         background = themeValues.colors.card,
                         foreground = if (enabled) themeValues.colors.foreground else themeValues.colors.mutedForeground,
@@ -57,7 +59,7 @@ fun UiScope.shadcnInputOTP(
             }
         }
     }
-    val input = textField(id = id, value = value, modifier = Modifier.height(36f.dp), enabled = enabled)
+    val input = textField(id = id, value = value, modifier = Modifier.height(9.tw), enabled = enabled)
     val next = input.filter(Char::isDigit).take(length)
     if (next != value) {
         resolved = next
@@ -76,18 +78,15 @@ fun ColumnScope.shadcnInputOTP(
     groupSize: Int = 0,
     onValueChange: (String) -> Unit = {},
 ): String {
-    // Keep the same visible segmented surface as the UiScope overload. The old ColumnScope
-    // overload rendered only a 1dp hidden text field, which is why the showcase's OTP sample
-    // appeared cropped/empty even though input state still worked.
     val scope = uiScope()
     surface(id = "$id.slots", modifier = modifier) {
-        row(horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.height(36f.dp)) {
+        row(horizontalArrangement = Arrangement.spacedBy(1.5.tw), modifier = Modifier.height(9.tw)) {
             repeat(length) { index ->
                 if (groupSize > 0 && index > 0 && index % groupSize == 0) text("-")
                 val char = value.getOrNull(index)?.toString().orEmpty()
                 surface(
                     id = "$id.slot.$index",
-                    modifier = Modifier.height(36f.dp).width(36f.dp).clickable { scope.requestFocus(id) },
+                    modifier = Modifier.height(9.tw).width(9.tw).clickable { scope.requestFocus(id) },
                     style = SurfaceStyle(
                         background = themeValues.colors.card,
                         foreground = if (enabled) themeValues.colors.foreground else themeValues.colors.mutedForeground,
@@ -102,7 +101,7 @@ fun ColumnScope.shadcnInputOTP(
             }
         }
     }
-    val input = textField(id, value, modifier = Modifier.height(36f.dp), enabled = enabled)
+    val input = textField(id, value, modifier = Modifier.height(9.tw), enabled = enabled)
     val next = input.filter(Char::isDigit).take(length)
     if (next != value) onValueChange(next)
     return next
