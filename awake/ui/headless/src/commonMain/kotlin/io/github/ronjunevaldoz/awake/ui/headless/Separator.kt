@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.headless.internal.SeparatorOrientation as PrimitiveOrientation
-import io.github.ronjunevaldoz.awake.ui.headless.internal.separator as primitiveSeparator
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.SeparatorOrientation as PrimitiveOrientation
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.separator as primitiveSeparator
 
 enum class UiSeparatorOrientation { Horizontal, Vertical }
 

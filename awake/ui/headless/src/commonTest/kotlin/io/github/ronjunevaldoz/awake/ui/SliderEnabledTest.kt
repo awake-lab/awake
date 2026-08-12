@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.slider
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.slider
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

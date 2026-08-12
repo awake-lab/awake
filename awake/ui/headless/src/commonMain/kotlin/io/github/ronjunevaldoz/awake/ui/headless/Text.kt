@@ -4,9 +4,9 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.UiTextOverflow as PrimitiveTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.UiTextWrap as PrimitiveTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.text as primitiveText
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow as PrimitiveTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextWrap as PrimitiveTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text as primitiveText
 
 enum class UiTextWrap { None, Word }
 enum class UiTextOverflow { Visible, Clip, Ellipsis }

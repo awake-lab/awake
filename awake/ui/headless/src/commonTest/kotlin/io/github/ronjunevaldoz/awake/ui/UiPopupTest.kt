@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.heightIn
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.widthIn
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.select
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.select
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

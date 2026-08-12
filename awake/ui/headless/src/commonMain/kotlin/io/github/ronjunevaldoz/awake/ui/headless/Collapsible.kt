@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
-import io.github.ronjunevaldoz.awake.ui.headless.internal.components.collapsible as primitiveCollapsible
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.collapsible as primitiveCollapsible
 
 /** Generic disclosure behavior. The trigger owns its visual and click affordance. */
 fun ColumnScope.collapsible(

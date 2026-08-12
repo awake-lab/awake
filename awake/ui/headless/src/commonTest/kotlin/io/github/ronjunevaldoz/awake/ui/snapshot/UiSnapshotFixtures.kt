@@ -51,9 +51,9 @@ import io.github.ronjunevaldoz.awake.ui.theme.CoreUiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
-import io.github.ronjunevaldoz.awake.ui.headless.internal.components.icon
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.select
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.icon
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.select
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.column as headlessColumn
 import io.github.ronjunevaldoz.awake.ui.headless.row as headlessRow
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier as CoreModifier
@@ -62,9 +62,9 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height as coreHeight
 import io.github.ronjunevaldoz.awake.ui.modifier.offset as coreOffset
 import io.github.ronjunevaldoz.awake.ui.modifier.size as coreSize
 import io.github.ronjunevaldoz.awake.ui.modifier.width as coreWidth
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.selection.checkbox as coreCheckbox
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.text as coreText
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.toggle.toggle as coreToggle
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.checkbox as coreCheckbox
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text as coreText
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toggle as coreToggle
 
 data class UiSnapshotScene(
     val name: String,

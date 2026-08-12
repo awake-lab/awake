@@ -8,8 +8,8 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.textLayoutCacheStats
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.textLayoutCacheStats
 import kotlin.math.roundToInt
 
 /**
