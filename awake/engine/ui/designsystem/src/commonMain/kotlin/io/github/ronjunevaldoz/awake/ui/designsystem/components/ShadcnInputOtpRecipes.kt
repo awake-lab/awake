@@ -57,13 +57,24 @@ fun UiScope.shadcnInputOTP(
                     }
                 }
             }
+            val input = textField(
+                id = id,
+                value = value,
+                modifier = Modifier.height(9.tw).width(1f.dp),
+                visuals = io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals(
+                    rest = SurfaceStyle(
+                        background = io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
+                        border = SurfaceBorder(0f.dp, io.github.ronjunevaldoz.awake.core.colors.Color.Transparent),
+                    ),
+                ),
+                enabled = enabled,
+            )
+            val next = input.filter(Char::isDigit).take(length)
+            if (next != value) {
+                resolved = next
+                onValueChange(next)
+            }
         }
-    }
-    val input = textField(id = id, value = value, modifier = Modifier.height(9.tw), enabled = enabled)
-    val next = input.filter(Char::isDigit).take(length)
-    if (next != value) {
-        resolved = next
-        onValueChange(next)
     }
     return resolved
 }
