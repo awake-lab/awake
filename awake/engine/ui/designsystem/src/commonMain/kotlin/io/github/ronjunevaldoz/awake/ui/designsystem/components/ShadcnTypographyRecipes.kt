@@ -3,17 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
-import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.text
 
-fun ColumnScope.shadcnSectionTitle(
+fun UiScope.shadcnSectionTitle(
     title: String,
     modifier: Modifier = Modifier,
 ): UiBounds = text(
@@ -25,7 +22,7 @@ fun ColumnScope.shadcnSectionTitle(
     ),
 )
 
-fun ColumnScope.shadcnHeadline(
+fun UiScope.shadcnHeadline(
     label: String,
     modifier: Modifier = Modifier,
 ): UiBounds = text(
@@ -38,7 +35,7 @@ fun ColumnScope.shadcnHeadline(
     ),
 )
 
-fun ColumnScope.shadcnBodyText(
+fun UiScope.shadcnBodyText(
     label: String,
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,
@@ -55,7 +52,7 @@ fun ColumnScope.shadcnBodyText(
     wrap = wrap,
 )
 
-fun ColumnScope.shadcnSupportingText(
+fun UiScope.shadcnSupportingText(
     label: String,
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,
@@ -93,72 +90,6 @@ fun UiScope.shadcnText(
     wrap = wrap,
 )
 
-fun ColumnScope.shadcnText(
-    label: String,
-    modifier: Modifier = Modifier,
-    muted: Boolean = false,
-    centered: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: UiTextOverflow = UiTextOverflow.Visible,
-    wrap: UiTextWrap = UiTextWrap.None,
-    visuals: SurfaceStyle = SurfaceStyle(
-        foreground = if (muted) themeValues.colors.mutedForeground else themeValues.colors.foreground,
-        textSize = themeValues.typography.body,
-    ),
-): UiBounds = text(
-    label = label,
-    modifier = modifier,
-    centered = centered,
-    visuals = visuals,
-    maxLines = maxLines,
-    overflow = overflow,
-    wrap = wrap,
-)
-
-fun RowScope.shadcnText(
-    label: String,
-    modifier: Modifier = Modifier,
-    muted: Boolean = false,
-    centered: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: UiTextOverflow = UiTextOverflow.Visible,
-    wrap: UiTextWrap = UiTextWrap.None,
-    visuals: SurfaceStyle = SurfaceStyle(
-        foreground = if (muted) themeValues.colors.mutedForeground else themeValues.colors.foreground,
-        textSize = themeValues.typography.body,
-    ),
-): UiBounds = text(
-    label = label,
-    modifier = modifier,
-    centered = centered,
-    visuals = visuals,
-    maxLines = maxLines,
-    overflow = overflow,
-    wrap = wrap,
-)
-
-fun BoxScope.shadcnText(
-    label: String,
-    modifier: Modifier = Modifier,
-    muted: Boolean = false,
-    centered: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE,
-    overflow: UiTextOverflow = UiTextOverflow.Visible,
-    wrap: UiTextWrap = UiTextWrap.None,
-    visuals: SurfaceStyle = SurfaceStyle(
-        foreground = if (muted) themeValues.colors.mutedForeground else themeValues.colors.foreground,
-        textSize = themeValues.typography.body,
-    ),
-): UiBounds = text(
-    label = label,
-    modifier = modifier,
-    centered = centered,
-    visuals = visuals,
-    maxLines = maxLines,
-    overflow = overflow,
-    wrap = wrap,
-)
-
 fun UiScope.shadcnLabel(
     text: String,
     modifier: Modifier = Modifier,
@@ -173,7 +104,7 @@ fun UiScope.shadcnLabel(
     ),
 )
 
-fun ColumnScope.shadcnSectionHeader(
+fun UiScope.shadcnSectionHeader(
     title: String,
     description: String? = null,
     modifier: Modifier = Modifier,

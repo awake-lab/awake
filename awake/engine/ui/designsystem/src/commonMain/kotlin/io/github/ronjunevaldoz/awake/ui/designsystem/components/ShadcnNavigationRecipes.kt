@@ -32,7 +32,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.wrapContentWidth
 
-fun ColumnScope.shadcnCollapsible(
+fun UiScope.shadcnCollapsible(
     id: String,
     expanded: Boolean,
     modifier: Modifier = Modifier,
@@ -41,7 +41,7 @@ fun ColumnScope.shadcnCollapsible(
     content: ColumnScope.() -> Unit,
 ): Boolean = collapsible(id, expanded, modifier, onExpandedChange, trigger, content)
 
-fun ColumnScope.shadcnCollapsible(
+fun UiScope.shadcnCollapsible(
     id: String,
     title: String,
     expanded: Boolean,
@@ -89,7 +89,7 @@ fun ColumnScope.shadcnCollapsible(
     return resolved
 }
 
-fun ColumnScope.shadcnCollapsibleCard(
+fun UiScope.shadcnCollapsibleCard(
     id: String,
     expanded: Boolean,
     modifier: Modifier = Modifier,
@@ -119,7 +119,7 @@ fun ColumnScope.shadcnCollapsibleCard(
     return resolved
 }
 
-fun <T> ColumnScope.shadcnAccordion(
+fun <T> UiScope.shadcnAccordion(
     items: List<T>,
     selectedId: String?,
     onSelectId: (String?) -> Unit,
@@ -146,7 +146,7 @@ fun <T> ColumnScope.shadcnAccordion(
     }
 }
 
-fun ColumnScope.shadcnTabs(
+fun UiScope.shadcnTabs(
     id: String,
     items: List<UiTabItem>,
     selected: String,
@@ -197,7 +197,7 @@ fun ColumnScope.shadcnTabs(
     return resolved
 }
 
-fun ColumnScope.shadcnTabs(
+fun UiScope.shadcnTabs(
     id: String,
     tabs: List<String>,
     selectedIndex: Int,
@@ -211,39 +211,6 @@ fun ColumnScope.shadcnTabs(
     height = height,
 ).let { value -> tabs.indexOf(value).takeIf { it >= 0 } ?: selectedIndex }
 
-fun ColumnScope.shadcnBreadcrumb(
-    items: List<String>,
-    modifier: Modifier = Modifier,
-    separator: String = "/",
-): UiBounds = row(
-    modifier = modifier,
-    horizontalArrangement = Arrangement.spacedBy(6f.dp),
-    verticalAlignment = UiAlignment.Vertical.Center,
-) {
-    items.forEachIndexed { index, label ->
-        text(
-            label = label,
-            visuals = SurfaceStyle(
-                foreground = if (index == items.lastIndex) themeValues.colors.foreground else themeValues.colors.mutedForeground,
-                textSize = themeValues.typography.caption,
-            ),
-        )
-        if (index != items.lastIndex) {
-            text(
-                separator,
-                visuals = SurfaceStyle(
-                    foreground = themeValues.colors.mutedForeground,
-                    textSize = themeValues.typography.caption,
-                )
-            )
-        }
-    }
-}
-
-fun ColumnScope.shadcnBreadcrumb(
-    modifier: Modifier = Modifier,
-    content: ColumnScope.() -> Unit,
-): UiBounds = surface(id = "breadcrumb", modifier = modifier) { content() }
 
 fun UiScope.shadcnBreadcrumb(
     id: String,
@@ -280,7 +247,7 @@ fun UiScope.shadcnBreadcrumb(
     }
 }
 
-fun RowScope.shadcnBreadcrumbLink(
+fun UiScope.shadcnBreadcrumbLink(
     id: String,
     label: String,
     modifier: Modifier = Modifier,
@@ -294,7 +261,7 @@ fun RowScope.shadcnBreadcrumbLink(
     onClick = onClick,
 )
 
-fun RowScope.shadcnBreadcrumbPage(label: String, modifier: Modifier = Modifier): UiBounds = text(
+fun UiScope.shadcnBreadcrumbPage(label: String, modifier: Modifier = Modifier): UiBounds = text(
     label,
     modifier = modifier,
     visuals = SurfaceStyle(
@@ -303,7 +270,7 @@ fun RowScope.shadcnBreadcrumbPage(label: String, modifier: Modifier = Modifier):
     ),
 )
 
-fun RowScope.shadcnBreadcrumbSeparator(
+fun UiScope.shadcnBreadcrumbSeparator(
     label: String = "/",
     modifier: Modifier = Modifier
 ): UiBounds = text(
@@ -315,5 +282,5 @@ fun RowScope.shadcnBreadcrumbSeparator(
     ),
 )
 
-fun RowScope.shadcnBreadcrumbEllipsis(modifier: Modifier = Modifier): UiBounds =
+fun UiScope.shadcnBreadcrumbEllipsis(modifier: Modifier = Modifier): UiBounds =
     shadcnBreadcrumbSeparator("...", modifier)

@@ -259,7 +259,10 @@ internal fun ColumnScope.drawUiShowcaseAvatarPreview() {
 
 internal fun ColumnScope.drawUiShowcaseBreadcrumbPreview() {
     component("BREADCRUMB")
-    shadcnBreadcrumb(items = listOf("Docs", "Components", "Button"))
+    shadcnBreadcrumb(
+        id = "showcase-breadcrumb",
+        items = listOf("Docs", "Components", "Button")
+    )
 }
 
 internal fun ColumnScope.drawUiShowcaseCardPreview() {

@@ -17,13 +17,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
-import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceShadow
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -41,6 +39,7 @@ private fun surfaceStyle(values: UiThemeValues, variant: ShadcnSurfaceVariant?):
             cornerRadius = shapes.lg,
             contentPadding = UiInsets(16f.dp),
         )
+
         else -> SurfaceStyle(
             background = colors.card,
             foreground = colors.cardForeground,
@@ -62,27 +61,6 @@ fun UiScope.shadcnSurface(
     style = surfaceStyle(themeValues, variant),
     content = content,
 )
-
-fun ColumnScope.shadcnSurface(
-    id: String,
-    modifier: Modifier = Modifier,
-    variant: ShadcnSurfaceVariant? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = surface(id = id, modifier = modifier, style = surfaceStyle(themeValues, variant), content = content)
-
-fun RowScope.shadcnSurface(
-    id: String,
-    modifier: Modifier = Modifier,
-    variant: ShadcnSurfaceVariant? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = surface(id = id, modifier = modifier, style = surfaceStyle(themeValues, variant), content = content)
-
-fun BoxScope.shadcnSurface(
-    id: String,
-    modifier: Modifier = Modifier,
-    variant: ShadcnSurfaceVariant? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = surface(id = id, modifier = modifier, style = surfaceStyle(themeValues, variant), content = content)
 
 fun UiScope.shadcnCard(
     id: String,
@@ -106,64 +84,6 @@ fun UiScope.shadcnCard(
         header()
         // CardHeader/CardContent are independently padded in shadcn. The compatibility size
         // axis contributes only a small slot gap; it never draws a divider.
-        spacer(Modifier.height((24f + size.dividerGapDp).dp))
-    }
-    body(it)
-    if (footer != null) {
-        spacer(Modifier.height(size.dividerGapDp.dp))
-        footer()
-    }
-}
-
-fun ColumnScope.shadcnCard(
-    id: String,
-    modifier: Modifier = Modifier,
-    variant: ShadcnCardVariant = ShadcnCardVariant.Default,
-    size: ShadcnCardSize = ShadcnCardSize.Default,
-    header: (ColumnScope.() -> Unit)? = null,
-    footer: (ColumnScope.() -> Unit)? = null,
-    body: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = surface(
-    id = id,
-    modifier = modifier,
-    style = surfaceStyle(themeValues, null).copy(
-        shadow = if (variant == ShadcnCardVariant.Elevated) {
-            SurfaceShadow(color = Color.Black.withAlpha(0.16f), offsetY = 2f.dp, blurRadius = 4f.dp)
-        } else null,
-    ),
-    verticalArrangement = Arrangement.spacedBy(0f.dp),
-) {
-    if (header != null) {
-        header()
-        spacer(Modifier.height((24f + size.dividerGapDp).dp))
-    }
-    body(it)
-    if (footer != null) {
-        spacer(Modifier.height(size.dividerGapDp.dp))
-        footer()
-    }
-}
-
-fun RowScope.shadcnCard(
-    id: String,
-    modifier: Modifier = Modifier,
-    variant: ShadcnCardVariant = ShadcnCardVariant.Default,
-    size: ShadcnCardSize = ShadcnCardSize.Default,
-    header: (ColumnScope.() -> Unit)? = null,
-    footer: (ColumnScope.() -> Unit)? = null,
-    body: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = surface(
-    id = id,
-    modifier = modifier,
-    style = surfaceStyle(themeValues, null).copy(
-        shadow = if (variant == ShadcnCardVariant.Elevated) {
-            SurfaceShadow(color = Color.Black.withAlpha(0.16f), offsetY = 2f.dp, blurRadius = 4f.dp)
-        } else null,
-    ),
-    verticalArrangement = Arrangement.spacedBy(0f.dp),
-) {
-    if (header != null) {
-        header()
         spacer(Modifier.height((24f + size.dividerGapDp).dp))
     }
     body(it)

@@ -48,79 +48,8 @@ fun UiScope.shadcnSidebar(
     }
 }
 
-fun ColumnScope.shadcnSidebar(
-    id: String,
-    modifier: Modifier = Modifier,
-    expanded: Boolean = true,
-    header: (ColumnScope.() -> Unit)? = null,
-    footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(UiBounds) -> Unit,
-): UiBounds = surface(
-    id,
-    modifier,
-    SurfaceStyle(
-        background = themeValues.colors.card,
-        foreground = themeValues.colors.foreground,
-        border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        contentPadding = UiInsets(ShadcnSidebarMetrics.contentPadding),
-    ),
-) {
-    if (expanded) {
-        header?.invoke(this)
-        content(it)
-        footer?.invoke(this)
-    }
-}
 
-fun RowScope.shadcnSidebar(
-    id: String,
-    modifier: Modifier = Modifier,
-    expanded: Boolean = true,
-    header: (ColumnScope.() -> Unit)? = null,
-    footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(UiBounds) -> Unit,
-): UiBounds = surface(
-    id,
-    modifier,
-    SurfaceStyle(
-        background = themeValues.colors.card,
-        foreground = themeValues.colors.foreground,
-        border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        contentPadding = UiInsets(ShadcnSidebarMetrics.contentPadding),
-    ),
-) {
-    if (expanded) {
-        header?.invoke(this)
-        content(it)
-        footer?.invoke(this)
-    }
-}
-
-fun BoxScope.shadcnSidebar(
-    id: String,
-    modifier: Modifier = Modifier,
-    expanded: Boolean = true,
-    header: (ColumnScope.() -> Unit)? = null,
-    footer: (ColumnScope.() -> Unit)? = null,
-    content: ColumnScope.(UiBounds) -> Unit,
-): UiBounds = surface(
-    id,
-    modifier,
-    SurfaceStyle(
-        background = themeValues.colors.card,
-        foreground = themeValues.colors.foreground,
-        border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        contentPadding = UiInsets(ShadcnSidebarMetrics.contentPadding),
-    ),
-) {
-    if (expanded) {
-        header?.invoke(this)
-        content(it)
-        footer?.invoke(this)
-    }
-}
-
-fun ColumnScope.shadcnSidebarGroup(
+fun UiScope.shadcnSidebarGroup(
     modifier: Modifier = Modifier,
     label: String? = null,
     content: ColumnScope.() -> Unit,
@@ -145,7 +74,7 @@ fun ColumnScope.shadcnSidebarGroup(
     }
 }
 
-fun ColumnScope.shadcnSidebarMenu(
+fun UiScope.shadcnSidebarMenu(
     modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit,
 ) {
@@ -155,7 +84,7 @@ fun ColumnScope.shadcnSidebarMenu(
     ) { content() }
 }
 
-fun ColumnScope.shadcnSidebarMenuItem(
+fun UiScope.shadcnSidebarMenuItem(
     id: String,
     label: String,
     active: Boolean = false,
@@ -171,7 +100,7 @@ fun ColumnScope.shadcnSidebarMenuItem(
     onClick = onClick,
 )
 
-fun ColumnScope.shadcnSidebarMenuSub(
+fun UiScope.shadcnSidebarMenuSub(
     modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit,
 ) {
@@ -189,7 +118,7 @@ fun ColumnScope.shadcnSidebarMenuSub(
     }
 }
 
-fun ColumnScope.shadcnSidebarMenuSubItem(
+fun UiScope.shadcnSidebarMenuSubItem(
     id: String,
     label: String,
     active: Boolean = false,
