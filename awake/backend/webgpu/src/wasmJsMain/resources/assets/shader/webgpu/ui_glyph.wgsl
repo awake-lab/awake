@@ -49,7 +49,9 @@ fn fragmentMain(in: VertexOut) -> @location(0) vec4<f32> {
     let atlas = textureSample(fontAtlas, fontSampler, in.uv);
     var glyphAlpha: f32;
     if (uniforms.fontInfo.x < 0.5) {
-        glyphAlpha = pow(atlas.a, 1.0 / GLYPH_GAMMA);
+        // Coverage atlases already contain the platform rasterizer's alpha; only the distance
+        // field branch needs stem darkening.
+        glyphAlpha = atlas.a;
     } else {
         let atlasSize = vec2<f32>(textureDimensions(fontAtlas));
         let unitRange = vec2<f32>(uniforms.fontInfo.y) / atlasSize;

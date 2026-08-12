@@ -12,6 +12,8 @@ import io.github.ronjunevaldoz.awake.ui.api.sp
 data class TextStyle(
     val color: Color? = null,
     val size: Sp? = null,
+    /** Optional authored line advance. Null keeps the font's intrinsic metrics. */
+    val lineHeight: Sp? = null,
     val scale: Float = 1f,
     val weight: FontWeight = FontWeight.Normal,
     val letterSpacing: Sp = 0f.sp,
@@ -23,6 +25,7 @@ data class TextStyle(
     infix fun then(other: TextStyle): TextStyle = TextStyle(
         color = other.color ?: color,
         size = other.size ?: size,
+        lineHeight = other.lineHeight ?: lineHeight,
         scale = other.scale,
         weight = other.weight,
         letterSpacing = other.letterSpacing,

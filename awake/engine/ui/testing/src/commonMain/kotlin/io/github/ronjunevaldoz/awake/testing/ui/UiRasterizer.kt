@@ -156,14 +156,19 @@ fun List<UiDrawPrimitive>.rasterize(
                 val signedDistance = median3(rgba[0], rgba[1], rgba[2])
                 val texelWidth = max(MIN_TEXEL_WIDTH, (glyph.u1 - glyph.u0) * font.atlasWidth)
                 val screenPxPerTexel = glyph.w / texelWidth
-                val screenPxRange = max(font.distanceFieldRangePx * screenPxPerTexel, 1f)
+                // Match the shipped Vulkan/WebGPU shader: screenPxRange is half the
+                // distance-field texel range times screen pixels per source texel. The CPU path
+                // previously omitted that 0.5 factor, doubling the SDF transition width and
+                // turning every glyph into a visibly overfilled/bold shape in parity previews.
+                val screenPxRange = max(0.5f * font.distanceFieldRangePx * screenPxPerTexel, 1f)
                 (screenPxRange * (signedDistance - 0.5f) + 0.5f).coerceIn(0f, 1f)
             }
         }
         // Stem darkening, applied to BOTH branches exactly as the shaders do: it compensates for
         // blending in gamma space, a property of the framebuffer rather than of how coverage was
         // derived. Numerically identical to GLYPH_GAMMA in both shader files.
-        return (coverage.pow(1f / GLYPH_GAMMA) * 255f).toInt().coerceIn(0, 255)
+        val gamma = if (font.samplingMode == UiFontSamplingMode.CoverageAlpha) 1f else GLYPH_GAMMA
+        return (coverage.pow(1f / gamma) * 255f).toInt().coerceIn(0, 255)
     }
 
     fun fillGradientRect(x: Float, y: Float, w: Float, h: Float, gradient: io.github.ronjunevaldoz.awake.ui.UiLinearGradient) {
@@ -309,10 +314,25 @@ fun List<UiDrawPrimitive>.rasterize(
                 }
                 val alpha = (sourceAlpha * tintAlpha) / 255
                 val offset = (py * width + px) * 4
-                pixels[offset] = r.toByte()
-                pixels[offset + 1] = g.toByte()
-                pixels[offset + 2] = b.toByte()
-                pixels[offset + 3] = alpha.toByte()
+                // Glyphs are alpha-blended in the shipped GPU backends. The preview buffer is
+                // straight-alpha RGBA, so writing the source RGB directly (the old behaviour)
+                // left antialiased glyph pixels black/white with a translucent alpha. That made
+                // a preview look correct only after an external compositor happened to blend it
+                // and made pixel comparisons read the wrong RGB values. Composite source-over
+                // here so CPU previews and backend output have the same visible pixels.
+                val srcA = alpha / 255f
+                val dstA = (pixels[offset + 3].toInt() and 0xFF) / 255f
+                val outA = srcA + dstA * (1f - srcA)
+                if (outA > 0f) {
+                    val dstR = pixels[offset].toInt() and 0xFF
+                    val dstG = pixels[offset + 1].toInt() and 0xFF
+                    val dstB = pixels[offset + 2].toInt() and 0xFF
+                    val inv = dstA * (1f - srcA)
+                    pixels[offset] = ((r * srcA + dstR * inv) / outA).toInt().coerceIn(0, 255).toByte()
+                    pixels[offset + 1] = ((g * srcA + dstG * inv) / outA).toInt().coerceIn(0, 255).toByte()
+                    pixels[offset + 2] = ((b * srcA + dstB * inv) / outA).toInt().coerceIn(0, 255).toByte()
+                    pixels[offset + 3] = (outA * 255f).toInt().coerceIn(0, 255).toByte()
+                }
                 px += 1
             }
             py += 1

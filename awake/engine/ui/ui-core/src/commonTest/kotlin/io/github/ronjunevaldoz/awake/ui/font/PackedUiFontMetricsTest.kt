@@ -18,7 +18,9 @@ class PackedUiFontMetricsTest {
     // Narrowed to PackedUiFont on purpose: metrics must be verified against inkFor()'s
     // outline-exact box, not uvFor()'s render quad, which carries the crop bleed and texel
     // snap. Checking a baseline against the quad reads padding as ink.
-    private val font = UiFonts.default() as PackedUiFont
+    // `default()` is intentionally platform-backed on desktop now. This test pins the
+    // bundled Roboto atlas specifically, so request that implementation explicitly.
+    private val font = UiFonts.trueSans() as PackedUiFont
 
     @Test
     fun baselineComesFromFlatCapitalsNotInkExtremes() {
