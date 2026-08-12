@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Copyright (c) Ron June Valdoz
+# SPDX-License-Identifier: Apache-2.0
+#
+# Entry point for Awake developer tooling. Add this directory to PATH to use `awake ...`.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec python3 "$SCRIPT_DIR/awake_ui.py" "$@"
