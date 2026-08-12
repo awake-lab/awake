@@ -28,8 +28,8 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.SkinnedPose
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSliderWithValue
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera

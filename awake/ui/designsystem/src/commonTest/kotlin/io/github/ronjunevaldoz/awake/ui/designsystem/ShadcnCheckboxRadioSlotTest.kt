@@ -6,9 +6,9 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column

@@ -5,9 +5,9 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant

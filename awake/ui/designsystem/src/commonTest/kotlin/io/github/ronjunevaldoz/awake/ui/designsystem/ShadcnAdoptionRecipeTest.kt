@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInputGroup
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInputGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnEmpty
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnKbd
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope

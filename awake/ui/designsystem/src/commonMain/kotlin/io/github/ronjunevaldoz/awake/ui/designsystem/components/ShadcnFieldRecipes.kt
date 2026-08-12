@@ -2,18 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 @file:Suppress("LongParameterList", "MagicNumber", "TooManyFunctions", "UnusedParameter")
 
-package io.github.ronjunevaldoz.awake.ui.designsystem.components.input
+package io.github.ronjunevaldoz.awake.ui.designsystem.components
+
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnRangeSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnTextarea
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.property.ShadcnFieldOrientation
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
+
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 

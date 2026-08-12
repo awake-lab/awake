@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.controls.components.MovementControl
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier

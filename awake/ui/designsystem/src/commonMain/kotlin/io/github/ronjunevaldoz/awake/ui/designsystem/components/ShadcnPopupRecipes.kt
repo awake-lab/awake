@@ -1,6 +1,7 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.designsystem.components.popup
+package io.github.ronjunevaldoz.awake.ui.designsystem.components
+
 
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties

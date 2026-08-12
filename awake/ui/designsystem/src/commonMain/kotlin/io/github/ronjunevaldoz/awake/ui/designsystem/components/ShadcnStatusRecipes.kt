@@ -71,11 +71,13 @@ fun UiScope.shadcnProgress(
     value = value,
     modifier = modifier,
     visuals = SurfaceStyle(
-        background = themeValues.colors.primary,
-        foreground = themeValues.colors.primary.withAlpha(0.2f),
+        background = themeValues.colors.primary.withAlpha(0.2f),
+        foreground = themeValues.colors.primary,
+        border = SurfaceBorder(0f.dp, Color.Transparent),
         cornerRadius = themeValues.shapes.full,
     ),
 )
+
 
 fun UiScope.shadcnSkeleton(
     id: String,
@@ -102,23 +104,7 @@ fun UiScope.shadcnSpinner(
     ),
 )
 
-fun UiScope.shadcnToast(
-    id: String,
-    message: String,
-    modifier: Modifier = Modifier,
-    durationMs: Float = 3000f,
-): Boolean = toast(
-    id = id,
-    message = message,
-    modifier = modifier,
-    durationMs = durationMs,
-    visuals = SurfaceStyle(
-        background = themeValues.colors.card,
-        foreground = themeValues.colors.cardForeground,
-        border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        cornerRadius = themeValues.shapes.lg,
-    ),
-)
+
 
 fun UiScope.shadcnAlert(
     id: String,

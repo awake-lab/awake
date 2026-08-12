@@ -7,8 +7,8 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
