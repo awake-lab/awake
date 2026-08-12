@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiStroke
+import io.github.ronjunevaldoz.awake.ui.api.UiIcon
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 
@@ -19,7 +20,7 @@ data class UiImageVector(
     val viewportWidth: Float,
     val viewportHeight: Float,
     val paths: List<UiVectorPath>,
-)
+) : UiIcon
 
 class UiImageVectorBuilder internal constructor(
     private val defaultWidth: Dp,

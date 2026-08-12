@@ -4,10 +4,46 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.Sp
+import io.github.ronjunevaldoz.awake.ui.api.UiIcon
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 
 internal val SHADCN_CHECKBOX_CORNER_RADIUS = 4f.dp
+
+/** Compatibility icon registry for the Headless and Design System recipes. */
+object ShadcnIcons {
+    // Initialized by Headless or Sample on startup to avoid ui-designsystem -> ui-headless
+    // (HeroIcons) circular dependency.
+    lateinit var chevronDown: UiIcon
+    lateinit var chevronUp: UiIcon
+    lateinit var chevronLeft: UiIcon
+    lateinit var chevronRight: UiIcon
+    lateinit var squares2x2: UiIcon
+    lateinit var xMark: UiIcon
+    lateinit var sparkles: UiIcon
+    lateinit var cube: UiIcon
+    lateinit var cog6Tooth: UiIcon
+    lateinit var arrowUpTray: UiIcon
+    lateinit var arrowDownTray: UiIcon
+    lateinit var puzzlePiece: UiIcon
+    lateinit var pencilSquare: UiIcon
+    lateinit var play: UiIcon
+    lateinit var magnifyingGlass: UiIcon
+    lateinit var videoCamera: UiIcon
+    lateinit var eye: UiIcon
+    lateinit var eyeSlash: UiIcon
+    lateinit var sun: UiIcon
+    lateinit var user: UiIcon
+    lateinit var documentText: UiIcon
+    lateinit var plus: UiIcon
+    lateinit var trash: UiIcon
+    lateinit var lockClosed: UiIcon
+    lateinit var bars3: UiIcon
+    lateinit var funnel: UiIcon
+    lateinit var adjustmentsHorizontal: UiIcon
+    lateinit var stop: UiIcon
+    lateinit var pause: UiIcon
+}
 
 /**
  * Measurements from `new-york-v4/ui/radio-group.tsx` in the pinned shadcn-ui checkout.

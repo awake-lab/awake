@@ -17,7 +17,7 @@ fun UiScope.pill(
     id = id,
     modifier = HeadlessModifier(
         primitive.withIntrinsicLabelSize(
-            modifier = modifier.asPrimitiveModifier(),
+            modifier = modifier.wrapContentWidth().asPrimitiveModifier(),
             label = label,
             style = style.asPrimitiveStyle(),
         ),
@@ -39,7 +39,7 @@ fun ColumnScope.pill(
     id = id,
     modifier = HeadlessModifier(
         primitive.withIntrinsicLabelSize(
-            modifier = modifier.asPrimitiveModifier(),
+            modifier = modifier.wrapContentWidth().asPrimitiveModifier(),
             label = label,
             style = style.asPrimitiveStyle(),
         ),
@@ -61,7 +61,7 @@ fun RowScope.pill(
     id = id,
     modifier = HeadlessModifier(
         primitive.withIntrinsicLabelSize(
-            modifier = modifier.asPrimitiveModifier(),
+            modifier = modifier.wrapContentWidth().asPrimitiveModifier(),
             label = label,
             style = style.asPrimitiveStyle(),
         ),

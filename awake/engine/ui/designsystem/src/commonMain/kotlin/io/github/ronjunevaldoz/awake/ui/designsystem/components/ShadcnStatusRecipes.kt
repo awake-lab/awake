@@ -17,6 +17,10 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.pill
 import io.github.ronjunevaldoz.awake.ui.headless.separator
+ottr545r4456import io.github.ronjunevaldoz.awake.ui.headless.progress
+import io.github.ronjunevaldoz.awake.ui.headless.skeleton
+import io.github.ronjunevaldoz.awake.ui.headless.spinner
+import io.github.ronjunevaldoz.awake.ui.headless.toast
 import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
 
 /** Branded status pill. Behavior and layout remain owned by ui-headless. */
@@ -147,3 +151,87 @@ fun RowScope.shadcnSeparator(
     thickness: io.github.ronjunevaldoz.awake.ui.api.Dp = 1f.dp,
     orientation: UiSeparatorOrientation = UiSeparatorOrientation.Horizontal,
 ): UiBounds = separator(modifier, thickness, orientation, themeValues.colors.border)
+
+fun UiScope.shadcnProgress(
+    id: String,
+    value: Float,
+    modifier: Modifier = Modifier,
+): Unit = progress(
+    id = id,
+    value = value,
+    modifier = modifier,
+    visuals = SurfaceStyle(
+        background = themeValues.colors.primary,
+        foreground = themeValues.colors.primary.withAlpha(0.2f),
+        cornerRadius = themeValues.shapes.full,
+    ),
+)
+
+fun ColumnScope.shadcnProgress(
+    id: String,
+    value: Float,
+    modifier: Modifier = Modifier,
+): Unit = progress(
+    id = id,
+    value = value,
+    modifier = modifier,
+    visuals = SurfaceStyle(
+        background = themeValues.colors.primary,
+        foreground = themeValues.colors.primary.withAlpha(0.2f),
+        cornerRadius = themeValues.shapes.full,
+    ),
+)
+
+fun ColumnScope.shadcnSkeleton(
+    id: String,
+    modifier: Modifier = Modifier,
+    shimmer: Boolean = false,
+): Unit = skeleton(
+    id = id,
+    modifier = modifier,
+    shimmer = shimmer,
+    visuals = SurfaceStyle(
+        background = themeValues.colors.muted,
+        cornerRadius = themeValues.shapes.md,
+    ),
+)
+
+fun UiScope.shadcnSpinner(
+    id: String,
+    modifier: Modifier = Modifier,
+): Unit = spinner(
+    id = id,
+    modifier = modifier,
+    visuals = SurfaceStyle(
+        foreground = themeValues.colors.primary,
+    ),
+)
+
+fun ColumnScope.shadcnSpinner(
+    id: String,
+    modifier: Modifier = Modifier,
+): Unit = spinner(
+    id = id,
+    modifier = modifier,
+    visuals = SurfaceStyle(
+        foreground = themeValues.colors.primary,
+    ),
+)
+
+fun UiScope.shadcnToast(
+    id: String,
+    message: String,
+    modifier: Modifier = Modifier,
+    durationMs: Float = 3000f,
+): Boolean = toast(
+    id = id,
+    message = message,
+    modifier = modifier,
+    durationMs = durationMs,
+    visuals = SurfaceStyle(
+        background = themeValues.colors.card,
+        foreground = themeValues.colors.cardForeground,
+        border = SurfaceBorder(1f.dp, themeValues.colors.border),
+        cornerRadius = themeValues.shapes.lg,
+    ),
+)

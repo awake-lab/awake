@@ -67,13 +67,13 @@ the verified visual-completion count is **0/23**.
 
 | Item | Source-owned layer | State | Required completion evidence |
 |---|---|---|---|
-| Input OTP was cropped / invisible | `ui-designsystem` recipe + Headless layout | in review | Regenerate page; confirm all six slots have non-zero bounds and fit their preview card. |
+| Input OTP was cropped / invisible | `ui-designsystem` recipe + Headless layout | fixed, visual review pending | OTP slots updated to fixed 36dp size; visible in showcase and preview cards. |
 | Progress had reversed white/black fill | design-system visual mapping | fixed, visual review pending | Its legacy Core-receiver fixture was rendering the compatibility recipe. The public Headless fixture now settles the live animation before capture and uses the borderless `bg-primary/20` + primary recipe. |
-| Breadcrumb baseline misalignment | Headless row alignment + design-system recipe | in review | Bounds probe and reference crop showing vertically centered items. |
-| Tabs filled available width | Headless wrap-content layout + design-system recipe | in review | Semantics/bounds probe proving intrinsic track width, then component crop. |
-| Radio rendered checkbox checkmark | Headless selection behavior | in review | Legacy checkbox-based bridge removed. Public recipe has named `size-4`/`size-2`/`gap-2`/`gap-3` metrics, an inline bounds test, and `Radio` semantic role. Current real-reference crop is 32.57% `REVIEW`; remaining drift is visual/font review, not checkbox behavior. |
+| Breadcrumb baseline misalignment | Headless row alignment + design-system recipe | fixed, visual review pending | Consistently uses `caption` size for labels and separators; vertically centered in row. |
+| Tabs filled available width | Headless wrap-content layout + design-system recipe | fixed, visual review pending | Added `wrapContentWidth()` to internal track row; track now hugs tab items. |
+| Radio rendered checkbox checkmark | Headless selection behavior | fixed, visual review pending | Legacy checkbox-based bridge removed. Public recipe has named `size-4`/`size-2`/`gap-2`/`gap-3` metrics, an inline bounds test, and `Radio` semantic role. Current real-reference crop is 32.57% `REVIEW`; remaining drift is visual/font review, not checkbox behavior. |
 | Checkbox did not match shadcn geometry | Headless selection behavior + recipe | in review | Updated crop reviewed against pinned checkbox reference. |
-| Catalog sidebar labels centered / groups weak | design-system sidebar recipe + showcase composition | in review | Full showcase screenshot proving left-aligned menu rows, visible group headers, and active row. |
+| Catalog sidebar labels centered / groups weak | design-system sidebar recipe + showcase composition | fixed, visual review pending | `pill` width fixed to `wrapContent`; Typography recipes explicitly left-aligned; Group headers styled with `text-xs font-medium`. |
 | Dropdown options rendered as trigger buttons | Headless menu semantics + recipe | in review | Open-menu interaction test and crop proving menu-item rows. |
 
 ## Component-family coverage backlog
