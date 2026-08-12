@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.textField
+import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 
 fun UiScope.shadcnInputOTP(
     id: String,
@@ -77,6 +78,7 @@ fun ColumnScope.shadcnInputOTP(
     // Keep the same visible segmented surface as the UiScope overload. The old ColumnScope
     // overload rendered only a 1dp hidden text field, which is why the showcase's OTP sample
     // appeared cropped/empty even though input state still worked.
+    val scope = uiScope()
     surface(id = "$id.slots", modifier = modifier) {
         row(horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.height(36f.dp)) {
             repeat(length) { index ->
@@ -84,7 +86,7 @@ fun ColumnScope.shadcnInputOTP(
                 val char = value.getOrNull(index)?.toString().orEmpty()
                 surface(
                     id = "$id.slot.$index",
-                    modifier = Modifier.height(36f.dp).clickable { requestFocus(id) },
+                    modifier = Modifier.height(36f.dp).clickable { scope.requestFocus(id) },
                     style = SurfaceStyle(
                         background = themeValues.colors.card,
                         foreground = if (enabled) themeValues.colors.foreground else themeValues.colors.mutedForeground,
