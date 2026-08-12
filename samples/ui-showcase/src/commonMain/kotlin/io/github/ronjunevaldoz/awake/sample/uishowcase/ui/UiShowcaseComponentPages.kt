@@ -1,14 +1,14 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldDropdown
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldRangeSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSwitch
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldTextField
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldTextarea
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldDropdown
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldRangeSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldTextField
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
@@ -23,9 +23,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnProgress
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSkeleton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSpinner
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnProgress
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSkeleton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSpinner
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement

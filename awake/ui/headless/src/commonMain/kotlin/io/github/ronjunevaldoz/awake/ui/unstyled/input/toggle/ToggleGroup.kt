@@ -19,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
  * existing [toggle]/index convention.
  *
  * Stays visually flat: the bordered container is shadcn's look, so it lives in
- * [io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup].
+ * [io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggleGroup].
  * [itemStyle] is how that wrapper retints the segments to stay readable on its background.
  */
 fun UiPrimitiveScope.toggleGroup(

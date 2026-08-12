@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 @file:Suppress("UnusedParameter")
 
-package io.github.ronjunevaldoz.awake.ui.designsystem.components.selection
+package io.github.ronjunevaldoz.awake.ui.designsystem.components
+
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment

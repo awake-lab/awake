@@ -12,8 +12,8 @@ import io.github.ronjunevaldoz.awake.scene.core.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneDocument
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.input.shadcnFieldSliderWithValue
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSliderWithValue
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import kotlin.math.PI

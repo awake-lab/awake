@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 @file:Suppress("TooManyFunctions")
 
-package io.github.ronjunevaldoz.awake.ui.designsystem.components.controls
+package io.github.ronjunevaldoz.awake.ui.designsystem.components
+
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp

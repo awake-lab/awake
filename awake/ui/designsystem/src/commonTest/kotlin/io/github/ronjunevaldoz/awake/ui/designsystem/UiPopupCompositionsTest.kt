@@ -9,11 +9,11 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnAlertDialog
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdownMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.text

@@ -29,15 +29,15 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSlider
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnTextarea
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnRadioGroup
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggle
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextarea
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdownMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
@@ -50,9 +50,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnProgress
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSkeleton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.status.shadcnSpinner
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnProgress
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSkeleton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSpinner
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
@@ -75,7 +75,7 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import kotlin.test.Test
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuItem as UiDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuItem as UiDropdownMenuItem
 
 /** Builds a one-off [UiInputState] for a preview frame -- [Input] is a per-session
  * instance now (no longer a global object), so tests construct their own throwaway one. */

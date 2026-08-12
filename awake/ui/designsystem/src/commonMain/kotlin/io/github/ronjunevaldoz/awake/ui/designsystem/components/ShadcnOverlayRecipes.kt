@@ -11,9 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.ShadcnDropdownMenuSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDropdownMenu
+
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.DialogProperties

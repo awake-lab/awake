@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.height

@@ -35,8 +35,8 @@ import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnInput
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnLabel

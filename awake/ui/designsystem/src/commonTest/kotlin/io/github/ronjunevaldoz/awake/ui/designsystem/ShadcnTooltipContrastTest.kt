@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTooltipText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
 import kotlin.test.assertEquals

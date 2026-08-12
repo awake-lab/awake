@@ -26,7 +26,7 @@ import io.github.ronjunevaldoz.awake.scene.authoring.dsl.transform
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnSwitch
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /**

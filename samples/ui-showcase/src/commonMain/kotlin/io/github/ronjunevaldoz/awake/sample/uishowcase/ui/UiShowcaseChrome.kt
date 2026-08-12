@@ -13,8 +13,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGro
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingLines
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnTextLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement

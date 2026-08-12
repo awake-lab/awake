@@ -10,8 +10,8 @@ import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.controls.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnToggleGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableHandle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
