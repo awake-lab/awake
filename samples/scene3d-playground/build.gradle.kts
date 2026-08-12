@@ -86,13 +86,13 @@ kotlin {
             implementation(project(":awake:ecs"))
             implementation(project(":awake:scene"))
             implementation(project(":awake:scene:authoring"))
-            implementation(project(":awake:engine:ui:ui-core"))
-            implementation(project(":awake:engine:ui:designsystem"))
+            implementation(project(":awake:ui:ui-core"))
+            implementation(project(":awake:ui:designsystem"))
             implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation(project(":awake:engine:ui:testing"))
+            implementation(project(":awake:ui:testing"))
             implementation(libs.kotlinx.coroutines.test)
         }
 

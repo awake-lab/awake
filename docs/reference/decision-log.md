@@ -1473,7 +1473,7 @@ Wired 3 sliders (azimuth `[-PI, PI]`, elevation `[MIN_PITCH, MAX_PITCH]`, zoom/d
 only when `cameraMode == CameraMode.ORBIT` (`FREE_FLY` drives the same live `Camera` via its
 own independent WASD/mouse-look controls, so these sliders would fight it there).
 
-**Verified:** `:awake:engine:ui:compileKotlinDesktop`, `:awake:scene:compileKotlinDesktop`,
+**Verified:** `:awake:ui:compileKotlinDesktop`, `:awake:scene:compileKotlinDesktop`,
 `:samples:hello-cube:compileKotlinDesktop` all compile clean. New `UiContextTest` slider
 cases (edge/midpoint mapping, clamping, drag-then-release) pass (5/5 tests in that class, 0
 failures). `:awake:scene:desktopTest`'s `OrbitCameraSystemTest` (4/4) and the rest of that

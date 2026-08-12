@@ -31,8 +31,8 @@ Still open:
 
 Validation snapshot:
 
-- `:awake:engine:ui:ui-core:compileKotlinDesktop` passes
-- `:awake:engine:ui:ui-headless:compileKotlinDesktop` passes
+- `:awake:ui:ui-core:compileKotlinDesktop` passes
+- `:awake:ui:ui-headless:compileKotlinDesktop` passes
 - `:awake:engine:game-authoring:compileKotlinDesktop` passes
 - `:awake:scene:compileKotlinDesktop` passes
 - `:awake:scene:authoring:compileTestKotlinDesktop` still fails, but the remaining failures are
@@ -293,10 +293,10 @@ competing split.
 
 ## Validation
 
-- `:awake:engine:ui:ui-core:commonTest`
-- `:awake:engine:ui:ui-headless:commonTest`
-- `:awake:engine:ui-dsl:commonTest`
-- `:awake:engine:ui:ui-designsystem:commonTest`
+- `:awake:ui:ui-core:commonTest`
+- `:awake:ui:ui-headless:commonTest`
+- `:awake:ui-dsl:commonTest`
+- `:awake:ui:ui-designsystem:commonTest`
 - `:awake:engine:game-authoring:commonTest`
 - `:samples:ui-showcase:commonTest`
 - targeted `desktopTest` where frame output or text-input focus behavior changes

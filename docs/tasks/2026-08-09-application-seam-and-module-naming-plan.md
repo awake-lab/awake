@@ -258,7 +258,7 @@ subproject regardless). Two subprojects sharing a leaf name collide on that iden
 Gradle's dependency-graph conflict resolution silently substitutes one for the other on any
 classpath that reaches both — a real compile failure
 (`awake:scene:controls` failed to resolve `UiInputOwnership` because Gradle substituted
-`:awake:engine:ui:core` with `:awake:scene:scene-core` — same leaf, `core`), not a cosmetic risk.
+`:awake:ui:core` with `:awake:scene:scene-core` — same leaf, `core`), not a cosmetic risk.
 
 Renaming `engine:ui:ui-core` → `engine:ui:core` collided with the pre-existing
 `:awake:scene:scene-core`.

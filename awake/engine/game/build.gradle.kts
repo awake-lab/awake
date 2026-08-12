@@ -47,7 +47,7 @@ kotlin {
         }
         named("androidMain") {
             dependencies {
-                implementation(project(":awake:engine:ui:ui-core"))
+                implementation(project(":awake:ui:ui-core"))
             }
         }
         commonTest.dependencies {

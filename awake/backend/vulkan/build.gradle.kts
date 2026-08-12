@@ -46,8 +46,8 @@ kotlin {
             // The backend consumes raw UI draw primitives and mesh utilities to submit the
             // frame to Vulkan. Keep this direct rather than relying on render-contract's
             // transitive ui-core dependency; authored value contracts come from ui-api.
-            implementation(project(":awake:engine:ui:ui-core"))
-            implementation(project(":awake:engine:ui:ui-api"))
+            implementation(project(":awake:ui:ui-core"))
+            implementation(project(":awake:ui:ui-api"))
             // Module restructuring slice 1 (see docs/MVP_PLAN.md): Mesh/Material/Renderer's
             // expect declarations now implement the narrow backend-neutral interfaces this
             // module owns, so RenderSystem (awake-scene) can depend on just that module
@@ -76,13 +76,13 @@ kotlin {
             implementation(kotlin("test"))
             // Headless-renderer pixel-baseline regression test (desktopTest only, see
             // RendererHeadlessPixelBaselineTest) needs comparePixels().
-            implementation(project(":awake:engine:ui:testing"))
+            implementation(project(":awake:ui:testing"))
             // Real-widget real-render investigations (see UiAnimationFrameCapture /
             // ShadcnCollapsibleRealRenderCollapseFrameCaptureTest, desktopTest only) need
             // actual shadcn widgets (shadcnSidebar/shadcnCollapsible), not just raw
             // UiDrawPrimitives -- test-only, no cycle (ui-designsystem doesn't depend on this
             // module).
-            implementation(project(":awake:engine:ui:designsystem"))
+            implementation(project(":awake:ui:designsystem"))
         }
         androidMain.dependencies {
             implementation(libs.leakcanary.android)

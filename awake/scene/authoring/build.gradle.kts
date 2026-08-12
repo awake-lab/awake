@@ -23,12 +23,12 @@ kotlin {
             api(project(":awake:scene:controls"))
             api(project(":awake:scene:runtime"))
             api(project(":awake:engine:game-authoring"))
-            api(project(":awake:engine:ui:ui-core"))
+            api(project(":awake:ui:ui-core"))
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(project(":awake:core"))
-            implementation(project(":awake:engine:ui:headless"))
+            implementation(project(":awake:ui:headless"))
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }

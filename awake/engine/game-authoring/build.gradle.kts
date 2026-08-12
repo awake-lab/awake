@@ -16,13 +16,13 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":awake:engine:game"))
-            implementation(project(":awake:engine:ui:headless"))
+            implementation(project(":awake:ui:headless"))
         }
         commonTest.dependencies {
             implementation(project(":awake:core"))
             implementation(project(":awake:engine:render:contract"))
-            implementation(project(":awake:engine:ui:ui-core"))
-            implementation(project(":awake:engine:ui:headless"))
+            implementation(project(":awake:ui:ui-core"))
+            implementation(project(":awake:ui:headless"))
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }
@@ -30,9 +30,9 @@ kotlin {
             dependencies {
                 implementation(project(":awake:core"))
                 implementation(project(":awake:engine:render:contract"))
-                implementation(project(":awake:engine:ui:ui-core"))
-                implementation(project(":awake:engine:ui:headless"))
-                implementation(project(":awake:engine:ui:testing"))
+                implementation(project(":awake:ui:ui-core"))
+                implementation(project(":awake:ui:headless"))
+                implementation(project(":awake:ui:testing"))
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
             }

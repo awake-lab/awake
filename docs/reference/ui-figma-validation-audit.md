@@ -359,6 +359,6 @@ fun `validate shadcn button against live figma variables`() {
 
 ### 4. CI Execution Flow
 1.  **Sync**: `scripts/sync-figma-variables.py` pulls from Figma REST API and writes `design-tokens.json`.
-2.  **Test**: `./gradlew :awake:engine:ui:designsystem:desktopTest` runs.
+2.  **Test**: `./gradlew :awake:ui:designsystem:desktopTest` runs.
 3.  **Validate**: `verifyAwakeUiPreview` compares the emitted `UiFrameOutput` against the loaded JSON specs.
 4.  **Report**: `UiPreviewReportTask` generates a JSON diff if tokens or dimensions mismatched.

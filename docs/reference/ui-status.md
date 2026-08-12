@@ -26,7 +26,7 @@ Companion docs: `ui-component-coverage.md` (per-component inventory + missing li
 
 | Area | Supported | Stable | Verified vs source | Notes |
 |---|---|---|---|---|
-| Spacing scale (`Tw.Spacing`) | ✅ | ✅ | ✅ | Generated from a vendored Tailwind scale by `:awake:engine:ui:tailwind-generator`. |
+| Spacing scale (`Tw.Spacing`) | ✅ | ✅ | ✅ | Generated from a vendored Tailwind scale by `:awake:ui:tailwind-generator`. |
 | Radius ladder (`fromBase`) | ✅ | ✅ | ✅ | Multiplicative, locked by `ShadcnRadiusScaleTest`. Was additive and silently wrong for every non-Vega preset until 2026-08-10. |
 | Color tokens | ✅ | ✅ | ✅ | `ShadcnReferenceTokenTest` vs published OKLCH values. |
 | Component sizes/padding | 🟡 | 🟡 | 🟡 | 10 source-verified bugs fixed 2026-08-10; the rest are unaudited. No mechanism prevents new drift — see Open Risks. |

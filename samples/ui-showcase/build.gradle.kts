@@ -85,14 +85,14 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":awake:engine:game-authoring"))
             implementation(project(":awake:scene:authoring"))
-            implementation(project(":awake:engine:ui:designsystem"))
+            implementation(project(":awake:ui:designsystem"))
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation(project(":awake:engine:ui:testing"))
-            implementation(project(":awake:engine:ui:ui-core"))
+            implementation(project(":awake:ui:testing"))
+            implementation(project(":awake:ui:ui-core"))
             implementation(libs.kotlinx.coroutines.test)
         }
 
