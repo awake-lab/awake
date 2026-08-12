@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.Sp
-import io.github.ronjunevaldoz.awake.ui.api.UiIcon
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
-import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
+import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
 internal val SHADCN_CHECKBOX_CORNER_RADIUS = 4f.dp
 
@@ -15,35 +15,75 @@ internal val SHADCN_CHECKBOX_CORNER_RADIUS = 4f.dp
 object ShadcnIcons {
     // Initialized by Headless or Sample on startup to avoid ui-designsystem -> ui-headless
     // (HeroIcons) circular dependency.
-    lateinit var chevronDown: UiIcon
-    lateinit var chevronUp: UiIcon
-    lateinit var chevronLeft: UiIcon
-    lateinit var chevronRight: UiIcon
-    lateinit var squares2x2: UiIcon
-    lateinit var xMark: UiIcon
-    lateinit var sparkles: UiIcon
-    lateinit var cube: UiIcon
-    lateinit var cog6Tooth: UiIcon
-    lateinit var arrowUpTray: UiIcon
-    lateinit var arrowDownTray: UiIcon
-    lateinit var puzzlePiece: UiIcon
-    lateinit var pencilSquare: UiIcon
-    lateinit var play: UiIcon
-    lateinit var magnifyingGlass: UiIcon
-    lateinit var videoCamera: UiIcon
-    lateinit var eye: UiIcon
-    lateinit var eyeSlash: UiIcon
-    lateinit var sun: UiIcon
-    lateinit var user: UiIcon
-    lateinit var documentText: UiIcon
-    lateinit var plus: UiIcon
-    lateinit var trash: UiIcon
-    lateinit var lockClosed: UiIcon
-    lateinit var bars3: UiIcon
-    lateinit var funnel: UiIcon
-    lateinit var adjustmentsHorizontal: UiIcon
-    lateinit var stop: UiIcon
-    lateinit var pause: UiIcon
+    lateinit var chevronDown: UiImageVector
+    lateinit var chevronUp: UiImageVector
+    lateinit var chevronLeft: UiImageVector
+    lateinit var chevronRight: UiImageVector
+    lateinit var squares2x2: UiImageVector
+    lateinit var xMark: UiImageVector
+    lateinit var sparkles: UiImageVector
+    lateinit var cube: UiImageVector
+    lateinit var cog6Tooth: UiImageVector
+    lateinit var arrowUpTray: UiImageVector
+    lateinit var arrowDownTray: UiImageVector
+    lateinit var puzzlePiece: UiImageVector
+    lateinit var pencilSquare: UiImageVector
+    lateinit var play: UiImageVector
+    lateinit var magnifyingGlass: UiImageVector
+    lateinit var videoCamera: UiImageVector
+    lateinit var eye: UiImageVector
+    lateinit var eyeSlash: UiImageVector
+    lateinit var sun: UiImageVector
+    lateinit var user: UiImageVector
+    lateinit var documentText: UiImageVector
+    lateinit var plus: UiImageVector
+    lateinit var trash: UiImageVector
+    lateinit var lockClosed: UiImageVector
+    lateinit var bars3: UiImageVector
+    lateinit var funnel: UiImageVector
+    lateinit var adjustmentsHorizontal: UiImageVector
+    lateinit var stop: UiImageVector
+    lateinit var pause: UiImageVector
+
+    init {
+        initializeShadcnIcons()
+    }
+
+    fun initializeShadcnIcons() {
+        val mini = HeroIcons.Solid20Mini
+        ShadcnIcons.apply {
+            chevronDown = mini.chevronDown
+            chevronUp = mini.chevronUp
+            chevronLeft = mini.chevronLeft
+            chevronRight = mini.chevronRight
+            squares2x2 = mini.squares2x2
+            xMark = mini.xMark
+            sparkles = mini.sparkles
+            cube = mini.cube
+            cog6Tooth = mini.cog6Tooth
+            arrowUpTray = mini.arrowUpTray
+            arrowDownTray = mini.arrowDownTray
+            puzzlePiece = mini.puzzlePiece
+            pencilSquare = mini.pencilSquare
+            play = mini.play
+            magnifyingGlass = mini.magnifyingGlass
+            videoCamera = mini.videoCamera
+            eye = mini.eye
+            eyeSlash = mini.eyeSlash
+            sun = mini.sun
+            user = mini.user
+            documentText = mini.documentText
+            plus = mini.plus
+            trash = mini.trash
+            lockClosed = mini.lockClosed
+            bars3 = mini.bars3
+            funnel = mini.funnel
+            adjustmentsHorizontal = mini.adjustmentsHorizontal
+            stop = mini.stop
+            pause = mini.pause
+        }
+    }
+
 }
 
 /**
