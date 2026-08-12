@@ -31,6 +31,8 @@ interface UiColorTokens {
     val destructive: Color
     val destructiveForeground: Color
     val border: Color
+    /** Control-outline/input surface token. Defaults to [border] for neutral themes. */
+    val input: Color get() = border
 }
 
 /** Immutable semantic corner-radius values shared by UI layers. */

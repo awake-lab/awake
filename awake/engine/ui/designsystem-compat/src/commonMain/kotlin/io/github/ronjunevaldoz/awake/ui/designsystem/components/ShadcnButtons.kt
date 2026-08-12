@@ -20,39 +20,18 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier as HeadlessModifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
-import io.github.ronjunevaldoz.awake.ui.headless.UiScope as HeadlessUiScope
-import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope as HeadlessColumnScope
-import io.github.ronjunevaldoz.awake.ui.headless.RowScope as HeadlessRowScope
-import io.github.ronjunevaldoz.awake.ui.headless.button as headlessButton
-import io.github.ronjunevaldoz.awake.ui.headless.height as headlessHeight
-import io.github.ronjunevaldoz.awake.ui.headless.button as headlessPlainButton
-import io.github.ronjunevaldoz.awake.ui.headless.button as headlessRowButton
 
 private fun UiModifier.withShadcnSize(size: ShadcnButtonSize): UiModifier =
     if (heightDimension == null) height(size.heightDp) else this
 
 /** Real shadcn's button carries its horizontal inset on the button itself (`px-4` for the
- * default size -- see [ShadcnButtonSize]); this module previously set no contentPadding at all,
- * so every label sat flush against the button's own edges and the button measured narrower than
- * upstream at every size. Applied before the caller's own `style` so an explicit
- * `contentPadding` override still wins. */
+ * default size -- see [ShadcnButtonSize]); this is part of intrinsic measurement as well as
+ * painting. Applied before the caller's own `style` so an explicit `contentPadding` override
+ * still wins. */
 private fun shadcnButtonSizeStyle(size: ShadcnButtonSize): Style {
-    // DISABLED, deliberately. ShadcnButtonSize.paddingX carries the real per-size inset
-    // (px-2/px-3/px-4/px-6, asserted by ShadcnSpecAssertionTest), but APPLYING it exposes a
-    // deeper defect: labels truncate at content widths that should comfortably fit them
-    // ("Secondary" truncating inside 112dp at 14sp). That is the same text-measurement
-    // divergence tracked as open-risk 2 in docs/reference/ui-status.md -- the button padding
-    // makes it visible rather than causing it. Enabling this before that is understood just
-    // trades a padding bug for a truncation bug, so the constant stays verified-but-unapplied.
-    @Suppress("UNUSED_EXPRESSION")
-    size
-    return Style.Empty
+    return Style {
+        contentPadding(horizontal = size.paddingX, vertical = 0f.dp)
+    }
 }
 
 private fun shadcnButtonStyle(
@@ -142,84 +121,4 @@ private fun ShadcnButtonVariant.toUiButtonVariant(): UiButtonVariant = when (thi
     ShadcnButtonVariant.Outline -> UiButtonVariant.Outline
     ShadcnButtonVariant.Ghost -> UiButtonVariant.Ghost
     else -> UiButtonVariant.Filled
-}
-
-/** Shadcn text button for the public Headless facade. */
-fun HeadlessUiScope.shadcnButton(
-    id: String,
-    label: String,
-    modifier: HeadlessModifier = HeadlessModifier,
-    variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
-    size: ShadcnButtonSize = ShadcnButtonSize.Md,
-    enabled: Boolean = true,
-    onClick: (() -> Unit)? = null,
-): Boolean {
-    val clicked = headlessButton(
-        id = id,
-        label = label,
-        modifier = modifier.headlessHeight(size.heightDp),
-        visuals = shadcnButtonVisuals(themeValues, variant),
-        enabled = enabled,
-    )
-    if (clicked) onClick?.invoke()
-    return clicked
-}
-
-fun HeadlessColumnScope.shadcnButton(
-    id: String,
-    label: String,
-    modifier: HeadlessModifier = HeadlessModifier,
-    variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
-    size: ShadcnButtonSize = ShadcnButtonSize.Md,
-    enabled: Boolean = true,
-    onClick: (() -> Unit)? = null,
-): Boolean {
-    val clicked = headlessPlainButton(id, label, modifier.headlessHeight(size.heightDp), shadcnButtonVisuals(themeValues, variant), enabled)
-    if (clicked) onClick?.invoke()
-    return clicked
-}
-
-fun HeadlessRowScope.shadcnButton(
-    id: String,
-    label: String,
-    modifier: HeadlessModifier = HeadlessModifier,
-    variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
-    size: ShadcnButtonSize = ShadcnButtonSize.Md,
-    enabled: Boolean = true,
-    onClick: (() -> Unit)? = null,
-): Boolean {
-    val clicked = headlessRowButton(
-        id = id,
-        label = label,
-        modifier = modifier.headlessHeight(size.heightDp),
-        visuals = shadcnButtonVisuals(themeValues, variant),
-        enabled = enabled,
-    )
-    if (clicked) onClick?.invoke()
-    return clicked
-}
-
-private fun shadcnButtonVisuals(theme: UiThemeValues, variant: ShadcnButtonVariant): SurfaceVisuals {
-    val colors = theme.colors
-    val rest = when (variant) {
-        ShadcnButtonVariant.Primary -> SurfaceStyle(colors.primary, colors.primaryForeground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
-        ShadcnButtonVariant.Secondary -> SurfaceStyle(colors.secondary, colors.secondaryForeground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
-        ShadcnButtonVariant.Outline -> SurfaceStyle(colors.background, colors.foreground, SurfaceBorder(1f.dp, colors.border), theme.shapes.md, textSize = theme.typography.label)
-        ShadcnButtonVariant.Ghost -> SurfaceStyle(Color.Transparent, colors.foreground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
-        ShadcnButtonVariant.Danger -> SurfaceStyle(colors.destructive, colors.destructiveForeground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
-        ShadcnButtonVariant.Link -> SurfaceStyle(Color.Transparent, colors.primary, cornerRadius = theme.shapes.xs, textSize = theme.typography.label)
-    }
-    return SurfaceVisuals(
-        rest = rest,
-        hovered = when (variant) {
-            ShadcnButtonVariant.Outline -> SurfaceStyle(colors.secondary, colors.secondaryForeground)
-            ShadcnButtonVariant.Ghost -> SurfaceStyle(colors.accent, colors.accentForeground)
-            else -> null
-        },
-        pressed = when (variant) {
-            ShadcnButtonVariant.Outline, ShadcnButtonVariant.Ghost -> SurfaceStyle(colors.accent, colors.accentForeground)
-            else -> null
-        },
-        disabled = SurfaceStyle(foreground = colors.mutedForeground),
-    )
 }

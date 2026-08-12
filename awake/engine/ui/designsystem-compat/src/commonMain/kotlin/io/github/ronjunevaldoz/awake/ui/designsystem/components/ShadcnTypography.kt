@@ -95,7 +95,7 @@ fun ColumnScope.shadcnSupportingText(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     maxLines: Int = Int.MAX_VALUE,
-): UiBounds = shadcnSupportingText(
+): UiBounds = text(
     label = label,
     modifier = modifier,
     style = Style {

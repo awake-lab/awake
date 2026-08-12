@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnStyles
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
@@ -38,6 +39,7 @@ fun UiScope.shadcnBadge(
         variant,
     ) then ShadcnStyles.badgeContent(theme.asShadcnTheme()) then style,
     centered = true,
+    semanticId = "badge.$label",
 )
 
 /** Real shadcn's `Kbd`: an inline key-cap label, same "measure text, draw a box, draw the
@@ -67,16 +69,17 @@ fun HeadlessUiScope.shadcnBadge(
         ShadcnBadgeVariant.Primary -> SurfaceStyle(colors.primary, colors.primaryForeground)
         ShadcnBadgeVariant.Secondary -> SurfaceStyle(colors.secondary, colors.secondaryForeground)
         ShadcnBadgeVariant.Outline -> SurfaceStyle(
-            background = colors.background,
+            background = io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
             foreground = colors.foreground,
             border = SurfaceBorder(1f.dp, colors.border),
         )
-        ShadcnBadgeVariant.Danger -> SurfaceStyle(colors.destructive, colors.destructiveForeground)
-        ShadcnBadgeVariant.Ghost -> SurfaceStyle(colors.background, colors.foreground)
+        ShadcnBadgeVariant.Danger -> SurfaceStyle(colors.destructive, io.github.ronjunevaldoz.awake.core.colors.Color.White)
+        ShadcnBadgeVariant.Ghost -> SurfaceStyle(io.github.ronjunevaldoz.awake.core.colors.Color.Transparent, colors.foreground)
     }.copy(
         cornerRadius = colors.let { themeValues.shapes.full },
         contentPadding = UiInsets(8f.dp, 2f.dp),
-        textSize = themeValues.typography.caption,
+        textSize = 12f.sp,
+        lineHeight = 16f.sp,
     )
     return pill(id = id, label = label, style = style)
 }
@@ -91,7 +94,7 @@ fun HeadlessUiScope.shadcnKbd(
     style = SurfaceStyle(
         background = themeValues.colors.muted,
         foreground = themeValues.colors.foreground,
-        border = SurfaceBorder(1f.dp, themeValues.colors.border),
+        border = SurfaceBorder(1f.dp, themeValues.colors.input),
         cornerRadius = themeValues.shapes.sm,
         contentPadding = UiInsets(6f.dp, 2f.dp),
         textSize = themeValues.typography.caption,
