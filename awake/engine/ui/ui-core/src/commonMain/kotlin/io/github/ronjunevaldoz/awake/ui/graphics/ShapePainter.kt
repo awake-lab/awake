@@ -215,6 +215,17 @@ fun UiPrimitiveScope.emitCheckmark(slot: UiBounds) {
     )
 }
 
+/** Paints the centered selected dot used by a radio indicator. */
+fun UiPrimitiveScope.emitRadioDot(slot: UiBounds, color: Color) {
+    val inset = minOf(slot.width, slot.height) * 0.3f
+    emitFillShape(
+        slot = UiBounds(slot.x + inset, slot.y + inset, slot.width - inset * 2f, slot.height - inset * 2f),
+        color = color,
+        radiusPx = minOf(slot.width, slot.height) / 2f,
+        shapeSpec = UiShapeSpec.Circle,
+    )
+}
+
 /** Tri-state checkbox's "indeterminate" mark: a horizontal dash instead of the filled
  * inset square [emitInsetAccent] draws for "checked" -- mirrors real shadcn's checkbox
  * drawing a horizontal line (not a checkmark) when its ToggleableState is Indeterminate. */
