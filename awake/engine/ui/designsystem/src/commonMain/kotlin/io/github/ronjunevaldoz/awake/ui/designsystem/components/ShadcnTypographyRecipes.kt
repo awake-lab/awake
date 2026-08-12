@@ -31,6 +31,7 @@ fun ColumnScope.shadcnHeadline(
 ): UiBounds = text(
     label = label,
     modifier = modifier,
+    centered = false,
     visuals = SurfaceStyle(
         foreground = themeValues.colors.foreground,
         textSize = themeValues.typography.headline,
@@ -45,6 +46,7 @@ fun ColumnScope.shadcnBodyText(
 ): UiBounds = text(
     label = label,
     modifier = modifier,
+    centered = false,
     visuals = SurfaceStyle(
         foreground = themeValues.colors.foreground,
         textSize = themeValues.typography.body,
@@ -60,6 +62,7 @@ fun ColumnScope.shadcnSupportingText(
 ): UiBounds = text(
     label = label,
     modifier = modifier,
+    centered = false,
     visuals = SurfaceStyle(
         foreground = themeValues.colors.mutedForeground,
         textSize = themeValues.typography.caption,

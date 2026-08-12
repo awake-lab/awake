@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
@@ -119,8 +120,19 @@ fun ColumnScope.shadcnSidebarGroup(
     label: String? = null,
     content: ColumnScope.() -> Unit,
 ) {
-    column(modifier.fillMaxWidth(), Arrangement.spacedBy(ShadcnSidebarMetrics.groupGap)) {
-        label?.let { text(it, visuals = SurfaceStyle(foreground = themeValues.colors.mutedForeground, textSize = themeValues.typography.caption)) }
+    column(modifier.fillMaxWidth().padding(horizontal = 4f.dp, vertical = 8f.dp), Arrangement.spacedBy(ShadcnSidebarMetrics.groupGap)) {
+        label?.let {
+            text(
+                label = it.uppercase(),
+                visuals = SurfaceStyle(
+                    foreground = themeValues.colors.mutedForeground,
+                    // Sidebar group titles are Tailwind `text-xs` (12px) and `font-medium`.
+                    textSize = 12f.sp,
+                    fontWeight = io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight.Medium,
+                    contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = 8f.dp, vertical = 0f.dp)
+                )
+            )
+        }
         content()
     }
 }

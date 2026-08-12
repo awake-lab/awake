@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.headless.box
 import io.github.ronjunevaldoz.awake.ui.headless.clickable
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
@@ -41,7 +42,7 @@ fun UiScope.shadcnInputOTP(
                 val char = value.getOrNull(index)?.toString().orEmpty()
                 surface(
                     id = "$id.slot.$index",
-                    modifier = Modifier.height(36f.dp).clickable { requestFocus(id) },
+                    modifier = Modifier.height(36f.dp).width(36f.dp).clickable { requestFocus(id) },
                     style = SurfaceStyle(
                         background = themeValues.colors.card,
                         foreground = if (enabled) themeValues.colors.foreground else themeValues.colors.mutedForeground,
@@ -86,7 +87,7 @@ fun ColumnScope.shadcnInputOTP(
                 val char = value.getOrNull(index)?.toString().orEmpty()
                 surface(
                     id = "$id.slot.$index",
-                    modifier = Modifier.height(36f.dp).clickable { scope.requestFocus(id) },
+                    modifier = Modifier.height(36f.dp).width(36f.dp).clickable { scope.requestFocus(id) },
                     style = SurfaceStyle(
                         background = themeValues.colors.card,
                         foreground = if (enabled) themeValues.colors.foreground else themeValues.colors.mutedForeground,

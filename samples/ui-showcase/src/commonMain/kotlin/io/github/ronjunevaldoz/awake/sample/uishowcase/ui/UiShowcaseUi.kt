@@ -28,12 +28,15 @@ import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 
 private val ShowcaseChromeTheme = shadcnTheme(dark = false)
 
-internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): GameUiSpec = gameUi {
-    theme(ShowcaseChromeTheme)
-    overlay {
-        drawUiShowcaseOverlay(
-            state = state,
-        )
+internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): GameUiSpec {
+    initializeShadcnIcons()
+    return gameUi {
+        theme(ShowcaseChromeTheme)
+        overlay {
+            drawUiShowcaseOverlay(
+                state = state,
+            )
+        }
     }
 }
 
