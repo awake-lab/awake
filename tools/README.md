@@ -102,6 +102,37 @@ baseline the same way as any other golden here, `-DAWAKE_RECORD_SNAPSHOTS=true`,
 reading the diff PNG under `build/reports/shadcn-parity/` and confirming the drift is intended
 (see `skills/awake-ui-verification/SKILL.md`).
 
+### `awake ui` command line
+
+`scripts/awake` is the discoverable command-line front door for this pipeline. It does not own
+a second renderer or invent reference images: it resolves a component fixture from
+`tools/shadcn_reference_cases.json` and `tools/ui_component_parity_cases.json`, then dispatches
+to the existing official capture, Awake preview, and semantic-crop comparison tools.
+
+Use it directly from the repository, or add `scripts/` to `PATH` to use `awake` without a path:
+
+```bash
+export PATH="$PWD/scripts:$PATH"
+
+# Pinned upstream source rendered in Chromium.
+awake ui reference --component button --state rest --theme light
+
+# Existing Awake fixture. This writes the preview PNG and design-report JSON.
+awake ui preview --component button --state rest --theme light
+
+# Same Awake preview plus the semantic layout overlay:
+# blue = node bounds, green = content bounds, red = clip bounds.
+awake ui preview --component button --state rest --theme light --debug-layout
+
+# Writes an Awake crop, heatmap, and JSON metric; it never updates a baseline.
+awake ui validate --component button --theme light
+```
+
+The current Kotlin preview registry contains fixed, committed fixtures. The CLI rejects a state,
+variant, style, base color, or accent that does not have a matching fixture rather than silently
+rendering a different state. Add the reference-app case, Awake preview entry, and parity-manifest
+row together before expanding the command's supported combinations.
+
 ## Icon fidelity
 
 Proves each shipped `HeroIcons` `UiImageVector` renders the same shape as the official
