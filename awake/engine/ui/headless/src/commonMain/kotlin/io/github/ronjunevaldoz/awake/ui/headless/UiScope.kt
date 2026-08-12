@@ -13,13 +13,19 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
  * The runtime primitive scope is intentionally internal: callers compose behavior through this
  * type and cannot reach Core's frame, draw, or input escape hatches from a widget recipe.
  */
-class UiScope internal constructor(
-    internal val primitive: UiPrimitiveScope,
-) {
+interface UiScope {
+    val primitive: UiPrimitiveScope
+
     /** Immutable values from the currently installed theme, without Core runtime access. */
     val themeValues: UiThemeValues
         get() = primitive.context.currentTheme
 }
+
+internal class DefaultUiScope internal constructor(
+    override val primitive: UiPrimitiveScope,
+) : UiScope
+
+fun UiScope(primitive: UiPrimitiveScope): UiScope = DefaultUiScope(primitive)
 
 /** Requests keyboard focus for a Headless-owned input or composite widget. */
 fun UiScope.requestFocus(id: String) = primitive.context.requestFocus(id)

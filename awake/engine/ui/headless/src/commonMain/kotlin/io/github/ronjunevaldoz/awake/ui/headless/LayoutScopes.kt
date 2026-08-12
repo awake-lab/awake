@@ -10,31 +10,23 @@ import io.github.ronjunevaldoz.awake.ui.layouts.RowScope as PrimitiveRowScope
 
 /** Public Headless receiver for vertical layout content. */
 class ColumnScope internal constructor(
-    internal val primitive: PrimitiveColumnScope,
-) {
-    val themeValues: UiThemeValues get() = primitive.context.currentTheme
-}
+    override val primitive: PrimitiveColumnScope,
+) : UiScope
 
 /** Public Headless receiver for horizontal layout content. */
 class RowScope internal constructor(
-    internal val primitive: PrimitiveRowScope,
-) {
-    val themeValues: UiThemeValues get() = primitive.context.currentTheme
-}
+    override val primitive: PrimitiveRowScope,
+) : UiScope
 
 /** Public Headless receiver for overlapping layout content. */
 class BoxScope internal constructor(
-    internal val primitive: PrimitiveBoxScope,
-) {
-    val themeValues: UiThemeValues get() = primitive.context.currentTheme
-}
+    override val primitive: PrimitiveBoxScope,
+) : UiScope
 
 /** Public Headless receiver for explicitly positioned layout content. */
 class AbsoluteScope internal constructor(
-    internal val primitive: PrimitiveAbsoluteScope,
-) {
-    val themeValues: UiThemeValues get() = primitive.context.currentTheme
-}
+    override val primitive: PrimitiveAbsoluteScope,
+) : UiScope
 
 /**
  * Returns the public UI scope backed by this layout scope.
