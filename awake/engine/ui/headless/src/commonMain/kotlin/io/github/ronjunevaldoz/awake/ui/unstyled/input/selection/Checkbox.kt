@@ -159,7 +159,10 @@ fun UiPrimitiveScope.radio(
     val theme = context.currentTheme
     val surface = resolveInteractiveSurface(
         id = id,
-        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(24f.dp)),
+        // A shadcn RadioGroupItem is `size-4`, not a full-width checkbox row. Its authored
+        // label is a sibling in the caller's `flex items-center gap-2` row, so claiming the
+        // remaining width here makes both the semantic crop and the actual layout diverge.
+        modifier = modifier.withSizeFallback(Dimension.Fixed(boxSize), Dimension.Fixed(boxSize)),
         style = style,
         defaults = theme.components.checkbox,
         selected = selected,
