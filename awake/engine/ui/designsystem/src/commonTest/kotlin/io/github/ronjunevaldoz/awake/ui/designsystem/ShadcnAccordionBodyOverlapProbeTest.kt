@@ -43,8 +43,10 @@ class ShadcnAccordionBodyOverlapProbeTest {
 
     @Test
     fun expandedAccordionBodyStaysWithinItsColumnAcrossASelectionSwitch() {
+        ensureShadcnTestIconsInitialized()
         val ui = UiContext()
         ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
         val items = listOf("item-1", "item-2")
         var selectedId: String? = "item-1"
 

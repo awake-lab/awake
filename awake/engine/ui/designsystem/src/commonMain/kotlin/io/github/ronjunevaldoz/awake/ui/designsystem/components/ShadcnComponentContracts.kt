@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.Sp
 import io.github.ronjunevaldoz.awake.ui.api.UiIcon
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
 
 internal val SHADCN_CHECKBOX_CORNER_RADIUS = 4f.dp
 

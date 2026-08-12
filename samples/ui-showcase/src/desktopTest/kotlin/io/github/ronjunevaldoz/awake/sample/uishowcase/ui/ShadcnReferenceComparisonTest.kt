@@ -40,20 +40,26 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnTool
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnLabel
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.spacer
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.offset
+import io.github.ronjunevaldoz.awake.ui.headless.size
+import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.uiScope
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -96,7 +102,7 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), comparisonTestSnapshot())
         ui.pushFont(font)
         ui.pushTheme(theme)
-        ui.column(
+        ui.createUiScope(UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())).column(
             modifier = Modifier.offset(8f.dp, 8f.dp).width(272f.dp)
                 .height((metadata.height.toFloat() - 16f).dp),
         ) {
@@ -104,13 +110,13 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
                 id = "parity-card",
                 modifier = Modifier.width(272f.px),
                 header = {
-                    text(
+                    shadcnText(
                         "Login to your account",
-                        style = Style { textSize(theme.typography.title) },
+                        visuals = SurfaceStyle(textSize = themeValues.typography.title),
                     )
                 },
             ) { _ ->
-                shadcnLabel("Email")
+                uiScope().shadcnLabel("Email")
                 // The reference CardContent uses `flex flex-col gap-3` (12px) between every
                 // child: Label -> Input -> Button. Keep the fixture's composition aligned with
                 // the pinned shadcn case instead of compensating for the old core default gap.
@@ -129,11 +135,12 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
                 )
             }
         }
+        val output = ui.finishFrame()
         return AwakeUiPreviewFrame(
-            primitives = ui.endFrame(),
+            primitives = output.primitives,
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes(),
+            semantics = output.semantics,
         )
     }
 }
@@ -169,17 +176,19 @@ internal object AwakeTooltipContentLightPreview : AwakeUiPreviewEntry {
         // spacing.xs to place the bubble, so the canvas doesn't waste rows on a full-size
         // trigger the reference (bubble-only capture) never shows either.
         val anchor = UiBounds(x = 0f, y = 0f, width = metadata.width.toFloat(), height = 1f)
-        ui.createAbsolute(slot = ui.frameBounds()).shadcnTooltipText(
-            anchorSlot = anchor,
-            visible = true,
-            text = "Add to library",
-            id = "parity-tooltip",
-        )
+        ui.createUiScope(UiBounds(x = 0f, y = 0f, width = metadata.width.toFloat(), height = metadata.height.toFloat()))
+            .shadcnTooltipText(
+                anchorSlot = anchor,
+                visible = true,
+                text = "Add to library",
+                id = "parity-tooltip",
+            )
+        val output = ui.finishFrame()
         return AwakeUiPreviewFrame(
-            primitives = ui.endFrame(),
+            primitives = output.primitives,
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes(),
+            semantics = output.semantics,
         )
     }
 }

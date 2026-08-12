@@ -18,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.combobox
 import io.github.ronjunevaldoz.awake.ui.headless.rangeSlider
 import io.github.ronjunevaldoz.awake.ui.headless.select
 import io.github.ronjunevaldoz.awake.ui.headless.slider
@@ -149,6 +150,34 @@ fun RowScope.shadcnSelect(
     ),
     optionVisuals = selectOptionVisuals(themeValues),
     enabled = enabled,
+)
+
+fun UiScope.shadcnCombobox(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    placeholder: String = "Select framework...",
+    filterPlaceholder: String = "Search framework...",
+    emptyLabel: String = "No framework found.",
+): Int? = combobox(
+    id = id,
+    options = options,
+    selectedIndex = selectedIndex,
+    modifier = modifier,
+    enabled = enabled,
+    placeholder = placeholder,
+    filterPlaceholder = filterPlaceholder,
+    emptyLabel = emptyLabel,
+    visuals = fieldVisuals(themeValues, ShadcnTextFieldVariant.Default),
+    selectedVisuals = SurfaceStyle(
+        background = themeValues.colors.accent,
+        foreground = themeValues.colors.accentForeground,
+        cornerRadius = themeValues.shapes.md,
+    ),
+    optionVisuals = selectOptionVisuals(themeValues),
+    filterVisuals = fieldVisuals(themeValues, ShadcnTextFieldVariant.Ghost),
 )
 
 fun UiScope.shadcnInput(

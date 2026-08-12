@@ -36,7 +36,7 @@ class ShadcnSheetTest {
                 expanded = true,
                 onDismissRequest = {},
                 side = side,
-            ) { text("Sheet Content") }
+            ) { _ -> text("Sheet Content") }
             output = ui.finishFrame()
         }
         return requireNotNull(output)

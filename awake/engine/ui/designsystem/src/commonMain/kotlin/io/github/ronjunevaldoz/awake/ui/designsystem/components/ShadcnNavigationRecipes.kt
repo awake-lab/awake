@@ -6,11 +6,12 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -24,6 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.collapsible
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
@@ -45,17 +47,47 @@ fun ColumnScope.shadcnCollapsible(
     expanded: Boolean,
     modifier: Modifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
+    bordered: Boolean = false,
     content: ColumnScope.() -> Unit,
-): Boolean = shadcnCollapsible(id, expanded, modifier, onExpandedChange, trigger = { open, toggle ->
-    shadcnButton(
-        id = "$id.trigger",
-        label = title,
-        modifier = Modifier.fillMaxWidth().height(36f.dp),
-        variant = ShadcnButtonVariant.Ghost,
-        centered = false,
-        onClick = toggle,
-    )
-}, content = content)
+): Boolean {
+    val trigger: ColumnScope.(Boolean, () -> Unit) -> Unit = { isOpen, toggle ->
+        val clicked = buttonSlot(
+            id = "$id.trigger",
+            modifier = Modifier.fillMaxWidth().height(36f.dp),
+            visuals = io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals(
+                rest = SurfaceStyle(
+                    background = io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
+                    foreground = themeValues.colors.foreground,
+                    cornerRadius = themeValues.shapes.md,
+                ),
+                hovered = SurfaceStyle(
+                    background = themeValues.colors.accent,
+                    foreground = themeValues.colors.accentForeground,
+                )
+            ),
+        ) {
+            row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = UiAlignment.Vertical.Center,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                text(title, visuals = SurfaceStyle(textSize = themeValues.typography.body))
+                icon(if (isOpen) ShadcnIcons.chevronUp else ShadcnIcons.chevronDown)
+            }
+        }
+        if (clicked.clicked) toggle()
+    }
+
+    if (!bordered) {
+        return shadcnCollapsible(id, expanded, modifier, onExpandedChange, trigger, content)
+    }
+
+    var resolved = expanded
+    shadcnCard(id = "$id.panel", modifier = modifier.fillMaxWidth()) {
+        resolved = shadcnCollapsible(id, expanded, modifier = Modifier, onExpandedChange, trigger, content)
+    }
+    return resolved
+}
 
 fun ColumnScope.shadcnCollapsibleCard(
     id: String,
@@ -108,11 +140,7 @@ fun <T> ColumnScope.shadcnAccordion(
             surface(
                 id = "$itemId.content",
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8f.dp, vertical = 0f.dp),
-                style = SurfaceStyle(
-                    contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(
-                        bottom = 16f.dp
-                    )
-                ),
+                style = SurfaceStyle(contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(bottom = 16f.dp)),
             ) { content(item) }
         }
     }
@@ -131,15 +159,7 @@ fun ColumnScope.shadcnTabs(
         contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(3f.dp),
     )
     var resolved = selected
-    // Tailwind's `h-9 p-[3px]` is border-box sizing: the 36dp track includes its
-    // three-pixel inset on each side. Keep the outer track at the requested height and
-    // give the row only the content-box height; letting the surface size from its child
-    // made the public Headless recipe grow to 42dp and overflow the parity crop.
-    surface(
-        id = "$id.track",
-        modifier = modifier.wrapContentWidth().height(height),
-        style = track
-    ) {
+    surface(id = "$id.track", modifier = modifier.wrapContentWidth().height(height), style = track) {
         row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = UiAlignment.Vertical.Center,
@@ -154,34 +174,17 @@ fun ColumnScope.shadcnTabs(
                     visuals = io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals(
                         rest = SurfaceStyle(
                             background = if (active) themeValues.colors.background else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
-                            // tabs.tsx uses `text-foreground/60` for an inactive trigger. The
-                            // muted token is a different semantic role and is visibly lighter.
-                            foreground = if (active) themeValues.colors.foreground else themeValues.colors.foreground.withAlpha(
-                                0.6f
-                            ),
-                            // The base trigger has a transparent border; a light-mode active
-                            // trigger does not acquire a visible border (dark mode's input
-                            // override is a separate theme concern).
-                            border = SurfaceBorder(
-                                1f.dp,
-                                io.github.ronjunevaldoz.awake.core.colors.Color.Transparent
-                            ),
+                            foreground = if (active) themeValues.colors.foreground else themeValues.colors.foreground.withAlpha(0.6f),
+                            border = SurfaceBorder(1f.dp, io.github.ronjunevaldoz.awake.core.colors.Color.Transparent),
                             cornerRadius = themeValues.shapes.sm,
-                            contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(
-                                8f.dp,
-                                4f.dp
-                            ),
+                            contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp, 4f.dp),
                             shadow = if (active) {
                                 SurfaceShadow(
-                                    color = io.github.ronjunevaldoz.awake.core.colors.Color.Black.withAlpha(
-                                        0.12f
-                                    ),
+                                    color = io.github.ronjunevaldoz.awake.core.colors.Color.Black.withAlpha(0.12f),
                                     offsetY = 1f.dp,
                                     blurRadius = 2f.dp,
                                 )
                             } else null,
-                            // TabsTrigger is Tailwind `text-sm` (14px), independent of the
-                            // theme's body tier. The reference also applies font-medium.
                             textSize = 14f.sp,
                             fontWeight = FontWeight.Medium,
                         ),
@@ -205,6 +208,7 @@ fun ColumnScope.shadcnTabs(
     items = tabs.map { UiTabItem(it, it) },
     selected = tabs.getOrNull(selectedIndex) ?: tabs.firstOrNull().orEmpty(),
     modifier = modifier,
+    height = height,
 ).let { value -> tabs.indexOf(value).takeIf { it >= 0 } ?: selectedIndex }
 
 fun ColumnScope.shadcnBreadcrumb(
@@ -224,10 +228,15 @@ fun ColumnScope.shadcnBreadcrumb(
                 textSize = themeValues.typography.caption,
             ),
         )
-        if (index != items.lastIndex) text(
-            separator,
-            visuals = SurfaceStyle(foreground = themeValues.colors.mutedForeground)
-        )
+        if (index != items.lastIndex) {
+            text(
+                separator,
+                visuals = SurfaceStyle(
+                    foreground = themeValues.colors.mutedForeground,
+                    textSize = themeValues.typography.caption,
+                )
+            )
+        }
     }
 }
 
@@ -281,7 +290,7 @@ fun RowScope.shadcnBreadcrumbLink(
     label = label,
     modifier = modifier,
     variant = ShadcnButtonVariant.Ghost,
-    size = io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize.Xs,
+    size = ShadcnButtonSize.Xs,
     onClick = onClick,
 )
 

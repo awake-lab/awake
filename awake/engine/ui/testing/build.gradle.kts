@@ -36,6 +36,7 @@ kotlin {
             implementation(project(":awake:core"))
             implementation(project(":awake:engine:ui:ui-core"))
             implementation(project(":awake:engine:ui:ui-api"))
+            implementation(project(":awake:engine:ui:headless"))
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {

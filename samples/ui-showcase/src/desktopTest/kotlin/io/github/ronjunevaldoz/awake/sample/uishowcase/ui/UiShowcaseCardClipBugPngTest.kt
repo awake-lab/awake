@@ -11,20 +11,21 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlin.test.Test
 
@@ -51,20 +52,20 @@ class UiShowcaseCardClipBugPngTest {
         ui.beginFrame(420f, 220f, input.updateSnapshot().toUiInputState())
         ui.pushFont(font)
         ui.pushTheme(theme)
-        ui.column {
-            shadcnSurface(
+        ui.createUiScope(UiBounds(0f, 0f, 420f, 220f)).column {
+            surface(
                 id = "clip-repro-card",
-                variant = ShadcnSurfaceVariant.Muted,
-                style = Style {
-                    shape(32f.dp) // slider's max corner radius
-                    contentPadding(16f.dp)
-                    borderWidth(0f.dp)
-                },
-                modifier = Modifier.width(Dimension.Fixed(420f.dp)).height(Dimension.WrapContent),
-            ) {
+                style = SurfaceStyle(
+                    background = themeValues.colors.muted,
+                    foreground = themeValues.colors.foreground,
+                    cornerRadius = 32f.dp, // slider's max corner radius
+                    contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(16f.dp),
+                ),
+                modifier = Modifier.width(420f.dp),
+            ) { _ ->
                 row(horizontalArrangement = Arrangement.SpaceBetween) {
-                    shadcnBadge("LIVE", variant = ShadcnBadgeVariant.Primary)
-                    shadcnBadge("DANGER", variant = ShadcnBadgeVariant.Danger)
+                    shadcnBadge("badge.live", "LIVE", variant = ShadcnBadgeVariant.Primary)
+                    shadcnBadge("badge.danger", "DANGER", variant = ShadcnBadgeVariant.Danger)
                 }
                 shadcnBodyText("Showcase Preview Card")
                 row(
@@ -87,6 +88,7 @@ class UiShowcaseCardClipBugPngTest {
             }
         }
 
+        val output = ui.finishFrame()
         val scene = AwakeUiPreviewScene(
             metadata = AwakeUiPreviewMetadata(
                 id = id,
@@ -97,10 +99,10 @@ class UiShowcaseCardClipBugPngTest {
                 height = 220,
                 reportScale = 2,
             ),
-            primitives = ui.endFrame(),
+            primitives = output.primitives,
             background = theme.colors.background,
             font = font,
-            semantics = ui.semanticNodes(),
+            semantics = output.semantics,
         )
         saveAwakeUiPreview(scene)
     }
