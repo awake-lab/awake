@@ -16,6 +16,8 @@ import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.style
+
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -62,6 +64,7 @@ fun UiScope.shadcnSurface(
     content = content,
 )
 
+
 fun UiScope.shadcnCard(
     id: String,
     modifier: Modifier = Modifier,
@@ -73,13 +76,10 @@ fun UiScope.shadcnCard(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = surfaceStyle(themeValues, null).copy(
-        shadow = if (variant == ShadcnCardVariant.Elevated) {
-            SurfaceShadow(color = Color.Black.withAlpha(0.16f), offsetY = 2f.dp, blurRadius = 4f.dp)
-        } else null,
-    ),
+    style = variant.style(themeValues),
     verticalArrangement = Arrangement.spacedBy(0f.dp),
 ) {
+
     if (header != null) {
         header()
         // CardHeader/CardContent are independently padded in shadcn. The compatibility size

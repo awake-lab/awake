@@ -10,6 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.style
+
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -28,56 +30,12 @@ import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.toast
 
 /** Branded status pill. Behavior and layout remain owned by ui-headless. */
-/** Branded status pill. Behavior and layout remain owned by ui-headless. */
 fun UiScope.shadcnBadge(
     id: String,
     label: String,
     variant: ShadcnBadgeVariant = ShadcnBadgeVariant.Secondary,
-): UiBounds = pill(id = id, label = label, style = badgeStyle(themeValues, variant))
+): UiBounds = pill(id = id, label = label, style = variant.style(themeValues))
 
-private fun badgeStyle(
-    values: io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues,
-    variant: ShadcnBadgeVariant
-): SurfaceStyle {
-    val colors = values.colors
-    return when (variant) {
-        ShadcnBadgeVariant.Primary -> SurfaceStyle(
-            background = colors.primary,
-            foreground = colors.primaryForeground,
-            border = SurfaceBorder(1f.dp, Color.Transparent),
-        )
-
-        ShadcnBadgeVariant.Secondary -> SurfaceStyle(
-            background = colors.secondary,
-            foreground = colors.secondaryForeground,
-            border = SurfaceBorder(1f.dp, Color.Transparent),
-        )
-
-        ShadcnBadgeVariant.Outline -> SurfaceStyle(
-            background = Color.Transparent,
-            foreground = colors.foreground,
-            border = SurfaceBorder(1f.dp, colors.border),
-        )
-
-        ShadcnBadgeVariant.Danger -> SurfaceStyle(
-            background = colors.destructive,
-            foreground = Color.White,
-            border = SurfaceBorder(1f.dp, Color.Transparent),
-        )
-
-        ShadcnBadgeVariant.Ghost -> SurfaceStyle(
-            background = Color.Transparent,
-            foreground = colors.foreground,
-            border = SurfaceBorder(1f.dp, Color.Transparent),
-        )
-    }.copy(
-        cornerRadius = values.shapes.full,
-        contentPadding = UiInsets.tw(px = 2.5, py = 0.5),
-        textSize = 12f.sp,
-        lineHeight = 16f.sp,
-        fontWeight = FontWeight.SemiBold,
-    )
-}
 
 /** Branded key-cap pill. */
 fun UiScope.shadcnKbd(id: String, label: String): UiBounds = pill(
