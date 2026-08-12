@@ -63,7 +63,7 @@
     <ID>ReturnCount:BasicText.kt$private fun ellipsizeLine(line: String, maxWidthPx: Float, advanceOf: (Char) -> Float): String</ID>
     <ID>ReturnCount:BasicText.kt$private fun ellipsizeTruncatedLine( line: String, maxWidthPx: Float, advanceOf: (Char) -> Float, ): String</ID>
     <ID>ReturnCount:BasicText.kt$private fun measureTextBlock( layout: UiBitmapTextLayout, font: UiFont, glyphPx: Float, lineGap: Float, ): UiMeasuredTextBlock</ID>
-    <ID>TooManyFunctions:BasicText.kt$io.github.ronjunevaldoz.awake.ui.unstyled.input.text.BasicText.kt</ID>
+    <ID>TooManyFunctions:BasicText.kt$io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.BasicText.kt</ID>
     <ID>UnusedParameter:Collapsible.kt$modifier: UiModifier = Modifier</ID>
     <ID>UnusedParameter:Textarea.kt$lineGap: Float</ID>
   </CurrentIssues>

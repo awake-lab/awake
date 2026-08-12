@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.unstyled.ResizableDirection as PrimitiveDirection
-import io.github.ronjunevaldoz.awake.ui.unstyled.ResizablePanelGroupScope as PrimitiveScope
-import io.github.ronjunevaldoz.awake.ui.unstyled.resizablePanelGroup as primitiveResizablePanelGroup
+import io.github.ronjunevaldoz.awake.ui.headless.internal.ResizableDirection as PrimitiveDirection
+import io.github.ronjunevaldoz.awake.ui.headless.internal.ResizablePanelGroupScope as PrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.headless.internal.resizablePanelGroup as primitiveResizablePanelGroup
 
 enum class UiResizableDirection { Horizontal, Vertical }
 

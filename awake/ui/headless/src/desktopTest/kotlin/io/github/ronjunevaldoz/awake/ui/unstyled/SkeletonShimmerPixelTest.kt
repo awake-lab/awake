@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
-import io.github.ronjunevaldoz.awake.ui.unstyled.skeleton
+import io.github.ronjunevaldoz.awake.ui.headless.internal.skeleton
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

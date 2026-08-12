@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.Sp
-import io.github.ronjunevaldoz.awake.ui.unstyled.avatarFallback as primitiveAvatarFallback
+import io.github.ronjunevaldoz.awake.ui.headless.internal.avatarFallback as primitiveAvatarFallback
 
 /** Neutral initials avatar. Image loading and branded decoration remain outside Headless. */
 fun UiScope.avatar(
