@@ -96,6 +96,15 @@ private fun parityTestSnapshot(): UiInputState {
     return input.updateSnapshot().toUiInputState()
 }
 
+/**
+ * The browser reference is captured after CSS transitions have settled.  Keep the product
+ * Progress animation enabled, but advance the isolated parity fixture to the equivalent rest
+ * state before rasterizing it; a one-frame immediate-mode capture is otherwise an in-flight
+ * frame by definition.
+ */
+private const val PROGRESS_PARITY_SETTLE_FRAMES = 30
+private const val PROGRESS_PARITY_SETTLE_DELTA_SECONDS = 1f / 20f
+
 class ShadcnParityScreenshotTest {
 
     @Test
@@ -397,12 +406,9 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
     id = "awake-radiogroup-light",
     title = "Awake RadioGroup (light)",
     group = "Shadcn Parity",
-    summary = "New component -- circular checkbox() reused via a Circle shapeSpec, single-select logic composed on top, no new ui-headless primitive.",
-    width = 200,
-    // The compatibility radio recipe gives each item a 24px row and the shadcn root
-    // uses a 12px grid gap. Keep the complete three-item fixture inside its own canvas;
-    // the previous 108px frame clipped the third row at y=152.
-    height = 180,
+    summary = "Public Headless radio recipe: 16dp circular indicators with 8dp inline labels and 12dp group gaps, matching the pinned shadcn radio-group case.",
+    width = 160,
+    height = 72,
 )
 internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -412,10 +418,9 @@ internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
         ui.pushFont(font)
         ui.pushTheme(theme)
-        ui.column(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(160f.dp)
-                .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(8f.dp),
+        ui.createUiScope(UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())).headlessColumn(
+            modifier = HeadlessModifier.headlessWidth(metadata.width.toFloat().dp)
+                .headlessHeight(metadata.height.toFloat().dp),
         ) {
             shadcnRadioGroup(
                 id = "parity-radio",
@@ -445,17 +450,44 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
         val theme = shadcnTheme(dark = false)
         val font = UiFonts.default()
         val ui = UiContext()
-        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-        ui.pushFont(font)
-        ui.pushTheme(theme)
-        ui.column(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(212f.dp)
-                .height((metadata.height.toFloat() - 48f).dp),
-            verticalArrangement = Arrangement.spacedBy(16f.dp),
-        ) {
-            shadcnProgress("parity-progress-1", value = 0.25f, modifier = Modifier.width(212f.px))
-            shadcnProgress("parity-progress-2", value = 0.65f, modifier = Modifier.width(212f.px))
+        fun composeFrame() {
+            ui.pushFont(font)
+            ui.pushTheme(theme)
+            ui.createUiScope(UiBounds(24f, 24f, 212f, metadata.height.toFloat() - 48f)).headlessColumn(
+                modifier = HeadlessModifier.headlessWidth(212f.dp)
+                    .headlessHeight((metadata.height.toFloat() - 48f).dp),
+                verticalArrangement = HeadlessArrangement.spacedBy(16f.dp),
+            ) {
+                shadcnProgress(
+                    "parity-progress-1",
+                    value = 0.25f,
+                    modifier = HeadlessModifier.headlessWidth(212f.dp),
+                )
+                shadcnProgress(
+                    "parity-progress-2",
+                    value = 0.65f,
+                    modifier = HeadlessModifier.headlessWidth(212f.dp),
+                )
+            }
         }
+
+        repeat(PROGRESS_PARITY_SETTLE_FRAMES) {
+            ui.beginFrame(
+                metadata.width.toFloat(),
+                metadata.height.toFloat(),
+                parityTestSnapshot(),
+                deltaSeconds = PROGRESS_PARITY_SETTLE_DELTA_SECONDS,
+            )
+            composeFrame()
+            ui.endFrame()
+        }
+        ui.beginFrame(
+            metadata.width.toFloat(),
+            metadata.height.toFloat(),
+            parityTestSnapshot(),
+            deltaSeconds = PROGRESS_PARITY_SETTLE_DELTA_SECONDS,
+        )
+        composeFrame()
         return AwakeUiPreviewFrame(
             primitives = ui.endFrame(),
             background = theme.colors.background,
@@ -1048,30 +1080,25 @@ internal object AwakeCheckboxStatesLightPreview : AwakeUiPreviewEntry {
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
         ui.pushFont(font)
         ui.pushTheme(theme)
-        ui.createColumn(
-            x = 0f,
-            y = 0f,
-            width = metadata.width.toFloat(),
-            height = metadata.height.toFloat(),
-        ).row(
-            horizontalArrangement = Arrangement.spacedBy(16f.dp),
-            modifier = Modifier.height(metadata.height.toFloat().dp.toDimension()),
+        ui.createUiScope(UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())).headlessRow(
+            horizontalArrangement = HeadlessArrangement.spacedBy(16f.dp),
+            modifier = HeadlessModifier.headlessHeight(metadata.height.toFloat().dp),
         ) {
             shadcnCheckbox(
                 "parity-checkbox-unchecked",
                 checked = false,
-                modifier = Modifier.width(16f.dp).height(16f.dp),
+                modifier = HeadlessModifier.headlessWidth(16f.dp).headlessHeight(16f.dp),
             )
             shadcnCheckbox(
                 "parity-checkbox-checked",
                 checked = true,
-                modifier = Modifier.width(16f.dp).height(16f.dp),
+                modifier = HeadlessModifier.headlessWidth(16f.dp).headlessHeight(16f.dp),
             )
             shadcnCheckbox(
                 "parity-checkbox-disabled",
                 checked = false,
                 enabled = false,
-                modifier = Modifier.width(16f.dp).height(16f.dp),
+                modifier = HeadlessModifier.headlessWidth(16f.dp).headlessHeight(16f.dp),
             )
         }
         return AwakeUiPreviewFrame(

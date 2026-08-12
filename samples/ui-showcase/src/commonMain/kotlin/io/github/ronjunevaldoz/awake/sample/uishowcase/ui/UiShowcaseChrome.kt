@@ -3,47 +3,36 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnHeadline
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnSupportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.typography.shadcnTextLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.height
-import io.github.ronjunevaldoz.awake.ui.headless.width
-import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.width
 
 internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
     var selectedPage by rememberStateValue("ui-showcase-page", "entry") {
         ShowcasePages.first().id
     }
-    shadcnBadge(id = "ui-showcase-brand", label = "SHADCN", variant = ShadcnBadgeVariant.Primary)
-    shadcnHeadline("Catalog")
-    shadcnSupportingText(
-        if (compact) {
-            "Choose one page at a time."
-        } else {
-            "Grouped component and pattern pages, following the shadcn-compose catalog layout."
-        },
-    )
+
     spacer(Modifier.height(12f.dp))
     drawUiShowcaseSidebarMenu(
         compact = compact,
