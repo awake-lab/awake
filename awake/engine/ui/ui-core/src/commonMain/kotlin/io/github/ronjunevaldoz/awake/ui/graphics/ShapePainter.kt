@@ -217,7 +217,10 @@ fun UiPrimitiveScope.emitCheckmark(slot: UiBounds) {
 
 /** Paints the centered selected dot used by a radio indicator. */
 fun UiPrimitiveScope.emitRadioDot(slot: UiBounds, color: Color) {
-    val inset = minOf(slot.width, slot.height) * 0.3f
+    // shadcn's `RadioGroupItem` uses `size-4` for the ring and `size-2` for the indicator:
+    // the inner dot is exactly half the outer diameter. The old 30% inset produced a 6.4px
+    // dot inside a 16px radio instead of the reference's 8px dot.
+    val inset = minOf(slot.width, slot.height) * 0.25f
     emitFillShape(
         slot = UiBounds(slot.x + inset, slot.y + inset, slot.width - inset * 2f, slot.height - inset * 2f),
         color = color,
