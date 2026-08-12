@@ -7,12 +7,16 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 
+@DslMarker
+annotation class AwakeUiDsl
+
 /**
  * Public receiver for ordinary Headless widgets and design-system recipes.
  *
  * The runtime primitive scope is intentionally internal: callers compose behavior through this
  * type and cannot reach Core's frame, draw, or input escape hatches from a widget recipe.
  */
+@AwakeUiDsl
 interface UiScope {
     val primitive: UiPrimitiveScope
 

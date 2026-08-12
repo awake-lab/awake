@@ -21,6 +21,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.heightOrDefault
 
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.visuals
+
 fun UiScope.shadcnButton(
     id: String,
     label: String,
@@ -34,7 +36,7 @@ fun UiScope.shadcnButton(
     id = id,
     label = label,
     modifier = modifier.heightOrDefault(size.heightDp),
-    visuals = shadcnButtonVisuals(themeValues, variant, size),
+    visuals = variant.visuals(themeValues, size),
     centered = centered,
     enabled = enabled,
 ).also { if (it) onClick?.invoke() }
@@ -50,36 +52,8 @@ fun UiScope.shadcnButton(
 ): Boolean = button(
     id = id,
     modifier = modifier.heightOrDefault(size.heightDp),
-    visuals = shadcnButtonVisuals(themeValues, variant, size),
+    visuals = variant.visuals(themeValues, size),
     enabled = enabled,
     content = content,
 ).also { if (it) onClick?.invoke() }
 
-private fun shadcnButtonVisuals(
-    theme: UiThemeValues,
-    variant: ShadcnButtonVariant,
-    size: ShadcnButtonSize,
-): SurfaceVisuals {
-    val colors = theme.colors
-    val rest = when (variant) {
-        ShadcnButtonVariant.Primary -> SurfaceStyle(colors.primary, colors.primaryForeground, cornerRadius = theme.shapes.md, contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
-        ShadcnButtonVariant.Secondary -> SurfaceStyle(colors.secondary, colors.secondaryForeground, cornerRadius = theme.shapes.md, contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
-        ShadcnButtonVariant.Outline -> SurfaceStyle(colors.background, colors.foreground, SurfaceBorder(1f.dp, colors.input), theme.shapes.md, io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
-        ShadcnButtonVariant.Ghost -> SurfaceStyle(Color.Transparent, colors.foreground, cornerRadius = theme.shapes.md, contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
-        ShadcnButtonVariant.Danger -> SurfaceStyle(colors.destructive, Color.White, cornerRadius = theme.shapes.md, contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
-        ShadcnButtonVariant.Link -> SurfaceStyle(Color.Transparent, colors.primary, cornerRadius = theme.shapes.xs, contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
-    }
-    return SurfaceVisuals(
-        rest = rest,
-        hovered = when (variant) {
-            ShadcnButtonVariant.Outline -> SurfaceStyle(colors.secondary, colors.secondaryForeground)
-            ShadcnButtonVariant.Ghost -> SurfaceStyle(colors.accent, colors.accentForeground)
-            else -> null
-        },
-        pressed = when (variant) {
-            ShadcnButtonVariant.Outline, ShadcnButtonVariant.Ghost -> SurfaceStyle(colors.accent, colors.accentForeground)
-            else -> null
-        },
-        disabled = SurfaceStyle(foreground = colors.mutedForeground),
-    )
-}
