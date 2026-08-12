@@ -10,6 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
@@ -17,11 +19,17 @@ import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.combobox
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.rangeSlider
+import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.select
 import io.github.ronjunevaldoz.awake.ui.headless.slider
+import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.textField
 import io.github.ronjunevaldoz.awake.ui.headless.textarea
+
 
 internal fun fieldVisuals(values: UiThemeValues, variant: ShadcnTextFieldVariant): SurfaceVisuals {
     val colors = values.colors
@@ -231,4 +239,57 @@ fun UiScope.shadcnRangeSlider(
     ),
     enabled = enabled,
 )
+
+
+fun UiScope.shadcnInputGroup(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    prefixText: String? = null,
+    suffixText: String? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+): String {
+    var result = value
+    surface(
+        id = "$id.group",
+        modifier = modifier.fillMaxWidth(),
+        style = SurfaceStyle(
+            background = themeValues.colors.background,
+            border = SurfaceBorder(1f.dp, themeValues.colors.input),
+            cornerRadius = themeValues.shapes.md,
+        ),
+    ) {
+        row(verticalAlignment = UiAlignment.Vertical.Center) {
+            prefixText?.let { prefix ->
+                surface(
+                    id = "$id.prefix",
+                    modifier = Modifier.padding(start = 12f.dp, end = 12f.dp),
+                    style = SurfaceStyle(foreground = themeValues.colors.mutedForeground),
+                ) {
+                    text(label = prefix, visuals = SurfaceStyle(textSize = themeValues.typography.label))
+                }
+            }
+            result = shadcnInput(
+                id = id,
+                value = value,
+                placeholder = placeholder,
+                enabled = enabled,
+                variant = ShadcnTextFieldVariant.Ghost,
+            )
+            suffixText?.let { suffix ->
+                surface(
+                    id = "$id.suffix",
+                    modifier = Modifier.padding(start = 12f.dp, end = 12f.dp),
+                    style = SurfaceStyle(foreground = themeValues.colors.mutedForeground),
+                ) {
+                    text(label = suffix, visuals = SurfaceStyle(textSize = themeValues.typography.label))
+                }
+            }
+        }
+    }
+    return result
+}
+
+
 
