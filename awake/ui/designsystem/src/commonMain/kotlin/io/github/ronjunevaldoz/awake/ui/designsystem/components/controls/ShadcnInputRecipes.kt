@@ -9,7 +9,9 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.visuals
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
+
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
@@ -31,44 +33,10 @@ import io.github.ronjunevaldoz.awake.ui.headless.textField
 import io.github.ronjunevaldoz.awake.ui.headless.textarea
 
 
-internal fun fieldVisuals(values: UiThemeValues, variant: ShadcnTextFieldVariant): SurfaceVisuals {
-    val colors = values.colors
-    val shapes = values.shapes
-    val rest = when (variant) {
-        ShadcnTextFieldVariant.Default -> SurfaceStyle(
-            // shadcn Input is `bg-transparent`: the page surface shows through. Keeping the
-            // neutral field surface transparent is also important for `disabled:opacity-50`;
-            // painting an opaque white fill and an alpha-dimmed border as separate primitives
-            // double-composites the border in our immediate-mode renderer.
-            background = Color.Transparent,
-            foreground = colors.foreground,
-            border = SurfaceBorder(1f.dp, colors.input),
-            cornerRadius = shapes.md,
-            contentPadding = UiInsets(ShadcnSpacing.md, ShadcnSpacing.xs),
-            textSize = values.typography.label,
-        )
-        ShadcnTextFieldVariant.Filled -> SurfaceStyle(
-            background = colors.muted,
-            foreground = colors.foreground,
-            cornerRadius = shapes.md,
-            contentPadding = UiInsets(ShadcnSpacing.md, ShadcnSpacing.xs),
-            textSize = values.typography.label,
-        )
-        ShadcnTextFieldVariant.Ghost -> SurfaceStyle(
-            background = Color.Transparent,
-            foreground = colors.foreground,
-            cornerRadius = shapes.md,
-            contentPadding = UiInsets(ShadcnSpacing.md, ShadcnSpacing.xs),
-            textSize = values.typography.label,
-        )
-    }
-    return SurfaceVisuals(
-        rest = rest,
-        hovered = if (variant == ShadcnTextFieldVariant.Ghost) null else rest.copy(background = colors.card),
-        pressed = if (variant == ShadcnTextFieldVariant.Ghost) null else rest.copy(background = colors.card),
-        disabled = rest.copy(foreground = colors.mutedForeground),
-    )
-}
+
+internal fun fieldVisuals(values: UiThemeValues, variant: ShadcnTextFieldVariant): SurfaceVisuals =
+    variant.visuals(values)
+
 
 /** SelectContent rows are menu items, so they intentionally do not reuse trigger chrome. */
 private fun selectOptionVisuals(values: UiThemeValues): SurfaceVisuals = SurfaceVisuals(

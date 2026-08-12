@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnIcons
-import io.github.ronjunevaldoz.awake.ui.icon.HeroIcons
+import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
 fun ensureShadcnTestIconsInitialized() {
     if (runCatching { ShadcnIcons.chevronDown }.isSuccess) return
