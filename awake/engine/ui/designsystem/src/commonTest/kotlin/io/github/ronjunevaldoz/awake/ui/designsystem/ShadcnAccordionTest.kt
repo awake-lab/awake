@@ -19,8 +19,10 @@ class ShadcnAccordionTest {
 
     @Test
     fun shadcnAccordionSingleSelection() {
+        ensureShadcnTestIconsInitialized()
         val ui = UiContext()
         ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
         ui.beginFrame(240f, 300f, UiInputState())
 
         val items = listOf("item-1", "item-2")

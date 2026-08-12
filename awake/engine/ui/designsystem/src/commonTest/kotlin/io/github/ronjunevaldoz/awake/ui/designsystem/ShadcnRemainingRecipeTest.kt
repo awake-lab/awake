@@ -34,7 +34,7 @@ class ShadcnRemainingRecipeTest {
             expanded = true,
             onDismissRequest = {},
             side = ShadcnSheetSide.Right,
-        ) { text("Settings") }
+        ) { _ -> text("Settings") }
         scope.shadcnToast(id = "settings.saved", message = "Saved")
 
         context.endFrame()

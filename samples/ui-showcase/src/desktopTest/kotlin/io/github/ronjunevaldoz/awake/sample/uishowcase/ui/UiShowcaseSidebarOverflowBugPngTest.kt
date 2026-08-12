@@ -13,21 +13,16 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGro
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlin.test.Test
 
-/** Isolated, cropped-friendly repro of the sidebar-label-overflow bug: a single
- * [shadcnSidebarMenuItem] with a long real catalog title, in a 264dp sidebar (the real
- * production width), on a small canvas with the sidebar's own border visible so the overflow
- * past its edge is unambiguous in the rendered PNG. */
+/** Repro for the sidebar-menu overflow bug: when a sidebar has enough items to overflow
+ * its fixed height, the individual [shadcnSidebarMenuItem] buttons should not spill past
+ * the sidebar's own rounded container edges. */
 class UiShowcaseSidebarOverflowBugPngTest {
 
     @Test
@@ -38,46 +33,44 @@ class UiShowcaseSidebarOverflowBugPngTest {
     private fun saveRepro(id: String) {
         val state = UiShowcaseRuntimeState()
         val theme = state.showcaseTheme()
-        val font = UiFonts.default(cellSize = 12)
         val ui = UiContext()
         val input = Input()
         input.setPointer(down = false, x = -100f, y = -100f)
 
-        ui.beginFrame(360f, 90f, input.updateSnapshot().toUiInputState())
-        ui.pushFont(font)
+        ui.beginFrame(320f, 400f, input.updateSnapshot().toUiInputState())
         ui.pushTheme(theme)
-        ui.column {
-            shadcnSidebar(
-                id = "overflow-repro-sidebar",
-                style = Style { border(1f.dp, theme.colors.foreground) },
-                modifier = Modifier.width(264f.dp.toDimension()).height(Dimension.Fixed(80f.dp)),
-            ) {
-                shadcnSidebarGroup {
-                    shadcnSidebarMenu {
+        ui.createUiScope(UiBounds(x = 24f, y = 24f, width = 272f, height = 352f)).shadcnSidebar(
+            id = "overflow-sidebar",
+            modifier = Modifier.width(272f.dp),
+        ) { _ ->
+            shadcnSidebarGroup(label = "OVERFLOW TEST") {
+                shadcnSidebarMenu {
+                    repeat(20) { index ->
                         shadcnSidebarMenuItem(
-                            id = "overflow-repro-item",
-                            label = "Dropdown Menu And Dialog",
-                            active = false,
+                            id = "item-$index",
+                            label = "MenuItem $index",
+                            onClick = { },
                         )
                     }
                 }
             }
         }
 
+        val output = ui.finishFrame()
         val scene = AwakeUiPreviewScene(
             metadata = AwakeUiPreviewMetadata(
                 id = id,
                 title = id,
                 group = "Debug",
-                summary = "Isolated sidebar label overflow repro.",
-                width = 360,
-                height = 90,
+                summary = "Repro for sidebar menu content spilling past container edges.",
+                width = 320,
+                height = 400,
                 reportScale = 2,
             ),
-            primitives = ui.endFrame(),
+            primitives = output.primitives,
             background = theme.colors.background,
-            font = font,
-            semantics = ui.semanticNodes(),
+            font = ui.currentFont,
+            semantics = output.semantics,
         )
         saveAwakeUiPreview(scene)
     }

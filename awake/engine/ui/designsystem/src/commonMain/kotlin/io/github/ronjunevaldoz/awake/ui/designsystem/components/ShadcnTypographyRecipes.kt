@@ -75,16 +75,19 @@ fun UiScope.shadcnText(
     label: String,
     modifier: Modifier = Modifier,
     muted: Boolean = false,
+    centered: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     wrap: UiTextWrap = UiTextWrap.None,
-): UiBounds = text(
-    label = label,
-    modifier = modifier,
-    visuals = SurfaceStyle(
+    visuals: SurfaceStyle = SurfaceStyle(
         foreground = if (muted) themeValues.colors.mutedForeground else themeValues.colors.foreground,
         textSize = themeValues.typography.body,
     ),
+): UiBounds = text(
+    label = label,
+    modifier = modifier,
+    centered = centered,
+    visuals = visuals,
     maxLines = maxLines,
     overflow = overflow,
     wrap = wrap,
@@ -94,16 +97,19 @@ fun ColumnScope.shadcnText(
     label: String,
     modifier: Modifier = Modifier,
     muted: Boolean = false,
+    centered: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     wrap: UiTextWrap = UiTextWrap.None,
-): UiBounds = text(
-    label = label,
-    modifier = modifier,
-    visuals = SurfaceStyle(
+    visuals: SurfaceStyle = SurfaceStyle(
         foreground = if (muted) themeValues.colors.mutedForeground else themeValues.colors.foreground,
         textSize = themeValues.typography.body,
     ),
+): UiBounds = text(
+    label = label,
+    modifier = modifier,
+    centered = centered,
+    visuals = visuals,
     maxLines = maxLines,
     overflow = overflow,
     wrap = wrap,
@@ -113,16 +119,19 @@ fun RowScope.shadcnText(
     label: String,
     modifier: Modifier = Modifier,
     muted: Boolean = false,
+    centered: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     wrap: UiTextWrap = UiTextWrap.None,
-): UiBounds = text(
-    label = label,
-    modifier = modifier,
-    visuals = SurfaceStyle(
+    visuals: SurfaceStyle = SurfaceStyle(
         foreground = if (muted) themeValues.colors.mutedForeground else themeValues.colors.foreground,
         textSize = themeValues.typography.body,
     ),
+): UiBounds = text(
+    label = label,
+    modifier = modifier,
+    centered = centered,
+    visuals = visuals,
     maxLines = maxLines,
     overflow = overflow,
     wrap = wrap,
@@ -132,16 +141,19 @@ fun BoxScope.shadcnText(
     label: String,
     modifier: Modifier = Modifier,
     muted: Boolean = false,
+    centered: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
     overflow: UiTextOverflow = UiTextOverflow.Visible,
     wrap: UiTextWrap = UiTextWrap.None,
-): UiBounds = text(
-    label = label,
-    modifier = modifier,
-    visuals = SurfaceStyle(
+    visuals: SurfaceStyle = SurfaceStyle(
         foreground = if (muted) themeValues.colors.mutedForeground else themeValues.colors.foreground,
         textSize = themeValues.typography.body,
     ),
+): UiBounds = text(
+    label = label,
+    modifier = modifier,
+    centered = centered,
+    visuals = visuals,
     maxLines = maxLines,
     overflow = overflow,
     wrap = wrap,

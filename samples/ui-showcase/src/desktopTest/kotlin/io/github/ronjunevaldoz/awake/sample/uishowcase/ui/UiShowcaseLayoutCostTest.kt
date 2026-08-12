@@ -5,26 +5,28 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.UiDensity
-import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.layout.toDimension
-import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
-import io.github.ronjunevaldoz.awake.ui.layouts.column
-import io.github.ronjunevaldoz.awake.ui.layouts.row
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.padding
-import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.rememberScrollState
-import io.github.ronjunevaldoz.awake.ui.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.testTag
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlin.test.Test
 import kotlin.time.TimeSource
@@ -115,13 +117,13 @@ class UiShowcaseLayoutCostTest {
             val measured = frameIndex >= warmupFrames
             ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
             ui.pushTheme(theme)
-            ui.rememberStateValue<String>("ui-showcase-page", "entry") { "field-demo" }.value = "field-demo"
+            ui.createUiScope(UiBounds(0f, 0f, 1440f, 900f)).rememberStateValue("ui-showcase-page", "entry") { "field-demo" }.value = "field-demo"
 
             if (measured) {
                 UiMeasureTrialStats.reset()
                 UiMeasureTrialStats.enabled = true
             }
-            drawRealShowcaseShell(ui, state, cacheShellRow = cached)
+            drawRealShowcaseShell(ui, state)
             ui.endFrame()
             if (measured) {
                 trials += UiMeasureTrialStats.trialCount
@@ -190,7 +192,7 @@ class UiShowcaseLayoutCostTest {
                 // drawUiShowcasePageContent read, so this frame renders pageId's real content
                 // instead of always the default "introduction" -- same stateStore-sharing
                 // approach UiContextMeasureState.createMeasureContext relies on for trial passes.
-                ui.rememberStateValue<String>("ui-showcase-page", "entry") { pageId }.value = pageId
+                ui.createUiScope(UiBounds(0f, 0f, 1440f, 900f)).rememberStateValue("ui-showcase-page", "entry") { pageId }.value = pageId
 
                 if (measured) {
                     UiMeasureTrialStats.reset()
@@ -236,36 +238,32 @@ class UiShowcaseLayoutCostTest {
      * function can measure the real before/after trial-count delta (see
      * [measureShellRowCacheImpact]) without needing to physically revert production code.
      */
-    private fun drawRealShowcaseShell(ui: UiContext, state: UiShowcaseRuntimeState, cacheShellRow: Boolean = true) {
-        val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side")
-        val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
-        val outerPadding = 24f.dp
-        val sidebarWidth = 264f.dp.toDimension()
+    private fun drawRealShowcaseShell(ui: UiContext, state: UiShowcaseRuntimeState) {
+        val sidebarWidth = 264f.dp
         val railGap = 20f.dp
 
-        ui.createBox(x = 0f, y = 0f, width = 1440f, height = 900f).row(
-            id = if (cacheShellRow) "ui-showcase-shell-row" else null,
-            cacheKey = if (cacheShellRow) "static" else null,
+        val scope = ui.createUiScope(UiBounds(x = 0f, y = 0f, width = 1440f, height = 900f))
+        val sidebarScroll = scope.rememberScrollState("ui-showcase-scroll-side")
+        val contentScroll = scope.rememberScrollState("ui-showcase-scroll-content")
+        val outerPadding = 24f.dp
+
+        scope.row(
             horizontalArrangement = Arrangement.spacedBy(railGap),
-            modifier = (Modifier.fillMaxSize().padding(outerPadding)).width(Dimension.FillMax).height(Dimension.FillMax),
-        ) {
+            modifier = Modifier.fillMaxSize().padding(outerPadding),
+        ) { _ ->
             shadcnSidebar(
                 id = "ui-showcase-sidebar",
-                style = Style { shape(16f.dp) },
-                modifier = (Modifier.verticalScroll(sidebarScroll, UiScrollConfig.Hidden)).width(sidebarWidth).height(Dimension.FillMax),
-            ) {
+                modifier = Modifier.verticalScroll(sidebarScroll).width(sidebarWidth),
+            ) { _ ->
                 drawUiShowcaseSidebar(compact = false)
             }
 
             column(
-                id = "ui-showcase-content-viewport",
-                modifier = (Modifier.verticalScroll(contentScroll)).width(Dimension.FillMax).height(Dimension.FillMax),
-            ) {
+                modifier = Modifier.verticalScroll(contentScroll).fillMaxWidth(),
+            ) { _ ->
                 shadcnSurface(
                     id = "ui-showcase-content",
-                    style = Style { shape(16f.dp) },
-                    modifier = Modifier.height(Dimension.WrapContent),
-                ) {
+                ) { _ ->
                     drawUiShowcasePageContent(state, showInlineMenu = false)
                 }
             }

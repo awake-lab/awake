@@ -7,7 +7,10 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.sp
+import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
+import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
@@ -15,13 +18,15 @@ import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.pill
+import io.github.ronjunevaldoz.awake.ui.headless.progress
 import io.github.ronjunevaldoz.awake.ui.headless.separator
-ottr545r4456import io.github.ronjunevaldoz.awake.ui.headless.progress
 import io.github.ronjunevaldoz.awake.ui.headless.skeleton
 import io.github.ronjunevaldoz.awake.ui.headless.spinner
+import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.toast
-import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
 
 /** Branded status pill. Behavior and layout remain owned by ui-headless. */
 fun UiScope.shadcnBadge(
@@ -42,36 +47,36 @@ fun RowScope.shadcnBadge(
     variant: ShadcnBadgeVariant = ShadcnBadgeVariant.Secondary,
 ): UiBounds = pill(id = id, label = label, style = badgeStyle(themeValues, variant))
 
-private fun badgeStyle(values: io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues, variant: ShadcnBadgeVariant): SurfaceStyle {
+private fun badgeStyle(
+    values: io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues,
+    variant: ShadcnBadgeVariant
+): SurfaceStyle {
     val colors = values.colors
     return when (variant) {
-        // The upstream Badge recipe always includes `border`, even for filled variants; those
-        // borders are transparent but still contribute one pixel on each side to box metrics.
         ShadcnBadgeVariant.Primary -> SurfaceStyle(
             background = colors.primary,
             foreground = colors.primaryForeground,
             border = SurfaceBorder(1f.dp, Color.Transparent),
         )
+
         ShadcnBadgeVariant.Secondary -> SurfaceStyle(
             background = colors.secondary,
             foreground = colors.secondaryForeground,
             border = SurfaceBorder(1f.dp, Color.Transparent),
         )
+
         ShadcnBadgeVariant.Outline -> SurfaceStyle(
-            // The reference leaves the badge background transparent; the page/card beneath it
-            // supplies the surface. This matters on dark cards and is not the same as a baked
-            // background token.
             background = Color.Transparent,
             foreground = colors.foreground,
-            // shadcn Badge outline uses `border-border` (not the input/control token).
             border = SurfaceBorder(1f.dp, colors.border),
         )
+
         ShadcnBadgeVariant.Danger -> SurfaceStyle(
             background = colors.destructive,
-            // badge.tsx uses `text-white`, not the palette's destructive-foreground token.
             foreground = Color.White,
             border = SurfaceBorder(1f.dp, Color.Transparent),
         )
+
         ShadcnBadgeVariant.Ghost -> SurfaceStyle(
             background = Color.Transparent,
             foreground = colors.foreground,
@@ -80,10 +85,7 @@ private fun badgeStyle(values: io.github.ronjunevaldoz.awake.ui.api.theme.UiThem
     }.copy(
         cornerRadius = values.shapes.full,
         contentPadding = UiInsets(8f.dp, 2f.dp),
-        // shadcn Badge is `text-xs` (12px), independent of the preset's compact caption tier.
         textSize = 12f.sp,
-        // Tailwind `text-xs` carries a 1rem line-height; keeping it explicit makes the
-        // border-box height 16px line box + 4px vertical padding + 2px border = 22px.
         lineHeight = 16f.sp,
         fontWeight = FontWeight.Medium,
     )
@@ -235,3 +237,81 @@ fun UiScope.shadcnToast(
         cornerRadius = themeValues.shapes.lg,
     ),
 )
+
+fun ColumnScope.shadcnAlert(
+    id: String,
+    modifier: Modifier = Modifier,
+    variant: ShadcnAlertVariant = ShadcnAlertVariant.Default,
+    content: ColumnScope.() -> Unit,
+): UiBounds = surface(
+    id = id,
+    modifier = modifier.fillMaxWidth(),
+    style = SurfaceStyle(
+        background = if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive.withAlpha(
+            0.1f
+        ) else themeValues.colors.muted,
+        foreground = if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.foreground,
+        border = SurfaceBorder(
+            1f.dp,
+            if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.border
+        ),
+        cornerRadius = themeValues.shapes.lg,
+        contentPadding = UiInsets(16f.dp),
+    ),
+) {
+    column(verticalArrangement = Arrangement.spacedBy(4f.dp)) {
+        content()
+    }
+}
+
+fun ColumnScope.shadcnAlert(
+    id: String,
+    title: String,
+    description: String? = null,
+    modifier: Modifier = Modifier,
+    variant: ShadcnAlertVariant = ShadcnAlertVariant.Default,
+): UiBounds = shadcnAlert(
+    id = id,
+    modifier = modifier,
+    variant = variant,
+) {
+    shadcnText(title, visuals = SurfaceStyle(fontWeight = FontWeight.Medium))
+    if (description != null) {
+        shadcnText(description, visuals = SurfaceStyle(textSize = themeValues.typography.caption))
+    }
+}
+
+fun ColumnScope.shadcnEmpty(
+    id: String,
+    title: String,
+    description: String? = null,
+    modifier: Modifier = Modifier,
+    action: (ColumnScope.() -> Unit)? = null,
+): UiBounds = surface(
+    id = id,
+    modifier = modifier.fillMaxWidth(),
+    style = SurfaceStyle(
+        contentPadding = UiInsets(24f.dp),
+    ),
+) {
+    column(verticalArrangement = Arrangement.spacedBy(8f.dp)) {
+        shadcnText(
+            title,
+            centered = true,
+            visuals = SurfaceStyle(fontWeight = FontWeight.Medium, textSize = themeValues.typography.body),
+        )
+        if (description != null) {
+            shadcnText(
+                description,
+                centered = true,
+                visuals = SurfaceStyle(textSize = themeValues.typography.caption),
+            )
+        }
+        if (action != null) {
+            column(verticalArrangement = Arrangement.spacedBy(4f.dp)) {
+                action()
+            }
+        }
+    }
+}
+

@@ -3,8 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.sp
+import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
@@ -14,10 +16,13 @@ import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 
@@ -25,7 +30,7 @@ private fun sidebarStyle(scope: UiScope): SurfaceStyle = SurfaceStyle(
     background = scope.themeValues.colors.card,
     foreground = scope.themeValues.colors.foreground,
     border = SurfaceBorder(1f.dp, scope.themeValues.colors.border),
-    contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(ShadcnSidebarMetrics.contentPadding),
+    contentPadding = UiInsets(ShadcnSidebarMetrics.contentPadding),
 )
 
 fun UiScope.shadcnSidebar(
@@ -57,7 +62,7 @@ fun ColumnScope.shadcnSidebar(
         background = themeValues.colors.card,
         foreground = themeValues.colors.foreground,
         border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(ShadcnSidebarMetrics.contentPadding),
+        contentPadding = UiInsets(ShadcnSidebarMetrics.contentPadding),
     ),
 ) {
     if (expanded) {
@@ -81,7 +86,7 @@ fun RowScope.shadcnSidebar(
         background = themeValues.colors.card,
         foreground = themeValues.colors.foreground,
         border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(ShadcnSidebarMetrics.contentPadding),
+        contentPadding = UiInsets(ShadcnSidebarMetrics.contentPadding),
     ),
 ) {
     if (expanded) {
@@ -105,7 +110,7 @@ fun BoxScope.shadcnSidebar(
         background = themeValues.colors.card,
         foreground = themeValues.colors.foreground,
         border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(ShadcnSidebarMetrics.contentPadding),
+        contentPadding = UiInsets(ShadcnSidebarMetrics.contentPadding),
     ),
 ) {
     if (expanded) {
@@ -120,7 +125,10 @@ fun ColumnScope.shadcnSidebarGroup(
     label: String? = null,
     content: ColumnScope.() -> Unit,
 ) {
-    column(modifier.fillMaxWidth().padding(horizontal = 4f.dp, vertical = 8f.dp), Arrangement.spacedBy(ShadcnSidebarMetrics.groupGap)) {
+    column(
+        modifier.fillMaxWidth().padding(horizontal = 4f.dp, vertical = 8f.dp),
+        Arrangement.spacedBy(ShadcnSidebarMetrics.groupGap)
+    ) {
         label?.let {
             text(
                 label = it.uppercase(),
@@ -128,8 +136,8 @@ fun ColumnScope.shadcnSidebarGroup(
                     foreground = themeValues.colors.mutedForeground,
                     // Sidebar group titles are Tailwind `text-xs` (12px) and `font-medium`.
                     textSize = 12f.sp,
-                    fontWeight = io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight.Medium,
-                    contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = 8f.dp, vertical = 0f.dp)
+                    fontWeight = FontWeight.Medium,
+                    contentPadding = UiInsets(horizontal = 8f.dp, vertical = 0f.dp)
                 )
             )
         }
@@ -141,7 +149,10 @@ fun ColumnScope.shadcnSidebarMenu(
     modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit,
 ) {
-    column(modifier.fillMaxWidth(), Arrangement.spacedBy(ShadcnSidebarMetrics.menuGap)) { content() }
+    column(
+        modifier.fillMaxWidth(),
+        Arrangement.spacedBy(ShadcnSidebarMetrics.menuGap)
+    ) { content() }
 }
 
 fun ColumnScope.shadcnSidebarMenuItem(
@@ -164,10 +175,18 @@ fun ColumnScope.shadcnSidebarMenuSub(
     modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit,
 ) {
-    column(
-        modifier.fillMaxWidth().padding(horizontal = ShadcnSidebarMetrics.submenuIndent, vertical = 0f.dp),
-        Arrangement.spacedBy(ShadcnSidebarMetrics.submenuGap),
-    ) { content() }
+    row(modifier = modifier.fillMaxWidth().padding(start = ShadcnSidebarMetrics.submenuIndent)) {
+        separator(
+            color = themeValues.colors.border,
+            orientation = UiSeparatorOrientation.Vertical
+        )
+        column(
+            modifier = Modifier.fillMaxWidth(),
+            Arrangement.spacedBy(ShadcnSidebarMetrics.submenuGap)
+        ) {
+            content()
+        }
+    }
 }
 
 fun ColumnScope.shadcnSidebarMenuSubItem(

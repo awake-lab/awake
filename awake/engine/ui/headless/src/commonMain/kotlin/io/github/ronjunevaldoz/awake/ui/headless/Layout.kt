@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement as PrimitiveArrangement
@@ -13,12 +14,12 @@ import io.github.ronjunevaldoz.awake.ui.layouts.spacer as primitiveSpacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier as primitiveModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier as PrimitiveModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align as primitiveAlign
+import io.github.ronjunevaldoz.awake.ui.modifier.clickable as primitiveClickable
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight as primitiveFillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize as primitiveFillMaxSize
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth as primitiveFillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height as primitiveHeight
 import io.github.ronjunevaldoz.awake.ui.modifier.heightIn as primitiveHeightIn
-import io.github.ronjunevaldoz.awake.ui.modifier.clickable as primitiveClickable
 import io.github.ronjunevaldoz.awake.ui.modifier.offset as primitiveOffset
 import io.github.ronjunevaldoz.awake.ui.modifier.padding as primitivePadding
 import io.github.ronjunevaldoz.awake.ui.modifier.testTag as primitiveTestTag
@@ -35,6 +36,8 @@ internal data class HeadlessModifier(val primitive: PrimitiveModifier) : Modifie
 internal fun Modifier.asPrimitiveModifier(): PrimitiveModifier =
     (this as? HeadlessModifier)?.primitive ?: primitiveModifier
 
+fun PrimitiveModifier.toHeadless(): Modifier = HeadlessModifier(this)
+
 fun Modifier.width(width: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveWidth(width))
 
 /** Sizes a node to its measured content instead of the parent cross-axis extent. */
@@ -46,6 +49,9 @@ fun Modifier.height(height: Dp): Modifier = HeadlessModifier(asPrimitiveModifier
 /** Applies a component's intrinsic height only when the caller did not provide one. */
 fun Modifier.heightOrDefault(height: Dp): Modifier =
     if ((this as? HeadlessModifier)?.primitive?.heightDimension == null) height(height) else this
+
+fun Modifier.size(width: Dp, height: Dp): Modifier = this.width(width).height(height)
+fun Modifier.size(size: Dp): Modifier = this.size(size, size)
 
 /** Minimum/maximum height constraint that preserves an explicit caller height when present. */
 fun Modifier.heightIn(min: Dp? = null, max: Dp? = null): Modifier =
@@ -65,6 +71,24 @@ fun Modifier.padding(all: Dp): Modifier = HeadlessModifier(asPrimitiveModifier()
 
 fun Modifier.padding(horizontal: Dp, vertical: Dp): Modifier =
     HeadlessModifier(asPrimitiveModifier().primitivePadding(horizontal, vertical))
+
+fun Modifier.padding(
+    start: Dp = 0f.dp,
+    top: Dp = 0f.dp,
+    end: Dp = 0f.dp,
+    bottom: Dp = 0f.dp
+): Modifier = HeadlessModifier(
+    asPrimitiveModifier().primitivePadding(start, top, end, bottom)
+)
+
+fun Modifier.margin(
+    start: Dp = 0f.dp,
+    top: Dp = 0f.dp,
+    end: Dp = 0f.dp,
+    bottom: Dp = 0f.dp
+): Modifier = HeadlessModifier(
+    asPrimitiveModifier().primitiveOffset(start, top) // Margin not yet in Core, approximating with offset
+)
 
 fun Modifier.offset(x: Dp = Dp(0f), y: Dp = Dp(0f)): Modifier =
     HeadlessModifier(asPrimitiveModifier().primitiveOffset(x, y))
