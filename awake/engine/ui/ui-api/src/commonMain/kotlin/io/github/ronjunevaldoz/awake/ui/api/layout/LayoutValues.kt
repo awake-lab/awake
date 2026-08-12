@@ -45,6 +45,9 @@ enum class UiAlignment {
     }
 }
 
+/** Converts a Tailwind grid multiplier to Dp (1 unit = 4dp). e.g., 2.5.tw = 10.dp, 0.5.tw = 2.dp */
+val Number.tw: Dp get() = Dp(this.toFloat() * 4f)
+
 /** Authored padding/margin values. Density conversion belongs to ui-core. */
 data class UiInsets(
     val start: Dp = Dp(0f),
@@ -54,6 +57,14 @@ data class UiInsets(
 ) {
     companion object {
         val Zero = UiInsets()
+
+        /** Tailwind padding constructor (1 unit = 4dp). e.g., UiInsets.tw(px = 2.5, py = 0.5) */
+        fun tw(px: Number = 0, py: Number = 0): UiInsets = UiInsets(
+            horizontal = px.tw,
+            vertical = py.tw,
+        )
+
+        fun tw(p: Number): UiInsets = UiInsets(all = p.tw)
     }
 }
 
