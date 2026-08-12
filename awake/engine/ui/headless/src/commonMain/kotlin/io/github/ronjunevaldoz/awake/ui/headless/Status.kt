@@ -22,24 +22,6 @@ fun UiScope.progress(
     )
 }
 
-fun ColumnScope.progress(
-    id: String,
-    value: Float,
-    modifier: Modifier = Modifier,
-    visuals: SurfaceStyle = SurfaceStyle(),
-) {
-    primitive.primitiveProgress(id, value, modifier.asPrimitiveModifier(), visuals.asPrimitiveStyle())
-}
-
-fun RowScope.progress(
-    id: String,
-    value: Float,
-    modifier: Modifier = Modifier,
-    visuals: SurfaceStyle = SurfaceStyle(),
-) {
-    primitive.primitiveProgress(id, value, modifier.asPrimitiveModifier(), visuals.asPrimitiveStyle())
-}
-
 /** Neutral loading placeholder with caller-provided surface visuals. */
 fun UiScope.skeleton(
     id: String,
@@ -55,23 +37,6 @@ fun UiScope.skeleton(
     )
 }
 
-fun ColumnScope.skeleton(
-    id: String,
-    modifier: Modifier = Modifier,
-    visuals: SurfaceStyle = SurfaceStyle(),
-    shimmer: Boolean = false,
-) {
-    primitive.primitiveSkeleton(id, modifier.asPrimitiveModifier(), visuals.asPrimitiveStyle(), shimmer)
-}
-
-fun RowScope.skeleton(
-    id: String,
-    modifier: Modifier = Modifier,
-    visuals: SurfaceStyle = SurfaceStyle(),
-    shimmer: Boolean = false,
-) {
-    primitive.primitiveSkeleton(id, modifier.asPrimitiveModifier(), visuals.asPrimitiveStyle(), shimmer)
-}
 
 /** Neutral animated loading indicator with caller-provided foreground visual. */
 fun UiScope.spinner(
@@ -84,22 +49,6 @@ fun UiScope.spinner(
         modifier = modifier.asPrimitiveModifier(),
         style = visuals.asPrimitiveStyle(),
     )
-}
-
-fun ColumnScope.spinner(
-    id: String,
-    modifier: Modifier = Modifier,
-    visuals: SurfaceStyle = SurfaceStyle(),
-) {
-    primitive.primitiveSpinner(id, modifier.asPrimitiveModifier(), visuals.asPrimitiveStyle())
-}
-
-fun RowScope.spinner(
-    id: String,
-    modifier: Modifier = Modifier,
-    visuals: SurfaceStyle = SurfaceStyle(),
-) {
-    primitive.primitiveSpinner(id, modifier.asPrimitiveModifier(), visuals.asPrimitiveStyle())
 }
 
 /** Neutral self-dismissing toast behavior with caller-provided surface visuals. */

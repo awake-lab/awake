@@ -26,33 +26,3 @@ fun UiScope.separator(
         UiSeparatorOrientation.Vertical -> PrimitiveOrientation.Vertical
     },
 )
-
-fun ColumnScope.separator(
-    modifier: Modifier = Modifier,
-    thickness: Dp = 1f.dp,
-    orientation: UiSeparatorOrientation = UiSeparatorOrientation.Horizontal,
-    color: Color? = null,
-): UiBounds = primitive.primitiveSeparator(
-    thickness = thickness,
-    modifier = modifier.asPrimitiveModifier(),
-    color = color ?: themeValues.colors.border,
-    orientation = when (orientation) {
-        UiSeparatorOrientation.Horizontal -> PrimitiveOrientation.Horizontal
-        UiSeparatorOrientation.Vertical -> PrimitiveOrientation.Vertical
-    },
-)
-
-fun RowScope.separator(
-    modifier: Modifier = Modifier,
-    thickness: Dp = 1f.dp,
-    orientation: UiSeparatorOrientation = UiSeparatorOrientation.Horizontal,
-    color: Color? = null,
-): UiBounds = primitive.primitiveSeparator(
-    thickness = thickness,
-    modifier = modifier.asPrimitiveModifier(),
-    color = color ?: themeValues.colors.border,
-    orientation = when (orientation) {
-        UiSeparatorOrientation.Horizontal -> PrimitiveOrientation.Horizontal
-        UiSeparatorOrientation.Vertical -> PrimitiveOrientation.Vertical
-    },
-)

@@ -25,7 +25,13 @@ class HeadlessCanvasScope internal constructor(
     private val primitive: PrimitiveCanvasScope,
     val bounds: UiBounds,
 ) {
-    fun nested(x: Float, y: Float, width: Float, height: Float, content: HeadlessCanvasScope.() -> Unit) {
+    fun nested(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        content: HeadlessCanvasScope.() -> Unit
+    ) {
         primitive.nested(x, y, width, height) {
             HeadlessCanvasScope(this, UiBounds(bounds.x + x, bounds.y + y, width, height)).content()
         }
@@ -34,7 +40,13 @@ class HeadlessCanvasScope internal constructor(
     fun drawRect(x: Float, y: Float, width: Float, height: Float, color: Color) =
         primitive.drawRect(x, y, width, height, color)
 
-    fun drawGradientRect(x: Float, y: Float, width: Float, height: Float, gradient: HeadlessCanvasGradient) =
+    fun drawGradientRect(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        gradient: HeadlessCanvasGradient
+    ) =
         primitive.drawGradientRect(
             x,
             y,
@@ -70,9 +82,16 @@ class HeadlessCanvasScope internal constructor(
         strokeWidth: Dp = 1f.dp,
     ) = primitive.drawLine(startX, startY, endX, endY, color, UiStroke(width = strokeWidth))
 
-    fun drawText(text: String, x: Float, y: Float, color: Color) = primitive.drawText(text, x, y, color)
+    fun drawText(text: String, x: Float, y: Float, color: Color) =
+        primitive.drawText(text, x, y, color)
 
-    fun clipRect(x: Float, y: Float, width: Float, height: Float, content: HeadlessCanvasScope.() -> Unit) {
+    fun clipRect(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        content: HeadlessCanvasScope.() -> Unit
+    ) {
         primitive.clipRect(x, y, width, height) {
             HeadlessCanvasScope(this, bounds).content()
         }
@@ -80,30 +99,15 @@ class HeadlessCanvasScope internal constructor(
 
     fun clipCircle(x: Float, y: Float, diameter: Float, content: HeadlessCanvasScope.() -> Unit) {
         primitive.clipShape(UiShapeSpec.Circle, x, y, diameter, diameter) {
-            HeadlessCanvasScope(this, UiBounds(bounds.x + x, bounds.y + y, diameter, diameter)).content()
+            HeadlessCanvasScope(
+                this,
+                UiBounds(bounds.x + x, bounds.y + y, diameter, diameter)
+            ).content()
         }
     }
 }
 
 fun UiScope.canvas(
-    id: String = "canvas",
-    modifier: Modifier = Modifier,
-    content: HeadlessCanvasScope.() -> Unit,
-): UiBounds = primitive.primitiveCanvas(modifier = modifier.asPrimitiveModifier()) {
-    primitive.recordSemantic(role = UiSemanticRole.Panel, id = id, bounds = bounds)
-    HeadlessCanvasScope(this, bounds).content()
-}
-
-fun ColumnScope.canvas(
-    id: String = "canvas",
-    modifier: Modifier = Modifier,
-    content: HeadlessCanvasScope.() -> Unit,
-): UiBounds = primitive.primitiveCanvas(modifier = modifier.asPrimitiveModifier()) {
-    primitive.recordSemantic(role = UiSemanticRole.Panel, id = id, bounds = bounds)
-    HeadlessCanvasScope(this, bounds).content()
-}
-
-fun RowScope.canvas(
     id: String = "canvas",
     modifier: Modifier = Modifier,
     content: HeadlessCanvasScope.() -> Unit,
