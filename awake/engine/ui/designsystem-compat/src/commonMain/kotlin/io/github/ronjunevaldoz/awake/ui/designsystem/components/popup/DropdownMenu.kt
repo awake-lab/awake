@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -225,6 +226,7 @@ private fun ColumnScope.dropdownMenuItem(
         modifier = Modifier.width(width.px).height(layout.computedHeight.px),
         style = style,
         variant = if (selected) UiButtonVariant.Filled else UiButtonVariant.Ghost,
+        semanticRole = UiSemanticRole.MenuItem,
     ) { contentSlot ->
         val textColor = when {
             !item.enabled -> theme.colors.mutedForeground

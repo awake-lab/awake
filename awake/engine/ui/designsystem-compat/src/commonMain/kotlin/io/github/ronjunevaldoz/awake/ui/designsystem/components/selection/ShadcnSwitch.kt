@@ -12,8 +12,14 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.switch
 
-private fun shadcnSwitchFieldStyle(theme: UiTheme, style: Style): Style =
-    ShadcnStyles.field(theme.asShadcnTheme()) then style
+private fun shadcnSwitchFieldStyle(theme: UiTheme, style: Style): Style {
+    val shadcn = theme.asShadcnTheme()
+    return ShadcnStyles.field(shadcn) then Style {
+        // shadcn Switch uses the input token for its unchecked track, while the headless
+        // primitive supplies the primary token for the checked state.
+        background(shadcn.input, tokenId = "input")
+    } then style
+}
 
 /** Real shadcn's `Switch`: an on/off track-and-thumb toggle, themed via the shared field
  * style. Delegates entirely to [switch]. */

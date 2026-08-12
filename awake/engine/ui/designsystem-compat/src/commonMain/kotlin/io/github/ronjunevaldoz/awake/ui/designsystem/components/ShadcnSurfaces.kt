@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
@@ -21,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -32,20 +32,12 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.unstyled.separator
-
-/** Inserts the header/footer separator convention shared with [DropdownMenu]'s
- * item separator: a thin border-colored rule with a small gap on both sides,
- * [gap] sized by [ShadcnCardSize]. */
-private fun ColumnScope.shadcnCardDivider(gap: Dp) {
-    spacer(Modifier.height(gap))
-    separator(color = theme.colors.border.withAlpha(0.72f))
-    spacer(Modifier.height(gap))
-}
 
 /** Composes the shared header -> body -> footer structure on top of an already-styled
  * [surface] content slot. Header/footer are optional; body is required. Matches real
- * shadcn's `CardHeader`/`CardContent`/`CardFooter` composition. */
+ * shadcn's `CardHeader`/`CardContent`/`CardFooter` composition. The reference Card does not
+ * draw a divider between these slots unless the caller opts into an explicit border modifier. */
+@Suppress("UNUSED_PARAMETER")
 internal fun ColumnScope.shadcnCardContent(
     slot: UiBounds,
     size: ShadcnCardSize,
@@ -53,16 +45,14 @@ internal fun ColumnScope.shadcnCardContent(
     footer: (ColumnScope.() -> Unit)?,
     body: ColumnScope.(slot: UiBounds) -> Unit,
 ) {
-    val gap = size.dividerGapDp.dp
     if (header != null) {
         header()
-        shadcnCardDivider(gap)
+        // CardHeader and CardContent are separate p-6 slots in the reference implementation.
+        // The surface owns the outer inset, so retain only the header's bottom inset here.
+        spacer(Modifier.height(24f.dp))
     }
     body(slot)
-    if (footer != null) {
-        shadcnCardDivider(gap)
-        footer()
-    }
+    footer?.invoke(this)
 }
 
 /**
@@ -224,12 +214,14 @@ fun BoxScope.shadcnSurface(
 )
 
 /** Real shadcn's `Card`: a dedicated header/body/footer composition, not just a
- * background/border flavor of [shadcnSurface]. Header and footer are optional slots
- * separated from the body by the shared divider convention (see [DropdownMenu]'s item
- * separator); body is required. Uses the base theme surface style directly -- it isn't
+ * background/border flavor of [shadcnSurface]. Header and footer are optional slots adjacent
+ * to the body with no implicit divider; body is required. Uses the base theme surface style
+ * directly -- it isn't
  * a [ShadcnSurfaceVariant] flavor, just a plain surface with header/body/footer structure.
  * [variant] adds [ShadcnCardVariant.Elevated]'s shadow (see [emitCardElevationShadow] for why
- * it's a scoped-down approximation); [size] controls header/footer divider spacing. */
+ * it's a scoped-down approximation); [size] is retained for source compatibility with the old
+ * receiver bridge and is intentionally ignored because the reference Card has no implicit
+ * separator or slot-spacing policy. */
 fun UiScope.shadcnCard(
     id: String,
     modifier: UiModifier = Modifier,
@@ -242,6 +234,7 @@ fun UiScope.shadcnCard(
 ): UiBounds {
     val bounds = surface(
         id = id,
+        verticalArrangement = Arrangement.spacedBy(0f.dp),
         modifier = modifier,
         style = legacyShadcnCardStyle(theme.asShadcnTheme(), header != null || footer != null) then style,
         content = { slot -> shadcnCardContent(slot, size, header, footer, body) },
@@ -263,6 +256,7 @@ fun ColumnScope.shadcnCard(
 ): UiBounds {
     val bounds = surface(
         id = id,
+        verticalArrangement = Arrangement.spacedBy(0f.dp),
         modifier = modifier,
         style = legacyShadcnCardStyle(theme.asShadcnTheme(), header != null || footer != null) then style,
         content = { slot -> shadcnCardContent(slot, size, header, footer, body) },
@@ -284,6 +278,7 @@ fun RowScope.shadcnCard(
 ): UiBounds {
     val bounds = surface(
         id = id,
+        verticalArrangement = Arrangement.spacedBy(0f.dp),
         modifier = modifier,
         style = legacyShadcnCardStyle(theme.asShadcnTheme(), header != null || footer != null) then style,
         content = { slot -> shadcnCardContent(slot, size, header, footer, body) },
@@ -305,6 +300,7 @@ fun BoxScope.shadcnCard(
 ): UiBounds {
     val bounds = surface(
         id = id,
+        verticalArrangement = Arrangement.spacedBy(0f.dp),
         modifier = modifier,
         style = legacyShadcnCardStyle(theme.asShadcnTheme(), header != null || footer != null) then style,
         content = { slot -> shadcnCardContent(slot, size, header, footer, body) },
