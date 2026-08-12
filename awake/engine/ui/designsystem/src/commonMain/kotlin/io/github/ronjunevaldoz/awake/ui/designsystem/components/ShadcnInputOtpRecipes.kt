@@ -57,7 +57,7 @@ fun UiScope.shadcnInputOTP(
             }
         }
     }
-    val input = textField(id = id, value = value, modifier = Modifier.height(1f.dp), enabled = enabled)
+    val input = textField(id = id, value = value, modifier = Modifier.height(36f.dp), enabled = enabled)
     val next = input.filter(Char::isDigit).take(length)
     if (next != value) {
         resolved = next
@@ -102,7 +102,7 @@ fun ColumnScope.shadcnInputOTP(
             }
         }
     }
-    val input = textField(id, value, modifier = Modifier.height(1f.dp), enabled = enabled)
+    val input = textField(id, value, modifier = Modifier.height(36f.dp), enabled = enabled)
     val next = input.filter(Char::isDigit).take(length)
     if (next != value) onValueChange(next)
     return next

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.unstyled
 
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.WidgetState
@@ -26,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.pointerX
 import io.github.ronjunevaldoz.awake.ui.scope.pointerY
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.requestCursor
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** Axis a [resizablePanelGroup] lays panels/handles out along -- react-resizable-panels'
@@ -147,7 +149,7 @@ class ResizablePanelGroupScope internal constructor(
     /** A draggable divider between the [panel] immediately before and after it. Real drag/resize
      * mechanics only -- the visible line and optional grip are the shadcn skin's job (see
      * `shadcnResizableHandle` in ui-designsystem). */
-    fun handle(id: String): UiBounds {
+    fun handle(id: String, withHandle: Boolean = false): UiBounds {
         if (countingOnly) {
             handleCount++
             return UiBounds(0f, 0f, 0f, 0f)
@@ -210,6 +212,22 @@ class ResizablePanelGroupScope internal constructor(
             null
         }
         recordSemantic(role = UiSemanticRole.Separator, id = id, bounds = slot)
+        if (withHandle) {
+            val pillWidth = 12f.dp.toPx()
+            val pillHeight = 20f.dp.toPx()
+            val pillX = slot.x + (slot.width - pillWidth) / 2f
+            val pillY = slot.y + (slot.height - pillHeight) / 2f
+            emit(
+                UiDrawPrimitive.RoundedQuad(
+                    x = pillX,
+                    y = pillY,
+                    w = pillWidth,
+                    h = pillHeight,
+                    color = context.currentTheme.colors.border,
+                    radius = 4f,
+                ),
+            )
+        }
         return slot
     }
 }

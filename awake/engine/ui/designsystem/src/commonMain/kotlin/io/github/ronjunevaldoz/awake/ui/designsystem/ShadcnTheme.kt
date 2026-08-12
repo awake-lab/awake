@@ -354,12 +354,12 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
     // which made a neutral light canvas #fefefe with #171717 text instead of white with black
     // text and caused every parity crop to drift before component styling was considered.
     val background = if (dark) oklch(0.145f, chroma * 0.18f, hue) else oklch(1f, chroma * 0.02f, hue)
-    val foreground = if (dark) oklch(0.985f, chroma * 0.02f, hue) else oklch(0f, chroma * 0.18f, hue)
+    val foreground = if (dark) oklch(0.985f, chroma * 0.02f, hue) else oklch(0.145f, chroma * 0.18f, hue)
     val secondary = if (dark) oklch(0.269f, chroma * 0.55f, hue) else oklch(0.97f, chroma * 0.16f, hue)
     val secondaryForeground = if (dark) foreground else oklch(0.205f, chroma * 0.2f, hue)
     val muted = if (dark) oklch(0.269f, chroma * 0.35f, hue) else oklch(0.97f, chroma * 0.08f, hue)
     val mutedForeground = if (dark) oklch(0.708f, chroma * 0.12f, hue) else oklch(0.556f, chroma * 0.16f, hue)
-    val accentSurface = if (dark) oklch(0.371f, chroma * 0.5f, hue) else oklch(0.97f, chroma * 0.18f, hue)
+    val accentSurface = if (dark) oklch(0.269f, chroma * 0.5f, hue) else oklch(0.97f, chroma * 0.18f, hue)
     val accentSurfaceForeground = if (dark) foreground else oklch(0.205f, chroma * 0.18f, hue)
     // Real shadcn's dark theme gives card/popover/sidebar the IDENTICAL lightness (0.205) --
     // they only read as different surfaces in the real app because of where they sit in the
@@ -378,7 +378,7 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
     val input = if (dark) oklch(1f, chroma * 0.12f, hue, alpha = 0.15f) else oklch(0.922f, chroma * 0.12f, hue)
     val ringBase = if (dark) oklch(0.556f, chroma * 0.35f, hue) else oklch(0.708f, chroma * 0.28f, hue)
 
-    val defaultPrimary = if (dark) oklch(0.922f, chroma * 0.08f, hue) else oklch(0f, chroma * 0.22f, hue)
+    val defaultPrimary = if (dark) oklch(0.922f, chroma * 0.08f, hue) else oklch(0.205f, chroma * 0.22f, hue)
     val defaultOnPrimary = if (dark) oklch(0.205f, chroma * 0.16f, hue) else oklch(0.985f, chroma * 0.02f, hue)
 
     val accentPrimary = if (dark) config.accent.darkPrimary else config.accent.lightPrimary

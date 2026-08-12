@@ -41,4 +41,7 @@ fun ResizablePanelGroupScope.panel(
     content = { slot -> content(asHeadlessScope(), slot) },
 )
 
-fun ResizablePanelGroupScope.handle(id: String): UiBounds = primitive.handle(id)
+fun ResizablePanelGroupScope.handle(
+    id: String,
+    withHandle: Boolean = false,
+): UiBounds = primitive.handle(id = id, withHandle = withHandle)

@@ -294,7 +294,10 @@ fun ColumnScope.shadcnEmpty(
         contentPadding = UiInsets(24f.dp),
     ),
 ) {
-    column(verticalArrangement = Arrangement.spacedBy(8f.dp)) {
+    column(
+        horizontalAlignment = io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment.Horizontal.Center,
+        verticalArrangement = Arrangement.spacedBy(8f.dp),
+    ) {
         shadcnText(
             title,
             centered = true,
@@ -308,7 +311,10 @@ fun ColumnScope.shadcnEmpty(
             )
         }
         if (action != null) {
-            column(verticalArrangement = Arrangement.spacedBy(4f.dp)) {
+            column(
+                horizontalAlignment = io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment.Horizontal.Center,
+                verticalArrangement = Arrangement.spacedBy(4f.dp),
+            ) {
                 action()
             }
         }

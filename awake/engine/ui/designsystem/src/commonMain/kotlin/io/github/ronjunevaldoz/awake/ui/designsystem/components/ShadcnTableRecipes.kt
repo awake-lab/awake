@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.weight
@@ -18,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.weight
 /** Shadcn table scope backed by neutral row/cell primitives. Cells are intentionally text-only;
  * richer cells can be added
  * by composing a row directly once the neutral table contract grows slots. */
+
 class ShadcnTableScope internal constructor(private val owner: ColumnScope) {
     fun row(content: ShadcnTableRowScope.() -> Unit) {
         val cells = ShadcnTableRowScope().also(content).values
@@ -32,6 +34,7 @@ class ShadcnTableScope internal constructor(private val owner: ColumnScope) {
                     )
                 }
             }
+            separator()
         }
     }
 }
@@ -66,7 +69,7 @@ fun ColumnScope.shadcnTable(
     verticalArrangement = Arrangement.spacedBy(0f.dp),
 ) {
     row(modifier = Modifier.height(40f.dp)) {
-        columns.forEach { column ->
+        columns.forEachIndexed { index, column ->
             text(
                 column.header,
                 modifier = Modifier.weight(column.weight),
@@ -74,9 +77,11 @@ fun ColumnScope.shadcnTable(
                     foreground = themeValues.colors.mutedForeground,
                     textSize = themeValues.typography.label,
                 ),
+                semanticId = "$id.header.cell.$index",
             )
         }
     }
+    separator()
     ShadcnTableScope(this).content()
     caption?.let { text(it, visuals = SurfaceStyle(foreground = themeValues.colors.mutedForeground, textSize = themeValues.typography.caption)) }
 }

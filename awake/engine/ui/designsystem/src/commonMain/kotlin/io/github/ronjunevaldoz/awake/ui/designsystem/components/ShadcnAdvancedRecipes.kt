@@ -8,12 +8,17 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.ResizablePanelGroupScope
+import io.github.ronjunevaldoz.awake.ui.headless.ScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiResizableDirection
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.handle
 import io.github.ronjunevaldoz.awake.ui.headless.panel
+import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.headless.resizablePanelGroup
 import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.headless.uiScope
+import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
 
 fun UiScope.shadcnResizablePanelGroup(
     id: String,
@@ -30,14 +35,33 @@ fun ResizablePanelGroupScope.shadcnResizablePanel(
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = panel(id, defaultSize, minSize, maxSize, content)
 
-fun ResizablePanelGroupScope.shadcnResizableHandle(id: String, withHandle: Boolean = false): UiBounds = handle(id)
+fun ResizablePanelGroupScope.shadcnResizableHandle(id: String, withHandle: Boolean = false): UiBounds =
+    handle(id = id, withHandle = withHandle)
 
 fun UiScope.shadcnScrollArea(
     id: String,
     modifier: Modifier = Modifier,
+    state: ScrollState = rememberScrollState(id),
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
-    modifier = modifier,
+    modifier = modifier.verticalScroll(state),
+    style = SurfaceStyle(
+        scrollThumbColor = themeValues.colors.border,
+    ),
+    content = content,
+)
+
+fun ColumnScope.shadcnScrollArea(
+    id: String,
+    modifier: Modifier = Modifier,
+    state: ScrollState = uiScope().rememberScrollState(id),
+    content: ColumnScope.(slot: UiBounds) -> Unit,
+): UiBounds = surface(
+    id = id,
+    modifier = modifier.verticalScroll(state),
+    style = SurfaceStyle(
+        scrollThumbColor = themeValues.colors.border,
+    ),
     content = content,
 )
