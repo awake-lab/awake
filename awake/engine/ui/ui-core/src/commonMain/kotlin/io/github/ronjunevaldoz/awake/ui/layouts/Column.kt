@@ -354,6 +354,26 @@ fun UiPrimitiveScope.column(
     cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
+    // Headless receivers call this primitive overload directly. When there is no precomputed
+    // trial, route through the measured composite so default WrapContent columns can resolve
+    // their content before claiming a slot. resolveMeasuredColumn() re-enters here only with
+    // precomputedMeasured, preserving its planned-slot fast path.
+    val hasExplicitFixedDimensions = modifier.widthDimension != null &&
+        modifier.heightDimension != null &&
+        modifier.widthDimension != Dimension.WrapContent &&
+        modifier.heightDimension != Dimension.WrapContent
+    if (precomputedMeasured == null && !hasExplicitFixedDimensions) {
+        return smartColumn(
+            id = id,
+            gap = verticalArrangement.baseSpacingPx(),
+            verticalArrangement = verticalArrangement,
+            style = style,
+            modifier = modifier,
+            horizontalAlignment = horizontalAlignment,
+            cacheKey = cacheKey,
+            content = content,
+        )
+    }
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
     val slot = claimModifiedSlot(sizedModifier)
     val styleState = MutableStyleState(

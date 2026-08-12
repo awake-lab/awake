@@ -98,6 +98,7 @@ interface StyleScope {
     fun textScale(scale: Float)
     fun textSize(size: Sp, tokenId: String? = null)
     fun fontSize(size: Sp, tokenId: String? = null) = textSize(size, tokenId)
+    fun lineHeight(height: Sp)
     fun fontWeight(weight: FontWeight)
     fun letterSpacing(spacing: Sp)
     fun contentPadding(all: Dp)
@@ -264,6 +265,10 @@ private class StyleBuilder(
             textStyle = textStyle.copy(size = size)
             textStyleToken = tokenId
         }
+    }
+
+    override fun lineHeight(height: Sp) {
+        rules += StyleRule(predicate) { textStyle = textStyle.copy(lineHeight = height) }
     }
 
     override fun fontWeight(weight: FontWeight) {

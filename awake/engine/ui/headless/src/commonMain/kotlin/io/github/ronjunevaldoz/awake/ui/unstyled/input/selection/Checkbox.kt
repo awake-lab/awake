@@ -4,12 +4,14 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input.selection
 
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetAccent
+import io.github.ronjunevaldoz.awake.ui.graphics.emitCheckmark
 import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetDash
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillShape
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -62,6 +64,7 @@ fun UiPrimitiveScope.checkbox(
         style = style,
         defaults = defaults,
         selected = checked,
+        disabled = !enabled,
         enabled = enabled,
     )
     val boxPx = boxSize.toPx()
@@ -76,7 +79,19 @@ fun UiPrimitiveScope.checkbox(
     // and the label as one composited unit so the label drawn on top of the box's own paint
     // never gets double-dimmed.
     return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
-        paintSurface(slot = boxSlot, resolved = surface.resolved)
+        paintSurface(
+            slot = boxSlot,
+            resolved = if (checked || indeterminate) {
+                // CSS checked state paints the same primary surface through the border; an
+                // inset one-pixel border would shrink the black fill and produce a visibly
+                // smaller indicator than the reference.
+                surface.resolved.copy(borderWidth = UiShape.none)
+            } else {
+                surface.resolved
+            },
+            fillColor = if (checked || indeterminate) theme.colors.primary else surface.resolved.background,
+            borderColor = if (checked || indeterminate) theme.colors.primary else surface.resolved.borderColor,
+        )
         // Mirrors real shadcn's triStateToggleable: clicking an Indeterminate box always lands
         // on checked=true, same as clicking an Off box -- only an On box flips to false.
         val newChecked = if (surface.interaction.clicked) {
@@ -88,12 +103,7 @@ fun UiPrimitiveScope.checkbox(
         if (indeterminate) {
             emitInsetDash(boxSlot, inset)
         } else if (newChecked) {
-            emitInsetAccent(
-                boxSlot,
-                inset,
-                surface.resolved.shape.toPx(),
-                surface.resolved.shapeSpec,
-            )
+            emitCheckmark(boxSlot)
         }
         val resolvedFont = context.currentFont
         if (label != null) {
@@ -108,7 +118,11 @@ fun UiPrimitiveScope.checkbox(
                 label,
                 slot = labelSlot,
                 font = resolvedFont,
-                color = surface.resolved.foreground ?: theme.colors.foreground,
+                // The resolved foreground styles the indicator itself. The caption is a
+                // separate content node and must retain the normal text color when the box is
+                // selected; using primaryForeground here made a checked checkbox's label white
+                // on the page background.
+                color = if (enabled) theme.colors.foreground else theme.colors.mutedForeground,
                 centered = false,
                 verticallyCentered = true,
                 overflow = UiTextOverflow.Ellipsis,
@@ -126,5 +140,69 @@ fun UiPrimitiveScope.checkbox(
             indeterminate = indeterminate,
         )
         newChecked
+    }
+}
+
+/**
+ * Radio indicator primitive. Radio buttons share checkbox interaction semantics, but their
+ * selected affordance is a centered dot; reusing [checkbox] here rendered a checkmark in a
+ * circle, which is visibly different from shadcn's `RadioGroupItem`.
+ */
+fun UiPrimitiveScope.radio(
+    id: String,
+    selected: Boolean,
+    modifier: UiModifier = Modifier,
+    style: Style = Style.Empty,
+    enabled: Boolean = true,
+    boxSize: Dp = 16f.dp,
+): Boolean {
+    val theme = context.currentTheme
+    val surface = resolveInteractiveSurface(
+        id = id,
+        modifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(24f.dp)),
+        style = style,
+        defaults = theme.components.checkbox,
+        selected = selected,
+        disabled = !enabled,
+        enabled = enabled,
+    )
+    val boxPx = boxSize.toPx()
+    val boxSlot = UiBounds(
+        surface.interaction.slot.x,
+        surface.interaction.slot.y + (surface.interaction.slot.height - boxPx) / 2f,
+        boxPx,
+        boxPx,
+    )
+    return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+        paintSurface(
+            slot = boxSlot,
+            resolved = surface.resolved.copy(shapeSpec = io.github.ronjunevaldoz.awake.ui.UiShapeSpec.Circle),
+            fillColor = surface.resolved.background ?: theme.colors.background,
+            borderColor = surface.resolved.borderColor ?: theme.colors.border,
+            shapeSpec = io.github.ronjunevaldoz.awake.ui.UiShapeSpec.Circle,
+        )
+        if (selected) {
+            val dotInset = boxPx * 0.3f
+            emitFillShape(
+                slot = UiBounds(
+                    boxSlot.x + dotInset,
+                    boxSlot.y + dotInset,
+                    boxPx - dotInset * 2f,
+                    boxPx - dotInset * 2f,
+                ),
+                color = theme.colors.primary,
+                radiusPx = (boxPx - dotInset * 2f) / 2f,
+                shapeSpec = io.github.ronjunevaldoz.awake.ui.UiShapeSpec.Circle,
+            )
+        }
+        val next = if (surface.interaction.clicked && enabled) true else selected
+        recordSemantic(
+            role = UiSemanticRole.Radio,
+            id = id,
+            bounds = surface.interaction.slot,
+            contentBounds = boxSlot,
+            selected = next,
+        )
+        next
     }
 }

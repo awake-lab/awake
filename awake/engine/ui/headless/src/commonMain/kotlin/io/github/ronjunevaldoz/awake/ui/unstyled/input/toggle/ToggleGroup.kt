@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
@@ -29,7 +30,11 @@ fun UiPrimitiveScope.toggleGroup(
     itemStyle: Style = Style.Empty,
     onSelectedIndicesChange: (Set<Int>) -> Unit = {},
 ) {
-    row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(0f.dp)) {
+    // A wrap-height group still has a concrete shadcn toggle height. Resolve that default before
+    // the weighted child trial; otherwise fillMaxHeight() segments inherit the 4096px measurement
+    // sentinel used for unconstrained row content.
+    val resolvedModifier = if (modifier.heightDimension == null) modifier.height(40f.dp) else modifier
+    row(modifier = resolvedModifier, horizontalArrangement = Arrangement.spacedBy(0f.dp)) {
         options.forEachIndexed { index, option ->
             toggle(
                 id = "$id.$index",

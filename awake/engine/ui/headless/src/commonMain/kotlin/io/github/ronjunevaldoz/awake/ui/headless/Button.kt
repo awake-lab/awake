@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.button as primitiveButton
 
@@ -16,14 +17,18 @@ fun UiScope.button(
     label: String? = null,
     modifier: Modifier = Modifier,
     visuals: SurfaceVisuals = SurfaceVisuals(),
+    centered: Boolean = true,
     enabled: Boolean = true,
+    semanticRole: UiSemanticRole = UiSemanticRole.Button,
 ): Boolean = primitive.primitiveButton(
     id = id,
     label = label,
     modifier = modifier.asPrimitiveModifier(),
     style = visuals.asPrimitiveStyle(),
     radius = 0.dp,
+    centered = centered,
     enabled = enabled,
+    semanticRole = semanticRole,
 )
 
 fun ColumnScope.button(
@@ -31,14 +36,18 @@ fun ColumnScope.button(
     label: String? = null,
     modifier: Modifier = Modifier,
     visuals: SurfaceVisuals = SurfaceVisuals(),
+    centered: Boolean = true,
     enabled: Boolean = true,
+    semanticRole: UiSemanticRole = UiSemanticRole.Button,
 ): Boolean = primitive.primitiveButton(
     id = id,
     label = label,
     modifier = modifier.asPrimitiveModifier(),
     style = visuals.asPrimitiveStyle(),
     radius = 0.dp,
+    centered = centered,
     enabled = enabled,
+    semanticRole = semanticRole,
 )
 
 fun RowScope.button(
@@ -46,12 +55,16 @@ fun RowScope.button(
     label: String? = null,
     modifier: Modifier = Modifier,
     visuals: SurfaceVisuals = SurfaceVisuals(),
+    centered: Boolean = true,
     enabled: Boolean = true,
+    semanticRole: UiSemanticRole = UiSemanticRole.Button,
 ): Boolean = primitive.primitiveButton(
     id = id,
     label = label,
     modifier = modifier.asPrimitiveModifier(),
     style = visuals.asPrimitiveStyle(),
     radius = 0.dp,
+    centered = centered,
     enabled = enabled,
+    semanticRole = semanticRole,
 )

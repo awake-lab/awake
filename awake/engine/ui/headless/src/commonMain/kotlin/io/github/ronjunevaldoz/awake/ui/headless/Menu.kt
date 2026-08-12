@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
@@ -31,6 +32,7 @@ fun ColumnScope.menuItem(
     modifier = modifier,
     visuals = visuals,
     enabled = item.enabled,
+    semanticRole = UiSemanticRole.MenuItem,
 )
 
 data class UiMenuResult(

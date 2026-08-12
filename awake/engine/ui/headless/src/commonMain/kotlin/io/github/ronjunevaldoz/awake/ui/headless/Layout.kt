@@ -37,7 +37,15 @@ internal fun Modifier.asPrimitiveModifier(): PrimitiveModifier =
 
 fun Modifier.width(width: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveWidth(width))
 
+/** Sizes a node to its measured content instead of the parent cross-axis extent. */
+fun Modifier.wrapContentWidth(): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveWidth(io.github.ronjunevaldoz.awake.ui.api.layout.Dimension.WrapContent))
+
 fun Modifier.height(height: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveHeight(height))
+
+/** Applies a component's intrinsic height only when the caller did not provide one. */
+fun Modifier.heightOrDefault(height: Dp): Modifier =
+    if ((this as? HeadlessModifier)?.primitive?.heightDimension == null) height(height) else this
 
 /** Minimum/maximum height constraint that preserves an explicit caller height when present. */
 fun Modifier.heightIn(min: Dp? = null, max: Dp? = null): Modifier =

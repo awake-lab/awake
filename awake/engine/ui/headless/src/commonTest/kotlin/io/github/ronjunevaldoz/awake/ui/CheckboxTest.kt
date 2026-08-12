@@ -88,16 +88,26 @@ class CheckboxTest {
     }
 
     @Test
-    fun checkedBoxAddsAnInsetAccentQuad() {
+    fun checkedBoxAddsAStrokedCheckmark() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
         ui.createAbsolute(x = 20f, y = 20f)
             .checkbox("cb", checked = true, modifier = Modifier.width(160f.px).height(40f.px))
         val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
         assertEquals(
-            6,
+            1,
             quads.size,
-            "checked state adds one inset accent quad on top of the box quad plus its 4 border edge quads",
+            "checked state paints one primary box quad; the checkmark is emitted separately",
+        )
+        // The shadcn indicator is a check path, not a second filled inset square.
+        // Rebuild the frame because endFrame() consumes the current primitive list.
+        ui.beginFrame(200f, 100f, testSnapshot())
+        ui.createAbsolute(x = 20f, y = 20f)
+            .checkbox("cb", checked = true, modifier = Modifier.width(160f.px).height(40f.px))
+        assertEquals(
+            1,
+            ui.endFrame().filterIsInstance<UiDrawPrimitive.StrokedPath>().size,
+            "checked state emits one stroked checkmark",
         )
     }
 

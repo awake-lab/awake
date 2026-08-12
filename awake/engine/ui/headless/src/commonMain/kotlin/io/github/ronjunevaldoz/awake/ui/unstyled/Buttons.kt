@@ -39,6 +39,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
     semanticLabel: String? = null,
     intrinsicWidth: Dimension? = null,
     enabled: Boolean = true,
+    semanticRole: UiSemanticRole = UiSemanticRole.Button,
     crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): UiButtonResult {
     val theme = context.currentTheme
@@ -85,7 +86,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
         context.popTextStyle()
     }
     recordSemantic(
-        role = UiSemanticRole.Button,
+        role = semanticRole,
         id = id,
         label = semanticLabel,
         bounds = surface.interaction.slot,
@@ -112,6 +113,7 @@ fun UiPrimitiveScope.button(
     centered: Boolean = true,
     verticallyCentered: Boolean = centered,
     enabled: Boolean = true,
+    semanticRole: UiSemanticRole = UiSemanticRole.Button,
 ): Boolean = buttonSlot(
     id = id,
     label = label,
@@ -122,6 +124,7 @@ fun UiPrimitiveScope.button(
     centered = centered,
     verticallyCentered = verticallyCentered,
     enabled = enabled,
+    semanticRole = semanticRole,
 ).clicked
 
 fun UiPrimitiveScope.buttonSlot(
@@ -134,6 +137,7 @@ fun UiPrimitiveScope.buttonSlot(
     centered: Boolean = true,
     verticallyCentered: Boolean = centered,
     enabled: Boolean = true,
+    semanticRole: UiSemanticRole = UiSemanticRole.Button,
 ): UiButtonResult = buttonSlotInternal(
     id = id,
     modifier = modifier,
@@ -157,6 +161,7 @@ fun UiPrimitiveScope.buttonSlot(
         ).widthDimension
     },
     enabled = enabled,
+    semanticRole = semanticRole,
     drawContent = { contentSlot, resolved ->
         if (label != null) {
             val theme = context.currentTheme
@@ -182,6 +187,7 @@ fun UiPrimitiveScope.buttonSlot(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
     enabled: Boolean = true,
+    semanticRole: UiSemanticRole = UiSemanticRole.Button,
     content: AbsoluteScope.(slot: UiBounds) -> Unit,
 ): UiButtonResult = buttonSlotInternal(
     id = id,
@@ -190,6 +196,7 @@ fun UiPrimitiveScope.buttonSlot(
     variant = variant,
     radius = radius,
     enabled = enabled,
+    semanticRole = semanticRole,
 ) { contentSlot, _ ->
     content(contentSlot)
 }
@@ -201,6 +208,7 @@ fun UiPrimitiveScope.button(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     radius: Dp = UiShape.none,
     enabled: Boolean = true,
+    semanticRole: UiSemanticRole = UiSemanticRole.Button,
     content: AbsoluteScope.(slot: UiBounds) -> Unit,
 ): Boolean = buttonSlot(
     id = id,
@@ -209,6 +217,7 @@ fun UiPrimitiveScope.button(
     variant = variant,
     radius = radius,
     enabled = enabled,
+    semanticRole = semanticRole,
     content = content,
 ).clicked
 

@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.unstyled.input
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -44,6 +45,7 @@ fun UiPrimitiveScope.select(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     selectedStyle: Style? = null,
+    optionStyle: Style? = null,
     enabled: Boolean = true,
     placeholder: String = "",
 ): Int? {
@@ -52,6 +54,15 @@ fun UiPrimitiveScope.select(
     val resolvedDefaults = theme.components.dropdown
     val selectedLabel = options.getOrNull(selectedIndex) ?: placeholder
     val triggerStyle = resolvedDefaults then style
+    // A SelectContent item is a menu row, not another SelectTrigger. Keep the trigger's
+    // border/radius/padding out of the option path unless the skin explicitly supplies one.
+    val resolvedOptionStyle = optionStyle ?: Style.Companion {
+        background(theme.colors.popover)
+        foreground(theme.colors.popoverForeground)
+        borderWidth(0f.dp)
+        shape(UiShape.none)
+        textSize(theme.typography.label)
+    }
     val triggerModifier = withIntrinsicLabelWidth(
         modifier = modifier,
         label = selectedLabel,
@@ -102,7 +113,7 @@ fun UiPrimitiveScope.select(
         positionProvider = UiPopupDefaults.dropdown(),
     ) {
         options.forEachIndexed { index, option ->
-            val optionStyle = if (index == selectedIndex) {
+            val selectedOptionStyle = if (index == selectedIndex) {
                 selectedStyle ?: Style.Companion {
                     background(theme.colors.accent)
                     foreground(theme.colors.accentForeground)
@@ -111,14 +122,18 @@ fun UiPrimitiveScope.select(
                 Style.Empty
             }
             if (
-                button(
-                    id = "$id.option$index",
-                    label = option,
-                    modifier = Modifier
-                        .width(slot.width.px)
-                        .height(slot.height.px),
-                    style = resolvedDefaults then style then optionStyle,
-                )
+                    button(
+                        id = "$id.option$index",
+                        label = option,
+                        modifier = Modifier
+                            .width(slot.width.px)
+                            // SelectContent rows are independent menu items. They must not
+                            // inherit the trigger's 36dp height; shadcn's `py-1.5 text-sm`
+                            // row is 32dp at the default metrics.
+                            .height(32f.dp),
+                        style = resolvedOptionStyle then selectedOptionStyle,
+                        semanticRole = UiSemanticRole.MenuItem,
+                    )
             ) {
                 picked = index
             }

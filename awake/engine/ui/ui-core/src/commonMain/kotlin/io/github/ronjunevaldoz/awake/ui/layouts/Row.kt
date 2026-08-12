@@ -252,6 +252,44 @@ fun UiPrimitiveScope.row(
     cacheKey: Any? = null,
     content: RowScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
+    val hasExplicitFixedDimensions = modifier.widthDimension != null &&
+        modifier.heightDimension != null &&
+        modifier.widthDimension != Dimension.WrapContent &&
+        modifier.heightDimension != Dimension.WrapContent
+    if (precomputedMeasured == null && !hasExplicitFixedDimensions) {
+        val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
+        val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
+        val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
+            val availableHeight = when (requestedHeight) {
+                is Dimension.Fixed -> requestedHeight.dp.toPx()
+                Dimension.FillMax, Dimension.WrapContent -> 4096f
+            }
+            context.measureRowContent(
+                availableHeight,
+                horizontalArrangement.baseSpacingPx(),
+                content = content,
+            )
+        } else null
+        val resolvedWidth = when (requestedWidth) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
+            else -> requestedWidth
+        }
+        val resolvedHeight = when (requestedHeight) {
+            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
+            else -> requestedHeight
+        }
+        return row(
+            horizontalArrangement = horizontalArrangement,
+            verticalAlignment = verticalAlignment,
+            testTag = testTag,
+            modifier = modifier.width(resolvedWidth).height(resolvedHeight),
+            style = style,
+            precomputedMeasured = measured,
+            id = id,
+            cacheKey = cacheKey,
+            content = content,
+        )
+    }
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
     val slot = claimModifiedSlot(sizedModifier)
     val styleState = MutableStyleState(

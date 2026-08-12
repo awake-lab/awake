@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
@@ -147,6 +148,15 @@ fun UiPrimitiveScope.surface(
         defaults = context.currentTheme.components.surface,
         state = styleState,
     )
+    // The surface text style participates in measurement as well as painting. Without this,
+    // compact surfaces such as badges are measured with the parent text metrics and then drawn
+    // with their own caption metrics, producing clipped pills and a border that collapses into
+    // a line. Keep the same resolved foreground propagation for both passes.
+    val contentTextStyle = if (resolved.textStyle.color == null && resolved.foreground != null) {
+        resolved.textStyle.copy(color = resolved.foreground)
+    } else {
+        resolved.textStyle
+    }
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
     val measured = if (hasWrapContent) {
@@ -155,11 +165,16 @@ fun UiPrimitiveScope.surface(
             Dimension.FillMax -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: 0f
             Dimension.WrapContent -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: 4096f
         }
-        context.measureColumnContent(
-            width = maxContentWidth,
-            gap = gap,
-            content = content,
-        )
+        context.pushTextStyle(contentTextStyle, tokenId = resolved.textStyleToken)
+        try {
+            context.measureColumnContent(
+                width = maxContentWidth,
+                gap = gap,
+                content = content,
+            )
+        } finally {
+            context.popTextStyle()
+        }
     } else {
         null
     }
@@ -175,6 +190,23 @@ fun UiPrimitiveScope.surface(
     }
     val slot = initialSlot ?: claimModifiedSlot(modifier.width(resolvedWidth).height(resolvedHeight))
     resolveClickable(id = id, slot = slot, modifier = modifier)
+    resolved.shadow?.let { shadow ->
+        emit(
+            UiDrawPrimitive.ShadowQuad(
+                x = slot.x,
+                y = slot.y,
+                w = slot.width,
+                h = slot.height,
+                radius = resolved.shape.toPx(),
+                offsetX = shadow.offsetX.toPx(),
+                offsetY = shadow.offsetY.toPx(),
+                blurRadius = shadow.blurRadius.toPx(),
+                spread = shadow.spread.toPx(),
+                color = shadow.color,
+                tokenId = shadow.tokenId,
+            ),
+        )
+    }
     emitFillAndBorder(
         slot = slot,
         fillColor = resolved.background ?: Color.Transparent,
@@ -202,11 +234,6 @@ fun UiPrimitiveScope.surface(
     // theme's own foreground -- which on an inverted surface is the same colour as the
     // background it is sitting on. shadcn's tooltip (bg-foreground/text-background) rendered as
     // an unreadable dark-on-dark pill because of it. An explicit textStyle colour still wins.
-    val contentTextStyle = if (resolved.textStyle.color == null && resolved.foreground != null) {
-        resolved.textStyle.copy(color = resolved.foreground)
-    } else {
-        resolved.textStyle
-    }
     context.pushTextStyle(contentTextStyle, tokenId = resolved.textStyleToken)
     val effectiveShape = resolved.shapeSpec ?: UiShapeSpec.RoundedRectangle(resolved.shape)
     context.pushShapeSpec(effectiveShape)
