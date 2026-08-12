@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.text.textLayoutCacheStats
+import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.textLayoutCacheStats
 import kotlin.math.roundToInt
 
 /** Root-level full-viewport box for a [SceneGameRuntime] overlay -- same shape as

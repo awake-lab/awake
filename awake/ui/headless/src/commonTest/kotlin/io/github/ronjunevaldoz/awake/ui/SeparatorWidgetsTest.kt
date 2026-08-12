@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.unstyled.SeparatorOrientation
-import io.github.ronjunevaldoz.awake.ui.unstyled.separator
+import io.github.ronjunevaldoz.awake.ui.headless.internal.SeparatorOrientation
+import io.github.ronjunevaldoz.awake.ui.headless.internal.separator
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

@@ -8,10 +8,10 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.drawDropdownTriggerContent
-import io.github.ronjunevaldoz.awake.ui.unstyled.components.contextMenuTrigger as primitiveContextMenuTrigger
-import io.github.ronjunevaldoz.awake.ui.unstyled.components.filterOptionsByQuery as primitiveFilterOptionsByQuery
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.select as primitiveSelect
+import io.github.ronjunevaldoz.awake.ui.headless.internal.input.drawDropdownTriggerContent
+import io.github.ronjunevaldoz.awake.ui.headless.internal.components.contextMenuTrigger as primitiveContextMenuTrigger
+import io.github.ronjunevaldoz.awake.ui.headless.internal.components.filterOptionsByQuery as primitiveFilterOptionsByQuery
+import io.github.ronjunevaldoz.awake.ui.headless.internal.input.select as primitiveSelect
 
 /** Generic select behavior with a stable Headless receiver. */
 fun UiScope.select(

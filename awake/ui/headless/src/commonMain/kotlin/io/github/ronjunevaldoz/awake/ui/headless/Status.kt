@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.progress as primitiveProgress
-import io.github.ronjunevaldoz.awake.ui.unstyled.skeleton as primitiveSkeleton
-import io.github.ronjunevaldoz.awake.ui.unstyled.spinner as primitiveSpinner
-import io.github.ronjunevaldoz.awake.ui.unstyled.toast as primitiveToast
+import io.github.ronjunevaldoz.awake.ui.headless.internal.input.progress as primitiveProgress
+import io.github.ronjunevaldoz.awake.ui.headless.internal.skeleton as primitiveSkeleton
+import io.github.ronjunevaldoz.awake.ui.headless.internal.spinner as primitiveSpinner
+import io.github.ronjunevaldoz.awake.ui.headless.internal.toast as primitiveToast
 
 /** Neutral progress behavior with caller-provided track/fill visuals. */
 fun UiScope.progress(

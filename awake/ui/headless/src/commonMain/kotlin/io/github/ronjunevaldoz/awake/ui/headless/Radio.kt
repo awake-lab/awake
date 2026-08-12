@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.radio as primitiveRadio
+import io.github.ronjunevaldoz.awake.ui.headless.internal.input.selection.radio as primitiveRadio
 
 fun UiScope.radio(
     id: String,
