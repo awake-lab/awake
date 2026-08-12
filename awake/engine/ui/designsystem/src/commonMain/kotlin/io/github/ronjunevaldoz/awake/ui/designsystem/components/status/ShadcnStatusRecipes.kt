@@ -12,20 +12,23 @@ import io.github.ronjunevaldoz.awake.ui.headless.skeleton
 import io.github.ronjunevaldoz.awake.ui.headless.spinner
 
 private fun progressVisuals(scope: UiScope): SurfaceStyle = SurfaceStyle(
-    background = scope.themeValues.colors.primary,
-    foreground = scope.themeValues.colors.primaryForeground,
+    // shadcn Progress is a muted track with a primary indicator. The headless primitive paints
+    // `background` first and `foreground` over the value fraction, so swapping these values
+    // produces the canonical `bg-primary/20` + `bg-primary` treatment rather than a white fill.
+    background = scope.themeValues.colors.primary.withAlpha(0.2f),
+    foreground = scope.themeValues.colors.primary,
     cornerRadius = scope.themeValues.shapes.full,
 )
 
 private fun progressVisuals(scope: ColumnScope): SurfaceStyle = SurfaceStyle(
-    background = scope.themeValues.colors.primary,
-    foreground = scope.themeValues.colors.primaryForeground,
+    background = scope.themeValues.colors.primary.withAlpha(0.2f),
+    foreground = scope.themeValues.colors.primary,
     cornerRadius = scope.themeValues.shapes.full,
 )
 
 private fun progressVisuals(scope: RowScope): SurfaceStyle = SurfaceStyle(
-    background = scope.themeValues.colors.primary,
-    foreground = scope.themeValues.colors.primaryForeground,
+    background = scope.themeValues.colors.primary.withAlpha(0.2f),
+    foreground = scope.themeValues.colors.primary,
     cornerRadius = scope.themeValues.shapes.full,
 )
 

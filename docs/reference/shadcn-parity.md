@@ -11,46 +11,12 @@ port, and had drifted to listing five shipped components as missing.
 
 ## Component coverage
 
-34 of 46 shadcn/ui components have an implementation.
+0 of 46 shadcn/ui components have an implementation.
 
 | shadcn component | Awake symbol |
 |---|---|
-| accordion | `shadcnAccordion` |
-| alert | `shadcnAlert` |
-| alert-dialog | `shadcnAlertDialog` |
-| avatar | `shadcnAvatar` |
-| badge | `shadcnBadge` |
-| breadcrumb | `shadcnBreadcrumb` |
-| button | `shadcnButton` |
-| card | `shadcnCard` |
-| checkbox | `shadcnCheckbox` |
-| collapsible | `shadcnCollapsible` |
-| context-menu | `shadcnContextMenu` |
-| dialog | `shadcnDialog` |
-| drawer | `shadcnDrawer` |
-| dropdown-menu | `shadcnDropdownMenu` |
-| form | `shadcnField` |
-| input | `shadcnInput` |
-| input-otp | `shadcnInputOTP` |
-| label | `shadcnFieldLabel` |
-| popover | `shadcnPopover` |
-| progress | `shadcnProgress` |
-| radio-group | `shadcnRadioGroup` |
-| select | `shadcnSelect` |
-| separator | `shadcnSeparator` |
-| sheet | `shadcnDrawer` |
-| sidebar | `shadcnSidebar` |
-| skeleton | `shadcnSkeleton` |
-| slider | `shadcnSlider` |
-| sonner | `shadcnToast` |
-| switch | `shadcnSwitch` |
-| tabs | `shadcnTabs` |
-| textarea | `shadcnTextarea` |
-| toggle | `shadcnToggle` |
-| toggle-group | `shadcnToggleGroup` |
-| tooltip | `shadcnTooltip` |
 
-Not implemented: `calendar`, `carousel`, `chart`, `combobox`, `command`, `hover-card`, `menubar`, `navigation-menu`, `pagination`, `resizable`, `scroll-area`, `table`.
+Not implemented: `accordion`, `alert`, `alert-dialog`, `avatar`, `badge`, `breadcrumb`, `button`, `calendar`, `card`, `carousel`, `chart`, `checkbox`, `collapsible`, `combobox`, `command`, `context-menu`, `dialog`, `drawer`, `dropdown-menu`, `form`, `hover-card`, `input`, `input-otp`, `label`, `menubar`, `navigation-menu`, `pagination`, `popover`, `progress`, `radio-group`, `resizable`, `scroll-area`, `select`, `separator`, `sheet`, `sidebar`, `skeleton`, `slider`, `sonner`, `switch`, `table`, `tabs`, `textarea`, `toggle`, `toggle-group`, `tooltip`.
 
 ## Token fidelity
 
@@ -72,20 +38,20 @@ to the reference capture, not changing component styling.
 
 | component | mismatch % | max Δ | mean Δ | crop |
 |---|---:|---:|---:|---|
-| slider-local-light | 50.65 | 254 | 127.32 | poor |
-| badge-local-light | 44.30 | 255 | 72.41 | good |
-| button-local-dark | 33.82 | 245 | 48.40 | good |
-| button-local-light | 29.61 | 255 | 51.86 | good |
+| slider-local-light | 50.91 | 254 | 112.98 | poor |
+| badge-local-light | 45.33 | 255 | 74.50 | good |
+| button-local-dark | 33.68 | 245 | 48.35 | good |
+| button-local-light | 29.48 | 255 | 51.76 | good |
+| dialog-local-light | 29.00 | 255 | 59.69 | partial |
+| card-local-light | 28.43 | 254 | 65.00 | good |
+| tooltip-local-light | 26.71 | 254 | 48.37 | good |
 | checkbox-local-light | 26.32 | 254 | 60.28 | good |
-| dialog-local-light | 25.91 | 255 | 50.39 | good |
-| tooltip-local-light | 25.25 | 249 | 60.22 | partial |
-| card-local-light | 20.20 | 254 | 44.27 | partial |
-| tabs-local-light | 17.73 | 254 | 28.06 | partial |
+| tabs-local-light | 15.45 | 254 | 25.04 | good |
 | switch-local-light | 12.92 | 254 | 24.67 | good |
-| input-local-light | 10.27 | 254 | 11.10 | good |
-| select-local-light | 8.79 | 140 | 10.88 | good |
+| select-local-light | 9.72 | 140 | 12.12 | good |
+| input-local-light | 6.58 | 254 | 8.27 | good |
 
-Among the 8 well-aligned pairs, `select-local-light` is closest (8.79%) and `badge-local-light` is furthest (44.30%).
+Among the 10 well-aligned pairs, `input-local-light` is closest (6.58%) and `badge-local-light` is furthest (45.33%).
 
 ## Variant fidelity
 
@@ -94,12 +60,7 @@ checkout. This is the guard against inventing API that has no counterpart upstre
 `Primary`/`Danger`/`Filled` are deliberate renames of shadcn's `default`/`destructive`
 and are mapped, not flagged.
 
-| component | invented by us | missing from us |
-|---|---|---|
-| button | none | none |
-| badge | none | `link` |
-| alert | none | none |
-| toggle | none | none |
+Reference checkout missing -- run `tools/fetch_shadcn_reference.sh`.
 
 ## What these numbers do not cover
 

@@ -5,7 +5,9 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.selection
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
 import io.github.ronjunevaldoz.awake.ui.headless.checkbox
 import io.github.ronjunevaldoz.awake.ui.headless.switch
@@ -28,9 +30,43 @@ fun ColumnScope.shadcnCheckbox(
     enabled = enabled,
     visuals = SurfaceVisuals(
         rest = SurfaceStyle(
-            background = themeValues.colors.primary,
-            foreground = themeValues.colors.primaryForeground,
-            cornerRadius = themeValues.shapes.sm,
+            background = if (checked || indeterminate) themeValues.colors.primary else themeValues.colors.background,
+            foreground = if (checked || indeterminate) themeValues.colors.primaryForeground else themeValues.colors.foreground,
+            border = SurfaceBorder(
+                width = 1f.dp,
+                color = if (checked || indeterminate) themeValues.colors.primary else themeValues.colors.input,
+            ),
+            // shadcn Checkbox uses rounded-[4px], independent of the theme radius scale.
+            cornerRadius = 4f.dp,
+        ),
+        disabled = SurfaceStyle(foreground = themeValues.colors.mutedForeground),
+    ),
+)
+
+fun RowScope.shadcnCheckbox(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    indeterminate: Boolean = false,
+    enabled: Boolean = true,
+): Boolean = checkbox(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier,
+    boxSize = 16f.dp,
+    indeterminate = indeterminate,
+    enabled = enabled,
+    visuals = SurfaceVisuals(
+        rest = SurfaceStyle(
+            background = if (checked || indeterminate) themeValues.colors.primary else themeValues.colors.background,
+            foreground = if (checked || indeterminate) themeValues.colors.primaryForeground else themeValues.colors.foreground,
+            border = SurfaceBorder(
+                width = 1f.dp,
+                color = if (checked || indeterminate) themeValues.colors.primary else themeValues.colors.input,
+            ),
+            cornerRadius = 4f.dp,
         ),
         disabled = SurfaceStyle(foreground = themeValues.colors.mutedForeground),
     ),
@@ -50,7 +86,29 @@ fun ColumnScope.shadcnSwitch(
     enabled = enabled,
     visuals = SurfaceVisuals(
         rest = SurfaceStyle(
-            background = if (checked) themeValues.colors.primary else themeValues.colors.muted,
+            background = if (checked) themeValues.colors.primary else themeValues.colors.input,
+            foreground = if (checked) themeValues.colors.primaryForeground else themeValues.colors.foreground,
+            cornerRadius = themeValues.shapes.full,
+        ),
+        disabled = SurfaceStyle(foreground = themeValues.colors.mutedForeground),
+    ),
+)
+
+fun RowScope.shadcnSwitch(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+): Boolean = switch(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier,
+    enabled = enabled,
+    visuals = SurfaceVisuals(
+        rest = SurfaceStyle(
+            background = if (checked) themeValues.colors.primary else themeValues.colors.input,
             foreground = if (checked) themeValues.colors.primaryForeground else themeValues.colors.foreground,
             cornerRadius = themeValues.shapes.full,
         ),
@@ -59,6 +117,29 @@ fun ColumnScope.shadcnSwitch(
 )
 
 fun ColumnScope.shadcnToggle(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit = {},
+): Boolean = toggle(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier,
+    enabled = enabled,
+    onCheckedChange = onCheckedChange,
+    visuals = SurfaceVisuals(
+        rest = SurfaceStyle(
+            background = if (checked) themeValues.colors.accent else themeValues.colors.background,
+            foreground = themeValues.colors.foreground,
+            cornerRadius = themeValues.shapes.md,
+        ),
+    ),
+)
+
+fun RowScope.shadcnToggle(
     id: String,
     checked: Boolean,
     label: String? = null,

@@ -48,6 +48,7 @@ Read `docs/reference/shadcn-reference-pipeline.md` first.
 | `extract_shadcn_tokens.py` | Parses the pinned registry's new-york/neutral theme into `ShadcnReferenceTokens.kt`, the numeric ground truth for token tests. |
 | `capture_shadcn_local.py` | Builds and serves `shadcn-reference-app/`, then screenshots each case from `shadcn_reference_cases.json` into `docs/reference/shadcn-previews-local/`. Components come verbatim from the pinned checkout, so the reference is shadcn's own source. Captures states a docs page cannot show (focus, disabled, hover, open overlays) and any theme or radius. A case may name its own `selector` when Radix portals its content outside `#case`. |
 | `compare_parity.py` | Diffs an Awake render against a reference capture: aligned crop, heatmap, mismatch metrics. Pairing lives in `shadcn_parity_pairs.json`. |
+| `compare_component_crops.py` | Resolves an Awake semantic node ID to a raster crop, compares that crop with a component-hugging shadcn reference PNG, and writes the crop, heatmap, and JSON metrics. Supports a batch manifest. |
 | `generate_parity_report.py` | Regenerates `docs/reference/shadcn-parity.md` from the component inventory, token test state, and comparison metrics. |
 | `generate_ui_status.py` | Regenerates `docs/reference/ui-fidelity-status.md`, the per-area status matrix. Each row's status comes from a probe against the source, so it cannot claim done for unwired work. |
 | `shadcn_parity_baseline.json` | Committed regression baseline consumed by `ShadcnReferenceComparisonTest.kt` (not a script) -- each pair's last-accepted mismatch%, an absolute-percentage-point tolerance, and an `excluded` map for pairs whose crop alignment can't be trusted yet. See `docs/reference/ui-validation.md`'s "Shadcn Parity Regression Gate" section. |
@@ -58,6 +59,37 @@ tools/fetch_shadcn_reference.sh
 python3 tools/generate_parity_report.py
 python3 tools/generate_ui_status.py
 ```
+
+### Semantic component crops
+
+`capture_shadcn_local.py` already crops the reference side: each case is rendered in
+`tools/shadcn-reference-app` inside a `w-fit` `#case` wrapper (or an explicit portal selector)
+and Playwright screenshots that target. `compare_component_crops.py` supplies the missing
+Awake-side crop. It reads the semantic JSON emitted beside an Awake preview PNG, converts the
+node's logical `UiBounds` to the preview's raster scale, and compares the resulting crop without
+manual image editing.
+
+Use the same state/content on both sides; for a grouped case, repeat `--node-id` to union the
+semantic bounds before diffing:
+
+```bash
+python3 tools/compare_component_crops.py \
+  --awake-png samples/ui-showcase/build/ui-previews/<preview-id>.png \
+  --semantic-json samples/ui-showcase/build/ui-previews/<preview-id>.json \
+  --node-id <component-node-id> \
+  --reference-png docs/reference/shadcn-previews-local/<matching-case>_light.png \
+  --name <case-name> \
+  --padding 4 \
+  --out-dir build/reports/ui-component-parity
+```
+
+For reviewed pairings, use `tools/ui_component_parity_cases.json`; copy
+`tools/ui_component_parity_cases.example.json` when adding a new case. Run either manifest with
+`--manifest`. The tool never updates a baseline. A case without `maxMismatchPct` is reported as
+`REVIEW`, not pass/fail. Use
+`--fail-on-mismatch` only after reviewing the generated crop and heatmap and choosing an
+explicit per-case `maxMismatchPct`; a before/after crop diff proves drift, while the pinned
+shadcn reference is the correctness comparison.
 
 Comparison metrics are only as good as the alignment between the two captures. The generated
 report carries a `crop` column for exactly this reason — a `poor` row means the framing

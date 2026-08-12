@@ -879,19 +879,19 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
         shadcnButton(
             id = "showcase-matrix-button-primary",
             label = "Primary",
-            modifier = Modifier.width(120f.px).height(36f.dp),
+            modifier = Modifier.width(120f.dp).height(36f.dp),
             variant = ShadcnButtonVariant.Primary,
         )
         shadcnButton(
             id = "showcase-matrix-button-secondary",
             label = "Secondary",
-            modifier = Modifier.width(136f.px).height(36f.dp),
+            modifier = Modifier.width(136f.dp).height(36f.dp),
             variant = ShadcnButtonVariant.Secondary,
         )
         shadcnButton(
             id = "showcase-matrix-button-outline",
             label = "Outline",
-            modifier = Modifier.width(112f.px).height(36f.dp),
+            modifier = Modifier.width(112f.dp).height(36f.dp),
             variant = ShadcnButtonVariant.Outline,
         )
     }
@@ -902,19 +902,19 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
         shadcnButton(
             id = "showcase-matrix-button-ghost",
             label = "Ghost",
-            modifier = Modifier.width(100f.px).height(36f.dp),
+            modifier = Modifier.width(100f.dp).height(36f.dp),
             variant = ShadcnButtonVariant.Ghost,
         )
         shadcnButton(
             id = "showcase-matrix-button-danger",
             label = "Danger",
-            modifier = Modifier.width(108f.px).height(36f.dp),
+            modifier = Modifier.width(108f.dp).height(36f.dp),
             variant = ShadcnButtonVariant.Danger,
         )
         shadcnButton(
             id = "showcase-matrix-button-long",
             label = "Primary action with a long label",
-            modifier = Modifier.width(248f.px).height(36f.dp),
+            modifier = Modifier.width(248f.dp).height(36f.dp),
             variant = ShadcnButtonVariant.Primary,
         )
     }
@@ -930,12 +930,12 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
             id = "showcase-matrix-field-empty",
             value = "",
             placeholder = "Placeholder",
-            modifier = Modifier.width(200f.px).height(36f.dp),
+            modifier = Modifier.width(200f.dp).height(36f.dp),
         )
         shadcnInput(
             id = "showcase-matrix-field-focused",
             value = "Typed text",
-            modifier = Modifier.width(200f.px).height(36f.dp),
+            modifier = Modifier.width(200f.dp).height(36f.dp),
         )
     }
     row(
@@ -946,13 +946,13 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
             id = "showcase-matrix-dropdown-theme",
             options = listOf("Light", "Dark", "Auto"),
             selectedIndex = 0,
-            modifier = Modifier.width(200f.px),
+            modifier = Modifier.width(200f.dp),
         )
         shadcnSelect(
             id = "showcase-matrix-dropdown-accent",
             options = listOf("Base", "Blue", "Emerald"),
             selectedIndex = 1,
-            modifier = Modifier.width(200f.px),
+            modifier = Modifier.width(200f.dp),
         )
     }
     row(
@@ -963,13 +963,13 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
             id = "showcase-matrix-toggle-off",
             checked = false,
             label = "Off",
-            modifier = Modifier.width(120f.px).height(24f.px),
+            modifier = Modifier.width(120f.dp).height(24f.dp),
         )
         shadcnToggle(
             id = "showcase-matrix-toggle-on",
             checked = true,
             label = "On",
-            modifier = Modifier.width(120f.px).height(24f.px),
+            modifier = Modifier.width(120f.dp).height(24f.dp),
         )
     }
     row(
@@ -980,13 +980,13 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
             id = "showcase-matrix-checkbox-off",
             checked = false,
             label = "Unchecked",
-            modifier = Modifier.width(180f.px).height(24f.px),
+            modifier = Modifier.width(180f.dp).height(24f.dp),
         )
         shadcnCheckbox(
             id = "showcase-matrix-checkbox-on",
             checked = true,
             label = "Checked",
-            modifier = Modifier.width(180f.px).height(24f.px),
+            modifier = Modifier.width(180f.dp).height(24f.dp),
         )
     }
 }
@@ -1000,7 +1000,7 @@ private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
         max = 100f,
         value = 12f,
         label = "Exposure 12%",
-        modifier = Modifier.width(360f.px).height(32f.px),
+        modifier = Modifier.width(360f.dp).height(32f.dp),
     )
     shadcnSlider(
         id = "showcase-matrix-slider-mid",
@@ -1008,7 +1008,7 @@ private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
         max = 100f,
         value = 52f,
         label = "Exposure 52%",
-        modifier = Modifier.width(360f.px).height(32f.px),
+        modifier = Modifier.width(360f.dp).height(32f.dp),
     )
     shadcnSlider(
         id = "showcase-matrix-slider-high",
@@ -1016,7 +1016,7 @@ private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
         max = 100f,
         value = 100f,
         label = "Exposure 100%",
-        modifier = Modifier.width(360f.px).height(32f.px),
+        modifier = Modifier.width(360f.dp).height(32f.dp),
     )
 }
 
@@ -1032,7 +1032,7 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
         val trigger = buttonSlot(
             id = "showcase-matrix-dropdown-trigger",
             label = "Actions",
-            modifier = Modifier.width(124f.px).height(36f.dp),
+            modifier = Modifier.width(124f.dp).height(36f.dp),
         )
         uiScope().shadcnDropdownMenu(
             id = "showcase-matrix-dropdown-menu",
@@ -1040,13 +1040,13 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
             expanded = true,
             items = PreviewOverlayMenuItems,
             selectedIndex = 1,
-            width = Dimension.Fixed(340f.px),
+            width = Dimension.Fixed(340f.dp),
             positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
         )
         shadcnButton(
             id = "showcase-matrix-dropdown-secondary",
             label = "Secondary",
-            modifier = Modifier.width(132f.px).height(36f.dp),
+            modifier = Modifier.width(132f.dp).height(36f.dp),
             variant = ShadcnButtonVariant.Outline,
         )
     }
@@ -1061,17 +1061,17 @@ private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
         horizontalArrangement = HeadlessArrangement.spacedBy(12f.dp),
         modifier = Modifier.height(36f.dp),
     ) {
-        spacer(Modifier.width(100f.px))
+        spacer(Modifier.width(100f.dp))
         val trigger = buttonSlot(
             id = "showcase-matrix-popover-trigger",
             label = "Share",
-            modifier = Modifier.width(120f.px).height(36f.dp),
+            modifier = Modifier.width(120f.dp).height(36f.dp),
         )
         uiScope().shadcnPopover(
             id = "showcase-matrix-popover",
             anchorSlot = trigger.slot,
             expanded = true,
-            width = Dimension.Fixed(280f.px),
+            width = Dimension.Fixed(280f.dp),
         ) {
             text(
                 label = "Share scene",
@@ -1084,7 +1084,7 @@ private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
         shadcnButton(
             id = "showcase-matrix-popover-secondary",
             label = "Reference",
-            modifier = Modifier.width(120f.px).height(36f.dp),
+            modifier = Modifier.width(120f.dp).height(36f.dp),
             variant = ShadcnButtonVariant.Secondary,
         )
     }
@@ -1100,7 +1100,7 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
         val trigger = buttonSlot(
             id = "showcase-matrix-tooltip-trigger",
             label = "Hover target",
-            modifier = Modifier.width(156f.px).height(36f.dp),
+            modifier = Modifier.width(156f.dp).height(36f.dp),
         )
         uiScope().shadcnTooltip(
             anchorSlot = trigger.slot,
@@ -1132,7 +1132,7 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
         val textTrigger = buttonSlot(
             id = "showcase-matrix-tooltip-text-trigger",
             label = "Text-only tooltip",
-            modifier = Modifier.width(200f.px).height(36f.dp),
+            modifier = Modifier.width(200f.dp).height(36f.dp),
         )
         uiScope().shadcnTooltipText(
             id = "tooltip-text",
@@ -1152,7 +1152,7 @@ private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
     shadcnButton(
         id = "showcase-matrix-dialog-trigger",
         label = "Open Dialog",
-        modifier = Modifier.width(156f.px).height(36f.dp),
+        modifier = Modifier.width(156f.dp).height(36f.dp),
         variant = ShadcnButtonVariant.Outline,
     )
     uiScope().shadcnAlertDialog(
@@ -1207,15 +1207,15 @@ private fun ColumnScope.drawUiShowcaseScrollPanelContent() {
     uiScope().shadcnScrollArea(
         id = "showcase-matrix-scroll-panel",
         modifier = Modifier
-            .width(420f.px)
-            .height(168f.px)
+            .width(420f.dp)
+            .height(168f.dp)
             .verticalScroll(scrollState),
     ) {
         repeat(8) { index ->
             shadcnButton(
                 id = "showcase-matrix-scroll-item-$index",
                 label = "Scene action row ${index + 1}",
-                modifier = Modifier.width(360f.px).height(32f.px),
+                modifier = Modifier.width(360f.dp).height(32f.dp),
                 variant = if (index % 2 == 0) ShadcnButtonVariant.Outline else ShadcnButtonVariant.Ghost,
             )
         }

@@ -14,7 +14,9 @@ import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceShadow
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.UiTabItem
 import io.github.ronjunevaldoz.awake.ui.headless.collapsible
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -22,8 +24,10 @@ import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
-import io.github.ronjunevaldoz.awake.ui.headless.tabs
 import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.wrapContentWidth
+import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
+import io.github.ronjunevaldoz.awake.ui.api.sp
 
 fun ColumnScope.shadcnCollapsible(
     id: String,
@@ -47,6 +51,7 @@ fun ColumnScope.shadcnCollapsible(
         label = title,
         modifier = Modifier.fillMaxWidth().height(36f.dp),
         variant = ShadcnButtonVariant.Ghost,
+        centered = false,
         onClick = toggle,
     )
 }, content = content)
@@ -121,19 +126,49 @@ fun ColumnScope.shadcnTabs(
         contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(3f.dp),
     )
     var resolved = selected
-    surface(id = "$id.track", modifier = modifier, style = track) {
-        row(horizontalArrangement = Arrangement.Start, modifier = Modifier.height(height)) {
+    // Tailwind's `h-9 p-[3px]` is border-box sizing: the 36dp track includes its
+    // three-pixel inset on each side. Keep the outer track at the requested height and
+    // give the row only the content-box height; letting the surface size from its child
+    // made the public Headless recipe grow to 42dp and overflow the parity crop.
+    surface(id = "$id.track", modifier = modifier.wrapContentWidth().height(height), style = track) {
+        row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment.Vertical.Center,
+            modifier = Modifier.wrapContentWidth().height(height - 6f.dp),
+        ) {
             items.forEach { item ->
                 val active = item.value == selected
-                val clicked = shadcnButton(
+                val clicked = buttonSlot(
                     id = "$id.${item.value}",
                     label = item.label,
-                    modifier = Modifier.height(height),
-                    variant = if (active) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
-                    size = io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize.Xs,
-                    onClick = { resolved = item.value },
+                    modifier = Modifier.height(height - 6f.dp),
+                    visuals = io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals(
+                        rest = SurfaceStyle(
+                            background = if (active) themeValues.colors.background else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
+                            // tabs.tsx uses `text-foreground/60` for an inactive trigger. The
+                            // muted token is a different semantic role and is visibly lighter.
+                            foreground = if (active) themeValues.colors.foreground else themeValues.colors.foreground.withAlpha(0.6f),
+                            // The base trigger has a transparent border; a light-mode active
+                            // trigger does not acquire a visible border (dark mode's input
+                            // override is a separate theme concern).
+                            border = SurfaceBorder(1f.dp, io.github.ronjunevaldoz.awake.core.colors.Color.Transparent),
+                            cornerRadius = themeValues.shapes.sm,
+                            contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp, 4f.dp),
+                            shadow = if (active) {
+                                SurfaceShadow(
+                                    color = io.github.ronjunevaldoz.awake.core.colors.Color.Black.withAlpha(0.12f),
+                                    offsetY = 1f.dp,
+                                    blurRadius = 2f.dp,
+                                )
+                            } else null,
+                            // TabsTrigger is Tailwind `text-sm` (14px), independent of the
+                            // theme's body tier. The reference also applies font-medium.
+                            textSize = 14f.sp,
+                            fontWeight = FontWeight.Medium,
+                        ),
+                    ),
                 )
-                if (clicked) resolved = item.value
+                if (clicked.clicked) resolved = item.value
             }
         }
     }
@@ -157,7 +192,11 @@ fun ColumnScope.shadcnBreadcrumb(
     items: List<String>,
     modifier: Modifier = Modifier,
     separator: String = "/",
-): UiBounds = row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(6f.dp)) {
+): UiBounds = row(
+    modifier = modifier,
+    horizontalArrangement = Arrangement.spacedBy(6f.dp),
+    verticalAlignment = UiAlignment.Vertical.Center,
+) {
     items.forEachIndexed { index, label ->
         text(
             label = label,
@@ -185,7 +224,10 @@ fun UiScope.shadcnBreadcrumb(
     modifier = modifier,
     style = SurfaceStyle(contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(0f.dp)),
 ) {
-    row(horizontalArrangement = Arrangement.spacedBy(6f.dp)) {
+    row(
+        horizontalArrangement = Arrangement.spacedBy(6f.dp),
+        verticalAlignment = UiAlignment.Vertical.Center,
+    ) {
         items.forEachIndexed { index, label ->
             text(
                 label,

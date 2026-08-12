@@ -204,7 +204,7 @@ private class RuntimeShadcnTheme(
         destructivePressed = tokens.destructive,
         border = tokens.border,
         ring = tokens.accent,
-        input = tokens.border,
+        input = tokens.input,
         card = tokens.card,
         cardForeground = tokens.cardForeground,
         popover = tokens.popover,
@@ -246,6 +246,7 @@ private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : Sh
         override val destructive = palette.destructive
         override val destructiveForeground = palette.destructiveForeground
         override val border = palette.border
+        override val input = palette.input
     }
 
     override val componentVisuals: UiThemeComponents = UiThemeComponents(
@@ -348,13 +349,17 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
     val chroma = config.baseColor.chroma
     val dark = config.dark
 
+    // Keep the neutral light/dark values aligned with the pinned shadcn reference app's
+    // `index.css`. Earlier Awake values used the dark foreground lightness for light mode,
+    // which made a neutral light canvas #fefefe with #171717 text instead of white with black
+    // text and caused every parity crop to drift before component styling was considered.
     val background = if (dark) oklch(0.145f, chroma * 0.18f, hue) else oklch(1f, chroma * 0.02f, hue)
-    val foreground = if (dark) oklch(0.985f, chroma * 0.02f, hue) else oklch(0.145f, chroma * 0.18f, hue)
+    val foreground = if (dark) oklch(0.985f, chroma * 0.02f, hue) else oklch(0f, chroma * 0.18f, hue)
     val secondary = if (dark) oklch(0.269f, chroma * 0.55f, hue) else oklch(0.97f, chroma * 0.16f, hue)
     val secondaryForeground = if (dark) foreground else oklch(0.205f, chroma * 0.2f, hue)
     val muted = if (dark) oklch(0.269f, chroma * 0.35f, hue) else oklch(0.97f, chroma * 0.08f, hue)
     val mutedForeground = if (dark) oklch(0.708f, chroma * 0.12f, hue) else oklch(0.556f, chroma * 0.16f, hue)
-    val accentSurface = if (dark) oklch(0.269f, chroma * 0.5f, hue) else oklch(0.97f, chroma * 0.18f, hue)
+    val accentSurface = if (dark) oklch(0.371f, chroma * 0.5f, hue) else oklch(0.97f, chroma * 0.18f, hue)
     val accentSurfaceForeground = if (dark) foreground else oklch(0.205f, chroma * 0.18f, hue)
     // Real shadcn's dark theme gives card/popover/sidebar the IDENTICAL lightness (0.205) --
     // they only read as different surfaces in the real app because of where they sit in the
@@ -367,13 +372,13 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
     val cardForeground = foreground
     val popover = if (dark) oklch(0.205f, chroma * 0.22f, hue) else oklch(1f, chroma * 0.04f, hue)
     val popoverForeground = cardForeground
-    val sidebar = if (dark) oklch(0.205f, chroma * 0.16f, hue) else oklch(0.988f, chroma * 0.03f, hue)
+    val sidebar = if (dark) oklch(0.205f, chroma * 0.16f, hue) else oklch(0.985f, chroma * 0.03f, hue)
     val sidebarForeground = foreground
     val border = if (dark) oklch(1f, chroma * 0.1f, hue, alpha = 0.1f) else oklch(0.922f, chroma * 0.1f, hue)
     val input = if (dark) oklch(1f, chroma * 0.12f, hue, alpha = 0.15f) else oklch(0.922f, chroma * 0.12f, hue)
     val ringBase = if (dark) oklch(0.556f, chroma * 0.35f, hue) else oklch(0.708f, chroma * 0.28f, hue)
 
-    val defaultPrimary = if (dark) oklch(0.922f, chroma * 0.08f, hue) else oklch(0.205f, chroma * 0.22f, hue)
+    val defaultPrimary = if (dark) oklch(0.922f, chroma * 0.08f, hue) else oklch(0f, chroma * 0.22f, hue)
     val defaultOnPrimary = if (dark) oklch(0.205f, chroma * 0.16f, hue) else oklch(0.985f, chroma * 0.02f, hue)
 
     val accentPrimary = if (dark) config.accent.darkPrimary else config.accent.lightPrimary
@@ -400,7 +405,7 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
         accentHover = mix(accentSurface, foreground, if (dark) 0.08f else 0.03f),
         accentPressed = mix(accentSurface, foreground, if (dark) 0.16f else 0.06f),
         destructive = if (dark) oklch(0.704f, 0.191f, 22.216f) else oklch(0.577f, 0.245f, 27.325f),
-        destructiveForeground = if (dark) oklch(0.985f, 0f) else Color.White,
+        destructiveForeground = if (dark) oklch(0.985f, 0f) else oklch(0.97f, 0.01f, 17f),
         destructiveHover = if (dark) {
             oklch(0.652f, 0.191f, 22.216f)
         } else {
