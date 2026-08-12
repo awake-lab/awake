@@ -84,7 +84,7 @@ private fun badgeStyle(
         )
     }.copy(
         cornerRadius = values.shapes.full,
-        contentPadding = UiInsets(8f.dp, 2f.dp),
+        contentPadding = UiInsets(10.5f.dp, 2f.dp),
         textSize = 12f.sp,
         lineHeight = 16f.sp,
         fontWeight = FontWeight.Medium,
