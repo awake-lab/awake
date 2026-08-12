@@ -2,7 +2,9 @@ import type { ReactNode } from "react"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
 import { Checkbox } from "./ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
 import { Switch } from "./ui/switch"
+import { Progress } from "./ui/progress"
 import { Input } from "./ui/input"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 import { Slider } from "./ui/slider"
@@ -59,6 +61,30 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
         <Checkbox />
         <Checkbox defaultChecked />
         <Checkbox disabled />
+      </div>
+    ),
+  },
+  "radio-group-states": {
+    render: () => (
+      <RadioGroup defaultValue="comfortable">
+        {[
+          ["default", "Default"],
+          ["comfortable", "Comfortable"],
+          ["compact", "Compact"],
+        ].map(([value, label]) => (
+          <div className="flex items-center gap-2" key={value}>
+            <RadioGroupItem value={value} id={`radio-${value}`} />
+            <Label htmlFor={`radio-${value}`}>{label}</Label>
+          </div>
+        ))}
+      </RadioGroup>
+    ),
+  },
+  "progress-states": {
+    render: () => (
+      <div className="flex w-[212px] flex-col gap-4">
+        <Progress value={25} />
+        <Progress value={65} />
       </div>
     ),
   },
