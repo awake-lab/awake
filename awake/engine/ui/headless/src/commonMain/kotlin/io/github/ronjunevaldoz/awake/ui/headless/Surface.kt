@@ -7,9 +7,9 @@ import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.Sp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
 import io.github.ronjunevaldoz.awake.ui.layouts.surface as primitiveSurface
 import io.github.ronjunevaldoz.awake.ui.style.Style as PrimitiveStyle
-import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
 
 /** Neutral visual values for a generic Headless surface. */
 data class SurfaceStyle(
@@ -45,7 +45,12 @@ internal fun SurfaceStyle.asPrimitiveStyle(): PrimitiveStyle = PrimitiveStyle {
     foreground?.let(::foreground)
     border?.let { border(it.width, it.color) }
     cornerRadius?.let(::shape)
-    contentPadding(contentPadding.start, contentPadding.top, contentPadding.end, contentPadding.bottom)
+    contentPadding(
+        contentPadding.start,
+        contentPadding.top,
+        contentPadding.end,
+        contentPadding.bottom
+    )
     textSize?.let(::textSize)
     lineHeight?.let(::lineHeight)
     fontWeight?.let(::fontWeight)
@@ -112,51 +117,6 @@ private fun io.github.ronjunevaldoz.awake.ui.style.StyleScope.apply(surface: Sur
  * semantic recording, and measurement remain inside Core's runtime implementation.
  */
 fun UiScope.surface(
-    id: String,
-    modifier: Modifier = Modifier,
-    style: SurfaceStyle = SurfaceStyle(),
-    verticalArrangement: Arrangement = Arrangement.Start,
-    clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = primitive.primitiveSurface(
-    id = id,
-    modifier = modifier.asPrimitiveModifier(),
-    style = style.asPrimitiveStyle(),
-    verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
-    clipContent = clipContent,
-) { slot -> content(asHeadlessScope(), slot) }
-
-fun ColumnScope.surface(
-    id: String,
-    modifier: Modifier = Modifier,
-    style: SurfaceStyle = SurfaceStyle(),
-    verticalArrangement: Arrangement = Arrangement.Start,
-    clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = primitive.primitiveSurface(
-    id = id,
-    modifier = modifier.asPrimitiveModifier(),
-    style = style.asPrimitiveStyle(),
-    verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
-    clipContent = clipContent,
-) { slot -> content(asHeadlessScope(), slot) }
-
-fun RowScope.surface(
-    id: String,
-    modifier: Modifier = Modifier,
-    style: SurfaceStyle = SurfaceStyle(),
-    verticalArrangement: Arrangement = Arrangement.Start,
-    clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = primitive.primitiveSurface(
-    id = id,
-    modifier = modifier.asPrimitiveModifier(),
-    style = style.asPrimitiveStyle(),
-    verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
-    clipContent = clipContent,
-) { slot -> content(asHeadlessScope(), slot) }
-
-fun BoxScope.surface(
     id: String,
     modifier: Modifier = Modifier,
     style: SurfaceStyle = SurfaceStyle(),

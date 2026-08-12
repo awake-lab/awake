@@ -36,49 +36,6 @@ fun UiScope.select(
     placeholder = placeholder,
 )
 
-fun ColumnScope.select(
-    id: String,
-    options: List<String>,
-    selectedIndex: Int? = null,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    placeholder: String = "",
-    visuals: SurfaceVisuals = SurfaceVisuals(),
-    selectedVisuals: SurfaceStyle? = null,
-    optionVisuals: SurfaceVisuals? = null,
-): Int? = primitive.primitiveSelect(
-    id = id,
-    options = options,
-    selectedIndex = selectedIndex ?: -1,
-    modifier = modifier.asPrimitiveModifier(),
-    style = visuals.asPrimitiveStyle(),
-    selectedStyle = selectedVisuals?.asPrimitiveStyle(),
-    optionStyle = optionVisuals?.asPrimitiveStyle(),
-    enabled = enabled,
-    placeholder = placeholder,
-)
-
-fun RowScope.select(
-    id: String,
-    options: List<String>,
-    selectedIndex: Int? = null,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    placeholder: String = "",
-    visuals: SurfaceVisuals = SurfaceVisuals(),
-    selectedVisuals: SurfaceStyle? = null,
-    optionVisuals: SurfaceVisuals? = null,
-): Int? = primitive.primitiveSelect(
-    id = id,
-    options = options,
-    selectedIndex = selectedIndex ?: -1,
-    modifier = modifier.asPrimitiveModifier(),
-    style = visuals.asPrimitiveStyle(),
-    selectedStyle = selectedVisuals?.asPrimitiveStyle(),
-    optionStyle = optionVisuals?.asPrimitiveStyle(),
-    enabled = enabled,
-    placeholder = placeholder,
-)
 
 /** Generic searchable combobox behavior; visual policy is supplied by the calling skin. */
 fun UiScope.combobox(
