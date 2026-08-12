@@ -126,3 +126,15 @@ python3 tools/generate_parity_report.py              # after the comparison test
 ```
 
 See `tools/README.md` for the generators and the full parity chain.
+
+## Component-level cropping
+
+When a showcase page contains several widgets, do not manually crop before/after screenshots.
+The shadcn reference side is already component-cropped by Playwright through
+`tools/capture_shadcn_local.py`. For the Awake side, use
+`tools/compare_component_crops.py`: it resolves a semantic node ID from the generated preview
+JSON, applies the preview raster scale and optional logical padding, writes the crop and a
+heatmap, and records JSON metrics. Use `tools/ui_component_parity_cases.json` for reviewed
+pairings or start from `tools/ui_component_parity_cases.example.json` for new coverage. Cases
+without a threshold are reported as `REVIEW`; this tool does not update baselines. Review the
+crop and diff before adding a threshold or enabling `--fail-on-mismatch`.

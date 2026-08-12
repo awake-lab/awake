@@ -5,6 +5,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
@@ -83,6 +84,13 @@ class ShadcnComboboxHeadlessTest {
         )
 
         val option = assertNotNull(filtered.semantics.firstOrNull { it.id == "fruit.option.3" })
+        assertEquals(UiSemanticRole.MenuItem, option.role)
+        assertTrue(
+            filtered.semantics.none { semantic ->
+                semantic.id?.startsWith("fruit.option.") == true && semantic.role == UiSemanticRole.Button
+            },
+            "combobox options must be menu items, not trigger buttons",
+        )
         val optionX = option.bounds.x + option.bounds.width / 2f
         val optionY = option.bounds.y + option.bounds.height / 2f
         frame(Input().apply { setPointer(true, optionX, optionY) })

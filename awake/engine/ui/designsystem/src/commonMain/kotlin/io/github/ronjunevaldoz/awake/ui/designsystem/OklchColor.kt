@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
@@ -63,4 +64,8 @@ private fun Float.toSrgbChannel(): Float {
         ).stableChannel()
 }
 
-private fun Float.stableChannel(): Float = (this * 1_000_000f).toInt() / 1_000_000f
+/** Quantize authored channels deterministically without biasing every value downward.
+ * Truncation turned exact white/black OKLCH endpoints into 254/0-ish raster bytes, which is
+ * observable in pixel parity even though the floating-point color was mathematically at the
+ * endpoint. */
+private fun Float.stableChannel(): Float = (this * 1_000_000f).roundToInt() / 1_000_000f

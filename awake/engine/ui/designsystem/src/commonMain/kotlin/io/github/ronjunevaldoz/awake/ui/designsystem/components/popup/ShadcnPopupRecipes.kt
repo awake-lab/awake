@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -23,14 +24,17 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.dialog
+import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.menu
 import io.github.ronjunevaldoz.awake.ui.headless.menuItem
 import io.github.ronjunevaldoz.awake.ui.headless.popup
 import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 
 /** Public Shadcn menu entries. Popup mechanics remain Headless-owned. */
 sealed interface ShadcnDropdownMenuEntry
@@ -81,6 +85,12 @@ fun UiScope.shadcnDropdownMenu(
                 menuItem(
                     item = item,
                     label = source.label,
+                    // Select/DropdownMenu items are menu rows, not trigger buttons. The
+                    // shadcn source uses `w-full py-1.5 px-2 pr-8 text-sm`, which produces a
+                    // 32dp row at the default line metrics. Keep the row geometry explicit so
+                    // the neutral `menuItem` primitive cannot inherit a trigger's sizing or
+                    // make every option look like a separate button.
+                    modifier = Modifier.height(32f.dp),
                     visuals = SurfaceVisuals(
                         rest = SurfaceStyle(
                             background = if (item.index == selectedIndex) themeValues.colors.accent else themeValues.colors.background,
@@ -90,7 +100,8 @@ fun UiScope.shadcnDropdownMenu(
                                 else -> themeValues.colors.foreground
                             },
                             cornerRadius = themeValues.shapes.sm,
-                            textSize = themeValues.typography.label,
+                            contentPadding = UiInsets(horizontal = 8f.dp, vertical = 6f.dp),
+                            textSize = 14f.sp,
                         ),
                     ),
                 )
@@ -134,7 +145,13 @@ fun UiScope.shadcnTooltip(
             foreground = themeValues.colors.background,
             cornerRadius = themeValues.shapes.md,
             contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(12f.dp, 6f.dp),
-            textSize = themeValues.typography.caption,
+            // tooltip.tsx uses Tailwind `text-xs` (12px), not the preset's caption tier (11px
+            // in Vega). Keep this component tied to the source token so its intrinsic width is
+            // stable across theme presets.
+            textSize = 12f.sp,
+            // shadcn's text-xs token uses a 1rem line-height (Tailwind's default leading),
+            // while the bundled font's intrinsic line box is slightly shorter.
+            lineHeight = 16f.sp,
         ),
         content = content,
     )

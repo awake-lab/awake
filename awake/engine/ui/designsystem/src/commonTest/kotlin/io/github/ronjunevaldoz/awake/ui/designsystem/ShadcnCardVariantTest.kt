@@ -34,12 +34,12 @@ class ShadcnCardVariantTest {
                 ) {
                     // no body content needed
                 }
-            return ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Quad>().size
+            return ui.finishFrame().primitives.count { it is UiDrawPrimitive.Quad || it is UiDrawPrimitive.ShadowQuad }
         }
 
         assertTrue(
             quadCount(ShadcnCardVariant.Elevated) > quadCount(ShadcnCardVariant.Default),
-            "Elevated should draw the two extra shadow strips the Default variant doesn't",
+            "Elevated should draw an explicit shadow primitive the Default variant does not",
         )
     }
 

@@ -15,7 +15,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.button
-import io.github.ronjunevaldoz.awake.ui.headless.heightIn
+import io.github.ronjunevaldoz.awake.ui.headless.heightOrDefault
+import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
 
 fun UiScope.shadcnButton(
     id: String,
@@ -23,13 +24,18 @@ fun UiScope.shadcnButton(
     modifier: Modifier = Modifier,
     variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
     size: ShadcnButtonSize = ShadcnButtonSize.Md,
+    centered: Boolean = true,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
 ): Boolean = button(
     id = id,
     label = label,
-    modifier = modifier.heightIn(min = size.heightDp),
-    visuals = shadcnButtonVisuals(themeValues, variant),
+    // button.tsx sizes are fixed (`h-9`, `h-8`, ...), not minimum heights. Using heightIn here
+    // left Headless's 40dp natural fallback in place, so the 36dp default button was clipped by
+    // the parity canvas and its glyphs appeared cut.
+    modifier = modifier.heightOrDefault(size.heightDp),
+    visuals = shadcnButtonVisuals(themeValues, variant, size),
+    centered = centered,
     enabled = enabled,
 ).also {
     if (it) {
@@ -43,13 +49,15 @@ fun ColumnScope.shadcnButton(
     modifier: Modifier = Modifier,
     variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
     size: ShadcnButtonSize = ShadcnButtonSize.Md,
+    centered: Boolean = true,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
 ): Boolean = button(
     id = id,
     label = label,
-    modifier = modifier.heightIn(min = size.heightDp),
-    visuals = shadcnButtonVisuals(themeValues, variant),
+    modifier = modifier.heightOrDefault(size.heightDp),
+    visuals = shadcnButtonVisuals(themeValues, variant, size),
+    centered = centered,
     enabled = enabled,
 ).also {
     if (it) {
@@ -63,25 +71,37 @@ fun RowScope.shadcnButton(
     modifier: Modifier = Modifier,
     variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
     size: ShadcnButtonSize = ShadcnButtonSize.Md,
+    centered: Boolean = true,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
 ): Boolean = button(
     id = id,
     label = label,
-    modifier = modifier.heightIn(min = size.heightDp),
-    visuals = shadcnButtonVisuals(themeValues, variant),
+    modifier = modifier.heightOrDefault(size.heightDp),
+    visuals = shadcnButtonVisuals(themeValues, variant, size),
+    centered = centered,
     enabled = enabled,
 ).also { if (it) onClick?.invoke() }
 
-private fun shadcnButtonVisuals(theme: UiThemeValues, variant: ShadcnButtonVariant): SurfaceVisuals {
+private fun shadcnButtonVisuals(
+    theme: UiThemeValues,
+    variant: ShadcnButtonVariant,
+    size: ShadcnButtonSize,
+): SurfaceVisuals {
     val colors = theme.colors
     val rest = when (variant) {
-        ShadcnButtonVariant.Primary -> SurfaceStyle(colors.primary, colors.primaryForeground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
-        ShadcnButtonVariant.Secondary -> SurfaceStyle(colors.secondary, colors.secondaryForeground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
-        ShadcnButtonVariant.Outline -> SurfaceStyle(colors.background, colors.foreground, SurfaceBorder(1f.dp, colors.border), theme.shapes.md, textSize = theme.typography.label)
-        ShadcnButtonVariant.Ghost -> SurfaceStyle(Color.Transparent, colors.foreground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
-        ShadcnButtonVariant.Danger -> SurfaceStyle(colors.destructive, colors.destructiveForeground, cornerRadius = theme.shapes.md, textSize = theme.typography.label)
-        ShadcnButtonVariant.Link -> SurfaceStyle(Color.Transparent, colors.primary, cornerRadius = theme.shapes.xs, textSize = theme.typography.label)
+        // shadcn's button source uses `text-sm` (14px in the pinned reference). In the
+        // default Vega preset that is the body tier; using the label tier here made every
+        // button's measured text narrower than the reference before padding was even applied.
+        ShadcnButtonVariant.Primary -> SurfaceStyle(colors.primary, colors.primaryForeground, cornerRadius = theme.shapes.md, contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
+        ShadcnButtonVariant.Secondary -> SurfaceStyle(colors.secondary, colors.secondaryForeground, cornerRadius = theme.shapes.md, contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
+        // shadcn Button outline uses `border-input`; `border` is reserved for layout chrome.
+        ShadcnButtonVariant.Outline -> SurfaceStyle(colors.background, colors.foreground, SurfaceBorder(1f.dp, colors.input), theme.shapes.md, io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
+        ShadcnButtonVariant.Ghost -> SurfaceStyle(Color.Transparent, colors.foreground, cornerRadius = theme.shapes.md, contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
+        // button.tsx uses `text-white` for destructive, independent of the generated palette's
+        // destructive-foreground token.
+        ShadcnButtonVariant.Danger -> SurfaceStyle(colors.destructive, Color.White, cornerRadius = theme.shapes.md, contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
+        ShadcnButtonVariant.Link -> SurfaceStyle(Color.Transparent, colors.primary, cornerRadius = theme.shapes.xs, contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(horizontal = size.paddingX, vertical = 0f.dp), textSize = theme.typography.body, fontWeight = FontWeight.Medium)
     }
     return SurfaceVisuals(
         rest = rest,

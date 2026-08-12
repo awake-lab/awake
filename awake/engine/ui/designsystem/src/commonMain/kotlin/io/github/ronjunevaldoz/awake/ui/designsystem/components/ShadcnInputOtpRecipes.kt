@@ -44,7 +44,7 @@ fun UiScope.shadcnInputOTP(
                     style = SurfaceStyle(
                         background = themeValues.colors.card,
                         foreground = if (enabled) themeValues.colors.foreground else themeValues.colors.mutedForeground,
-                        border = SurfaceBorder(1f.dp, if (isError) themeValues.colors.destructive else themeValues.colors.border),
+                        border = SurfaceBorder(1f.dp, if (isError) themeValues.colors.destructive else themeValues.colors.input),
                         cornerRadius = themeValues.shapes.md,
                     ),
                 ) {
@@ -73,6 +73,34 @@ fun ColumnScope.shadcnInputOTP(
     isError: Boolean = false,
     groupSize: Int = 0,
     onValueChange: (String) -> Unit = {},
-): String = textField(id, value, modifier = modifier.height(1f.dp), enabled = enabled).filter(Char::isDigit).take(length).also {
-    if (it != value) onValueChange(it)
+): String {
+    // Keep the same visible segmented surface as the UiScope overload. The old ColumnScope
+    // overload rendered only a 1dp hidden text field, which is why the showcase's OTP sample
+    // appeared cropped/empty even though input state still worked.
+    surface(id = "$id.slots", modifier = modifier) {
+        row(horizontalArrangement = Arrangement.spacedBy(6f.dp), modifier = Modifier.height(36f.dp)) {
+            repeat(length) { index ->
+                if (groupSize > 0 && index > 0 && index % groupSize == 0) text("-")
+                val char = value.getOrNull(index)?.toString().orEmpty()
+                surface(
+                    id = "$id.slot.$index",
+                    modifier = Modifier.height(36f.dp).clickable { requestFocus(id) },
+                    style = SurfaceStyle(
+                        background = themeValues.colors.card,
+                        foreground = if (enabled) themeValues.colors.foreground else themeValues.colors.mutedForeground,
+                        border = SurfaceBorder(1f.dp, if (isError) themeValues.colors.destructive else themeValues.colors.input),
+                        cornerRadius = themeValues.shapes.md,
+                    ),
+                ) {
+                    box(modifier = Modifier.fillMaxSize(), contentAlignment = UiAlignment.Center) {
+                        text(char, centered = true)
+                    }
+                }
+            }
+        }
+    }
+    val input = textField(id, value, modifier = Modifier.height(1f.dp), enabled = enabled)
+    val next = input.filter(Char::isDigit).take(length)
+    if (next != value) onValueChange(next)
+    return next
 }

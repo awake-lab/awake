@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
@@ -11,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.popup.shadcnDrop
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class DropdownMenuIntrinsicWidthTest {
@@ -45,5 +47,32 @@ class DropdownMenuIntrinsicWidthTest {
         val semantics = ui.finishFrame().semantics
         val report = inspectTextTruncation(semantics)
         assertTrue(report.isClean, "camera menu items must not truncate: ${report.summary()}")
+    }
+
+    @Test
+    fun menuItemsUseMenuRowGeometryAndSemantics() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(640f, 400f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.createUiScope(UiBounds(0f, 0f, 640f, 400f)).shadcnDropdownMenu(
+            id = "actions-menu",
+            anchorSlot = UiBounds(120f, 80f, 0f, 0f),
+            expanded = true,
+            items = listOf(
+                ShadcnDropdownMenuItem(label = "Edit"),
+                ShadcnDropdownMenuItem(label = "Delete", destructive = true),
+            ),
+            width = Dimension.WrapContent,
+        )
+
+        val itemSemantics = ui.finishFrame().semantics.filter {
+            it.id?.let { id -> id.startsWith("actions-menu.item.") && !id.endsWith(".label") } == true
+        }
+        assertEquals(2, itemSemantics.size)
+        assertTrue(itemSemantics.all { it.role == UiSemanticRole.MenuItem })
+        assertTrue(itemSemantics.all { it.bounds.height == 32f })
+        assertTrue(itemSemantics.none { it.role == UiSemanticRole.Button })
     }
 }

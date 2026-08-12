@@ -29,9 +29,13 @@ internal fun fieldVisuals(values: UiThemeValues, variant: ShadcnTextFieldVariant
     val shapes = values.shapes
     val rest = when (variant) {
         ShadcnTextFieldVariant.Default -> SurfaceStyle(
-            background = colors.background,
+            // shadcn Input is `bg-transparent`: the page surface shows through. Keeping the
+            // neutral field surface transparent is also important for `disabled:opacity-50`;
+            // painting an opaque white fill and an alpha-dimmed border as separate primitives
+            // double-composites the border in our immediate-mode renderer.
+            background = Color.Transparent,
             foreground = colors.foreground,
-            border = SurfaceBorder(1f.dp, colors.border),
+            border = SurfaceBorder(1f.dp, colors.input),
             cornerRadius = shapes.md,
             contentPadding = UiInsets(ShadcnSpacing.md, ShadcnSpacing.xs),
             textSize = values.typography.label,
@@ -59,6 +63,25 @@ internal fun fieldVisuals(values: UiThemeValues, variant: ShadcnTextFieldVariant
     )
 }
 
+/** SelectContent rows are menu items, so they intentionally do not reuse trigger chrome. */
+private fun selectOptionVisuals(values: UiThemeValues): SurfaceVisuals = SurfaceVisuals(
+    rest = SurfaceStyle(
+        background = values.colors.popover,
+        foreground = values.colors.popoverForeground,
+        contentPadding = UiInsets(horizontal = 8f.dp, vertical = 6f.dp),
+        textSize = values.typography.label,
+    ),
+    hovered = SurfaceStyle(
+        background = values.colors.accent,
+        foreground = values.colors.accentForeground,
+    ),
+    pressed = SurfaceStyle(
+        background = values.colors.accent,
+        foreground = values.colors.accentForeground,
+    ),
+    disabled = SurfaceStyle(foreground = values.colors.mutedForeground),
+)
+
 fun UiScope.shadcnSelect(
     id: String,
     options: List<String>,
@@ -78,6 +101,7 @@ fun UiScope.shadcnSelect(
         foreground = themeValues.colors.accentForeground,
         cornerRadius = themeValues.shapes.md,
     ),
+    optionVisuals = selectOptionVisuals(themeValues),
     enabled = enabled,
 )
 
@@ -100,6 +124,7 @@ fun ColumnScope.shadcnSelect(
         foreground = themeValues.colors.accentForeground,
         cornerRadius = themeValues.shapes.md,
     ),
+    optionVisuals = selectOptionVisuals(themeValues),
     enabled = enabled,
 )
 
@@ -122,6 +147,7 @@ fun RowScope.shadcnSelect(
         foreground = themeValues.colors.accentForeground,
         cornerRadius = themeValues.shapes.md,
     ),
+    optionVisuals = selectOptionVisuals(themeValues),
     enabled = enabled,
 )
 
@@ -224,6 +250,28 @@ fun UiScope.shadcnRangeSlider(
 )
 
 fun io.github.ronjunevaldoz.awake.ui.headless.ColumnScope.shadcnInput(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    modifier: Modifier = Modifier,
+    variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default,
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    visualTransformation: (String) -> String = { it },
+): String = textField(
+    id = id,
+    value = value,
+    placeholder = placeholder,
+    modifier = modifier,
+    visuals = fieldVisuals(themeValues, variant),
+    enabled = enabled,
+    isError = isError,
+    visualTransformation = visualTransformation,
+)
+
+/** Horizontal-scope overload: nested row content must bind the widget to the row cursor rather
+ * than falling back to an outer ColumnScope receiver. */
+fun RowScope.shadcnInput(
     id: String,
     value: String,
     placeholder: String = "",

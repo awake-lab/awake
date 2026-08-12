@@ -258,6 +258,11 @@ existed, nothing automated ever checked. This closes that gap with a real upstre
   under `build/reports/shadcn-parity/`, and prints a summary table. Absolute mismatch against
   the real upstream reference is expected and stays untargeted -- pixel-perfect parity with
   shadcn/ui isn't the goal -- but *drift* is gated, see below.
+- `tools/compare_component_crops.py` for component-level parity when a page preview contains
+  several widgets. The reference side is cropped automatically by
+  `tools/capture_shadcn_local.py` using the reference app's `#case`/portal selector; the Awake
+  side is cropped by semantic node ID from the generated preview JSON. This is the canonical
+  way to compare a component inside a larger showcase without manually cropping screenshots.
 
 Caveat carried over from `docs/reference/shadcn-parity.md`: shadcn/ui has no single canonical
 look (style presets, base colors, density all vary) -- these captures are *a* real reference,

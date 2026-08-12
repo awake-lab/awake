@@ -4,6 +4,7 @@
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
@@ -22,9 +23,12 @@ import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceShadow
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.popup
+import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 
 private fun surfaceStyle(values: UiThemeValues, variant: ShadcnSurfaceVariant?): SurfaceStyle {
@@ -91,12 +95,24 @@ fun UiScope.shadcnCard(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = surfaceStyle(themeValues, null),
-    verticalArrangement = Arrangement.spacedBy(size.dividerGapDp.dp),
+    style = surfaceStyle(themeValues, null).copy(
+        shadow = if (variant == ShadcnCardVariant.Elevated) {
+            SurfaceShadow(color = Color.Black.withAlpha(0.16f), offsetY = 2f.dp, blurRadius = 4f.dp)
+        } else null,
+    ),
+    verticalArrangement = Arrangement.spacedBy(0f.dp),
 ) {
-    header?.invoke(this)
+    if (header != null) {
+        header()
+        // CardHeader/CardContent are independently padded in shadcn. The compatibility size
+        // axis contributes only a small slot gap; it never draws a divider.
+        spacer(Modifier.height((24f + size.dividerGapDp).dp))
+    }
     body(it)
-    footer?.invoke(this)
+    if (footer != null) {
+        spacer(Modifier.height(size.dividerGapDp.dp))
+        footer()
+    }
 }
 
 fun ColumnScope.shadcnCard(
@@ -110,12 +126,22 @@ fun ColumnScope.shadcnCard(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = surfaceStyle(themeValues, null),
-    verticalArrangement = Arrangement.spacedBy(size.dividerGapDp.dp),
+    style = surfaceStyle(themeValues, null).copy(
+        shadow = if (variant == ShadcnCardVariant.Elevated) {
+            SurfaceShadow(color = Color.Black.withAlpha(0.16f), offsetY = 2f.dp, blurRadius = 4f.dp)
+        } else null,
+    ),
+    verticalArrangement = Arrangement.spacedBy(0f.dp),
 ) {
-    header?.invoke(this)
+    if (header != null) {
+        header()
+        spacer(Modifier.height((24f + size.dividerGapDp).dp))
+    }
     body(it)
-    footer?.invoke(this)
+    if (footer != null) {
+        spacer(Modifier.height(size.dividerGapDp.dp))
+        footer()
+    }
 }
 
 fun RowScope.shadcnCard(
@@ -129,12 +155,22 @@ fun RowScope.shadcnCard(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = surfaceStyle(themeValues, null),
-    verticalArrangement = Arrangement.spacedBy(size.dividerGapDp.dp),
+    style = surfaceStyle(themeValues, null).copy(
+        shadow = if (variant == ShadcnCardVariant.Elevated) {
+            SurfaceShadow(color = Color.Black.withAlpha(0.16f), offsetY = 2f.dp, blurRadius = 4f.dp)
+        } else null,
+    ),
+    verticalArrangement = Arrangement.spacedBy(0f.dp),
 ) {
-    header?.invoke(this)
+    if (header != null) {
+        header()
+        spacer(Modifier.height((24f + size.dividerGapDp).dp))
+    }
     body(it)
-    footer?.invoke(this)
+    if (footer != null) {
+        spacer(Modifier.height(size.dividerGapDp.dp))
+        footer()
+    }
 }
 
 fun UiScope.shadcnPopover(

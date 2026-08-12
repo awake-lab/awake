@@ -144,6 +144,7 @@ fun ColumnScope.shadcnSidebarMenuItem(
     label = if (badge == null) label else "$label  $badge",
     modifier = modifier.fillMaxWidth().height(32f.dp),
     variant = if (active) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+    centered = false,
     onClick = onClick,
 )
 
@@ -165,5 +166,6 @@ fun ColumnScope.shadcnSidebarMenuSubItem(
     label = label,
     modifier = modifier.fillMaxWidth().height(28f.dp),
     variant = if (active) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+    centered = false,
     onClick = onClick,
 )

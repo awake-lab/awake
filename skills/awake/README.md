@@ -7,7 +7,8 @@ This folder contains Awake's tracked repo-local skill files.
 - `agents/*.md`
   - role-specific execution guidance for working in Awake domains such as ECS and engine work
 - `commands/*.md`
-  - repo-local operational commands such as audits and review helpers
+  - repo-local operational commands such as audits, review helpers, and semantic UI crop/diff
+    workflows
 - `templates/*.md`
   - reusable starter templates for new repo-local agent docs
 

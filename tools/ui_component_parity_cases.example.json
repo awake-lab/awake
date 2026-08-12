@@ -1,0 +1,14 @@
+{
+  "_comment": "Paths are relative to the repository root. Reference PNGs are already cropped by capture_shadcn_local.py. Awake crops are resolved from one or more semantic node IDs in the generated design report JSON. Use nodeIds for a grouped reference case.",
+  "cases": [
+    {
+      "name": "matching-component-case",
+      "awakePng": "samples/ui-showcase/build/ui-previews/<preview-id>.png",
+      "semanticJson": "samples/ui-showcase/build/ui-previews/<preview-id>.json",
+      "nodeIds": ["<component-node-id>"],
+      "referencePng": "docs/reference/shadcn-previews-local/<matching-case>_light.png",
+      "padding": 4,
+      "maxMismatchPct": 5
+    }
+  ]
+}

@@ -8,11 +8,14 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiStroke
+import io.github.ronjunevaldoz.awake.ui.UiStrokeCap
+import io.github.ronjunevaldoz.awake.ui.UiStrokeJoin
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.uiPath
 
 /** Snaps a [UiBounds] to whole device pixels the same way [BasicText.kt]'s glyph emission
  * already does for every glyph -- position rounds to the nearest pixel, size rounds and never
@@ -32,7 +35,11 @@ fun UiPrimitiveScope.emitPrimitive(primitive: UiDrawPrimitive, overlay: Boolean)
 
 private fun roundedRadiusFor(slot: UiBounds, radiusPx: Float, shapeSpec: UiShapeSpec?): Float =
     when (shapeSpec) {
-        null -> radiusPx
+        // Theme tokens such as `shapes.full` are intentionally large (for example 9999dp).
+        // A rounded quad must still use a radius bounded by its own slot; otherwise outline
+        // pills collapse into a single horizontal stroke when the renderer receives a radius
+        // larger than the widget's height.
+        null -> radiusPx.coerceIn(0f, minOf(slot.width, slot.height) / 2f)
         UiShapeSpec.Rectangle -> 0f
         is UiShapeSpec.RoundedRectangle -> shapeSpec.radius.toPx()
             .coerceIn(0f, minOf(slot.width, slot.height) / 2f)
@@ -87,11 +94,17 @@ fun UiPrimitiveScope.emitFillAndBorder(
 ) {
     val hasFill = !fillColor.isTransparent()
     val borderPx = borderWidth.toPx()
+    // CSS `border: 1px solid transparent` still belongs to the border-box (intrinsic sizing
+    // already accounts for [borderWidth]), but it must not become a draw primitive. Emitting a
+    // transparent stroke makes the software rasterizer blend the stroke's black RGB channels
+    // into otherwise untouched pixels and produces the dark phantom outlines seen on shadcn
+    // tabs and filled badges.
+    val hasBorder = borderPx > 0f && !borderColor.isTransparent()
     val pathShape = pathOnlyShape(slot, shapeSpec)
     if (pathShape != null) {
         val path = pathShape.toPath(slot)
         if (hasFill) emitPrimitive(UiDrawPrimitive.FilledPath(path, fillColor, tokenId = fillTokenId), overlay)
-        if (borderPx > 0f) {
+        if (hasBorder) {
             emitPrimitive(
                 UiDrawPrimitive.StrokedPath(
                     path,
@@ -106,7 +119,7 @@ fun UiPrimitiveScope.emitFillAndBorder(
     }
 
     val resolvedRadius = roundedRadiusFor(slot, radiusPx, shapeSpec)
-    if (resolvedRadius > 0f && borderPx > 0f) {
+    if (resolvedRadius > 0f && hasBorder) {
         if (!hasFill) {
             // The "full border-colored quad, then an inset fill-colored quad punched on
             // top" trick below assumes a fill always exists to cover the interior -- with
@@ -164,7 +177,7 @@ fun UiPrimitiveScope.emitFillAndBorder(
         return
     }
     if (hasFill) emitFillShape(slot, fillColor, resolvedRadius, shapeSpec, overlay, tokenId = fillTokenId)
-    if (borderPx > 0f) border(slot, borderWidth, borderColor, overlay, tokenId = borderTokenId)
+    if (hasBorder) border(slot, borderWidth, borderColor, overlay, tokenId = borderTokenId)
 }
 
 fun UiPrimitiveScope.emitInsetAccent(
@@ -182,6 +195,23 @@ fun UiPrimitiveScope.emitInsetAccent(
         color = context.currentTheme.colors.primary,
         radiusPx = (radiusPx - inset).coerceAtLeast(0f),
         shapeSpec = shapeSpec,
+    )
+}
+
+/** The shadcn checkbox indicator is a check icon, not a filled inset square. */
+fun UiPrimitiveScope.emitCheckmark(slot: UiBounds) {
+    val path = uiPath {
+        moveTo(slot.x + slot.width * 0.25f, slot.y + slot.height * 0.52f)
+        lineTo(slot.x + slot.width * 0.44f, slot.y + slot.height * 0.72f)
+        lineTo(slot.x + slot.width * 0.76f, slot.y + slot.height * 0.30f)
+    }
+    emitPrimitive(
+        UiDrawPrimitive.StrokedPath(
+            path = path,
+        stroke = UiStroke(1.75f.px, UiStrokeCap.Round, UiStrokeJoin.Round),
+            color = context.currentTheme.colors.primaryForeground,
+        ),
+        overlay = false,
     )
 }
 

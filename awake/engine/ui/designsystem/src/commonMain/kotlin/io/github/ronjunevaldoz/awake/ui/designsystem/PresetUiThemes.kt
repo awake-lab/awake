@@ -34,6 +34,7 @@ object LightUiTheme : UiThemeValues {
         override val destructive = oklch(0.577f, 0.245f, 27.325f)
         override val destructiveForeground = oklch(0.985f, 0f)
         override val border = oklch(0.922f, 0f)
+        override val input = oklch(0.922f, 0f)
     }
 
     override val typography = ShadcnTheme.typography

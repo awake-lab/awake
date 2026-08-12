@@ -82,10 +82,9 @@ private fun comparisonTestSnapshot(): UiInputState {
         "side-by-side. Composition mirrors tools/shadcn-reference-app/src/cases.tsx's card-login case exactly now: " +
         "one Label+Input(email)+full-width Login button, all in the content slot -- the previous version added a " +
         "password field the reference never shows and put Login in shadcnCard's footer slot, which the real markup " +
-        "doesn't use either, so the aligned crop (208 of 284px of Awake's own trimmed height) was comparing content " +
-        "the reference couldn't possibly contain. shadcnCard still draws a divider under the header regardless " +
-        "(real shadcn's CardHeader border is opt-in via an explicit border-b class this demo never sets) -- a real, " +
-        "reportable gap left as-is since fixing it means editing shadcnCard itself, out of this harness's scope.",
+        "doesn't use either, so the aligned crop is comparing the same one-field card content. The compatibility " +
+        "shadcnCard now follows the reference's explicit CardHeader/CardContent spacing and does not inject a " +
+        "separator that the source case never requests.",
     width = 288,
     height = 234,
 )
@@ -112,7 +111,10 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
                 },
             ) { _ ->
                 shadcnLabel("Email")
-                spacer(Modifier.height(6f.dp))
+                // The reference CardContent uses `flex flex-col gap-3` (12px) between every
+                // child: Label -> Input -> Button. Keep the fixture's composition aligned with
+                // the pinned shadcn case instead of compensating for the old core default gap.
+                spacer(Modifier.height(12f.dp))
                 shadcnInput(
                     "parity-card-email",
                     value = "",

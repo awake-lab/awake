@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiInputState
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
@@ -59,8 +60,8 @@ class UiPopupCompositionsTest {
         )
         assertTrue(result.slot != null)
         val frame = ui.finishFrame()
-        assertTrue(frame.semantics.any { it.id == "menu.item.0" })
-        assertTrue(frame.semantics.any { it.id == "menu.item.1" })
+        assertTrue(frame.semantics.any { it.id == "menu.item.0" && it.role == UiSemanticRole.MenuItem })
+        assertTrue(frame.semantics.any { it.id == "menu.item.1" && it.role == UiSemanticRole.MenuItem })
     }
 
     @Test
