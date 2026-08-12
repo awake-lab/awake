@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnAvatarSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnRadioMetrics
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 import kotlin.math.abs
@@ -75,6 +76,15 @@ class ShadcnSpecAssertionTest {
         SpecRow("Input", "padding-y", "py-1", Tw.Spacing.s1, metrics.inputPaddingY),
         SpecRow("Badge", "padding-x", "px-2", Tw.Spacing.s2, metrics.badgePaddingX),
         SpecRow("Badge", "padding-y", "py-0.5", Tw.Spacing.s0_5, metrics.badgePaddingY),
+
+        // --- RadioGroup: `size-4`, indicator `size-2`, authored row `gap-2`, root `gap-3`
+        // (radio-group.tsx). The label gap is part of the documented reference case rather
+        // than the bare upstream item, because shadcn intentionally leaves row composition to
+        // the consumer.
+        SpecRow("RadioGroupItem", "ring size", "size-4", Tw.Spacing.s4, ShadcnRadioMetrics.itemSize),
+        SpecRow("RadioGroupItem", "selected dot size", "size-2", Tw.Spacing.s2, ShadcnRadioMetrics.indicatorSize),
+        SpecRow("RadioGroup row", "label gap", "gap-2", Tw.Spacing.s2, ShadcnRadioMetrics.labelGap),
+        SpecRow("RadioGroup", "row gap", "gap-3", Tw.Spacing.s3, ShadcnRadioMetrics.groupGap),
 
         // --- Radius ladder (Tailwind v4 derives these MULTIPLICATIVELY from --radius: 0.625rem;
         // see ShadcnRadiusScaleTest for the formula itself) ---

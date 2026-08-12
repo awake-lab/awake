@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.selection.shadcnCheckbox
@@ -18,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
 import kotlin.test.assertNotNull
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
@@ -84,6 +86,38 @@ class ShadcnCheckboxRadioSlotTest {
         assertNotNull(
             semantics.firstOrNull { it.id == "plan.a" },
             "bare radio button should render its own semantic node",
+        )
+    }
+
+    @Test
+    fun shadcnRadioGroupOptionsKeepEachLabelInlineAndVerticallyCenteredWithItsRadio() {
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(320f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
+
+        ui.headlessRoot().column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
+            shadcnRadioGroup(
+                id = "appearance",
+                options = listOf("System", "Light"),
+                selectedIndex = 0,
+            )
+        }
+
+        val semantics = ui.finishFrame().semantics
+        val radio = semantics.first { it.id == "appearance.0" }
+        val label = semantics.first { it.label == "System" }
+        assertEquals(UiSemanticRole.Radio, radio.role)
+        assertTrue(
+            label.bounds.x >= radio.bounds.x + radio.bounds.width + 8f,
+            "radio label must sit inline after its control, separated by the shadcn 8dp gap",
+        )
+        assertTrue(
+            kotlin.math.abs(
+                (label.bounds.y + label.bounds.height / 2f) -
+                    (radio.bounds.y + radio.bounds.height / 2f),
+            ) <= 1f,
+            "radio label and control must share a vertical center",
         )
     }
 }
