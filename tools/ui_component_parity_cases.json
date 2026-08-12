@@ -64,6 +64,32 @@
       "padding": 0
     },
     {
+      "name": "radio-group-states-light",
+      "awakePng": "samples/ui-showcase/build/ui-previews/awake-radiogroup-light.png",
+      "semanticJson": "samples/ui-showcase/build/ui-previews/awake-radiogroup-light.json",
+      "nodeIds": [
+        "parity-radio.0",
+        "parity-radio.0.label",
+        "parity-radio.1",
+        "parity-radio.1.label",
+        "parity-radio.2",
+        "parity-radio.2.label"
+      ],
+      "referencePng": "docs/reference/shadcn-previews-local/radio-group-states_light.png",
+      "padding": 0
+    },
+    {
+      "name": "progress-states-light",
+      "awakePng": "samples/ui-showcase/build/ui-previews/awake-progress-light.png",
+      "semanticJson": "samples/ui-showcase/build/ui-previews/awake-progress-light.json",
+      "nodeIds": [
+        "parity-progress-1",
+        "parity-progress-2"
+      ],
+      "referencePng": "docs/reference/shadcn-previews-local/progress-states_light.png",
+      "padding": 0
+    },
+    {
       "name": "input-states-light",
       "awakePng": "samples/ui-showcase/build/ui-previews/awake-textfield-states-light.png",
       "semanticJson": "samples/ui-showcase/build/ui-previews/awake-textfield-states-light.json",

@@ -22,6 +22,14 @@
       "why": "Unchecked, checked and disabled -- the disabled state no docs demo exposes."
     },
     {
+      "id": "radio-group-states",
+      "why": "Three inline radio/label rows, with the middle option selected."
+    },
+    {
+      "id": "progress-states",
+      "why": "Two primary-on-muted progress indicators at 25% and 65%."
+    },
+    {
       "id": "switch-states",
       "why": "Off, on and disabled, without the label the docs demo carries."
     },
