@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.GlyphRect
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

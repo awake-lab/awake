@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.rangeSlider as primitiveRangeSlider
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.slider as primitiveSlider
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.textField as primitiveTextField
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.textarea as primitiveTextarea
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.rangeSlider as primitiveRangeSlider
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.slider as primitiveSlider
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.textField as primitiveTextField
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.textarea as primitiveTextarea
 
 /** Generic single-line text input. State and focus behavior stay in the Headless primitive. */
 fun UiScope.textField(

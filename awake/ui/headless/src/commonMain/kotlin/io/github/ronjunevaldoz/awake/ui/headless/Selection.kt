@@ -3,10 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.selection.checkbox as primitiveCheckbox
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.selection.switch as primitiveSwitch
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.toggle.toggle as primitiveToggle
-import io.github.ronjunevaldoz.awake.ui.headless.internal.input.toggle.toggleGroup as primitiveToggleGroup
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.checkbox as primitiveCheckbox
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.switch as primitiveSwitch
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toggle as primitiveToggle
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toggleGroup as primitiveToggleGroup
 
 fun UiScope.checkbox(
     id: String,

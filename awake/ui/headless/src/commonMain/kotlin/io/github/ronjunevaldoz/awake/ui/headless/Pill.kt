@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.headless.internal.withIntrinsicLabelSize
+import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelSize
 
 /** Neutral compact surface for badges, labels, and key-cap-like content. */
 fun UiScope.pill(
