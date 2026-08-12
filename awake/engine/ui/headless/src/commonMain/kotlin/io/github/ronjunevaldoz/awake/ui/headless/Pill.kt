@@ -4,8 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layouts.surface as primitiveSurface
-import io.github.ronjunevaldoz.awake.ui.unstyled.withIntrinsicLabelWidth
+import io.github.ronjunevaldoz.awake.ui.unstyled.withIntrinsicLabelSize
 
 /** Neutral compact surface for badges, labels, and key-cap-like content. */
 fun UiScope.pill(
@@ -16,8 +15,15 @@ fun UiScope.pill(
     textColor: Color? = style.foreground,
 ): UiBounds = surface(
     id = id,
-    modifier = modifier,
+    modifier = HeadlessModifier(
+        primitive.withIntrinsicLabelSize(
+            modifier = modifier.asPrimitiveModifier(),
+            label = label,
+            style = style.asPrimitiveStyle(),
+        ),
+    ),
     style = style,
+    verticalArrangement = Arrangement.Center,
     clipContent = true,
 ) {
     text(label = label, color = textColor, centered = true)
@@ -29,16 +35,19 @@ fun ColumnScope.pill(
     modifier: Modifier = Modifier,
     style: SurfaceStyle = SurfaceStyle(),
     textColor: Color? = style.foreground,
-): UiBounds = primitive.primitiveSurface(
+): UiBounds = surface(
     id = id,
-    modifier = primitive.withIntrinsicLabelWidth(
-        modifier = modifier.asPrimitiveModifier(),
-        label = label,
-        style = style.asPrimitiveStyle(),
+    modifier = HeadlessModifier(
+        primitive.withIntrinsicLabelSize(
+            modifier = modifier.asPrimitiveModifier(),
+            label = label,
+            style = style.asPrimitiveStyle(),
+        ),
     ),
-    style = style.asPrimitiveStyle(),
+    style = style,
+    verticalArrangement = Arrangement.Center,
     clipContent = true,
-) { slot ->
+) {
     text(label = label, color = textColor, centered = true)
 }
 
@@ -48,6 +57,18 @@ fun RowScope.pill(
     modifier: Modifier = Modifier,
     style: SurfaceStyle = SurfaceStyle(),
     textColor: Color? = style.foreground,
-): UiBounds = surface(id, modifier, style, clipContent = true) {
+): UiBounds = surface(
+    id = id,
+    modifier = HeadlessModifier(
+        primitive.withIntrinsicLabelSize(
+            modifier = modifier.asPrimitiveModifier(),
+            label = label,
+            style = style.asPrimitiveStyle(),
+        ),
+    ),
+    style = style,
+    verticalArrangement = Arrangement.Center,
+    clipContent = true,
+) {
     text(label = label, color = textColor, centered = true)
 }

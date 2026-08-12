@@ -52,6 +52,28 @@ fun ColumnScope.textField(
     visualTransformation = visualTransformation,
 )
 
+/** The same leaf input is available from a horizontal scope so nested Compose-style rows do not
+ * accidentally resolve the outer column receiver. */
+fun RowScope.textField(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    modifier: Modifier = Modifier,
+    visuals: SurfaceVisuals = SurfaceVisuals(),
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    visualTransformation: (String) -> String = { it },
+): String = primitive.primitiveTextField(
+    id = id,
+    value = value,
+    placeholder = placeholder,
+    modifier = modifier.asPrimitiveModifier(),
+    style = visuals.asPrimitiveStyle(),
+    enabled = enabled,
+    isError = isError,
+    visualTransformation = visualTransformation,
+)
+
 /** Generic multi-line text input with content-derived height. */
 fun UiScope.textarea(
     id: String,

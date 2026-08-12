@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.checkbox as primitiveCheckbox
+import io.github.ronjunevaldoz.awake.ui.unstyled.input.selection.radio as primitiveRadio
 
 fun UiScope.radio(
     id: String,
@@ -13,7 +13,7 @@ fun UiScope.radio(
     visuals: SurfaceStyle = SurfaceStyle(cornerRadius = 9999f.dp),
     onClick: () -> Unit = {},
 ): Boolean {
-    val next = primitive.primitiveCheckbox(
+    val next = primitive.primitiveRadio(
         id = id,
         checked = selected,
         modifier = modifier.asPrimitiveModifier(),
@@ -33,7 +33,7 @@ fun ColumnScope.radio(
     visuals: SurfaceStyle = SurfaceStyle(cornerRadius = 9999f.dp),
     onClick: () -> Unit = {},
 ): Boolean {
-    val next = primitive.primitiveCheckbox(
+    val next = primitive.primitiveRadio(
         id = id,
         checked = selected,
         modifier = modifier.asPrimitiveModifier(),
@@ -53,7 +53,7 @@ fun RowScope.radio(
     visuals: SurfaceStyle = SurfaceStyle(cornerRadius = 9999f.dp),
     onClick: () -> Unit = {},
 ): Boolean {
-    val next = primitive.primitiveCheckbox(
+    val next = primitive.primitiveRadio(
         id = id,
         checked = selected,
         modifier = modifier.asPrimitiveModifier(),

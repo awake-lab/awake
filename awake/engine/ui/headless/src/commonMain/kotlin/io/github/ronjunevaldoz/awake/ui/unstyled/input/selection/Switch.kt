@@ -35,9 +35,10 @@ import kotlin.math.ceil
 private val TOGGLE_WIDTH = 32f.dp
 private val TOGGLE_HEIGHT = 18.4f.dp
 
-// Dp, not raw px: added to/subtracted from `trackSlot` coordinates that are already
-// density-scaled, so a raw literal would render a half-size inset at 2x.
-private val TOGGLE_KNOB_INSET = 2f.dp
+// shadcn's default thumb is size-4 (16dp). Its checked transform is `100% - 2px`; the
+// unchecked thumb starts flush at the track's leading edge rather than using a symmetric inset.
+private val TOGGLE_KNOB_DIAMETER = 16f.dp
+private val TOGGLE_CHECKED_TRAILING_GAP = 2f.dp
 
 // Dp, not raw px: it is added to `trackSlot`/`surface.interaction.slot` coordinates that are
 // already density-scaled, so a raw literal would render a half-size gap at 2x.
@@ -91,6 +92,7 @@ fun UiPrimitiveScope.switch(
             Dimension.Fixed(TOGGLE_HEIGHT),
         ),
         selected = checked,
+        disabled = !enabled,
         enabled = enabled,
     )
     // Track slot is always fixed-size, anchored at the START of the claimed slot.
@@ -109,7 +111,11 @@ fun UiPrimitiveScope.switch(
     // real render: falling back to resolved.background/theme.tokens.background left the
     // unchecked track literally invisible whenever a style plumbed in a background matching
     // the page, e.g. shadcnSwitch borrowing a text-field style).
-    val trackFill = if (newChecked) theme.colors.primary else theme.colors.muted
+    val trackFill = if (newChecked) {
+        theme.colors.primary
+    } else {
+        surface.resolved.background ?: theme.colors.muted
+    }
     // See `ShadcnButtons.kt`'s `buttonSlotInternal` doc for why this is one group alpha
     // around the whole painted widget, not a per-color tweak.
     withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
@@ -123,17 +129,17 @@ fun UiPrimitiveScope.switch(
             borderColor = surface.resolved.borderColor ?: theme.colors.border,
             shapeSpec = UiShapeSpec.Pill,
         )
-        val knobInsetPx = TOGGLE_KNOB_INSET.toPx()
-        val knobDiameter = trackSlot.height - knobInsetPx * 2f
+        val knobDiameter = TOGGLE_KNOB_DIAMETER.toPx()
+        val knobY = trackSlot.y + (trackSlot.height - knobDiameter) / 2f
         val knobX = if (newChecked) {
-            trackSlot.x + trackSlot.width - knobInsetPx - knobDiameter
+            trackSlot.x + trackSlot.width - knobDiameter - TOGGLE_CHECKED_TRAILING_GAP.toPx()
         } else {
-            trackSlot.x + knobInsetPx
+            trackSlot.x
         }
         emitFillAndBorder(
             slot = UiBounds(
                 knobX,
-                trackSlot.y + knobInsetPx,
+                knobY,
                 knobDiameter,
                 knobDiameter,
             ),

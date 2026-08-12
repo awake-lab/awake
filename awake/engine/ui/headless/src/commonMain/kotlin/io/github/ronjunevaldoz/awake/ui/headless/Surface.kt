@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.layouts.surface as primitiveSurface
 import io.github.ronjunevaldoz.awake.ui.style.Style as PrimitiveStyle
+import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
 
 /** Neutral visual values for a generic Headless surface. */
 data class SurfaceStyle(
@@ -18,6 +19,18 @@ data class SurfaceStyle(
     val cornerRadius: Dp? = null,
     val contentPadding: UiInsets = UiInsets.Zero,
     val textSize: Sp? = null,
+    val lineHeight: Sp? = null,
+    val fontWeight: FontWeight? = null,
+    val shadow: SurfaceShadow? = null,
+)
+
+/** Neutral elevation decoration exposed by Headless without leaking Core's [UiShadow]. */
+data class SurfaceShadow(
+    val color: Color,
+    val offsetX: Dp = Dp(0f),
+    val offsetY: Dp = Dp(0f),
+    val blurRadius: Dp = Dp(0f),
+    val spread: Dp = Dp(0f),
 )
 
 /** Optional border decoration for [SurfaceStyle]. */
@@ -33,6 +46,17 @@ internal fun SurfaceStyle.asPrimitiveStyle(): PrimitiveStyle = PrimitiveStyle {
     cornerRadius?.let(::shape)
     contentPadding(contentPadding.start, contentPadding.top, contentPadding.end, contentPadding.bottom)
     textSize?.let(::textSize)
+    lineHeight?.let(::lineHeight)
+    fontWeight?.let(::fontWeight)
+    shadow?.let { value ->
+        shadow(
+            color = value.color,
+            offsetX = value.offsetX,
+            offsetY = value.offsetY,
+            blurRadius = value.blurRadius,
+            spread = value.spread,
+        )
+    }
 }
 
 /**
@@ -67,6 +91,17 @@ private fun io.github.ronjunevaldoz.awake.ui.style.StyleScope.apply(surface: Sur
         surface.contentPadding.bottom,
     )
     surface.textSize?.let(::textSize)
+    surface.lineHeight?.let(::lineHeight)
+    surface.fontWeight?.let(::fontWeight)
+    surface.shadow?.let { value ->
+        shadow(
+            color = value.color,
+            offsetX = value.offsetX,
+            offsetY = value.offsetY,
+            blurRadius = value.blurRadius,
+            spread = value.spread,
+        )
+    }
 }
 
 /**

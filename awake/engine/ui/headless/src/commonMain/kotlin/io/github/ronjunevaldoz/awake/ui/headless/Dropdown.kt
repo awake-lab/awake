@@ -23,6 +23,7 @@ fun UiScope.select(
     placeholder: String = "",
     visuals: SurfaceVisuals = SurfaceVisuals(),
     selectedVisuals: SurfaceStyle? = null,
+    optionVisuals: SurfaceVisuals? = null,
 ): Int? = primitive.primitiveSelect(
     id = id,
     options = options,
@@ -30,6 +31,7 @@ fun UiScope.select(
     modifier = modifier.asPrimitiveModifier(),
     style = visuals.asPrimitiveStyle(),
     selectedStyle = selectedVisuals?.asPrimitiveStyle(),
+    optionStyle = optionVisuals?.asPrimitiveStyle(),
     enabled = enabled,
     placeholder = placeholder,
 )
@@ -43,6 +45,7 @@ fun ColumnScope.select(
     placeholder: String = "",
     visuals: SurfaceVisuals = SurfaceVisuals(),
     selectedVisuals: SurfaceStyle? = null,
+    optionVisuals: SurfaceVisuals? = null,
 ): Int? = primitive.primitiveSelect(
     id = id,
     options = options,
@@ -50,6 +53,7 @@ fun ColumnScope.select(
     modifier = modifier.asPrimitiveModifier(),
     style = visuals.asPrimitiveStyle(),
     selectedStyle = selectedVisuals?.asPrimitiveStyle(),
+    optionStyle = optionVisuals?.asPrimitiveStyle(),
     enabled = enabled,
     placeholder = placeholder,
 )
@@ -63,6 +67,7 @@ fun RowScope.select(
     placeholder: String = "",
     visuals: SurfaceVisuals = SurfaceVisuals(),
     selectedVisuals: SurfaceStyle? = null,
+    optionVisuals: SurfaceVisuals? = null,
 ): Int? = primitive.primitiveSelect(
     id = id,
     options = options,
@@ -70,6 +75,7 @@ fun RowScope.select(
     modifier = modifier.asPrimitiveModifier(),
     style = visuals.asPrimitiveStyle(),
     selectedStyle = selectedVisuals?.asPrimitiveStyle(),
+    optionStyle = optionVisuals?.asPrimitiveStyle(),
     enabled = enabled,
     placeholder = placeholder,
 )
@@ -155,6 +161,7 @@ fun UiScope.combobox(
                         modifier = Modifier.fillMaxWidth().height(32f.dp),
                         visuals = rowVisuals,
                         enabled = enabled,
+                        semanticRole = UiSemanticRole.MenuItem,
                     )
                 ) {
                     picked = indexed.index

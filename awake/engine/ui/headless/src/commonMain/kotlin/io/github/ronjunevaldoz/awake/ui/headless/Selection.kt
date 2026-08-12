@@ -118,6 +118,27 @@ fun ColumnScope.checkbox(
     enabled = enabled,
 )
 
+/** Horizontal-scope overload keeps nested row content on the row's cursor. */
+fun RowScope.checkbox(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    boxSize: Dp,
+    indeterminate: Boolean = false,
+    enabled: Boolean = true,
+    visuals: SurfaceVisuals = SurfaceVisuals(),
+): Boolean = primitive.primitiveCheckbox(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier.asPrimitiveModifier(),
+    style = visuals.asPrimitiveStyle(),
+    boxSize = boxSize,
+    indeterminate = indeterminate,
+    enabled = enabled,
+)
+
 fun ColumnScope.switch(
     id: String,
     checked: Boolean,
@@ -134,7 +155,41 @@ fun ColumnScope.switch(
     enabled = enabled,
 )
 
+fun RowScope.switch(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    visuals: SurfaceVisuals = SurfaceVisuals(),
+): Boolean = primitive.primitiveSwitch(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier.asPrimitiveModifier(),
+    style = visuals.rest.asPrimitiveStyle(),
+    enabled = enabled,
+)
+
 fun ColumnScope.toggle(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit = {},
+    visuals: SurfaceVisuals = SurfaceVisuals(),
+): Boolean = primitive.primitiveToggle(
+    id = id,
+    checked = checked,
+    label = label,
+    modifier = modifier.asPrimitiveModifier(),
+    style = visuals.asPrimitiveStyle(),
+    enabled = enabled,
+    onCheckedChange = onCheckedChange,
+)
+
+fun RowScope.toggle(
     id: String,
     checked: Boolean,
     label: String? = null,
