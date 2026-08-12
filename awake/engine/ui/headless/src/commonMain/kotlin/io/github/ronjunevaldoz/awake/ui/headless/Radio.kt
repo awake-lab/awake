@@ -15,7 +15,7 @@ fun UiScope.radio(
 ): Boolean {
     val next = primitive.primitiveRadio(
         id = id,
-        checked = selected,
+        selected = selected,
         modifier = modifier.asPrimitiveModifier(),
         style = visuals.asPrimitiveStyle(),
         boxSize = 16f.dp,
@@ -35,7 +35,7 @@ fun ColumnScope.radio(
 ): Boolean {
     val next = primitive.primitiveRadio(
         id = id,
-        checked = selected,
+        selected = selected,
         modifier = modifier.asPrimitiveModifier(),
         style = visuals.asPrimitiveStyle(),
         boxSize = 16f.dp,
@@ -55,7 +55,7 @@ fun RowScope.radio(
 ): Boolean {
     val next = primitive.primitiveRadio(
         id = id,
-        checked = selected,
+        selected = selected,
         modifier = modifier.asPrimitiveModifier(),
         style = visuals.asPrimitiveStyle(),
         boxSize = 16f.dp,

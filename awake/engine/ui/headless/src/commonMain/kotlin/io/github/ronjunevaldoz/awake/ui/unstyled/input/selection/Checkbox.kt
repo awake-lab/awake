@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.graphics.emitCheckmark
 import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetDash
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillShape
+import io.github.ronjunevaldoz.awake.ui.graphics.emitRadioDot
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -182,18 +182,7 @@ fun UiPrimitiveScope.radio(
             shapeSpec = io.github.ronjunevaldoz.awake.ui.UiShapeSpec.Circle,
         )
         if (selected) {
-            val dotInset = boxPx * 0.3f
-            emitFillShape(
-                slot = UiBounds(
-                    boxSlot.x + dotInset,
-                    boxSlot.y + dotInset,
-                    boxPx - dotInset * 2f,
-                    boxPx - dotInset * 2f,
-                ),
-                color = theme.colors.primary,
-                radiusPx = (boxPx - dotInset * 2f) / 2f,
-                shapeSpec = io.github.ronjunevaldoz.awake.ui.UiShapeSpec.Circle,
-            )
+            emitRadioDot(boxSlot, theme.colors.primary)
         }
         val next = if (surface.interaction.clicked && enabled) true else selected
         recordSemantic(
