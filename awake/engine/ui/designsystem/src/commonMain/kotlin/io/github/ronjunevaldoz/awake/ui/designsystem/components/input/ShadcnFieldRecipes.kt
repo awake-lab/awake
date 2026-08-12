@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -29,7 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import kotlin.math.round
 
-fun ColumnScope.shadcnField(
+fun UiScope.shadcnField(
     id: String? = null,
     modifier: Modifier = Modifier,
     orientation: ShadcnFieldOrientation = ShadcnFieldOrientation.Vertical,
@@ -48,7 +49,7 @@ fun ColumnScope.shadcnField(
     )
 }
 
-fun ColumnScope.shadcnFieldLabel(
+fun UiScope.shadcnFieldLabel(
     text: String,
     modifier: Modifier = Modifier,
     required: Boolean = false,
@@ -62,7 +63,7 @@ fun ColumnScope.shadcnFieldLabel(
     ),
 )
 
-fun ColumnScope.shadcnFieldDescription(text: String, modifier: Modifier = Modifier): UiBounds = text(
+fun UiScope.shadcnFieldDescription(text: String, modifier: Modifier = Modifier): UiBounds = text(
     label = text,
     modifier = modifier,
     visuals = SurfaceStyle(foreground = themeValues.colors.mutedForeground, textSize = themeValues.typography.caption),
@@ -70,7 +71,7 @@ fun ColumnScope.shadcnFieldDescription(text: String, modifier: Modifier = Modifi
     overflow = UiTextOverflow.Ellipsis,
 )
 
-fun ColumnScope.shadcnFieldError(text: String, modifier: Modifier = Modifier): UiBounds = text(
+fun UiScope.shadcnFieldError(text: String, modifier: Modifier = Modifier): UiBounds = text(
     label = text,
     modifier = modifier,
     visuals = SurfaceStyle(foreground = themeValues.colors.destructive, textSize = themeValues.typography.caption),
@@ -78,27 +79,27 @@ fun ColumnScope.shadcnFieldError(text: String, modifier: Modifier = Modifier): U
     overflow = UiTextOverflow.Ellipsis,
 )
 
-fun ColumnScope.shadcnFieldSet(
+fun UiScope.shadcnFieldSet(
     id: String? = null,
     modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit,
 ): UiBounds = column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(24f.dp)) { content() }
 
-fun ColumnScope.shadcnFieldLegend(text: String, modifier: Modifier = Modifier): UiBounds =
+fun UiScope.shadcnFieldLegend(text: String, modifier: Modifier = Modifier): UiBounds =
     shadcnFieldLabel(text = text, modifier = modifier)
 
-fun ColumnScope.shadcnFieldGroup(
+fun UiScope.shadcnFieldGroup(
     id: String? = null,
     modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit,
 ): UiBounds = column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(28f.dp)) { content() }
 
-fun ColumnScope.shadcnFieldSeparator(modifier: Modifier = Modifier, label: String? = null) {
+fun UiScope.shadcnFieldSeparator(modifier: Modifier = Modifier, label: String? = null) {
     separator(modifier = modifier)
     label?.let { shadcnFieldDescription(it) }
 }
 
-fun ColumnScope.shadcnFieldTextField(
+fun UiScope.shadcnFieldTextField(
     id: String,
     label: String,
     value: String,
@@ -114,7 +115,7 @@ fun ColumnScope.shadcnFieldTextField(
     return next
 }
 
-fun ColumnScope.shadcnFieldTextarea(
+fun UiScope.shadcnFieldTextarea(
     id: String,
     label: String,
     value: String,
@@ -131,7 +132,7 @@ fun ColumnScope.shadcnFieldTextarea(
     return next
 }
 
-fun ColumnScope.shadcnFieldDropdown(
+fun UiScope.shadcnFieldDropdown(
     id: String,
     label: String,
     options: List<String>,
@@ -143,7 +144,7 @@ fun ColumnScope.shadcnFieldDropdown(
     return shadcnSelect(id, options, selectedIndex, modifier, enabled)
 }
 
-fun ColumnScope.shadcnFieldSwitch(
+fun UiScope.shadcnFieldSwitch(
     id: String,
     label: String,
     checked: Boolean,
@@ -154,7 +155,7 @@ fun ColumnScope.shadcnFieldSwitch(
     return shadcnSwitch(id, checked, modifier = modifier, enabled = enabled)
 }
 
-fun ColumnScope.shadcnFieldToggle(
+fun UiScope.shadcnFieldToggle(
     id: String,
     label: String,
     checked: Boolean,
@@ -166,7 +167,7 @@ fun ColumnScope.shadcnFieldToggle(
     return shadcnToggle(id, checked, label = null, modifier = modifier, enabled = enabled, onCheckedChange = onCheckedChange)
 }
 
-fun ColumnScope.shadcnFieldSlider(
+fun UiScope.shadcnFieldSlider(
     id: String,
     label: String,
     min: Float,
@@ -180,7 +181,7 @@ fun ColumnScope.shadcnFieldSlider(
 }
 
 /** Slider field recipe with a compact live value/range label for tooling panels. */
-fun ColumnScope.shadcnFieldSliderWithValue(
+fun UiScope.shadcnFieldSliderWithValue(
     id: String,
     label: String,
     min: Float,
@@ -212,7 +213,7 @@ fun ColumnScope.shadcnFieldSliderWithValue(
     return next
 }
 
-fun ColumnScope.shadcnFieldRangeSlider(
+fun UiScope.shadcnFieldRangeSlider(
     id: String,
     label: String,
     min: Float,

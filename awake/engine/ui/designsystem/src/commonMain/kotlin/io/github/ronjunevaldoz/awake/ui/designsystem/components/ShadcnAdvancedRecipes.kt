@@ -17,7 +17,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.panel
 import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.headless.resizablePanelGroup
 import io.github.ronjunevaldoz.awake.ui.headless.surface
-import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
 
 fun UiScope.shadcnResizablePanelGroup(
@@ -52,16 +51,3 @@ fun UiScope.shadcnScrollArea(
     content = content,
 )
 
-fun ColumnScope.shadcnScrollArea(
-    id: String,
-    modifier: Modifier = Modifier,
-    state: ScrollState = uiScope().rememberScrollState(id),
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = surface(
-    id = id,
-    modifier = modifier.verticalScroll(state),
-    style = SurfaceStyle(
-        scrollThumbColor = themeValues.colors.border,
-    ),
-    content = content,
-)

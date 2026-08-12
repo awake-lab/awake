@@ -108,6 +108,10 @@ fun ColumnScope.spacer(modifier: Modifier = Modifier): Unit =
 fun RowScope.spacer(modifier: Modifier = Modifier): Unit =
     primitive.primitiveSpacer(modifier.asPrimitiveModifier())
 
+fun UiScope.spacer(modifier: Modifier = Modifier) {
+    column(modifier = modifier) {}
+}
+
 /** Main-axis distribution for Headless [row] and [column] containers. */
 sealed interface Arrangement {
     data object Start : Arrangement

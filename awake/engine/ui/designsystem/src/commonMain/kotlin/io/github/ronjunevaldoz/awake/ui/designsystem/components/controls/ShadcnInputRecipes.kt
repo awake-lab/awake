@@ -11,9 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
-import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
@@ -106,51 +104,7 @@ fun UiScope.shadcnSelect(
     enabled = enabled,
 )
 
-fun ColumnScope.shadcnSelect(
-    id: String,
-    options: List<String>,
-    selectedIndex: Int? = null,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    placeholder: String = "",
-): Int? = select(
-    id = id,
-    options = options,
-    selectedIndex = selectedIndex,
-    modifier = modifier,
-    placeholder = placeholder,
-    visuals = fieldVisuals(themeValues, ShadcnTextFieldVariant.Default),
-    selectedVisuals = SurfaceStyle(
-        background = themeValues.colors.accent,
-        foreground = themeValues.colors.accentForeground,
-        cornerRadius = themeValues.shapes.md,
-    ),
-    optionVisuals = selectOptionVisuals(themeValues),
-    enabled = enabled,
-)
 
-fun RowScope.shadcnSelect(
-    id: String,
-    options: List<String>,
-    selectedIndex: Int? = null,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    placeholder: String = "",
-): Int? = select(
-    id = id,
-    options = options,
-    selectedIndex = selectedIndex,
-    modifier = modifier,
-    placeholder = placeholder,
-    visuals = fieldVisuals(themeValues, ShadcnTextFieldVariant.Default),
-    selectedVisuals = SurfaceStyle(
-        background = themeValues.colors.accent,
-        foreground = themeValues.colors.accentForeground,
-        cornerRadius = themeValues.shapes.md,
-    ),
-    optionVisuals = selectOptionVisuals(themeValues),
-    enabled = enabled,
-)
 
 fun UiScope.shadcnCombobox(
     id: String,
@@ -278,118 +232,3 @@ fun UiScope.shadcnRangeSlider(
     enabled = enabled,
 )
 
-fun io.github.ronjunevaldoz.awake.ui.headless.ColumnScope.shadcnInput(
-    id: String,
-    value: String,
-    placeholder: String = "",
-    modifier: Modifier = Modifier,
-    variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default,
-    enabled: Boolean = true,
-    isError: Boolean = false,
-    visualTransformation: (String) -> String = { it },
-): String = textField(
-    id = id,
-    value = value,
-    placeholder = placeholder,
-    modifier = modifier,
-    visuals = fieldVisuals(themeValues, variant),
-    enabled = enabled,
-    isError = isError,
-    visualTransformation = visualTransformation,
-)
-
-/** Horizontal-scope overload: nested row content must bind the widget to the row cursor rather
- * than falling back to an outer ColumnScope receiver. */
-fun RowScope.shadcnInput(
-    id: String,
-    value: String,
-    placeholder: String = "",
-    modifier: Modifier = Modifier,
-    variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default,
-    enabled: Boolean = true,
-    isError: Boolean = false,
-    visualTransformation: (String) -> String = { it },
-): String = textField(
-    id = id,
-    value = value,
-    placeholder = placeholder,
-    modifier = modifier,
-    visuals = fieldVisuals(themeValues, variant),
-    enabled = enabled,
-    isError = isError,
-    visualTransformation = visualTransformation,
-)
-
-fun io.github.ronjunevaldoz.awake.ui.headless.ColumnScope.shadcnTextarea(
-    id: String,
-    value: String,
-    placeholder: String = "",
-    modifier: Modifier = Modifier,
-    variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default,
-    enabled: Boolean = true,
-    isError: Boolean = false,
-    minLines: Int = 3,
-): String = textarea(
-    id = id,
-    value = value,
-    placeholder = placeholder,
-    modifier = modifier,
-    visuals = fieldVisuals(themeValues, variant),
-    enabled = enabled,
-    isError = isError,
-    minLines = minLines,
-)
-
-fun io.github.ronjunevaldoz.awake.ui.headless.ColumnScope.shadcnSlider(
-    id: String,
-    min: Float,
-    max: Float,
-    value: Float,
-    label: String? = null,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    showKnob: Boolean = true,
-): Float = slider(
-    id = id,
-    min = min,
-    max = max,
-    value = value,
-    label = label,
-    modifier = modifier,
-    visuals = SurfaceVisuals(
-        rest = SurfaceStyle(
-            background = themeValues.colors.muted,
-            foreground = themeValues.colors.primary,
-            cornerRadius = themeValues.shapes.full,
-        ),
-    ),
-    enabled = enabled,
-    showKnob = showKnob,
-)
-
-fun io.github.ronjunevaldoz.awake.ui.headless.ColumnScope.shadcnRangeSlider(
-    id: String,
-    min: Float,
-    max: Float,
-    valueStart: Float,
-    valueEnd: Float,
-    label: String? = null,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-): Pair<Float, Float> = rangeSlider(
-    id = id,
-    min = min,
-    max = max,
-    valueStart = valueStart,
-    valueEnd = valueEnd,
-    label = label,
-    modifier = modifier,
-    visuals = SurfaceVisuals(
-        rest = SurfaceStyle(
-            background = themeValues.colors.muted,
-            foreground = themeValues.colors.primary,
-            cornerRadius = themeValues.shapes.full,
-        ),
-    ),
-    enabled = enabled,
-)

@@ -98,7 +98,6 @@ class ShadcnParityScreenshotTest {
 
     @Test
     fun verifyParityScreenshots() {
-        io.github.ronjunevaldoz.awake.ui.designsystem.ensureShadcnTestIconsInitialized()
         val record = System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.toBoolean() ?: false
         val failures = mutableListOf<Throwable>()
         listOf(

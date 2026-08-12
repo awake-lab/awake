@@ -64,7 +64,7 @@ internal fun UiPrimitiveScope.renderTextBlock(
     // A line's ink band is glyphPx * lineHeightEm tall (Roboto ~1.19em), not glyphPx: a slot
     // sized at the font size alone cannot contain the text measured into it.
     val lineMetrics = resolveTextLineMetrics(font, glyphPx, textStyle)
-    val blockMetrics = measureTextBlock(layout, font, glyphPx, lineMetrics)
+    val blockMetrics = measureTextBlock(layout, font, glyphPx, lineMetrics, opticallyCentered = verticallyCentered)
     val shouldClip = wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || maxLines > 1
     val contentBounds = resolveTextContentBounds(
         slot = slot,
@@ -346,14 +346,16 @@ private fun measureTextBlock(
     font: UiFont,
     glyphPx: Float,
     lineMetrics: UiTextLineMetrics,
+    opticallyCentered: Boolean = false,
 ): UiMeasuredTextBlock {
     if (layout.lines.isEmpty()) {
         return UiMeasuredTextBlock(topPx = 0f, heightPx = 0f)
     }
     var blockTopPx = Float.POSITIVE_INFINITY
     var blockBottomPx = Float.NEGATIVE_INFINITY
+    val isSingleLine = layout.lines.size == 1
     layout.lines.forEachIndexed { index, line ->
-        val (lineTopEm, lineBottomEm) = measureVisibleLineBandEm(font)
+        val (lineTopEm, lineBottomEm) = measureVisibleLineBandEm(font, opticallyCentered && isSingleLine)
         val lineOriginY = index * (lineMetrics.lineHeightPx + lineMetrics.lineGapPx)
         blockTopPx = minOf(blockTopPx, lineOriginY + lineTopEm * glyphPx)
         blockBottomPx = maxOf(blockBottomPx, lineOriginY + lineBottomEm * glyphPx)
@@ -367,12 +369,12 @@ private fun measureTextBlock(
     )
 }
 
-private fun measureVisibleLineBandEm(font: UiFont): Pair<Float, Float> {
-    // Always use the font's consistent vertical band (ascent to descent), NOT per-string
-    // character bounding boxes. Per-string character bounding boxes caused text with
-    // descenders ('y', 'g', 'p') or symbols ('*') to calculate different line heights and
-    // baseline offsets than plain text ('Name'), misaligning adjacent labels in Rows and
-    // clipping descenders at the bottom of line slots.
+private fun measureVisibleLineBandEm(font: UiFont, opticallyCentered: Boolean = false): Pair<Float, Float> {
+    if (opticallyCentered) {
+        // For single-line vertically centered text (badges, buttons, chips, tabs),
+        // center on the cap-height/ascent box so text sits in the true optical middle.
+        return font.visibleTopEm to 0f
+    }
     return font.visibleTopEm to font.visibleBottomEm
 }
 

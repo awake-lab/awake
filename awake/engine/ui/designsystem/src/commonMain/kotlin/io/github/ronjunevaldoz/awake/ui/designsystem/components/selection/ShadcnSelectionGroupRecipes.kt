@@ -47,53 +47,6 @@ fun UiScope.shadcnToggleGroup(
     )
 }
 
-fun RowScope.shadcnToggleGroup(
-    id: String,
-    options: List<String>,
-    selectedIndex: Int,
-    modifier: Modifier = Modifier,
-    onIndexChange: (Int) -> Unit = {},
-) {
-    toggleGroup(
-        id = id,
-        options = options,
-        selectedIndex = selectedIndex,
-        modifier = modifier,
-        visuals = SurfaceVisuals(
-            rest = SurfaceStyle(
-                background = themeValues.colors.card,
-                foreground = themeValues.colors.foreground,
-                border = SurfaceBorder(1f.dp, themeValues.colors.border),
-                cornerRadius = themeValues.shapes.md,
-            ),
-        ),
-        onIndexChange = onIndexChange,
-    )
-}
-
-fun ColumnScope.shadcnToggleGroup(
-    id: String,
-    options: List<String>,
-    selectedIndex: Int,
-    modifier: Modifier = Modifier,
-    onIndexChange: (Int) -> Unit = {},
-) {
-    toggleGroup(
-        id = id,
-        options = options,
-        selectedIndex = selectedIndex,
-        modifier = modifier,
-        visuals = SurfaceVisuals(
-            rest = SurfaceStyle(
-                background = themeValues.colors.card,
-                foreground = themeValues.colors.foreground,
-                border = SurfaceBorder(1f.dp, themeValues.colors.border),
-                cornerRadius = themeValues.shapes.md,
-            ),
-        ),
-        onIndexChange = onIndexChange,
-    )
-}
 
 fun UiScope.shadcnToggleGroup(
     id: String,
@@ -139,27 +92,8 @@ fun UiScope.shadcnRadioButton(
     onClick = onClick,
 )
 
-fun RowScope.shadcnRadioButton(
-    id: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-): Boolean = radio(
-    id = id,
-    selected = selected,
-    modifier = modifier,
-    enabled = enabled,
-    visuals = SurfaceStyle(
-        background = themeValues.colors.background,
-        foreground = themeValues.colors.primary,
-        border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        cornerRadius = themeValues.shapes.full,
-    ),
-    onClick = onClick,
-)
 
-fun ColumnScope.shadcnRadioGroup(
+fun UiScope.shadcnRadioGroup(
     id: String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -174,7 +108,7 @@ fun ColumnScope.shadcnRadioGroup(
     )
 }
 
-fun ColumnScope.shadcnRadioGroup(
+fun UiScope.shadcnRadioGroup(
     id: String,
     options: List<String>,
     selectedIndex: Int,

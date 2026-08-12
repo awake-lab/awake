@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
@@ -52,7 +53,7 @@ fun shadcnTableColumnWidthsPx(columns: List<ShadcnTableColumn>, availableWidthPx
     return columns.map { (it.weight / totalWeight) * availableWidthPx }
 }
 
-fun ColumnScope.shadcnTable(
+fun UiScope.shadcnTable(
     id: String,
     columns: List<ShadcnTableColumn>,
     modifier: Modifier = Modifier,

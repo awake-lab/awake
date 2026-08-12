@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.typography
 
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
@@ -58,32 +57,6 @@ fun UiScope.shadcnTextLines(
 }
 
 fun UiScope.shadcnSupportingLines(
-    lines: Iterable<String>,
-    modifier: Modifier = Modifier,
-    maxLines: Int = Int.MAX_VALUE,
-) {
-    shadcnTextLines(
-        lines = lines,
-        modifier = modifier,
-        wrap = UiTextWrap.Word,
-        overflow = UiTextOverflow.Ellipsis,
-        maxLines = maxLines,
-    )
-}
-
-fun ColumnScope.shadcnTextLines(
-    lines: Iterable<String>,
-    modifier: Modifier = Modifier,
-    wrap: UiTextWrap = UiTextWrap.None,
-    overflow: UiTextOverflow = if (wrap == UiTextWrap.None) UiTextOverflow.Ellipsis else UiTextOverflow.Clip,
-    maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
-) {
-    lines.forEach { line ->
-        text(label = line, modifier = modifier, wrap = wrap, overflow = overflow, maxLines = maxLines)
-    }
-}
-
-fun ColumnScope.shadcnSupportingLines(
     lines: Iterable<String>,
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,

@@ -4,13 +4,10 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnAvatarSize
-import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
-import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.avatar
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.offset
@@ -25,7 +22,7 @@ private fun avatarStyle(values: io.github.ronjunevaldoz.awake.ui.api.theme.UiThe
         cornerRadius = values.shapes.full,
     )
 
-fun ColumnScope.shadcnAvatar(
+fun UiScope.shadcnAvatar(
     id: String,
     initials: String,
     modifier: Modifier = Modifier,
@@ -35,25 +32,10 @@ fun ColumnScope.shadcnAvatar(
     initials = initials,
     size = size.boxSize,
     textSize = size.textSize,
-    modifier = modifier,
     style = avatarStyle(themeValues),
 )
 
-fun RowScope.shadcnAvatar(
-    id: String,
-    initials: String,
-    modifier: Modifier = Modifier,
-    size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
-): Unit = avatar(
-    id = id,
-    initials = initials,
-    size = size.boxSize,
-    textSize = size.textSize,
-    modifier = modifier,
-    style = avatarStyle(themeValues),
-)
-
-fun RowScope.shadcnAvatarGroup(
+fun UiScope.shadcnAvatarGroup(
     initials: List<String>,
     modifier: Modifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
@@ -76,7 +58,7 @@ fun RowScope.shadcnAvatarGroup(
     }
 }
 
-fun BoxScope.shadcnAvatarBadge(
+fun UiScope.shadcnAvatarBadge(
     modifier: Modifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
 ): UiBounds = surface(
