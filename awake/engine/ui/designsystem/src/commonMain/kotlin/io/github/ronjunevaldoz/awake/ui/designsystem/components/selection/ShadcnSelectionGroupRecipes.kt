@@ -5,6 +5,8 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components.selection
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnRadioMetrics
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -15,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.radio
+import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
@@ -166,7 +169,7 @@ fun ColumnScope.shadcnRadioGroup(
         id = id,
         modifier = modifier,
         style = SurfaceStyle(contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(12f.dp)),
-        verticalArrangement = Arrangement.spacedBy(12f.dp),
+        verticalArrangement = Arrangement.spacedBy(ShadcnRadioMetrics.groupGap),
         content = { content() },
     )
 }
@@ -177,29 +180,39 @@ fun ColumnScope.shadcnRadioGroup(
     selectedIndex: Int,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    gap: io.github.ronjunevaldoz.awake.ui.api.Dp = 12f.dp,
+    gap: io.github.ronjunevaldoz.awake.ui.api.Dp = ShadcnRadioMetrics.groupGap,
     onIndexChange: (Int) -> Unit = {},
 ): Int {
     var resolved = selectedIndex
     options.forEachIndexed { index, label ->
         val wasSelected = index == selectedIndex
-        val next = radio(
-            id = "$id.$index",
-            selected = wasSelected,
-            modifier = Modifier.height(24f.dp),
-            enabled = enabled,
-            visuals = SurfaceStyle(
-                background = themeValues.colors.background,
-                foreground = themeValues.colors.primary,
-                border = SurfaceBorder(1f.dp, themeValues.colors.border),
-                cornerRadius = themeValues.shapes.full,
-            ),
-            onClick = {
-                resolved = index
-                onIndexChange(index)
-            },
-        )
-        text(label = label, visuals = SurfaceStyle(textSize = themeValues.typography.label))
+        var next = wasSelected
+        row(
+            horizontalArrangement = Arrangement.spacedBy(ShadcnRadioMetrics.labelGap),
+            verticalAlignment = UiAlignment.Vertical.Center,
+        ) {
+            next = radio(
+                id = "$id.$index",
+                selected = wasSelected,
+                modifier = Modifier.height(ShadcnRadioMetrics.itemSize),
+                enabled = enabled,
+                visuals = SurfaceStyle(
+                    background = themeValues.colors.background,
+                    foreground = themeValues.colors.primary,
+                    border = SurfaceBorder(1f.dp, themeValues.colors.border),
+                    cornerRadius = themeValues.shapes.full,
+                ),
+                onClick = {
+                    resolved = index
+                    onIndexChange(index)
+                },
+            )
+            text(
+                label = label,
+                visuals = SurfaceStyle(textSize = themeValues.typography.label),
+                semanticId = "$id.$index.label",
+            )
+        }
         if (index != options.lastIndex) spacer(Modifier.height(gap))
         if (next != wasSelected && next && !wasSelected) resolved = index
     }

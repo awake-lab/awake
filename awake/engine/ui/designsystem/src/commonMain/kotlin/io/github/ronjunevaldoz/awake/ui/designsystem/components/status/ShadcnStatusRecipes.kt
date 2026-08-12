@@ -5,11 +5,14 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components.status
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.progress
 import io.github.ronjunevaldoz.awake.ui.headless.skeleton
 import io.github.ronjunevaldoz.awake.ui.headless.spinner
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.api.dp
 
 private fun progressVisuals(scope: UiScope): SurfaceStyle = SurfaceStyle(
     // shadcn Progress is a muted track with a primary indicator. The headless primitive paints
@@ -17,18 +20,23 @@ private fun progressVisuals(scope: UiScope): SurfaceStyle = SurfaceStyle(
     // produces the canonical `bg-primary/20` + `bg-primary` treatment rather than a white fill.
     background = scope.themeValues.colors.primary.withAlpha(0.2f),
     foreground = scope.themeValues.colors.primary,
+    // Progress is not a slider: upstream uses only `h-2 ... rounded-full bg-primary/20`, with
+    // no input border. Explicitly clearing the generic slider fallback is therefore required.
+    border = SurfaceBorder(0f.dp, Color.Transparent),
     cornerRadius = scope.themeValues.shapes.full,
 )
 
 private fun progressVisuals(scope: ColumnScope): SurfaceStyle = SurfaceStyle(
     background = scope.themeValues.colors.primary.withAlpha(0.2f),
     foreground = scope.themeValues.colors.primary,
+    border = SurfaceBorder(0f.dp, Color.Transparent),
     cornerRadius = scope.themeValues.shapes.full,
 )
 
 private fun progressVisuals(scope: RowScope): SurfaceStyle = SurfaceStyle(
     background = scope.themeValues.colors.primary.withAlpha(0.2f),
     foreground = scope.themeValues.colors.primary,
+    border = SurfaceBorder(0f.dp, Color.Transparent),
     cornerRadius = scope.themeValues.shapes.full,
 )
 

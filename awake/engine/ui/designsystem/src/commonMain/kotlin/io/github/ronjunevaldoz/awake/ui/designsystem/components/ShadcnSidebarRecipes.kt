@@ -24,7 +24,7 @@ private fun sidebarStyle(scope: UiScope): SurfaceStyle = SurfaceStyle(
     background = scope.themeValues.colors.card,
     foreground = scope.themeValues.colors.foreground,
     border = SurfaceBorder(1f.dp, scope.themeValues.colors.border),
-    contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp),
+    contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(ShadcnSidebarMetrics.contentPadding),
 )
 
 fun UiScope.shadcnSidebar(
@@ -56,7 +56,7 @@ fun ColumnScope.shadcnSidebar(
         background = themeValues.colors.card,
         foreground = themeValues.colors.foreground,
         border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp),
+        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(ShadcnSidebarMetrics.contentPadding),
     ),
 ) {
     if (expanded) {
@@ -80,7 +80,7 @@ fun RowScope.shadcnSidebar(
         background = themeValues.colors.card,
         foreground = themeValues.colors.foreground,
         border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp),
+        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(ShadcnSidebarMetrics.contentPadding),
     ),
 ) {
     if (expanded) {
@@ -104,7 +104,7 @@ fun BoxScope.shadcnSidebar(
         background = themeValues.colors.card,
         foreground = themeValues.colors.foreground,
         border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp),
+        contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(ShadcnSidebarMetrics.contentPadding),
     ),
 ) {
     if (expanded) {
@@ -119,7 +119,7 @@ fun ColumnScope.shadcnSidebarGroup(
     label: String? = null,
     content: ColumnScope.() -> Unit,
 ) {
-    column(modifier.fillMaxWidth(), Arrangement.spacedBy(4f.dp)) {
+    column(modifier.fillMaxWidth(), Arrangement.spacedBy(ShadcnSidebarMetrics.groupGap)) {
         label?.let { text(it, visuals = SurfaceStyle(foreground = themeValues.colors.mutedForeground, textSize = themeValues.typography.caption)) }
         content()
     }
@@ -129,7 +129,7 @@ fun ColumnScope.shadcnSidebarMenu(
     modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit,
 ) {
-    column(modifier.fillMaxWidth(), Arrangement.spacedBy(4f.dp)) { content() }
+    column(modifier.fillMaxWidth(), Arrangement.spacedBy(ShadcnSidebarMetrics.menuGap)) { content() }
 }
 
 fun ColumnScope.shadcnSidebarMenuItem(
@@ -142,7 +142,7 @@ fun ColumnScope.shadcnSidebarMenuItem(
 ): Boolean = shadcnButton(
     id = id,
     label = if (badge == null) label else "$label  $badge",
-    modifier = modifier.fillMaxWidth().height(32f.dp),
+    modifier = modifier.fillMaxWidth().height(ShadcnSidebarMetrics.menuButtonHeight),
     variant = if (active) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
     centered = false,
     onClick = onClick,
@@ -152,7 +152,10 @@ fun ColumnScope.shadcnSidebarMenuSub(
     modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit,
 ) {
-    column(modifier.fillMaxWidth().padding(horizontal = 14f.dp, vertical = 0f.dp), Arrangement.spacedBy(2f.dp)) { content() }
+    column(
+        modifier.fillMaxWidth().padding(horizontal = ShadcnSidebarMetrics.submenuIndent, vertical = 0f.dp),
+        Arrangement.spacedBy(ShadcnSidebarMetrics.submenuGap),
+    ) { content() }
 }
 
 fun ColumnScope.shadcnSidebarMenuSubItem(
@@ -164,7 +167,7 @@ fun ColumnScope.shadcnSidebarMenuSubItem(
 ): Boolean = shadcnButton(
     id = id,
     label = label,
-    modifier = modifier.fillMaxWidth().height(28f.dp),
+    modifier = modifier.fillMaxWidth().height(ShadcnSidebarMetrics.submenuButtonHeight),
     variant = if (active) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
     centered = false,
     onClick = onClick,
