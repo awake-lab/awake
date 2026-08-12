@@ -127,6 +127,22 @@ python3 tools/generate_parity_report.py              # after the comparison test
 
 See `tools/README.md` for the generators and the full parity chain.
 
+### CLI shortcut
+
+Use `scripts/awake ui` (or add `scripts/` to `PATH` and use `awake ui`) when iterating on a
+registered component fixture. It is a dispatcher over the same source-of-truth manifests, not a
+new renderer:
+
+```bash
+awake ui reference --component checkbox --state rest --theme light
+awake ui preview --component checkbox --state rest --theme light --debug-layout
+awake ui validate --component checkbox --theme light
+```
+
+The command rejects states and visual configuration that lack a paired official reference and
+Awake preview. Do not interpret a generated Awake-to-Awake golden as parity, and do not use any
+record flag before reviewing the official crop heatmap.
+
 ## Component-level cropping
 
 When a showcase page contains several widgets, do not manually crop before/after screenshots.

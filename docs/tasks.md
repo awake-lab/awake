@@ -8,6 +8,10 @@ just spread unclear ownership across more folders.
 
 ## Active Phase
 
+- 2026-08-12: UI showcase visual-parity work is tracked in
+  [docs/tasks/2026-08-12-ui-showcase-parity-tracker.md](tasks/2026-08-12-ui-showcase-parity-tracker.md).
+  It is deliberately separate from the now-public-boundary-complete Headless migration: no
+  component is marked visually complete without source, semantic, crop, and final-build proof.
 - 2026-08-05: API layering plan added. Use
   [docs/reference/api-layering.md](reference/api-layering.md) as the stable rule and
   [docs/tasks/2026-08-05-api-layering-plan.md](tasks/2026-08-05-api-layering-plan.md) as
@@ -92,6 +96,7 @@ just spread unclear ownership across more folders.
 - [2026-07-17-ui-api-simplification](tasks/2026-07-17-ui-api-simplification.md)
 - [2026-08-05-api-layering-plan](tasks/2026-08-05-api-layering-plan.md)
 - [2026-08-05-scene-module-split-proposal](tasks/2026-08-05-scene-module-split-proposal.md)
+- [2026-08-12-ui-showcase-parity-tracker](tasks/2026-08-12-ui-showcase-parity-tracker.md)
 
 ## Archive Index
 
