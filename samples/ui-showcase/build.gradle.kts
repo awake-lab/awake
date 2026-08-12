@@ -92,9 +92,6 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(project(":awake:engine:ui:testing"))
-            // Legacy screenshot/probe fixtures still use the Core receiver model. Keep this
-            // migration-only bridge test-scoped; production Showcase code remains Headless-only.
-            implementation(project(":awake:engine:ui:designsystem-compat"))
             implementation(project(":awake:engine:ui:ui-core"))
             implementation(libs.kotlinx.coroutines.test)
         }

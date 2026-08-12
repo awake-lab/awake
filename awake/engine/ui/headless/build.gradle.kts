@@ -19,6 +19,7 @@ kotlin {
             // Public headless contracts may use API values without exposing the runtime.
             api(project(":awake:engine:ui:ui-api"))
             implementation(project(":awake:engine:ui:ui-core"))
+            implementation(project(":awake:engine:ui:heroicons"))
             implementation(project(":awake:core"))
         }
         commonTest.dependencies {

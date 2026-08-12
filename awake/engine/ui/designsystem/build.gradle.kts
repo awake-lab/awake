@@ -28,7 +28,9 @@ kotlin {
         commonMain.dependencies {
             // Design-system signatures may expose stable UI values, never raw runtime types.
             api(project(":awake:engine:ui:ui-api"))
+            api(project(":awake:engine:ui:ui-core"))
             api(project(":awake:engine:ui:headless"))
+            api(project(":awake:engine:ui:heroicons"))
         }
         commonTest.dependencies {
             // Core remains available to the frame/test harness; design-system recipes themselves
@@ -66,18 +68,21 @@ tasks.register("auditUiDesignsystemHeadlessBoundary") {
         )
         val current = sourceRoot.asFile.walkTopDown()
             .filter { it.isFile && it.extension == "kt" }
-            .sumOf { file -> file.readLines().count { line -> forbiddenPrefixes.any(line::startsWith) } }
+            .sumOf { file ->
+                file.readLines().count { line -> forbiddenPrefixes.any(line::startsWith) }
+            }
         println("ui-designsystem public legacy Core import lines: $current")
         check(current == 0) {
             "ui-designsystem public boundary violated: $current legacy Core import lines remain. " +
-                "Move Core receiver implementations to ui-designsystem-compat or rewrite them with Headless APIs."
+                    "Move Core receiver implementations to ui-designsystem-compat or rewrite them with Headless APIs."
         }
     }
 }
 
 tasks.register("verifyUiDesignsystemClasspath") {
     group = "verification"
-    description = "Verifies the public design-system compile classpath contains no ui-core artifact."
+    description =
+        "Verifies the public design-system compile classpath contains no ui-core artifact."
     val compileClasspath = configurations.named("desktopCompileClasspath")
     doLast {
         val leaked = compileClasspath.get().files
@@ -91,7 +96,8 @@ tasks.register("verifyUiDesignsystemClasspath") {
 
 tasks.register("auditUiDesignsystemComponentNaming") {
     group = "verification"
-    description = "Verifies design-system component files use Shadcn naming and matching family packages."
+    description =
+        "Verifies design-system component files use Shadcn naming and matching family packages."
     val componentsRoot = layout.projectDirectory.dir(
         "src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/components",
     )
@@ -113,8 +119,10 @@ tasks.register("auditUiDesignsystemComponentNaming") {
                 when {
                     !file.name.startsWith("Shadcn") ->
                         "${file.relativeTo(rootProject.projectDir)} must start with Shadcn"
+
                     packageDeclaration != "package $expectedPackage" ->
                         "${file.relativeTo(rootProject.projectDir)} must declare package $expectedPackage"
+
                     else -> null
                 }
             }
@@ -122,13 +130,18 @@ tasks.register("auditUiDesignsystemComponentNaming") {
         check(violations.isEmpty()) {
             "ui-designsystem component naming/package violations:\n${violations.joinToString("\n")}"
         }
-        println("ui-designsystem component naming: ${componentsRoot.asFile.walkTopDown().count { it.isFile && it.extension == "kt" }} files verified")
+        println(
+            "ui-designsystem component naming: ${
+                componentsRoot.asFile.walkTopDown().count { it.isFile && it.extension == "kt" }
+            } files verified"
+        )
     }
 }
 
 tasks.register("auditUiDesignsystemRecipeDuplicates") {
     group = "verification"
-    description = "Rejects duplicate Shadcn recipes with the same receiver across component packages."
+    description =
+        "Rejects duplicate Shadcn recipes with the same receiver across component packages."
     val componentsRoot = layout.projectDirectory.dir(
         "src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/components",
     )
@@ -181,6 +194,7 @@ tasks.register("auditUiDesignsystemComponentCoverage") {
                     isContractOnly -> null
                     !source.contains("io.github.ronjunevaldoz.awake.ui.headless") ->
                         "${file.relativeTo(rootProject.projectDir)} must delegate through ui-headless"
+
                     else -> null
                 }
             }
@@ -190,15 +204,16 @@ tasks.register("auditUiDesignsystemComponentCoverage") {
         }
         println(
             "ui-designsystem component coverage: " +
-                componentFiles.count { !it.name.endsWith("Contracts.kt") } +
-                " public files are Headless-backed",
+                    componentFiles.count { !it.name.endsWith("Contracts.kt") } +
+                    " public files are Headless-backed",
         )
     }
 }
 
 tasks.register("reportUiDesignsystemMigrationProgress") {
     group = "verification"
-    description = "Reports the verified public-component and overall boundary migration percentages."
+    description =
+        "Reports the verified public-component and overall boundary migration percentages."
     val componentsRoot = layout.projectDirectory.dir(
         "src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/components",
     )
@@ -212,14 +227,15 @@ tasks.register("reportUiDesignsystemMigrationProgress") {
         val headlessBacked = componentFiles.count {
             it.readText().contains("io.github.ronjunevaldoz.awake.ui.headless")
         }
-        val publicPercent = if (componentFiles.isEmpty()) 100 else headlessBacked * 100 / componentFiles.size
+        val publicPercent =
+            if (componentFiles.isEmpty()) 100 else headlessBacked * 100 / componentFiles.size
         val compatibilityRemaining = compatibilityRoot.asFile.walkTopDown()
             .any { it.isFile && it.extension == "kt" }
         val overallPercent = if (compatibilityRemaining) 99 else publicPercent
         println("ui-designsystem public component migration: $publicPercent% ($headlessBacked/${componentFiles.size})")
         println(
             "ui-designsystem overall boundary migration: $overallPercent% " +
-                if (compatibilityRemaining) "(test-only compatibility bridge remains)" else "(compatibility bridge removed)",
+                    if (compatibilityRemaining) "(test-only compatibility bridge remains)" else "(compatibility bridge removed)",
         )
     }
 }

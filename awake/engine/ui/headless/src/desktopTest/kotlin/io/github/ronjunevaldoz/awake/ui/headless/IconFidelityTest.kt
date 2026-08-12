@@ -7,12 +7,12 @@ import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.icon.HeroIcons
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
-import io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons
 import io.github.ronjunevaldoz.awake.ui.unstyled.components.icon
 import java.awt.image.BufferedImage
 import java.io.File
@@ -21,7 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * Proves each shipped [io.github.ronjunevaldoz.awake.ui.unstyled.HeroIcons] glyph renders the *same shape* as the official Heroicons SVG
+ * Proves each shipped [io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons] glyph renders the *same shape* as the official Heroicons SVG
  * it was generated from, automatically -- see `skills/awake-icon-authoring/SKILL.md`. Three icon
  * defects shipped in one session before this existed, and every one was only caught by a human
  * looking at a picture.
@@ -254,21 +254,21 @@ class IconFidelityTest {
         reportDir.mkdirs()
         File(reportDir, "metrics.tsv").writeText(
             "icon\tiou\tmismatchPct\n" +
-                results.joinToString("\n") { (name, iou, mismatchPct) -> "$name\t$iou\t$mismatchPct" } + "\n",
+                    results.joinToString("\n") { (name, iou, mismatchPct) -> "$name\t$iou\t$mismatchPct" } + "\n",
         )
 
         val failures = results.filter { it.second < passThreshold }
         assertTrue(
             failures.isEmpty(),
             "icon(s) below the fidelity threshold (IoU >= $passThreshold) -- inspect " +
-                "build/reports/icon-fidelity/<icon>.png (reference | ours | diff):\n" +
-                failures.joinToString("\n") { (name, iou, mismatchPct) -> "  $name: iou=$iou mismatchPct=$mismatchPct%" },
+                    "build/reports/icon-fidelity/<icon>.png (reference | ours | diff):\n" +
+                    failures.joinToString("\n") { (name, iou, mismatchPct) -> "  $name: iou=$iou mismatchPct=$mismatchPct%" },
         )
     }
 
     /**
      * Proves the guard actually fails on a real regression instead of always passing. Builds a
-     * deliberately wrong vector in-test (never touches [HeroIcons]/`chevron-down`'s shipped
+     * deliberately wrong vector in-test (never touches [io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons]/`chevron-down`'s shipped
      * data) and confirms its IoU against the real `chevron-down` reference collapses far below
      * [passThreshold] -- the measured drop that [passThreshold]'s doc comment cites.
      */
@@ -308,7 +308,7 @@ class IconFidelityTest {
         assertTrue(
             corruptedMetrics.iou < passThreshold,
             "the guard must reject a corrupted icon: corrupted iou=${corruptedMetrics.iou} " +
-                "vs correct iou=${correctMetrics.iou} (threshold=$passThreshold)",
+                    "vs correct iou=${correctMetrics.iou} (threshold=$passThreshold)",
         )
     }
 }
