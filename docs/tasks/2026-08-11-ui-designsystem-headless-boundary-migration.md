@@ -78,7 +78,7 @@ Gate: the inventory has a target module and test owner for every item.
 
 ### Phase 1 — Classify contracts and introduce `ui-api`
 
-1. Create `:awake:engine:ui:ui-api`.
+1. Create `:awake:ui:ui-api`.
 2. Move pure values first: units, bounds/dimensions, and color/shape/typography contracts. Keep
    `UiContext`, drawing/layout machinery, and any type with runtime behavior in Core. Do not
    move behavioral scope receivers to `ui-api` merely to make a dependency graph compile.
@@ -102,7 +102,7 @@ Gate: app roots can create the new `UiScope`; existing headless desktop tests re
 
 ### Phase 3 — Enforce the classpath boundary
 
-1. Change headless to `implementation(project(":awake:engine:ui:ui-core"))`.
+1. Change headless to `implementation(project(":awake:ui:ui-core"))`.
 2. Remove every `ui-core` dependency from designsystem.
 3. Ensure every designsystem public signature uses only `ui-api` or headless types.
 4. Add a compile-only consumer fixture that depends on designsystem and proves `UiContext` and
@@ -175,7 +175,7 @@ reported as complete.
 
 The public `ui-designsystem` artifact now compiles only against `ui-api` and `ui-headless`. Legacy
 Core receivers are physically isolated in the source tree of
-`:awake:engine:ui:designsystem-compat`, which is intentionally temporary and is wired only into
+`:awake:ui:designsystem-compat`, which is intentionally temporary and is wired only into
 migration consumers/tests. The public boundary now has both source and classpath gates: the audit
 requires zero Core imports and the compile classpath check rejects `ui-core`. Scene overlays also
 have a `headlessFrame` entry point and Headless owns the scroll-state wrapper used by consumer

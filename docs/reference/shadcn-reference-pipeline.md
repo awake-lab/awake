@@ -43,7 +43,7 @@ replaces both problems with a real, reproducible, gitignored checkout of the act
 ```bash
 tools/fetch_shadcn_reference.sh          # clone/update the pinned checkout
 python3 tools/extract_shadcn_tokens.py   # regenerate ShadcnReferenceTokens.kt from it
-./gradlew :awake:engine:ui:designsystem:desktopTest --tests "*ShadcnReferenceToken*"
+./gradlew :awake:ui:designsystem:desktopTest --tests "*ShadcnReferenceToken*"
 ```
 
 ## Bumping The Pinned SHA

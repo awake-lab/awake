@@ -303,13 +303,13 @@ natural stopping point.
 
 This policy is build-enforced in Awake's reusable UI modules.
 
-- `:awake:engine:ui:ui-core:check`
-- `:awake:engine:ui:ui-headless:check`
-- `:awake:engine:ui:designsystem:auditUiDesignsystemHeadlessBoundary`
-- `:awake:engine:ui:designsystem:auditUiDesignsystemComponentNaming`
-- `:awake:engine:ui:designsystem:auditUiDesignsystemRecipeDuplicates`
-- `:awake:engine:ui:designsystem:auditUiDesignsystemComponentCoverage`
-- `:awake:engine:ui:designsystem-compat:auditUiDesignsystemCompatConsumers`
+- `:awake:ui:ui-core:check`
+- `:awake:ui:ui-headless:check`
+- `:awake:ui:designsystem:auditUiDesignsystemHeadlessBoundary`
+- `:awake:ui:designsystem:auditUiDesignsystemComponentNaming`
+- `:awake:ui:designsystem:auditUiDesignsystemRecipeDuplicates`
+- `:awake:ui:designsystem:auditUiDesignsystemComponentCoverage`
+- `:awake:ui:designsystem-compat:auditUiDesignsystemCompatConsumers`
 
 run a `verifyUiOwnership` task that rejects:
 
@@ -325,7 +325,7 @@ run a `verifyUiOwnership` task that rejects:
   explicitly exempt)
 
 Legacy Core-receiver implementations are kept physically under the temporary
-`:awake:engine:ui:designsystem-compat` module while consumers migrate. They are not part of the
+`:awake:ui:designsystem-compat` module while consumers migrate. They are not part of the
 public design-system source tree or compile classpath.
 
 The compatibility module also audits its dependency graph. At present only `samples:ui-showcase`
@@ -343,8 +343,8 @@ design-system code depend on Core's component recipes.
 
 Awake also build-enforces authored-unit usage in:
 
-- `:awake:engine:ui:ui-headless`
-- `:awake:engine:ui:ui-designsystem`
+- `:awake:ui:ui-headless`
+- `:awake:ui:ui-designsystem`
 - `:awake:engine:game-authoring`
 - `:samples:ui-showcase`
 

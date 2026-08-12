@@ -14,7 +14,7 @@ Search root: `$ARGUMENTS` (defaults to `.` — the current project root)
 ## Step 1 — Run the snapshot tests
 
 ```bash
-./gradlew :awake:engine:ui:headless:desktopTest
+./gradlew :awake:ui:headless:desktopTest
 ```
 
 This regenerates every PNG under `awake/engine/ui/ui-headless/build/ui-snapshots/*.png` and,

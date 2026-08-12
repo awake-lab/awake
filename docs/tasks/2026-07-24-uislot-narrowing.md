@@ -83,7 +83,7 @@ order (ui-headless, then ui-designsystem, engine/ui/ui-testing, game-dsl, sample
 **Batch 3 -- lock it down (not started).**
 1. Mark `UiSlot`'s constructor/class `internal` to `ui-core` once no downstream file references it.
 2. Enforce mechanically: add `"UiSlot"` to `forbiddenUiTypeReferences` for
-   `:awake:engine:ui:ui-headless` in
+   `:awake:ui:ui-headless` in
    `build-logic/src/main/kotlin/awake.ui-ownership-convention.gradle.kts` (the existing
    `verifyUiOwnership` check already supports this via `forbiddenTypeReferences`). Do this only
    once Batch 2 has zero remaining downstream `UiSlot` references, or `check` fails immediately.

@@ -194,8 +194,8 @@ For shared UI work, run the smallest relevant verification task before consideri
 done:
 
 ```bash
-./gradlew :awake:engine:ui:testing:commonTest
-./gradlew :awake:engine:ui:headless:desktopTest
+./gradlew :awake:ui:testing:commonTest
+./gradlew :awake:ui:headless:desktopTest
 ./gradlew :samples:ui-showcase:desktopTest
 ```
 

@@ -258,9 +258,9 @@ right API shape:
 
 ## Validation
 
-- `:awake:engine:ui:ui-core:commonTest`
-- `:awake:engine:ui-dsl:desktopTest`
-- `:awake:engine:ui:ui-designsystem:commonTest`
+- `:awake:ui:ui-core:commonTest`
+- `:awake:ui-dsl:desktopTest`
+- `:awake:ui:ui-designsystem:commonTest`
 - `:samples:ui-showcase:desktopTest`
 
 ## Done When

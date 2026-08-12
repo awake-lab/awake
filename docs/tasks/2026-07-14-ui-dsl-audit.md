@@ -433,7 +433,7 @@ Avoid in v1:
 
 ## Validation
 
-- `:awake:engine:ui:allTests`
+- `:awake:ui:allTests`
 - hello-cube sample run on Vulkan
 - hello-cube sample run on WebGPU
 

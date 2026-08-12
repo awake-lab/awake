@@ -119,8 +119,8 @@ State it rather than implying coverage:
 
 ```bash
 tools/fetch_shadcn_reference.sh                      # pin the reference (run first)
-./gradlew :awake:engine:ui:ui-core:desktopTest
-./gradlew :awake:engine:ui:headless:desktopTest
+./gradlew :awake:ui:ui-core:desktopTest
+./gradlew :awake:ui:headless:desktopTest
 ./gradlew :samples:ui-showcase:desktopTest
 python3 tools/generate_parity_report.py              # after the comparison test
 ```

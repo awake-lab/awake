@@ -53,7 +53,7 @@ flowchart LR
 
 ## Proposed Modules
 
-### `:awake:engine:ui:ui-core`
+### `:awake:ui:ui-core`
 
 Owns the runtime and rendering-neutral UI foundation.
 
@@ -83,7 +83,7 @@ Rules:
 - no sample/editor-specific widgets
 - no backend implementation details
 
-### `:awake:engine:ui:ui-headless`
+### `:awake:ui:ui-headless`
 
 Owns Awake's generic widget library built on `ui-core`.
 
@@ -115,7 +115,7 @@ Rules:
 - must stay brandless
 - must not assume editor/game-specific semantics
 
-### `:awake:engine:ui:ui-designsystem`
+### `:awake:ui:ui-designsystem`
 
 Owns branded or product-opinionated composition.
 
@@ -143,9 +143,9 @@ Rules:
 - can be opinionated
 - can evolve faster than engine core
 
-### Transitional Note: keep `:awake:engine:ui` as a facade first
+### Transitional Note: keep `:awake:ui` as a facade first
 
-To avoid a large one-shot break, the first split should keep `:awake:engine:ui` as a
+To avoid a large one-shot break, the first split should keep `:awake:ui` as a
 compatibility facade that re-exports `ui-core` and `ui-headless`.
 
 Recommended migration shape:
@@ -329,16 +329,16 @@ primitives in `ui-core`.
 ## Migration Order
 
 1. Update docs and lock the ownership rules.
-2. Create `:awake:engine:ui:ui-core`.
+2. Create `:awake:ui:ui-core`.
 3. Move runtime/style/layout primitives into `ui-core`.
 4. Point `render-api` at `ui-core`.
-5. Create `:awake:engine:ui:ui-headless`.
+5. Create `:awake:ui:ui-headless`.
 6. Move built-in widgets and generic theme there.
-7. Keep `:awake:engine:ui` as a compatibility facade.
+7. Keep `:awake:ui` as a compatibility facade.
 8. Add shape/path primitives in `ui-core`.
 9. Add vector draw primitives and backend support.
 10. Add optional shape clipping.
-11. Create `:awake:engine:ui:ui-designsystem` only when branded/editor-facing recipes are ready.
+11. Create `:awake:ui:ui-designsystem` only when branded/editor-facing recipes are ready.
 
 ## Non-Goals
 

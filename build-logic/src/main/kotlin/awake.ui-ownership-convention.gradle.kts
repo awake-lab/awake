@@ -1,5 +1,5 @@
 val forbiddenUiDeclarationNames = when (project.path) {
-    ":awake:engine:ui:ui-core" -> listOf(
+    ":awake:ui:ui-core" -> listOf(
         "anchoredColumn",
         "anchoredRow",
         "anchoredPanel",
@@ -13,7 +13,7 @@ val forbiddenUiDeclarationNames = when (project.path) {
         "DebugOverlay",
         "HudOverlay"
     )
-    ":awake:engine:ui:ui-headless" -> listOf(
+    ":awake:ui:ui-headless" -> listOf(
         "anchoredColumn",
         "anchoredRow",
         "anchoredPanel",
@@ -28,8 +28,8 @@ val forbiddenUiDeclarationNames = when (project.path) {
 }
 
 val forbiddenUiTypeReferences = when (project.path) {
-    ":awake:engine:ui:ui-core",
-    ":awake:engine:ui:ui-headless" -> listOf(
+    ":awake:ui:ui-core",
+    ":awake:ui:ui-headless" -> listOf(
         "SceneGameRuntime",
         "HelloCubeRuntimeState",
         "HelloCubeDebugController",
@@ -44,7 +44,7 @@ val forbiddenUiTypeReferences = when (project.path) {
 // rejecting its direct escape through UiScope.context. Core contract types (UiScope, Style,
 // UiModifier, UiTheme) remain valid in public design-system signatures.
 val forbiddenUiSourcePatterns = when (project.path) {
-    ":awake:engine:ui:ui-designsystem" -> listOf(
+    ":awake:ui:ui-designsystem" -> listOf(
         "\\bcontext\\s*\\.",
         // The public design-system artifact is deliberately runtime-free.  Keep this
         // convention in addition to the module dependency graph so a Core import cannot

@@ -1063,7 +1063,7 @@ Goal: nobody writes 795 lines of raw Vulkan to draw a cube.
     test's `finally` block destroys the mesh/material/`pipelineLayoutMaterial` descriptor set
     layout it created, mirroring `VulkanGameApplication.destroyBackend()`'s own order). Also
     re-ran the full `:awake:backend:vulkan:desktopTest` suite (`VulkanDesktopNativeSmokeTest`,
-    `TextureLoaderTest`) and `:awake:engine:ui:ui-testing:desktopTest` (`PixelBaselineTest`) with
+    `TextureLoaderTest`) and `:awake:ui:ui-testing:desktopTest` (`PixelBaselineTest`) with
     `--rerun-tasks` — all pass, no regressions. Also compile-checked
     `:samples:hello-cube:compileKotlinDesktop`/`:samples:hello-cube:compileAndroidMain` (the
     windowed `GraphicsDevice.create(window)` path shares the refactored

@@ -12,7 +12,7 @@ flattened to line segments, and how the font atlas ended up with mismatched glyp
 | Script | Generates | Notes |
 |---|---|---|
 | `svg_to_ui_image_vector.py` | `UiImageVector` glyph data (e.g. `HeroIcons.kt`) | Preserves curves as real cubic Beziers, converts SVG arcs exactly, keeps nested `evenodd` subpaths as holes. Rejects what the engine cannot render (strokes, transforms, crossing subpaths). Run `--self-test` after editing. See `skills/awake-icon-authoring/SKILL.md`. |
-| `:awake:engine:ui:font-atlas-generator` (`generateFontAtlas` task, Kotlin/JVM, not a `tools/*.py` script) | `RobotoRegularUiFontData.kt` (packed glyph atlas + metrics) | Reads glyph metrics from the TTF's own outline geometry (`Font.createGlyphVector`) and rasterizes a separate antialiased atlas bitmap via `Graphics2D`. Glyph offsets and advances must stay in the same coordinate space — mixing cell-relative offsets with pen-relative advances produces uneven letter spacing. Replaced the former `generate_ui_font_atlas.py`, which derived metrics from the antialiased raster ink bbox and quantized them to 1/64 em. |
+| `:awake:ui:font-atlas-generator` (`generateFontAtlas` task, Kotlin/JVM, not a `tools/*.py` script) | `RobotoRegularUiFontData.kt` (packed glyph atlas + metrics) | Reads glyph metrics from the TTF's own outline geometry (`Font.createGlyphVector`) and rasterizes a separate antialiased atlas bitmap via `Graphics2D`. Glyph offsets and advances must stay in the same coordinate space — mixing cell-relative offsets with pen-relative advances produces uneven letter spacing. Replaced the former `generate_ui_font_atlas.py`, which derived metrics from the antialiased raster ink bbox and quantized them to 1/64 em. |
 
 ```bash
 python3 tools/svg_to_ui_image_vector.py icon.svg --name chevronDown --dp 16 --source "Heroicons chevron-down (20/solid)"
@@ -34,7 +34,7 @@ widen unnoticed — the goal is an empty map.
 
 ```bash
 python3 tools/capture_font_reference.py
-./gradlew :awake:engine:ui:headless:desktopTest --tests "*FontBaselineFidelityTest*"
+./gradlew :awake:ui:headless:desktopTest --tests "*FontBaselineFidelityTest*"
 ```
 
 ## Shadcn parity
@@ -146,7 +146,7 @@ Heroicons SVG it was generated from, automatically -- see `skills/awake-icon-aut
 ```bash
 python3 tools/capture_heroicons_reference.py                    # re-capture every reference
 python3 tools/capture_heroicons_reference.py --only chevron-down,camera
-./gradlew :awake:engine:ui:headless:desktopTest --tests "*IconFidelityTest*"
+./gradlew :awake:ui:headless:desktopTest --tests "*IconFidelityTest*"
 ```
 
 `IconFidelityTest` (`awake/engine/ui/ui-headless/src/desktopTest/`) renders each icon through
