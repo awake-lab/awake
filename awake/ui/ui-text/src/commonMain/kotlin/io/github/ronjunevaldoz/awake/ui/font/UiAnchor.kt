@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.font
 
-import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectTextScale
-import io.github.ronjunevaldoz.awake.ui.toPx
 //
 // enum class UiAnchor {
 //    TopLeft,
@@ -40,7 +38,7 @@ import io.github.ronjunevaldoz.awake.ui.toPx
 fun UiFont.textBlockHeight(
     lineCount: Int,
     textScale: Float = 1f,
-    gap: Float = UiSpacing.sm.toPx(),
+    gap: Float = 4f,
 ): Float {
     if (lineCount <= 0) {
         return 0f

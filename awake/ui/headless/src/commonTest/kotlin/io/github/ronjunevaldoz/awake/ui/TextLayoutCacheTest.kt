@@ -6,7 +6,9 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.clearTextLayoutCache
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -18,6 +20,11 @@ import kotlin.test.assertTrue
  */
 class TextLayoutCacheTest {
 
+    @BeforeTest
+    fun setUp() {
+        clearTextLayoutCache()
+    }
+
     /** Delegates every call to [BitmapFont] but counts [advanceFor] calls, the operation the
      * cache is meant to skip on a hit. */
     private class CountingFont(private val delegate: UiFont = BitmapFont()) : UiFont by delegate {
@@ -27,6 +34,11 @@ class TextLayoutCacheTest {
         override fun advanceFor(char: Char, glyphPx: Float): Float {
             advanceForCalls++
             return delegate.advanceFor(char, glyphPx)
+        }
+
+        override fun advanceFor(char: Char, glyphPx: Float, weight: io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight): Float {
+            advanceForCalls++
+            return delegate.advanceFor(char, glyphPx, weight)
         }
     }
 

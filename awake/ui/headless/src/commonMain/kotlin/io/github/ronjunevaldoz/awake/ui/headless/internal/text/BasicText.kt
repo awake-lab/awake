@@ -299,6 +299,12 @@ private var textLayoutCacheMisses = 0
  * effectiveness -- not used by any rendering path itself. */
 fun textLayoutCacheStats(): Pair<Int, Int> = textLayoutCacheHits to textLayoutCacheMisses
 
+internal fun clearTextLayoutCache() {
+    textLayoutCache.clear()
+    textLayoutCacheHits = 0
+    textLayoutCacheMisses = 0
+}
+
 private fun cachedLayoutBitmapText(
     label: String,
     glyphPx: Float,

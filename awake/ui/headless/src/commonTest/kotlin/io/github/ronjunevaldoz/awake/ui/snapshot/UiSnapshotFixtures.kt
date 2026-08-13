@@ -19,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldToggl
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlertDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
@@ -295,7 +295,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     modifier = Modifier.width(588f.dp),
                 ) {
                     text("Awake Shadcn Buttons")
-                    shadcnSupportingText("Primary, secondary, outline, ghost, and danger all ride the same owned design tokens.")
+                    shadcnMuted("Primary, secondary, outline, ghost, and danger all ride the same owned design tokens.")
                     spacer(Modifier.height(8f.dp))
                     headlessRow(
                         horizontalArrangement = Arrangement.spacedBy(8f.dp),
@@ -393,7 +393,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     modifier = Modifier.width(390f.dp),
                 ) {
                     text("Controls")
-                    shadcnSupportingText("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
+                    shadcnMuted("Shared DSL rows with branded field recipes that stay readable even when labels and helper copy run long.")
                     spacer(Modifier.height(4f.dp))
                     shadcnFieldDropdown(
                         "mode",
@@ -611,7 +611,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     modifier = Modifier.width(520f.dp),
                 ) {
                     text("Awake Shadcn")
-                    shadcnSupportingText("Owned components layered over Awake widgets, with the same shared layout/runtime handling long copy and wrapped panel content.")
+                    shadcnMuted("Owned components layered over Awake widgets, with the same shared layout/runtime handling long copy and wrapped panel content.")
                     spacer(Modifier.height(8f.dp))
                     headlessRow(
                         horizontalArrangement = Arrangement.spacedBy(8f.dp),
@@ -652,7 +652,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                         modifier = Modifier,
                     ) {
                         text("Preview Card")
-                        shadcnSupportingText("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")
+                        shadcnMuted("A nested card keeps the same tokens and border language while inheriting the same wrap and overflow rules.")
                         spacer(Modifier.height(6f.dp))
                         headlessRow(
                             horizontalArrangement = Arrangement.spacedBy(8f.dp),
@@ -673,11 +673,11 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                         }
                     }
                     spacer(Modifier.height(8f.dp))
-                    shadcnSupportingLines(
+                    shadcnTextLines(
                         listOf(
                             "Sample overlays now rely on shared supporting/meta text helpers.",
                             "Property rows stretch labels before starving the control column.",
-                        ),
+                        )
                     )
                 }
             }
