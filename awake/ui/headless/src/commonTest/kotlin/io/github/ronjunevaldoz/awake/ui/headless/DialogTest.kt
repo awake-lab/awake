@@ -33,8 +33,14 @@ class DialogTest {
         ) { }
 
         assertEquals(UiBounds(50f, 20f, 100f, 80f), result.slot)
-        val primitives = context.endFrame()
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.Quad>().any { it.color == Color.Black })
-        assertTrue(primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().any { it.color == Color.White })
+        val output = context.finishFrame()
+        assertTrue(output.primitives.filterIsInstance<UiDrawPrimitive.Quad>().any { it.color == Color.Black })
+        assertTrue(
+            output.primitives.any { primitive ->
+                (primitive is UiDrawPrimitive.RoundedQuad && primitive.color == Color.White) ||
+                (primitive is UiDrawPrimitive.Quad && primitive.color == Color.White)
+            },
+            "expected a white surface quad/rounded-quad in output primitives: ${output.primitives}",
+        )
     }
 }

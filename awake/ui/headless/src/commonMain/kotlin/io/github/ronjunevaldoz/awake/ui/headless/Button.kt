@@ -9,11 +9,13 @@ import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.headless.button as primitiveButton
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot as primitiveButtonSlot
 
+/** Headless button slot result containing click state and resolved bounds. */
+data class HeadlessButtonResult(val clicked: Boolean, val slot: UiBounds)
+
 /**
- * Generic interactive button with a plain text label.
+ * Generic unstyled interactive button.
  *
- * Interaction state, focus, semantic output, and painting remain inside Headless/Core internals.
- * Callers provide neutral state visuals through [SurfaceVisuals].
+ * Interaction state, focus, semantic output, and layout bounds are managed internally.
  */
 fun UiScope.button(
     id: String,
@@ -50,3 +52,38 @@ fun UiScope.button(
 ) { slot ->
     BoxScope(primitive.childBox(slot)).content(slot)
 }.clicked
+
+fun UiScope.buttonSlot(
+    id: String,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    visuals: SurfaceVisuals = SurfaceVisuals(),
+    enabled: Boolean = true,
+): HeadlessButtonResult {
+    val result = primitive.primitiveButtonSlot(
+        id = id,
+        label = label,
+        modifier = modifier.asPrimitiveModifier(),
+        style = visuals.asPrimitiveStyle(),
+        enabled = enabled,
+    )
+    return HeadlessButtonResult(result.clicked, result.slot)
+}
+
+fun UiScope.buttonSlot(
+    id: String,
+    modifier: Modifier = Modifier,
+    visuals: SurfaceVisuals = SurfaceVisuals(),
+    enabled: Boolean = true,
+    content: BoxScope.(slot: UiBounds) -> Unit,
+): HeadlessButtonResult {
+    val result = primitive.primitiveButtonSlot(
+        id = id,
+        modifier = modifier.asPrimitiveModifier(),
+        style = visuals.asPrimitiveStyle(),
+        enabled = enabled,
+    ) { slot ->
+        BoxScope(primitive.childBox(slot)).content(slot)
+    }
+    return HeadlessButtonResult(result.clicked, result.slot)
+}

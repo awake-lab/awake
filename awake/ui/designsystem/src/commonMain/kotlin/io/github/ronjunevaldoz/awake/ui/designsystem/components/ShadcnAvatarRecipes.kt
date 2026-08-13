@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.avatar
@@ -27,13 +26,27 @@ fun UiScope.shadcnAvatar(
     initials: String,
     modifier: Modifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
-): Unit = avatar(
+): UiBounds = avatar(
     id = id,
     initials = initials,
     size = size.boxSize,
     textSize = size.textSize,
+    modifier = modifier,
     style = avatarStyle(themeValues),
 )
+
+fun UiScope.shadcnAvatarBadge(
+    modifier: Modifier = Modifier,
+    size: io.github.ronjunevaldoz.awake.ui.api.Dp = 10f.dp,
+    color: io.github.ronjunevaldoz.awake.core.colors.Color? = null,
+): UiBounds = surface(
+    id = "avatar.badge",
+    modifier = modifier.width(size).height(size),
+    style = SurfaceStyle(
+        background = color ?: themeValues.colors.primary,
+        cornerRadius = themeValues.shapes.full,
+    ),
+) { _ -> }
 
 fun UiScope.shadcnAvatarGroup(
     initials: List<String>,
@@ -42,31 +55,11 @@ fun UiScope.shadcnAvatarGroup(
     overlap: io.github.ronjunevaldoz.awake.ui.api.Dp = 8f.dp,
 ): UiBounds = row(modifier = modifier) {
     initials.forEachIndexed { index, value ->
-        avatar(
+        shadcnAvatar(
             id = "avatar.$index",
             initials = value,
-            size = size.boxSize,
-            textSize = size.textSize,
-            style = SurfaceStyle(
-                background = themeValues.colors.muted,
-                foreground = themeValues.colors.foreground,
-                cornerRadius = themeValues.shapes.full,
-                border = SurfaceBorder(2f.dp, themeValues.colors.background),
-            ),
-            modifier = Modifier.offset(x = overlap * (-index.toFloat())),
+            size = size,
+            modifier = if (index > 0) Modifier.offset((-overlap.value * index).dp, 0f.dp) else Modifier,
         )
     }
 }
-
-fun UiScope.shadcnAvatarBadge(
-    modifier: Modifier = Modifier,
-    size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
-): UiBounds = surface(
-    id = "avatar.badge",
-    modifier = modifier.width(size.badgeSize).height(size.badgeSize),
-    style = SurfaceStyle(
-        background = themeValues.colors.primary,
-        border = SurfaceBorder(2f.dp, themeValues.colors.background),
-        cornerRadius = themeValues.shapes.full,
-    ),
-) { }

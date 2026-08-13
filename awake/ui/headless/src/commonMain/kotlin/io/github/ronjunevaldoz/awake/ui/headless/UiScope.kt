@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelSize as primitiveWithIntrinsicLabelSize
 
 @DslMarker
 annotation class AwakeUiDsl
@@ -33,6 +34,19 @@ fun UiScope(primitive: UiPrimitiveScope): UiScope = DefaultUiScope(primitive)
 
 /** Requests keyboard focus for a Headless-owned input or composite widget. */
 fun UiScope.requestFocus(id: String) = primitive.context.requestFocus(id)
+
+/** Applies natural label width and font-metric height to surface recipes. */
+fun UiScope.withIntrinsicLabelSize(
+    label: String,
+    modifier: Modifier = Modifier,
+    style: SurfaceStyle = SurfaceStyle(),
+): Modifier = HeadlessModifier(
+    primitive.primitiveWithIntrinsicLabelSize(
+        modifier = modifier.asPrimitiveModifier(),
+        label = label,
+        style = style.asPrimitiveStyle(),
+    ),
+)
 
 /**
  * Creates the public Headless receiver for a root UI region.

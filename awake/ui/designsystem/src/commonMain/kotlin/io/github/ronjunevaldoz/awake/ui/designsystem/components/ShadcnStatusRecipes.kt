@@ -21,35 +21,51 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.headless.pill
 import io.github.ronjunevaldoz.awake.ui.headless.progress
 import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.skeleton
 import io.github.ronjunevaldoz.awake.ui.headless.spinner
 import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.toast
+import io.github.ronjunevaldoz.awake.ui.headless.wrapContentWidth
+
+import io.github.ronjunevaldoz.awake.ui.headless.withIntrinsicLabelSize
 
 /** Branded status pill. Behavior and layout remain owned by ui-headless. */
 fun UiScope.shadcnBadge(
     id: String,
     label: String,
     variant: ShadcnBadgeVariant = ShadcnBadgeVariant.Secondary,
-): UiBounds = pill(id = id, label = label, style = variant.style(themeValues))
-
+): UiBounds {
+    val style = variant.style(themeValues)
+    return surface(
+        id = id,
+        modifier = withIntrinsicLabelSize(label = label, style = style),
+        style = style,
+    ) { _ ->
+        text(label = label, centered = true)
+    }
+}
 
 /** Branded key-cap pill. */
-fun UiScope.shadcnKbd(id: String, label: String): UiBounds = pill(
-    id = id,
-    label = label,
-    style = SurfaceStyle(
+fun UiScope.shadcnKbd(id: String, label: String): UiBounds {
+    val style = SurfaceStyle(
         background = themeValues.colors.muted,
         foreground = themeValues.colors.foreground,
         border = SurfaceBorder(1f.dp, themeValues.colors.input),
         cornerRadius = themeValues.shapes.sm,
         contentPadding = UiInsets(6f.dp, 2f.dp),
         textSize = themeValues.typography.caption,
-    ),
-)
+    )
+    return surface(
+        id = id,
+        modifier = withIntrinsicLabelSize(label = label, style = style),
+        style = style,
+    ) { _ ->
+        text(label = label, centered = true)
+    }
+}
 
 fun UiScope.shadcnSeparator(
     modifier: Modifier = Modifier,

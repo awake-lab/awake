@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.headless.internal.toast
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toast
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

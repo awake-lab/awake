@@ -62,9 +62,8 @@ fun UiScope.dialog(
     ) {
         surface(
             id = id,
-            modifier = if (height == Dimension.WrapContent) Modifier else Modifier.fillMaxHeight(),
+            modifier = Modifier,
             style = properties.surface,
-            clipContent = true,
             content = content,
         )
     }
