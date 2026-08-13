@@ -10,6 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
+import io.github.ronjunevaldoz.awake.ui.tailwind.grid
 
 /**
  * Resolves [SurfaceStyle] for a [ShadcnBadgeVariant].
@@ -49,8 +51,8 @@ fun ShadcnBadgeVariant.style(values: UiThemeValues): SurfaceStyle {
     }
     return base.copy(
         cornerRadius = values.shapes.full,
-        contentPadding = UiInsets(horizontal = 10f.dp, vertical = 2f.dp),
-        textSize = 12f.sp,
+        contentPadding = UiInsets.grid(horizontal = 2.5, vertical = 0.5),
+        textSize = Tw.Text.xs,
         lineHeight = 16f.sp,
         fontWeight = FontWeight.SemiBold,
     )

@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiShapeTokens
+import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 
 data class ShadcnRadiusScale(
     override val xs: Dp,
@@ -46,12 +47,12 @@ data class ShadcnRadiusScale(
  * vocabularies for the same concept -- add the missing step here instead, the way [smd]/[lgx] were.
  * `Tw` is this object's source of truth, not a parallel API for call sites. */
 object ShadcnSpacing {
-    val xs: Dp = 4f.dp
-    val sm: Dp = 8f.dp
-    val md: Dp = 16f.dp
-    val lg: Dp = 24f.dp
-    val xl: Dp = 32f.dp
-    val xxl: Dp = 48f.dp
+    val xs: Dp = Tw.Spacing.s1
+    val sm: Dp = Tw.Spacing.s2
+    val md: Dp = Tw.Spacing.s4
+    val lg: Dp = Tw.Spacing.s6
+    val xl: Dp = Tw.Spacing.s8
+    val xxl: Dp = Tw.Spacing.s12
 }
 
 data class ShadcnMetrics(
