@@ -17,10 +17,10 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // Public headless contracts may use API values without exposing the runtime.
-            api(project(":awake:ui:ui-api"))
-            api(project(":awake:ui:ui-graphics"))
-            api(project(":awake:ui:ui-animation"))
-            api(project(":awake:ui:ui-text"))
+            api(project(":awake:ui:api"))
+            api(project(":awake:ui:graphics"))
+            api(project(":awake:ui:animation"))
+            api(project(":awake:ui:text"))
             implementation(project(":awake:ui:ui-core"))
             implementation(project(":awake:ui:heroicons"))
             implementation(project(":awake:core"))
