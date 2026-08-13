@@ -41,6 +41,9 @@ fun UiScope.shadcnText(
     centered: Boolean = false,
     muted: Boolean = false,
     visuals: SurfaceStyle = SurfaceStyle(),
+    maxLines: Int = Int.MAX_VALUE,
+    wrap: UiTextWrap = UiTextWrap.Word,
+    overflow: UiTextOverflow = UiTextOverflow.Ellipsis,
 ): UiBounds {
     val (defaultSize, defaultWeight, isMutedDefault) = when (style) {
         ShadcnTextStyle.H1 -> Triple(Tw.Text.`4xl`, FontWeight.ExtraBold, false)
@@ -79,6 +82,9 @@ fun UiScope.shadcnText(
         modifier = effectiveModifier,
         centered = centered,
         visuals = effectiveVisuals,
+        maxLines = maxLines,
+        wrap = wrap,
+        overflow = overflow,
     )
 }
 
@@ -124,44 +130,18 @@ fun UiScope.shadcnHeadline(
 fun UiScope.shadcnBodyText(
     label: String,
     modifier: Modifier = Modifier,
-    maxLines: Int = Int.MAX_VALUE,
-    wrap: UiTextWrap = UiTextWrap.Word,
-): UiBounds = text(
-    label = label,
-    modifier = modifier,
-    centered = false,
-    visuals = SurfaceStyle(
-        foreground = themeValues.colors.foreground,
-        textSize = themeValues.typography.body,
-    ),
-    maxLines = maxLines,
-    wrap = wrap,
-)
+): UiBounds = shadcnText(label = label, style = ShadcnTextStyle.P, modifier = modifier)
 
 fun UiScope.shadcnMetaText(
     label: String,
     modifier: Modifier = Modifier,
     muted: Boolean = true,
-    wrap: UiTextWrap = UiTextWrap.None,
-    overflow: UiTextOverflow = UiTextOverflow.Ellipsis,
-    maxLines: Int = 1,
-): UiBounds = text(
-    label = label,
-    modifier = modifier,
-    visuals = SurfaceStyle(
-        foreground = if (muted) themeValues.colors.mutedForeground else themeValues.colors.foreground,
-        textSize = themeValues.typography.caption,
-    ),
-    wrap = wrap,
-    overflow = overflow,
-    maxLines = maxLines,
-)
+): UiBounds = shadcnText(label = label, style = ShadcnTextStyle.Muted, modifier = modifier, muted = muted)
 
 fun UiScope.shadcnLabel(
     label: String,
     modifier: Modifier = Modifier,
-    maxLines: Int = 1,
-): UiBounds = shadcnMetaText(label = label, modifier = modifier, maxLines = maxLines)
+): UiBounds = shadcnText(label = label, style = ShadcnTextStyle.Small, modifier = modifier)
 
 fun UiScope.shadcnSectionHeader(
     title: String,
@@ -175,52 +155,38 @@ fun UiScope.shadcnSectionTitle(
     modifier: Modifier = Modifier,
     muted: Boolean = false,
 ): UiBounds = column(modifier = modifier) {
-    text(
-        label = title,
-        visuals = SurfaceStyle(
-            foreground = if (muted) themeValues.colors.mutedForeground else themeValues.colors.foreground,
-            textSize = themeValues.typography.label,
-        ),
-    )
+    shadcnText(label = title, style = ShadcnTextStyle.H3, muted = muted)
     if (description != null) {
-        shadcnSupportingText(label = description)
+        shadcnText(label = description, style = ShadcnTextStyle.Muted)
     }
 }
 
 fun UiScope.shadcnSupportingText(
     label: String,
     modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
     wrap: UiTextWrap = UiTextWrap.Word,
     overflow: UiTextOverflow = UiTextOverflow.Ellipsis,
-    maxLines: Int = Int.MAX_VALUE,
-): UiBounds = text(
+): UiBounds = shadcnText(
     label = label,
+    style = ShadcnTextStyle.Muted,
     modifier = modifier,
-    visuals = SurfaceStyle(
-        foreground = themeValues.colors.mutedForeground,
-        textSize = themeValues.typography.caption,
-    ),
+    maxLines = maxLines,
     wrap = wrap,
     overflow = overflow,
-    maxLines = maxLines,
 )
 
 fun UiScope.shadcnTextLines(
     lines: Iterable<String>,
     modifier: Modifier = Modifier,
-    wrap: UiTextWrap = UiTextWrap.Word,
-    overflow: UiTextOverflow = UiTextOverflow.Ellipsis,
-    maxLines: Int = Int.MAX_VALUE,
 ): UiBounds = column(modifier = modifier) {
     lines.forEach { line ->
-        shadcnSupportingText(label = line, wrap = wrap, overflow = overflow, maxLines = maxLines)
+        shadcnText(label = line, style = ShadcnTextStyle.Muted)
     }
 }
 
 fun UiScope.shadcnSupportingLines(
     lines: Iterable<String>,
     modifier: Modifier = Modifier,
-    wrap: UiTextWrap = UiTextWrap.Word,
-    overflow: UiTextOverflow = UiTextOverflow.Ellipsis,
-    maxLines: Int = Int.MAX_VALUE,
-): UiBounds = shadcnTextLines(lines = lines, modifier = modifier, wrap = wrap, overflow = overflow, maxLines = maxLines)
+): UiBounds = shadcnTextLines(lines = lines, modifier = modifier)
+
