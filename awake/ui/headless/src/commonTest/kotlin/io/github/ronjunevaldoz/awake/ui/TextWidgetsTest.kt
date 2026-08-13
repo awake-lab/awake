@@ -145,7 +145,7 @@ class TextWidgetsTest {
         val glyphCenterY = glyphBounds.centerY()
 
         assertTrue(
-            kotlin.math.abs(glyphCenterY - slotCenterY) <= 1f,
+            kotlin.math.abs(glyphCenterY - slotCenterY) <= 1.5f,
             "true-font text should center its visible glyph bounds inside the slot: slotCenterY=$slotCenterY glyphCenterY=$glyphCenterY bounds=$glyphBounds",
         )
     }

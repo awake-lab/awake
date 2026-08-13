@@ -104,7 +104,11 @@ class FontBaselineFidelityTest {
     }
 
     private fun referenceSpread(sample: Sample): Int {
-        val file = File("../../../../docs/reference/font-previews/${sample.id}.png")
+        val file = listOf(
+            File("../../../docs/reference/font-previews/${sample.id}.png"),
+            File("../../../../docs/reference/font-previews/${sample.id}.png"),
+        ).firstOrNull { it.exists() }
+            ?: File("../../../docs/reference/font-previews/${sample.id}.png")
         assertTrue(
             file.exists(),
             "missing reference ${file.path}; run tools/capture_font_reference.py",

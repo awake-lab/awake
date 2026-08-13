@@ -41,8 +41,8 @@ private const val ASCII_FIRST = 32
 private const val ASCII_LAST = 126
 private val ASCII_GLYPHS: List<Char> = (ASCII_FIRST..ASCII_LAST).map { it.toChar() }
 
-private const val FONT_PATH = "../ui-core/src/commonMain/resources/fonts/Roboto-Regular.ttf"
-private const val OUT_DIR = "../ui-core/src/commonMain/kotlin"
+private const val FONT_PATH = "../ui-text/src/commonMain/resources/fonts/Roboto-Regular.ttf"
+private const val OUT_DIR = "../ui-text/src/commonMain/kotlin"
 private const val OBJECT_NAME = "RobotoRegularUiFontData"
 private const val DISPLAY_NAME = "Roboto Regular"
 private const val LOGICAL_CELL = 16

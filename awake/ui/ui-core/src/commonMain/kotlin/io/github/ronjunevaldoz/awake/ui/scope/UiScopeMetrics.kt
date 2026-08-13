@@ -22,12 +22,6 @@ import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.roundToInt
 
-fun pixelPerfectTextScale(requestedScale: Float, step: Float = 0.25f): Float {
-    val safeStep = step.takeIf { it.isFinite() && it > 0f } ?: 0.25f
-    val snapped = (requestedScale / safeStep).roundToInt()
-        .coerceAtLeast((1f / safeStep).roundToInt()) * safeStep
-    return snapped.coerceAtLeast(1f)
-}
 
 fun pixelPerfectPixel(value: Float): Float = value.roundToInt().toFloat()
 
