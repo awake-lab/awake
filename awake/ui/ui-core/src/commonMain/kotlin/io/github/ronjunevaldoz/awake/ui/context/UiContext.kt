@@ -368,9 +368,9 @@ class UiContext internal constructor(
      * `UiAnimatedVisibility.kt`'s `withGraphicsLayerAlpha`/`animatedVisibility` for the public
      * scoped-block API built on top of this pair.
      */
-    internal fun pushGraphicsLayerAlphaInternal(alpha: Float) = stacks.pushAlpha(alpha)
+    fun pushGraphicsLayerAlphaInternal(alpha: Float) = stacks.pushAlpha(alpha)
 
-    internal fun popGraphicsLayerAlphaInternal() = stacks.popAlpha()
+    fun popGraphicsLayerAlphaInternal() = stacks.popAlpha()
 
     /** The innermost active [io.github.ronjunevaldoz.awake.ui.modifier.UiScaleEffect]'s
      * transform (see [pushGraphicsLayerScaleInternal]), or `null` if none is active. */
@@ -386,47 +386,47 @@ class UiContext internal constructor(
      * real application point for [io.github.ronjunevaldoz.awake.ui.modifier.UiScaleEffect], see
      * `UiGraphicsLayerScope.kt`'s `withGraphicsLayerScale` for the public scoped-block API.
      */
-    internal fun pushGraphicsLayerScaleInternal(transform: UiPrimitiveTransform) =
+    fun pushGraphicsLayerScaleInternal(transform: UiPrimitiveTransform) =
         stacks.pushTransform(transform)
 
-    internal fun popGraphicsLayerScaleInternal() = stacks.popTransform()
+    fun popGraphicsLayerScaleInternal() = stacks.popTransform()
 
-    internal fun emitInternal(p: UiDrawPrimitive) {
+    fun emitInternal(p: UiDrawPrimitive) {
         if (!measuring) runtime.emit(p.scaledByAlpha(stacks.currentAlpha).withTransform(stacks.currentTransform))
     }
 
-    internal fun emitOverlayInternal(p: UiDrawPrimitive) {
+    fun emitOverlayInternal(p: UiDrawPrimitive) {
         if (!measuring) runtime.emitOverlay(p.scaledByAlpha(stacks.currentAlpha).withTransform(stacks.currentTransform))
     }
 
-    internal fun widgetStateInternal(id: String): WidgetState = runtime.widgetState(id)
+    fun widgetStateInternal(id: String): WidgetState = runtime.widgetState(id)
 
-    internal fun recordSemanticInternal(node: UiSemanticNode) {
+    fun recordSemanticInternal(node: UiSemanticNode) {
         if (!measuring) runtime.recordSemantic(node)
     }
 
-    internal fun pushClipInternal(rect: UiBounds, overlay: Boolean = false): UiBounds = runtime.pushClip(rect, overlay)
+    fun pushClipInternal(rect: UiBounds, overlay: Boolean = false): UiBounds = runtime.pushClip(rect, overlay)
 
     @Deprecated(
         message = "Prefer clip helpers or UiPrimitiveScope-scoped clipping instead of manipulating UiContext clip stacks directly.",
     )
     fun pushClip(rect: UiBounds): UiBounds = pushClipInternal(rect)
 
-    internal fun popClipInternal(overlay: Boolean = false): UiBounds = runtime.popClip(overlay)
+    fun popClipInternal(overlay: Boolean = false): UiBounds = runtime.popClip(overlay)
 
     @Deprecated(
         message = "Prefer clip helpers or UiPrimitiveScope-scoped clipping instead of manipulating UiContext clip stacks directly.",
     )
     fun popClip(): UiBounds = popClipInternal()
 
-    internal fun pointerDownEdgeInternal(): Boolean = runtime.pointerDownEdge()
+    fun pointerDownEdgeInternal(): Boolean = runtime.pointerDownEdge()
 
     @Deprecated(
         message = "Pointer edge state should be read from UiPrimitiveScope helpers inside composition.",
     )
     fun pointerDownEdge(): Boolean = pointerDownEdgeInternal()
 
-    internal fun setActiveInternal(id: String?) {
+    fun setActiveInternal(id: String?) {
         runtime.setActive(id)
     }
 
@@ -434,7 +434,7 @@ class UiContext internal constructor(
      * measure pass (e.g. [io.github.ronjunevaldoz.awake.ui.scope.measureColumnContent]) re-runs
      * widget code to size a WrapContent container and must not let that dry run's hover state
      * leak a cursor request into the real frame's [UiFrameOutput.effects]. */
-    internal fun requestCursorInternal(cursor: UiCursor) {
+    fun requestCursorInternal(cursor: UiCursor) {
         if (!measuring) runtime.requestCursor(cursor)
     }
 
@@ -460,7 +460,7 @@ class UiContext internal constructor(
     )
     fun clearFocusIfMatches(id: String) = clearFocusIfMatchesInternal(id)
 
-    internal fun frameDeltaSecondsInternal(): Float = runtime.frameDeltaSeconds
+    fun frameDeltaSecondsInternal(): Float = runtime.frameDeltaSeconds
 
     @Deprecated(
         message = "Frame metrics should be read from UiPrimitiveScope helpers inside composition.",
@@ -474,7 +474,7 @@ class UiContext internal constructor(
     )
     fun frameBounds(): UiBounds = frameBoundsInternal()
 
-    internal fun isMeasuringInternal(): Boolean = measuring
+    fun isMeasuringInternal(): Boolean = measuring
 
     /** The real, persisted widget-state store this context reads/writes through
      * [rememberStateValue][io.github.ronjunevaldoz.awake.ui.rememberStateValue] et al. --
