@@ -39,7 +39,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnLabel
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSmall
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.api.dp
@@ -116,7 +116,7 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
                     )
                 },
             ) { _ ->
-                uiScope().shadcnLabel("Email")
+                uiScope().shadcnSmall("Email")
                 // The reference CardContent uses `flex flex-col gap-3` (12px) between every
                 // child: Label -> Input -> Button. Keep the fixture's composition aligned with
                 // the pinned shadcn case instead of compensating for the old core default gap.

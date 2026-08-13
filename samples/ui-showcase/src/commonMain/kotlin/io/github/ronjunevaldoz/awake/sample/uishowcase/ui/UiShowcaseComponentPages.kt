@@ -12,16 +12,16 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumb
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnKbd
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnProgress
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSkeleton
@@ -49,7 +49,7 @@ private fun ColumnScope.component(
         variant = ShadcnBadgeVariant.Outline
     )
     spacer(Modifier.height(6f.dp))
-    shadcnSupportingText(detail)
+    shadcnMuted(detail)
     // Keep the catalog header and its live sample as separate vertical groups. Without this
     // explicit spacer, the first control is glued to the supporting copy and looks clipped in
     // the compact preview viewport.
@@ -66,7 +66,7 @@ internal fun ColumnScope.drawUiShowcaseButtonPreview() {
         onClick = { clicks += 1 },
     )
     spacer(Modifier.height(6f.dp))
-    shadcnSupportingText("Interaction proof: $clicks clicks")
+    shadcnMuted("Interaction proof: $clicks clicks")
 }
 
 internal fun ColumnScope.drawUiShowcaseBadgePreview() {
@@ -83,12 +83,12 @@ internal fun ColumnScope.drawUiShowcaseTextFieldPreview() {
     var name by rememberStateValue("ui-showcase-text-field", "name") { "" }
     var email by rememberStateValue("ui-showcase-text-field", "email") { "" }
     var bio by rememberStateValue("ui-showcase-text-field", "bio") { "" }
-    shadcnSupportingText("Single-line and multi-line keyboard-driven text input controls with focus ring bounds.")
+    shadcnMuted("Single-line and multi-line keyboard-driven text input controls with focus ring bounds.")
     spacer(Modifier.height(8f.dp))
     shadcnCard(
         id = "text-field-hero-card",
         modifier = Modifier.height(260f.dp),
-        header = { shadcnBodyText("Text Input & Area Interactive Preview") }) {
+        header = { shadcnText("Text Input & Area Interactive Preview") }) {
         name = shadcnFieldTextField(
             id = "showcase-name",
             label = "Full Name",
@@ -113,12 +113,12 @@ internal fun ColumnScope.drawUiShowcaseTextFieldPreview() {
 
 internal fun ColumnScope.drawUiShowcaseTextareaPreview() {
     var bio by rememberStateValue("ui-showcase-textarea", "bio") { "" }
-    shadcnSupportingText("Multi-line expandable text input field for longform content.")
+    shadcnMuted("Multi-line expandable text input field for longform content.")
     spacer(Modifier.height(8f.dp))
     shadcnCard(
         id = "textarea-hero-card",
         modifier = Modifier.height(220f.dp),
-        header = { shadcnBodyText("Text Area Preview") }) {
+        header = { shadcnText("Text Area Preview") }) {
         bio = shadcnFieldTextarea(
             id = "showcase-bio",
             label = "Biography",
@@ -160,7 +160,7 @@ internal fun ColumnScope.drawUiShowcaseCollapsiblePreview() {
         title = "Show details",
         expanded = expanded,
         onExpandedChange = { expanded = it }) {
-        shadcnSupportingText("Additional content is visible when expanded.")
+        shadcnMuted("Additional content is visible when expanded.")
     }
 }
 
@@ -244,7 +244,7 @@ internal fun ColumnScope.drawUiShowcaseKbdSeparatorPreview() {
             modifier = Modifier.width(1f.dp),
             orientation = io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation.Vertical
         )
-        shadcnSupportingText("Open command menu")
+        shadcnMuted("Open command menu")
     }
 }
 
@@ -269,7 +269,7 @@ internal fun ColumnScope.drawUiShowcaseCardPreview() {
     shadcnCard(
         id = "showcase-card",
         modifier = Modifier.height(100f.dp)
-    ) { shadcnBodyText("Card content") }
+    ) { shadcnText("Card content") }
 }
 
 internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
@@ -277,10 +277,10 @@ internal fun ColumnScope.drawUiShowcaseSidebarPreview() {
     shadcnSidebar(
         id = "showcase-sidebar",
         modifier = Modifier.width(220f.dp),
-        header = { shadcnBodyText("Workspace") }) {
-        shadcnSupportingText("Overview")
+        header = { shadcnText("Workspace") }) {
+        shadcnMuted("Overview")
         spacer(Modifier.height(4f.dp))
-        shadcnSupportingText("Settings")
+        shadcnMuted("Settings")
     }
 }
 
@@ -303,7 +303,7 @@ internal fun ColumnScope.drawUiShowcaseDialogPreview() {
         onClick = popup::open,
     )
     val result = uiScope().shadcnDialog(id = "showcase-dialog", expanded = popup.expanded) {
-        shadcnBodyText("This dialog is interactive.")
+        shadcnText("This dialog is interactive.")
         spacer(Modifier.height(8f.dp))
         shadcnButton(id = "showcase-dialog-close", label = "Close", onClick = popup::close)
     }

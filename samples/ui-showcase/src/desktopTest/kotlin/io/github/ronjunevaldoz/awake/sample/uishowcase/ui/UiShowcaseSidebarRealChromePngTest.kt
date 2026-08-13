@@ -9,16 +9,14 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewScene
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnH2
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnHeadline
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
@@ -81,8 +79,8 @@ class UiShowcaseSidebarRealChromePngTest {
 internal fun ColumnScope.drawOldUiShowcaseSidebar(compact: Boolean) {
     shadcnSidebarGroup {
         shadcnBadge("ALPHA", "Alpha", variant = ShadcnBadgeVariant.Primary)
-        shadcnHeadline("Awake Engine")
-        shadcnSupportingText("v0.1.0")
+        shadcnH2("Awake Engine")
+        shadcnMuted("v0.1.0")
     }
 
     ShowcasePagesByCategory.entries.forEach { (category, pages) ->
@@ -93,6 +91,10 @@ internal fun ColumnScope.drawOldUiShowcaseSidebar(compact: Boolean) {
             expanded = expanded,
             onExpandedChange = { expanded = it },
         ) {
+            shadcnH2("Catalog")
+            shadcnMuted(
+                "Choose one page at a time to inspect its rendered bounds and code.",
+            )
             shadcnSidebarMenu {
                 pages.forEach { page ->
                     drawOldSidebarPageButton(page, category.name, 36f.dp) { }

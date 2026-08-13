@@ -9,7 +9,8 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewScene
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -67,7 +68,7 @@ class UiShowcaseCardClipBugPngTest {
                     shadcnBadge("badge.live", "LIVE", variant = ShadcnBadgeVariant.Primary)
                     shadcnBadge("badge.danger", "DANGER", variant = ShadcnBadgeVariant.Danger)
                 }
-                shadcnBodyText("Showcase Preview Card")
+                shadcnText("Showcase Preview Card")
                 row(
                     horizontalArrangement = Arrangement.spacedBy(10f.dp),
                     modifier = Modifier.height(36f.dp),

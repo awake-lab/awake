@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui.demos.layout
 
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAccordion
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
@@ -26,7 +26,7 @@ internal fun ColumnScope.drawShadcnAccordionDemoPreview() {
     var selectedId: String? by rememberStateValue("showcase-accordion-demo", "selected") { "item-1" }
 
     shadcnBadge(id = "showcase-badge-accordion", label = "ACCORDION", variant = ShadcnBadgeVariant.Primary)
-    shadcnSupportingText("A vertically stacked set of interactive headings that reveal sections of content.")
+    shadcnMuted("A vertically stacked set of interactive headings that reveal sections of content.")
     spacer(Modifier.height(8f.dp))
 
     shadcnAccordion(
@@ -36,6 +36,6 @@ internal fun ColumnScope.drawShadcnAccordionDemoPreview() {
         idProvider = { it.id },
         titleProvider = { it.title },
     ) { item ->
-        shadcnBodyText(item.body)
+        shadcnText(item.body)
     }
 }
