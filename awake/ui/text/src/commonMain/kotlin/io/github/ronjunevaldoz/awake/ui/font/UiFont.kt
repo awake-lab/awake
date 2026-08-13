@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.font
 
-import io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight
+import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 
 enum class UiFontSamplingMode {
     CoverageAlpha,

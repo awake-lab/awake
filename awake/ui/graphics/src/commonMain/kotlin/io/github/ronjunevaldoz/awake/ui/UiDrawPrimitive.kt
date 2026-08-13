@@ -36,10 +36,9 @@ data class UiPrimitiveTransform(
 )
 
 typealias PrimitiveTransform = UiPrimitiveTransform
+typealias DrawPrimitive = UiDrawPrimitive
 
 sealed class UiDrawPrimitive {
-
-typealias DrawPrimitive = UiDrawPrimitive
 
     data class Quad(
         val x: Float,

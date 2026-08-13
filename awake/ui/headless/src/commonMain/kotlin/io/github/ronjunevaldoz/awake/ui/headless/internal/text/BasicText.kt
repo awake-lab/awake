@@ -283,7 +283,7 @@ private data class TextLayoutCacheKey(
     val overflow: UiTextOverflow,
     val maxLines: Int,
     val font: UiFont,
-    val weight: io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight,
+    val weight: io.github.ronjunevaldoz.awake.ui.font.FontWeight,
 )
 
 private val textLayoutCache = LruCache<TextLayoutCacheKey, UiBitmapTextLayout>(maxSize = 256)
@@ -313,7 +313,7 @@ private fun cachedLayoutBitmapText(
     overflow: UiTextOverflow,
     maxLines: Int,
     font: UiFont,
-    weight: io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight,
+    weight: io.github.ronjunevaldoz.awake.ui.font.FontWeight,
 ): UiBitmapTextLayout {
     val key = TextLayoutCacheKey(label, glyphPx, maxWidthPx, wrap, overflow, maxLines, font, weight)
     if (textLayoutCache.containsKey(key)) textLayoutCacheHits++ else textLayoutCacheMisses++
