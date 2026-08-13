@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
-import io.github.ronjunevaldoz.awake.ui.layout.contains
+import io.github.ronjunevaldoz.awake.ui.api.layout.contains
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column

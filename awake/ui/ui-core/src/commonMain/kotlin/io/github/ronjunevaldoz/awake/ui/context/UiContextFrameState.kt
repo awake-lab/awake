@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layout.intersect
+import io.github.ronjunevaldoz.awake.ui.api.layout.intersect
 
 internal class UiContextFrameState {
     private val renderCollector = UiRenderCollector()
