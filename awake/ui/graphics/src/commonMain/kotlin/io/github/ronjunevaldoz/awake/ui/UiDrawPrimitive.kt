@@ -1,0 +1,409 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.ui
+
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.FilledPath
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Glyph
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.GradientQuad
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Quad
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.RoundedQuad
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.ShadowQuad
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.StrokedPath
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Texture
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+
+/**
+ * Backend-neutral output of a [io.github.ronjunevaldoz.awake.ui.context.UiContext] frame -- each backend's `Renderer.drawUi` converts
+ * these into its own dynamic vertex/index buffer. Pixel-space coordinates (screen-space,
+ * Y-down), not NDC -- the NDC transform is the shader's job (see `ui_quad.vert`/`.wgsl`).
+ */
+/**
+ * Per-primitive GPU-applied scale, threaded from a `graphicsLayer(scale(...))` block (see
+ * `modifier/GraphicsLayer.kt`'s `UiScaleEffect`) all the way to the backend's draw call --
+ * unlike alpha, scale changes geometry so it can't be resolved as a CPU-side field multiply.
+ * [pivotX]/[pivotY] are in the same pixel-space coordinates as the carrying primitive's own
+ * `x`/`y`. Applied in the vertex shader as `pivot + (position - pivot) * scale`, BEFORE the
+ * screen-to-NDC transform (see `ui_quad.vert`/`.wgsl` and its 3 siblings) -- rotation is
+ * explicitly out of scope for this first pass (see
+ * docs/tasks/2026-08-02-graphicslayer-rotation-scale.md).
+ */
+data class UiPrimitiveTransform(
+    val scaleX: Float,
+    val scaleY: Float,
+    val pivotX: Float,
+    val pivotY: Float,
+)
+
+typealias PrimitiveTransform = UiPrimitiveTransform
+
+sealed class UiDrawPrimitive {
+
+typealias DrawPrimitive = UiDrawPrimitive
+
+    data class Quad(
+        val x: Float,
+        val y: Float,
+        val w: Float,
+        val h: Float,
+        val color: Color,
+        val tokenId: String? = null,
+        val transform: UiPrimitiveTransform? = null,
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Quad) return false
+            return x == other.x &&
+                y == other.y &&
+                w == other.w &&
+                h == other.h &&
+                color == other.color &&
+                tokenId == other.tokenId &&
+                transform == other.transform
+        }
+
+        override fun hashCode(): Int {
+            var result = x.hashCode()
+            result = 31 * result + y.hashCode()
+            result = 31 * result + w.hashCode()
+            result = 31 * result + h.hashCode()
+            result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
+            result = 31 * result + transform.hashCode()
+            return result
+        }
+    }
+
+    data class GradientQuad(
+        val x: Float,
+        val y: Float,
+        val w: Float,
+        val h: Float,
+        val gradient: UiLinearGradient,
+        val tokenId: String? = null,
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is GradientQuad) return false
+            return x == other.x &&
+                y == other.y &&
+                w == other.w &&
+                h == other.h &&
+                gradient == other.gradient &&
+                tokenId == other.tokenId
+        }
+
+        override fun hashCode(): Int {
+            var result = x.hashCode()
+            result = 31 * result + y.hashCode()
+            result = 31 * result + w.hashCode()
+            result = 31 * result + h.hashCode()
+            result = 31 * result + gradient.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
+            return result
+        }
+    }
+
+    /** Rounded-corner sibling of [Quad] -- kept as a separate type rather than a `radius`
+     * field on [Quad] so the hot-path flat rect every existing widget already emits every
+     * frame never pays a corner-test cost (kool-engine's own `RectBackground` vs
+     * `RoundRectBackground` split backs this). A backend that doesn't special-case this yet
+     * may fall back to drawing it as a flat [Quad] (ignore [radius]) -- see this repo's UI
+     * architecture review doc for the shader work needed to actually render it rounded. */
+    data class RoundedQuad(
+        val x: Float,
+        val y: Float,
+        val w: Float,
+        val h: Float,
+        val color: Color,
+        val radius: Float,
+        val smoothing: Float = 0.0f,
+        val tokenId: String? = null,
+        val transform: UiPrimitiveTransform? = null,
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is RoundedQuad) return false
+            return x == other.x &&
+                y == other.y &&
+                w == other.w &&
+                h == other.h &&
+                radius == other.radius &&
+                smoothing == other.smoothing &&
+                color == other.color &&
+                tokenId == other.tokenId &&
+                transform == other.transform
+        }
+
+        override fun hashCode(): Int {
+            var result = x.hashCode()
+            result = 31 * result + y.hashCode()
+            result = 31 * result + w.hashCode()
+            result = 31 * result + h.hashCode()
+            result = 31 * result + radius.hashCode()
+            result = 31 * result + smoothing.hashCode()
+            result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
+            result = 31 * result + transform.hashCode()
+            return result
+        }
+    }
+
+    /** One glyph quad sampling a [io.github.ronjunevaldoz.awake.ui.font.BitmapFont]'s atlas
+     * -- Phase B (see docs/MVP_PLAN.md's custom-UI decision log), drawn via a second,
+     * textured pipeline after [Quad]s in the same UI overlay pass. */
+    data class Glyph(
+        val x: Float,
+        val y: Float,
+        val w: Float,
+        val h: Float,
+        val u0: Float,
+        val v0: Float,
+        val u1: Float,
+        val v1: Float,
+        val color: Color,
+        val tokenId: String? = null,
+        val transform: UiPrimitiveTransform? = null,
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Glyph) return false
+            return x == other.x &&
+                y == other.y &&
+                w == other.w &&
+                h == other.h &&
+                u0 == other.u0 &&
+                v0 == other.v0 &&
+                u1 == other.u1 &&
+                v1 == other.v1 &&
+                color == other.color &&
+                tokenId == other.tokenId &&
+                transform == other.transform
+        }
+
+        override fun hashCode(): Int {
+            var result = x.hashCode()
+            result = 31 * result + y.hashCode()
+            result = 31 * result + w.hashCode()
+            result = 31 * result + h.hashCode()
+            result = 31 * result + u0.hashCode()
+            result = 31 * result + v0.hashCode()
+            result = 31 * result + u1.hashCode()
+            result = 31 * result + v1.hashCode()
+            result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
+            result = 31 * result + transform.hashCode()
+            return result
+        }
+    }
+
+    /** Renderer-neutral filled shape primitive. Backends without real path support may
+     * conservatively fall back to the path's bounds rect until dedicated tessellation or
+     * shader support lands. */
+    data class FilledPath(
+        val path: UiPath,
+        val color: Color,
+        val tokenId: String? = null,
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is FilledPath) return false
+            return path == other.path && color == other.color && tokenId == other.tokenId
+        }
+
+        override fun hashCode(): Int {
+            var result = path.hashCode()
+            result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
+            return result
+        }
+    }
+
+    /** Stroke sibling of [FilledPath]. [stroke] stays in dp-space so backends can convert it
+     * with the same density contract as every other UI size. */
+    data class StrokedPath(
+        val path: UiPath,
+        val stroke: UiStroke,
+        val color: Color,
+        val tokenId: String? = null,
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is StrokedPath) return false
+            return path == other.path &&
+                stroke == other.stroke &&
+                color == other.color &&
+                tokenId == other.tokenId
+        }
+
+        override fun hashCode(): Int {
+            var result = path.hashCode()
+            result = 31 * result + stroke.hashCode()
+            result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
+            return result
+        }
+    }
+
+    /** One screen-space quad sampling an arbitrary render-target-backed material -- e.g. a
+     * minimap or portal-camera preview composited into the UI overlay. [material] is typed
+     * as [Any] rather than `awake-engine-render-api`'s `Material` interface: THAT module
+     * already depends on this one (`Renderer.drawUi(primitives: List<UiDrawPrimitive>, ...)`),
+     * so a `Material` reference here would create a module dependency cycle. [material] is
+     * expected to be whatever `Renderer.createMaterial(renderTarget = ...)` returned;
+     * `UiContext` never inspects it, just carries it back to the backend's own `Renderer
+     * .drawUi()`, which casts it to its own concrete `Material` type -- the same "opaque
+     * handle round-tripped back to the one place that knows its real type" pattern
+     * `DrawCall.mesh`/`.material` already use across the render-api/backend boundary.
+     * Unlike [Glyph] (which always samples the one fixed font atlas), each [Texture]
+     * primitive carries its own [material], so a backend's UI pass must bind a DIFFERENT
+     * sampled image per primitive instead of one baked in at pipeline-construction time. */
+    data class Texture(
+        val x: Float,
+        val y: Float,
+        val w: Float,
+        val h: Float,
+        val material: Any,
+        val tokenId: String? = null,
+        val transform: UiPrimitiveTransform? = null,
+    ) : UiDrawPrimitive()
+
+    /** Drop-shadow primitive for elevation support (see Phase A.2 in Figma Audit).
+     * [offsetX]/[offsetY] and [blurRadius]/[spread] are in dp-space. [color] is the shadow's
+     * tint (usually a semi-transparent black). */
+    data class ShadowQuad(
+        val x: Float,
+        val y: Float,
+        val w: Float,
+        val h: Float,
+        val radius: Float,
+        val offsetX: Float,
+        val offsetY: Float,
+        val blurRadius: Float,
+        val spread: Float,
+        val color: Color,
+        val tokenId: String? = null,
+    ) : UiDrawPrimitive() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ShadowQuad) return false
+            return x == other.x &&
+                y == other.y &&
+                w == other.w &&
+                h == other.h &&
+                radius == other.radius &&
+                offsetX == other.offsetX &&
+                offsetY == other.offsetY &&
+                blurRadius == other.blurRadius &&
+                spread == other.spread &&
+                color == other.color &&
+                tokenId == other.tokenId
+        }
+
+        override fun hashCode(): Int {
+            var result = x.hashCode()
+            result = 31 * result + y.hashCode()
+            result = 31 * result + w.hashCode()
+            result = 31 * result + h.hashCode()
+            result = 31 * result + radius.hashCode()
+            result = 31 * result + offsetX.hashCode()
+            result = 31 * result + offsetY.hashCode()
+            result = 31 * result + blurRadius.hashCode()
+            result = 31 * result + spread.hashCode()
+            result = 31 * result + color.hashCode()
+            result = 31 * result + (tokenId?.hashCode() ?: 0)
+            return result
+        }
+    }
+
+    /** Path-based clip sibling of [ClipPush]. [boundsRect] is already intersected against
+     * the active clip stack, so backends without stencil/mask support can still conservatively
+     * fall back to plain scissor clipping on that rect. Consumers that do understand shape
+     * clipping can use [path] for the exact mask.
+     *
+     * [safeInteriorRect], when non-null, is [path]'s own bounds inset by its shape's corner
+     * radius/cut-size on all four sides (see [io.github.ronjunevaldoz.awake.ui.safeInteriorMargin]) --
+     * any primitive whose OWN bounds fit entirely inside it provably cannot touch [path]'s
+     * curved/cut corner region, so a backend's exact-clip fast path can skip the expensive
+     * per-primitive polygon clip for it and emit the primitive's plain unclipped geometry
+     * instead (the coarse [boundsRect] scissor, already applied regardless, still trims it).
+     * Null for clips pushed via the raw [io.github.ronjunevaldoz.awake.ui.graphics.clip]
+     * (path-only) overload, where no shape/radius is known -- backends must always take the
+     * exact-clip path in that case, same as before this field existed. */
+    data class ClipPathPush(
+        val path: UiPath,
+        val boundsRect: UiBounds,
+        val safeInteriorRect: UiBounds? = null,
+    ) : UiDrawPrimitive()
+
+    /** Marks the start of a clipped region -- [rect] is always already-intersected against
+     * whatever clip was active before it ([io.github.ronjunevaldoz.awake.ui.context.UiContext]'s clip stack resolves nesting, never
+     * the backend), so every backend just naively "sets scissor to this rect," identical
+     * logic on every platform. Not a real draw call -- carries no vertices, just tells the
+     * backend's command-buffer recording where to issue a scissor-rect change. */
+    data class ClipPush(val rect: UiBounds) : UiDrawPrimitive()
+
+    /** Restores the scissor rect that was active before the matching [ClipPush] -- [restoreRect]
+     * is resolved by [io.github.ronjunevaldoz.awake.ui.context.UiContext] at pop time (the next rect down the clip stack, or the full
+     * frame extent if the stack is now empty), so the backend needs no stack-awareness here
+     * either. */
+    data class ClipPop(val restoreRect: UiBounds) : UiDrawPrimitive()
+}
+
+/**
+ * Real alpha-compositing mechanism for `graphicsLayer` (see `modifier/GraphicsLayer.kt`'s
+ * [io.github.ronjunevaldoz.awake.ui.modifier.UiAlphaEffect]) -- multiplies every color-carrying
+ * primitive's alpha channel by [factor], applied once at
+ * [io.github.ronjunevaldoz.awake.ui.context.UiContext]'s own emission choke point rather than
+ * requiring every widget to blend its own colors. `factor == 1f` (the overwhelmingly common
+ * case -- no active alpha effect) returns `this` unchanged, so the hot path every existing widget
+ * already runs every frame pays no allocation cost. Primitives with no [Color] field ([Texture],
+ * the clip markers) pass through unchanged regardless of [factor] -- alpha-compositing an opaque
+ * render-target texture or a non-drawing clip marker isn't this mechanism's job.
+ */
+fun UiDrawPrimitive.scaledByAlpha(factor: Float): UiDrawPrimitive {
+    if (factor >= 1f) return this
+    return when (this) {
+        is Quad -> copy(color = color.withAlpha(color.a * factor))
+        is RoundedQuad -> copy(color = color.withAlpha(color.a * factor))
+        is Glyph -> copy(color = color.withAlpha(color.a * factor))
+        is FilledPath -> copy(color = color.withAlpha(color.a * factor))
+        is StrokedPath -> copy(color = color.withAlpha(color.a * factor))
+        is GradientQuad -> copy(
+            gradient = gradient.copy(
+                topLeft = gradient.topLeft.withAlpha(gradient.topLeft.a * factor),
+                topRight = gradient.topRight.withAlpha(gradient.topRight.a * factor),
+                bottomRight = gradient.bottomRight.withAlpha(gradient.bottomRight.a * factor),
+                bottomLeft = gradient.bottomLeft.withAlpha(gradient.bottomLeft.a * factor),
+            ),
+        )
+        is ShadowQuad -> copy(color = color.withAlpha(color.a * factor))
+        is Texture, is UiDrawPrimitive.ClipPathPush,
+        is UiDrawPrimitive.ClipPush, is UiDrawPrimitive.ClipPop,
+        -> this
+    }
+}
+
+/**
+ * Real scale-compositing mechanism for `graphicsLayer` (see `modifier/GraphicsLayer.kt`'s
+ * [io.github.ronjunevaldoz.awake.ui.modifier.UiScaleEffect]) -- attaches [transform] to every
+ * geometry-carrying primitive that has a dedicated GPU vertex-transform touch point ([Quad],
+ * [RoundedQuad], [Glyph], [Texture]), applied once at
+ * [io.github.ronjunevaldoz.awake.ui.context.UiContext]'s own emission choke point, same as
+ * [scaledByAlpha]. [FilledPath]/[StrokedPath]/[GradientQuad] and the clip markers pass through
+ * untransformed -- narrowing this first pass to the 4 primitive types whose shaders actually
+ * gained the transform attribute (see the 8-shader-file touch-point list in
+ * docs/tasks/2026-08-02-graphicslayer-rotation-scale.md); tessellated path geometry has no
+ * dedicated shader of its own to extend. `transform == null` (no active scale effect, the
+ * overwhelmingly common case) returns `this` unchanged, so the hot path pays no allocation cost.
+ */
+fun UiDrawPrimitive.withTransform(transform: UiPrimitiveTransform?): UiDrawPrimitive {
+    if (transform == null) return this
+    return when (this) {
+        is Quad -> copy(transform = transform)
+        is RoundedQuad -> copy(transform = transform)
+        is Glyph -> copy(transform = transform)
+        is Texture -> copy(transform = transform)
+        else -> this
+    }
+}
