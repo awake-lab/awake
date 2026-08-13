@@ -49,7 +49,7 @@ fun ShadcnBadgeVariant.style(values: UiThemeValues): SurfaceStyle {
     }
     return base.copy(
         cornerRadius = values.shapes.full,
-        contentPadding = UiInsets.tw(px = 2.5, py = 0.5),
+        contentPadding = UiInsets(horizontal = 10f.dp, vertical = 2f.dp),
         textSize = 12f.sp,
         lineHeight = 16f.sp,
         fontWeight = FontWeight.SemiBold,

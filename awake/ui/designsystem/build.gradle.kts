@@ -29,6 +29,7 @@ kotlin {
             // Design-system signatures may expose stable UI values, never raw runtime types.
             api(project(":awake:ui:ui-api"))
             api(project(":awake:ui:ui-core"))
+            api(project(":awake:ui:tailwind"))
             api(project(":awake:ui:headless"))
             api(project(":awake:ui:heroicons"))
         }
