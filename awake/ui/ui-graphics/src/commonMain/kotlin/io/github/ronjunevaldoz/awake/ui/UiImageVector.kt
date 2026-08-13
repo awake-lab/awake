@@ -4,9 +4,11 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiStroke
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.UiIcon
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
+import io.github.ronjunevaldoz.awake.ui.api.layout.pixelPerfectPixel
 
 data class UiVectorPath(
     val path: UiPath,

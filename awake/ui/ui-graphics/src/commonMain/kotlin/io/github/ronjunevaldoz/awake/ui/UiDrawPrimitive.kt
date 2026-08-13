@@ -357,7 +357,7 @@ sealed class UiDrawPrimitive {
  * the clip markers) pass through unchanged regardless of [factor] -- alpha-compositing an opaque
  * render-target texture or a non-drawing clip marker isn't this mechanism's job.
  */
-internal fun UiDrawPrimitive.scaledByAlpha(factor: Float): UiDrawPrimitive {
+fun UiDrawPrimitive.scaledByAlpha(factor: Float): UiDrawPrimitive {
     if (factor >= 1f) return this
     return when (this) {
         is Quad -> copy(color = color.withAlpha(color.a * factor))
@@ -393,7 +393,7 @@ internal fun UiDrawPrimitive.scaledByAlpha(factor: Float): UiDrawPrimitive {
  * dedicated shader of its own to extend. `transform == null` (no active scale effect, the
  * overwhelmingly common case) returns `this` unchanged, so the hot path pays no allocation cost.
  */
-internal fun UiDrawPrimitive.withTransform(transform: UiPrimitiveTransform?): UiDrawPrimitive {
+fun UiDrawPrimitive.withTransform(transform: UiPrimitiveTransform?): UiDrawPrimitive {
     if (transform == null) return this
     return when (this) {
         is Quad -> copy(transform = transform)
