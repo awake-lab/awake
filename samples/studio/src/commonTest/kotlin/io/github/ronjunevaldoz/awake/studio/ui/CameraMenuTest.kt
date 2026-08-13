@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -30,13 +30,11 @@ class CameraMenuTest {
                 600f,
                 UiInputState(pointerX = x, pointerY = y, pointerDown = primaryDown, secondaryPointerDown = secondaryDown),
             )
-            ui.column {
-                viewportCameraMenu(
-                    id = "test-viewport-menu",
-                    bounds = viewportBounds,
-                    onPick = { picked = it },
-                )
-            }
+            ui.createUiScope(UiBounds(0f, 0f, 800f, 600f)).viewportCameraMenu(
+                id = "test-viewport-menu",
+                bounds = viewportBounds,
+                onPick = { picked = it },
+            )
         }
 
         // Right click inside the viewport bounds opens the menu.
@@ -71,9 +69,11 @@ class CameraMenuTest {
             600f,
             UiInputState(pointerX = 900f, pointerY = 900f, secondaryPointerDown = true),
         )
-        ui.column {
-            viewportCameraMenu(id = "test-viewport-menu-outside", bounds = viewportBounds, onPick = { picked = it })
-        }
+        ui.createUiScope(UiBounds(0f, 0f, 800f, 600f)).viewportCameraMenu(
+            id = "test-viewport-menu-outside",
+            bounds = viewportBounds,
+            onPick = { picked = it },
+        )
         val opened = ui.finishFrame().semantics
 
         assertEquals(null, picked)

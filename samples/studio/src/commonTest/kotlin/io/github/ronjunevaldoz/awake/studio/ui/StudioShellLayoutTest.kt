@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -47,7 +48,7 @@ class StudioShellLayoutTest {
         ui.pushFont(BitmapFont())
         ui.pushTheme(shadcnTheme(dark = true))
         ui.beginFrame(FRAME_WIDTH, FRAME_HEIGHT, UiInputState(pointerX = -100f, pointerY = -100f))
-        ui.createBox(slot = UiBounds(0f, 0f, FRAME_WIDTH, FRAME_HEIGHT))
+        ui.createUiScope(slot = UiBounds(0f, 0f, FRAME_WIDTH, FRAME_HEIGHT))
             .drawStudioShellBody(StudioStore(), World(), NoopRenderer())
         return ui.finishFrame().semantics
     }
@@ -73,11 +74,9 @@ class StudioShellLayoutTest {
         assertEquals(sidebar.bounds.height, viewport.bounds.height, 0.5f)
 
         // No stray gap between the top bar and the panels, or between the panels and the status
-        // bar -- only the one hairline separator each.
-        val gapAboveViewport = sidebar.bounds.y - (topBar.bounds.y + topBar.bounds.height)
-        val gapBelowViewport = statusBar.bounds.y - (sidebar.bounds.y + sidebar.bounds.height)
-        assertTrue(gapAboveViewport in 0f..HAIRLINE_TOLERANCE, "gap above viewport: $gapAboveViewport")
-        assertTrue(gapBelowViewport in 0f..HAIRLINE_TOLERANCE, "gap below viewport: $gapBelowViewport")
+        // bar -- sidebar y starts right below topBar, and status bar starts right below sidebar.
+        assertEquals(topBar.bounds.height, sidebar.bounds.y, HAIRLINE_TOLERANCE)
+        assertEquals(statusBar.bounds.y, sidebar.bounds.y + sidebar.bounds.height, HAIRLINE_TOLERANCE)
     }
 
     @Test
@@ -87,7 +86,7 @@ class StudioShellLayoutTest {
         ui.pushTheme(shadcnTheme(dark = true))
         val activeId = StudioExamples.first().id
         ui.beginFrame(400f, 600f, UiInputState(pointerX = -100f, pointerY = -100f))
-        ui.createBox(slot = UiBounds(0f, 0f, 400f, 600f))
+        ui.createUiScope(slot = UiBounds(0f, 0f, 400f, 600f))
             .drawExampleRail(activeExampleId = activeId, onSelectExample = {})
         val item = assertNotNull(ui.finishFrame().semantics.firstOrNull { it.id == "studio-example-$activeId" })
         // Regression: shadcnButton's Ghost variant hardcodes an idle (non-hover) fill of fully
@@ -125,7 +124,7 @@ class StudioShellLayoutTest {
 
         fun frame(input: UiInputState): List<UiSemanticNode> {
             ui.beginFrame(FRAME_WIDTH, FRAME_HEIGHT, input)
-            ui.createBox(slot = UiBounds(0f, 0f, FRAME_WIDTH, FRAME_HEIGHT))
+            ui.createUiScope(slot = UiBounds(0f, 0f, FRAME_WIDTH, FRAME_HEIGHT))
                 .drawStudioShellBody(store, world, NoopRenderer())
             return ui.finishFrame().semantics
         }

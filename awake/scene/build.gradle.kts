@@ -33,16 +33,13 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // Re-exported for facade consumers (see docs/tasks/2026-08-05-scene-module-split-
-            // proposal.md) -- `:awake:scene`'s own remaining source (the deprecated
-            // `SceneRuntime` bootstrap, `NavMesh`) doesn't itself need controls/physics/
-            // runtime, but published `awake-scene` consumers still expect them.
+            // Re-exported for facade consumers -- umbrella module for published awake-scene.
             api(project(":awake:scene:scene-core"))
             api(project(":awake:scene:controls"))
             api(project(":awake:scene:physics"))
             api(project(":awake:scene:rendering"))
             api(project(":awake:scene:runtime"))
-            // Needed directly by SceneRuntime.kt/NavMesh.kt.
+            api(project(":awake:scene:authoring"))
             api(project(":awake:core"))
             api(project(":awake:ecs"))
             // Module restructuring slice 1 (see docs/MVP_PLAN.md): RenderSystem/MeshRenderer
