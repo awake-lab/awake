@@ -3,9 +3,9 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextLines
 import io.github.ronjunevaldoz.awake.ui.headless.HeadlessCanvasGradient
 import io.github.ronjunevaldoz.awake.ui.headless.canvas
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
@@ -23,7 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.width
 internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
     shadcnBadge(id = "showcase-badge-layout", label = "LAYOUT", variant = ShadcnBadgeVariant.Outline)
     spacer(Modifier.height(8f.dp))
-    shadcnSupportingText("Rows, columns, and slots are owned by Headless; the design system only supplies component visuals.")
+    shadcnMuted("Rows, columns, and slots are owned by Headless; the design system only supplies component visuals.")
     row(horizontalArrangement = Arrangement.spacedBy(8f.dp), modifier = Modifier.height(40f.dp)) {
         shadcnButton(id = "layout-row-a", label = "A", modifier = Modifier.height(40f.dp), variant = ShadcnButtonVariant.Primary)
         shadcnButton(id = "layout-row-b", label = "B", modifier = Modifier.height(40f.dp), variant = ShadcnButtonVariant.Secondary)
@@ -32,7 +32,7 @@ internal fun ColumnScope.drawUiShowcaseLayoutPreview() {
 }
 
 internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
-    shadcnSupportingText("Scrolling is a Headless modifier backed by a runtime-neutral state handle.")
+    shadcnMuted("Scrolling is a Headless modifier backed by a runtime-neutral state handle.")
     spacer(Modifier.height(8f.dp))
     column(
         modifier = Modifier.fillMaxWidth().height(176f.dp),
@@ -48,13 +48,13 @@ internal fun ColumnScope.drawUiShowcaseScrollPanelPreview() {
         }
     }
     spacer(Modifier.height(8f.dp))
-    shadcnSupportingLines(listOf("The scroll thumb appears only when content exceeds the viewport."))
+    shadcnTextLines(listOf("The scroll thumb appears only when content exceeds the viewport."))
 }
 
 internal fun ColumnScope.drawUiShowcaseCanvasPreview() {
     shadcnBadge(id = "showcase-badge-canvas", label = "CANVAS", variant = ShadcnBadgeVariant.Outline)
     spacer(Modifier.height(8f.dp))
-    shadcnSupportingText("Custom drawing remains an explicit advanced API; ordinary showcase components stay on Headless slots.")
+    shadcnMuted("Custom drawing remains an explicit advanced API; ordinary showcase components stay on Headless slots.")
     spacer(Modifier.height(8f.dp))
     shadcnSurface(
         id = "showcase-canvas-page",

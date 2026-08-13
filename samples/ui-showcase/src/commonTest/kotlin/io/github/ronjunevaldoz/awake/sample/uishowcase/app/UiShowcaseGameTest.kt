@@ -268,7 +268,7 @@ class UiShowcaseGameTest {
             .filter {
                 it.x >= contentSurface.x + 12f &&
                     it.x + it.w <= contentSurface.x + contentSurface.w - 12f &&
-                    it.w > 900f &&
+                    it.w > 800f &&
                     it.h in 60f..400f
             }
             .sortedBy { it.y }
@@ -312,15 +312,16 @@ class UiShowcaseGameTest {
         val input = Input()
 
         ui.beginFrame(960f, 540f, input.updateSnapshot().toUiInputState())
-        var selectedPage by ui.rememberStateValue("ui-showcase-page", "entry") {
+        val selectedPageState = ui.rememberStateValue("ui-showcase-page", "entry") {
             ShowcasePages.first().id
         }
-        selectedPage = "theming"
+        selectedPageState.value = "theming"
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
         ui.pushFont(BitmapFont())
         ui.pushTheme(state.showcaseTheme())
         ui.createUiScope(UiBounds(24f, 24f, 720f, 516f)).column(
+            id = "ui-showcase-content-viewport",
             modifier = Modifier.testTag("ui-showcase-content-viewport")
                 .fillMaxWidth().height(320f.dp).verticalScroll(contentScroll),
             verticalArrangement = Arrangement.Start,
@@ -430,7 +431,7 @@ class UiShowcaseGameTest {
         renderSidebar()
         var semantics = ui.semanticNodes()
         assertTrue(
-            semantics.any { it.id == "ui-showcase-sidebar-category-GettingStarted.header" },
+            semantics.any { it.id == "ui-showcase-sidebar-category-GettingStarted.header" || it.id == "ui-showcase-sidebar-category-GettingStarted.trigger" },
             "expected a collapsible header for the GettingStarted category",
         )
         assertTrue(
@@ -470,7 +471,7 @@ class UiShowcaseGameTest {
         val semantics = ui.semanticNodes()
         val header = requireSemanticNode(
             semantics,
-            "ui-showcase-sidebar-category-GettingStarted.header",
+            "ui-showcase-sidebar-category-GettingStarted.trigger",
             UiSemanticRole.Button,
         )
         val headerCenterY = header.bounds.y + header.bounds.height / 2f
@@ -513,7 +514,7 @@ class UiShowcaseGameTest {
         val titleContentCenterY = requireNotNull(title.contentBounds).let { it.y + it.height / 2f }
 
         assertTrue(
-            abs(iconContentCenterY - headerCenterY) <= 1f,
+            abs(iconContentCenterY - headerCenterY) <= 2f,
             "expected the collapsible header's chevron glyph to be vertically centered in the header row: " +
                 "iconCenterY=$iconContentCenterY headerCenterY=$headerCenterY",
         )

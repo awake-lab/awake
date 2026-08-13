@@ -27,10 +27,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnScrollArea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -796,7 +796,7 @@ private fun renderUiShowcaseEasingPreviewFrame(
                     label = page.category.title.uppercase(),
                     variant = ShadcnBadgeVariant.Outline,
                 )
-                shadcnSectionHeader(title = metadata.title, description = metadata.summary)
+                shadcnSectionTitle(title = metadata.title, description = metadata.summary)
                 spacer(Modifier.height(10f.dp))
                 renderUiShowcasePagePreview(page, state)
             }
@@ -853,7 +853,7 @@ private fun renderUiShowcaseCardPreviewFrame(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 shadcnBadge(id = "${surfaceId}.badge", label = badge, variant = ShadcnBadgeVariant.Outline)
-                shadcnSectionHeader(
+                shadcnSectionTitle(
                     title = title,
                     description = summary,
                 )
@@ -918,7 +918,7 @@ private fun ColumnScope.drawUiShowcaseButtonMatrixContent() {
             variant = ShadcnButtonVariant.Primary,
         )
     }
-    shadcnSupportingText("This matrix is the quick read for control height, horizontal padding, and long-label fit.")
+    shadcnMuted("This matrix is the quick read for control height, horizontal padding, and long-label fit.")
 }
 
 private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
@@ -992,7 +992,7 @@ private fun ColumnScope.drawUiShowcaseFieldMatrixContent() {
 }
 
 private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
-    shadcnSupportingText("Sliders catch subtle spacing bugs quickly because thumb, fill, and label alignment drift together.")
+    shadcnMuted("Sliders catch subtle spacing bugs quickly because thumb, fill, and label alignment drift together.")
     spacer(Modifier.height(8f.dp))
     shadcnSlider(
         id = "showcase-matrix-slider-low",
@@ -1021,7 +1021,7 @@ private fun ColumnScope.drawUiShowcaseSliderMatrixContent() {
 }
 
 private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
-    shadcnSupportingText(
+    shadcnMuted(
         "This preview intentionally renders the menu in its expanded state so row spacing and popover chrome are reviewable in docs.",
     )
     spacer(Modifier.height(8f.dp))
@@ -1053,7 +1053,7 @@ private fun ColumnScope.drawUiShowcaseDropdownOpenContent() {
 }
 
 private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
-    shadcnSupportingText(
+    shadcnMuted(
         "This preview intentionally renders the popover in its expanded state so anchored placement and panel chrome are reviewable in docs.",
     )
     spacer(Modifier.height(8f.dp))
@@ -1079,7 +1079,7 @@ private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
                 overflow = UiTextOverflow.Ellipsis,
                 maxLines = 1,
             )
-            shadcnSupportingText("Anyone with the link can view this scene until you revoke it.")
+            shadcnMuted("Anyone with the link can view this scene until you revoke it.")
         }
         shadcnButton(
             id = "showcase-matrix-popover-secondary",
@@ -1091,7 +1091,7 @@ private fun ColumnScope.drawUiShowcasePopoverOpenContent() {
 }
 
 private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
-    shadcnSupportingText("A tooltip is a tiny overlay, but it still needs proper container chrome, spacing, and wrap behavior.")
+    shadcnMuted("A tooltip is a tiny overlay, but it still needs proper container chrome, spacing, and wrap behavior.")
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = HeadlessArrangement.spacedBy(12f.dp),
@@ -1123,7 +1123,7 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
         )
     }
     spacer(Modifier.height(12f.dp))
-    shadcnSupportingText("shadcnTooltipText is the text-only convenience wrapper: same anchor/popup composition, no custom content lambda.")
+    shadcnMuted("shadcnTooltipText is the text-only convenience wrapper: same anchor/popup composition, no custom content lambda.")
     spacer(Modifier.height(8f.dp))
     row(
         horizontalArrangement = HeadlessArrangement.spacedBy(12f.dp),
@@ -1145,7 +1145,7 @@ private fun ColumnScope.drawUiShowcaseTooltipOpenContent() {
 }
 
 private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
-    shadcnSupportingText(
+    shadcnMuted(
         "The dialog is rendered open on purpose so title wrapping, message rhythm, scrim color, and action widths can be checked without live interaction.",
     )
     spacer(Modifier.height(8f.dp))
@@ -1166,7 +1166,7 @@ private fun ColumnScope.drawUiShowcaseAlertDialogContent() {
 }
 
 private fun ColumnScope.drawUiShowcaseCollapsibleOpenContent() {
-    shadcnSupportingText(
+    shadcnMuted(
         "The panel is rendered expanded on purpose so revealed-content spacing and separators are reviewable without live interaction.",
     )
     spacer(Modifier.height(8f.dp))
@@ -1202,7 +1202,7 @@ private fun ColumnScope.drawUiShowcaseScrollPanelContent() {
         id = "showcase-matrix-scroll-state",
         initialOffsetY = 34f,
     )
-    shadcnSupportingText("This static proof starts partially scrolled so viewport clipping and the scrollbar thumb are visible immediately.")
+    shadcnMuted("This static proof starts partially scrolled so viewport clipping and the scrollbar thumb are visible immediately.")
     spacer(Modifier.height(8f.dp))
     uiScope().shadcnScrollArea(
         id = "showcase-matrix-scroll-panel",

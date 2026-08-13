@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAccordion
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -60,7 +60,7 @@ class ShadcnAccordionBodyOverlapProbeTest {
                     idProvider = { it },
                     titleProvider = { it },
                 ) { item ->
-                    shadcnBodyText(longBodies.getValue(item))
+                    shadcnText(longBodies.getValue(item))
                 }
             }
             return ui.endFrame()

@@ -111,43 +111,17 @@ fun UiScope.shadcnLarge(label: String, modifier: Modifier = Modifier): UiBounds 
 fun UiScope.shadcnSmall(label: String, modifier: Modifier = Modifier): UiBounds =
     shadcnText(label = label, style = ShadcnTextStyle.Small, modifier = modifier)
 
-fun UiScope.shadcnMuted(label: String, modifier: Modifier = Modifier): UiBounds =
-    shadcnText(label = label, style = ShadcnTextStyle.Muted, modifier = modifier)
+fun UiScope.shadcnMuted(
+    label: String,
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
+): UiBounds = shadcnText(label = label, style = ShadcnTextStyle.Muted, modifier = modifier, maxLines = maxLines)
 
 fun UiScope.shadcnBlockquote(label: String, modifier: Modifier = Modifier): UiBounds =
     shadcnText(label = label, style = ShadcnTextStyle.Blockquote, modifier = modifier)
 
 fun UiScope.shadcnCode(label: String, modifier: Modifier = Modifier): UiBounds =
     shadcnText(label = label, style = ShadcnTextStyle.Code, modifier = modifier)
-
-// Existing legacy helper signatures preserved for complete backward compatibility:
-
-fun UiScope.shadcnHeadline(
-    label: String,
-    modifier: Modifier = Modifier,
-): UiBounds = shadcnH2(label = label, modifier = modifier)
-
-fun UiScope.shadcnBodyText(
-    label: String,
-    modifier: Modifier = Modifier,
-): UiBounds = shadcnText(label = label, style = ShadcnTextStyle.P, modifier = modifier)
-
-fun UiScope.shadcnMetaText(
-    label: String,
-    modifier: Modifier = Modifier,
-    muted: Boolean = true,
-): UiBounds = shadcnText(label = label, style = ShadcnTextStyle.Muted, modifier = modifier, muted = muted)
-
-fun UiScope.shadcnLabel(
-    label: String,
-    modifier: Modifier = Modifier,
-): UiBounds = shadcnText(label = label, style = ShadcnTextStyle.Small, modifier = modifier)
-
-fun UiScope.shadcnSectionHeader(
-    title: String,
-    description: String? = null,
-    modifier: Modifier = Modifier,
-): UiBounds = shadcnSectionTitle(title = title, description = description, modifier = modifier)
 
 fun UiScope.shadcnSectionTitle(
     title: String,
@@ -161,21 +135,6 @@ fun UiScope.shadcnSectionTitle(
     }
 }
 
-fun UiScope.shadcnSupportingText(
-    label: String,
-    modifier: Modifier = Modifier,
-    maxLines: Int = Int.MAX_VALUE,
-    wrap: UiTextWrap = UiTextWrap.Word,
-    overflow: UiTextOverflow = UiTextOverflow.Ellipsis,
-): UiBounds = shadcnText(
-    label = label,
-    style = ShadcnTextStyle.Muted,
-    modifier = modifier,
-    maxLines = maxLines,
-    wrap = wrap,
-    overflow = overflow,
-)
-
 fun UiScope.shadcnTextLines(
     lines: Iterable<String>,
     modifier: Modifier = Modifier,
@@ -184,9 +143,3 @@ fun UiScope.shadcnTextLines(
         shadcnText(label = line, style = ShadcnTextStyle.Muted)
     }
 }
-
-fun UiScope.shadcnSupportingLines(
-    lines: Iterable<String>,
-    modifier: Modifier = Modifier,
-): UiBounds = shadcnTextLines(lines = lines, modifier = modifier)
-

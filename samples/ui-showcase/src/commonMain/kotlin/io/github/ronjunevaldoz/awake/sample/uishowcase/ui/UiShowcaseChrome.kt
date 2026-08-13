@@ -7,13 +7,11 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionHeader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -64,7 +62,7 @@ internal fun ColumnScope.drawUiShowcasePageContent(
         label = page.category.title.uppercase(),
         variant = ShadcnBadgeVariant.Outline,
     )
-    shadcnSectionHeader(title = page.title, description = page.description)
+    shadcnSectionTitle(title = page.title, description = page.description)
     spacer(Modifier.height(8f.dp))
     drawUiShowcasePreviewCodeSection(page, state)
     if (page.notes.isNotEmpty()) {
@@ -74,7 +72,7 @@ internal fun ColumnScope.drawUiShowcasePageContent(
             modifier = Modifier,
         ) {
             shadcnSectionTitle("Notes")
-            shadcnSupportingLines(page.notes)
+            shadcnTextLines(page.notes)
         }
     }
 }
@@ -141,7 +139,7 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
 ) {
     var showCode by rememberStateValue("ui-showcase-page", "${page.id}.show-code") { false }
     row(
-        modifier = Modifier.height(36.dp),
+        modifier = Modifier.height(36f.dp),
         horizontalArrangement = Arrangement.spacedBy(8f.dp),
     ) {
         shadcnButton(
@@ -175,10 +173,5 @@ private fun ColumnScope.drawUiShowcasePreviewCodeSection(
 }
 
 private fun ColumnScope.drawUiShowcaseCodeBlock(code: String) {
-    shadcnTextLines(
-        lines = code.trimIndent().lines(),
-        wrap = UiTextWrap.Word,
-        overflow = UiTextOverflow.Clip,
-        maxLines = Int.MAX_VALUE,
-    )
+    shadcnTextLines(lines = code.trimIndent().lines())
 }

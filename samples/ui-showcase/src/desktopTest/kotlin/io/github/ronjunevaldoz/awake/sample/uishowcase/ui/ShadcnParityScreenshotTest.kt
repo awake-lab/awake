@@ -47,7 +47,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibl
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnKbd
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnProgress
@@ -564,7 +564,7 @@ internal object AwakeBreadcrumbLightPreview : AwakeUiPreviewEntry {
                     .height((metadata.height.toFloat() - 48f).dp),
                 verticalArrangement = Arrangement.spacedBy(10f.dp),
             ) {
-                shadcnBreadcrumb(listOf("Home", "Components", "Breadcrumb"))
+                shadcnBreadcrumb(id = "breadcrumb-parity-test", items = listOf("Home", "Components", "Breadcrumb"))
             }
         }
 }
@@ -592,7 +592,7 @@ internal object AwakeCollapsibleLightPreview : AwakeUiPreviewEntry {
                 ) {
                     // Supporting text is word-wrapped prose. Give it the same content width as
                     // the collapsible so its measured bounds cannot spill past the preview frame.
-                    shadcnSupportingText(
+                    shadcnMuted(
                         "Yes. Free to use for personal and commercial projects.",
                         modifier = Modifier.width(280f.dp),
                     )

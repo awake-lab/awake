@@ -9,13 +9,13 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBodyText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSupportingLines
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
@@ -35,10 +35,10 @@ import io.github.ronjunevaldoz.awake.ui.headless.width
 
 internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
     shadcnBadge(id = "showcase-badge-showcase", label = "SHOWCASE", variant = ShadcnBadgeVariant.Secondary)
-    shadcnBodyText("Dedicated sample route")
-    shadcnSupportingText("This page shell exists so the design system is judged as a product surface, not just as loose demo widgets.")
+    shadcnText("Dedicated sample route")
+    shadcnMuted("This page shell exists so the design system is judged as a product surface, not just as loose demo widgets.")
     spacer(Modifier.height(8f.dp))
-    shadcnSupportingLines(
+    shadcnTextLines(
         listOf(
             "Stable chrome on top, grouped navigation on the left, one detail page in the content pane.",
             "The starter sample stays a starter sample; docs and polish move here.",
@@ -51,17 +51,17 @@ internal fun ColumnScope.drawUiShowcaseReferenceComparisonPreview() {
     row(horizontalArrangement = Arrangement.spacedBy(12f.dp)) {
         shadcnCard(id = "ui-showcase-reference-spec", modifier = Modifier.width(280f.dp).height(180f.dp)) {
             shadcnSectionTitle("Reference cues")
-            shadcnSupportingText("Compact controls and restrained surfaces.")
+            shadcnMuted("Compact controls and restrained surfaces.")
         }
         shadcnCard(id = "ui-showcase-reference-awake", modifier = Modifier.width(280f.dp).height(180f.dp)) {
             shadcnSectionTitle("Awake")
-            shadcnSupportingText("The same structure rendered through the public Headless boundary.")
+            shadcnMuted("The same structure rendered through the public Headless boundary.")
         }
     }
 }
 
 internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState) {
-    shadcnSupportingText("This page proves that the Awake theme factory can re-skin the entire component library live, including custom canvas chrome.")
+    shadcnMuted("This page proves that the Awake theme factory can re-skin the entire component library live, including custom canvas chrome.")
     spacer(Modifier.height(16f.dp))
 
     row(horizontalArrangement = Arrangement.spacedBy(24f.dp)) {
@@ -70,7 +70,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             modifier = Modifier.width(320f.dp),
         ) {
             shadcnSectionTitle("Theme Settings")
-            shadcnSupportingText("Configure the look and feel.")
+            shadcnMuted("Configure the look and feel.")
             spacer(Modifier.height(12f.dp))
 
             themeSelectRow("Style", "showcase-style-preset", ShowcaseStyleOptions, state.showcaseStylePresetIndex) {
@@ -87,7 +87,7 @@ internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeS
             }
 
             spacer(Modifier.height(8f.dp))
-            shadcnSupportingText(
+            shadcnMuted(
                 "Mode auto-resolves to ${if (state.showcaseResolvedDarkMode()) "dark" else "light"} on this platform.",
                 maxLines = 2,
             )
@@ -177,8 +177,8 @@ private fun RowScope.columnPreview(state: UiShowcaseRuntimeState) {
                 }
             }
             spacer(Modifier.height(8f.dp))
-            shadcnBodyText("Showcase Preview Card")
-            shadcnSupportingText(
+            shadcnText("Showcase Preview Card")
+            shadcnMuted(
                 if (state.showcaseDangerMode) {
                     "DANGER MODE: Thematic variant proof for destructive/alert states."
                 } else {
@@ -202,7 +202,7 @@ private fun RowScope.columnPreview(state: UiShowcaseRuntimeState) {
                 )
             }
             spacer(Modifier.height(8f.dp))
-            shadcnSupportingText("Interaction proof: ${state.showcasePrimaryClicks} clicks")
+            shadcnMuted("Interaction proof: ${state.showcasePrimaryClicks} clicks")
         }
 
         shadcnSurface(id = "showcase-theme-radius-config", modifier = Modifier.width(420f.dp)) {
