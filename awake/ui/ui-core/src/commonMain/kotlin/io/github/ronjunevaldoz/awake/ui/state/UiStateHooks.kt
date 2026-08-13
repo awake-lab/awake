@@ -149,7 +149,7 @@ fun UiContext.rememberScrollState(
     id: String,
     initialOffsetX: Float = 0f,
     initialOffsetY: Float = 0f,
-): UiScrollState = PersistedUiScrollState(widgetStateInternal(id), initialOffsetX, initialOffsetY)
+): UiScrollState = PersistedUiScrollState(id, widgetStateInternal(id), initialOffsetX, initialOffsetY)
 
 fun UiPrimitiveScope.rememberScrollState(
     id: String,

@@ -55,8 +55,9 @@ internal fun UiPrimitiveScope.smartColumn(
     cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
-    if (modifier.scrollState != null && id != null) {
-        return resolveScrollableContainer(id, modifier, style, verticalArrangement, content)
+    val scrollId = id ?: modifier.testTag ?: modifier.scrollState?.id
+    if (modifier.scrollState != null && scrollId != null && scrollId.isNotEmpty()) {
+        return resolveScrollableContainer(scrollId, modifier, style, verticalArrangement, content)
     }
 
     val effectiveStyle = style then (modifier.styleable ?: Style.Empty)
@@ -362,7 +363,7 @@ fun UiPrimitiveScope.column(
         modifier.heightDimension != null &&
         modifier.widthDimension != Dimension.WrapContent &&
         modifier.heightDimension != Dimension.WrapContent
-    if (precomputedMeasured == null && !hasExplicitFixedDimensions) {
+    if (precomputedMeasured == null && (!hasExplicitFixedDimensions || modifier.scrollState != null)) {
         return smartColumn(
             id = id,
             gap = verticalArrangement.baseSpacingPx(),

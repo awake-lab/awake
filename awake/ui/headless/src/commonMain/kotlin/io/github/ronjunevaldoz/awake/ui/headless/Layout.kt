@@ -148,6 +148,19 @@ fun UiScope.column(
     horizontalAlignment = horizontalAlignment,
 ) { slot -> content(asHeadlessScope(), slot) }
 
+fun UiScope.column(
+    id: String?,
+    modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement = Arrangement.Start,
+    horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
+    content: ColumnScope.(slot: UiBounds) -> Unit,
+): UiBounds = primitive.primitiveColumn(
+    id = id,
+    modifier = modifier.asPrimitiveModifier(),
+    verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
+    horizontalAlignment = horizontalAlignment,
+) { slot -> content(asHeadlessScope(), slot) }
+
 fun UiScope.row(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement = Arrangement.Start,
