@@ -46,6 +46,7 @@ data class UiScrollConfig(
 open class UiScrollState(
     initialOffsetX: Float = 0f,
     initialOffsetY: Float = 0f,
+    open val id: String = "",
 ) {
     open var offsetX: Float = initialOffsetX.coerceAtLeast(0f)
         protected set
@@ -118,12 +119,14 @@ open class UiScrollState(
  * Persisted version of [UiScrollState] backed by Awake's [WidgetState].
  */
 internal class PersistedUiScrollState(
+    override val id: String,
     private val widgetState: WidgetState,
     initialOffsetX: Float = 0f,
     initialOffsetY: Float = 0f,
 ) : UiScrollState(
     widgetState.get("offsetX", initialOffsetX),
     widgetState.get("offsetY", initialOffsetY),
+    id = id,
 ) {
     override var offsetX: Float
         get() = super.offsetX
