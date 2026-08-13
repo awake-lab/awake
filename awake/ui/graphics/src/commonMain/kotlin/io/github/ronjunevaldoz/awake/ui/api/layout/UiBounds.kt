@@ -22,3 +22,6 @@ fun UiBounds.contains(other: UiBounds): Boolean =
         other.y >= y &&
         other.x + other.width <= x + width &&
         other.y + other.height <= y + height
+
+/** Snaps a coordinate to the nearest integer pixel to avoid subpixel rendering blur. */
+fun pixelPerfectPixel(value: Float): Float = kotlin.math.round(value)

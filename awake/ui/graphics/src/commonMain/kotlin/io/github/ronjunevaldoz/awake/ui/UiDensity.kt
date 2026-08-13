@@ -26,3 +26,6 @@ object UiDensity {
 
 fun Dp.toPx(): Float = value * UiDensity.scale
 fun Sp.toPx(): Float = value * UiDensity.scale * UiDensity.fontScale
+
+/** Snaps a coordinate to the nearest integer pixel to avoid subpixel rendering blur. */
+fun pixelPerfectPixel(value: Float): Float = kotlin.math.round(value)

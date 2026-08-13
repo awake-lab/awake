@@ -7,7 +7,6 @@ Awake UI is an immediate-mode UI framework for the Awake engine, modeled after m
 The UI system is decomposed into focused, single-responsibility modules:
 
 ```kotlin
-include(":awake:ui:api")
 include(":awake:ui:graphics")
 include(":awake:ui:text")
 include(":awake:ui:animation")
@@ -23,24 +22,20 @@ include(":awake:ui:tailwind-generator")
 
 ### Module Descriptions
 
-- `awake:ui:api`:
-    - Pure value types (`Dp`, `Sp`, `Bounds` / `UiBounds`, `Alignment` / `UiAlignment`, `Insets` / `UiInsets`, `UiPopupPositionProvider`).
-    - Base contracts and zero-dependency primitive data interfaces.
-
 - `awake:ui:graphics`:
-    - Drawing primitives (`DrawPrimitive` / `UiDrawPrimitive`), shape painters, vector paths (`UiPath`, `UiImageVector`), and linear/radial gradient definitions (`Gradient` / `LinearGradient`).
+    - Drawing primitives (`DrawPrimitive` / `UiDrawPrimitive`), shape painters, vector paths (`UiPath`, `UiImageVector`), linear/radial gradients (`Gradient` / `LinearGradient`), geometry bounds (`Bounds` / `UiBounds`), density (`Dp`, `Sp`, `UiDensity`), and icons (`UiIcon`).
 
 - `awake:ui:text`:
-    - SDF/MSDF font rendering (`MsdfFont`, `BitmapFont`, `PackedUiFont`), font atlas source integration (`GlyphAtlasSource`), font data, text style definitions (`TextStyle`), and text scale snapping.
+    - SDF/MSDF font rendering (`MsdfFont`, `BitmapFont`, `PackedUiFont`), font atlas source integration (`GlyphAtlasSource`), typography styles (`TextStyle`), font weights (`FontWeight`), and text scale snapping.
 
 - `awake:ui:animation`:
-    - Frame-clock driven animation engine (`animateFloat`, `AnimatedVisibility`, `Transition`), layout transition scopes (`AnimatedLayoutScopes`), and shimmer sweep primitives (`ShimmerPrimitives`).
+    - Frame-clock driven animation engine (`animateFloat`, `AnimatedVisibility`, `Transition`), layout transition scopes (`AnimatedLayoutScopes`), popup position providers (`UiPopupPositionProvider`), and shimmer sweep primitives (`ShimmerPrimitives`).
 
 - `awake:ui:ui-core`:
-    - Core frame loop, `UiContext` runtime state, layout engine (`Column`, `Row`, `Box`, `Spacer`, `LazyList`), `UiModifier`, state hooks (`WidgetState`, `UiScrollState`), and `UiPrimitiveScope`. (Retains `ui-core` to disambiguate from engine root `:awake:core`).
+    - Core frame loop, `UiContext` runtime state, layout engine (`Column`, `Row`, `Box`, `Spacer`, `LazyList`), layout sizing/padding (`Dimension`, `Alignment`, `Insets`), `UiModifier`, state hooks (`WidgetState`, `UiScrollState`), theme values (`UiThemeValues`), and `UiPrimitiveScope`. (Retains `ui-core` to disambiguate from engine root `:awake:core`).
 
 - `awake:ui:headless`:
-    - Unstyled, accessible UI components (buttons, input fields, popups, accordions, tabs) for building custom design systems.
+    - Unstyled, accessible UI components (buttons, input fields, popups, accordions, tabs, `TabItem`, `TabScope`) for building custom design systems.
 
 - `awake:ui:tailwind`:
     - Standalone Tailwind CSS design tokens (spacing, radius, color, typography scales).
@@ -64,16 +59,14 @@ include(":awake:ui:tailwind-generator")
 
 ```mermaid
 graph TD
-    API[":awake:ui:api<br/>(Pure Value Types)"]
-    CORE[":awake:ui:ui-core<br/>(UiContext, Layout Engine, State, Modifiers)"]
-    GRAPHICS[":awake:ui:graphics<br/>(Drawing, Gradients, Shapes, Paths)"]
-    ANIMATION[":awake:ui:animation<br/>(animateFloat, AnimatedVisibility, Transitions)"]
-    TEXT[":awake:ui:text<br/>(MSDF Font, Bitmap Font, Glyph Atlas)"]
-    HEADLESS[":awake:ui:headless<br/>(Unstyled Primitives)"]
+    GRAPHICS[":awake:ui:graphics<br/>(Drawing, Gradients, Shapes, Paths, Dp, Bounds)"]
+    TEXT[":awake:ui:text<br/>(MSDF Font, Bitmap Font, TextStyle, FontWeight)"]
+    CORE[":awake:ui:ui-core<br/>(UiContext, Layout Engine, Alignment, Insets, Modifiers)"]
+    ANIMATION[":awake:ui:animation<br/>(animateFloat, AnimatedVisibility, Transitions, Popups)"]
+    HEADLESS[":awake:ui:headless<br/>(Unstyled Primitives & Tab Contracts)"]
     DS[":awake:ui:designsystem<br/>(Shadcn Recipes)"]
 
-    API --> GRAPHICS
-    API --> TEXT
+    GRAPHICS --> TEXT
     GRAPHICS --> CORE
     TEXT --> CORE
     CORE --> ANIMATION

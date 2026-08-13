@@ -36,7 +36,7 @@ class TextLayoutCacheTest {
             return delegate.advanceFor(char, glyphPx)
         }
 
-        override fun advanceFor(char: Char, glyphPx: Float, weight: io.github.ronjunevaldoz.awake.ui.api.theme.FontWeight): Float {
+        override fun advanceFor(char: Char, glyphPx: Float, weight: io.github.ronjunevaldoz.awake.ui.font.FontWeight): Float {
             advanceForCalls++
             return delegate.advanceFor(char, glyphPx, weight)
         }
