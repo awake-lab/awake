@@ -71,3 +71,7 @@ data class UiInsets(
 fun UiInsets(all: Dp): UiInsets = UiInsets(all, all, all, all)
 
 fun UiInsets(horizontal: Dp, vertical: Dp): UiInsets = UiInsets(horizontal, vertical, horizontal, vertical)
+
+/** Snaps a coordinate to the nearest integer pixel to avoid subpixel rendering blur. */
+fun pixelPerfectPixel(value: Float): Float = kotlin.math.round(value)
+

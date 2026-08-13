@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.Sp
+
 /** Wraps an already-resolved pixel value as a [Dp] that round-trips through [toPx]. */
 val Float.px: Dp get() = Dp(this / UiDensity.scale)
 
