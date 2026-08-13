@@ -6,23 +6,24 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.SeparatorOrientation as PrimitiveOrientation
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.separator as primitiveSeparator
 
 enum class UiSeparatorOrientation { Horizontal, Vertical }
 
-/** Neutral separator primitive; skins provide the token color. */
+/** Neutral separator primitive using unstyled surface composition with 0 corner radius. */
 fun UiScope.separator(
     modifier: Modifier = Modifier,
     thickness: Dp = 1f.dp,
     orientation: UiSeparatorOrientation = UiSeparatorOrientation.Horizontal,
     color: Color? = null,
-): UiBounds = primitive.primitiveSeparator(
-    thickness = thickness,
-    modifier = modifier.asPrimitiveModifier(),
-    color = color ?: themeValues.colors.border,
-    orientation = when (orientation) {
-        UiSeparatorOrientation.Horizontal -> PrimitiveOrientation.Horizontal
-        UiSeparatorOrientation.Vertical -> PrimitiveOrientation.Vertical
-    },
-)
+): UiBounds {
+    val sepColor = color ?: themeValues.colors.border
+    val sepModifier = when (orientation) {
+        UiSeparatorOrientation.Horizontal -> modifier.fillMaxWidth().height(thickness)
+        UiSeparatorOrientation.Vertical -> modifier.fillMaxHeight().width(thickness)
+    }
+    return surface(
+        id = "separator.${orientation.name}",
+        modifier = sepModifier,
+        style = SurfaceStyle(background = sepColor, cornerRadius = 0.dp),
+    ) { _ -> }
+}

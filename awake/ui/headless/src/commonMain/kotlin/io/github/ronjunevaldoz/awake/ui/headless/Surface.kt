@@ -44,7 +44,7 @@ internal fun SurfaceStyle.asPrimitiveStyle(): PrimitiveStyle = PrimitiveStyle {
     background?.let(::background)
     foreground?.let(::foreground)
     border?.let { border(it.width, it.color) }
-    cornerRadius?.let(::shape)
+    cornerRadius?.let { radius -> shape(radius) }
     contentPadding(
         contentPadding.start,
         contentPadding.top,

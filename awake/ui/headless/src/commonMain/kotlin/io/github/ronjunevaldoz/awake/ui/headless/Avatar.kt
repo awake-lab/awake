@@ -4,9 +4,24 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.Sp
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.avatarFallback as primitiveAvatarFallback
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 
-/** Neutral initials avatar. Image loading and branded decoration remain outside Headless. */
+enum class AvatarStatus { Idle, Loading, Loaded, Error }
+
+/** Unstyled avatar container with content slot for image / fallback initials. */
+fun UiScope.avatar(
+    id: String,
+    size: Dp,
+    modifier: Modifier = Modifier,
+    style: SurfaceStyle = SurfaceStyle(),
+    content: ColumnScope.(UiBounds) -> Unit,
+): UiBounds = surface(
+    id = id,
+    modifier = modifier.width(size).height(size),
+    style = style,
+    content = content,
+)
+
 fun UiScope.avatar(
     id: String,
     initials: String,
@@ -14,8 +29,10 @@ fun UiScope.avatar(
     textSize: Sp,
     modifier: Modifier = Modifier,
     style: SurfaceStyle = SurfaceStyle(),
-): Unit = primitive.primitiveAvatarFallback(
-    initials = initials,
-    modifier = modifier.width(size).height(size).asPrimitiveModifier(),
-    style = style.copy(textSize = textSize).asPrimitiveStyle(),
-)
+): UiBounds = surface(
+    id = id,
+    modifier = modifier.width(size).height(size),
+    style = style.copy(textSize = textSize),
+) {
+    text(label = initials, modifier = Modifier.fillMaxSize(), color = style.foreground, centered = true)
+}
