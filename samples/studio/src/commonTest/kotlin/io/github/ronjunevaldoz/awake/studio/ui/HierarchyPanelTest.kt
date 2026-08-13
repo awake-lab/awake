@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -26,7 +27,7 @@ class HierarchyPanelTest {
 
         fun draw(input: UiInputState) = ui.apply {
             beginFrame(280f, 400f, input)
-            createBox(UiBounds(0f, 0f, 280f, 400f))
+            createUiScope(UiBounds(0f, 0f, 280f, 400f))
                 .drawHierarchyPanel(world, selectedEntityId = selected) { selected = it }
         }.finishFrame()
 
