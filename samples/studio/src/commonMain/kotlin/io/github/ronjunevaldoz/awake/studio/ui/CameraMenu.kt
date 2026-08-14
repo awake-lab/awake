@@ -87,3 +87,34 @@ internal fun UiScope.viewportCameraMenu(
         result.selectedIndex?.let(onPick)
     }
 }
+
+/**
+ * The icon rail's camera dropdown -- the same list as [viewportCameraMenu], opened by a normal
+ * click on the rail button rather than a secondary click on the viewport.
+ *
+ * Shares [CameraMenuItems] and [dispatchCameraMenuPick] with the viewport menu, so the two cannot
+ * drift in what they offer or how they dispatch. Only the trigger differs, which is why this is a
+ * separate function rather than a flag on the other one.
+ */
+internal fun UiScope.railCameraMenu(
+    id: String,
+    anchor: UiBounds,
+    requestOpen: Boolean,
+    onPick: (Int) -> Unit,
+) {
+    val popup = rememberPopupState(id)
+    if (requestOpen) popup.open()
+    if (popup.expanded) {
+        val result = shadcnDropdownMenu(
+            // ".dropdown", so items land on "$id.dropdown.item.N" -- the ids the rail's callers
+            // and StudioModuleCameraTest address. viewportCameraMenu uses ".menu" for its own.
+            id = "$id.dropdown",
+            anchorSlot = anchor,
+            expanded = true,
+            items = CameraMenuItems,
+            width = Dimension.WrapContent,
+        )
+        if (result.dismissed || result.selectedIndex != null) popup.close()
+        result.selectedIndex?.let(onPick)
+    }
+}
