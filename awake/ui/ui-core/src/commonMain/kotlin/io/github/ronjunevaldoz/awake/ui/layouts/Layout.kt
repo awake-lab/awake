@@ -6,6 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.scope.measureColumnContent
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /**
@@ -86,4 +88,48 @@ internal fun requireScrollableContainer(modifier: UiModifier, container: String)
             "implements -- it would be ignored here and the container would not scroll. Put the " +
             "scrolling column() inside this $container, or scroll the column directly.",
     )
+}
+
+/**
+ * Final pixel slots for a vertical container's children, with weights resolved -- or null when
+ * nothing in [content] claimed a weight.
+ *
+ * Extracted so `column()` and `surface()` share one implementation. They used to differ by
+ * omission: `column()` distributed weights and `surface()` did not, so the same content laid out
+ * two different ways depending only on whether the container happened to paint a background. A
+ * rule written once per container is a rule that drifts -- the row/column split of exactly this
+ * logic is what hid a weighted child collapsing to its content height.
+ */
+internal fun UiPrimitiveScope.planWeightedColumnSlots(
+    slot: UiBounds,
+    arrangement: Arrangement,
+    content: ColumnScope.(slot: UiBounds) -> Unit,
+): List<UiBounds>? {
+    val gap = arrangement.baseSpacingPx()
+    // Real gap, so a FillMax child's trial height already accounts for the space before its
+    // next sibling.
+    val measured = measureColumnContent(
+        width = slot.width,
+        gap = gap,
+        height = slot.height,
+        content = content,
+    )
+    if (measured.weights.none { it != null } && !arrangement.requiresMeasuredDistribution()) {
+        return null
+    }
+    val childHeights = resolveWeightedMainAxis(
+        measuredSizes = measured.slots.map { it.height },
+        weights = measured.weights,
+        containerSize = slot.height,
+        gap = gap,
+        fillsMainAxis = measured.fillsMainAxis,
+    )
+    val occupied = childHeights.sum() + gap * (childHeights.size - 1).coerceAtLeast(0)
+    val plan = arrangement.plan(slot.height, childHeights.size, occupied)
+    var y = slot.y + plan.leadingSpacePx
+    return childHeights.mapIndexed { index, height ->
+        UiBounds(slot.x, y, measured.slots[index].width, height).also {
+            y += height + plan.betweenSpacePx
+        }
+    }
 }

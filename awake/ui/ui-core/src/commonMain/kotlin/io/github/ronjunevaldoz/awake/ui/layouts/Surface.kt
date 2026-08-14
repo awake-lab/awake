@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
+import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -238,12 +239,23 @@ fun UiPrimitiveScope.surface(
     val effectiveShape = resolved.shapeSpec ?: UiShapeSpec.RoundedRectangle(resolved.shape)
     context.pushShapeSpec(effectiveShape)
 
+    // A surface is a column that paints. It has to divide its height the same way a plain
+    // column does -- without this it dropped every child weight, so whether a container
+    // distributed space came down to whether it happened to have a background.
+    val contentArrangement = Arrangement.spacedBy(gap.px)
+    val contentInsets = resolved.contentPadding
+    val plannedSlots = planWeightedColumnSlots(
+        slot = slot.inset(contentInsets),
+        arrangement = contentArrangement,
+        content = content,
+    )
     val contentScope = childColumn(
         slot,
-        verticalArrangement = Arrangement.spacedBy(gap.px),
-        modifier = UiModifier(insets = resolved.contentPadding, testTag = containerTag),
+        verticalArrangement = contentArrangement,
+        modifier = UiModifier(insets = contentInsets, testTag = containerTag),
         hasBoundedFillWidth = width != Dimension.WrapContent,
         hasBoundedFillHeight = height != Dimension.WrapContent,
+        plannedSlots = plannedSlots,
     )
     // Any non-zero shape/radius must clip its own children, not just round the background
     // paint -- otherwise square-cornered content (a badge, a button row) can visibly poke

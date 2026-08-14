@@ -23,6 +23,8 @@ fun UiPrimitiveScope.childColumn(
     hasBoundedFillWidth: Boolean = true,
     hasBoundedFillHeight: Boolean = true,
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
+    /** Final per-child slots with weights already resolved -- see planWeightedColumnSlots(). */
+    plannedSlots: List<UiBounds>? = null,
 ): ColumnScope = context.createColumn(
     slot = slot,
     insets = modifier.insets,
@@ -30,6 +32,7 @@ fun UiPrimitiveScope.childColumn(
     testTag = modifier.testTag,
     hasBoundedFillWidth = hasBoundedFillWidth,
     hasBoundedFillHeight = hasBoundedFillHeight,
+    plannedSlots = plannedSlots,
     overlayOnly = emitsToOverlay,
     horizontalAlignment = horizontalAlignment,
 )
