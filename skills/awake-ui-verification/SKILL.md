@@ -115,6 +115,57 @@ State it rather than implying coverage:
 - Real-GPU output is only spot-checked; most suites run the CPU rasterizer in `ui-testing`,
   which is a separate implementation from the Vulkan/WebGPU pipelines.
 
+## Where a test belongs, and when NOT to write one
+
+131 test files across `ui-core`, `ui-headless`, `ui-designsystem` and `ui-showcase`. The count is
+not the problem; the duplication is. Tests here get named after the BUG that produced them
+(`WrapContentScrollLeakProbeTest`, `ScrollableFillMaxChildMeasureTest`), so nobody can tell where
+a new case belongs and the same behaviour ends up covered three times from three angles -- none
+of them exhaustive.
+
+### Three tiers
+
+**1. Matrix -- one per subsystem, data-driven, exhaustive.**
+`LayoutSizingMatrixTest` is the model: container x parent sizing x child sizing, one shape per
+cell, expected values computed by arithmetic. It owns the spec. **A new case is a ROW here, not a
+new file.**
+
+**2. Regression -- one per shipped defect.**
+Named for the invariant, never the incident. `CenteredTextOpticalAlignmentTest`, yes;
+`WrapContentScrollLeakProbeTest`, no. Must fail with its fix removed -- verify that explicitly,
+then delete it if it does not.
+
+**3. Snapshot & parity -- pixels only.**
+Baselines and shadcn comparison. Kept separate because they need periodic re-recording, so they
+cannot double as correctness gates.
+
+### Which module
+
+| concern | module | why |
+|---|---|---|
+| sizing, scrolling, measurement | `ui-core` | fast, exact, no baselines |
+| does a recipe pass the right modifiers | `ui-designsystem` | composition, not layout maths |
+| pixels, shadcn parity | `ui-showcase` | the only thing needing a render |
+
+A layout assertion in `ui-showcase` is a slow duplicate of a `ui-core` case that fails for
+unrelated reasons. Push it down.
+
+### Before adding a test file
+
+- [ ] Is this a ROW in an existing matrix? Add it there instead.
+- [ ] Does it fail with the fix removed? If not, it is decorative -- delete it.
+- [ ] Is the assertion an exact value? Thresholds are how four sidebar tests passed against a
+      visibly broken sidebar -- they all asserted "more than 48px" and 0px-through-24px cleared it.
+- [ ] Is it in the lowest module that can express it?
+- [ ] Does an existing file already own this behaviour? Extend that one.
+
+### Why exhaustive beats hand-picked
+
+Four hand-written sidebar tests found nothing across a full session. One 12-cell matrix found
+eight defects in a single run, and the cells that passed told us as much as the ones that failed
+(`Fixed/Fixed` correct everywhere narrowed it to distribution). Hand-picked cases test what the
+author already suspects; a matrix tests what nobody thought of.
+
 ## Commands
 
 ```bash
