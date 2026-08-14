@@ -170,14 +170,17 @@ class ShadcnTextContrastMatrixTest {
 
     private companion object {
         /**
-         * Accepted, upstream-matching shortfalls -- NOT a way to silence new ones.
+         * Accepted shortfalls, measured -- NOT a way to silence new ones.
          *
-         * Danger is `bg-destructive text-white`, and upstream additionally applies
-         * `dark:bg-destructive/60` so the fill composites darker in dark mode and white stays
-         * readable. We paint destructive at full opacity, so white measures 2.89:1 -- just under
-         * the floor. Fixing it properly needs the theme to expose its own darkness (there is no
-         * `UiThemeValues.isDark` today) or the dark palette to carry the alpha, so it is recorded
-         * here with the reason rather than hidden by lowering MIN_RATIO for everything.
+         * Danger is `bg-destructive text-white`. Upstream also applies `dark:bg-destructive/60`,
+         * so matching that alpha looks like the fix and was tried: white-on-destructive went from
+         * 2.89:1 to 19.79:1, and `button-local-dark` parity went from 19.95% to 35.11% against the
+         * real reference -- a 15pp regression, because upstream's dark `--destructive` is already
+         * its own token and the alpha composes on top of that, not ours.
+         *
+         * So the floor and shadcn fidelity genuinely disagree on this variant: upstream ships
+         * white on dark destructive at roughly 2.9:1. Parity wins, and the shortfall is recorded
+         * with the number that decided it. Revisit only alongside the dark palette itself.
          */
         val KNOWN_BELOW_FLOOR = setOf(
             "dark badge/Danger",
