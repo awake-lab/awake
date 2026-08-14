@@ -124,6 +124,37 @@ The target is a generic state model such as
 `SurfaceVisuals(rest, hovered, pressed, disabled)`. `ui-designsystem` maps `Primary`, `Ghost`,
 or a shadcn preset to that model; Headless only applies the state it receives.
 
+## One entry point per widget: `UiScope`, not one overload per scope
+
+A widget gets ONE public function, on `UiScope`. Do not add a `ColumnScope`/`RowScope`/
+`BoxScope`/`AbsoluteScope` overload of it.
+
+`ui-core`'s `surface()` is the counter-example still in the tree -- six functions for one widget:
+
+| overload | what it actually changes |
+|---|---|
+| `UiPrimitiveScope.surface` (public) | entry point |
+| `UiPrimitiveScope.surface` (impl) | the real body |
+| `ColumnScope.surface` | width defaults to `FillMax` |
+| `RowScope.surface` | height defaults to `FillMax` |
+| `AbsoluteScope.surface` | **nothing** -- `modifier = modifier` |
+| `BoxScope.surface` | **nothing** -- `modifier = modifier` |
+
+Two do literally nothing. The two that matter encode one rule -- "fill my cross axis by default"
+-- which belongs on the scope (ask it for its main axis) rather than being spelled out once per
+scope type. `ui-headless` and `ui-designsystem` already made this move; `ui-core` is the holdout.
+
+Why this matters beyond tidiness: overload sets hide capability gaps. Resolution picks the most
+specific receiver silently, so a scope that lacks the overload falls through to a base version
+that quietly ignores what the caller asked for. That is the same failure mode as
+`Modifier.verticalScroll` on `row()`/`box()` -- accepted, dropped, no error -- which cost a full
+session to find. One function per widget makes an unsupported combination a compile error or an
+explicit `error(...)`, not a silent no-op.
+
+When a scope genuinely needs different behaviour, branch on data the scope exposes inside the one
+function. Add an overload only when the signature itself must differ (different parameters, not
+different defaults), and say why in a comment.
+
 ## Checklist
 
 - [ ] Would another skin need this code? If yes it is not design-system code.
@@ -135,3 +166,4 @@ or a shadcn preset to that model; Headless only applies the state it receives.
       `ui-headless`.
 - [ ] Name matches the Radix concept; file name matches what the file exports.
 - [ ] New behaviour landed in `ui-headless`, not in the `shadcn*` wrapper.
+- [ ] One public function on `UiScope` -- no per-scope overload that only changes a default.
