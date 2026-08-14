@@ -155,6 +155,23 @@ When a scope genuinely needs different behaviour, branch on data the scope expos
 function. Add an overload only when the signature itself must differ (different parameters, not
 different defaults), and say why in a comment.
 
+### The exception, found by trying it
+
+A per-scope default is NOT always collapsible, because **overload resolution is static and a
+`when (this)` is not**. `surface`'s `ColumnScope`/`RowScope` pair defaults the caller's cross axis
+to `FillMax`. A call whose receiver is typed `UiPrimitiveScope` deliberately gets no default even
+when the runtime instance happens to be a `ColumnScope` -- so replacing the pair with one function
+that inspects `this` hands a default to every such call site. Tried exactly that: `PanelTest`, both
+signature matrices and the parity screenshots all moved.
+
+So the rule is narrower than "one function per widget":
+
+- an overload that only forwards (`modifier = modifier`) is dead -- delete it
+- an overload whose default depends on the STATIC receiver has to stay
+- either way the rule BODY is written once and called from each, never copy-pasted
+
+Delete-and-run-the-suite is the check. If nothing moves, the overload was dead.
+
 ## The showcase catalog is the only catalog
 
 `samples:ui-showcase` publishes one list -- `ShowcasePages` in `ShowcaseCatalog.kt`. The app
