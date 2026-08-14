@@ -131,9 +131,16 @@ class LayoutSizingMatrixTest {
             val parentSize = if (cell.parentHeight == Dimension.FillMax) FRAME else PARENT_FIXED
             val expected = when (cell.child) {
                 ChildSizing.Fixed -> CHILD_FIXED
-                // Both mean "take the slack the fixed siblings left".
-                ChildSizing.FillMax, ChildSizing.Weight, ChildSizing.WeightWithContent ->
-                    parentSize - FIXED * 2f
+                // FillMax and weight are NOT the same request, and this row is where that gets
+                // pinned. A filling child takes what is left where it stands -- it has only seen
+                // the header, and in a single-pass engine the footer does not exist yet -- so it
+                // claims parent - header and the footer lands past the edge. Compose behaves the
+                // same way: fillMaxHeight() fills the incoming constraint, it does not reserve
+                // room for later siblings. "Take the remainder" is weight(1f), below.
+                ChildSizing.FillMax -> parentSize - FIXED
+                // Weight is resolved by the parent AFTER every sibling is measured, so this one
+                // really is the slack both fixed siblings left.
+                ChildSizing.Weight, ChildSizing.WeightWithContent -> parentSize - FIXED * 2f
             }
             Triple(cell.label, actual, expected)
         }
