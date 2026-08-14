@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.radio
 import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
@@ -119,37 +120,42 @@ fun UiScope.shadcnRadioGroup(
     onIndexChange: (Int) -> Unit = {},
 ): Int {
     var resolved = selectedIndex
-    options.forEachIndexed { index, label ->
-        val wasSelected = index == selectedIndex
-        var next = wasSelected
-        row(
-            horizontalArrangement = Arrangement.spacedBy(ShadcnRadioMetrics.labelGap),
-            verticalAlignment = UiAlignment.Vertical.Center,
-        ) {
-            next = radio(
-                id = "$id.$index",
-                selected = wasSelected,
-                modifier = Modifier.height(ShadcnRadioMetrics.itemSize),
-                enabled = enabled,
-                visuals = SurfaceStyle(
-                    background = themeValues.colors.background,
-                    foreground = themeValues.colors.primary,
-                    border = SurfaceBorder(1f.dp, themeValues.colors.border),
-                    cornerRadius = themeValues.shapes.full,
-                ),
-                onClick = {
-                    resolved = index
-                    onIndexChange(index)
-                },
-            )
-            text(
-                label = label,
-                visuals = SurfaceStyle(textSize = themeValues.typography.label),
-                semanticId = "$id.$index.label",
-            )
+    // The group owns its own column, like upstream's RadioGroup (`grid gap-3`). Emitting rows
+    // straight into the caller's scope made the layout depend on that scope being a column --
+    // anywhere else every option stacked at (0,0), only the first ever hit-tested, and the group
+    // read as "not clickable". ShadcnRadioGroupClickProbeTest pins the bare-scope case.
+    column(verticalArrangement = Arrangement.spacedBy(gap)) {
+        options.forEachIndexed { index, label ->
+            val wasSelected = index == selectedIndex
+            var next = wasSelected
+            row(
+                horizontalArrangement = Arrangement.spacedBy(ShadcnRadioMetrics.labelGap),
+                verticalAlignment = UiAlignment.Vertical.Center,
+            ) {
+                next = radio(
+                    id = "$id.$index",
+                    selected = wasSelected,
+                    modifier = Modifier.height(ShadcnRadioMetrics.itemSize),
+                    enabled = enabled,
+                    visuals = SurfaceStyle(
+                        background = themeValues.colors.background,
+                        foreground = themeValues.colors.primary,
+                        border = SurfaceBorder(1f.dp, themeValues.colors.border),
+                        cornerRadius = themeValues.shapes.full,
+                    ),
+                    onClick = {
+                        resolved = index
+                        onIndexChange(index)
+                    },
+                )
+                text(
+                    label = label,
+                    visuals = SurfaceStyle(textSize = themeValues.typography.label),
+                    semanticId = "$id.$index.label",
+                )
+            }
+            if (next != wasSelected && next && !wasSelected) resolved = index
         }
-        if (index != options.lastIndex) spacer(Modifier.height(gap))
-        if (next != wasSelected && next && !wasSelected) resolved = index
     }
     return resolved
 }
