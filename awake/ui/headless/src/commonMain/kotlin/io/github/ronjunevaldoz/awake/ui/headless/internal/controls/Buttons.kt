@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
+import io.github.ronjunevaldoz.awake.ui.compositeContent
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
@@ -20,7 +21,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
-import io.github.ronjunevaldoz.awake.ui.compositeContent
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
