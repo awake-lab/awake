@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -161,6 +162,49 @@ class ShadcnSidebarFooterVisibilityTest {
             footerBottom >= sidebarBottom - footerHeight,
             "footer bottom $footerBottom in a sidebar ending at $sidebarBottom -- it collapsed to " +
                 "the top and is painting over the menu.",
+        )
+    }
+
+    @Test
+    fun aSidebarNestedInsideAWrappingSurfaceStillPinsTheFooterToTheBottom() {
+        // The showcase preview's shape: the sidebar is not a direct child of the frame, it sits
+        // inside a wrap-height surface inside a column. Every other case here puts it at the root,
+        // and all of them pass while the preview renders the footer collapsed under the header --
+        // so the wrapping parent is the remaining difference.
+        val ui = UiContext()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(ShadcnTheme)
+        ui.beginFrame(600f, 900f, testSnapshot())
+        var sidebar: io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds? = null
+        ui.headlessRoot().surface(id = "wrapper", modifier = Modifier.fillMaxWidth()) {
+            sidebar = shadcnSidebar(
+                id = "sidebar",
+                modifier = Modifier.width(SIDEBAR_WIDTH.dp).height(SIDEBAR_HEIGHT.dp),
+                header = { spacer(Modifier.width(SIDEBAR_WIDTH.dp).height(32f.dp)) },
+                footer = {
+                    shadcnSidebarFooterButton(id = FOOTER_ID, name = "shadcn", email = "m@example.com")
+                },
+            ) {
+                shadcnSidebarGroup(label = "Platform") {
+                    shadcnSidebarMenu {
+                        repeat(4) { index ->
+                            shadcnSidebarMenuItem(id = "item-$index", label = "Item $index")
+                        }
+                    }
+                }
+            }
+        }
+        val output = ui.finishFrame()
+        val footer = requireNotNull(output.semantics.firstOrNull { it.id == FOOTER_ID }) {
+            "no semantic node for '$FOOTER_ID'"
+        }
+        val sidebarBottom = requireNotNull(sidebar).let { it.y + it.height }
+        val footerBottom = footer.bounds.y + footer.bounds.height
+
+        assertTrue(
+            footerBottom >= sidebarBottom - footer.bounds.height,
+            "footer ${footer.bounds.y}..$footerBottom in a sidebar ending at $sidebarBottom -- it " +
+                "collapsed toward the top and is painting over the menu.",
         )
     }
 
