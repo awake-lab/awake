@@ -252,6 +252,7 @@ fun UiPrimitiveScope.row(
     cacheKey: Any? = null,
     content: RowScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
+    requireScrollableContainer(modifier, "row()")
     val hasExplicitFixedDimensions = modifier.widthDimension != null &&
         modifier.heightDimension != null &&
         modifier.widthDimension != Dimension.WrapContent &&

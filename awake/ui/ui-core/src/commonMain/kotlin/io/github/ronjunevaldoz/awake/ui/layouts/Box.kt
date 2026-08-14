@@ -23,6 +23,7 @@ fun UiPrimitiveScope.box(
     contentAlignment: UiAlignment = UiAlignment.TopStart,
     content: BoxScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
+    requireScrollableContainer(modifier, "box()")
     val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.FillMax))
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: hitTest(slot),
