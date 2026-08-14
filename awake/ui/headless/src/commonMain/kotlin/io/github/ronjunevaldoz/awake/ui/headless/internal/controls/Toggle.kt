@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
+import io.github.ronjunevaldoz.awake.ui.compositeContent
 import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.resolveInteractiveSurface
@@ -34,7 +35,10 @@ private inline fun UiPrimitiveScope.toggleInternal(
     variant: UiButtonVariant = UiButtonVariant.Filled,
     onCheckedChange: (Boolean) -> Unit = {},
     semanticLabel: String? = null,
-    drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
+    // crossinline because the content is now dispatched inside compositeContent's lambda, which a
+    // non-local return out of would skip -- leaving the suppression depth counter raised for the
+    // rest of the frame.
+    crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): Boolean {
     val theme = context.currentTheme
     val defaults = theme.components.button then Style.Companion {
@@ -82,7 +86,11 @@ private inline fun UiPrimitiveScope.toggleInternal(
     )
     paintSurface(slot = interaction.slot, resolved = surface.resolved)
 
-    childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
+    // Same reason as Buttons.kt -- a toggle's content is its own subtree, not siblings of the
+    // toggle in whatever column contains it. See compositeContent().
+    compositeContent {
+        childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
+    }
 
     recordSemantic(
         role = UiSemanticRole.Toggle,
