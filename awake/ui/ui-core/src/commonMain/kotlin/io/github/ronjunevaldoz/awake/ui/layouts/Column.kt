@@ -146,7 +146,27 @@ private fun UiPrimitiveScope.resolveMeasuredColumn(
     // claimModifiedSlot(), which already special-case a weighted child correctly.
     val isWeighted = modifier.layoutWeight != null
     val requestedWidth = modifier.widthDimension ?: (if (isWeighted) Dimension.FillMax else Dimension.WrapContent)
-    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
+    // Compose's rule: fillMaxHeight() under an unbounded constraint is a no-op -- the child keeps
+    // its intrinsic size rather than adopting infinity. Without this, a FillMax child (and a
+    // weighted one, which resolves through FillMax) of a wrap-height parent resolves against
+    // UNBOUNDED_MAIN_AXIS and bakes 100000 in as a real height. Weight has nothing to divide
+    // under a wrap parent either -- there is no slack to take a share of.
+    val declaredHeight = modifier.heightDimension ?: Dimension.WrapContent
+    val wantsMainAxisFill = declaredHeight == Dimension.FillMax || isWeighted
+    val requestedHeight =
+        // Scopes that are not fill-aware (absolute placement) keep the old behaviour: they hand
+        // out a real slot, so FillMax there is not resolving against a sentinel.
+        // Not for a scroll viewport. Wrapping there would size the viewport to its own content,
+        // so it could never scroll -- silently. requireBoundedAxis() throws for that case on
+        // purpose (167d75a7), and this must not quietly undo it.
+        if (wantsMainAxisFill &&
+            modifier.scrollState == null &&
+            (this as? FillAwareScope)?.hasBoundedFillHeight == false
+        ) {
+            Dimension.WrapContent
+        } else {
+            declaredHeight
+        }
 
     val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
         val availableWidth = when (requestedWidth) {

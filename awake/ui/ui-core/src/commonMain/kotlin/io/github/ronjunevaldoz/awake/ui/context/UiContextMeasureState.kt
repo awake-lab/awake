@@ -124,6 +124,11 @@ internal class UiContextMeasureState {
             // exact same pixel value regardless of UiDensity.scale.
             verticalArrangement = Arrangement.spacedBy(gap.px),
             insets = insets,
+            // The trial's height is UNBOUNDED_MAIN_AXIS unless a caller supplied a real one. That
+            // is a placeholder, not a bound, and reporting it as bounded is what let children
+            // resolve FillMax (and weight, which resolves through it) straight to 100000 and adopt
+            // the sentinel as a real size.
+            hasBoundedFillHeight = height != UNBOUNDED_MAIN_AXIS,
         )
         UiMeasureTrialStats.record { measureScope.content(outerSlot) }
         return measureContext.measuredContentSnapshot()
@@ -145,6 +150,7 @@ internal class UiContextMeasureState {
             // reasoning, row-side.
             horizontalArrangement = Arrangement.spacedBy(gap.px),
             insets = insets,
+            hasBoundedFillWidth = width != UNBOUNDED_MAIN_AXIS,
         )
         UiMeasureTrialStats.record { measureScope.content(outerSlot) }
         return measureContext.measuredContentSnapshot()
