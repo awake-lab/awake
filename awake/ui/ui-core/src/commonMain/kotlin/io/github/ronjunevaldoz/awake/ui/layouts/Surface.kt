@@ -153,7 +153,18 @@ fun UiPrimitiveScope.surface(
     // compact surfaces such as badges are measured with the parent text metrics and then drawn
     // with their own caption metrics, producing clipped pills and a border that collapses into
     // a line. Keep the same resolved foreground propagation for both passes.
-    val contentTextStyle = if (resolved.textStyle.color == null && resolved.foreground != null) {
+    // A surface's `foreground` IS its content colour (shadcn's bg-*/text-* pairing), so it has to
+    // beat whatever colour was merely inherited. Style.resolve() seeds its builder FROM
+    // context.currentTextStyle, so `resolved.textStyle.color` is non-null the moment any ancestor
+    // sets one -- testing it for null only ever succeeded at the top of the tree, and every nested
+    // surface silently kept the ancestor's colour instead of its own. A Primary badge measured
+    // 17:1 standalone and 1.1:1 inside a card, which is dark-on-dark. Comparing against the
+    // inherited value distinguishes "declared on this surface" from "merely inherited", so an
+    // explicit per-call text colour still wins.
+    val inheritedTextColor = context.currentTextStyle.color
+    val declaresOwnTextColor =
+        resolved.textStyle.color != null && resolved.textStyle.color != inheritedTextColor
+    val contentTextStyle = if (!declaresOwnTextColor && resolved.foreground != null) {
         resolved.textStyle.copy(color = resolved.foreground)
     } else {
         resolved.textStyle
