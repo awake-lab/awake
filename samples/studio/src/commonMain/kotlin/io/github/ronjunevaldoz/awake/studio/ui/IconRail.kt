@@ -74,13 +74,33 @@ private fun ColumnScope.cameraRailButton(
     onSelectMode: (CameraMode) -> Unit,
     onSelectProjection: (StudioContract.Projection) -> Unit,
 ) {
-    shadcnButton(
-        id = "studio-tool-camera",
-        label = "Camera",
-        modifier = Modifier.width(RailButtonSize),
-        variant = ShadcnButtonVariant.Ghost,
-        size = ShadcnButtonSize.Icon,
-        onClick = {},
+    var requestOpen = false
+    // Wrapped so the menu has a slot to anchor to -- shadcnButton reports whether it was clicked,
+    // not where it landed.
+    val bounds = column(modifier = Modifier.width(RailButtonSize)) {
+        shadcnButton(
+            id = "studio-tool-camera",
+            label = "Camera",
+            modifier = Modifier.width(RailButtonSize),
+            variant = ShadcnButtonVariant.Ghost,
+            size = ShadcnButtonSize.Icon,
+            onClick = { requestOpen = true },
+        )
+    }
+    // The button carried an empty onClick, so the rail's camera menu never existed -- the id the
+    // test looks for was produced by no code at all. Anchored to the button's own bounds so the
+    // menu opens beside the rail rather than at the pointer.
+    railCameraMenu(
+        id = "studio-tool-camera-menu",
+        anchor = bounds,
+        requestOpen = requestOpen,
+        onPick = { index ->
+            dispatchCameraMenuPick(
+                index,
+                onSelectMode = onSelectMode,
+                onSelectProjection = onSelectProjection,
+            )
+        },
     )
 }
 

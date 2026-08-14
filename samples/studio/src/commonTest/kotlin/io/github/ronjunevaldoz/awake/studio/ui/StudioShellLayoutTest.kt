@@ -42,6 +42,9 @@ private const val HAIRLINE_TOLERANCE = 2f
 /** The resizable handle between the workspace and the dock is thicker than a hairline. */
 private const val SEPARATOR_SLACK = 8f
 
+/** Generous headroom, so this only fires on a real escape (a sentinel), not a few px of overhang. */
+private const val ESCAPE_FACTOR = 2f
+
 /** Semantic (bounds-only) coverage for the docked shell layout -- pixel/theme snapshots are
  * ui-showcase's job, not this sample's; see the design-system engineer's validation notes. */
 class StudioShellLayoutTest {
@@ -112,6 +115,38 @@ class StudioShellLayoutTest {
         assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-camera-mode" })
         assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-projection.0" })
         assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-projection.1" })
+    }
+
+    /**
+     * Nothing in the shell may lay out past the frame it was given.
+     *
+     * The invariant the shell never had. A container that hands a child the measurement sentinel
+     * instead of a real bound produces coordinates in the tens of thousands, and every symptom of
+     * that reads as something else entirely -- a popup "not opening" when its item is really
+     * sitting under a widget stretched to 100,000px, or a scrollbar on content that fits. Bounds
+     * are the cheapest place to catch the whole class.
+     */
+    @Test
+    fun nothingLaysOutBeyondTheFrame() {
+        val semantics = renderShell()
+
+        val escaped = semantics
+            .filter { node ->
+                val b = node.bounds
+                b.y + b.height > FRAME_HEIGHT * ESCAPE_FACTOR ||
+                    b.x + b.width > FRAME_WIDTH * ESCAPE_FACTOR
+            }
+            .sortedByDescending { it.bounds.y + it.bounds.height }
+
+        val report = escaped.take(10).joinToString("\n") {
+            "  ${it.id} role=${it.role} x=${it.bounds.x} y=${it.bounds.y} " +
+                "w=${it.bounds.width} h=${it.bounds.height}"
+        }
+        assertTrue(
+            escaped.isEmpty(),
+            "${escaped.size} node(s) lay out past ${FRAME_WIDTH}x$FRAME_HEIGHT " +
+                "(x${ESCAPE_FACTOR.toInt()} headroom):\n$report",
+        )
     }
 
     @Test
