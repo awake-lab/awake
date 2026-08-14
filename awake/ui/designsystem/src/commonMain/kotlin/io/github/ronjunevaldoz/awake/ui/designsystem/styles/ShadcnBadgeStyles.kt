@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.sp
-import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
@@ -51,6 +51,10 @@ fun ShadcnBadgeVariant.style(values: UiThemeValues): SurfaceStyle {
     }
     return base.copy(
         cornerRadius = values.shapes.full,
+        // Upstream badge is `px-2 py-0.5 text-xs font-medium`, but matching it literally moves
+        // badge-local-light from 27.3% to 34.8% against the real reference: the extra padding and
+        // weight are compensating for glyph advance/stem fidelity, not styling drift. Revisit
+        // together with the atlas, not on its own.
         contentPadding = UiInsets.grid(horizontal = 2.5, vertical = 0.5),
         textSize = Tw.Text.xs,
         lineHeight = 16f.sp,
