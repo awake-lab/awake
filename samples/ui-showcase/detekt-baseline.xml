@@ -2,66 +2,32 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:UiShowcaseGettingStartedPages.kt$internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState)</ID>
-    <ID>CyclomaticComplexMethod:UiShowcaseOverlayPages.kt$internal fun ColumnScope.drawUiShowcasePopupPreview()</ID>
-    <ID>LongMethod:UiShowcaseCardClipBugPngTest.kt$UiShowcaseCardClipBugPngTest$private fun saveRepro(id: String)</ID>
-    <ID>LongMethod:UiShowcaseComponentPages.kt$internal fun ColumnScope.drawUiShowcaseButtonPreview()</ID>
-    <ID>LongMethod:UiShowcaseComponentPages.kt$internal fun ColumnScope.drawUiShowcaseSidebarPreview()</ID>
-    <ID>LongMethod:UiShowcaseComponentPages.kt$internal fun ColumnScope.drawUiShowcaseSliderPreview()</ID>
-    <ID>LongMethod:UiShowcaseFieldDemoPage.kt$internal fun ColumnScope.drawUiShowcaseFieldDemoPreview()</ID>
-    <ID>LongMethod:UiShowcaseGameTest.kt$UiShowcaseGameTest$@Test fun uiShowcaseDesktopShellDoesNotDuplicateIntroductionPageContent()</ID>
-    <ID>LongMethod:UiShowcaseGettingStartedPages.kt$internal fun ColumnScope.drawUiShowcaseControlsPreview(state: UiShowcaseRuntimeState)</ID>
-    <ID>LongMethod:UiShowcaseLayoutPages.kt$private fun CanvasScope.drawShowcaseCanvasScene()</ID>
-    <ID>LongMethod:UiShowcaseOverlayPages.kt$internal fun ColumnScope.drawUiShowcasePopupPreview()</ID>
-    <ID>LongMethod:UiShowcasePreviewCatalogTestSupport.kt$private fun ColumnScope.drawUiShowcaseFieldMatrixContent()</ID>
-    <ID>LongMethod:UiShowcaseUi.kt$internal fun GameUiRuntime.drawUiShowcaseOverlay( state: UiShowcaseRuntimeState, )</ID>
-    <ID>MagicNumber:UiShowcaseAnimationPages.kt$0.18f</ID>
-    <ID>MagicNumber:UiShowcaseAnimationPages.kt$14f</ID>
-    <ID>MagicNumber:UiShowcaseAnimationPages.kt$20</ID>
-    <ID>MagicNumber:UiShowcaseComponentPages.kt$0.3f</ID>
-    <ID>MagicNumber:UiShowcaseComponentPages.kt$0.7f</ID>
-    <ID>MagicNumber:UiShowcaseComponentPages.kt$18f</ID>
-    <ID>MagicNumber:UiShowcaseComponentPages.kt$52f</ID>
-    <ID>MagicNumber:UiShowcaseComponentPages.kt$65f</ID>
+    <ID>LongMethod:GettingStartedContent.kt$private fun RowScope.columnPreview(state: UiShowcaseRuntimeState)</ID>
+    <ID>LongMethod:ShowcaseApp.kt$internal fun GameUiRuntime.drawUiShowcaseOverlay( state: UiShowcaseRuntimeState, )</ID>
+    <ID>MagicNumber:CanvasPage.kt$0.16f</ID>
+    <ID>MagicNumber:CanvasPage.kt$0.22f</ID>
+    <ID>MagicNumber:CanvasPage.kt$12f</ID>
+    <ID>MagicNumber:CanvasPage.kt$18f</ID>
+    <ID>MagicNumber:CanvasPage.kt$20f</ID>
+    <ID>MagicNumber:CanvasPage.kt$22f</ID>
+    <ID>MagicNumber:CanvasPage.kt$48f</ID>
+    <ID>MagicNumber:CanvasPage.kt$70f</ID>
+    <ID>MagicNumber:CanvasPage.kt$78f</ID>
+    <ID>MagicNumber:CanvasPage.kt$92f</ID>
+    <ID>MagicNumber:ProgressPage.kt$0.25f</ID>
+    <ID>MagicNumber:ProgressPage.kt$0.65f</ID>
+    <ID>MagicNumber:RangeSliderPage.kt$20f</ID>
+    <ID>MagicNumber:RangeSliderPage.kt$80f</ID>
+    <ID>MagicNumber:ScrollAreaPage.kt$8</ID>
+    <ID>MagicNumber:ShowcaseApp.kt$720f</ID>
+    <ID>MagicNumber:SliderPage.kt$10f</ID>
+    <ID>MagicNumber:SliderPage.kt$50f</ID>
+    <ID>MagicNumber:SliderPage.kt$60f</ID>
+    <ID>MagicNumber:SliderPage.kt$95f</ID>
     <ID>MagicNumber:UiShowcaseCounterStore.kt$UiShowcaseCounterStore$5</ID>
-    <ID>MagicNumber:UiShowcaseFieldDemoPage.kt$12</ID>
-    <ID>MagicNumber:UiShowcaseFieldDemoPage.kt$2026</ID>
-    <ID>MagicNumber:UiShowcaseFieldDemoPage.kt$2035</ID>
     <ID>MagicNumber:UiShowcaseGame.kt$1600</ID>
     <ID>MagicNumber:UiShowcaseGame.kt$900</ID>
-    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$0.01f</ID>
-    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$0.08f</ID>
-    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$0.12f</ID>
-    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$0.15f</ID>
-    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$0.99f</ID>
-    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$160f</ID>
-    <ID>MagicNumber:UiShowcaseGettingStartedPages.kt$40f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.16f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.22f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.32f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.78f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.82f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.85f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.88f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.8f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.92f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$0.94f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$10</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$14f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$150f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$178f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$28f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$32f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$34f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$42f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$50f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$54f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$60f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$66f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$68f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$78f</ID>
-    <ID>MagicNumber:UiShowcaseLayoutPages.kt$92f</ID>
     <ID>NestedBlockDepth:UiShowcasePreviewDocsTest.kt$UiShowcasePreviewDocsTest$@Test fun writeShowcasePreviews()</ID>
-    <ID>TooManyFunctions:UiShowcaseComponentPages.kt$io.github.ronjunevaldoz.awake.sample.uishowcase.ui.UiShowcaseComponentPages.kt</ID>
+    <ID>UnusedParameter:ShadcnParityScreenshotTest.kt$metadata: AwakeUiPreviewMetadata</ID>
   </CurrentIssues>
 </SmellBaseline>

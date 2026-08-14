@@ -24,11 +24,9 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeSt
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseThemeMode
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseUiState
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcasePages
-import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.UiShowcaseThemePreview
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.drawUiShowcasePageContent
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.drawUiShowcaseSidebar
-import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.previewMetadataFor
-import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.previewMetadataIsReal
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.showcasePreviewEntry
 import io.github.ronjunevaldoz.awake.testing.ui.inspectNonOverlappingBounds
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticContentFit
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
@@ -285,9 +283,8 @@ class UiShowcaseGameTest {
 
     @Test
     fun uiShowcaseThemePreviewSemanticLayoutStaysClean() {
-        // Skipped where previewMetadataFor returns the ios-dummy placeholder (no reflection).
-        if (!previewMetadataIsReal()) return
-        val frame = UiShowcaseThemePreview.render(previewMetadataFor(UiShowcaseThemePreview))
+        val entry = showcasePreviewEntry("theming")
+        val frame = entry.render(entry.metadata)
         val semantics = frame.semantics
 
         inspectSemanticNodes(semantics).requireClean()

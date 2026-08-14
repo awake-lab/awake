@@ -34,8 +34,8 @@ A rotating cube, a glTF viewer, and a skinned-mesh demo, with camera and materia
 controls. For the Web build (Chrome/Edge 113+): `:samples:scene3d-playground:wasmJsBrowserDevelopmentRun`,
 then open the printed URL.
 
-Also runnable: [`samples/ui-showcase`](samples/ui-showcase) (every UI component in one
-gallery) and [`samples/studio`](samples/studio) (a small editor shell). Desktop and Web
+Also runnable: [`samples/ui-showcase`](samples/ui-showcase) (one page per UI component;
+components shadcn ships that Awake has not built yet are listed as explicit placeholders) and [`samples/studio`](samples/studio) (a small editor shell). Desktop and Web
 have app wrappers today; iOS and Android build the shared framework/AAR only, no app
 wrapper yet.
 

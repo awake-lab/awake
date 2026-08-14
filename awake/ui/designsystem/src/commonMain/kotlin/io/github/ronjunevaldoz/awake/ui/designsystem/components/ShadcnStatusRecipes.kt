@@ -71,11 +71,13 @@ fun UiScope.shadcnSeparator(
     modifier: Modifier = Modifier,
     thickness: io.github.ronjunevaldoz.awake.ui.api.Dp = 1f.dp,
     orientation: UiSeparatorOrientation = UiSeparatorOrientation.Horizontal,
+    id: String? = null,
 ): UiBounds = separator(
     modifier = modifier,
     thickness = thickness,
     orientation = orientation,
     color = themeValues.colors.border,
+    id = id,
 )
 
 fun UiScope.shadcnProgress(

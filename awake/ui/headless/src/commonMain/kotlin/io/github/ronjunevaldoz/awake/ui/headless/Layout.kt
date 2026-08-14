@@ -63,6 +63,15 @@ fun Modifier.clickable(enabled: Boolean = true, onClick: () -> Unit): Modifier =
 
 fun Modifier.fillMaxWidth(): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveFillMaxWidth())
 
+/**
+ * Fills the parent width only when the caller did not size the node itself -- the width
+ * counterpart of [heightOrDefault], for block-level recipes whose CSS reference is `w-full`.
+ * Without it a container defaults to wrap-content and its children collapse to their own
+ * intrinsic width.
+ */
+fun Modifier.fillMaxWidthOrDefault(): Modifier =
+    if ((this as? HeadlessModifier)?.primitive?.widthDimension == null) fillMaxWidth() else this
+
 fun Modifier.fillMaxHeight(): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveFillMaxHeight())
 
 fun Modifier.fillMaxSize(): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveFillMaxSize())

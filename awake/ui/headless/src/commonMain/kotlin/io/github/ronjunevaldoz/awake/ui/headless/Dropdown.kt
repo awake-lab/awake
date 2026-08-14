@@ -71,7 +71,10 @@ fun UiScope.combobox(
         label = selectedLabel,
         expanded = popupState.expanded,
         style = visuals.asPrimitiveStyle(),
-        semanticId = id,
+        // The Dropdown node below owns `id`; the label is a separate text node. Passing `id`
+        // here made both claim it, which is a duplicate semantic id. primitiveSelect has
+        // always used the `.label` suffix -- this widget just never matched it.
+        semanticId = "$id.label",
         isPlaceholder = selectedIndex == null,
     )
     primitive.recordSemantic(

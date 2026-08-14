@@ -2,6 +2,15 @@
 
 This document is the canonical source for Awake's shared UI verification rule.
 
+
+## Fixture metadata must not come from reflection
+
+`AwakeUiPreviewMetadata` for a fixture must be supplied as data (see `ShowcasePage`), not read
+off an `@AwakeUiPreview` annotation. iOS and wasmJs have no reflection, so annotation-driven
+fixtures returned a 1x1 dummy and their tests early-returned -- reporting green on three of
+four targets while asserting nothing. Use `renderUiPreviews(entry, metadata)`;
+`renderAnnotatedUiPreviews` remains only for JVM-only fixtures that have no other option.
+
 ## Goal
 
 Stop relying on eyeballing for shared UI regressions.

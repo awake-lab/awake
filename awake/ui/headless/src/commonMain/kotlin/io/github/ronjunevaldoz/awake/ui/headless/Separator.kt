@@ -15,6 +15,9 @@ fun UiScope.separator(
     thickness: Dp = 1f.dp,
     orientation: UiSeparatorOrientation = UiSeparatorOrientation.Horizontal,
     color: Color? = null,
+    // Defaults to an orientation-derived id, which collides as soon as one frame draws two
+    // horizontal separators. Callers that repeat separators must pass their own.
+    id: String? = null,
 ): UiBounds {
     val sepColor = color ?: themeValues.colors.border
     val sepModifier = when (orientation) {
@@ -22,7 +25,7 @@ fun UiScope.separator(
         UiSeparatorOrientation.Vertical -> modifier.fillMaxHeight().width(thickness)
     }
     return surface(
-        id = "separator.${orientation.name}",
+        id = id ?: "separator.${orientation.name}",
         modifier = sepModifier,
         style = SurfaceStyle(background = sepColor, cornerRadius = 0.dp),
     ) { _ -> }

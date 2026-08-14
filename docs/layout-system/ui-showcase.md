@@ -28,12 +28,15 @@ weights: {sidebar: fixed, main: 1f}
 | [badge] SHADCN     | Buttons And Badges                                 |
 | Awake UI Showcase  | Supporting copy                                    |
 |--------------------|----------------------------------------------------|
-| [overview]*        | Active section body                                |
-| [buttons ]         | buttons / controls / MVI / popup sample            |
-| [controls]         | depending on selected menu item                    |
-| [counter ]         |                                                    |
-| [popups  ]         |                                                    |
-| [notes   ]         |                                                    |
+| v Getting Started  | Hero sample (interactive)                          |
+|   Introduction*    |                                                    |
+|   Theming          | Variants  (static matrix, when declared)           |
+| v Inputs           |                                                    |
+| v Layout           | States    (static matrix, when declared)           |
+| v Overlays         |                                                    |
+| v Status           | Notes                                              |
+| v Typography       |                                                    |
+| v Blocks           |                                                    |
 +--------------------+----------------------------------------------------+
 Legend: * = active
 ```
@@ -43,7 +46,7 @@ Legend: * = active
 ```text
 +--------------------------------------------------------------+
 | Showcase Sidebar                                             |
-| [overview]* [buttons] [controls] [counter] [popups] [notes] |
+| [Introduction]* [Theming] [Button] [Badge] [Text Field] ... |
 +--------------------------------------------------------------+
 | Active section body                                          |
 | component proof / controls / popup sample                    |
@@ -51,6 +54,23 @@ Legend: * = active
 ```
 
 ---
+
+## Page structure
+
+Every page renders up to three sections, in this order:
+
+| Section | Source | Interactive |
+|---|---|---|
+| Hero | port of the page's `referenceExample` under `third_party/shadcn-ui-ref/apps/v4/` | yes |
+| Variants | generated from the component's own variant enum | no |
+| States | size/enabled/value ladders | no |
+
+A page declaring neither matrix renders the hero alone. Exhaustive interaction coverage lives
+in `:awake:ui:designsystem` tests, not in extra pages.
+
+Pages in the **Blocks** category are registered placeholders for shadcn components Awake has
+not built yet. They render a "not implemented" empty state naming the missing primitive and its
+reference path, so a gap stays visible in the catalog instead of being absent from it.
 
 ## Interaction notes
 
