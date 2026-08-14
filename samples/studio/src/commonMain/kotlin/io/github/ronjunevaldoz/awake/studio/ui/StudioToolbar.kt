@@ -14,7 +14,12 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.padding
@@ -31,6 +36,20 @@ private val BAR_INSET = 12f.dp
  * bottom border. Replaces the old floating [shadcnCard] toolbar that used to sit inside the
  * viewport. */
 internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
+    // Identified so the shell's full-bleed invariant stays checkable. A bare row() threads
+    // testTag for layout debugging but never records a semantic node, so StudioShellLayoutTest
+    // could not see this bar at all and asserted on null. Transparent, zero-padding, zero-border:
+    // the row inside still owns every inset, so this adds an identity and nothing visual.
+    surface(
+        id = "studio-top-bar",
+        modifier = Modifier.fillMaxWidth(),
+        style = SurfaceStyle(
+            background = Color.Transparent,
+            border = SurfaceBorder(0f.dp, Color.Transparent),
+            contentPadding = UiInsets.Zero,
+            cornerRadius = 0f.dp,
+        ),
+    ) {
     row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = UiAlignment.Vertical.Center,
@@ -47,6 +66,7 @@ internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
             onClick = onPlay,
         )
     }
+    }
 }
 
 /** Full-width status bar: edit-mode label at the left, the active render backend at the right --
@@ -54,6 +74,20 @@ internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
  * not read live from the running window -- nothing in this `ui` package can reach that without
  * depending on `app`. */
 internal fun UiScope.drawStudioStatusBar() {
+    // Identified so the shell's full-bleed invariant stays checkable. A bare row() threads
+    // testTag for layout debugging but never records a semantic node, so StudioShellLayoutTest
+    // could not see this bar at all and asserted on null. Transparent, zero-padding, zero-border:
+    // the row inside still owns every inset, so this adds an identity and nothing visual.
+    surface(
+        id = "studio-status-bar",
+        modifier = Modifier.fillMaxWidth(),
+        style = SurfaceStyle(
+            background = Color.Transparent,
+            border = SurfaceBorder(0f.dp, Color.Transparent),
+            contentPadding = UiInsets.Zero,
+            cornerRadius = 0f.dp,
+        ),
+    ) {
     row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = UiAlignment.Vertical.Center,
@@ -62,5 +96,6 @@ internal fun UiScope.drawStudioStatusBar() {
     ) {
         shadcnText("Edit mode", muted = true)
         shadcnBadge(id = "studio-status-backend", label = "Vulkan", variant = ShadcnBadgeVariant.Outline)
+    }
     }
 }
