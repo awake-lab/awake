@@ -8,9 +8,11 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarFooterButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHeaderButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -163,6 +165,58 @@ class ShadcnSidebarFooterVisibilityTest {
             "footer bottom $footerBottom in a sidebar ending at $sidebarBottom -- it collapsed to " +
                 "the top and is painting over the menu.",
         )
+    }
+
+    @Test
+    fun aButtonHeaderAboveTheContentSlotStillPinsTheFooterToTheBottom() {
+        // The preview's exact shape, and the one that isolates the bug: a real
+        // shadcnSidebarHeaderButton above the weighted content slot. Every other case here uses a
+        // spacer or a plain surface as the header and passes. Font and density are matched to the
+        // preview too, though neither turned out to matter -- the button did.
+        val previous = UiDensity.scale
+        UiDensity.scale = 2f
+        try {
+            val ui = UiContext()
+            ui.pushFont(UiFonts.default(cellSize = 24))
+            ui.pushTheme(ShadcnTheme)
+            ui.beginFrame(600f, 1040f, testSnapshot())
+            val sidebar = ui.headlessRoot().shadcnSidebar(
+                id = "sidebar",
+                modifier = Modifier.width(264f.dp).height(360f.dp),
+                header = {
+                    shadcnSidebarHeaderButton(
+                        id = "sidebar-team",
+                        title = "Acme Inc",
+                        subtitle = "Enterprise",
+                    )
+                },
+                footer = {
+                    shadcnSidebarFooterButton(id = FOOTER_ID, name = "shadcn", email = "m@example.com")
+                },
+            ) {
+                shadcnSidebarGroup(label = "PLATFORM") {
+                    shadcnSidebarMenu {
+                        repeat(4) { index ->
+                            shadcnSidebarMenuItem(id = "item-$index", label = "Item $index")
+                        }
+                    }
+                }
+            }
+            val output = ui.finishFrame()
+            val footer = requireNotNull(output.semantics.firstOrNull { it.id == FOOTER_ID }) {
+                "no semantic node for '$FOOTER_ID'"
+            }
+            val sidebarBottom = sidebar.y + sidebar.height
+            val footerBottom = footer.bounds.y + footer.bounds.height
+
+            assertTrue(
+                footerBottom >= sidebarBottom - footer.bounds.height,
+                "footer ${footer.bounds.y}..$footerBottom in a sidebar ${sidebar.y}..$sidebarBottom " +
+                    "-- the weighted content slot collapsed and the footer rode up with it.",
+            )
+        } finally {
+            UiDensity.scale = previous
+        }
     }
 
     @Test

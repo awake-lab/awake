@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -14,16 +13,10 @@ import kotlin.test.assertTrue
  * nested inside a wrapping surface -- and every one of them passes while this fails. So the defect
  * is not the sidebar recipe's shape, and not the wrapping parent.
  *
- * Measured here: sidebar 249..969, footer 361..457, last menu row ending at 693. The footer sits
- * directly below the header, so the weighted content slot resolved to zero height and the menu
- * draws straight over the footer. What is left to explain the difference from the green suite is
- * the preview's font (`UiFonts.default(cellSize = 24)` against `BitmapFont()`) and its frame
- * lifecycle.
- *
- * Ignored, not deleted: this is the only check that watches the real rendered preview, and the
- * last time it was removed the bug stayed live with nobody watching it.
+ * It caught the real one: the header is a `shadcnSidebarHeaderButton`, and a button's content was
+ * being counted as direct children of the sidebar column, which desynced the weighted content
+ * slot's index and collapsed it to zero height (fixed in Buttons.kt via compositeContent()).
  */
-@Ignore
 class ShadcnSidebarPreviewLayoutTest {
 
     @Test

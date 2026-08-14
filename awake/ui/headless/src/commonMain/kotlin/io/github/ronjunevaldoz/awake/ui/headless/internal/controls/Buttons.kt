@@ -20,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
+import io.github.ronjunevaldoz.awake.ui.compositeContent
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
@@ -81,7 +82,13 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
         context.pushTextStyle(
             surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground),
         )
-        childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
+        // A button's content is its own subtree, not a sibling list for whatever column contains
+        // the button -- see compositeContent(). Without this, a sidebar header button's inner rows
+        // were counted as direct children of the sidebar, and the weighted content slot below it
+        // resolved to zero height.
+        compositeContent {
+            childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
+        }
         context.popTextStyle()
     }
     recordSemantic(
