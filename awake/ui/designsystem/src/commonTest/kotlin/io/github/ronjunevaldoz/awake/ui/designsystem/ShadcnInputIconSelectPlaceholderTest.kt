@@ -29,11 +29,11 @@ class ShadcnInputIconSelectPlaceholderTest {
         ui.beginFrame(300f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.headlessRoot().shadcnInput(
-                id = "search",
-                value = "hello",
-                modifier = Modifier.width(240f.dp).height(40f.dp),
-                leadingIcon = { text("S", modifier = Modifier.width(12f.dp)) },
-            )
+            id = "search",
+            value = "hello",
+            modifier = Modifier.width(240f.dp).height(40f.dp),
+            leadingIcon = { text("S", modifier = Modifier.width(12f.dp)) },
+        )
 
         val semantics = ui.finishFrame().semantics
         val icon = semantics.first { it.label == "S" }
@@ -55,11 +55,11 @@ class ShadcnInputIconSelectPlaceholderTest {
 
         val real = "secret"
         val returned = ui.headlessRoot().shadcnInput(
-                id = "password",
-                value = real,
-                modifier = Modifier.width(240f.dp).height(40f.dp),
-                visualTransformation = { "*".repeat(it.length) },
-            )
+            id = "password",
+            value = real,
+            modifier = Modifier.width(240f.dp).height(40f.dp),
+            visualTransformation = { "*".repeat(it.length) },
+        )
 
         // `value`/return value carry the real typed text untouched.
         assertEquals(real, returned)
@@ -79,12 +79,12 @@ class ShadcnInputIconSelectPlaceholderTest {
         ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.headlessRoot().shadcnSelect(
-                id = "fruit",
-                options = listOf("Apple", "Banana"),
-                selectedIndex = null,
-                modifier = Modifier.width(200f.dp),
-                placeholder = "Choose a fruit",
-            )
+            id = "fruit",
+            options = listOf("Apple", "Banana"),
+            selectedIndex = null,
+            modifier = Modifier.width(200f.dp),
+            placeholder = "Choose a fruit",
+        )
 
         val semantics = ui.finishFrame().semantics
         assertEquals("Choose a fruit", semantics.first { it.id == "fruit.label" }.label)

@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.ui
 
-import io.github.ronjunevaldoz.awake.ui.headless.UiScope
-import io.github.ronjunevaldoz.awake.ui.headless.RowScope
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
@@ -14,15 +14,14 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
-import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.surface
 
 // internal, not private -- StudioShell.kt reads both to size the panels group's own height
 // explicitly (see its doc comment for why that's computed rather than a weight(1f) fill).
@@ -50,22 +49,22 @@ internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
             cornerRadius = 0f.dp,
         ),
     ) {
-    row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.fillMaxWidth().height(TOP_BAR_HEIGHT)
-            .padding(BAR_INSET, 0f.dp),
-    ) {
-        shadcnText("Awake Studio")
-        shadcnButton(
-            id = "studio-top-bar-play",
-            label = "Play",
-            modifier = Modifier.height(ShadcnButtonSize.Icon.heightDp),
-            variant = ShadcnButtonVariant.Ghost,
-            size = ShadcnButtonSize.Icon,
-            onClick = onPlay,
-        )
-    }
+        row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = UiAlignment.Vertical.Center,
+            modifier = Modifier.fillMaxWidth().height(TOP_BAR_HEIGHT)
+                .padding(BAR_INSET, 0f.dp),
+        ) {
+            shadcnText("Awake Studio")
+            shadcnButton(
+                id = "studio-top-bar-play",
+                label = "Play",
+                modifier = Modifier.height(ShadcnButtonSize.Icon.heightDp),
+                variant = ShadcnButtonVariant.Ghost,
+                size = ShadcnButtonSize.Icon,
+                onClick = onPlay,
+            )
+        }
     }
 }
 
@@ -88,14 +87,14 @@ internal fun UiScope.drawStudioStatusBar() {
             cornerRadius = 0f.dp,
         ),
     ) {
-    row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = UiAlignment.Vertical.Center,
-        modifier = Modifier.fillMaxWidth().height(STATUS_BAR_HEIGHT)
-            .padding(BAR_INSET, 0f.dp),
-    ) {
-        shadcnText("Edit mode", muted = true)
-        shadcnBadge(id = "studio-status-backend", label = "Vulkan", variant = ShadcnBadgeVariant.Outline)
-    }
+        row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = UiAlignment.Vertical.Center,
+            modifier = Modifier.fillMaxWidth().height(STATUS_BAR_HEIGHT)
+                .padding(BAR_INSET, 0f.dp),
+        ) {
+            shadcnText("Edit mode", muted = true)
+            shadcnBadge(id = "studio-status-backend", label = "Vulkan", variant = ShadcnBadgeVariant.Outline)
+        }
     }
 }

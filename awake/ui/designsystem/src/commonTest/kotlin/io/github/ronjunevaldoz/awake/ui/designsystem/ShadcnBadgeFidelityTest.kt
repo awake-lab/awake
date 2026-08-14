@@ -7,9 +7,9 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -56,5 +56,4 @@ class ShadcnBadgeFidelityTest {
         }
         report.requireClean()
     }
-
 }

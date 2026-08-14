@@ -1,10 +1,12 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope as CoreColumnScope
 
 /** Test-only receiver adapters for legacy preview harnesses while their roots migrate. */

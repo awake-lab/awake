@@ -49,7 +49,7 @@ internal fun SurfaceStyle.asPrimitiveStyle(): PrimitiveStyle = PrimitiveStyle {
         contentPadding.start,
         contentPadding.top,
         contentPadding.end,
-        contentPadding.bottom
+        contentPadding.bottom,
     )
     textSize?.let(::textSize)
     lineHeight?.let(::lineHeight)

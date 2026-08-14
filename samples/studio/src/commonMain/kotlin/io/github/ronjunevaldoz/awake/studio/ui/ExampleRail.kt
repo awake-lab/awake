@@ -3,24 +3,24 @@
 package io.github.ronjunevaldoz.awake.studio.ui
 
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
-import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
-import io.github.ronjunevaldoz.awake.ui.headless.width
-import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.rememberBooleanState
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.weight
+import io.github.ronjunevaldoz.awake.ui.headless.width
 
 // Sample-local, not part of the shared shadcn icon vocabulary -- HeroIcons directly, same
 // reasoning IconRail.kt documents for its own tool glyphs. rotating-cube uses ShadcnIcons.cube
@@ -48,7 +48,7 @@ internal fun UiScope.drawExampleRail(
             row(
                 horizontalArrangement = Arrangement.spacedBy(8f.dp),
                 verticalAlignment = UiAlignment.Vertical.Center,
-                    modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 shadcnButton(
                     id = "studio-example-rail-toggle",

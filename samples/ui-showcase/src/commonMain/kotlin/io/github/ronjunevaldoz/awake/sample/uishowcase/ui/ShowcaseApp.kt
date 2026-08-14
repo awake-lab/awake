@@ -8,16 +8,11 @@ import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameUi
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.headlessFrame
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnH2
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHeaderButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarFooterButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHeaderButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -32,14 +27,12 @@ import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 
 private val ShowcaseChromeTheme = shadcnTheme(dark = false)
 
-internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): GameUiSpec {
-    return gameUi {
-        theme(ShowcaseChromeTheme)
-        overlay {
-            drawUiShowcaseOverlay(
-                state = state,
-            )
-        }
+internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): GameUiSpec = gameUi {
+    theme(ShowcaseChromeTheme)
+    overlay {
+        drawUiShowcaseOverlay(
+            state = state,
+        )
     }
 }
 
@@ -99,7 +92,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                             name = "shadcn",
                             email = "m@example.com",
                         )
-                    }
+                    },
                 ) {
                     shadcnSidebarHeaderButton(
                         id = "ui-showcase-team-switcher",

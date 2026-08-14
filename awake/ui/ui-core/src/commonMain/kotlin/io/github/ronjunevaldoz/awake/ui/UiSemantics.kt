@@ -16,6 +16,7 @@ enum class UiSemanticRole {
     None,
     Text,
     Button,
+
     /** An actionable row inside a menu or popup; deliberately distinct from a trigger button. */
     MenuItem,
     Toggle,

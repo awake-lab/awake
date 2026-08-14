@@ -4,16 +4,16 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableHandle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiResizableDirection
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.width
-import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.headless.UiResizableDirection
 import kotlinx.coroutines.test.runTest
 import kotlin.math.abs
 import kotlin.test.Test

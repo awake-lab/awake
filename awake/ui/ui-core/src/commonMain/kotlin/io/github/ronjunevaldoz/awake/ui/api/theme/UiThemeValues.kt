@@ -12,12 +12,16 @@ import io.github.ronjunevaldoz.awake.ui.api.sp
 interface UiColorTokens {
     val background: Color
     val foreground: Color
+
     /** Elevated container surface. Defaults to [background] for themes without a separate role. */
     val card: Color get() = background
+
     /** Foreground paired with [card]. Defaults to [foreground]. */
     val cardForeground: Color get() = foreground
+
     /** Floating container surface. Defaults to [background] for themes without a separate role. */
     val popover: Color get() = background
+
     /** Foreground paired with [popover]. Defaults to [foreground]. */
     val popoverForeground: Color get() = foreground
     val primary: Color
@@ -31,6 +35,7 @@ interface UiColorTokens {
     val destructive: Color
     val destructiveForeground: Color
     val border: Color
+
     /** Control-outline/input surface token. Defaults to [border] for neutral themes. */
     val input: Color get() = border
 }
@@ -55,6 +60,7 @@ interface UiThemeValues {
     val colors: UiColorTokens
     val typography: UiTypography
     val shapes: UiShapeTokens
+
     /** Runtime-free component visuals consumed by Core's adapter and Headless recipes. */
     val componentVisuals: UiThemeComponents get() = UiThemeComponents.Default
 }

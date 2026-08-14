@@ -6,12 +6,10 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
-import io.github.ronjunevaldoz.awake.ui.api.sp
-import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.style
-
+import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -27,9 +25,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.skeleton
 import io.github.ronjunevaldoz.awake.ui.headless.spinner
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
-import io.github.ronjunevaldoz.awake.ui.headless.toast
-import io.github.ronjunevaldoz.awake.ui.headless.wrapContentWidth
-
 import io.github.ronjunevaldoz.awake.ui.headless.withIntrinsicLabelSize
 
 /** Branded status pill. Behavior and layout remain owned by ui-headless. */
@@ -96,7 +91,6 @@ fun UiScope.shadcnProgress(
     ),
 )
 
-
 fun UiScope.shadcnSkeleton(
     id: String,
     modifier: Modifier = Modifier,
@@ -122,8 +116,6 @@ fun UiScope.shadcnSpinner(
     ),
 )
 
-
-
 fun UiScope.shadcnAlert(
     id: String,
     modifier: Modifier = Modifier,
@@ -133,13 +125,17 @@ fun UiScope.shadcnAlert(
     id = id,
     modifier = modifier.fillMaxWidth(),
     style = SurfaceStyle(
-        background = if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive.withAlpha(
-            0.1f
-        ) else themeValues.colors.muted,
+        background = if (variant == ShadcnAlertVariant.Destructive) {
+            themeValues.colors.destructive.withAlpha(
+                0.1f,
+            )
+        } else {
+            themeValues.colors.muted
+        },
         foreground = if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.foreground,
         border = SurfaceBorder(
             1f.dp,
-            if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.border
+            if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.border,
         ),
         cornerRadius = themeValues.shapes.lg,
         contentPadding = UiInsets(16f.dp),
@@ -189,7 +185,7 @@ fun UiScope.shadcnEmpty(
             centered = true,
             visuals = SurfaceStyle(
                 fontWeight = FontWeight.Medium,
-                textSize = themeValues.typography.body
+                textSize = themeValues.typography.body,
             ),
         )
         if (description != null) {
@@ -209,4 +205,3 @@ fun UiScope.shadcnEmpty(
         }
     }
 }
-

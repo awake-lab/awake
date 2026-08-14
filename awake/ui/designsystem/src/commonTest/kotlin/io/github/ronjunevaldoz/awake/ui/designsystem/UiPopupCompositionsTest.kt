@@ -12,9 +12,9 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import kotlin.test.Test

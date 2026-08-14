@@ -13,13 +13,13 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec.RoundedRectangle
 import io.github.ronjunevaldoz.awake.ui.UiTexturedTriangleMesh
 import io.github.ronjunevaldoz.awake.ui.UiTexturedVertex
 import io.github.ronjunevaldoz.awake.ui.UiTriangleMesh
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.contains
+import io.github.ronjunevaldoz.awake.ui.api.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.clipToConvexPaths
 import io.github.ronjunevaldoz.awake.ui.convexClipContour
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.api.layout.contains
-import io.github.ronjunevaldoz.awake.ui.api.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.splitToCapacity
 import io.github.ronjunevaldoz.awake.ui.tessellateFillAa

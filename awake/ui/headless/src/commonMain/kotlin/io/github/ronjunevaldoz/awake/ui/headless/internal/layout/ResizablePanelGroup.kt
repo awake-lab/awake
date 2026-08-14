@@ -27,7 +27,6 @@ import io.github.ronjunevaldoz.awake.ui.scope.pointerX
 import io.github.ronjunevaldoz.awake.ui.scope.pointerY
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.requestCursor
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** Axis a [resizablePanelGroup] lays panels/handles out along -- react-resizable-panels'

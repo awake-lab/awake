@@ -17,7 +17,7 @@ fun UiScope.icon(
 ): UiBounds = icon(
     icon = icon.asVector(),
     modifier = modifier,
-    tint = tint
+    tint = tint,
 )
 
 fun UiScope.icon(

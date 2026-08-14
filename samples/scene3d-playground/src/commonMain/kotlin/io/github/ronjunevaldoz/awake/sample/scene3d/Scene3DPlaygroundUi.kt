@@ -3,20 +3,20 @@
 package io.github.ronjunevaldoz.awake.sample.scene3d
 
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
 import io.github.ronjunevaldoz.awake.scene.runtime.frameStats
+import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.box
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.offset
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
@@ -24,7 +24,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 
 /** shadcn-compose's own library default is dark = true; every other Awake sample (ui-showcase)
  * explicitly opts into light instead of inheriting that default. The per-frame ambient theme

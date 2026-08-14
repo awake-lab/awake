@@ -4,15 +4,15 @@ package io.github.ronjunevaldoz.awake.studio.ui
 
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
-import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuEntry
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdownMenu
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.headless.rememberPopupState
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.contextMenuTrigger
+import io.github.ronjunevaldoz.awake.ui.headless.rememberPopupState
 
 /** Camera mode + projection picker shared by the viewport's right-click menu and the icon
  * rail's camera dropdown, so both list and dispatch identically. */

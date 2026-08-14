@@ -7,8 +7,8 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcasePage
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnMenuSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier

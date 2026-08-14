@@ -1,14 +1,5 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-// Suppressed deliberately, and only here. This is a build-time generator, not shipped code:
-// - LongParameterList: the cell-geometry arguments (cellX/cellY/cellWidth/cellHeight/baseline/
-//   ascent) travel together through the packing loop, and AtlasResult is a DTO mirroring the
-//   generated PackedUiFontData one-for-one. Grouping either into holder types would add
-//   indirection between this file and the interface it emits without making it easier to read.
-// - TooManyFunctions: 12 small top-level helpers, each named for one step of the pipeline,
-//   reads better here than fewer, larger ones.
-// - LongMethod: generateAtlas is one linear pipeline -- measure, lay out the grid, walk the
-//   glyphs, emit. Splitting it would thread a dozen locals through helpers that each run once.
 @file:Suppress("LongParameterList", "TooManyFunctions", "DestructuringDeclarationWithTooManyEntries", "LongMethod")
 
 package io.github.ronjunevaldoz.awake.fontatlasgenerator
@@ -27,15 +18,15 @@ import java.awt.Font
 import java.awt.font.FontRenderContext
 import java.awt.image.BufferedImage
 import java.io.File
-import javax.imageio.ImageIO
 import java.util.Base64
+import javax.imageio.ImageIO
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-
 private const val FONT_PACKAGE = "io.github.ronjunevaldoz.awake.ui.font"
+
 /** Printable ASCII, space through tilde -- the range this atlas packs. */
 private const val ASCII_FIRST = 32
 private const val ASCII_LAST = 126
@@ -46,6 +37,7 @@ private const val OUT_DIR = "../ui-text/src/commonMain/kotlin"
 private const val OBJECT_NAME = "RobotoRegularUiFontData"
 private const val DISPLAY_NAME = "Roboto Regular"
 private const val LOGICAL_CELL = 16
+
 /** Atlas texels per em, as a multiple of [LOGICAL_CELL].
  *
  * Was 4 for the coverage atlas, which needed the extra raster resolution because a coverage

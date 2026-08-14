@@ -83,7 +83,6 @@ object ShadcnIcons {
             pause = mini.pause
         }
     }
-
 }
 
 /**

@@ -3,13 +3,13 @@
 package io.github.ronjunevaldoz.awake.engine.gameauthoring
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.textLayoutCacheStats
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
-import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.internal.text.textLayoutCacheStats
 import kotlin.math.roundToInt
 
 /**

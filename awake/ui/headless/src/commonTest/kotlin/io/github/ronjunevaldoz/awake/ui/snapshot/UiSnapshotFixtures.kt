@@ -12,13 +12,13 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlertDialog
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldDropdown
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldError
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSlider
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlertDialog
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextLines
@@ -36,6 +36,9 @@ import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
 import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.icon
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.select
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.offset
 import io.github.ronjunevaldoz.awake.ui.headless.slider
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
@@ -51,10 +54,10 @@ import io.github.ronjunevaldoz.awake.ui.theme.CoreUiComponentStyles
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.icon
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.select
-import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.column as headlessColumn
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.checkbox as coreCheckbox
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toggle as coreToggle
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text as coreText
 import io.github.ronjunevaldoz.awake.ui.headless.row as headlessRow
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier as CoreModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.align as coreAlign
@@ -62,9 +65,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height as coreHeight
 import io.github.ronjunevaldoz.awake.ui.modifier.offset as coreOffset
 import io.github.ronjunevaldoz.awake.ui.modifier.size as coreSize
 import io.github.ronjunevaldoz.awake.ui.modifier.width as coreWidth
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.checkbox as coreCheckbox
-import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text as coreText
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toggle as coreToggle
 
 data class UiSnapshotScene(
     val name: String,
@@ -677,7 +677,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                         listOf(
                             "Sample overlays now rely on shared supporting/meta text helpers.",
                             "Property rows stretch labels before starving the control column.",
-                        )
+                        ),
                     )
                 }
             }

@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
 import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.switch
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

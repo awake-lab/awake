@@ -26,6 +26,8 @@ fun ShadcnCardVariant.style(values: UiThemeValues): SurfaceStyle {
     return base.copy(
         shadow = if (this == ShadcnCardVariant.Elevated) {
             SurfaceShadow(color = Color.Black.withAlpha(0.16f), offsetY = 2f.dp, blurRadius = 4f.dp)
-        } else null,
+        } else {
+            null
+        },
     )
 }

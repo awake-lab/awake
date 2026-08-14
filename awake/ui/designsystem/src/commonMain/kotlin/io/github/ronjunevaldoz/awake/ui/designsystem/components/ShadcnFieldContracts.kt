@@ -4,6 +4,5 @@
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-
 /** Layout policy for the branded Field composition. */
 enum class ShadcnFieldOrientation { Vertical, Horizontal }

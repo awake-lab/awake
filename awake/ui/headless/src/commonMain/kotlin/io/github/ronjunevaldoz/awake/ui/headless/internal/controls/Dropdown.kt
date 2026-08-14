@@ -2,10 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.interact
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.UiInteraction
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
-
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -17,6 +13,9 @@ import io.github.ronjunevaldoz.awake.ui.fitTo
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -30,10 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
 
 // Real shadcn/ui slider shape: a thin track (not a full-height button-like bar) with a
 // circular knob straddling it at the current value -- the claimed slot stays the full
@@ -125,18 +121,18 @@ fun UiPrimitiveScope.select(
                 Style.Empty
             }
             if (
-                    button(
-                        id = "$id.option$index",
-                        label = option,
-                        modifier = Modifier
-                            .width(slot.width.px)
-                            // SelectContent rows are independent menu items. They must not
-                            // inherit the trigger's 36dp height; shadcn's `py-1.5 text-sm`
-                            // row is 32dp at the default metrics.
-                            .height(32f.dp),
-                        style = resolvedOptionStyle then selectedOptionStyle,
-                        semanticRole = UiSemanticRole.MenuItem,
-                    )
+                button(
+                    id = "$id.option$index",
+                    label = option,
+                    modifier = Modifier
+                        .width(slot.width.px)
+                        // SelectContent rows are independent menu items. They must not
+                        // inherit the trigger's 36dp height; shadcn's `py-1.5 text-sm`
+                        // row is 32dp at the default metrics.
+                        .height(32f.dp),
+                    style = resolvedOptionStyle then selectedOptionStyle,
+                    semanticRole = UiSemanticRole.MenuItem,
+                )
             ) {
                 picked = index
             }

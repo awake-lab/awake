@@ -5,12 +5,12 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.overlays
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcaseCategory
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcasePage
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDrawerPosition
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDrawerPosition
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.rememberPopupState

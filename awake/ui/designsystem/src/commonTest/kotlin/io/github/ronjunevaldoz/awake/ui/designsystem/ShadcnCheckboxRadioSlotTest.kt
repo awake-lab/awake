@@ -18,8 +18,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.test.Test
-import kotlin.test.assertNotNull
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -37,11 +37,11 @@ class ShadcnCheckboxRadioSlotTest {
         ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
 
         ui.headlessRoot().shadcnCheckbox(
-                id = "select-all",
-                checked = false,
-                indeterminate = true,
-                modifier = Modifier.width(20f.dp).height(20f.dp),
-            )
+            id = "select-all",
+            checked = false,
+            indeterminate = true,
+            modifier = Modifier.width(20f.dp).height(20f.dp),
+        )
 
         val quads = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
         assertTrue(

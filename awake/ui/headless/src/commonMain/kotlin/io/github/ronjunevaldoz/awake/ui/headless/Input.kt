@@ -53,7 +53,6 @@ fun UiScope.textarea(
     minLines = minLines,
 )
 
-
 /** Generic continuous slider. The returned value is the next immediate-mode value. */
 fun UiScope.slider(
     id: String,
@@ -76,7 +75,6 @@ fun UiScope.slider(
     enabled = enabled,
     showKnob = showKnob,
 )
-
 
 /** Generic dual-thumb slider. The returned pair is the next immediate-mode range. */
 fun UiScope.rangeSlider(

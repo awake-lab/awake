@@ -19,8 +19,8 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.SliderPag
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.SwitchPage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.TextFieldPage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.TextareaPage
-import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.TogglePage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.ToggleGroupPage
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.TogglePage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.layout.AccordionPage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.layout.BreadcrumbPage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.layout.CanvasPage

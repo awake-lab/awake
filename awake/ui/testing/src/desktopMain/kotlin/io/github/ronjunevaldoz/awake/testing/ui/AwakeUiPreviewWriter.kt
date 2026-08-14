@@ -41,24 +41,22 @@ fun renderAnnotatedUiPreviews(entry: AwakeUiPreviewEntry): List<AwakeUiPreviewSc
 fun renderUiPreviews(
     entry: AwakeUiPreviewEntry,
     metadata: AwakeUiPreviewMetadata,
-): List<AwakeUiPreviewScene> {
-    return entry.renderSamples(metadata).map { sample ->
-        AwakeUiPreviewScene(
-            metadata = AwakeUiPreviewMetadata(
-                id = sample.id,
-                title = sample.title,
-                group = sample.group,
-                summary = sample.summary,
-                width = sample.width,
-                height = sample.height,
-                reportScale = sample.reportScale,
-            ),
-            primitives = sample.frame.primitives,
-            background = sample.frame.background,
-            font = sample.frame.font,
-            semantics = sample.frame.semantics,
-        )
-    }
+): List<AwakeUiPreviewScene> = entry.renderSamples(metadata).map { sample ->
+    AwakeUiPreviewScene(
+        metadata = AwakeUiPreviewMetadata(
+            id = sample.id,
+            title = sample.title,
+            group = sample.group,
+            summary = sample.summary,
+            width = sample.width,
+            height = sample.height,
+            reportScale = sample.reportScale,
+        ),
+        primitives = sample.frame.primitives,
+        background = sample.frame.background,
+        font = sample.frame.font,
+        semantics = sample.frame.semantics,
+    )
 }
 
 fun saveAwakeUiPreview(scene: AwakeUiPreviewScene) {

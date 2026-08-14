@@ -6,16 +6,14 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.EaseOut
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-
-import io.github.ronjunevaldoz.awake.ui.api.EaseOut
-import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
-import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.DialogProperties
@@ -37,6 +35,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.overlayScrim
 import io.github.ronjunevaldoz.awake.ui.headless.popup
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** Public, skin-level menu entries. They intentionally contain no Core style or layout types. */
@@ -129,7 +128,6 @@ private fun sheetPositionProvider(side: ShadcnSheetSide, size: Float, progress: 
         ShadcnSheetSide.Bottom -> UiBounds(0f, frame.height - size + offset, frame.width, size)
     }
 }
-
 
 fun UiScope.shadcnDrawer(
     id: String,

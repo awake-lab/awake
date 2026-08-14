@@ -2,17 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.DialogProperties
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
@@ -25,7 +26,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.dialog
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -35,7 +35,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.popup
 import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 
 /** Public Shadcn menu entries. Popup mechanics remain Headless-owned. */
 sealed interface ShadcnDropdownMenuEntry

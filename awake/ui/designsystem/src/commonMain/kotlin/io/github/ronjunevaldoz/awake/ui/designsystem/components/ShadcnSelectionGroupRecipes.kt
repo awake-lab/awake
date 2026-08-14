@@ -4,23 +4,20 @@
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnRadioMetrics
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.radio
 import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.toggleGroup
@@ -48,7 +45,6 @@ fun UiScope.shadcnToggleGroup(
         onSelectedIndicesChange = onSelectedIndicesChange,
     )
 }
-
 
 fun UiScope.shadcnToggleGroup(
     id: String,
@@ -93,7 +89,6 @@ fun UiScope.shadcnRadioButton(
     ),
     onClick = onClick,
 )
-
 
 fun UiScope.shadcnRadioGroup(
     id: String,

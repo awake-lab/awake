@@ -6,25 +6,22 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.tw
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
-import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
-import io.github.ronjunevaldoz.awake.ui.headless.height
-import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.headless.box
 import io.github.ronjunevaldoz.awake.ui.headless.clickable
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.requestFocus
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.textField
-import io.github.ronjunevaldoz.awake.ui.headless.uiScope
-
-import io.github.ronjunevaldoz.awake.ui.api.layout.tw
+import io.github.ronjunevaldoz.awake.ui.headless.width
 
 fun UiScope.shadcnInputOTP(
     id: String,

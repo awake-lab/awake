@@ -6,9 +6,9 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.drawDropdownTriggerContent
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.drawDropdownTriggerContent
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.contextMenuTrigger as primitiveContextMenuTrigger
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.filterOptionsByQuery as primitiveFilterOptionsByQuery
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.select as primitiveSelect
@@ -35,7 +35,6 @@ fun UiScope.select(
     enabled = enabled,
     placeholder = placeholder,
 )
-
 
 /** Generic searchable combobox behavior; visual policy is supplied by the calling skin. */
 fun UiScope.combobox(

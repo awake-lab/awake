@@ -37,7 +37,6 @@ fun UiScope.skeleton(
     )
 }
 
-
 /** Neutral animated loading indicator with caller-provided foreground visual. */
 fun UiScope.spinner(
     id: String,

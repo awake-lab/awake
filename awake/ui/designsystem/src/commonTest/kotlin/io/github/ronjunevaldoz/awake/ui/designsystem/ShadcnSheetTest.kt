@@ -5,14 +5,14 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.context.UiFrameOutput
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameOutput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnSheetSide
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSheet
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.text
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
