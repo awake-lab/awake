@@ -52,6 +52,26 @@ fun UiPrimitiveScope.surface(
     content = content,
 )
 
+/**
+ * Spans the parent's CROSS axis when the caller authored no size on it.
+ *
+ * Written once and called from the two scope overloads below rather than spelled out in each.
+ * Duplicating this sentence per scope is exactly how the weight rule drifted -- RowScope.column
+ * deferred a weighted child's main axis and ColumnScope.column did not, for months.
+ *
+ * The overloads themselves have to stay. Resolution is STATIC, so a call whose receiver is typed
+ * UiPrimitiveScope deliberately gets no default even when the runtime instance happens to be a
+ * ColumnScope. Collapsing them into one function with a `when (this)` looks equivalent and is not:
+ * it hands a default to every such call site, which moved four suites (PanelTest, two signature
+ * matrices, and the parity screenshots).
+ */
+private fun UiModifier.fillingCrossAxis(axis: CrossAxis): UiModifier = when (axis) {
+    CrossAxis.Width -> width(widthDimension ?: Dimension.FillMax)
+    CrossAxis.Height -> height(heightDimension ?: Dimension.FillMax)
+}
+
+private enum class CrossAxis { Width, Height }
+
 fun ColumnScope.surface(
     id: String,
     verticalArrangement: Arrangement = defaultArrangement(),
@@ -63,7 +83,7 @@ fun ColumnScope.surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
-    modifier = modifier.width(modifier.widthDimension ?: Dimension.FillMax),
+    modifier = modifier.fillingCrossAxis(CrossAxis.Width),
     clipContent = clipContent,
     content = content,
 )
@@ -79,39 +99,7 @@ fun RowScope.surface(
     id = id,
     verticalArrangement = verticalArrangement,
     style = style,
-    modifier = modifier.height(modifier.heightDimension ?: Dimension.FillMax),
-    clipContent = clipContent,
-    content = content,
-)
-
-fun AbsoluteScope.surface(
-    id: String,
-    verticalArrangement: Arrangement = defaultArrangement(),
-    style: Style = Style.Empty,
-    modifier: UiModifier = Modifier,
-    clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = (this as UiPrimitiveScope).surface(
-    id = id,
-    verticalArrangement = verticalArrangement,
-    style = style,
-    modifier = modifier,
-    clipContent = clipContent,
-    content = content,
-)
-
-fun BoxScope.surface(
-    id: String,
-    verticalArrangement: Arrangement = defaultArrangement(),
-    style: Style = Style.Empty,
-    modifier: UiModifier = Modifier,
-    clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = (this as UiPrimitiveScope).surface(
-    id = id,
-    verticalArrangement = verticalArrangement,
-    style = style,
-    modifier = modifier,
+    modifier = modifier.fillingCrossAxis(CrossAxis.Height),
     clipContent = clipContent,
     content = content,
 )
