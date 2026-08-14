@@ -51,11 +51,14 @@ fun UiScope.shadcnSidebar(
     content: ColumnScope.(UiBounds) -> Unit,
 ): UiBounds = surface(id, modifier, sidebarStyle(this)) {
     if (expanded) {
-        // The slots sit in a plain column rather than directly in the surface. surface() has two
-        // implementations -- the sized one in Surface.kt distributes weights, the smartColumn/
-        // resolveVisualSurface path does not -- and a weighted child reaching the second one
-        // throws. A visual-free column() always takes the measured path that honours weight.
-        // Remove this once both surface paths share planWeightedColumnSlots().
+        // The slots sit in a plain column rather than directly in the surface. A weighted child
+        // placed DIRECTLY in a surface still throws when that surface is nested inside a scroll
+        // viewport -- surface()'s planner runs its trial and comes back with no weights, so it
+        // plans nothing. Clearing the ancestor recording suppression (UiContext
+        // .withOwnMeasurementScope) was necessary but not sufficient; the remaining cause is not
+        // yet identified. A visual-free column() always reaches the measured path that honours
+        // weight, so the slots go through one. Reproduce by deleting this wrapper and running
+        // ShadcnButtonScrollClickInteractionTest.
         column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
             header?.invoke(this)
             // Upstream sidebar.tsx: SidebarContent is `min-h-0 flex-1 overflow-auto`, header and
