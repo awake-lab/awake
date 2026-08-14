@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.layouts
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /**
@@ -68,4 +69,21 @@ internal interface FillAwareScope {
     val hasBoundedFillWidth: Boolean
     val hasBoundedFillHeight: Boolean
     val testTag: String?
+}
+
+/**
+ * Fails when a container is handed a scroll modifier it does not implement.
+ *
+ * Scrolling is dispatched on `UiModifier.scrollState`, and only `column()` reads it -- `row()` and
+ * `box()` accept the same modifier and drop it. Dropping it silently is the worst outcome: the
+ * caller sees a container that simply refuses to scroll, with nothing naming why. Until scroll
+ * decorates any container, say so at the call site.
+ */
+internal fun requireScrollableContainer(modifier: UiModifier, container: String) {
+    if (modifier.scrollState == null) return
+    error(
+        "$container was given Modifier.verticalScroll/horizontalScroll, which only column() " +
+            "implements -- it would be ignored here and the container would not scroll. Put the " +
+            "scrolling column() inside this $container, or scroll the column directly.",
+    )
 }
