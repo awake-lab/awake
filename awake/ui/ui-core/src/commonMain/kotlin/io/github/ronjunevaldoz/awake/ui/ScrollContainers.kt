@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.context.UNBOUNDED_MAIN_AXIS
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
@@ -30,7 +31,6 @@ import io.github.ronjunevaldoz.awake.ui.scope.onScrollConsumed
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.context.UNBOUNDED_MAIN_AXIS
 
 data class UiScrollPanelResult(
     val slot: UiBounds,
