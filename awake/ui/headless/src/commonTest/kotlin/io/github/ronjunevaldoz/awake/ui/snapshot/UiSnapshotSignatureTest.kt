@@ -139,7 +139,7 @@ private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-alert-dialog" to 0xf2132092bc907039uL,
     "ui-component-state-matrix" to 0x9d1daf8fb4668389uL,
     "ui-rounded-clip-vector" to 0xe53441d2d9cd67ffuL,
-    "ui-awake-shadcn-showcase" to 0xcda69d3e8e40041cuL,
+    "ui-awake-shadcn-showcase" to 0x61163771323e5840uL,
 )
 
 private fun ULong.toHexString(): String {
