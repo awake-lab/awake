@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.context.UiContextStacks
+import io.github.ronjunevaldoz.awake.ui.context.uiLocalOf
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,7 +18,12 @@ import kotlin.test.assertEquals
  * compounding the moment something nested -- which reads as a rendering bug nowhere near the
  * cause. These pin the rules themselves.
  */
-class UiScopedValueTest {
+class UiLocalTest {
+
+    private companion object {
+        val LocalUser = uiLocalOf("anonymous")
+        val LocalDepth = uiLocalOf(0) { parent, incoming -> parent + incoming }
+    }
 
     @Test
     fun aNestedTextStyleInheritsWhatItDoesNotOverride() {
@@ -44,6 +50,42 @@ class UiScopedValueTest {
             ui.currentAlpha,
             "two half-transparent layers read 0.25 composed, not 0.5",
         )
+    }
+
+    @Test
+    fun anAppDeclaredLocalScopesLikeTheEngineOwnOnes() {
+        // The point of the whole mechanism: a local the engine never heard of behaves identically.
+        val ui = UiContextStacks()
+
+        assertEquals("anonymous", ui.current(LocalUser), "an unprovided local reads its default")
+
+        ui.push(LocalUser, "ada")
+        assertEquals("ada", ui.current(LocalUser))
+        ui.push(LocalUser, "grace")
+        assertEquals("grace", ui.current(LocalUser), "the innermost provide wins")
+        ui.pop(LocalUser)
+        assertEquals("ada", ui.current(LocalUser), "and unwinds to the outer one")
+    }
+
+    @Test
+    fun anAppDeclaredLocalCanCombineWithItsParent() {
+        val ui = UiContextStacks()
+        ui.push(LocalDepth, 2)
+        ui.push(LocalDepth, 3)
+
+        assertEquals(5, ui.current(LocalDepth), "combine is not restricted to the engine's locals")
+    }
+
+    @Test
+    fun aTrialResetClearsAppDeclaredLocalsToo() {
+        // resetForTrial used to walk a hand-written list of engine stacks. Anything not on that
+        // list survived into the next trial -- which is exactly how a stale text-style token once
+        // leaked. An app local must not be able to reintroduce that.
+        val ui = UiContextStacks()
+        ui.push(LocalUser, "ada")
+        ui.resetForTrial(ui.currentTheme, ui.currentTextStyle, ui.currentFont)
+
+        assertEquals("anonymous", ui.current(LocalUser), "a trial reset must clear every local")
     }
 
     @Test

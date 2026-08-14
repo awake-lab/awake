@@ -48,6 +48,13 @@ class UiContext internal constructor(
     val currentShapeSpec get() = stacks.currentShapeSpec
     val inputState: UiInputState get() = runtime.inputState
 
+    /** Reads an app- or engine-declared [UiLocal] at this point in the tree. */
+    fun <T> current(local: UiLocal<T>): T = stacks.current(local)
+
+    /** Prefer `Provide(local, value) { }`, which cannot leak the value past a throw. */
+    fun <T> pushLocal(local: UiLocal<T>, value: T) = stacks.push(local, value)
+    fun <T> popLocal(local: UiLocal<T>) = stacks.pop(local)
+
     fun pushTheme(theme: UiTheme) = stacks.pushTheme(theme)
 
     /** Installs a runtime-free theme contract; Core supplies neutral fallback recipes internally. */
