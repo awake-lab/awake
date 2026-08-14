@@ -54,7 +54,7 @@ class UiContext internal constructor(
     fun pushTheme(theme: UiThemeValues) = stacks.pushTheme(theme.asRuntimeTheme())
     fun popTheme() = stacks.popTheme()
 
-    fun pushTextStyle(style: TextStyle, tokenId: String? = null) = stacks.pushTextStyle(style, tokenId)
+    fun pushTextStyle(style: TextStyle) = stacks.pushTextStyle(style)
     fun popTextStyle() = stacks.popTextStyle()
 
     fun pushFont(font: UiFont) = stacks.pushFont(font)

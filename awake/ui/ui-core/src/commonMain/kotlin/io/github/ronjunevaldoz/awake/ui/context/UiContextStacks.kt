@@ -24,9 +24,6 @@ internal class UiContextStacks {
     /** Merges with the style it nests inside, so a child inherits what it does not override. */
     private val textStyle = UiScopedValue(TextStyle.Default) { parent, incoming -> parent then incoming }
 
-    /** Inherits the enclosing token when a push does not name one. */
-    private val textStyleToken = UiScopedValue<String?>(null) { parent, incoming -> incoming ?: parent }
-
     private val font = UiScopedValue(UiFonts.default())
     private val shapeSpec = UiScopedValue<UiShapeSpec?>(null)
 
@@ -49,7 +46,6 @@ internal class UiContextStacks {
 
     val currentTheme: UiTheme get() = theme.current
     val currentTextStyle: TextStyle get() = textStyle.current
-    val currentTextStyleToken: String? get() = textStyleToken.current
     val currentFont: UiFont get() = font.current
     val currentShapeSpec: UiShapeSpec? get() = shapeSpec.current
     val currentAlpha: Float get() = alpha.current
@@ -58,16 +54,8 @@ internal class UiContextStacks {
     fun pushTheme(theme: UiTheme) = this.theme.push(theme)
     fun popTheme() = theme.pop()
 
-    // Style and token move together or the token misattributes a style it never described.
-    fun pushTextStyle(style: TextStyle, tokenId: String? = null) {
-        textStyle.push(style)
-        textStyleToken.push(tokenId)
-    }
-
-    fun popTextStyle() {
-        textStyle.pop()
-        textStyleToken.pop()
-    }
+    fun pushTextStyle(style: TextStyle) = textStyle.push(style)
+    fun popTextStyle() = textStyle.pop()
 
     fun pushFont(font: UiFont) = this.font.push(font)
     fun popFont() = font.pop()
@@ -88,15 +76,10 @@ internal class UiContextStacks {
      * back the way a real widget's push/pop pair is, so it resets. Resetting directly to
      * [textStyle] rather than merging onto a fresh Default is behavior-identical, since
      * `TextStyle.Default then style == style`.
-     *
-     * Now covers the token as well. The hand-written version reset six stacks and missed
-     * `textStyleTokenStack`, so it grew on every reuse and `currentTextStyleToken` could report a
-     * token left over from a previous trial.
      */
     fun resetForTrial(theme: UiTheme, textStyle: TextStyle, font: UiFont) {
         this.theme.reset(theme)
         this.textStyle.reset(textStyle)
-        textStyleToken.reset()
         this.font.reset(font)
         shapeSpec.reset()
         alpha.reset()

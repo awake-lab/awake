@@ -84,7 +84,6 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
         // label overload's own internal `text()` call below.
         context.pushTextStyle(
             surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground),
-            tokenId = surface.resolved.textStyleToken,
         )
         childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
         context.popTextStyle()
