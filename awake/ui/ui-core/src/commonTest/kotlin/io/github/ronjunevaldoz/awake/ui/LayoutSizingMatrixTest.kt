@@ -2,14 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.UiLayoutDiagnostics
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -88,9 +91,24 @@ class LayoutSizingMatrixTest {
             }
         }
         val root = ui.createBox(x = 0f, y = 0f, width = FRAME, height = FRAME)
+        // Zero gap and zero content padding: both are real features, but they are not what this
+        // matrix measures, and leaving them in makes every expected value carry a container-
+        // specific correction. Isolate the division itself.
+        val noGap = Arrangement.spacedBy(0f.px)
         when (cell.container) {
-            Container.Column -> root.column(id = "parent", modifier = parentModifier, content = body)
-            Container.Surface -> root.surface(id = "parent", modifier = parentModifier, content = body)
+            Container.Column -> root.column(
+                id = "parent",
+                verticalArrangement = noGap,
+                modifier = parentModifier,
+                content = body,
+            )
+            Container.Surface -> root.surface(
+                id = "parent",
+                verticalArrangement = noGap,
+                style = Style { contentPadding(0f.dp) },
+                modifier = parentModifier,
+                content = body,
+            )
         }
         ui.endFrame()
         UiLayoutDiagnostics.allowUnplannedWeight = false
