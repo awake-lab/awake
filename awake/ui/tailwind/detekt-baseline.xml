@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:OklchColor.kt$0.0031308f</ID>
+    <ID>MagicNumber:OklchColor.kt$0.055f</ID>
+    <ID>MagicNumber:OklchColor.kt$1.055f</ID>
+    <ID>MagicNumber:OklchColor.kt$12.92f</ID>
+    <ID>MagicNumber:OklchColor.kt$1_000_000f</ID>
+    <ID>MagicNumber:OklchColor.kt$2.4</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.0041960863</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.06385417f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.08948418f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.105561346f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.21580376f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.2309699292</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.3413193965</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.39633778f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$0.7034186147</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$1.2684380046</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$1.2914855f</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$1.7076147010</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$180.0</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$2.6097574011</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$3.0</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$3.3077115913</ID>
+    <ID>MagicNumber:OklchColor.kt$OklchColor$4.0767416621</ID>
+    <ID>ObjectPropertyNaming:Tw.kt$Tw.Radius$public val `2xl`: Dp = 12f.dp</ID>
+    <ID>ObjectPropertyNaming:Tw.kt$Tw.Radius$public val `3xl`: Dp = 16f.dp</ID>
+    <ID>ObjectPropertyNaming:Tw.kt$Tw.Text$public val `2xl`: Sp = 24f.sp</ID>
+    <ID>ObjectPropertyNaming:Tw.kt$Tw.Text$public val `3xl`: Sp = 30f.sp</ID>
+    <ID>ObjectPropertyNaming:Tw.kt$Tw.Text$public val `4xl`: Sp = 36f.sp</ID>
+    <ID>ObjectPropertyNaming:Tw.kt$Tw.Text$public val `5xl`: Sp = 48f.sp</ID>
+    <ID>TooManyFunctions:TwModifiers.kt$io.github.ronjunevaldoz.awake.ui.tailwind.TwModifiers.kt</ID>
+    <ID>UnusedParameter:TwModifiers.kt$radius: Dp = Tw.Radius.md</ID>
+  </CurrentIssues>
+</SmellBaseline>

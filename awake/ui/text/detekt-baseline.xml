@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LargeClass:RobotoRegularUiFontData.kt$RobotoRegularUiFontData : PackedUiFontData</ID>
+    <ID>LongParameterList:GlyphAtlasSource.kt$GlyphAtlasSource$( rows: IntArray, atlasX: Int, atlasY: Int, atlasInsetPx: Int, atlasCellSize: Int, atlasInnerSize: Int, supersampleGrid: Int, )</ID>
+    <ID>LongParameterList:MsdfFont.kt$MsdfFont$(px: Float, py: Float, x0: Float, y0: Float, x1: Float, y1: Float)</ID>
+    <ID>MagicNumber:BitmapFont.kt$BitmapFont$0.125f</ID>
+    <ID>MagicNumber:BitmapFont.kt$BitmapFont$0.625f</ID>
+    <ID>MagicNumber:BitmapFont.kt$BitmapFont$0.75f</ID>
+    <ID>MagicNumber:BitmapFont.kt$BitmapFont$255</ID>
+    <ID>MagicNumber:BitmapFont.kt$BitmapFont$255f</ID>
+    <ID>MagicNumber:BitmapFont.kt$BitmapFont$3</ID>
+    <ID>MagicNumber:BitmapFont.kt$BitmapFont$4</ID>
+    <ID>MagicNumber:MsdfFont.kt$MsdfFont$0.5f</ID>
+    <ID>MagicNumber:MsdfFont.kt$MsdfFont$255</ID>
+    <ID>MagicNumber:MsdfFont.kt$MsdfFont$255f</ID>
+    <ID>MagicNumber:MsdfFont.kt$MsdfFont$3</ID>
+    <ID>MagicNumber:MsdfFont.kt$MsdfFont$4</ID>
+    <ID>MagicNumber:PackedUiFont.kt$PackedUiFont$3</ID>
+    <ID>MagicNumber:PackedUiFont.kt$PackedUiFont$4</ID>
+    <ID>MagicNumber:UiFont.kt$UiFont$0.2f</ID>
+    <ID>MagicNumber:UiFont.kt$UiFont$0.7f</ID>
+    <ID>MagicNumber:UiFont.kt$UiFont$0.8f</ID>
+    <ID>MagicNumber:UiTextScale.kt$0.25f</ID>
+    <ID>ReturnCount:GlyphAtlasSource.kt$GlyphAtlasSource$fun sampleCoverage( rows: IntArray, atlasX: Int, atlasY: Int, atlasInsetPx: Int, atlasCellSize: Int, atlasInnerSize: Int, supersampleGrid: Int, ): Float</ID>
+    <ID>ReturnCount:UiFont.kt$fun UiFont.measureTextWidth(label: String, glyphPx: Float, weight: FontWeight = FontWeight.Normal): Float</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -4,30 +4,32 @@
   <CurrentIssues>
     <ID>ComplexCondition:Text.kt$resolvedStyle.background != null || resolvedStyle.borderWidth.toPx() > 0f || resolvedStyle.shapeSpec != null || resolvedStyle.shape.toPx() > 0f</ID>
     <ID>CyclomaticComplexMethod:BasicText.kt$fun layoutBitmapText( label: String, glyphPx: Float, maxWidthPx: Float, wrap: UiTextWrap, overflow: UiTextOverflow, maxLines: Int, trim: Boolean = true, advanceOf: (Char) -> Float = { glyphPx }, ): UiBitmapTextLayout</ID>
-    <ID>CyclomaticComplexMethod:BasicText.kt$internal fun UiScope.renderTextBlock( label: String, slot: UiBounds, font: UiFont, color: Color?, centered: Boolean = false, verticallyCentered: Boolean = centered, wrap: UiTextWrap = UiTextWrap.None, overflow: UiTextOverflow = UiTextOverflow.Visible, maxLines: Int = 1, textStyle: TextStyle, semanticId: String? = null, semanticRole: UiSemanticRole = UiSemanticRole.Text, shimmer: Boolean = false, textStyleToken: String? = null, backgroundToken: String? = null, foregroundToken: String? = null, borderToken: String? = null, ): UiBounds</ID>
+    <ID>CyclomaticComplexMethod:BasicText.kt$internal fun UiPrimitiveScope.renderTextBlock( label: String, slot: UiBounds, font: UiFont, color: Color?, centered: Boolean = false, verticallyCentered: Boolean = centered, wrap: UiTextWrap = UiTextWrap.None, overflow: UiTextOverflow = UiTextOverflow.Visible, maxLines: Int = 1, textStyle: TextStyle, semanticId: String? = null, semanticRole: UiSemanticRole = UiSemanticRole.Text, shimmer: Boolean = false, textStyleToken: String? = null, backgroundToken: String? = null, foregroundToken: String? = null, borderToken: String? = null, semanticBounds: UiBounds? = null, ): UiBounds</ID>
+    <ID>CyclomaticComplexMethod:Checkbox.kt$fun UiPrimitiveScope.checkbox( id: String, checked: Boolean, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, boxSize: Dp = 16f.dp, indeterminate: Boolean = false, enabled: Boolean = true, ): Boolean</ID>
     <ID>CyclomaticComplexMethod:IconFidelityTest.kt$IconFidelityTest$private fun vectorFor(entry: ManifestEntry): UiImageVector</ID>
-    <ID>CyclomaticComplexMethod:RangeSlider.kt$fun UiScope.rangeSlider( id: String, min: Float, max: Float, valueStart: Float, valueEnd: Float, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, ): Pair&lt;Float, Float></ID>
-    <ID>CyclomaticComplexMethod:Text.kt$fun UiScope.text( label: String, modifier: UiModifier = Modifier, style: Style = Style.Empty, font: UiFont = context.currentFont, color: Color? = null, centered: Boolean = false, verticallyCentered: Boolean = true, wrap: UiTextWrap = UiTextWrap.None, overflow: UiTextOverflow = UiTextOverflow.Visible, maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE, textStyle: TextStyle? = null, semanticId: String? = null, semanticRole: UiSemanticRole = UiSemanticRole.Text, ): UiBounds</ID>
-    <ID>CyclomaticComplexMethod:TextField.kt$fun UiScope.textField( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, leadingIcon: (BoxScope.() -> Unit)? = null, trailingIcon: (BoxScope.() -> Unit)? = null, // Applied only to what's drawn -- `value`/the returned string always carry the real typed // text, same as real shadcn's Input; a password field passes `{ "*".repeat(it.length) }` // here and stores/returns the actual characters untouched. visualTransformation: (String) -> String = { it }, ): String</ID>
-    <ID>CyclomaticComplexMethod:Textarea.kt$fun UiScope.textarea( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, minLines: Int = 3, ): String</ID>
+    <ID>CyclomaticComplexMethod:RangeSlider.kt$fun UiPrimitiveScope.rangeSlider( id: String, min: Float, max: Float, valueStart: Float, valueEnd: Float, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, ): Pair&lt;Float, Float></ID>
+    <ID>CyclomaticComplexMethod:Text.kt$fun UiPrimitiveScope.text( label: String, modifier: UiModifier = Modifier, style: Style = Style.Empty, font: UiFont = context.currentFont, color: Color? = null, centered: Boolean = false, verticallyCentered: Boolean = true, wrap: UiTextWrap = UiTextWrap.None, overflow: UiTextOverflow = UiTextOverflow.Visible, maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE, textStyle: TextStyle? = null, semanticId: String? = null, semanticRole: UiSemanticRole = UiSemanticRole.Text, ): UiBounds</ID>
+    <ID>CyclomaticComplexMethod:TextField.kt$fun UiPrimitiveScope.textField( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, leadingIcon: (BoxScope.() -> Unit)? = null, trailingIcon: (BoxScope.() -> Unit)? = null, // Applied only to what's drawn -- `value`/the returned string always carry the real typed // text, same as real shadcn's Input; a password field passes `{ "*".repeat(it.length) }` // here and stores/returns the actual characters untouched. visualTransformation: (String) -> String = { it }, ): String</ID>
+    <ID>CyclomaticComplexMethod:Textarea.kt$fun UiPrimitiveScope.textarea( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, minLines: Int = 3, ): String</ID>
     <ID>CyclomaticComplexMethod:UiContextTest.kt$UiContextTest$@Test fun dropdownOptionsAlwaysPaintAfterSiblingWidgetsRegardlessOfCallOrder()</ID>
     <ID>EmptyFunctionBlock:UiSnapshotFixtures.kt${ }</ID>
     <ID>InvalidPackageDeclaration:Buttons.kt$package io.github.ronjunevaldoz.awake.ui.headless</ID>
     <ID>InvalidPackageDeclaration:SkeletonShimmerPixelTest.kt$package io.github.ronjunevaldoz.awake.ui.headless</ID>
-    <ID>LargeClass:HeroIcons.kt$HeroIcons$Solid20Mini</ID>
     <ID>LongMethod:BasicText.kt$fun layoutBitmapText( label: String, glyphPx: Float, maxWidthPx: Float, wrap: UiTextWrap, overflow: UiTextOverflow, maxLines: Int, trim: Boolean = true, advanceOf: (Char) -> Float = { glyphPx }, ): UiBitmapTextLayout</ID>
-    <ID>LongMethod:Checkbox.kt$fun UiScope.checkbox( id: String, checked: Boolean, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, boxSize: Dp = 16f.dp, indeterminate: Boolean = false, enabled: Boolean = true, ): Boolean</ID>
-    <ID>LongMethod:Dropdown.kt$fun UiScope.select( id: String, options: List&lt;String>, selectedIndex: Int, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, ): Int?</ID>
-    <ID>LongMethod:RangeSlider.kt$fun UiScope.rangeSlider( id: String, min: Float, max: Float, valueStart: Float, valueEnd: Float, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, ): Pair&lt;Float, Float></ID>
-    <ID>LongMethod:Slider.kt$fun UiScope.slider( id: String, min: Float, max: Float, value: Float, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, showKnob: Boolean = true, ): Float</ID>
-    <ID>LongMethod:Switch.kt$fun UiScope.switch( id: String, checked: Boolean, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, ): Boolean</ID>
-    <ID>LongMethod:Text.kt$fun UiScope.text( label: String, modifier: UiModifier = Modifier, style: Style = Style.Empty, font: UiFont = context.currentFont, color: Color? = null, centered: Boolean = false, verticallyCentered: Boolean = true, wrap: UiTextWrap = UiTextWrap.None, overflow: UiTextOverflow = UiTextOverflow.Visible, maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE, textStyle: TextStyle? = null, semanticId: String? = null, semanticRole: UiSemanticRole = UiSemanticRole.Text, ): UiBounds</ID>
-    <ID>LongMethod:TextField.kt$fun UiScope.textField( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, leadingIcon: (BoxScope.() -> Unit)? = null, trailingIcon: (BoxScope.() -> Unit)? = null, // Applied only to what's drawn -- `value`/the returned string always carry the real typed // text, same as real shadcn's Input; a password field passes `{ "*".repeat(it.length) }` // here and stores/returns the actual characters untouched. visualTransformation: (String) -> String = { it }, ): String</ID>
-    <ID>LongMethod:Textarea.kt$fun UiScope.textarea( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, minLines: Int = 3, ): String</ID>
+    <ID>LongMethod:Checkbox.kt$fun UiPrimitiveScope.checkbox( id: String, checked: Boolean, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, boxSize: Dp = 16f.dp, indeterminate: Boolean = false, enabled: Boolean = true, ): Boolean</ID>
+    <ID>LongMethod:Dropdown.kt$fun UiPrimitiveScope.select( id: String, options: List&lt;String>, selectedIndex: Int, modifier: UiModifier = Modifier, style: Style = Style.Empty, selectedStyle: Style? = null, optionStyle: Style? = null, enabled: Boolean = true, placeholder: String = "", ): Int?</ID>
+    <ID>LongMethod:Dropdown.kt$fun UiScope.combobox( id: String, options: List&lt;String>, selectedIndex: Int? = null, modifier: Modifier = Modifier, enabled: Boolean = true, placeholder: String = "", filterPlaceholder: String = "Search...", emptyLabel: String = "No results found.", visuals: SurfaceVisuals = SurfaceVisuals(), selectedVisuals: SurfaceStyle? = null, optionVisuals: SurfaceVisuals = SurfaceVisuals(), filterVisuals: SurfaceVisuals = SurfaceVisuals(), ): Int?</ID>
+    <ID>LongMethod:RangeSlider.kt$fun UiPrimitiveScope.rangeSlider( id: String, min: Float, max: Float, valueStart: Float, valueEnd: Float, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, ): Pair&lt;Float, Float></ID>
+    <ID>LongMethod:ResizablePanelGroup.kt$ResizablePanelGroupScope$fun handle(id: String, withHandle: Boolean = false): UiBounds</ID>
+    <ID>LongMethod:Slider.kt$fun UiPrimitiveScope.slider( id: String, min: Float, max: Float, value: Float, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, showKnob: Boolean = true, ): Float</ID>
+    <ID>LongMethod:Switch.kt$fun UiPrimitiveScope.switch( id: String, checked: Boolean, label: String? = null, modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, ): Boolean</ID>
+    <ID>LongMethod:Text.kt$fun UiPrimitiveScope.text( label: String, modifier: UiModifier = Modifier, style: Style = Style.Empty, font: UiFont = context.currentFont, color: Color? = null, centered: Boolean = false, verticallyCentered: Boolean = true, wrap: UiTextWrap = UiTextWrap.None, overflow: UiTextOverflow = UiTextOverflow.Visible, maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE, textStyle: TextStyle? = null, semanticId: String? = null, semanticRole: UiSemanticRole = UiSemanticRole.Text, ): UiBounds</ID>
+    <ID>LongMethod:TextField.kt$fun UiPrimitiveScope.textField( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, leadingIcon: (BoxScope.() -> Unit)? = null, trailingIcon: (BoxScope.() -> Unit)? = null, // Applied only to what's drawn -- `value`/the returned string always carry the real typed // text, same as real shadcn's Input; a password field passes `{ "*".repeat(it.length) }` // here and stores/returns the actual characters untouched. visualTransformation: (String) -> String = { it }, ): String</ID>
+    <ID>LongMethod:Textarea.kt$fun UiPrimitiveScope.textarea( id: String, value: String, placeholder: String = "", modifier: UiModifier = Modifier, style: Style = Style.Empty, enabled: Boolean = true, isError: Boolean = false, minLines: Int = 3, ): String</ID>
     <ID>LongMethod:UiContextTest.kt$UiContextTest$@Test fun dropdownOptionsAlwaysPaintAfterSiblingWidgetsRegardlessOfCallOrder()</ID>
     <ID>LongMethod:UiSnapshotFixtures.kt$internal fun reviewSnapshotScenes(): List&lt;UiSnapshotScene></ID>
     <ID>LongMethod:UiSnapshotFixtures.kt$internal fun tutorialSnapshotScenes(): List&lt;UiSnapshotScene></ID>
-    <ID>LongParameterList:BasicText.kt$( label: String, glyphPx: Float, maxWidthPx: Float, wrap: UiTextWrap, overflow: UiTextOverflow, maxLines: Int, font: UiFont, )</ID>
+    <ID>LongParameterList:BasicText.kt$( label: String, glyphPx: Float, maxWidthPx: Float, wrap: UiTextWrap, overflow: UiTextOverflow, maxLines: Int, font: UiFont, weight: io.github.ronjunevaldoz.awake.ui.font.FontWeight, )</ID>
     <ID>LongParameterList:BasicText.kt$( label: String, glyphPx: Float, maxWidthPx: Float, wrap: UiTextWrap, overflow: UiTextOverflow, maxLines: Int, trim: Boolean = true, advanceOf: (Char) -> Float = { glyphPx }, )</ID>
     <ID>LongParameterList:MenuItem.kt$( trailingLabel: String?, hasIcon: Boolean, supportingText: String?, width: Float, baseHeight: Float, font: UiFont, glyphPx: Float, )</ID>
     <ID>LongParameterList:Surface.kt$( slot: UiBounds, style: Style, defaults: Style, selected: Boolean, disabled: Boolean, focused: Boolean, hovered: Boolean, active: Boolean, )</ID>
@@ -35,7 +37,6 @@
     <ID>LongParameterList:Textarea.kt$( layout: UiBitmapTextLayout, value: String, font: UiFont, glyphPx: Float, lineGap: Float, contentSlot: UiBounds, pointerX: Float, pointerY: Float, )</ID>
     <ID>LongParameterList:Textarea.kt$( layout: UiBitmapTextLayout, value: String, font: UiFont, glyphPx: Float, lineGap: Float, cursor: Int, direction: Int, )</ID>
     <ID>LongParameterList:UiSnapshotWriter.kt$( name: String, title: String, summary: String, primitives: List&lt;UiDrawPrimitive>, width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null, )</ID>
-    <ID>MagicNumber:BasicText.kt$0.25f</ID>
     <ID>MagicNumber:BasicText.kt$0.5f</ID>
     <ID>MagicNumber:BasicText.kt$0.6f</ID>
     <ID>MagicNumber:Buttons.kt$0.5f</ID>
@@ -50,21 +51,39 @@
     <ID>MagicNumber:Spinner.kt$0.16f</ID>
     <ID>MagicNumber:Spinner.kt$0.75f</ID>
     <ID>MagicNumber:Switch.kt$0.5f</ID>
-    <ID>MagicNumber:Text.kt$0.25f</ID>
     <ID>MagicNumber:Text.kt$4096f</ID>
     <ID>MagicNumber:TextField.kt$0.5f</ID>
     <ID>MagicNumber:Textarea.kt$0.25f</ID>
     <ID>MagicNumber:Textarea.kt$0.5f</ID>
     <ID>MagicNumber:Toast.kt$1000f</ID>
+    <ID>MagicNumber:Tooltip.kt$1000f</ID>
+    <ID>MagicNumber:Tooltip.kt$120f</ID>
+    <ID>MagicNumber:Tooltip.kt$32f</ID>
+    <ID>MagicNumber:Tooltip.kt$4f</ID>
+    <ID>MatchingDeclarationName:Avatar.kt$AvatarStatus</ID>
+    <ID>MatchingDeclarationName:Button.kt$HeadlessButtonResult</ID>
     <ID>MatchingDeclarationName:Icons.kt$UiIcons</ID>
     <ID>MatchingDeclarationName:Interaction.kt$UiInteraction</ID>
-    <ID>MatchingDeclarationName:Separator.kt$SeparatorOrientation</ID>
+    <ID>MatchingDeclarationName:NumberField.kt$NumberFieldScope : UiScope</ID>
+    <ID>MatchingDeclarationName:Popup.kt$UiPopupDefaults</ID>
+    <ID>MatchingDeclarationName:Separator.kt$UiSeparatorOrientation</ID>
+    <ID>MatchingDeclarationName:State.kt$UiStateValue&lt;T></ID>
+    <ID>MatchingDeclarationName:TabContracts.kt$UiTabItem</ID>
+    <ID>MatchingDeclarationName:TextMetrics.kt$UiTextLineMetrics</ID>
     <ID>MatchingDeclarationName:UiSnapshotFixtures.kt$UiSnapshotScene</ID>
     <ID>ReturnCount:BasicText.kt$private fun ellipsizeLine(line: String, maxWidthPx: Float, advanceOf: (Char) -> Float): String</ID>
     <ID>ReturnCount:BasicText.kt$private fun ellipsizeTruncatedLine( line: String, maxWidthPx: Float, advanceOf: (Char) -> Float, ): String</ID>
-    <ID>ReturnCount:BasicText.kt$private fun measureTextBlock( layout: UiBitmapTextLayout, font: UiFont, glyphPx: Float, lineGap: Float, ): UiMeasuredTextBlock</ID>
-    <ID>TooManyFunctions:BasicText.kt$io.github.ronjunevaldoz.awake.ui.headless.internal.input.text.BasicText.kt</ID>
+    <ID>ReturnCount:BasicText.kt$private fun measureTextBlock( layout: UiBitmapTextLayout, font: UiFont, glyphPx: Float, lineMetrics: UiTextLineMetrics, ): UiMeasuredTextBlock</ID>
+    <ID>ReturnCount:IntrinsicSizing.kt$internal fun UiPrimitiveScope.withIntrinsicLabelSize( modifier: UiModifier, label: String, style: Style = Style.Empty, defaults: Style = Style.Empty, extraWidth: Dp = 0f.dp, ): UiModifier</ID>
+    <ID>TooManyFunctions:BasicText.kt$io.github.ronjunevaldoz.awake.ui.headless.internal.text.BasicText.kt</ID>
+    <ID>TooManyFunctions:Layout.kt$io.github.ronjunevaldoz.awake.ui.headless.Layout.kt</ID>
+    <ID>UnusedParameter:Accordion.kt$id: String</ID>
     <ID>UnusedParameter:Collapsible.kt$modifier: UiModifier = Modifier</ID>
+    <ID>UnusedParameter:Layout.kt$bottom: Dp = 0f.dp</ID>
+    <ID>UnusedParameter:Layout.kt$end: Dp = 0f.dp</ID>
+    <ID>UnusedParameter:NumberField.kt$id: String</ID>
+    <ID>UnusedParameter:Tabs.kt$id: String</ID>
+    <ID>UnusedParameter:Tabs.kt$modifier: Modifier = Modifier</ID>
     <ID>UnusedParameter:Textarea.kt$lineGap: Float</ID>
   </CurrentIssues>
 </SmellBaseline>
