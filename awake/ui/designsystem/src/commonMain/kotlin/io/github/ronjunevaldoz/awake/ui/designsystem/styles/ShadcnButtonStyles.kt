@@ -5,8 +5,8 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.styles
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
-import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
@@ -75,14 +75,28 @@ fun ShadcnButtonVariant.visuals(
     return SurfaceVisuals(
         rest = rest,
         hovered = when (this) {
-            ShadcnButtonVariant.Outline -> SurfaceStyle(colors.secondary, colors.secondaryForeground)
-            ShadcnButtonVariant.Ghost -> SurfaceStyle(colors.accent, colors.accentForeground)
+            ShadcnButtonVariant.Outline -> SurfaceStyle(
+                background = colors.secondary,
+                foreground = colors.secondaryForeground,
+                cornerRadius = theme.shapes.md,
+                contentPadding = insets,
+            )
+            ShadcnButtonVariant.Ghost -> SurfaceStyle(
+                background = colors.accent,
+                foreground = colors.accentForeground,
+                cornerRadius = theme.shapes.md,
+                contentPadding = insets,
+            )
             else -> null
         },
         pressed = when (this) {
-            ShadcnButtonVariant.Outline, ShadcnButtonVariant.Ghost -> SurfaceStyle(colors.accent, colors.accentForeground)
+            ShadcnButtonVariant.Outline, ShadcnButtonVariant.Ghost -> SurfaceStyle(
+                background = colors.accent,
+                foreground = colors.accentForeground,
+                cornerRadius = theme.shapes.md,
+                contentPadding = insets,
+            )
             else -> null
         },
     ).withDisabledDim(theme)
 }
-

@@ -11,6 +11,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTit
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuSub
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuSubItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextLines
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
@@ -112,20 +114,14 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                 expanded = expanded,
                 onExpandedChange = { expanded = it },
             ) {
-                shadcnSidebarGroup {
-                    shadcnSidebarMenu {
-                        pages.forEach { page ->
-                            // shadcnCollapsible's header text starts at contentPadding(4dp) +
-                            // "+/-" icon width(12dp) + row gap(8dp) = 24dp from the shared left
-                            // edge. Nested items indent to at least that point (real shadcn/Radix
-                            // Accordion content aligns under the trigger label).
-                            shadcnSidebarMenuItem(
-                                id = "ui-showcase-page-${page.id}",
-                                label = page.title,
-                                active = page.id == selectedPageId,
-                                onClick = { onSelect(page) },
-                            )
-                        }
+                shadcnSidebarMenuSub {
+                    pages.forEach { page ->
+                        shadcnSidebarMenuSubItem(
+                            id = "ui-showcase-page-${page.id}",
+                            label = page.title,
+                            active = page.id == selectedPageId,
+                            onClick = { onSelect(page) },
+                        )
                     }
                 }
             }
