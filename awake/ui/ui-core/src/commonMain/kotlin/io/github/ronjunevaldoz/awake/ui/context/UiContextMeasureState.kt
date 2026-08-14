@@ -110,7 +110,7 @@ internal class UiContextMeasureState {
         gap: Float,
         insets: UiInsets,
         sourceContext: UiContext,
-        height: Float = 100_000f,
+        height: Float = UNBOUNDED_MAIN_AXIS,
         content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent {
         val measureContext = createMeasureContext(sourceContext)
@@ -134,7 +134,7 @@ internal class UiContextMeasureState {
         gap: Float,
         insets: UiInsets,
         sourceContext: UiContext,
-        width: Float = 100_000f,
+        width: Float = UNBOUNDED_MAIN_AXIS,
         content: RowScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent {
         val measureContext = createMeasureContext(sourceContext)
@@ -188,8 +188,8 @@ internal class UiContextMeasureState {
         ).also { cachedMeasureContext = it }
         measureContext.beginFrame(
             UiFrameInput(
-                viewportWidth = 100_000f,
-                viewportHeight = 100_000f,
+                viewportWidth = UNBOUNDED_MAIN_AXIS,
+                viewportHeight = UNBOUNDED_MAIN_AXIS,
                 input = UiInputState(),
                 deltaSeconds = 0f,
             ),
@@ -208,3 +208,13 @@ internal class UiContextMeasureState {
         measureContext
     }
 }
+
+/**
+ * Stand-in for "this axis has no bound".
+ *
+ * A real unbounded value (infinity) would poison the `origin + extent` arithmetic every measure
+ * pass does, so measurement uses a finite number far past any real viewport. Callers that DO know
+ * their bound must pass it: a `FillMax` child resolves against whatever it is given, so leaving
+ * this in place where a viewport was available reports content no layout can be built from.
+ */
+internal const val UNBOUNDED_MAIN_AXIS = 100_000f

@@ -8,11 +8,12 @@ import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.WidgetState
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -22,7 +23,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.scaledByAlpha
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.withTransform
@@ -49,6 +49,7 @@ class UiContext internal constructor(
     val inputState: UiInputState get() = runtime.inputState
 
     fun pushTheme(theme: UiTheme) = stacks.pushTheme(theme)
+
     /** Installs a runtime-free theme contract; Core supplies neutral fallback recipes internally. */
     fun pushTheme(theme: UiThemeValues) = stacks.pushTheme(theme.asRuntimeTheme())
     fun popTheme() = stacks.popTheme()
@@ -585,7 +586,7 @@ class UiContext internal constructor(
         width: Float,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
-        height: Float = 100_000f,
+        height: Float = UNBOUNDED_MAIN_AXIS,
         content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measurement.measureColumnContent(
         width = width,
@@ -603,7 +604,7 @@ class UiContext internal constructor(
         width: Float,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
-        height: Float = 100_000f,
+        height: Float = UNBOUNDED_MAIN_AXIS,
         content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measureColumnContentInternal(
         width = width,
@@ -617,7 +618,7 @@ class UiContext internal constructor(
         height: Float,
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
-        width: Float = 100_000f,
+        width: Float = UNBOUNDED_MAIN_AXIS,
         content: RowScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measurement.measureRowContent(
         height = height,
@@ -635,7 +636,7 @@ class UiContext internal constructor(
         height: Float,
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
-        width: Float = 100_000f,
+        width: Float = UNBOUNDED_MAIN_AXIS,
         content: RowScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measureRowContentInternal(
         height = height,

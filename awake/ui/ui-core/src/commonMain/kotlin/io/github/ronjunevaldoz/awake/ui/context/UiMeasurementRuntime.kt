@@ -54,7 +54,7 @@ internal class UiMeasurementRuntime(
         width: Float,
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
-        height: Float = 100_000f,
+        height: Float = UNBOUNDED_MAIN_AXIS,
         sourceContext: UiContext,
         content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measureState.measureColumnContent(
@@ -70,7 +70,7 @@ internal class UiMeasurementRuntime(
         height: Float,
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
-        width: Float = 100_000f,
+        width: Float = UNBOUNDED_MAIN_AXIS,
         sourceContext: UiContext,
         content: RowScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measureState.measureRowContent(

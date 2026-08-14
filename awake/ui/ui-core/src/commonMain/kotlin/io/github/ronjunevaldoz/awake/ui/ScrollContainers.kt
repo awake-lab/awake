@@ -3,10 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.graphics.clip
+import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
@@ -116,20 +116,32 @@ fun UiPrimitiveScope.scrollPanel(
 
     val maxInnerWidth = (availableOuterWidth() - paddingWidth).coerceAtLeast(0f)
 
+    // The scroll axis is bounded only when the container itself is. A sized viewport can resolve
+    // a FillMax-height child against its own height; a WrapContent one has no height until its
+    // content is measured, so asking would be circular and it stays unbounded.
+    val boundedInnerHeight: Float? = when (requestedHeight) {
+        is Dimension.Fixed -> (requestedHeight.dp.toPx() - paddingHeight).coerceAtLeast(0f)
+        Dimension.FillMax -> (requireBoundedAxis(axis = "height") - paddingHeight).coerceAtLeast(0f)
+        Dimension.WrapContent -> null
+    }
+
     // Overlay scrollbar: content is always measured/laid out at the container's full width --
     // no narrowed re-measure pass, since the scrollbar never claims its own content-shrinking
     // width/height slice (it paints on top of the content's own last few pixels instead).
+    //
+    // Passing the height matters as much as the width. Left to its default this measures against
+    // an unbounded sentinel, so a FillMax-height child resolves to that sentinel, `contentHeight`
+    // inherits it, and the panel reports scrollable content nobody can reach -- a scrollbar on a
+    // sidebar that fits, scrolling with no end, and a trailing footer displaced far below the
+    // viewport by a stretch child that was only meant to fill it.
     val measured = measureColumnContent(
         width = maxInnerWidth,
         gap = gap,
+        height = boundedInnerHeight,
         content = content,
     )
 
-    val containerHeight = when (requestedHeight) {
-        is Dimension.Fixed -> (requestedHeight.dp.toPx() - paddingHeight).coerceAtLeast(0f)
-        Dimension.FillMax -> (requireBoundedAxis(axis = "height") - paddingHeight).coerceAtLeast(0f)
-        else -> measured.height // WrapContent
-    }
+    val containerHeight = boundedInnerHeight ?: measured.height
     val verticalNeeded = when (config.verticalVisibility) {
         UiScrollbarVisibility.Always -> true
         UiScrollbarVisibility.Never -> false
