@@ -12,6 +12,7 @@
     <ID>LongMethod:AwakeUiPreviewValidation.kt$fun validateAwakeUiPreview( metadata: AwakeUiPreviewMetadata, frame: AwakeUiPreviewFrame, config: AwakeUiPreviewValidationConfig = AwakeUiPreviewValidationConfig(), ): AwakeUiPreviewValidationReport</ID>
     <ID>LongMethod:UiInspection.kt$fun inspectUiFrame( primitives: List&lt;UiDrawPrimitive>, frame: UiBounds, font: UiFont? = null, ): UiInspectionReport</ID>
     <ID>LongMethod:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null, ): ByteArray</ID>
+    <ID>LongMethod:UiRasterizer.kt$fun drawGlyph(glyph: UiDrawPrimitive.Glyph, font: UiFont)</ID>
     <ID>LoopWithTooManyJumpStatements:UiRasterizer.kt$while</ID>
     <ID>MagicNumber:AwakeUiPreview.kt$AwakeUiPreviewFrame$0.12f</ID>
     <ID>MagicNumber:AwakeUiPreview.kt$AwakeUiPreviewFrame$0.1f</ID>
@@ -35,7 +36,6 @@
     <ID>MagicNumber:PixelBaseline.kt$4</ID>
     <ID>MagicNumber:UiRasterizer.kt$0.12f</ID>
     <ID>MagicNumber:UiRasterizer.kt$0.1f</ID>
-    <ID>MagicNumber:UiRasterizer.kt$0.25f</ID>
     <ID>MagicNumber:UiRasterizer.kt$0.5f</ID>
     <ID>MagicNumber:UiRasterizer.kt$0.9999f</ID>
     <ID>MagicNumber:UiRasterizer.kt$0xFF</ID>

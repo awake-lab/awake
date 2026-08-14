@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:UiPopup.kt$fun UiPrimitiveScope.popup( anchorSlot: UiBounds, expanded: Boolean, width: Dimension = Dimension.WrapContent, height: Dimension = Dimension.WrapContent, verticalArrangement: Arrangement = defaultArrangement(), modifier: UiModifier = Modifier, positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(), properties: UiPopupProperties = UiPopupProperties(), id: String? = null, fadeDurationMs: Float = 150f, content: ColumnScope.(slot: UiBounds) -> Unit, ): UiPopupResult</ID>
+    <ID>CyclomaticComplexMethod:UiPopup.kt$private fun placePopupRelativeToAnchor( anchorBounds: UiBounds, windowBounds: UiBounds, popupSize: UiPopupSize, anchorAlignment: UiAlignment, popupAlignment: UiAlignment, offsetX: Float, offsetY: Float, ): UiBounds</ID>
+    <ID>LongMethod:UiPopup.kt$fun UiPrimitiveScope.popup( anchorSlot: UiBounds, expanded: Boolean, width: Dimension = Dimension.WrapContent, height: Dimension = Dimension.WrapContent, verticalArrangement: Arrangement = defaultArrangement(), modifier: UiModifier = Modifier, positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(), properties: UiPopupProperties = UiPopupProperties(), id: String? = null, fadeDurationMs: Float = 150f, content: ColumnScope.(slot: UiBounds) -> Unit, ): UiPopupResult</ID>
+    <ID>LongMethod:UiPopup.kt$private fun placePopupRelativeToAnchor( anchorBounds: UiBounds, windowBounds: UiBounds, popupSize: UiPopupSize, anchorAlignment: UiAlignment, popupAlignment: UiAlignment, offsetX: Float, offsetY: Float, ): UiBounds</ID>
+    <ID>LongParameterList:UiAnimation.kt$( startValue: Float, target: Float, elapsedMs: Float, durationMs: Float, easing: Easing, repeatMode: RepeatMode, iterations: Int, )</ID>
+    <ID>LongParameterList:UiPopup.kt$( anchorBounds: UiBounds, popupSize: UiPopupSize, anchorAlignment: UiAlignment, popupAlignment: UiAlignment, offsetX: Float, offsetY: Float, )</ID>
+    <ID>LongParameterList:UiPopup.kt$( anchorBounds: UiBounds, windowBounds: UiBounds, popupSize: UiPopupSize, anchorAlignment: UiAlignment, popupAlignment: UiAlignment, offsetX: Float, offsetY: Float, )</ID>
+    <ID>MagicNumber:AnimatedLayoutScopes.kt$0.01f</ID>
+    <ID>MagicNumber:ShimmerPrimitives.kt$0.6f</ID>
+    <ID>MagicNumber:ShimmerPrimitives.kt$1.5f</ID>
+    <ID>MagicNumber:ShimmerPrimitives.kt$160f</ID>
+    <ID>MagicNumber:UiAnimatedVisibility.kt$0.001f</ID>
+    <ID>MagicNumber:UiAnimation.kt$1000f</ID>
+    <ID>MagicNumber:UiPopup.kt$0.001f</ID>
+    <ID>MatchingDeclarationName:ShimmerPrimitives.kt$ShimmerBand</ID>
+    <ID>MatchingDeclarationName:UiPopup.kt$UiPopupDefaults</ID>
+    <ID>ReturnCount:UiPopup.kt$fun UiPrimitiveScope.popup( anchorSlot: UiBounds, expanded: Boolean, width: Dimension = Dimension.WrapContent, height: Dimension = Dimension.WrapContent, verticalArrangement: Arrangement = defaultArrangement(), modifier: UiModifier = Modifier, positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(), properties: UiPopupProperties = UiPopupProperties(), id: String? = null, fadeDurationMs: Float = 150f, content: ColumnScope.(slot: UiBounds) -> Unit, ): UiPopupResult</ID>
+    <ID>TooManyFunctions:UiPopup.kt$io.github.ronjunevaldoz.awake.ui.UiPopup.kt</ID>
+  </CurrentIssues>
+</SmellBaseline>

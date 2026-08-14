@@ -2,54 +2,12 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:DropdownMenu.kt$private fun ColumnScope.dropdownMenuItem( id: String, item: UiDropdownMenuItem, width: Float, baseHeight: Float, style: Style, selected: Boolean, ): Boolean</ID>
-    <ID>CyclomaticComplexMethod:ShadcnDrawer.kt$fun UiScope.shadcnDrawer( id: String, expanded: Boolean, onDismissRequest: () -> Unit, modifier: UiModifier = Modifier, position: ShadcnDrawerPosition = ShadcnDrawerPosition.Bottom, sizeDp: Dp = 320f.dp, showCloseButton: Boolean = true, header: (ColumnScope.(slot: UiBounds) -> Unit)? = null, actions: (RowScope.(slot: UiBounds) -> Unit)? = null, content: ColumnScope.(slot: UiBounds) -> Unit, ): UiPopupResult</ID>
-    <ID>CyclomaticComplexMethod:ShadcnInputOTP.kt$fun UiScope.shadcnInputOTP( id: String, value: String, length: Int = 6, modifier: UiModifier = Modifier, enabled: Boolean = true, isError: Boolean = false, groupSize: Int = 0, onValueChange: (String) -> Unit = {}, ): String</ID>
     <ID>CyclomaticComplexMethod:ShadcnTheme.kt$private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette</ID>
-    <ID>LargeClass:ShadcnDesignSystemTest.kt$ShadcnDesignSystemTest</ID>
-    <ID>LongMethod:Dialog.kt$fun UiScope.shadcnDialog( id: String, expanded: Boolean, width: Dimension = Dimension.WrapContent, height: Dimension = Dimension.WrapContent, properties: UiDialogProperties = UiDialogProperties(), showCloseButton: Boolean = false, closeIcon: (BoxScope.() -> Unit)? = null, header: (ColumnScope.(slot: UiBounds) -> Unit)? = null, actions: (RowScope.(slot: UiBounds) -> Unit)? = null, content: ColumnScope.(slot: UiBounds) -> Unit, ): UiPopupResult</ID>
-    <ID>LongMethod:DropdownMenu.kt$fun UiScope.shadcnDropdownMenu( id: String, anchorSlot: UiBounds, expanded: Boolean, items: List&lt;UiDropdownMenuEntry>, selectedIndex: Int? = null, width: Dimension = Dimension.Fixed(anchorSlot.width.px), height: Dimension = Dimension.WrapContent, itemHeight: Float = 32f, positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(), properties: UiPopupProperties = UiPopupProperties(), style: Style = Style.Empty, itemStyle: Style = Style.Empty, ): UiDropdownMenuResult</ID>
-    <ID>LongMethod:DropdownMenu.kt$private fun ColumnScope.dropdownMenuItem( id: String, item: UiDropdownMenuItem, width: Float, baseHeight: Float, style: Style, selected: Boolean, ): Boolean</ID>
-    <ID>LongMethod:ShadcnCardFidelityTest.kt$ShadcnCardFidelityTest$@Test fun shadcnCardMatrixFidelity()</ID>
-    <ID>LongMethod:ShadcnDrawer.kt$fun UiScope.shadcnDrawer( id: String, expanded: Boolean, onDismissRequest: () -> Unit, modifier: UiModifier = Modifier, position: ShadcnDrawerPosition = ShadcnDrawerPosition.Bottom, sizeDp: Dp = 320f.dp, showCloseButton: Boolean = true, header: (ColumnScope.(slot: UiBounds) -> Unit)? = null, actions: (RowScope.(slot: UiBounds) -> Unit)? = null, content: ColumnScope.(slot: UiBounds) -> Unit, ): UiPopupResult</ID>
-    <ID>LongMethod:ShadcnInputOTP.kt$fun UiScope.shadcnInputOTP( id: String, value: String, length: Int = 6, modifier: UiModifier = Modifier, enabled: Boolean = true, isError: Boolean = false, groupSize: Int = 0, onValueChange: (String) -> Unit = {}, ): String</ID>
-    <ID>LongMethod:ShadcnStyles.kt$ShadcnStyles$internal fun button( theme: ShadcnResolvedTheme, variant: ShadcnButtonVariant, ): Style</ID>
+    <ID>CyclomaticComplexMethod:ShadcnTypography.kt$fun UiScope.shadcnText( label: String, style: ShadcnTextStyle = ShadcnTextStyle.P, modifier: Modifier = Modifier, centered: Boolean = false, muted: Boolean = false, visuals: SurfaceStyle = SurfaceStyle(), maxLines: Int = Int.MAX_VALUE, wrap: UiTextWrap = UiTextWrap.Word, overflow: UiTextOverflow = UiTextOverflow.Ellipsis, ): UiBounds</ID>
+    <ID>LongMethod:ShadcnButtonStyles.kt$fun ShadcnButtonVariant.visuals( theme: UiThemeValues, size: ShadcnButtonSize, ): SurfaceVisuals</ID>
+    <ID>LongMethod:ShadcnSidebarRecipes.kt$fun UiScope.shadcnSidebarFooterButton( id: String, name: String, email: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}, ): Boolean</ID>
+    <ID>LongMethod:ShadcnSidebarRecipes.kt$fun UiScope.shadcnSidebarHeaderButton( id: String, title: String, subtitle: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}, ): Boolean</ID>
     <ID>LongMethod:ShadcnTheme.kt$private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette</ID>
-    <ID>LongParameterList:DropdownMenu.kt$( id: String, item: UiDropdownMenuItem, width: Float, baseHeight: Float, style: Style, selected: Boolean, )</ID>
-    <ID>LongParameterList:ShadcnAccordion.kt$( items: List&lt;T>, selectedId: String?, onSelectId: (String?) -> Unit, idProvider: (T) -> String, titleProvider: (T) -> String, modifier: UiModifier = Modifier, content: ColumnScope.(T) -> Unit, )</ID>
-    <ID>LongParameterList:ShadcnFieldRangeSlider.kt$( id: String, label: String, min: Float, max: Float, valueStart: Float, valueEnd: Float, modifier: UiModifier = Modifier, style: Style = Style.Empty, valueLabel: (Float, Float) -> String = ::defaultRangeSliderValueLabel, )</ID>
-    <ID>LongParameterList:ShadcnFieldSlider.kt$( id: String, min: Float, max: Float, value: Float, height: Dp, style: Style = Style.Empty, labelContent: UiScope.() -> Unit, )</ID>
-    <ID>MagicNumber:Dialog.kt$0.48f</ID>
-    <ID>MagicNumber:DropdownMenu.kt$0.25f</ID>
-    <ID>MagicNumber:DropdownMenu.kt$0.72f</ID>
-    <ID>MagicNumber:DropdownMenu.kt$0.82f</ID>
-    <ID>MagicNumber:DropdownMenu.kt$0.86f</ID>
-    <ID>MagicNumber:DropdownMenu.kt$12f</ID>
-    <ID>MagicNumber:DropdownMenu.kt$4f</ID>
-    <ID>MagicNumber:DropdownMenu.kt$8f</ID>
-    <ID>MagicNumber:OklchColor.kt$0.0031308f</ID>
-    <ID>MagicNumber:OklchColor.kt$0.055f</ID>
-    <ID>MagicNumber:OklchColor.kt$1.055f</ID>
-    <ID>MagicNumber:OklchColor.kt$12.92f</ID>
-    <ID>MagicNumber:OklchColor.kt$1_000_000f</ID>
-    <ID>MagicNumber:OklchColor.kt$2.4</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$0.0041960863</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$0.06385417f</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$0.08948418f</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$0.105561346f</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$0.21580376f</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$0.2309699292</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$0.3413193965</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$0.39633778f</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$0.7034186147</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$1.2684380046</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$1.2914855f</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$1.7076147010</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$180.0</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$2.6097574011</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$3.0</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$3.3077115913</ID>
-    <ID>MagicNumber:OklchColor.kt$OklchColor$4.0767416621</ID>
     <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.145f</ID>
     <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.205f</ID>
     <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.245f</ID>
@@ -59,32 +17,15 @@
     <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.97f</ID>
     <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$0.985f</ID>
     <ID>MagicNumber:PresetUiThemes.kt$LightUiTheme.&lt;no name provided>$27.325f</ID>
-    <ID>MagicNumber:ShadcnFieldRangeSlider.kt$10f</ID>
-    <ID>MagicNumber:ShadcnFieldSlider.kt$10f</ID>
-    <ID>MagicNumber:ShadcnFieldTextarea.kt$0.25f</ID>
-    <ID>MagicNumber:ShadcnRadioGroup.kt$0.5f</ID>
-    <ID>MagicNumber:ShadcnSelect.kt$0.5f</ID>
-    <ID>MagicNumber:ShadcnSidebar.kt$0.7f</ID>
-    <ID>MagicNumber:ShadcnSurfaces.kt$0.07f</ID>
-    <ID>MagicNumber:ShadcnSurfaces.kt$0.13f</ID>
-    <ID>MagicNumber:ShadcnSurfaces.kt$0.20f</ID>
-    <ID>MagicNumber:ShadcnSurfaces.kt$0.72f</ID>
-    <ID>MagicNumber:ShadcnVariants.kt$ShadcnButtonSize.Icon$36f</ID>
-    <ID>MagicNumber:ShadcnVariants.kt$ShadcnButtonSize.Lg$40f</ID>
-    <ID>MagicNumber:ShadcnVariants.kt$ShadcnButtonSize.Md$36f</ID>
-    <ID>MagicNumber:ShadcnVariants.kt$ShadcnButtonSize.Sm$32f</ID>
-    <ID>MagicNumber:ShadcnVariants.kt$ShadcnButtonSize.Xs$28f</ID>
+    <ID>MagicNumber:ShadcnCardStyles.kt$0.16f</ID>
+    <ID>MagicNumber:ShadcnNavigationRecipes.kt$0.12f</ID>
+    <ID>MagicNumber:ShadcnNavigationRecipes.kt$0.6f</ID>
+    <ID>MagicNumber:ShadcnStatusRecipes.kt$0.1f</ID>
+    <ID>MagicNumber:ShadcnStatusRecipes.kt$0.2f</ID>
+    <ID>MagicNumber:ShadcnSurfaceRecipes.kt$24f</ID>
     <ID>MagicNumber:ShadcnVariants.kt$ShadcnCardSize.Default$4f</ID>
-    <ID>MatchingDeclarationName:ShadcnAvatars.kt$ShadcnAvatarSize</ID>
-    <ID>MatchingDeclarationName:ShadcnDrawer.kt$ShadcnDrawerPosition</ID>
-    <ID>MatchingDeclarationName:ShadcnField.kt$ShadcnFieldOrientation</ID>
-    <ID>MatchingDeclarationName:ShadcnTabs.kt$ShadcnTabItem</ID>
+    <ID>MatchingDeclarationName:ShadcnTypography.kt$ShadcnTextStyle</ID>
     <ID>NestedBlockDepth:ShadcnStylePresetVerificationTest.kt$ShadcnStylePresetVerificationTest$@Test fun everyPresetResolvesACompleteThemeAcrossEveryBaseColorAndMode()</ID>
-    <ID>TooManyFunctions:ShadcnSidebar.kt$io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnSidebar.kt</ID>
-    <ID>TooManyFunctions:ShadcnStyles.kt$ShadcnStyles</ID>
-    <ID>TooManyFunctions:ShadcnSurfaces.kt$io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnSurfaces.kt</ID>
-    <ID>UnusedParameter:ShadcnCollapsible.kt$modifier: UiModifier = Modifier</ID>
-    <ID>UnusedParameter:ShadcnRadioGroup.kt$id: String</ID>
-    <ID>UnusedParameter:ShadcnRadioGroup.kt$modifier: UiModifier = Modifier</ID>
+    <ID>TooManyFunctions:ShadcnTypography.kt$io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTypography.kt</ID>
   </CurrentIssues>
 </SmellBaseline>
