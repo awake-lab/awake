@@ -197,15 +197,15 @@ class LayoutSizingMatrixTest {
             } else {
                 when (cell.child) {
                     ChildSizing.Fixed -> CHILD_FIXED
-                // FillMax and weight are NOT the same request, and this row is where that gets
-                // pinned. A filling child takes what is left where it stands -- it has only seen
-                // the header, and in a single-pass engine the footer does not exist yet -- so it
-                // claims parent - header and the footer lands past the edge. Compose behaves the
-                // same way: fillMaxHeight() fills the incoming constraint, it does not reserve
-                // room for later siblings. "Take the remainder" is weight(1f), below.
+                    // FillMax and weight are NOT the same request, and this row is where that gets
+                    // pinned. A filling child takes what is left where it stands -- it has only seen
+                    // the header, and in a single-pass engine the footer does not exist yet -- so it
+                    // claims parent - header and the footer lands past the edge. Compose behaves the
+                    // same way: fillMaxHeight() fills the incoming constraint, it does not reserve
+                    // room for later siblings. "Take the remainder" is weight(1f), below.
                     ChildSizing.FillMax -> parentSize - FIXED
-                // Weight is resolved by the parent AFTER every sibling is measured, so this one
-                // really is the slack both fixed siblings left.
+                    // Weight is resolved by the parent AFTER every sibling is measured, so this one
+                    // really is the slack both fixed siblings left.
                     ChildSizing.Weight, ChildSizing.WeightWithContent -> parentSize - FIXED * 2f
                 }
             }
