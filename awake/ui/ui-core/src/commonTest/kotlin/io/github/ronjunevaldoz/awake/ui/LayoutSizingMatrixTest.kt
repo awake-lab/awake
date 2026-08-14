@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.layouts.UiLayoutDiagnostics
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -61,6 +62,10 @@ class LayoutSizingMatrixTest {
     }
 
     private fun measure(cell: Cell): Float {
+        // This suite exists to RECORD the fallback, so it opts out of the throw that now guards
+        // it for everyone else. Without this the matrix reports the first broken cell instead of
+        // the whole table, which is the one thing it is for.
+        UiLayoutDiagnostics.allowUnplannedWeight = true
         val ui = UiContext()
         ui.beginFrame(FRAME, FRAME, testSnapshot())
         var child: UiBounds? = null
@@ -88,6 +93,7 @@ class LayoutSizingMatrixTest {
             Container.Surface -> root.surface(id = "parent", modifier = parentModifier, content = body)
         }
         ui.endFrame()
+        UiLayoutDiagnostics.allowUnplannedWeight = false
         return child?.height ?: -1f
     }
 

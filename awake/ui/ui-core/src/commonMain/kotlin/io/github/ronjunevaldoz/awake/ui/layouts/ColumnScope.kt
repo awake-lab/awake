@@ -50,6 +50,21 @@ class ColumnScope internal constructor(
             context.recordMeasuredMainAxisFill(weight == null && height == Dimension.FillMax)
             return slot
         }
+        // A weighted child only gets its share from `plannedSlots`, which the owning column
+        // fills in after running resolveWeightedMainAxis(). Reaching here with a weight means
+        // that never happened: the column took the weight and laid the child out as if it had
+        // none. Silently, the child then wraps its content -- which read as a footer painted on
+        // top of a menu, not as "weight is unimplemented here".
+        // Not during measurement: the trial pass that DETECTS weights necessarily runs with no
+        // planned slots yet, so every weighted child legitimately lands here first.
+        if (weight != null && !context.isMeasuringInternal() && !UiLayoutDiagnostics.allowUnplannedWeight) {
+            error(
+                "column() child claimed weight(${weight.weight}) but its parent never planned " +
+                    "weighted slots, so the weight is being dropped and the child will wrap its " +
+                    "content instead. Vertical weight distribution is not wired for this parent " +
+                    "-- see LayoutSizingMatrixTest's Weight rows.",
+            )
+        }
         val resolvedWidth = width.resolve { this.width }
         // See RowScope.claimSlot -- symmetric WrapContent-to-FillMax substitution on the main
         // (height) axis for a weighted child.
