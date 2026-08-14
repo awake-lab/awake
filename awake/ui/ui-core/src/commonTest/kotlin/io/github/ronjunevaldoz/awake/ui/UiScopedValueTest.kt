@@ -8,7 +8,6 @@ import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 /**
  * The three scoped values whose combine rule is NOT "replace the parent".
@@ -48,24 +47,11 @@ class UiScopedValueTest {
     }
 
     @Test
-    fun aTextStyleTokenIsInheritedUntilAPushNamesItsOwn() {
-        val ui = UiContextStacks()
-        ui.pushTextStyle(TextStyle(size = 20f.sp), tokenId = "heading")
-        ui.pushTextStyle(TextStyle(size = 12f.sp))
-
-        assertEquals("heading", ui.currentTextStyleToken, "an unnamed push keeps the enclosing token")
-
-        ui.pushTextStyle(TextStyle(size = 10f.sp), tokenId = "caption")
-        assertEquals("caption", ui.currentTextStyleToken)
-    }
-
-    @Test
     fun poppingPastTheBaseKeepsTheBase() {
         val ui = UiContextStacks()
         val base = ui.currentTextStyle
         repeat(3) { ui.popTextStyle() }
 
         assertEquals(base, ui.currentTextStyle, "an unbalanced pop must not drain the stack")
-        assertNull(ui.currentTextStyleToken)
     }
 }

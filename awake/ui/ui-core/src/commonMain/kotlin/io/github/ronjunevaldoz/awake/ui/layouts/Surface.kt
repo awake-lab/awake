@@ -165,7 +165,7 @@ fun UiPrimitiveScope.surface(
             Dimension.FillMax -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: 0f
             Dimension.WrapContent -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: 4096f
         }
-        context.pushTextStyle(contentTextStyle, tokenId = resolved.textStyleToken)
+        context.pushTextStyle(contentTextStyle)
         try {
             context.measureColumnContent(
                 width = maxContentWidth,
@@ -234,7 +234,7 @@ fun UiPrimitiveScope.surface(
     // theme's own foreground -- which on an inverted surface is the same colour as the
     // background it is sitting on. shadcn's tooltip (bg-foreground/text-background) rendered as
     // an unreadable dark-on-dark pill because of it. An explicit textStyle colour still wins.
-    context.pushTextStyle(contentTextStyle, tokenId = resolved.textStyleToken)
+    context.pushTextStyle(contentTextStyle)
     val effectiveShape = resolved.shapeSpec ?: UiShapeSpec.RoundedRectangle(resolved.shape)
     context.pushShapeSpec(effectiveShape)
 
