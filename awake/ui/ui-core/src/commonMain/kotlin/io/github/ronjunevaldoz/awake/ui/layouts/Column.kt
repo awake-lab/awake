@@ -249,7 +249,18 @@ fun ColumnScope.column(
     verticalArrangement.baseSpacingPx(),
     verticalArrangement,
     style,
-    modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent),
+    // Height is this column's main axis (its host column's vertical axis), so this mirrors
+    // RowScope.column()'s width-side fallback exactly: a plain child hugs its content, but a
+    // weight()-tagged one must defer to FillMax. withSizeFallback() bakes a concrete Dimension
+    // in BEFORE resolveMeasuredColumn()'s own weight-aware deferral can look at it, so an
+    // unconditional WrapContent here permanently fixes the child at its measured content height
+    // -- which then wins over the share the parent's weight distribution already assigned it.
+    // Symptom: the weighted child reported its content height (or 0 when empty) and every
+    // header/content/footer panel collapsed, most visibly a sidebar footer painted over its menu.
+    modifier.withSizeFallback(
+        Dimension.FillMax,
+        if (modifier.layoutWeight != null) Dimension.FillMax else Dimension.WrapContent,
+    ),
     clipContent = false,
     horizontalAlignment = horizontalAlignment,
     cacheKey = cacheKey,
