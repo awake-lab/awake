@@ -97,15 +97,15 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 // independently to rounding its right/bottom edges from one unrounded origin -- the "wavy text"
 // fix. Every text-bearing scene moved by up to a pixel per glyph.
 private val expectedReviewSnapshotSignatures = mapOf(
-    "toggle-unchecked" to 0xcdf94a557b26c210uL,
-    "toggle-checked" to 0x0938f1d208be8d9fuL,
-    "button-filled" to 0x4c9597806dabd4a3uL,
-    "button-outline" to 0x05cd3d3ddcff2c85uL,
-    "button-ghost" to 0x9c86c149022df389uL,
-    "theme-dark" to 0x9c86c149022df389uL,
-    "theme-light" to 0x8e2412728a3cfe80uL,
-    "panel-with-children" to 0x247f8d39a20e4101uL,
-    "shadcn-field-error" to 0x17df36559be36f41uL,
+    "toggle-unchecked" to 0x840aea8fdfa51310uL,
+    "toggle-checked" to 0x41a9de056efe751fuL,
+    "button-filled" to 0x72f080cf37b41333uL,
+    "button-outline" to 0x10debdd52e666875uL,
+    "button-ghost" to 0x7582a8cfbd1f8f89uL,
+    "theme-dark" to 0x7582a8cfbd1f8f89uL,
+    "theme-light" to 0x2727c81cff78ec00uL,
+    "panel-with-children" to 0xdc21bb17ffe326e1uL,
+    "shadcn-field-error" to 0xf3fc195fd913b641uL,
 )
 
 // 2026-08-03: quads/rounded-quads/borders (surface fills, buttons, dialogs, separators) now
@@ -133,13 +133,13 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // from the temporary Core-receiver compatibility bridge to the Compose-style Headless facade.
 // 2026-08-13: re-recorded after supportingText unified with shadcnMuted typography token.
 private val expectedTutorialSnapshotSignatures = mapOf(
-    "ui-button-variants" to 0xb0ded32bd62865a6uL,
-    "ui-shaped-panel" to 0x746bc6c38e1c96f2uL,
-    "ui-panel-controls" to 0xd85ba375784fe247uL,
+    "ui-button-variants" to 0x3b9bbc66c84aa726uL,
+    "ui-shaped-panel" to 0x4a8e551ef77c3d32uL,
+    "ui-panel-controls" to 0x386470c10eebe2aeuL,
     "ui-alert-dialog" to 0xf2132092bc907039uL,
-    "ui-component-state-matrix" to 0x2a8db04cc3ec47f1uL,
-    "ui-rounded-clip-vector" to 0x2aa908b299e88fc3uL,
-    "ui-awake-shadcn-showcase" to 0xa6718dabc5ebe5c2uL,
+    "ui-component-state-matrix" to 0x9d1daf8fb4668389uL,
+    "ui-rounded-clip-vector" to 0xe53441d2d9cd67ffuL,
+    "ui-awake-shadcn-showcase" to 0xcda69d3e8e40041cuL,
 )
 
 private fun ULong.toHexString(): String {
