@@ -155,6 +155,28 @@ When a scope genuinely needs different behaviour, branch on data the scope expos
 function. Add an overload only when the signature itself must differ (different parameters, not
 different defaults), and say why in a comment.
 
+## The showcase catalog is the only catalog
+
+`samples:ui-showcase` publishes one list -- `ShowcasePages` in `ShowcaseCatalog.kt`. The app
+renders it and every preview/layout-signature fixture is derived from it. Do not maintain a
+second list of preview entries in test code.
+
+Three rules keep it honest:
+
+1. **One file per page**, under `ui/pages/<category>/`. The page object owns its own metadata
+   *and* its `hero`/`variants`/`states` renderers. A preview function with no page object is
+   dead code, not a hidden feature.
+2. **`showcasePageOrNull` returns null for an unknown id.** Never reintroduce a fallback to
+   `ShowcasePages.first()`. The old fallback let five test fixtures fingerprint the
+   Introduction page while claiming to cover Range Slider, State, Shimmer, and Field Demo --
+   green tests, zero coverage.
+3. **Preview size lives on the page** (`previewWidth`/`previewHeight`), not in a JVM
+   annotation. Reading fixture metadata by reflection forces a skip on iOS and wasmJs, so the
+   same test silently passes there without asserting anything.
+
+A component shadcn ships that Awake cannot build yet gets a `showcasePlaceholder(...)` entry
+naming the missing primitive, not silence.
+
 ## Checklist
 
 - [ ] Would another skin need this code? If yes it is not design-system code.

@@ -24,7 +24,9 @@ spaghetti.
 
 ### Phase 2: Validation Surface
 
-- [x] keep preview validation wired through `AwakeUiPreview`
+- [x] ~~keep preview validation wired through `AwakeUiPreview`~~ -- superseded 2026-08-14:
+  fixtures are derived from `ShowcasePages` and carry their own metadata, because
+  annotation-driven metadata skipped iOS and wasmJs entirely
 - [x] keep showcase layout signatures green after structural cleanup
 - [x] keep widget snapshot signatures green after adding the component-state matrix baseline
 
@@ -35,6 +37,8 @@ spaghetti.
 - [x] add open-state overlay previews for dropdown menus and alert dialogs
 - [x] keep popup overlays out of wrap-content measurement so preview semantics stay truthful
 - [x] add widget-level preview proofs for slider, tooltip, and scroll panel
+- [x] every public component family has a catalog page (2026-08-14 restructure); visual parity
+  per family is still tracked in `2026-08-12-ui-showcase-parity-tracker.md`
 - [ ] finish field-family parity: input, textarea, select, dropdown menu, popover
 - [ ] finish overlay-family parity: dialog, tooltip, sheet, sidebar, context menu
 - [ ] finish selection-family parity: tabs, radio group, switch, command/menu patterns
@@ -44,5 +48,6 @@ spaghetti.
 ### Phase 4: Future Cleanup
 
 - [ ] decide which sample-local compositions should be promoted into `ui-dsl`
-- [ ] add web preview validation so desktop is not the only proof lane
+- [x] preview validation and layout signatures now run on desktop, iOS, wasmJs, and Android
+  host -- the reflection-based metadata that forced desktop-only proof is gone
 - [x] add a dedicated shadcn parity scorecard -- see [`docs/reference/shadcn-parity.md`](../reference/shadcn-parity.md), built from `ronjunevaldoz/shadcn-compose`'s published `component-metadata.json` (real variant lists + real rendered preview images) rather than scraping `ui.shadcn.com` directly

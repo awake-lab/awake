@@ -22,8 +22,11 @@ import io.github.ronjunevaldoz.awake.ui.headless.weight
  * by composing a row directly once the neutral table contract grows slots. */
 
 class ShadcnTableScope internal constructor(private val owner: ColumnScope) {
+    private var rowIndex = 0
+
     fun row(content: ShadcnTableRowScope.() -> Unit) {
         val cells = ShadcnTableRowScope().also(content).values
+        val rowNumber = rowIndex++
         with(owner) {
             row(horizontalArrangement = Arrangement.Start, modifier = Modifier.height(40f.dp)) {
                 cells.forEachIndexed { index, value ->
@@ -31,11 +34,11 @@ class ShadcnTableScope internal constructor(private val owner: ColumnScope) {
                         label = value,
                         modifier = Modifier.weight(1f),
                         visuals = SurfaceStyle(foreground = themeValues.colors.foreground, textSize = themeValues.typography.body),
-                        semanticId = "cell.$index",
+                        semanticId = "cell.$rowNumber.$index",
                     )
                 }
             }
-            separator()
+            separator(id = "row.$rowNumber.separator")
         }
     }
 }

@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
-import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiPreviews
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.verifyAwakeUiPreview
@@ -22,12 +22,7 @@ import kotlin.test.Test
  */
 private val PixelBaselineIds: Set<String> = setOf(
     "ui-showcase-collapsible",
-    "ui-showcase-collapsible-open",
-    "ui-showcase-field-demo",
-    "ui-showcase-field-matrix",
-    "ui-showcase-easing-rest",
-    "ui-showcase-easing-in-flight",
-    "ui-showcase-easing-settled",
+    "ui-showcase-field",
 )
 
 /**
@@ -67,7 +62,7 @@ class UiShowcasePreviewDocsTest {
         val record = System.getProperty("AWAKE_RECORD_SNAPSHOTS")?.toBoolean() ?: false
         val issues = mutableListOf<String>()
         UiShowcasePreviewEntries.forEach { entry ->
-            renderAnnotatedUiPreviews(entry).forEach { scene ->
+            renderUiPreviews(entry, entry.metadata).forEach { scene ->
                 saveAwakeUiPreview(scene)
                 val config = KnownPreviewIssues[scene.metadata.id] ?: AwakeUiPreviewValidationConfig()
                 val report = validateAwakeUiPreview(scene, config)

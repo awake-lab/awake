@@ -6,28 +6,38 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewOverlapRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class UiShowcasePreviewValidationTest {
 
     @Test
     fun showcasePreviewsPassSharedUiValidationRules() {
-        // Skipped where previewMetadataFor returns the ios-dummy placeholder (no reflection).
-        if (!previewMetadataIsReal()) return
         UiShowcasePreviewEntries.forEach { entry ->
-            val metadata = previewMetadataFor(entry)
-            val frame = entry.render(metadata)
             validateAwakeUiPreview(
-                metadata = metadata,
-                frame = frame,
-                config = configFor(metadata.id),
+                metadata = entry.metadata,
+                frame = entry.render(entry.metadata),
+                config = configFor(entry.page.id),
             ).requireClean()
+        }
+    }
+
+    /** Placeholder pages are registered gaps, not forgotten ones: each must name what is
+     * missing and point at the shadcn source that defines the target. */
+    @Test
+    fun placeholderPagesDeclareWhatIsMissing() {
+        ShowcasePages.filter { it.status == ShowcaseStatus.Placeholder }.forEach { page ->
+            assertTrue(page.referenceExample.isNotBlank(), "${page.id} has no reference example")
+            assertTrue(
+                page.notes.any { it.startsWith("Missing: ") },
+                "${page.id} does not say what is missing",
+            )
         }
     }
 }
 
-private fun configFor(previewId: String): AwakeUiPreviewValidationConfig =
-    when (previewId) {
-        "ui-showcase-theming" -> AwakeUiPreviewValidationConfig(
+private fun configFor(pageId: String): AwakeUiPreviewValidationConfig =
+    when (pageId) {
+        "theming" -> AwakeUiPreviewValidationConfig(
             minContentPaddingPx = 4f,
             paddingAllowIds = setOf("showcase-preview-theming"),
             overlapRules = listOf(
@@ -44,6 +54,6 @@ private fun configFor(previewId: String): AwakeUiPreviewValidationConfig =
         )
         else -> AwakeUiPreviewValidationConfig(
             minContentPaddingPx = 4f,
-            paddingAllowIds = setOf("ui-showcase-preview-$previewId"),
+            paddingAllowIds = setOf("ui-showcase-preview-$pageId"),
         )
     }

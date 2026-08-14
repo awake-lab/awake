@@ -25,6 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidthOrDefault
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 import kotlin.math.round
 
@@ -36,13 +37,14 @@ fun UiScope.shadcnField(
     content: ColumnScope.() -> Unit,
 ): UiBounds = if (orientation == ShadcnFieldOrientation.Vertical) {
     column(
-        modifier = modifier,
+        id = id,
+        modifier = modifier.fillMaxWidthOrDefault(),
         verticalArrangement = Arrangement.spacedBy(12f.dp),
         content = { content() },
     )
 } else {
     row(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidthOrDefault(),
         horizontalArrangement = Arrangement.spacedBy(12f.dp),
         content = { column(verticalArrangement = Arrangement.spacedBy(12f.dp)) { content() } },
     )
@@ -82,7 +84,11 @@ fun UiScope.shadcnFieldSet(
     id: String? = null,
     modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit,
-): UiBounds = column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(24f.dp)) { content() }
+): UiBounds = column(
+    id = id,
+    modifier = modifier.fillMaxWidthOrDefault(),
+    verticalArrangement = Arrangement.spacedBy(24f.dp),
+) { content() }
 
 fun UiScope.shadcnFieldLegend(text: String, modifier: Modifier = Modifier): UiBounds =
     shadcnFieldLabel(text = text, modifier = modifier)
@@ -91,7 +97,11 @@ fun UiScope.shadcnFieldGroup(
     id: String? = null,
     modifier: Modifier = Modifier,
     content: ColumnScope.() -> Unit,
-): UiBounds = column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(28f.dp)) { content() }
+): UiBounds = column(
+    id = id,
+    modifier = modifier.fillMaxWidthOrDefault(),
+    verticalArrangement = Arrangement.spacedBy(28f.dp),
+) { content() }
 
 
 fun UiScope.shadcnFieldSeparator(

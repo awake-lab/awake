@@ -11,8 +11,8 @@ class CanvasDiagnosticTest {
 
     @Test
     fun canvasPreviewEmitsExpectedGradientsClippingAndNestedCoordinates() {
-        val metadata = previewMetadataFor(UiShowcaseCanvasPreview)
-        val frame = UiShowcaseCanvasPreview.render(metadata)
+        val entry = showcasePreviewEntry("canvas")
+        val frame = entry.render(entry.metadata)
         val primitives = frame.primitives
 
         // 1. Validate Gradients

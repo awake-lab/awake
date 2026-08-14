@@ -19,15 +19,29 @@ fun renderAnnotatedUiPreview(entry: AwakeUiPreviewEntry): AwakeUiPreviewScene {
 fun renderAnnotatedUiPreviews(entry: AwakeUiPreviewEntry): List<AwakeUiPreviewScene> {
     val annotation = entry::class.java.getAnnotation(AwakeUiPreview::class.java)
         ?: error("Preview entry ${entry::class.qualifiedName} is missing @AwakeUiPreview")
-    val metadata = AwakeUiPreviewMetadata(
-        id = annotation.id,
-        title = annotation.title,
-        group = annotation.group,
-        summary = annotation.summary,
-        width = annotation.width,
-        height = annotation.height,
-        reportScale = annotation.reportScale,
+    return renderUiPreviews(
+        entry,
+        AwakeUiPreviewMetadata(
+            id = annotation.id,
+            title = annotation.title,
+            group = annotation.group,
+            summary = annotation.summary,
+            width = annotation.width,
+            height = annotation.height,
+            reportScale = annotation.reportScale,
+        ),
     )
+}
+
+/**
+ * Renders with caller-supplied metadata. Prefer this over the annotated variant: reading
+ * metadata off a JVM annotation restricts a fixture to reflective targets, so the same test
+ * silently no-ops on iOS and wasmJs.
+ */
+fun renderUiPreviews(
+    entry: AwakeUiPreviewEntry,
+    metadata: AwakeUiPreviewMetadata,
+): List<AwakeUiPreviewScene> {
     return entry.renderSamples(metadata).map { sample ->
         AwakeUiPreviewScene(
             metadata = AwakeUiPreviewMetadata(

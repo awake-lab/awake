@@ -76,18 +76,62 @@ the verified visual-completion count is **0/23**.
 | Catalog sidebar labels centered / groups weak | design-system sidebar recipe + showcase composition | fixed, visual review pending | `pill` width fixed to `wrapContent`; Typography recipes explicitly left-aligned; Group headers styled with `text-xs font-medium`. |
 | Dropdown options rendered as trigger buttons | Headless menu semantics + recipe | in review | Open-menu interaction test and crop proving menu-item rows. |
 
+## Catalog restructure (2026-08-14)
+
+The showcase now publishes one catalog: `ShowcasePages` in `ShowcaseCatalog.kt`, one file per
+page under `ui/pages/<category>/`. What this replaced, and what it exposed:
+
+| Before | After |
+|---|---|
+| 3 catalogs: 30 shipped pages, 31 test-only preview entries, ~29 parity fixtures | 1 catalog of 54 pages; preview fixtures derived from it |
+| `showcasePageById` fell back to `ShowcasePages.first()` | `showcasePageOrNull` returns null; unknown ids fail loudly |
+| 5 fixtures fingerprinted the Introduction page while naming other components | `everyPageProducesADistinctLayout` asserts no two pages share a fingerprint |
+| 16 preview functions compiled but were never registered | an unregistered preview is dead code, not a hidden page |
+| 4 registered pages rendered prose instead of the component (Tooltip, Drawer, Resizable, Context Menu) | all four render the real component |
+| preview metadata read from a JVM annotation; iOS + wasmJs early-returned | metadata is page data; both targets now run the assertions |
+
+Defects the new coverage surfaced and fixed, all in shared code rather than the sample:
+
+- `UiScope.combobox` passed `semanticId = id` to its trigger label while also recording a
+  `Dropdown` node with `id` -- a duplicate semantic id. `primitiveSelect` had always used the
+  `.label` suffix; the public widget now matches it.
+- `ShadcnTableScope.row` emitted `cell.$index` and an unnamed separator for every row, so any
+  table with more than one row produced duplicate ids. Ids are now row-qualified.
+- `separator()` derived its id from its orientation alone, so one frame could not contain two
+  horizontal separators. It now takes an optional explicit `id`.
+
+- `shadcnField`, `shadcnFieldSet`, and `shadcnFieldGroup` were plain columns, so their children
+  wrap-content and a text field inside one collapsed to roughly its label width and truncated
+  its own value. All three are block-level in shadcn (`fieldVariants` opens `flex w-full`,
+  `FieldGroup` repeats `w-full`, `FieldSet` is a `<fieldset>`), so they now apply a new
+  `Modifier.fillMaxWidthOrDefault()` -- the width counterpart of the existing
+  `heightOrDefault`, which keeps an explicit caller width winning. `ShadcnFieldContainerWidthTest`
+  covers both directions and was checked against the unfixed recipe before landing.
+- `shadcnFieldSet`/`shadcnFieldGroup` accepted an `id` they never passed to their column. Wired
+  through. `shadcnField`'s horizontal branch still drops it: `ui-headless` has no `row(id = ...)`
+  overload.
+
 ## Component-family coverage backlog
 
 The migration report counts recipe files, while this table tracks customer-visible component
 families. A family is verified only after the visual-fidelity gate above is met.
 
-- [ ] Inputs: Button, Badge, Text Field, Text Area, Input OTP, Checkbox, Radio Group, Switch,
-  Slider, Select/Combobox
-- [ ] Layout/navigation: Card, Tabs, Accordion, Collapsible, Breadcrumb, Sidebar, Table,
-  Resizable, Scroll Area, Separator
-- [ ] Overlays: Dialog, Drawer, Sheet, Popover, Tooltip, Dropdown Menu, Context Menu
-- [ ] Status/typography: Alert, Progress, Skeleton, Spinner, Toast, Avatar, Kbd
+Every family below now has a catalog page. A checkbox still means *visually verified* against
+the pinned reference, which the crop gate above still governs -- having a page is necessary,
+not sufficient.
+
+- [ ] Inputs: Button, Badge, Text Field, Text Area, Input OTP, Input Group, Checkbox,
+  Radio Group, Switch, Toggle, Toggle Group, Slider, Range Slider, Select, Combobox, Field
+- [ ] Layout/navigation: Card, Collapsible Card, Tabs, Accordion, Collapsible, Breadcrumb,
+  Sidebar, Resizable, Table, Scroll Area, Separator, Surface, Canvas
+- [ ] Overlays: Dialog, Alert Dialog, Drawer, Sheet, Popover, Dropdown Menu, Context Menu,
+  Tooltip
+- [ ] Status/typography: Alert, Avatar, Progress, Skeleton, Spinner, Toast, Kbd, Empty,
+  Typography
 - [ ] Showcase chrome: catalog sidebar, page header, preview/code tabs, preview card, notes card
+
+Registered as placeholders -- no Awake primitive exists yet, and each page says so on screen:
+Form, Button Group, Item, Chart, Carousel, Date Picker.
 
 ## Immediate execution order
 

@@ -11,34 +11,50 @@ import kotlin.test.assertEquals
  * layout (widget roles, ids, and bounds) is fingerprinted and compared against a recorded
  * signature. Unlike a pixel screenshot, a pure style/color change (recoloring a theme) leaves
  * these signatures untouched; a real layout regression (a widget moving, resizing, or vanishing)
- * changes them -- catching drift at the whole-page level without screenshot flakiness. */
+ * changes them -- catching drift at the whole-page level without screenshot flakiness.
+ *
+ * Every entry is derived from [ShowcasePages], so a page cannot be covered here without being
+ * published in the app, and two entries can no longer share a fingerprint by both falling back
+ * to the same page. */
 class UiShowcaseLayoutSignatureTest {
 
     @Test
     fun showcasePageLayoutsRemainStableAcrossTargets() {
-        // Skipped where previewMetadataFor returns the ios-dummy placeholder (no reflection).
-        if (!previewMetadataIsReal()) return
         val actual = UiShowcasePreviewEntries.associate { entry ->
-            val metadata = previewMetadataFor(entry)
-            val frame = entry.render(metadata)
-            metadata.id to layoutSignature(frame.semantics)
+            entry.metadata.id to layoutSignature(entry.render(entry.metadata).semantics)
         }
 
-        val mismatches = StringBuilder()
         assertEquals(
             expectedShowcaseLayoutSignatures.size,
             actual.size,
             "Preview page count changed. Refresh the expected matrix:\n${actual.toExpectedSignatureMatrix()}",
         )
+
+        val mismatches = StringBuilder()
         expectedShowcaseLayoutSignatures.forEach { (id, expectedSignature) ->
-            val entry = requireNotNull(UiShowcasePreviewEntries.find { previewMetadataFor(it).id == id }) { "Missing preview $id" }
-            val frame = entry.render(previewMetadataFor(entry))
-            val actualSignature = actual.getValue(id)
-            if (actualSignature != expectedSignature) {
-                mismatches.append("$id actual=0x${actualSignature.toString(16)}\n${describeLayout(frame.semantics)}\n\n")
+            val entry = requireNotNull(UiShowcasePreviewEntries.find { it.metadata.id == id }) {
+                "Missing preview $id"
+            }
+            if (actual.getValue(id) != expectedSignature) {
+                val frame = entry.render(entry.metadata)
+                mismatches.append(
+                    "$id actual=0x${actual.getValue(id).toString(16)}\n${describeLayout(frame.semantics)}\n\n",
+                )
             }
         }
         assertEquals("", mismatches.toString(), "Layout drift detected. New matrix:\n${actual.toExpectedSignatureMatrix()}")
+    }
+
+    /** A page whose fingerprint equals another page's is almost always a dispatch bug, not a
+     * coincidence -- that is exactly how the old catalog hid five fixtures rendering the
+     * Introduction page. */
+    @Test
+    fun everyPageProducesADistinctLayout() {
+        val bySignature = UiShowcasePreviewEntries
+            .groupBy { layoutSignature(it.render(it.metadata).semantics) }
+            .filterValues { it.size > 1 }
+            .mapValues { (_, entries) -> entries.map { it.page.id } }
+        assertEquals(emptyMap(), bySignature, "Pages share a layout fingerprint: $bySignature")
     }
 }
 
@@ -47,52 +63,61 @@ private fun Map<String, ULong>.toExpectedSignatureMatrix(): String =
         "\"$id\" to 0x${signature.toString(16)}uL,"
     }
 
-// 2026-08-08: re-recorded -- new semantic roles (Separator/Avatar/Progress/Toast) now
-// record nodes, switch claims measured label width, and the ac03b490/c9d00df7 text/accordion
-// changes were never re-recorded.
-// 2026-08-08: re-recorded after the shadcn token/radius value pass -- card/dialog padding
-// 16->24dp (p-6) reflows content on every page that uses a card.
-// 2026-08-08: re-recorded after the glyph-advance fix -- advances were inflated by the atlas
-// cell padding, so every text run's measured width changed and reflowed the layouts.
-// 2026-08-08: re-recorded after em normalisation was corrected -- text is now its true size
-// and slots size to the line box, so every page reflowed.
-// 2026-08-10: re-recorded after the shadcn parity pass -- Tabs track height 32->36dp (h-9),
-// FieldTextField/FieldDropdown control height 40->36dp (h-9, was the only place using h-10).
-// 2026-08-10 (2): re-recorded after the source-verified parity wave -- radius ladder switched
-// from additive to Tailwind's real multiplicative one (theming), TabsTrigger px-3->px-2 with a
-// flush p-[3px] track (tabs), Field gaps -> gap-3/gap-6/gap-7 (text-input), AccordionContent -> pb-4 (collapsible).
-// 2026-08-13: re-recorded after ShadcnSpacing and ShadcnTypography connected to awake:ui:tailwind tokens.
+// Recorded by `./gradlew :samples:ui-showcase:desktopTest --tests '*UiShowcaseLayoutSignatureTest*'`
+// and pasting the printed matrix. Re-record only after reviewing why the layout moved.
 private val expectedShowcaseLayoutSignatures = mapOf(
-    "ui-showcase-overview" to 0x79188b3c808a23a6uL,
-    "ui-showcase-theming" to 0xb3c522fc421acd1auL,
-    "ui-showcase-typography" to 0xa92190762ab5fcf0uL,
-    "ui-showcase-buttons" to 0x96cb1fa965125481uL,
-    "ui-showcase-avatar" to 0x6d728153633ac22uL,
-    "ui-showcase-breadcrumb" to 0x7d2f897749db0173uL,
-    "ui-showcase-card" to 0x4a8d4075b4d5dde4uL,
-    "ui-showcase-sidebar" to 0x3e34636a2e0aa9fbuL,
-    "shadcn-sidebar-example" to 0xa9329091bd362d84uL,
-    "ui-showcase-input-otp" to 0x63fd67db50af669duL,
-    "ui-showcase-selection" to 0x29b900b9656222bfuL,
-    "ui-showcase-range-slider" to 0x79188b3c808a23a6uL,
-    "ui-showcase-tabs" to 0x270b2e3470b3f800uL,
-    "ui-showcase-select" to 0xf5adf224ab56ded9uL,
-    "ui-showcase-kbd-separator" to 0x31d98453328e6294uL,
-    "ui-showcase-feedback" to 0xad6ee71c2a2e8a12uL,
-    "ui-showcase-alert" to 0x578280880356da3fuL,
-    "ui-showcase-text-input" to 0x8ad66ff9f55804acuL,
-    "ui-showcase-popups" to 0x6063f501bd02ed56uL,
-    "ui-showcase-state" to 0x79188b3c808a23a6uL,
-    "ui-showcase-button-matrix" to 0x1d06f7c87c59c48cuL,
-    "ui-showcase-field-matrix" to 0xd354b39ceba4fa04uL,
-    "ui-showcase-slider-matrix" to 0xa384db218f399fe2uL,
-    "ui-showcase-dropdown-open" to 0xcabb5d30b5f17698uL,
-    "ui-showcase-popover-open" to 0x88a9dcd3456880b9uL,
-    "ui-showcase-tooltip-open" to 0x104714f7f619242fuL,
-    "ui-showcase-alert-dialog" to 0xd51710cce4cdbb28uL,
-    "ui-showcase-scroll-panel" to 0x1af4e701a70132ebuL,
-    "ui-showcase-shimmer" to 0x79188b3c808a23a6uL,
-    "ui-showcase-collapsible" to 0x366104cb75ae1ddbuL,
-    "ui-showcase-collapsible-open" to 0x478be940b1ff6fd6uL,
-    "ui-showcase-field-demo" to 0x79188b3c808a23a6uL,
+    "ui-showcase-introduction" to 0x8a51549d4a297537uL,
+    "ui-showcase-theming" to 0x2112678dfe2efcc9uL,
+    "ui-showcase-button" to 0x142e94a00d686c9fuL,
+    "ui-showcase-badge" to 0x8a523832fa84eed9uL,
+    "ui-showcase-text-input" to 0x9a85c2fde5e45043uL,
+    "ui-showcase-text-area" to 0x12173df50c3c438uL,
+    "ui-showcase-input-otp" to 0x25ec022c8dbdf883uL,
+    "ui-showcase-input-group" to 0xd493d1c169738eaduL,
+    "ui-showcase-checkbox" to 0x6d6a0d113a0c2c58uL,
+    "ui-showcase-radio-group" to 0x9b0bb9d84ba12249uL,
+    "ui-showcase-switch" to 0xc730603597788abauL,
+    "ui-showcase-toggle" to 0x6419b459aa75b4uL,
+    "ui-showcase-toggle-group" to 0x6f1cf99b1a14b8d5uL,
+    "ui-showcase-slider" to 0x43a987e33f0d24a3uL,
+    "ui-showcase-range-slider" to 0xf0aa667a3d81ffb5uL,
+    "ui-showcase-select" to 0x1af1f728e000f49fuL,
+    "ui-showcase-combobox" to 0x4a7dc950546551efuL,
+    "ui-showcase-field" to 0x6d21e0ac695d3c06uL,
+    "ui-showcase-card" to 0x5dddbb775edcf537uL,
+    "ui-showcase-collapsible-card" to 0x97c0a7b9b2bf6ff0uL,
+    "ui-showcase-tabs" to 0x9b387e3d516de71euL,
+    "ui-showcase-accordion" to 0x8e21cff75a5650bduL,
+    "ui-showcase-collapsible" to 0xdacdff8990b1e068uL,
+    "ui-showcase-breadcrumb" to 0xd364ffc680527b16uL,
+    "ui-showcase-sidebar" to 0x8b144fc7644edfd9uL,
+    "ui-showcase-resizable" to 0x10d27118889ab9b3uL,
+    "ui-showcase-table" to 0x2073182b1039b4d6uL,
+    "ui-showcase-scroll-area" to 0x36a1206354c845e1uL,
+    "ui-showcase-separator" to 0x634876b925bd93b9uL,
+    "ui-showcase-surface" to 0x10f57375cf7b4e0fuL,
+    "ui-showcase-canvas" to 0x57943864db953412uL,
+    "ui-showcase-dialog" to 0x3dd23bd345188634uL,
+    "ui-showcase-alert-dialog" to 0x2fe1b2a317dbaf2cuL,
+    "ui-showcase-drawer" to 0xb1ea5de4023e7e16uL,
+    "ui-showcase-sheet" to 0x222b2a06c5918701uL,
+    "ui-showcase-popover" to 0x48593e3a176593d3uL,
+    "ui-showcase-dropdown-menu" to 0xf444ea2b2193d916uL,
+    "ui-showcase-context-menu" to 0x839b5fbba0923d09uL,
+    "ui-showcase-tooltip" to 0x36486ac6b1a4431cuL,
+    "ui-showcase-alert" to 0xf820e3bcf8288ffbuL,
+    "ui-showcase-avatar" to 0x60c7c7d143953af0uL,
+    "ui-showcase-progress" to 0x7b1c5ba08662b0dduL,
+    "ui-showcase-skeleton" to 0x3b7dde50cac61a51uL,
+    "ui-showcase-spinner" to 0x7eff83aba2c368a2uL,
+    "ui-showcase-toast" to 0x8d45b3fab5533a30uL,
+    "ui-showcase-kbd" to 0xea2b94c4507aaf64uL,
+    "ui-showcase-empty" to 0x48b50f2e270e107cuL,
+    "ui-showcase-typography" to 0x6f3e20d589d74d17uL,
+    "ui-showcase-form" to 0xc3b6b1bb69fa9491uL,
+    "ui-showcase-button-group" to 0x756af5d8fda3e968uL,
+    "ui-showcase-item" to 0xf66fd9521ea08146uL,
+    "ui-showcase-chart" to 0x2c43bd692ce80f2buL,
+    "ui-showcase-carousel" to 0x5f57a615951f44e7uL,
+    "ui-showcase-date-picker" to 0x89df9422a8722dc8uL,
 )
