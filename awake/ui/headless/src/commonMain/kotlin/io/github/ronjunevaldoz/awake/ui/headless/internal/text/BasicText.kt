@@ -68,7 +68,7 @@ internal fun UiPrimitiveScope.renderTextBlock(
     // A line's ink band is glyphPx * lineHeightEm tall (Roboto ~1.19em), not glyphPx: a slot
     // sized at the font size alone cannot contain the text measured into it.
     val lineMetrics = resolveTextLineMetrics(font, glyphPx, textStyle)
-    val blockMetrics = measureTextBlock(layout, font, glyphPx, lineMetrics, opticallyCentered = verticallyCentered)
+    val blockMetrics = measureTextBlock(layout, font, glyphPx, lineMetrics)
     val shouldClip = wrap != UiTextWrap.None || overflow != UiTextOverflow.Visible || maxLines > 1
     val contentBounds = resolveTextContentBounds(
         slot = slot,
@@ -108,10 +108,17 @@ internal fun UiPrimitiveScope.renderTextBlock(
         shimmerX: Float? = null,
         shimmerWidth: Float? = null,
     ) {
-        var penY = if (verticallyCentered) {
-            slot.y + (slot.height - blockMetrics.heightPx) / 2f - blockMetrics.topPx
-        } else {
-            slot.y - blockMetrics.topPx
+        var penY = when {
+            // A single centred line reads as centred when its CAP BOX is, not its ink box --
+            // ink carries a descender only some strings have, so centring on it would shuffle
+            // "Tag" against "Tan" in the same badge.
+            verticallyCentered && layout.lines.size == 1 ->
+                slot.y + slot.height / 2f - capBoxCenterEm(font) * glyphPx
+
+            verticallyCentered ->
+                slot.y + (slot.height - blockMetrics.heightPx) / 2f - blockMetrics.topPx
+
+            else -> slot.y - blockMetrics.topPx
         }
         layout.lines.forEachIndexed { index, line ->
             val textWidth = layout.lineWidths[index]
@@ -351,24 +358,29 @@ private data class UiMeasuredTextBlock(
     val heightPx: Float,
 )
 
+/**
+ * The block's full ink extent -- every line, descenders included.
+ *
+ * This is a HEIGHT, not a centering reference. Optical centering asks a different question
+ * ("where does the cap box sit?") and is answered by [capBoxCenterEm]; folding that into this
+ * band once produced an inverted range (bottom pinned to the line origin, above a positive
+ * `visibleTopEm`) which fell through to the guard below and reported a fabricated height.
+ */
 private fun measureTextBlock(
     layout: UiBitmapTextLayout,
     font: UiFont,
     glyphPx: Float,
     lineMetrics: UiTextLineMetrics,
-    opticallyCentered: Boolean = false,
 ): UiMeasuredTextBlock {
     if (layout.lines.isEmpty()) {
         return UiMeasuredTextBlock(topPx = 0f, heightPx = 0f)
     }
     var blockTopPx = Float.POSITIVE_INFINITY
     var blockBottomPx = Float.NEGATIVE_INFINITY
-    val isSingleLine = layout.lines.size == 1
-    layout.lines.forEachIndexed { index, line ->
-        val (lineTopEm, lineBottomEm) = measureVisibleLineBandEm(font, opticallyCentered && isSingleLine)
+    layout.lines.forEachIndexed { index, _ ->
         val lineOriginY = index * (lineMetrics.lineHeightPx + lineMetrics.lineGapPx)
-        blockTopPx = minOf(blockTopPx, lineOriginY + lineTopEm * glyphPx)
-        blockBottomPx = maxOf(blockBottomPx, lineOriginY + lineBottomEm * glyphPx)
+        blockTopPx = minOf(blockTopPx, lineOriginY + font.visibleTopEm * glyphPx)
+        blockBottomPx = maxOf(blockBottomPx, lineOriginY + font.visibleBottomEm * glyphPx)
     }
     if (!blockTopPx.isFinite() || !blockBottomPx.isFinite() || blockBottomPx <= blockTopPx) {
         return UiMeasuredTextBlock(topPx = 0f, heightPx = glyphPx)
@@ -379,14 +391,13 @@ private fun measureTextBlock(
     )
 }
 
-private fun measureVisibleLineBandEm(font: UiFont, opticallyCentered: Boolean = false): Pair<Float, Float> {
-    if (opticallyCentered) {
-        // For single-line vertically centered text (badges, buttons, chips, tabs),
-        // center on the cap-height/ascent box so text sits in the true optical middle.
-        return font.visibleTopEm to 0f
-    }
-    return font.visibleTopEm to font.visibleBottomEm
-}
+/**
+ * Centre of the font's cap box (baseline up to cap height), measured down from the line origin.
+ *
+ * Derived from font metrics rather than the laid-out string, so a descender cannot drag the
+ * capitals beside it off-centre -- "Tag" and "Tan" must place their 'T' identically.
+ */
+private fun capBoxCenterEm(font: UiFont): Float = font.ascentEm - font.capHeightEm / 2f
 
 fun layoutBitmapText(
     label: String,
