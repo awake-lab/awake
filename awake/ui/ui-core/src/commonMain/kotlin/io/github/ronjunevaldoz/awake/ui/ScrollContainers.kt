@@ -30,6 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.onScrollConsumed
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.context.UNBOUNDED_MAIN_AXIS
 
 data class UiScrollPanelResult(
     val slot: UiBounds,
@@ -100,6 +101,12 @@ fun UiPrimitiveScope.scrollPanel(
         }
         return if (isBounded && value != null) {
             value
+        } else if (context.isMeasuringInternal()) {
+            // A trial pass now reports its sentinel height as unbounded, which is true but is not
+            // the caller's mistake -- and the trial scope is anonymous, so throwing here names no
+            // one. Let the trial finish; the real placement pass reaches the same check with the
+            // actual scope and its testTag, and throws there.
+            value ?: UNBOUNDED_MAIN_AXIS
         } else {
             error(
                 "Scrollable container '$containerLabel' requested $axis=FillMax under unbounded parent ${debugScopeLabel()}. " +
