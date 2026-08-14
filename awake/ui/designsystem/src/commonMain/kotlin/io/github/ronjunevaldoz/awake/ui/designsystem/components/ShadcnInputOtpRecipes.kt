@@ -57,6 +57,11 @@ fun UiScope.shadcnInputOTP(
                     }
                 }
             }
+            // The backing field only carries keystrokes and focus -- the slots above are what the
+            // user reads. Its own text must be invisible too, not just its box: at 1dp wide it
+            // still painted the full value (a 88px Text node at the row's trailing edge, clipped
+            // by the container to a ~2px smudge right of the last slot). Transparent foreground
+            // covers the text and the caret, both of which the slots already represent.
             val input = textField(
                 id = id,
                 value = value,
@@ -64,6 +69,7 @@ fun UiScope.shadcnInputOTP(
                 visuals = io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals(
                     rest = SurfaceStyle(
                         background = io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
+                        foreground = io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
                         border = SurfaceBorder(0f.dp, io.github.ronjunevaldoz.awake.core.colors.Color.Transparent),
                     ),
                 ),

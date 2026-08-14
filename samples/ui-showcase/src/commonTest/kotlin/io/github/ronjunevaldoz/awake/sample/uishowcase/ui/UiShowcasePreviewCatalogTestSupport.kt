@@ -89,6 +89,7 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseFeedbackPreview,
     UiShowcaseAlertPreview,
     UiShowcaseTextInputPreview,
+    UiShowcaseInputOtpPreview,
     UiShowcasePopupsPreview,
     UiShowcaseStatePreview,
     UiShowcaseButtonMatrixPreview,
@@ -1371,4 +1372,18 @@ private fun renderShadcnSidebarExamplePreviewFrame(
             semantics = ui.semanticNodes(),
         )
     }
+}
+
+@AwakeUiPreview(
+    id = "ui-showcase-input-otp",
+    title = "Input OTP",
+    group = "Inputs",
+    summary = "Segmented one-time-password entry -- six slots over one hidden backing field.",
+    width = 640,
+    height = 300,
+    reportScale = 2,
+)
+internal object UiShowcaseInputOtpPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderUiShowcasePagePreviewFrame(metadata, pageId = "input-otp")
 }
