@@ -588,14 +588,40 @@ class UiContext internal constructor(
         insets: UiInsets = UiInsets.Zero,
         height: Float = UNBOUNDED_MAIN_AXIS,
         content: ColumnScope.(slot: UiBounds) -> Unit,
-    ): UiMeasuredContent = measurement.measureColumnContent(
-        width = width,
-        gap = gap,
-        insets = insets,
-        height = height,
-        sourceContext = this,
-        content = content,
-    )
+    ): UiMeasuredContent = withOwnMeasurementScope {
+        measurement.measureColumnContent(
+            width = width,
+            gap = gap,
+            insets = insets,
+            height = height,
+            sourceContext = this,
+            content = content,
+        )
+    }
+
+    /**
+     * Runs [block] as its own measurement accounting scope, ignoring any suppression an ancestor
+     * put in place.
+     *
+     * [recordMeasuredSlot]/[recordMeasuredWeight] gate on these depths, and the depths are
+     * context-global while a nested measure pass builds a FRESH result. So a container measuring
+     * its own children inside a surface or a scroll viewport -- both of which suppress during
+     * content dispatch, correctly, so descendants do not corrupt an ANCESTOR's accounting -- saw
+     * every weight silently dropped and concluded it had no weighted children. The suppression is
+     * about what leaks upward; it should never blind a pass to its own direct children.
+     */
+    private inline fun <T> withOwnMeasurementScope(block: () -> T): T {
+        val previousWrap = wrapContributionSuppressionDepth
+        val previousRecording = recordingSuppressionDepth
+        wrapContributionSuppressionDepth = 0
+        recordingSuppressionDepth = 0
+        try {
+            return block()
+        } finally {
+            wrapContributionSuppressionDepth = previousWrap
+            recordingSuppressionDepth = previousRecording
+        }
+    }
 
     @Deprecated(
         message = "Measurement should be coordinated from UiPrimitiveScope/layout helpers, not from the public UiContext surface.",
