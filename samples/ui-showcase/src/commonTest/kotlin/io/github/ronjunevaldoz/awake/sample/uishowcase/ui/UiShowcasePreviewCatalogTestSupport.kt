@@ -52,6 +52,17 @@ import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnIcons
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarFooterButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHeaderButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuSub
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuSubItem
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.headless.uiScope
@@ -69,6 +80,7 @@ internal val UiShowcasePreviewEntries: List<AwakeUiPreviewEntry> = listOf(
     UiShowcaseBreadcrumbPreview,
     UiShowcaseCardPreview,
     UiShowcaseSidebarPreview,
+    ShadcnSidebarExamplePreview,
     UiShowcaseSelectionPreview,
     UiShowcaseRangeSliderPreview,
     UiShowcaseTabsPreview,
@@ -1232,5 +1244,131 @@ private inline fun <T> withPreviewDensity(scale: Int, block: () -> T): T {
     } finally {
         UiDensity.scale = previousScale
         UiDensity.fontScale = previousFontScale
+    }
+}
+
+/**
+ * The shadcn sidebar-07 example, rebuilt on Awake's own sidebar recipes.
+ *
+ * Deliberately bare -- no preview card, badge or section title -- so the raster can be laid next
+ * to a screenshot of the real example and compared directly. Every other layout preview wraps its
+ * subject in showcase chrome, which is fine for a catalogue and useless for parity.
+ */
+@AwakeUiPreview(
+    id = "shadcn-sidebar-example",
+    title = "Sidebar (shadcn example)",
+    group = "Layout",
+    summary = "Header switcher, one labelled group with an expanded submenu, and a pinned account footer.",
+    width = 680,
+    height = 440,
+    reportScale = 2,
+)
+internal object ShadcnSidebarExamplePreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        renderShadcnSidebarExamplePreviewFrame(metadata)
+}
+
+private fun renderShadcnSidebarExamplePreviewFrame(
+    metadata: AwakeUiPreviewMetadata,
+): AwakeUiPreviewFrame {
+    val previewScale = metadata.reportScale.coerceAtLeast(1)
+    val state = UiShowcaseRuntimeState()
+    val theme = state.showcaseTheme()
+    val font = UiFonts.default(cellSize = 12 * previewScale)
+    val ui = UiContext()
+
+    return withPreviewDensity(previewScale) {
+        // Authored in dp, not raster px. `rasterWidth/rasterHeight` are already width x
+        // reportScale, so feeding them to `.dp` scales them a second time and the root box comes
+        // out twice the frame -- a fillMaxHeight child then resolves against a height no one can
+        // see, and a weighted child divides it into nonsense.
+        val insetDp = 16f
+        val previewInput = Input()
+        previewInput.setPointer(down = false, x = -100f, y = -100f)
+        ui.beginFrame(
+            metadata.rasterWidth.toFloat(),
+            metadata.rasterHeight.toFloat(),
+            previewInput.updateSnapshot().toUiInputState(),
+        )
+        ui.pushFont(font)
+        ui.pushTheme(theme)
+        ui.headlessRoot().row(
+            modifier = Modifier
+                .offset((insetDp * previewScale).px, (insetDp * previewScale).px)
+                .width((metadata.width.toFloat() - insetDp * 2f).dp)
+                .height((metadata.height.toFloat() - insetDp * 2f).dp),
+        ) {
+            shadcnSidebar(
+                id = "shadcn-sidebar-example",
+                modifier = Modifier.width(256f.dp).fillMaxHeight(),
+                header = {
+                    shadcnSidebarHeaderButton(
+                        id = "shadcn-sidebar-example.team",
+                        title = "Acme Inc",
+                        subtitle = "Enterprise",
+                    )
+                },
+                footer = {
+                    shadcnSidebarFooterButton(
+                        id = "shadcn-sidebar-example.account",
+                        name = "shadcn",
+                        email = "m@example.com",
+                    )
+                },
+            ) {
+                shadcnSidebarGroup(label = "Platform") {
+                    shadcnSidebarMenu {
+                        shadcnSidebarMenuItem(
+                            id = "shadcn-sidebar-example.playground",
+                            label = "Playground",
+                            icon = ShadcnIcons.sparkles,
+                            active = true,
+                        )
+                        shadcnSidebarMenuSub {
+                            shadcnSidebarMenuSubItem(
+                                id = "shadcn-sidebar-example.history",
+                                label = "History",
+                            )
+                            shadcnSidebarMenuSubItem(
+                                id = "shadcn-sidebar-example.starred",
+                                label = "Starred",
+                            )
+                            shadcnSidebarMenuSubItem(
+                                id = "shadcn-sidebar-example.sub-settings",
+                                label = "Settings",
+                            )
+                        }
+                        shadcnSidebarMenuItem(
+                            id = "shadcn-sidebar-example.models",
+                            label = "Models",
+                            icon = ShadcnIcons.cube,
+                        )
+                        shadcnSidebarMenuItem(
+                            id = "shadcn-sidebar-example.documentation",
+                            label = "Documentation",
+                            icon = ShadcnIcons.documentText,
+                        )
+                        shadcnSidebarMenuItem(
+                            id = "shadcn-sidebar-example.settings",
+                            label = "Settings",
+                            icon = ShadcnIcons.cog6Tooth,
+                        )
+                    }
+                }
+            }
+            shadcnSurface(
+                id = "shadcn-sidebar-example.canvas",
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+            ) {
+                icon(ShadcnIcons.squares2x2)
+            }
+        }
+
+        AwakeUiPreviewFrame(
+            primitives = ui.endFrame(),
+            background = theme.colors.background,
+            font = font,
+            semantics = ui.semanticNodes(),
+        )
     }
 }
