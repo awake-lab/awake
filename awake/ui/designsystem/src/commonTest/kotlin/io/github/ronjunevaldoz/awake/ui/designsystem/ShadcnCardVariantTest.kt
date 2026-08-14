@@ -8,9 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -28,12 +26,12 @@ class ShadcnCardVariantTest {
             ui.pushTheme(ShadcnTheme)
             ui.beginFrame(200f, 200f, testSnapshot())
             ui.headlessRoot().shadcnCard(
-                    id = "card",
-                    variant = variant,
-                    modifier = Modifier,
-                ) {
-                    // no body content needed
-                }
+                id = "card",
+                variant = variant,
+                modifier = Modifier,
+            ) {
+                // no body content needed
+            }
             return ui.finishFrame().primitives.count { it is UiDrawPrimitive.Quad || it is UiDrawPrimitive.ShadowQuad }
         }
 

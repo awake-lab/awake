@@ -30,9 +30,9 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlinx.coroutines.test.runTest
+import kotlin.math.PI
 import kotlin.math.sin
 import kotlin.math.tan
-import kotlin.math.PI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -200,6 +200,7 @@ class StudioModuleCameraTest {
         const val TOLERANCE = 1e-4f
         const val THIRD_PERSON_DISTANCE = 5f
         const val TOP_DOWN_DISTANCE = 15f
+
         // kotlin.math.PI, not java.lang.Math: this is commonTest, and Math only exists on the
         // JVM -- the wasmJs and native test compilations failed on it. Desktop-only runs cannot
         // see that, which is why it survived until a full `gradlew build`.

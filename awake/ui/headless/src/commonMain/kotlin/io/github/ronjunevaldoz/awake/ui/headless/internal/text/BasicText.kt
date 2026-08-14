@@ -2,10 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless.internal.text
 
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.interact
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.UiInteraction
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
-
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient

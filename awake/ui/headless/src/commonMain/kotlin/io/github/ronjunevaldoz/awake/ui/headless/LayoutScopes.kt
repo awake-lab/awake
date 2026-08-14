@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope as PrimitiveAbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope as PrimitiveBoxScope
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope as PrimitiveColumnScope

@@ -3,9 +3,9 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarFooterButton
@@ -122,7 +122,9 @@ class ShowcaseShellSidebarTest {
             shadcnSidebar(
                 id = "ui-showcase-sidebar",
                 modifier = Modifier.width(264f.dp).fillMaxHeight(),
-                header = if (!headerInSlot) null else {
+                header = if (!headerInSlot) {
+                    null
+                } else {
                     {
                         shadcnSidebarHeaderButton(
                             id = "ui-showcase-team-switcher",

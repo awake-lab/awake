@@ -6,9 +6,9 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeComponents
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiComponentVisuals
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeComponents
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 interface UiComponentStyles {
@@ -55,44 +55,56 @@ class CoreUiComponentStyles(
         borderColor(tokens.border)
         textSize(typography.label)
     }
-    override val avatar: Style = style(visuals.avatar, Style {
-        background(tokens.muted)
-        foreground(tokens.foreground)
-        textSize(typography.label)
-    })
-    override val slider: Style = style(visuals.slider, Style {
-        background(tokens.background)
-        foreground(tokens.foreground)
-        borderWidth(1f.dp)
-        borderColor(tokens.border)
-        hovered { background(tokens.muted) }
-        active { borderColor(tokens.accent) }
-        textSize(typography.label)
-    })
+    override val avatar: Style = style(
+        visuals.avatar,
+        Style {
+            background(tokens.muted)
+            foreground(tokens.foreground)
+            textSize(typography.label)
+        },
+    )
+    override val slider: Style = style(
+        visuals.slider,
+        Style {
+            background(tokens.background)
+            foreground(tokens.foreground)
+            borderWidth(1f.dp)
+            borderColor(tokens.border)
+            hovered { background(tokens.muted) }
+            active { borderColor(tokens.accent) }
+            textSize(typography.label)
+        },
+    )
     override val dropdown: Style = style(visuals.dropdown, tokens.neutralStyle()) then Style {
         borderWidth(1f.dp)
         borderColor(tokens.border)
         shape(UiShape.sm)
         textSize(typography.label)
     }
-    override val surface: Style = style(visuals.surface, Style {
-        background(tokens.background)
-        foreground(tokens.foreground)
-        contentPadding(UiSpacing.sm)
-    })
-    override val textField: Style = style(visuals.textField, Style {
-        background(tokens.background)
-        foreground(tokens.foreground)
-        borderWidth(1f.dp)
-        borderColor(tokens.border)
-        shape(UiShape.sm)
-        contentPadding(UiSpacing.sm)
-        textSize(typography.label)
-        focused { borderColor(tokens.primary) }
-        disabled {
-            background(tokens.muted)
-            foreground(tokens.mutedForeground)
+    override val surface: Style = style(
+        visuals.surface,
+        Style {
+            background(tokens.background)
+            foreground(tokens.foreground)
+            contentPadding(UiSpacing.sm)
+        },
+    )
+    override val textField: Style = style(
+        visuals.textField,
+        Style {
+            background(tokens.background)
+            foreground(tokens.foreground)
+            borderWidth(1f.dp)
             borderColor(tokens.border)
-        }
-    })
+            shape(UiShape.sm)
+            contentPadding(UiSpacing.sm)
+            textSize(typography.label)
+            focused { borderColor(tokens.primary) }
+            disabled {
+                background(tokens.muted)
+                foreground(tokens.mutedForeground)
+                borderColor(tokens.border)
+            }
+        },
+    )
 }

@@ -4,13 +4,10 @@
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
-
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -20,15 +17,14 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidthOrDefault
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidthOrDefault
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 import kotlin.math.round
-
 
 fun UiScope.shadcnField(
     id: String? = null,
@@ -103,7 +99,6 @@ fun UiScope.shadcnFieldGroup(
     verticalArrangement = Arrangement.spacedBy(28f.dp),
 ) { content() }
 
-
 fun UiScope.shadcnFieldSeparator(
     modifier: Modifier = Modifier,
     label: String? = null,
@@ -126,11 +121,8 @@ fun UiScope.shadcnFieldSeparator(
             modifier = Modifier.weight(1f).height(1f.dp),
             style = SurfaceStyle(background = themeValues.colors.border),
         ) {}
-
     }
 }
-
-
 
 fun UiScope.shadcnFieldTextField(
     id: String,

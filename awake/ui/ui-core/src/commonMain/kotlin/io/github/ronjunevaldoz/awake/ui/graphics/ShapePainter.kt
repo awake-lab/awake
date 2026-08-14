@@ -3,13 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui.graphics
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.UiStroke
 import io.github.ronjunevaldoz.awake.ui.UiStrokeCap
 import io.github.ronjunevaldoz.awake.ui.UiStrokeJoin
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
@@ -208,7 +208,7 @@ fun UiPrimitiveScope.emitCheckmark(slot: UiBounds) {
     emitPrimitive(
         UiDrawPrimitive.StrokedPath(
             path = path,
-        stroke = UiStroke(1.75f.px, UiStrokeCap.Round, UiStrokeJoin.Round),
+            stroke = UiStroke(1.75f.px, UiStrokeCap.Round, UiStrokeJoin.Round),
             color = context.currentTheme.colors.primaryForeground,
         ),
         overlay = false,

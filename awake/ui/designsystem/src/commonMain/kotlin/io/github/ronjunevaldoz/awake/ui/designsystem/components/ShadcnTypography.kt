@@ -18,17 +18,17 @@ import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
  * Official shadcn/ui typography variants mapped to Tailwind v4 font sizes.
  */
 enum class ShadcnTextStyle {
-    H1,          // 4xl font-extrabold
-    H2,          // 3xl font-semibold
-    H3,          // 2xl font-semibold
-    H4,          // xl font-semibold
-    P,           // base
-    Lead,        // xl text-muted-foreground
-    Large,       // lg font-semibold
-    Small,       // sm font-medium
-    Muted,       // sm text-muted-foreground
-    Blockquote,  // italic, border-l-2, pl-4
-    Code,        // mono, rounded, bg-muted, px-1.5 py-0.5
+    H1, // 4xl font-extrabold
+    H2, // 3xl font-semibold
+    H3, // 2xl font-semibold
+    H4, // xl font-semibold
+    P, // base
+    Lead, // xl text-muted-foreground
+    Large, // lg font-semibold
+    Small, // sm font-medium
+    Muted, // sm text-muted-foreground
+    Blockquote, // italic, border-l-2, pl-4
+    Code, // mono, rounded, bg-muted, px-1.5 py-0.5
 }
 
 /**

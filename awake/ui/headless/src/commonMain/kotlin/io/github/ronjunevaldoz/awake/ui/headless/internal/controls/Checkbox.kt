@@ -2,10 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.interact
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.UiInteraction
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
-
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
@@ -16,17 +12,17 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.graphics.emitCheckmark
 import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetDash
 import io.github.ronjunevaldoz.awake.ui.graphics.emitRadioDot
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.paintSurface
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.resolveInteractiveSurface
+import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow
+import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow
-import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.paintSurface
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.resolveInteractiveSurface
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 // Dp, not raw px: every coordinate it is added to below (`boxPx`, `surface.interaction.slot`)

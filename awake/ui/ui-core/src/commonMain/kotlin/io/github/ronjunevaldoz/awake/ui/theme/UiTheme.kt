@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.ui.theme
 
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiShapeTokens
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
 
 /**
  * A complete, swappable look for a [io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope] -- assigned once at `ui.column(..., theme = ...)`.

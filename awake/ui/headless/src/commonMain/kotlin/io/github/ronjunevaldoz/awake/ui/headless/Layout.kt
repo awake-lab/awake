@@ -85,18 +85,18 @@ fun Modifier.padding(
     start: Dp = 0f.dp,
     top: Dp = 0f.dp,
     end: Dp = 0f.dp,
-    bottom: Dp = 0f.dp
+    bottom: Dp = 0f.dp,
 ): Modifier = HeadlessModifier(
-    asPrimitiveModifier().primitivePadding(start, top, end, bottom)
+    asPrimitiveModifier().primitivePadding(start, top, end, bottom),
 )
 
 fun Modifier.margin(
     start: Dp = 0f.dp,
     top: Dp = 0f.dp,
     end: Dp = 0f.dp,
-    bottom: Dp = 0f.dp
+    bottom: Dp = 0f.dp,
 ): Modifier = HeadlessModifier(
-    asPrimitiveModifier().primitiveOffset(start, top) // Margin not yet in Core, approximating with offset
+    asPrimitiveModifier().primitiveOffset(start, top), // Margin not yet in Core, approximating with offset
 )
 
 fun Modifier.offset(x: Dp = Dp(0f), y: Dp = Dp(0f)): Modifier =

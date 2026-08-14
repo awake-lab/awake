@@ -38,7 +38,7 @@ class DialogTest {
         assertTrue(
             output.primitives.any { primitive ->
                 (primitive is UiDrawPrimitive.RoundedQuad && primitive.color == Color.White) ||
-                (primitive is UiDrawPrimitive.Quad && primitive.color == Color.White)
+                    (primitive is UiDrawPrimitive.Quad && primitive.color == Color.White)
             },
             "expected a white surface quad/rounded-quad in output primitives: ${output.primitives}",
         )

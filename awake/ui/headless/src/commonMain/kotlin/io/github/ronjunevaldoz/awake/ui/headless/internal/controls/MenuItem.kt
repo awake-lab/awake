@@ -2,20 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.interact
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.UiInteraction
-import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
-
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
-import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiBitmapTextLayout
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.layoutBitmapText
+import io.github.ronjunevaldoz.awake.ui.toPx
 
 /**
  * The subset of a menu item's shape [intrinsicMenuWidthPx] needs -- deliberately narrower than

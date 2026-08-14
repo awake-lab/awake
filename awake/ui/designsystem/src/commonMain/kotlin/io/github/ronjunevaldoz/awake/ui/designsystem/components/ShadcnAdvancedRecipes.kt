@@ -50,4 +50,3 @@ fun UiScope.shadcnScrollArea(
     ),
     content = content,
 )
-

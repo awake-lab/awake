@@ -4,17 +4,12 @@
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-
-import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.visuals
-import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
-
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
-
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
@@ -33,11 +28,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.textField
 import io.github.ronjunevaldoz.awake.ui.headless.textarea
 
-
-
 internal fun fieldVisuals(values: UiThemeValues, variant: ShadcnTextFieldVariant): SurfaceVisuals =
     variant.visuals(values)
-
 
 /** SelectContent rows are menu items, so they intentionally do not reuse trigger chrome. */
 private fun selectOptionVisuals(values: UiThemeValues): SurfaceVisuals = SurfaceVisuals(
@@ -80,8 +72,6 @@ fun UiScope.shadcnSelect(
     optionVisuals = selectOptionVisuals(themeValues),
     enabled = enabled,
 )
-
-
 
 fun UiScope.shadcnCombobox(
     id: String,
@@ -209,7 +199,6 @@ fun UiScope.shadcnRangeSlider(
     enabled = enabled,
 )
 
-
 fun UiScope.shadcnInputGroup(
     id: String,
     value: String,
@@ -259,6 +248,3 @@ fun UiScope.shadcnInputGroup(
     }
     return result
 }
-
-
-

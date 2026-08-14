@@ -30,7 +30,7 @@ class HeadlessCanvasScope internal constructor(
         y: Float,
         width: Float,
         height: Float,
-        content: HeadlessCanvasScope.() -> Unit
+        content: HeadlessCanvasScope.() -> Unit,
     ) {
         primitive.nested(x, y, width, height) {
             HeadlessCanvasScope(this, UiBounds(bounds.x + x, bounds.y + y, width, height)).content()
@@ -45,7 +45,7 @@ class HeadlessCanvasScope internal constructor(
         y: Float,
         width: Float,
         height: Float,
-        gradient: HeadlessCanvasGradient
+        gradient: HeadlessCanvasGradient,
     ) =
         primitive.drawGradientRect(
             x,
@@ -90,7 +90,7 @@ class HeadlessCanvasScope internal constructor(
         y: Float,
         width: Float,
         height: Float,
-        content: HeadlessCanvasScope.() -> Unit
+        content: HeadlessCanvasScope.() -> Unit,
     ) {
         primitive.clipRect(x, y, width, height) {
             HeadlessCanvasScope(this, bounds).content()
@@ -101,7 +101,7 @@ class HeadlessCanvasScope internal constructor(
         primitive.clipShape(UiShapeSpec.Circle, x, y, diameter, diameter) {
             HeadlessCanvasScope(
                 this,
-                UiBounds(bounds.x + x, bounds.y + y, diameter, diameter)
+                UiBounds(bounds.x + x, bounds.y + y, diameter, diameter),
             ).content()
         }
     }

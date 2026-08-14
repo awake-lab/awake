@@ -3,12 +3,12 @@
 package io.github.ronjunevaldoz.awake.ui.layouts
 
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
-import io.github.ronjunevaldoz.awake.ui.childRow
-import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
-import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.childRow
+import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
+import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -270,7 +270,9 @@ fun UiPrimitiveScope.row(
                 horizontalArrangement.baseSpacingPx(),
                 content = content,
             )
-        } else null
+        } else {
+            null
+        }
         val resolvedWidth = when (requestedWidth) {
             Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
             else -> requestedWidth

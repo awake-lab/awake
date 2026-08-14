@@ -7,14 +7,13 @@ import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
-
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.icon
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import io.github.ronjunevaldoz.awake.ui.uiImageVector
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.icon
+import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -255,15 +254,15 @@ class IconFidelityTest {
         reportDir.mkdirs()
         File(reportDir, "metrics.tsv").writeText(
             "icon\tiou\tmismatchPct\n" +
-                    results.joinToString("\n") { (name, iou, mismatchPct) -> "$name\t$iou\t$mismatchPct" } + "\n",
+                results.joinToString("\n") { (name, iou, mismatchPct) -> "$name\t$iou\t$mismatchPct" } + "\n",
         )
 
         val failures = results.filter { it.second < passThreshold }
         assertTrue(
             failures.isEmpty(),
             "icon(s) below the fidelity threshold (IoU >= $passThreshold) -- inspect " +
-                    "build/reports/icon-fidelity/<icon>.png (reference | ours | diff):\n" +
-                    failures.joinToString("\n") { (name, iou, mismatchPct) -> "  $name: iou=$iou mismatchPct=$mismatchPct%" },
+                "build/reports/icon-fidelity/<icon>.png (reference | ours | diff):\n" +
+                failures.joinToString("\n") { (name, iou, mismatchPct) -> "  $name: iou=$iou mismatchPct=$mismatchPct%" },
         )
     }
 
@@ -309,7 +308,7 @@ class IconFidelityTest {
         assertTrue(
             corruptedMetrics.iou < passThreshold,
             "the guard must reject a corrupted icon: corrupted iou=${corruptedMetrics.iou} " +
-                    "vs correct iou=${correctMetrics.iou} (threshold=$passThreshold)",
+                "vs correct iou=${correctMetrics.iou} (threshold=$passThreshold)",
         )
     }
 }

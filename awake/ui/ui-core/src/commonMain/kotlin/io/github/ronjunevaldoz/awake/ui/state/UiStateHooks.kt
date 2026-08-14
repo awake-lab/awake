@@ -3,8 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.api.UiPopupState as UiPopupStateContract
 import kotlin.reflect.KProperty
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupState as UiPopupStateContract
 
 /**
  * Awake-native widget-local state holder backed by [WidgetState].

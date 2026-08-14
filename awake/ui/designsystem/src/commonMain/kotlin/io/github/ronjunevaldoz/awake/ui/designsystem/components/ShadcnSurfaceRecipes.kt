@@ -4,7 +4,6 @@
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
@@ -17,12 +16,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.style
-
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceShadow
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
@@ -64,7 +61,6 @@ fun UiScope.shadcnSurface(
     content = content,
 )
 
-
 fun UiScope.shadcnCard(
     id: String,
     modifier: Modifier = Modifier,
@@ -79,7 +75,6 @@ fun UiScope.shadcnCard(
     style = variant.style(themeValues),
     verticalArrangement = Arrangement.spacedBy(0f.dp),
 ) {
-
     if (header != null) {
         header()
         // CardHeader/CardContent are independently padded in shadcn. The compatibility size

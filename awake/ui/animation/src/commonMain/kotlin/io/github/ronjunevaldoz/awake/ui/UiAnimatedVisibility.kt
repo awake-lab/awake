@@ -88,4 +88,3 @@ fun UiPrimitiveScope.animatedVisibility(
         withGraphicsLayerAlpha(alpha) { content() }
     }
 }
-

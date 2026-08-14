@@ -78,4 +78,3 @@ fun UiInsets(horizontal: Dp, vertical: Dp): UiInsets = UiInsets(horizontal, vert
 
 /** Snaps a coordinate to the nearest integer pixel to avoid subpixel rendering blur. */
 fun pixelPerfectPixel(value: Float): Float = kotlin.math.round(value)
-
