@@ -65,6 +65,19 @@ fun UiPrimitiveScope.childAbsolute(
     overlayOnly = emitsToOverlay,
 )
 
+/**
+ * Runs a composite widget's own content so its descendants' slot/weight claims stay out of the
+ * enclosing row/column's child list.
+ *
+ * `surface`/`column`/`row`/`box` already do this internally. A composite built from
+ * [childAbsolute] -- a button with a caller-composed slot, say -- has no such wrapper, and every
+ * node it draws is counted as a direct sibling of the widget itself. That shifts
+ * `measuredSlots` out of step with `measuredWeights`, so a weighted sibling further down the
+ * column is paired with someone else's slot and resolves to nothing.
+ */
+fun <T> UiPrimitiveScope.compositeContent(block: () -> T): T =
+    context.withMeasuredRecordingSuppressed(block)
+
 fun UiPrimitiveScope.childBox(
     slot: UiBounds,
     modifier: UiModifier = Modifier,

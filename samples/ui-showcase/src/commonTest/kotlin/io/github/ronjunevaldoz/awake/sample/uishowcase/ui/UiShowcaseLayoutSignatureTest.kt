@@ -90,7 +90,7 @@ private val expectedShowcaseLayoutSignatures = mapOf(
     "ui-showcase-accordion" to 0x8e21cff75a5650bduL,
     "ui-showcase-collapsible" to 0xdacdff8990b1e068uL,
     "ui-showcase-breadcrumb" to 0xd364ffc680527b16uL,
-    "ui-showcase-sidebar" to 0x8b144fc7644edfd9uL,
+    "ui-showcase-sidebar" to 0x6a2f9a9c67b81cc5uL,
     "ui-showcase-resizable" to 0x10d27118889ab9b3uL,
     "ui-showcase-table" to 0x2073182b1039b4d6uL,
     "ui-showcase-scroll-area" to 0x36a1206354c845e1uL,
