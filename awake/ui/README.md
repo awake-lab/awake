@@ -1,6 +1,7 @@
 ### Awake Graphical User Interface (GUI)
 
-Awake UI is an immediate-mode UI framework for the Awake engine, modeled after modern declarative UI architecture patterns (Jetpack Compose / Base UI).
+Awake UI is an immediate-mode UI framework for the Awake engine, modeled after modern declarative UI
+architecture patterns (Jetpack Compose / Base UI).
 
 ### Module Architecture
 
@@ -23,25 +24,36 @@ include(":awake:ui:tailwind-generator")
 ### Module Descriptions
 
 - `awake:ui:graphics`:
-    - Drawing primitives (`DrawPrimitive` / `UiDrawPrimitive`), shape painters, vector paths (`UiPath`, `UiImageVector`), linear/radial gradients (`Gradient` / `LinearGradient`), geometry bounds (`Bounds` / `UiBounds`), density (`Dp`, `Sp`, `UiDensity`), and icons (`UiIcon`).
+    - Drawing primitives (`DrawPrimitive` / `UiDrawPrimitive`), shape painters, vector paths (
+      `UiPath`, `UiImageVector`), linear/radial gradients (`Gradient` / `LinearGradient`), geometry
+      bounds (`Bounds` / `UiBounds`), density (`Dp`, `Sp`, `UiDensity`), and icons (`UiIcon`).
 
 - `awake:ui:text`:
-    - SDF/MSDF font rendering (`MsdfFont`, `BitmapFont`, `PackedUiFont`), font atlas source integration (`GlyphAtlasSource`), typography styles (`TextStyle`), font weights (`FontWeight`), and text scale snapping.
+    - SDF/MSDF font rendering (`MsdfFont`, `BitmapFont`, `PackedUiFont`), font atlas source
+      integration (`GlyphAtlasSource`), typography styles (`TextStyle`), font weights (
+      `FontWeight`), and text scale snapping.
 
 - `awake:ui:animation`:
-    - Frame-clock driven animation engine (`animateFloat`, `AnimatedVisibility`, `Transition`), layout transition scopes (`AnimatedLayoutScopes`), popup position providers (`UiPopupPositionProvider`), and shimmer sweep primitives (`ShimmerPrimitives`).
+    - Frame-clock driven animation engine (`animateFloat`, `AnimatedVisibility`, `Transition`),
+      layout transition scopes (`AnimatedLayoutScopes`), popup position providers (
+      `UiPopupPositionProvider`), and shimmer sweep primitives (`ShimmerPrimitives`).
 
 - `awake:ui:ui-core`:
-    - Core frame loop, `UiContext` runtime state, layout engine (`Column`, `Row`, `Box`, `Spacer`, `LazyList`), layout sizing/padding (`Dimension`, `Alignment`, `Insets`), `UiModifier`, state hooks (`WidgetState`, `UiScrollState`), theme values (`UiThemeValues`), and `UiPrimitiveScope`. (Retains `ui-core` to disambiguate from engine root `:awake:core`).
+    - Core frame loop, `UiContext` runtime state, layout engine (`Column`, `Row`, `Box`, `Spacer`,
+      `LazyList`), layout sizing/padding (`Dimension`, `Alignment`, `Insets`), `UiModifier`, state
+      hooks (`WidgetState`, `UiScrollState`), theme values (`UiThemeValues`), and
+      `UiPrimitiveScope`. (Retains `ui-core` to disambiguate from engine root `:awake:core`).
 
 - `awake:ui:headless`:
-    - Unstyled, accessible UI components (buttons, input fields, popups, accordions, tabs, `TabItem`, `TabScope`) for building custom design systems.
+    - Unstyled, accessible UI components (buttons, input fields, popups, accordions, tabs,
+      `TabItem`, `TabScope`) for building custom design systems.
 
 - `awake:ui:tailwind`:
     - Standalone Tailwind CSS design tokens (spacing, radius, color, typography scales).
 
 - `awake:ui:designsystem`:
-    - Styled component library following the [shadcn/ui](https://ui.shadcn.com/) design language, built on top of `headless` using `tailwind` tokens.
+    - Styled component library following the [shadcn/ui](https://ui.shadcn.com/) design language,
+      built on top of `headless` using `tailwind` tokens.
 
 - `awake:ui:heroicons`:
     - Integration and vector path definitions for the Heroicons icon set.
@@ -77,3 +89,12 @@ graph TD
 
     HEADLESS --> DS
 ```
+
+### Guide & Tools
+
+- TODO: formalize our testing tool and remove stale/redundant ones?
+- TODO: debug in frontend side using debugging wireframe or sheet
+- TODO: tool to verify diff against official shadcn components styles, avoid using stale images,
+  hardcoded tokens, must be dynamically retrieve from the source
+- TODO: finalize which is the real source of truth for parity, currently i'm seeing screenshot of
+  text in a wavy compare to the rendered one is already fixed

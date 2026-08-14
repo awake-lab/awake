@@ -6,16 +6,15 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.font.FontWeight
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceShadow
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
@@ -63,7 +62,7 @@ fun UiScope.shadcnCollapsible(
                 hovered = SurfaceStyle(
                     background = themeValues.colors.accent,
                     foreground = themeValues.colors.accentForeground,
-                )
+                ),
             ),
         ) {
             row(
@@ -72,7 +71,7 @@ fun UiScope.shadcnCollapsible(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 text(title, visuals = SurfaceStyle(textSize = themeValues.typography.body))
-                icon(if (isOpen) ShadcnIcons.chevronUp else ShadcnIcons.chevronDown)
+                icon(if (isOpen) ShadcnIcons.chevronDown else ShadcnIcons.chevronRight)
             }
         }
         if (clicked.clicked) toggle()
@@ -184,7 +183,9 @@ fun UiScope.shadcnTabs(
                                     offsetY = 1f.dp,
                                     blurRadius = 2f.dp,
                                 )
-                            } else null,
+                            } else {
+                                null
+                            },
                             textSize = 14f.sp,
                             fontWeight = FontWeight.Medium,
                         ),
@@ -210,7 +211,6 @@ fun UiScope.shadcnTabs(
     modifier = modifier,
     height = height,
 ).let { value -> tabs.indexOf(value).takeIf { it >= 0 } ?: selectedIndex }
-
 
 fun UiScope.shadcnBreadcrumb(
     id: String,
@@ -240,7 +240,7 @@ fun UiScope.shadcnBreadcrumb(
                     visuals = SurfaceStyle(
                         foreground = themeValues.colors.mutedForeground,
                         textSize = themeValues.typography.caption,
-                    )
+                    ),
                 )
             }
         }
@@ -266,19 +266,19 @@ fun UiScope.shadcnBreadcrumbPage(label: String, modifier: Modifier = Modifier): 
     modifier = modifier,
     visuals = SurfaceStyle(
         foreground = themeValues.colors.foreground,
-        textSize = themeValues.typography.caption
+        textSize = themeValues.typography.caption,
     ),
 )
 
 fun UiScope.shadcnBreadcrumbSeparator(
     label: String = "/",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ): UiBounds = text(
     label,
     modifier = modifier,
     visuals = SurfaceStyle(
         foreground = themeValues.colors.mutedForeground,
-        textSize = themeValues.typography.caption
+        textSize = themeValues.typography.caption,
     ),
 )
 

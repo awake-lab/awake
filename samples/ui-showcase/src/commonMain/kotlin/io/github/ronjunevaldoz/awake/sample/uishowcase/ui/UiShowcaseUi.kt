@@ -11,6 +11,8 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnH2
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHeaderButton
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarFooterButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
@@ -85,25 +87,28 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
             ) {
                 shadcnSidebar(
                     id = "ui-showcase-sidebar",
-                    modifier = Modifier.verticalScroll(sidebarScroll).width(sidebarWidth)
-                        .fillMaxHeight(),
+                    modifier = Modifier.width(sidebarWidth).fillMaxHeight(),
                     header = {
-                        shadcnBadge(
-                            id = "ui-showcase-brand",
-                            label = "SHADCN",
-                            variant = ShadcnBadgeVariant.Primary
+                        shadcnSidebarHeaderButton(
+                            id = "ui-showcase-team-switcher",
+                            title = "Acme Inc",
+                            subtitle = "Enterprise",
                         )
-                        shadcnText("Catalog")
-                        shadcnMuted(
-                            if (compact) {
-                                "Choose one page at a time."
-                            } else {
-                                "Grouped component and pattern pages, following the shadcn-compose catalog layout."
-                            },
+                    },
+                    footer = {
+                        shadcnSidebarFooterButton(
+                            id = "ui-showcase-user-profile",
+                            name = "shadcn",
+                            email = "m@example.com",
                         )
                     }
                 ) {
-                    drawUiShowcaseSidebar(compact = false)
+                    column(
+                        modifier = Modifier.verticalScroll(sidebarScroll, io.github.ronjunevaldoz.awake.ui.UiScrollConfig.Hidden)
+                            .fillMaxWidth().fillMaxHeight(),
+                    ) {
+                        drawUiShowcaseSidebar(compact = false)
+                    }
                 }
 
                 column(

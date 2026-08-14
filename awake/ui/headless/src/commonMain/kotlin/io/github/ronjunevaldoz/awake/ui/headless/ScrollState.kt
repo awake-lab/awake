@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
+import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll as primitiveVerticalScroll
@@ -49,5 +50,7 @@ fun UiScope.rememberScrollState(
     },
 )
 
-fun Modifier.verticalScroll(state: ScrollState): Modifier =
-    HeadlessModifier(asPrimitiveModifier().primitiveVerticalScroll(state.primitive))
+fun Modifier.verticalScroll(
+    state: ScrollState,
+    config: UiScrollConfig = UiScrollConfig.Default,
+): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveVerticalScroll(state.primitive, config))
