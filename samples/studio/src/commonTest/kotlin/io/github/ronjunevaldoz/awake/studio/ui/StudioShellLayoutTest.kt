@@ -39,6 +39,9 @@ private const val FRAME_HEIGHT = 900f
 // deliberate seam.
 private const val HAIRLINE_TOLERANCE = 2f
 
+/** The resizable handle between the workspace and the dock is thicker than a hairline. */
+private const val SEPARATOR_SLACK = 8f
+
 /** Semantic (bounds-only) coverage for the docked shell layout -- pixel/theme snapshots are
  * ui-showcase's job, not this sample's; see the design-system engineer's validation notes. */
 class StudioShellLayoutTest {
@@ -73,10 +76,16 @@ class StudioShellLayoutTest {
         assertEquals(sidebar.bounds.height, inspector.bounds.height, 0.5f)
         assertEquals(sidebar.bounds.height, viewport.bounds.height, 0.5f)
 
-        // No stray gap between the top bar and the panels, or between the panels and the status
-        // bar -- sidebar y starts right below topBar, and status bar starts right below sidebar.
+        // No stray gap between the top bar and the panels: sidebar y starts right below topBar.
         assertEquals(topBar.bounds.height, sidebar.bounds.y, HAIRLINE_TOLERANCE)
-        assertEquals(statusBar.bounds.y, sidebar.bounds.y + sidebar.bounds.height, HAIRLINE_TOLERANCE)
+
+        // ...and none between the workspace and the status bar. The three panels sit in the UPPER
+        // panel of a vertical split, so what meets the status bar is the BOTTOM DOCK, not the
+        // sidebar -- asserting the sidebar here predates the dock and measured a ~236px "gap"
+        // that is simply the dock itself.
+        val bottomDock = assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock-panel" })
+        assertEquals(statusBar.bounds.y, bottomDock.bounds.y + bottomDock.bounds.height, HAIRLINE_TOLERANCE)
+        assertEquals(sidebar.bounds.y + sidebar.bounds.height, bottomDock.bounds.y, HAIRLINE_TOLERANCE + SEPARATOR_SLACK)
     }
 
     @Test
@@ -109,9 +118,11 @@ class StudioShellLayoutTest {
     fun bottomDockExposesConsoleTimelineAndAssetsTabs() {
         val semantics = renderShell()
 
-        assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.0" })
-        assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.1" })
-        assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.2" })
+        // shadcnTabs keys its triggers by UiTabItem.value, not by index -- "$id.${item.value}".
+        // The list overload maps each label to its own value, so these are the tab LABELS.
+        assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.Console" })
+        assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.Timeline" })
+        assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock.Assets" })
     }
 
     @Test
@@ -140,8 +151,8 @@ class StudioShellLayoutTest {
             frame(UiInputState(pointerX = x, pointerY = y, pointerDown = false))
         }
 
-        click("studio-bottom-dock.1")
-        click("studio-bottom-dock.0")
+        click("studio-bottom-dock.Timeline")
+        click("studio-bottom-dock.Console")
     }
 }
 
