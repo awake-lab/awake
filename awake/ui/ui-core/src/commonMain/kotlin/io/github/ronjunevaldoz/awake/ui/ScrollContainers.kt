@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.baseSpacingPx
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
+import io.github.ronjunevaldoz.awake.ui.layouts.planWeightedColumnSlots
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -218,15 +219,31 @@ fun UiPrimitiveScope.scrollPanel(
         }
     }
 
+    val contentSlot = UiBounds(
+        viewport.x - state.offsetX,
+        viewport.y - state.offsetY,
+        viewport.width,
+        viewport.height,
+    )
+    // Third container to need this, sharing the same planner as column() and surface(). A scroll
+    // panel laid its children out through a bare childColumn(), so it silently dropped every child
+    // weight -- and because smartColumn() routes any container carrying a scrollState here, a
+    // surface became a weight-dropping container the moment a caller scrolled it. That is what a
+    // scrolled shadcnSidebar hit: the weighted content slot got nothing and the footer rode up
+    // over the menu.
+    //
+    // Planned against the VIEWPORT, not the offset content slot: a weighted child divides the
+    // visible height, and scrolling must not change how the division comes out.
+    val plannedSlots = planWeightedColumnSlots(
+        slot = viewport,
+        arrangement = verticalArrangement,
+        content = content,
+    )?.map { planned -> planned.copy(y = planned.y - state.offsetY, x = planned.x - state.offsetX) }
     val contentScope = childColumn(
-        slot = UiBounds(
-            viewport.x - state.offsetX,
-            viewport.y - state.offsetY,
-            viewport.width,
-            viewport.height,
-        ),
+        slot = contentSlot,
         verticalArrangement = verticalArrangement,
         modifier = UiModifier(testTag = containerLabel),
+        plannedSlots = plannedSlots,
     )
     // The viewport's own already-resolved [slot] (recorded above via claimModifiedSlot) is the
     // only thing that should ever count toward an ancestor's WrapContent hugging -- these

@@ -51,24 +51,17 @@ fun UiScope.shadcnSidebar(
     content: ColumnScope.(UiBounds) -> Unit,
 ): UiBounds = surface(id, modifier, sidebarStyle(this)) {
     if (expanded) {
-        // The slots sit in a plain column rather than directly in the surface. A weighted child
-        // placed DIRECTLY in a surface still throws when that surface is nested inside a scroll
-        // viewport -- surface()'s planner runs its trial and comes back with no weights, so it
-        // plans nothing. Clearing the ancestor recording suppression (UiContext
-        // .withOwnMeasurementScope) was necessary but not sufficient; the remaining cause is not
-        // yet identified. A visual-free column() always reaches the measured path that honours
-        // weight, so the slots go through one. Reproduce by deleting this wrapper and running
-        // ShadcnButtonScrollClickInteractionTest.
-        column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
-            header?.invoke(this)
-            // Upstream sidebar.tsx: SidebarContent is `min-h-0 flex-1 overflow-auto`, header and
-            // footer get neither. Content is the only slot that absorbs slack, and that is what
-            // keeps the other two pinned to the sidebar's edges.
-            column(modifier = Modifier.fillMaxWidth().weight(1f)) { contentSlot ->
-                content(contentSlot)
-            }
-            footer?.invoke(this)
+        header?.invoke(this)
+        // Upstream sidebar.tsx: SidebarContent is `min-h-0 flex-1 overflow-auto`, header and footer
+        // get neither. Content is the only slot that absorbs slack, and that is what keeps the
+        // other two pinned to the sidebar's edges. The slots sit directly in the surface -- every
+        // container that lays out a column now shares one weight planner, including the scroll
+        // panel a scrolled sidebar routes through, so the wrapper column that used to work around
+        // that is gone.
+        column(modifier = Modifier.fillMaxWidth().weight(1f)) { contentSlot ->
+            content(contentSlot)
         }
+        footer?.invoke(this)
     }
 }
 

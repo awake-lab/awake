@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -37,7 +38,17 @@ import kotlin.test.assertTrue
  */
 class LayoutSizingMatrixTest {
 
-    private enum class Container { Column, Surface }
+    private enum class Container {
+        Column,
+        Surface,
+
+        /**
+         * A surface carrying its own scrollState. smartColumn() routes that to scrollPanel()
+         * rather than the surface path, so it is a THIRD container, not a variation of Surface --
+         * and the one shadcnSidebar hits when a caller scrolls it.
+         */
+        ScrollingSurface,
+    }
 
     private enum class ChildSizing { Fixed, FillMax, Weight, WeightWithContent }
 
@@ -45,6 +56,12 @@ class LayoutSizingMatrixTest {
         val container: Container,
         val parentHeight: Dimension,
         val child: ChildSizing,
+        /**
+         * Wraps the whole case in a scroll viewport. A scroll container dispatches its content
+         * through withMeasuredSubtreeIsolated, which is the condition under which a weighted
+         * child in a surface stopped receiving planned slots -- the sidebar-preview bug.
+         */
+        val scrolled: Boolean = false,
     ) {
         val label: String
             get() {
@@ -53,7 +70,8 @@ class LayoutSizingMatrixTest {
                     Dimension.FillMax -> "FillMax"
                     Dimension.WrapContent -> "Wrap"
                 }
-                return "${container.name}/$parent/${child.name}"
+                val suffix = if (scrolled) "@scrolled" else ""
+                return "${container.name}/$parent/${child.name}$suffix"
             }
     }
 
@@ -83,6 +101,10 @@ class LayoutSizingMatrixTest {
             }
             column(id = "foot", modifier = Modifier.width(Dimension.FillMax).height(FIXED.px)) { }
         }
+        // Zero gap and zero content padding: both are real features, but they are not what this
+        // matrix measures, and leaving them in makes every expected value carry a container-
+        // specific correction. Isolate the division itself.
+        val noGap = Arrangement.spacedBy(0f.px)
         val parentModifier = Modifier.width(Dimension.FillMax).let { base ->
             when (val h = cell.parentHeight) {
                 is Dimension.Fixed -> base.height(h.dp)
@@ -90,25 +112,46 @@ class LayoutSizingMatrixTest {
                 Dimension.WrapContent -> base
             }
         }
-        val root = ui.createBox(x = 0f, y = 0f, width = FRAME, height = FRAME)
-        // Zero gap and zero content padding: both are real features, but they are not what this
-        // matrix measures, and leaving them in makes every expected value carry a container-
-        // specific correction. Isolate the division itself.
-        val noGap = Arrangement.spacedBy(0f.px)
-        when (cell.container) {
-            Container.Column -> root.column(
-                id = "parent",
+        // The container under test, optionally inside a real scroll viewport.
+        fun ColumnScope.placeCase() {
+            when (cell.container) {
+                Container.Column -> column(
+                    id = "parent",
+                    verticalArrangement = noGap,
+                    modifier = parentModifier,
+                    content = body,
+                )
+                Container.Surface -> surface(
+                    id = "parent",
+                    verticalArrangement = noGap,
+                    style = Style { contentPadding(0f.dp) },
+                    modifier = parentModifier,
+                    content = body,
+                )
+                Container.ScrollingSurface -> surface(
+                    id = "parent",
+                    verticalArrangement = noGap,
+                    style = Style { contentPadding(0f.dp) },
+                    modifier = parentModifier.verticalScroll(UiScrollState()),
+                    content = body,
+                )
+            }
+        }
+
+        val outer = ui.createBox(x = 0f, y = 0f, width = FRAME, height = FRAME)
+        if (cell.scrolled) {
+            outer.column(
+                id = "scroll-host",
                 verticalArrangement = noGap,
-                modifier = parentModifier,
-                content = body,
-            )
-            Container.Surface -> root.surface(
-                id = "parent",
+                modifier = Modifier.width(Dimension.FillMax).height(FRAME.px)
+                    .verticalScroll(UiScrollState()),
+            ) { placeCase() }
+        } else {
+            outer.column(
+                id = "plain-host",
                 verticalArrangement = noGap,
-                style = Style { contentPadding(0f.dp) },
-                modifier = parentModifier,
-                content = body,
-            )
+                modifier = Modifier.width(Dimension.FillMax).height(FRAME.px),
+            ) { placeCase() }
         }
         ui.endFrame()
         UiLayoutDiagnostics.allowUnplannedWeight = false
@@ -120,7 +163,12 @@ class LayoutSizingMatrixTest {
         val parentHeights = listOf(Dimension.Fixed(PARENT_FIXED.px), Dimension.FillMax)
         val cells = Container.entries.flatMap { container ->
             parentHeights.flatMap { parentHeight ->
-                ChildSizing.entries.map { Cell(container, parentHeight, it) }
+                ChildSizing.entries.flatMap { child ->
+                    listOf(
+                        Cell(container, parentHeight, child),
+                        Cell(container, parentHeight, child, scrolled = true),
+                    )
+                }
             }
         }
 
