@@ -5,10 +5,11 @@ package io.github.ronjunevaldoz.awake.ui.scope
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSpacing
-import io.github.ronjunevaldoz.awake.ui.context.UiCursor
-import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.context.UNBOUNDED_MAIN_AXIS
+import io.github.ronjunevaldoz.awake.ui.context.UiCursor
+import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.toPx
@@ -46,15 +47,23 @@ fun UiPrimitiveScope.onScrollConsumed() = context.onScrollConsumedInternal()
  * Call while hovered/dragging; last call in the frame wins. */
 fun UiPrimitiveScope.requestCursor(cursor: UiCursor) = context.requestCursorInternal(cursor)
 
+/**
+ * @param height available main-axis space, or null when the caller has no bound to offer. A caller
+ * that knows its viewport must pass it: a `FillMax`-height child resolves against whatever it is
+ * given, so falling through to the unbounded default reports a height nothing can be laid out
+ * against.
+ */
 fun UiPrimitiveScope.measureColumnContent(
     width: Float,
     gap: Float = UiSpacing.sm.toPx(),
     insets: UiInsets = UiInsets.Zero,
+    height: Float? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiMeasuredContent = context.measureColumnContentInternal(
     width = width,
     gap = gap,
     insets = insets,
+    height = height ?: UNBOUNDED_MAIN_AXIS,
     content = content,
 )
 
