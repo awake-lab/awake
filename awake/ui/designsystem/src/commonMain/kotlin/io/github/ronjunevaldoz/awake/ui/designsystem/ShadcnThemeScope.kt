@@ -36,24 +36,29 @@ fun UiScope.shadcnTheme(
     baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral,
     accent: ShadcnAccent = ShadcnAccent.Base,
     dark: Boolean = true,
-    extension: ShadcnThemeExtension = ShadcnThemeExtension(),
     content: UiScope.() -> Unit,
 ) = shadcnTheme(
     values = shadcnThemeValues(preset = preset, baseColor = baseColor, accent = accent, dark = dark),
-    extension = extension,
     content = content,
 )
 
 /** Overload for a theme already built -- app state usually holds one rather than four enum knobs. */
 fun UiScope.shadcnTheme(
     values: UiThemeValues,
-    extension: ShadcnThemeExtension = ShadcnThemeExtension(),
+    content: UiScope.() -> Unit,
+) = shadcnTheme(
+    theme = ShadcnThemeValues(core = values, metrics = values.asShadcnTheme().metrics),
+    content = content,
+)
+
+/** Provides a complete Shadcn theme value, including branded roles Core does not own. */
+fun UiScope.shadcnTheme(
+    theme: ShadcnThemeValues,
     content: UiScope.() -> Unit,
 ) {
-    val resolvedExtension = extension.copy(metrics = extension.metrics ?: values.asShadcnTheme().metrics)
-    primitive.ProvideTheme(values.asRuntimeTheme()) {
-        primitive.Provide(LocalShadcnThemeExtension, resolvedExtension) {
-            ProvideTextStyle(TextStyle(size = values.typography.body)) {
+    primitive.ProvideTheme(theme.core.asRuntimeTheme()) {
+        primitive.Provide(LocalShadcnTheme, theme) {
+            ProvideTextStyle(TextStyle(size = theme.core.typography.body)) {
                 content(UiScope(this))
             }
         }

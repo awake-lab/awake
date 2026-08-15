@@ -34,17 +34,17 @@ provider:
 val appTheme = shadcnThemeValues(dark = isDark)
 ```
 
-Use [ShadcnThemeExtension] only at that same scoped theme boundary when the product needs to
-customize a named Shadcn role. It never changes one component ad hoc:
+Use a complete [ShadcnThemeValues] value at that same scoped boundary when the product needs
+custom Shadcn metrics. It never changes one component ad hoc:
 
 ```kotlin
 uiScope.shadcnTheme(
-    values = appTheme,
-    extension = ShadcnThemeExtension(
-        text = ShadcnTextTheme(destructive = productErrorColor),
+    theme = ShadcnThemeValues(
+        core = appTheme,
+        metrics = ShadcnTheme.metrics,
     ),
 ) {
-    shadcnText("Connection failed", tone = ShadcnTextTone.Destructive)
+    shadcnButton(id = "save", label = "Save")
 }
 ```
 
@@ -57,8 +57,8 @@ variant does not exist, add it in `ui-designsystem` with the official shadcn ref
 parity coverage.
 
 Shadcn recipes do not expose a public `Style` override. Express local intent with their named
-parameters (`variant`, `size`, `tone`, `emphasis`); put a product-wide visual change in
-`ShadcnThemeExtension`.
+parameters (`variant`, `size`, `tone`, `emphasis`); put a product-wide visual change in a complete
+`ShadcnThemeValues` value.
 
 Headless remains appropriate for generic structure and behavior when a design-system recipe
 already supplies the visible component. Never make an application theme provider or a local
@@ -76,7 +76,7 @@ needed, but should not import Core primitives or style its own component surface
 - Use `UiScope.shadcnTheme(...)` for scoped provision and `shadcnThemeValues(...)` only for a
   pure value.
 - Use named `shadcn*` variants instead of app-authored component `Style` blocks.
-- Use `ShadcnThemeExtension` at the root for named Shadcn-role customization, never as a
+- Use `ShadcnThemeValues` at the root for Shadcn metric customization, never as a
   per-component visual escape hatch.
 - Keep behavior gaps in `ui-headless`; keep new look/variants in `ui-designsystem`.
 - Compile the affected sample or game target and run its focused UI tests.
