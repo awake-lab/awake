@@ -129,15 +129,17 @@ Theme *values* and component visual policy are deliberately separate:
   `UiComponentStyles` contract plus `CoreUiComponentStyles` fallback. It also owns the neutral
   theme, typography, and text-style local machinery. Its defaults must remain generic and free
   of brand, product, or named-variant policy.
-- `ui-headless` accepts and applies the generic `Style` shape a widget needs. It does not read
-  theme values, typography, or text style directly, and does not provide them. `SurfaceStyle` /
-  `SurfaceVisuals` are deprecated compatibility bridges, not an API model. Headless must not name
-  a state `Primary`, `Ghost`, `Outline`, Material, or shadcn, invent token names, or hardcode
-  `Color(...)` values.
+- `ui-headless` accepts and applies the generic `Style` shape a widget needs. It consumes Core's
+  scope-level environment accessors rather than reaching into `UiContext` / `Local*` stacks, and
+  it does not publish theme providers. `SurfaceStyle` / `SurfaceVisuals` are deprecated
+  compatibility bridges, not an API model. Headless must not name a state `Primary`, `Ghost`,
+  `Outline`, Material, or shadcn, invent token names, or hardcode `Color(...)` values.
 - `ui-designsystem` owns named themes, token instances, component recipes, and branded variants.
   Its lower-case `UiScope.shadcnTheme(...)` wrapper delegates to Core's neutral providers, while
-  component-local style files map brand-specific variants and interaction states to `Style`. It is the only
-  module allowed to hardcode `Color(...)`/`Color.fromOklch(...)` literals, and only inside
+  component-local style files map brand-specific variants and interaction states to `Style`. It
+  may depend internally on Core for style and local infrastructure, but a component recipe must
+  use Headless for layout, rendering, input, interaction, and semantics; it must not call Core
+  widget primitives directly. It is the only module allowed to hardcode `Color(...)`/`Color.fromOklch(...)` literals, and only inside
   theme-definition files (`ShadcnTheme.kt`, `PresetUiThemes.kt`, `OklchColor.kt`) -- not inside
   individual component files.
 - `samples:*` select a named design-system theme and must not hardcode `Color(...)` for anything

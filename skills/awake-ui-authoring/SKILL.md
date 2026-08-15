@@ -11,9 +11,9 @@ else's design language.
 
 | Layer | Owns | Never contains |
 |---|---|---|
-| `ui-core` | Geometry, layout, slots, drawing, anchoring, clipping, input/state mechanics, neutral fallback resolution | Any widget recipe, variant, or brand name |
-| `ui-headless` | Widget **behaviour**, structure, and neutral interaction visual states | Any named design-language vocabulary or branded visual policy |
-| `ui-designsystem` | The shadcn **look** -- sizes, colours, radii, variants | Behaviour that another skin would also need |
+| `ui-core` | Geometry, layout, slots, drawing, anchoring, clipping, input/state mechanics, and neutral CompositionLocal-like theme/text mechanics | Any widget recipe, variant, or brand name |
+| `ui-headless` | Widget **behaviour**, structure, and application of caller-supplied generic `Style` | Any named design-language vocabulary, theme-provider API, or branded visual policy |
+| `ui-designsystem` | The shadcn **look** -- named themes, sizes, colours, radii, variants, and component styles | Behaviour that another skin would also need |
 
 Decide with one question: **"would a differently-skinned product still need this code?"** Yes ->
 `ui-headless`. No -> `ui-designsystem`.
@@ -143,17 +143,34 @@ in. That is a debt, not a pattern to copy.
 The exception is genuine *composition*: a branded arrangement of existing primitives with no new
 behaviour is correctly design-system-only.
 
-## Headless consumes neutral visuals, not a theme recipe
+## Headless consumes `Style`, not a theme recipe
 
-Runtime-free theme value contracts live in `ui-api`; the Core runtime resolves them. Headless
-may consume injected **neutral** values or generic visual states, but it must not choose a
-semantic role for itself (for example, deciding `secondary` means "checked"), select a border
-width, or name a visual variant. Existing direct `UiTheme`/Core-style reads are migration bridges
-to remove from new APIs, not a model for new widget code.
+Runtime-free theme value contracts live in `ui-api`; `ui-core` owns their runtime locals and
+the neutral `CoreUiTheme` fallback. Headless does not reach into `UiContext` or `Local*` stacks
+itself and does not expose `provideTheme`/`provideTextStyle`; it consumes Core's scope-level
+accessors and generic `Style` values (and slots where appropriate), then applies the interaction
+state supplied by that style.
 
-The target is a generic state model such as
-`SurfaceVisuals(rest, hovered, pressed, disabled)`. `ui-designsystem` maps `Primary`, `Ghost`,
-or a shadcn preset to that model; Headless only applies the state it receives.
+`ui-designsystem` maps `Primary`, `Ghost`, or a shadcn preset to component `Style` factories.
+Stateful details such as rest, hover, pressed, and disabled live beside that component's design
+system style, not in a Headless visual DTO. `SurfaceStyle` and `SurfaceVisuals` are deprecated
+compatibility bridges only; do not add new uses.
+
+Expose branded composition through a lower-case design-system extension such as
+`fun UiScope.shadcnTheme(...)`. It delegates to Core's neutral providers and establishes the
+ambient values that shadcn recipes read. Do not add `ShadcnTheme` or other branded APIs to Core
+or Headless.
+
+## Design System may use Core infrastructure, never Core widget primitives
+
+`ui-designsystem` may have an **internal** (`implementation`) dependency on `ui-core` for
+`Style`, theme/text providers, CompositionLocal mechanics, and runtime-free value adapters. It
+must not expose Core types from its public API.
+
+A design-system recipe still calls Headless widgets for behavior. It must not claim slots, draw,
+hit-test, record semantics, or call Core layout/control primitives directly. If a recipe needs
+that, extend Headless with the missing generic behavior or slot API; duplicated behavior is a
+Headless API gap, not a reason to bypass it.
 
 ## One entry point per widget: `UiScope`, not one overload per scope
 
@@ -232,8 +249,10 @@ naming the missing primitive, not silence.
       or provided through a generic Headless visual/layout contract -- never Core's component
       style registry.
 - [ ] No raw-pixel `Float` constants; authored values are `Dp`, converted at use.
-- [ ] No decoration choice (border width, chosen semantic colour) or named variant in
-      `ui-headless`.
+- [ ] No decoration choice (border width, chosen semantic colour), named variant, or direct
+      `UiContext`/`Local*` stack read in `ui-headless`.
+- [ ] New visual state is represented by generic `Style` and implemented in that component's
+      design-system style file, never by a new `SurfaceVisuals` DTO.
 - [ ] Name matches the Radix concept; file name matches what the file exports.
 - [ ] New behaviour landed in `ui-headless`, not in the `shadcn*` wrapper.
 - [ ] One public function on `UiScope` -- no per-scope overload that only changes a default.

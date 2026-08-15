@@ -31,6 +31,9 @@ as the long-form home for project policy.
   [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md).
 - Shared UI verification rules are canonical in
   [docs/reference/ui-validation.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-validation.md).
+- `awake:engine:ui:ui-designsystem` may use `ui-core` as an internal implementation dependency
+  for `Style` and theme/text local infrastructure, but its public API must not leak Core types and
+  component recipes must use Headless rather than Core layout, drawing, input, or semantic primitives.
 
 ## Skill Routing
 

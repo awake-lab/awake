@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.fitTo
@@ -18,7 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.strokeToFillPath
 fun UiPrimitiveScope.icon(
     imageVector: UiImageVector,
     modifier: UiModifier = Modifier,
-    tint: Color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.foreground,
+    tint: Color = theme.colors.foreground,
     overlay: Boolean = false,
 ): UiBounds {
     val slot = claimModifiedSlot(

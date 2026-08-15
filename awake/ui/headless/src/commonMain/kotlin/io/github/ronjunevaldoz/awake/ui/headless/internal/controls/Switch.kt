@@ -4,6 +4,8 @@ package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
@@ -51,19 +53,19 @@ fun UiPrimitiveScope.switch(
     style: Style = Style.Empty,
     enabled: Boolean = true,
 ): Boolean {
-    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+    val theme = theme
     // Measured before claiming a slot, not a fixed guess: the label paints at
     // trackSlot.x + trackWidth + gap regardless of what width the widget claims, so if the
     // claimed slot is narrower than track+gap+label, row()'s layout allocates too little space
     // and the next sibling gets placed on top of this label's tail. A caller-visible bug, not
     // theoretical -- two switches side by side with no explicit .width() on either overlapped.
     // Measured with the SAME textStyle the label is later painted with (theme.components.toggle
-    // then style) -- measuring against the ambient LocalTextStyle instead caused the
+    // then style) -- measuring against the ambient inherited text style instead caused the
     // opposite bug: toggle's textSize token differs from ambient body text, so the claimed slot
     // undershot the real render width and text() silently ellipsized the label.
     val labelTextStyle = resolveStyle(style = style, defaults = theme.components.toggle).textStyle
     val labelWidthPx = label?.let {
-        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont).measureTextWidth(
+        font.measureTextWidth(
             it,
             resolveGlyphPx(textStyle = labelTextStyle),
         )
@@ -163,7 +165,7 @@ fun UiPrimitiveScope.switch(
                     labelWidth,
                     surface.interaction.slot.height,
                 ),
-                font = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
+                font = font,
                 color = surface.resolved.foreground ?: theme.colors.foreground,
                 centered = false,
                 verticallyCentered = true,

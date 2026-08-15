@@ -4,6 +4,8 @@ package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
@@ -40,7 +42,7 @@ private inline fun UiPrimitiveScope.toggleInternal(
     // rest of the frame.
     crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): Boolean {
-    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+    val theme = theme
     val defaults = theme.components.button then Style.Companion {
         // Mirrors buttonSlotInternal's Outline treatment: always draw a border, regardless
         // of checked state, so an idle Outline toggle still reads as a bordered control.
@@ -131,8 +133,8 @@ fun UiPrimitiveScope.toggle(
         text(
             label = label,
             slot = contentSlot,
-            font = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
-            color = resolved.foreground ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.foreground,
+            font = font,
+            color = resolved.foreground ?: theme.colors.foreground,
             centered = true,
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,

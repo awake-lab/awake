@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.headless.internal.layout
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.WidgetState
 import io.github.ronjunevaldoz.awake.ui.api.dp
@@ -218,7 +219,7 @@ class ResizablePanelGroupScope internal constructor(
                     y = slot.y,
                     w = lineThickness,
                     h = slot.height,
-                    color = context.currentTheme.colors.border,
+                    color = theme.colors.border,
                 ),
             )
         } else {
@@ -228,7 +229,7 @@ class ResizablePanelGroupScope internal constructor(
                     y = floor(slot.y + (slot.height - lineThickness) / 2f),
                     w = slot.width,
                     h = lineThickness,
-                    color = context.currentTheme.colors.border,
+                    color = theme.colors.border,
                 ),
             )
         }
@@ -251,7 +252,7 @@ class ResizablePanelGroupScope internal constructor(
                     y = gripY,
                     w = gripWidth,
                     h = gripHeight,
-                    color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.border,
+                    color = theme.colors.border,
                     radius = 2f,
                 ),
             )
