@@ -9,7 +9,12 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.api.sp
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAlertDialogSurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogBodyStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogTitleStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDropdownItemStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDropdownSurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTooltipStyle
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.DialogProperties
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -38,7 +43,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.headless.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Public Shadcn menu entries. Popup mechanics remain Headless-owned. */
 sealed interface ShadcnDropdownMenuEntry
@@ -98,13 +102,7 @@ fun UiScope.shadcnDropdownMenu(
         surface(
             id = "$id.surface",
             modifier = Modifier.fillMaxWidth(),
-            style = Style {
-                background(themeValues.colors.popover)
-                foreground(themeValues.colors.popoverForeground)
-                border(1f.dp, themeValues.colors.border)
-                shape(themeValues.shapes.md)
-                contentPadding(4f.dp)
-            },
+            style = shadcnDropdownSurfaceStyle(themeValues),
         ) {
             entries.forEach { entry ->
                 when (entry) {
@@ -116,21 +114,7 @@ fun UiScope.shadcnDropdownMenu(
                                 item = entry,
                                 label = source.label,
                                 modifier = Modifier.fillMaxWidth().height(32f.dp),
-                                style = Style {
-                                    background(if (entry.index == selectedIndex) themeValues.colors.accent else themeValues.colors.popover)
-                                    foreground(when {
-                                            entry.index == selectedIndex -> themeValues.colors.accentForeground
-                                            source.destructive -> themeValues.colors.destructive
-                                            else -> themeValues.colors.popoverForeground
-                                    })
-                                    shape(themeValues.shapes.sm)
-                                    contentPadding(horizontal = 8f.dp, vertical = 6f.dp)
-                                    textSize(14f.sp)
-                                    hovered {
-                                        background(if (source.destructive) themeValues.colors.destructive.withAlpha(0.1f) else themeValues.colors.accent)
-                                        foreground(if (source.destructive) themeValues.colors.destructive else themeValues.colors.accentForeground)
-                                    }
-                                },
+                                style = shadcnDropdownItemStyle(themeValues, entry.index == selectedIndex, source.destructive),
                             )
                             if (activated) selectedItemIndex = entry.index
                         }
@@ -166,19 +150,7 @@ fun UiScope.shadcnTooltip(
 ) {
     surface(
         id = "$id.content",
-        style = Style {
-            background(themeValues.colors.foreground)
-            foreground(themeValues.colors.background)
-            shape(themeValues.shapes.md)
-            contentPadding(horizontal = 12f.dp, vertical = 6f.dp)
-            // tooltip.tsx uses Tailwind `text-xs` (12px), not the preset's caption tier (11px
-            // in Vega). Keep this component tied to the source token so its intrinsic width is
-            // stable across theme presets.
-            textSize(12f.sp)
-            // shadcn's text-xs token uses a 1rem line-height (Tailwind's default leading),
-            // while the bundled font's intrinsic line box is slightly shorter.
-            lineHeight(16f.sp)
-        },
+        style = shadcnTooltipStyle(themeValues),
         content = content,
     )
 }
@@ -219,16 +191,10 @@ fun UiScope.shadcnAlertDialog(
         expanded = expanded,
         width = width,
         properties = properties.copy(
-            surface = properties.surface then Style {
-                background(themeValues.colors.card)
-                foreground(themeValues.colors.cardForeground)
-                border(1f.dp, themeValues.colors.border)
-                shape(themeValues.shapes.lg)
-                contentPadding(24f.dp)
-            },
+            surface = properties.surface then shadcnAlertDialogSurfaceStyle(themeValues),
         ),
     ) {
-        text(label = title, style = Style { textSize(themeValues.typography.title) }, wrap = UiTextWrap.Word)
+        text(label = title, style = shadcnDialogTitleStyle(themeValues), wrap = UiTextWrap.Word)
         body()
         actions()
     }
@@ -256,5 +222,5 @@ fun UiScope.shadcnAlertDialog(
         }
         button(id = "$id.confirm", label = confirmLabel)
     },
-    body = { text(label = message, style = Style { textSize(themeValues.typography.body) }, wrap = UiTextWrap.Word) },
+    body = { text(label = message, style = shadcnDialogBodyStyle(themeValues), wrap = UiTextWrap.Word) },
 )

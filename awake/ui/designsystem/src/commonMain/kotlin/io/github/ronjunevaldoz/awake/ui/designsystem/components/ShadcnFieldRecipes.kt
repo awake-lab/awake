@@ -8,6 +8,10 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnFieldDescriptionStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnFieldErrorStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnFieldLabelStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnFieldSeparatorStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -23,7 +27,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.weight
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.math.round
 
 fun UiScope.shadcnField(
@@ -54,16 +57,13 @@ fun UiScope.shadcnFieldLabel(
 ): UiBounds = text(
     label = if (required) "$text *" else text,
     modifier = modifier,
-    style = Style {
-        foreground(if (disabled) themeValues.colors.mutedForeground else themeValues.colors.foreground)
-        textSize(themeValues.typography.label)
-    },
+    style = shadcnFieldLabelStyle(themeValues, disabled),
 )
 
 fun UiScope.shadcnFieldDescription(text: String, modifier: Modifier = Modifier): UiBounds = text(
     label = text,
     modifier = modifier,
-    style = Style { foreground(themeValues.colors.mutedForeground); textSize(themeValues.typography.caption) },
+    style = shadcnFieldDescriptionStyle(themeValues),
     wrap = UiTextWrap.Word,
     overflow = UiTextOverflow.Ellipsis,
 )
@@ -71,7 +71,7 @@ fun UiScope.shadcnFieldDescription(text: String, modifier: Modifier = Modifier):
 fun UiScope.shadcnFieldError(text: String, modifier: Modifier = Modifier): UiBounds = text(
     label = text,
     modifier = modifier,
-    style = Style { foreground(themeValues.colors.destructive); textSize(themeValues.typography.caption) },
+    style = shadcnFieldErrorStyle(themeValues),
     wrap = UiTextWrap.Word,
     overflow = UiTextOverflow.Ellipsis,
 )
@@ -113,13 +113,13 @@ fun UiScope.shadcnFieldSeparator(
         surface(
             id = "field.sep.left",
             modifier = Modifier.weight(1f).height(1f.dp),
-            style = Style { background(themeValues.colors.border) },
+            style = shadcnFieldSeparatorStyle(themeValues),
         ) {}
         shadcnFieldDescription(label)
         surface(
             id = "field.sep.right",
             modifier = Modifier.weight(1f).height(1f.dp),
-            style = Style { background(themeValues.colors.border) },
+            style = shadcnFieldSeparatorStyle(themeValues),
         ) {}
     }
 }
@@ -231,7 +231,7 @@ fun UiScope.shadcnFieldSliderWithValue(
     text(
         label = valueLabel(next, min, max),
         modifier = Modifier.fillMaxWidth(),
-        style = Style { foreground(themeValues.colors.mutedForeground); textSize(themeValues.typography.caption) },
+        style = shadcnFieldDescriptionStyle(themeValues),
         wrap = UiTextWrap.None,
         overflow = UiTextOverflow.Clip,
     )

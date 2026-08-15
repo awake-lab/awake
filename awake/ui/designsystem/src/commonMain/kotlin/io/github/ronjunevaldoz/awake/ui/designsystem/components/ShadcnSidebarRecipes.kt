@@ -7,8 +7,16 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
-import io.github.ronjunevaldoz.awake.ui.api.sp
-import io.github.ronjunevaldoz.awake.ui.font.FontWeight
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarActionStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarAvatarStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarGroupLabelStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarHeaderBadgeStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarMenuItemStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarMenuLabelStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarSubmenuLabelStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarSupportingTextStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarTitleStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -27,13 +35,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.size
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.weight
-import io.github.ronjunevaldoz.awake.ui.style.Style
-
-private fun sidebarStyle(scope: UiScope): Style = Style {
-    background(scope.themeValues.colors.card)
-    foreground(scope.themeValues.colors.foreground)
-    contentPadding(8f.dp)
-}
 
 fun UiScope.shadcnSidebar(
     id: String,
@@ -42,7 +43,7 @@ fun UiScope.shadcnSidebar(
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
     content: ColumnScope.(UiBounds) -> Unit,
-): UiBounds = surface(id, modifier, sidebarStyle(this)) {
+): UiBounds = surface(id, modifier, shadcnSidebarStyle(themeValues)) {
     if (expanded) {
         header?.invoke(this)
         // Upstream sidebar.tsx: SidebarContent is `min-h-0 flex-1 overflow-auto`, header and footer
@@ -68,13 +69,7 @@ fun UiScope.shadcnSidebarHeaderButton(
     val clicked = button(
         id = id,
         modifier = modifier.fillMaxWidth().height(48f.dp),
-        style = Style {
-            background(io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
-            foreground(themeValues.colors.foreground)
-            shape(themeValues.shapes.md)
-            contentPadding(horizontal = 6f.dp, vertical = 4f.dp)
-            hovered { background(themeValues.colors.accent); foreground(themeValues.colors.accentForeground) }
-        },
+        style = shadcnSidebarActionStyle(themeValues),
     ) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -88,18 +83,18 @@ fun UiScope.shadcnSidebarHeaderButton(
                 surface(
                     id = "$id.badge",
                     modifier = Modifier.size(32f.dp),
-                    style = Style { background(themeValues.colors.primary); foreground(themeValues.colors.primaryForeground); shape(themeValues.shapes.md); contentPadding(6f.dp) },
+                    style = shadcnSidebarHeaderBadgeStyle(themeValues),
                 ) {
                     icon(ShadcnIcons.squares2x2)
                 }
                 column {
                     text(
                         label = title,
-                        style = Style { textSize(14f.sp); fontWeight(FontWeight.SemiBold); foreground(themeValues.colors.foreground) },
+                        style = shadcnSidebarTitleStyle(themeValues),
                     )
                     text(
                         label = subtitle,
-                        style = Style { textSize(11f.sp); foreground(themeValues.colors.mutedForeground) },
+                        style = shadcnSidebarSupportingTextStyle(themeValues),
                     )
                 }
             }
@@ -120,13 +115,7 @@ fun UiScope.shadcnSidebarFooterButton(
     val clicked = button(
         id = id,
         modifier = modifier.fillMaxWidth().height(48f.dp),
-        style = Style {
-            background(io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
-            foreground(themeValues.colors.foreground)
-            shape(themeValues.shapes.md)
-            contentPadding(horizontal = 6f.dp, vertical = 4f.dp)
-            hovered { background(themeValues.colors.accent); foreground(themeValues.colors.accentForeground) }
-        },
+        style = shadcnSidebarActionStyle(themeValues),
     ) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -140,18 +129,18 @@ fun UiScope.shadcnSidebarFooterButton(
                 surface(
                     id = "$id.avatar",
                     modifier = Modifier.size(32f.dp),
-                    style = Style { background(themeValues.colors.secondary); foreground(themeValues.colors.secondaryForeground); shape(16f.dp); contentPadding(6f.dp) },
+                    style = shadcnSidebarAvatarStyle(themeValues),
                 ) {
                     icon(ShadcnIcons.user)
                 }
                 column {
                     text(
                         label = name,
-                        style = Style { textSize(14f.sp); fontWeight(FontWeight.SemiBold); foreground(themeValues.colors.foreground) },
+                        style = shadcnSidebarTitleStyle(themeValues),
                     )
                     text(
                         label = email,
-                        style = Style { textSize(11f.sp); foreground(themeValues.colors.mutedForeground) },
+                        style = shadcnSidebarSupportingTextStyle(themeValues),
                     )
                 }
             }
@@ -174,13 +163,7 @@ fun UiScope.shadcnSidebarGroup(
         label?.let {
             text(
                 label = it.uppercase(),
-                style = Style {
-                    foreground(themeValues.colors.mutedForeground)
-                    // Sidebar group titles are Tailwind `text-xs` (12px) and `font-medium`.
-                    textSize(12f.sp)
-                    fontWeight(FontWeight.Medium)
-                    contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
-                },
+                style = shadcnSidebarGroupLabelStyle(themeValues),
             )
         }
         content()
@@ -209,13 +192,7 @@ fun UiScope.shadcnSidebarMenuItem(
     val clicked = button(
         id = id,
         modifier = modifier.fillMaxWidth().height(ShadcnSidebarMetrics.menuButtonHeight),
-        style = Style {
-            background(if (active) themeValues.colors.secondary else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
-            foreground(if (active) themeValues.colors.secondaryForeground else themeValues.colors.foreground)
-            shape(themeValues.shapes.md)
-            contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
-            hovered { background(themeValues.colors.accent); foreground(themeValues.colors.accentForeground) }
-        },
+        style = shadcnSidebarMenuItemStyle(themeValues, active),
     ) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -231,13 +208,13 @@ fun UiScope.shadcnSidebarMenuItem(
                 }
                 text(
                     label = label,
-                    style = Style { textSize(14f.sp); fontWeight(if (active) FontWeight.Medium else FontWeight.Normal) },
+                    style = shadcnSidebarMenuLabelStyle(active),
                 )
             }
             if (badge != null) {
                 text(
                     label = badge,
-                    style = Style { textSize(11f.sp); foreground(themeValues.colors.mutedForeground) },
+                    style = shadcnSidebarSupportingTextStyle(themeValues),
                 )
             }
         }
@@ -275,13 +252,7 @@ fun UiScope.shadcnSidebarMenuSubItem(
     val clicked = button(
         id = id,
         modifier = modifier.fillMaxWidth().height(ShadcnSidebarMetrics.submenuButtonHeight),
-        style = Style {
-            background(if (active) themeValues.colors.secondary else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
-            foreground(if (active) themeValues.colors.secondaryForeground else themeValues.colors.foreground)
-            shape(themeValues.shapes.md)
-            contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
-            hovered { background(themeValues.colors.accent); foreground(themeValues.colors.accentForeground) }
-        },
+        style = shadcnSidebarMenuItemStyle(themeValues, active),
     ) {
         row(
             horizontalArrangement = Arrangement.spacedBy(8f.dp),
@@ -293,7 +264,7 @@ fun UiScope.shadcnSidebarMenuSubItem(
             }
             text(
                 label = label,
-                style = Style { textSize(13f.sp); fontWeight(if (active) FontWeight.Medium else FontWeight.Normal) },
+                style = shadcnSidebarSubmenuLabelStyle(active),
             )
         }
     }

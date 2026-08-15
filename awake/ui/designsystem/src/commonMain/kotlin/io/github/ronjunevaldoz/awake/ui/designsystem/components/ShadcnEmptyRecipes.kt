@@ -6,6 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnEmptyDescriptionStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnEmptyTitleStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
@@ -14,7 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.text
-import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /**
  * Empty state container component.
@@ -37,18 +38,12 @@ fun UiScope.shadcnEmpty(
     }
     text(
         label = title,
-        style = Style {
-            foreground(themeValues.colors.foreground)
-            textSize(themeValues.typography.title)
-        },
+        style = shadcnEmptyTitleStyle(themeValues),
     )
     description?.let { desc ->
         text(
             label = desc,
-            style = Style {
-                foreground(themeValues.colors.mutedForeground)
-                textSize(themeValues.typography.body)
-            },
+            style = shadcnEmptyDescriptionStyle(themeValues),
         )
     }
     action?.invoke(this)

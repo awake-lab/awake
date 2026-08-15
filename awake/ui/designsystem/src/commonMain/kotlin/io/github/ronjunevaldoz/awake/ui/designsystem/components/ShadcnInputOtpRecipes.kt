@@ -7,6 +7,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.tw
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnInputOtpSlotStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
@@ -19,7 +20,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.requestFocus
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.width
-import io.github.ronjunevaldoz.awake.ui.style.Style
 
 fun UiScope.shadcnInputOTP(
     id: String,
@@ -47,12 +47,7 @@ fun UiScope.shadcnInputOTP(
             surface(
                 id = "$id.slot.$index",
                 modifier = Modifier.height(9.tw).width(9.tw).clickable { requestFocus(id) },
-                style = Style {
-                    background(themeValues.colors.card)
-                    foreground(if (enabled) themeValues.colors.foreground else themeValues.colors.mutedForeground)
-                    border(1f.dp, if (isError) themeValues.colors.destructive else themeValues.colors.input)
-                    shape(themeValues.shapes.md)
-                },
+                style = shadcnInputOtpSlotStyle(themeValues, enabled, isError),
             ) {
                 box(modifier = Modifier.fillMaxSize(), contentAlignment = UiAlignment.Center) {
                     text(char, centered = true)
