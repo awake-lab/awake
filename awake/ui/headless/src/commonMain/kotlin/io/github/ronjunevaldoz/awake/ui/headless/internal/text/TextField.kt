@@ -87,9 +87,15 @@ fun UiPrimitiveScope.textField(
         disabled = !enabled,
         focused = focused,
     )
+    // Upstream: `focus-visible:border-ring` -- the border itself switches to the ring color when
+    // focused, not just a thicker border in whatever color it already had (see borderWidth below,
+    // which was the only focus signal before this). The `ring-ring/50 ring-[3px]` outer glow is
+    // not reproduced here: there is no box-shadow/halo draw primitive to paint it with yet.
     val borderColor =
         if (isError) {
             theme.colors.destructive
+        } else if (focused) {
+            theme.colors.ring
         } else {
             (
                 surface.resolved.borderColor

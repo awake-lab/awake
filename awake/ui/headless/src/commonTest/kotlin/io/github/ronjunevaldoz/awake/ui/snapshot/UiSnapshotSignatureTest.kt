@@ -132,12 +132,15 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // 2026-08-12: re-recorded after the tutorial/review fixture migrated its public component scenes
 // from the temporary Core-receiver compatibility bridge to the Compose-style Headless facade.
 // 2026-08-13: re-recorded after supportingText unified with shadcnMuted typography token.
+// 2026-08-15: ui-component-state-matrix only -- focused text fields now border in
+// theme.colors.ring instead of reusing the unfocused border color at a thicker width, matching
+// upstream's focus-visible:border-ring. It is the one scene with a focused field.
 private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x6a983a490866bb5buL,
     "ui-shaped-panel" to 0xe7d4595f9dce9c9fuL,
     "ui-panel-controls" to 0x48857545493d9b37uL,
     "ui-alert-dialog" to 0xd86c496ca1a25736uL,
-    "ui-component-state-matrix" to 0x3894c7e819fc3d3euL,
+    "ui-component-state-matrix" to 0xcf50cfa4fec15865uL,
     "ui-rounded-clip-vector" to 0xf2cd41c5da7ae2cduL,
     "ui-awake-shadcn-showcase" to 0x9900cb4fb67ecb53uL,
 )
