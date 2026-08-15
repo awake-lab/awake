@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
@@ -17,8 +18,11 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import kotlin.math.floor
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Exact-value drag contract: a handle drag moves panel widths by exactly the pointer delta,
@@ -282,6 +286,59 @@ class ResizablePanelDragConservationTest {
             main!!.height + dock!!.height + dh.height,
             1f,
             "vertical split must conserve the workspace height",
+        )
+    }
+
+    // The separator's visual contract: an always-visible 1px line at an INTEGER coordinate
+    // (fraction-derived centers anti-alias a 1px quad into an invisible smear), and a grip whose
+    // long axis follows the line's orientation.
+    @Test
+    fun handleDrawsPixelSnappedSeparatorLineAndOrientedGrip() {
+        val ui = UiContext()
+        val input = Input()
+        var handleH: UiBounds? = null
+        var handleV: UiBounds? = null
+        ui.simulateFrame(pointerDown = false, x = -100f, y = -100f, input = input) {
+            ui.createAbsolute(x = 0f, y = 0f).resizablePanelGroup(
+                id = "line-group",
+                modifier = Modifier.width(601f.px).height(200f.px),
+            ) {
+                panel("p1", defaultSize = 0.437f) { }
+                handleH = handle("h1", withHandle = true)
+                panel("p2", defaultSize = 0.563f) { }
+            }
+            ui.createAbsolute(x = 0f, y = 220f).resizablePanelGroup(
+                id = "line-group-v",
+                direction = ResizableDirection.Vertical,
+                modifier = Modifier.width(200f.px).height(201f.px),
+            ) {
+                panel("pv1", defaultSize = 0.5f) { }
+                handleV = handle("hv1", withHandle = true)
+                panel("pv2", defaultSize = 0.5f) { }
+            }
+        }
+        val quads = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Quad>()
+
+        val hLine = quads.firstOrNull { it.w == 1f && it.h == handleH!!.height && it.y == handleH!!.y }
+        assertNotNull(hLine, "horizontal-direction handle must draw a full-height 1px line")
+        assertEquals(hLine.x, floor(hLine.x), "separator line x must be pixel-snapped")
+        assertTrue(
+            hLine.x >= handleH!!.x && hLine.x < handleH!!.x + handleH!!.width,
+            "line must sit inside the handle strip",
+        )
+
+        val vLine = quads.firstOrNull { it.h == 1f && it.w == handleV!!.width && it.x == handleV!!.x }
+        assertNotNull(vLine, "vertical-direction handle must draw a full-width 1px line")
+        assertEquals(vLine.y, floor(vLine.y), "separator line y must be pixel-snapped")
+
+        val grips = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
+        assertTrue(
+            grips.any { it.w == 12f && it.h == 16f },
+            "vertical divider grip must be upright (12x16)",
+        )
+        assertTrue(
+            grips.any { it.w == 16f && it.h == 12f },
+            "horizontal divider grip must lie flat (16x12)",
         )
     }
 

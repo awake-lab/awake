@@ -208,7 +208,7 @@ class StudioModuleCameraTest {
     }
 }
 
-private class RecordingCameraRenderer : Renderer {
+internal class RecordingCameraRenderer : Renderer {
     var lastEye: Vec3? = null
     var lastProjection: Camera.Projection? = null
     var lastOrthoHalfHeight: Float = 0f
