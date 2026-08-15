@@ -24,8 +24,15 @@ fun UiScope.icon(
     icon: UiImageVector,
     modifier: Modifier = Modifier,
     tint: Color? = null,
-): UiBounds = primitive.primitiveIcon(
-    imageVector = icon,
-    modifier = modifier.asPrimitiveModifier(),
-    tint = tint ?: themeValues.colors.foreground,
-)
+): UiBounds = if (tint != null) {
+    primitive.primitiveIcon(
+        imageVector = icon,
+        modifier = modifier.asPrimitiveModifier(),
+        tint = tint,
+    )
+} else {
+    primitive.primitiveIcon(
+        imageVector = icon,
+        modifier = modifier.asPrimitiveModifier(),
+    )
+}

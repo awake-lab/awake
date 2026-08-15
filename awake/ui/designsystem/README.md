@@ -12,7 +12,7 @@ look and behave consistently across every screen in the app. It owns:
 
 - **Visual tokens** — colors, spacing, radius, typography, and shadow defined as a theme
 - **Component recipes** — functions like `shadcnButton`, `shadcnCard`, `shadcnInput` that
-  apply those tokens to headless primitives via `SurfaceStyle` / `Style`
+  apply those tokens to headless primitives via `Style`
 - **Variant systems** — `ShadcnButtonVariant`, `ShadcnBadgeVariant`, etc. — sealed enums that
   resolve to the correct token set for each visual state (primary, secondary, outline, ghost,
   danger, …)
@@ -63,6 +63,18 @@ designsystem/
   PresetUiThemes.kt    # Built-in presets (Default, Rose, Blue, …)
 ```
 
+### Theme scope
+
+Core owns the neutral runtime locals and fallback theme. This module owns the branded entry
+point: use the lower-case `UiScope.shadcnTheme(...)` extension to provide a named shadcn theme.
+It establishes the theme and default text style for recipes without passing theme or typography
+through component parameters. Recipes may read the design-system-local `themeValues` accessor;
+Headless primitives must not.
+
+Put each component's visual factories in its dedicated `Shadcn<Family>Styles.kt` file. That file
+owns its neutral, hover, active, disabled, and variant `Style` values; recipe files compose those
+styles with Headless behavior.
+
 ---
 
 ### Dependency rule
@@ -84,8 +96,7 @@ All primitive access goes through `headless`.
 
 1. Add a recipe file under `components/` named `Shadcn<Family>Recipes.kt`.
 2. If the component has visual variants, add a `Shadcn<Family>Variant` sealed class under
-   `styles/` and write a `visuals()` extension that maps each variant to a `SurfaceStyle` or
-   `Style`.
+   `styles/` and write a `Style` factory/extension that maps each variant and interaction state.
 3. Call the matching headless primitive (`UiScope.button`, `UiScope.surface`, etc.) and pass
    the resolved style.
 4. Add a preview fixture in `samples:ui-showcase` and verify with the parity CLI:

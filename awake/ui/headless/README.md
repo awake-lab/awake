@@ -16,7 +16,7 @@ disabled state, keyboard activation) without any specific look attached.
 This separation means:
 
 - The same `button` primitive can be a pill badge, a sidebar menu item, an icon-only action,
-  or a full-width CTA — because the caller provides the `SurfaceStyle` / `Style`, not the
+  or a full-width CTA — because the caller provides `Style`, not the
   primitive itself.
 - Tests can assert interaction and semantic correctness without depending on visual output.
 - A new design theme can be built entirely in `designsystem` without touching any primitive
@@ -38,7 +38,7 @@ interaction model, let the design system own the visual contract.
 | **Disclosure** | `Accordion.kt`, `Collapsible.kt` | Expand/collapse with animation hooks |
 | **Overlay** | `Dialog.kt`, `Popup.kt`, `Tooltip.kt`, `Overlay.kt` | Modal dialogs, positioned pop-overs |
 | **Navigation** | `Dropdown.kt`, `Menu.kt` | Menus, context menus, dropdown triggers |
-| **Surface** | `Surface.kt` | Styled container that resolves `SurfaceStyle` against the active theme |
+| **Surface** | `Surface.kt` | Generic container and interaction primitive; appearance comes from caller-supplied `Style` |
 | **Scroll** | `ScrollState.kt` | `rememberScrollState`, `verticalScroll`, `horizontalScroll` |
 | **Status** | `Status.kt` | Progress, slider, spinner |
 | **Media** | `Avatar.kt`, `Icon.kt`, `Canvas.kt` | Image fallbacks, vector icons, raw canvas |
@@ -51,7 +51,9 @@ interaction model, let the design system own the visual contract.
 
 - Color values, font faces, radii, or any design token → those belong in `designsystem`
 - Padding or size constants specific to a component family (e.g. button minimum height)
-  → those are set by the `SurfaceStyle` / `Style` passed in by the recipe
+  → those are set by `Style` passed in by the recipe
+- Theme provisioning or ambient theme, typography, and text-style access → Core owns the
+  neutral local machinery; a design system exposes its branded provider
 - Application-level layout (sidebars, page chrome, split views) → those belong in the
   consuming app or `samples`
 
@@ -142,7 +144,7 @@ for the required proof any new skin ships with.
 
 1. Add a file under `headless/` named after the primitive concept (e.g. `Slider.kt`).
 2. Write the function as a `UiScope` extension returning `UiBounds`.
-3. Accept a `Modifier` and an optional `style: SurfaceStyle` / `Style` parameter — **do not
+3. Accept a `Modifier` and an optional `style: Style` parameter — **do not
    hard-code any visual value** inside the primitive itself.
 4. Record a semantic node with the appropriate `UiSemanticRole` so tests and the overlay
    debugger can identify it.

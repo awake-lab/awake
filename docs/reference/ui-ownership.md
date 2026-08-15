@@ -126,14 +126,17 @@ Theme *values* and component visual policy are deliberately separate:
   `UiShapeTokens`, and `UiTypography`. They describe values; they do not prescribe a component
   recipe or a named design language.
 - `ui-core` resolves and applies those values while running the UI, and provides the neutral
-  `UiComponentStyles` contract plus `CoreUiComponentStyles` fallback. Its defaults must remain
-  generic and free of brand, product, or named-variant policy.
-- `ui-headless` accepts and applies the generic `Style` shape a widget needs, including state
-  rules. `SurfaceStyle`/`SurfaceVisuals` are deprecated compatibility bridges, not an API model.
-  Headless must not name a state `Primary`, `Ghost`, `Outline`, Material, or shadcn, and must
-  not invent token names or hardcode `Color(...)` values.
+  `UiComponentStyles` contract plus `CoreUiComponentStyles` fallback. It also owns the neutral
+  theme, typography, and text-style local machinery. Its defaults must remain generic and free
+  of brand, product, or named-variant policy.
+- `ui-headless` accepts and applies the generic `Style` shape a widget needs. It does not read
+  theme values, typography, or text style directly, and does not provide them. `SurfaceStyle` /
+  `SurfaceVisuals` are deprecated compatibility bridges, not an API model. Headless must not name
+  a state `Primary`, `Ghost`, `Outline`, Material, or shadcn, invent token names, or hardcode
+  `Color(...)` values.
 - `ui-designsystem` owns named themes, token instances, component recipes, and branded variants.
-  A wrapper maps its brand-specific variant onto Headless's neutral visual states. It is the only
+  Its lower-case `UiScope.shadcnTheme(...)` wrapper delegates to Core's neutral providers, while
+  component-local style files map brand-specific variants and interaction states to `Style`. It is the only
   module allowed to hardcode `Color(...)`/`Color.fromOklch(...)` literals, and only inside
   theme-definition files (`ShadcnTheme.kt`, `PresetUiThemes.kt`, `OklchColor.kt`) -- not inside
   individual component files.
@@ -148,7 +151,9 @@ Theme *values* and component visual policy are deliberately separate:
 | `button`, `checkbox`, `slider` | `ui-headless` | generic reusable leaf widgets |
 | `UiColorTokens`, `UiShapeTokens`, `UiTypography` | `ui-api` | immutable, runtime-free theme value contracts |
 | neutral fallback theme resolution and `CoreUiComponentStyles` | `ui-core` | generic runtime fallback, not branded policy |
+| neutral theme/text local providers | `ui-core` | runtime mechanics shared by every skin, with no branded API |
 | `Style` / generic interaction-state rules | `ui-headless` | widget-state contract without branded names |
+| `UiScope.shadcnTheme(...)` and shadcn `themeValues` access | `ui-designsystem` | branded scope and recipe-facing ambient access |
 | `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-dsl` | neutral multi-widget/tooling composition, not a leaf widget |
 | `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme` | `ui-designsystem` | named authored themes belong above engine core |
 | `ShadcnPanelStyle`, `Primary`/`Ghost`/`Outline` variants | `ui-designsystem` | branded visual policy, not engine primitive |

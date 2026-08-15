@@ -41,19 +41,23 @@ include(":awake:ui:tailwind-generator")
 - `awake:ui:ui-core`:
     - Core frame loop, `UiContext` runtime state, layout engine (`Column`, `Row`, `Box`, `Spacer`,
       `LazyList`), layout sizing/padding (`Dimension`, `Alignment`, `Insets`), `UiModifier`, state
-      hooks (`WidgetState`, `UiScrollState`), theme values (`UiThemeValues`), and
-      `UiPrimitiveScope`. (Retains `ui-core` to disambiguate from engine root `:awake:core`).
+      hooks (`WidgetState`, `UiScrollState`), neutral theme/text local mechanics and fallback
+      values (`UiThemeValues`, `CoreUiTheme`, `CoreUiComponentStyles`), and `UiPrimitiveScope`.
+      Branded theme entry points belong in `designsystem`. (Retains `ui-core` to disambiguate
+      from engine root `:awake:core`).
 
 - `awake:ui:headless`:
     - Unstyled, accessible UI components (buttons, input fields, popups, accordions, tabs,
-      `TabItem`, `TabScope`) for building custom design systems.
+      `TabItem`, `TabScope`) for building custom design systems. Public leaf APIs receive generic
+      `Style`; they do not expose branded or theme-provider APIs.
 
 - `awake:ui:tailwind`:
     - Standalone Tailwind CSS design tokens (spacing, radius, color, typography scales).
 
 - `awake:ui:designsystem`:
     - Styled component library following the [shadcn/ui](https://ui.shadcn.com/) design language,
-      built on top of `headless` using `tailwind` tokens.
+      built on top of `headless` using `tailwind` tokens. It owns named themes and the lower-case
+      `UiScope.shadcnTheme(...)` composition entry point.
 
 - `awake:ui:heroicons`:
     - Integration and vector path definitions for the Heroicons icon set.
