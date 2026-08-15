@@ -229,10 +229,10 @@ hand, just read the step number off the class and use the matching constant.
 | `size-9` | height AND width both | both modifiers, same constant |
 | `p-4` / `px-3` / `py-2` | padding all / horizontal / vertical | `contentPadding(UiInsets.tw(px = 3, py = 2))` or `3.tw` / `2.tw` |
 | `gap-2` | flex/grid gap between children | `Arrangement.spacedBy(Tw.Spacing.s2)` |
-| `items-center` (Row) | cross-axis centering in row | `verticalAlignment = UiAlignment.Vertical.Center` |
-| `items-center` (Column/Surface) | cross-axis centering in column | `horizontalAlignment = UiAlignment.Horizontal.Center` |
-| `justify-center` (Row) | main-axis centering in row | `horizontalArrangement = Arrangement.Center` |
-| `justify-center` (Column/Surface) | main-axis centering in column | `verticalArrangement = Arrangement.Center` |
+| `items-center` (Row) | cross-axis centering in row | `verticalAlignment = UiAlignment.Vertical.Center` or `TwLayout.itemsCenterRow` |
+| `items-center` (Column/Surface) | cross-axis centering in column | `horizontalAlignment = UiAlignment.Horizontal.Center` or `TwLayout.itemsCenterColumn` |
+| `justify-center` (Row) | main-axis centering in row | `horizontalArrangement = Arrangement.Center` or `TwLayout.justifyCenterRow` |
+| `justify-center` (Column/Surface) | main-axis centering in column | `verticalArrangement = Arrangement.Center` or `TwLayout.justifyCenterColumn` |
 | `inline-flex items-center justify-center` | dual-axis centering for pills/badges/kbd | `verticalArrangement = Arrangement.Center` + `text(centered = true)` |
 | `rounded-md` | border radius, *named* not numbered | `theme.radii.md` -- NOT `Tw`, radius is theme-relative here |
 | `w-[100px]` | arbitrary value, escapes the scale | plain `100f.dp` literal, `Tw` has no step for it |

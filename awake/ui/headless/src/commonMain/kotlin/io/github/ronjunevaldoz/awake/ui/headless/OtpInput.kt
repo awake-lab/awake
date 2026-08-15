@@ -22,13 +22,16 @@ fun UiScope.otpInput(
     groupSize: Int = 0,
     horizontalArrangement: Arrangement = Arrangement.Start,
     onValueChange: (String) -> Unit = {},
-    separator: (RowScope.() -> Unit)? = null,
+    // beforeIndex is the slot the separator sits in front of -- a stable key for the caller's
+    // own semantic/id, since a row() trial-measure pass otherwise makes call-order counters
+    // double-count (see OtpInputWidgetTest).
+    separator: (RowScope.(beforeIndex: Int) -> Unit)? = null,
     slotContent: RowScope.(index: Int, char: String) -> Unit,
 ): String {
     var resolved = value
     row(modifier = modifier, horizontalArrangement = horizontalArrangement) {
         repeat(length) { index ->
-            if (separator != null && primitiveOtpShowsSeparatorBefore(index, groupSize)) separator()
+            if (separator != null && primitiveOtpShowsSeparatorBefore(index, groupSize)) separator(index)
             slotContent(index, value.getOrNull(index)?.toString().orEmpty())
         }
         // The backing field only carries keystrokes and focus -- the slots above are what the
