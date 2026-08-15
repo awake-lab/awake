@@ -1,0 +1,46 @@
+{
+  "case": "radio-group-states",
+  "nodes": {
+    "parity-radio.0": {
+      "height": 16,
+      "width": 16,
+      "x": 0,
+      "y": 0
+    },
+    "parity-radio.0.label": {
+      "height": 14,
+      "width": 45.15625,
+      "x": 24,
+      "y": 1
+    },
+    "parity-radio.1": {
+      "height": 16,
+      "width": 16,
+      "x": 0,
+      "y": 28
+    },
+    "parity-radio.1.label": {
+      "height": 14,
+      "width": 78.609375,
+      "x": 24,
+      "y": 29
+    },
+    "parity-radio.2": {
+      "height": 16,
+      "width": 16,
+      "x": 0,
+      "y": 56
+    },
+    "parity-radio.2.label": {
+      "height": 14,
+      "width": 56.671875,
+      "x": 24,
+      "y": 57
+    }
+  },
+  "root": {
+    "height": 72,
+    "width": 102.609375
+  },
+  "theme": "light"
+}

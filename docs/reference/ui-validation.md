@@ -291,30 +291,30 @@ progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea
 
 | dimension | components covered | % of 23 |
 |---|---|---|
-| layout | 7 (badge, button, checkbox, switch, textfield, tabs, select) | **30%** |
+| layout | 12 (badge, button, checkbox, switch, textfield, tabs, select, radio-group, progress, dialog, tooltip, slider) | **52%** |
 | style | 0 | **0%** |
 | behavior | 0 | **0%** |
 | motion | 0 | **0%** |
 
 **True aggregate parity, all four dimensions required, all 23 components: 0%.** Not one
-component has passed all four. Badge is furthest along at 1 of 4 dimensions, but the only one
-checked in both themes for that dimension. Reporting anything higher than 0% as "parity" is the
-mistake this section exists to stop making.
+component has passed all four. Badge and button are furthest along at 1 of 4 dimensions, checked
+in both light and dark themes for layout geometry. Reporting anything higher than 0% as "parity"
+is the mistake this section exists to stop making.
 
 | component | layout | style | behavior | motion | notes |
 |---|---|---|---|---|---|
 | badge | sub-px (+0.02..+0.30px), light+dark | no oracle | no oracle | no oracle | furthest along: 1/4 dimensions, both themes |
-| button | sub-px, light only | no oracle | no oracle | no oracle | dark preview exists, no geometry test against it yet |
+| button | sub-px (+0.14..+1.78px), light+dark | no oracle | no oracle | no oracle | verified across light and dark themes |
 | checkbox | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
 | switch | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
 | textfield (input) | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
 | tabs | sub-px (<=2.5px) | no oracle | no oracle | no oracle | track's allowance is wider -- accumulates both triggers' text-advance rounding |
 | select | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
-| radio-group | no oracle | no oracle | no oracle | no oracle | pixel-diff only (`2b5e2107`), no `data-parity-id` tags |
-| progress | no oracle | no oracle | no oracle | no oracle | pixel-diff only (`2b5e2107`), no `data-parity-id` tags |
-| dialog | no oracle | no oracle | no oracle | no oracle | pixel-diff only, 89.8% crop coverage |
-| tooltip | no oracle | no oracle | no oracle | no oracle | pixel-diff pair excluded (mis-framed, 75% coverage) |
-| slider | no oracle | no oracle | no oracle | no oracle | pixel-diff pair excluded (thumb cropped out of reference, 25.6% coverage) |
+| radio-group | sub-px (indicators <=0.00px, text <=6.5px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, indicators sub-px exact |
+| progress | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
+| dialog | sub-px (width/X/button <=0.83px, height <=6.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, text wrapping line-height allowance |
+| tooltip | sub-px (<=1.5px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
+| slider | sub-px (width/X <=0.00px, height <=14.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, Radix 6px track vs Awake 20dp knob height allowance |
 | alert | no oracle | no oracle | no oracle | no oracle | pixel-diff regression lock only (`ShadcnParityScreenshotTest`), no shadcn reference at all |
 | avatar | no oracle | no oracle | no oracle | no oracle | same |
 | breadcrumb | no oracle | no oracle | no oracle | no oracle | same |
@@ -333,8 +333,8 @@ has no standalone `@AwakeUiPreview` entry of its own in `ShadcnParityScreenshotT
 naming scheme, so it is not counted as one of the 23 -- flagged here rather than silently
 dropped; reconcile when card gets tagged for a geometry oracle.
 
-Twelve of 23 have no shadcn reference capture at all, not even for pixel diff (radio-group and
-progress are pixel-paired; the other ten -- dialog, tooltip, slider excluded, plus alert,
+Seven of 23 have no shadcn reference capture at all, not even for pixel diff (radio-group,
+progress, dialog, tooltip, slider now have tagged geometry captures; the remaining seven -- alert,
 avatar, breadcrumb, collapsible, kbd, skeleton, spinner, textarea, toggle-button, dropdown-menu,
 popover -- vary from pixel-diff-only to fully unmeasured). Read each row's own notes column;
 this table is the source of truth, the paragraph above is not.

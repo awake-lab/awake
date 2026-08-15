@@ -1,0 +1,16 @@
+{
+  "case": "tooltip-open",
+  "nodes": {
+    "parity-tooltip-trigger": {
+      "height": 36,
+      "width": 110,
+      "x": -8,
+      "y": -46
+    }
+  },
+  "root": {
+    "height": 28,
+    "width": 94.765625
+  },
+  "theme": "light"
+}
