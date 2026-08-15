@@ -227,7 +227,7 @@ hand, just read the step number off the class and use the matching constant.
 |---|---|---|
 | `h-9` / `w-9` | height/width, scale step 9 | `.height(Tw.Spacing.s9)` / `.width(...)` |
 | `size-9` | height AND width both | both modifiers, same constant |
-| `p-4` / `px-3` / `py-2` | padding all / horizontal / vertical | `contentPadding(...)` or `.padding(...)` |
+| `p-4` / `px-3` / `py-2` | padding all / horizontal / vertical | `contentPadding(UiInsets.tw(px = 3, py = 2))` or `3.tw` / `2.tw` |
 | `gap-2` | flex/grid gap between children | `Arrangement.spacedBy(Tw.Spacing.s2)` |
 | `rounded-md` | border radius, *named* not numbered | `theme.radii.md` -- NOT `Tw`, radius is theme-relative here |
 | `w-[100px]` | arbitrary value, escapes the scale | plain `100f.dp` literal, `Tw` has no step for it |
