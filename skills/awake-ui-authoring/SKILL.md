@@ -66,6 +66,37 @@ x += LABEL_GAP.toPx()
 If surrounding arithmetic is genuinely px-based, still source the value from a `Dp` and convert
 at use. `awake.ui-authored-units-convention` is meant to police this; do not rely on it alone.
 
+### The inverse trap: pixels wrapped as Dp (applies to SAMPLES too, not just widgets)
+
+A value computed from a slot (`slot.height - bar.toPx()`) is **pixels**. Wrapping it `.dp`
+re-multiplies by `UiDensity.scale` at resolve time -- 2x on every Retina display, invisible on
+the density-1 machine (and every density-1 test) that wrote it. Studio shipped exactly this:
+`Modifier.height(workspaceHeightPx.dp)` doubled the workspace at scale 2 and pushed the dock
+handle and status bar off-frame, which read as "the resizable is broken".
+
+- Slot-derived or otherwise pixel-valued numbers go back into modifiers via `.px`
+  (`Float.px` divides by the scale), never `.dp`.
+- This rule is layer-independent: sample shells violate it as easily as widgets.
+- A pre-commit grep for `[a-zA-Z]Px\.dp\b` catches the naming-convention cases mechanically.
+- Any layout suite guarding a live shell needs at least one case at `UiDensity.scale = 2` --
+  at scale 1 the whole bug class is definitionally invisible
+  (`StudioShellLayoutTest.workspaceStaysInsideTheShellAtRetinaDensity` is the model).
+
+## Bound-derived interiors must not report intrinsic size
+
+A widget whose interior layout is `fraction x its own resolved bound` (a resizable panel
+group, a scroll viewport's content) has **no intrinsic size** -- yet inside a WrapContent
+parent's measure trial its children's claims land at trial-inflated positions and register as
+phantom content extent. The showcase's preview card grew by the drag delta every frame this
+way: the group's handle claim at `fraction x trial-bound` out-measured the card's real text
+content, and the re-measured card re-based the panel budget mid-gesture.
+
+Wrap the real content dispatch of such widgets in `boundDerivedContent { ... }`
+(`ui-core/scope/UiScopeNesting.kt` -- the stronger sibling of `compositeContent`, isolating
+wrap-extent trackers, not just the child list). Scroll viewports already do the equivalent via
+`withMeasuredSubtreeIsolated`. Symptom to recognize: "dragging/interacting inside a card
+re-sizes the card itself".
+
 ## Fill the axis through `Modifier`, never `Dimension.FillMax`
 
 `Dimension.FillMax` is a Core layout-resolution sentinel, not authored UI vocabulary. Public
