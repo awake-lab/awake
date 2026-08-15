@@ -3,10 +3,10 @@
   "nodes": {
     "parity-textarea-1": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 60,
       "lineHeight": 20,
@@ -20,10 +20,10 @@
     },
     "parity-textarea-2": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 60,
       "lineHeight": 20,
@@ -37,10 +37,10 @@
     },
     "parity-textarea-3": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 60,
       "lineHeight": 20,
@@ -57,5 +57,5 @@
     "height": 212,
     "width": 272
   },
-  "theme": "light"
+  "theme": "dark"
 }

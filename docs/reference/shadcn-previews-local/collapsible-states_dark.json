@@ -3,10 +3,10 @@
   "nodes": {
     "parity-collapsible.trigger": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 0,
       "borderWidth": 0,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 36,
       "lineHeight": 20,
@@ -23,5 +23,5 @@
     "height": 84,
     "width": 280
   },
-  "theme": "light"
+  "theme": "dark"
 }

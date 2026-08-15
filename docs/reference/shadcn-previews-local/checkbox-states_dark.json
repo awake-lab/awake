@@ -2,11 +2,11 @@
   "case": "checkbox-states",
   "nodes": {
     "parity-checkbox-checked": {
-      "backgroundColor": "oklch(0 0 0)",
-      "borderColor": "oklch(0 0 0)",
+      "backgroundColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(0.922 0 0)",
       "borderRadius": 4,
       "borderWidth": 1,
-      "color": "oklch(0.985 0 0)",
+      "color": "oklch(0.205 0 0)",
       "fontSize": 16,
       "height": 16,
       "lineHeight": 24,
@@ -20,10 +20,10 @@
     },
     "parity-checkbox-disabled": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 4,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 16,
       "height": 16,
       "lineHeight": 24,
@@ -37,10 +37,10 @@
     },
     "parity-checkbox-unchecked": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 4,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 16,
       "height": 16,
       "lineHeight": 24,
@@ -57,5 +57,5 @@
     "height": 16,
     "width": 80
   },
-  "theme": "light"
+  "theme": "dark"
 }

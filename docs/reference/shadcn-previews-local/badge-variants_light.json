@@ -2,8 +2,11 @@
   "case": "badge-variants",
   "nodes": {
     "badge.Default": {
+      "backgroundColor": "oklch(0 0 0)",
+      "borderColor": "rgba(0, 0, 0, 0)",
       "borderRadius": 33554400,
       "borderWidth": 1,
+      "color": "oklch(0.985 0 0)",
       "fontSize": 12,
       "height": 22,
       "lineHeight": 16,
@@ -16,8 +19,11 @@
       "y": 0
     },
     "badge.Destructive": {
+      "backgroundColor": "oklch(0.577 0.245 27.325)",
+      "borderColor": "rgba(0, 0, 0, 0)",
       "borderRadius": 33554400,
       "borderWidth": 1,
+      "color": "rgb(255, 255, 255)",
       "fontSize": 12,
       "height": 22,
       "lineHeight": 16,
@@ -30,8 +36,11 @@
       "y": 0
     },
     "badge.Outline": {
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "borderColor": "oklch(0.922 0 0)",
       "borderRadius": 33554400,
       "borderWidth": 1,
+      "color": "oklch(0 0 0)",
       "fontSize": 12,
       "height": 22,
       "lineHeight": 16,
@@ -44,8 +53,11 @@
       "y": 0
     },
     "badge.Secondary": {
+      "backgroundColor": "oklch(0.97 0 0)",
+      "borderColor": "rgba(0, 0, 0, 0)",
       "borderRadius": 33554400,
       "borderWidth": 1,
+      "color": "oklch(0.205 0 0)",
       "fontSize": 12,
       "height": 22,
       "lineHeight": 16,

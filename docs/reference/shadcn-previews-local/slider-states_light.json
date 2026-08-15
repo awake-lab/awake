@@ -2,8 +2,11 @@
   "case": "slider-states",
   "nodes": {
     "parity-slider": {
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "borderColor": "oklch(0.922 0 0)",
       "borderRadius": 0,
       "borderWidth": 0,
+      "color": "oklch(0 0 0)",
       "fontSize": 16,
       "height": 6,
       "lineHeight": 24,

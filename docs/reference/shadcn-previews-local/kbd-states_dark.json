@@ -2,11 +2,11 @@
   "case": "kbd-states",
   "nodes": {
     "kbd.ctrl": {
-      "backgroundColor": "oklch(0.97 0 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "backgroundColor": "oklch(0.269 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 4,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 10,
       "height": 17,
       "lineHeight": 15,
@@ -19,11 +19,11 @@
       "y": 3.5
     },
     "kbd.k": {
-      "backgroundColor": "oklch(0.97 0 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "backgroundColor": "oklch(0.269 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 4,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 10,
       "height": 17,
       "lineHeight": 15,
@@ -40,5 +40,5 @@
     "height": 24,
     "width": 56.28125
   },
-  "theme": "light"
+  "theme": "dark"
 }

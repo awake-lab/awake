@@ -2,11 +2,11 @@
   "case": "popover-states",
   "nodes": {
     "parity-popover.content": {
-      "backgroundColor": "oklch(1 0 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "backgroundColor": "oklch(0.205 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 16,
       "height": 54,
       "lineHeight": 24,
@@ -23,5 +23,5 @@
     "height": 54,
     "width": 260
   },
-  "theme": "light"
+  "theme": "dark"
 }

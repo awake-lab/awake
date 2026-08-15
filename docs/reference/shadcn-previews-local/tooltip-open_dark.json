@@ -2,11 +2,11 @@
   "case": "tooltip-open",
   "nodes": {
     "parity-tooltip-trigger": {
-      "backgroundColor": "oklch(1 0 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "backgroundColor": "oklch(0.145 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 36,
       "lineHeight": 20,
@@ -23,5 +23,5 @@
     "height": 28,
     "width": 94.765625
   },
-  "theme": "light"
+  "theme": "dark"
 }

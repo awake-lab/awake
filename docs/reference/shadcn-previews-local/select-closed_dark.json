@@ -3,10 +3,10 @@
   "nodes": {
     "parity-select": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklch(0.556 0 0)",
+      "color": "oklch(0.708 0 0)",
       "fontSize": 14,
       "height": 36,
       "lineHeight": 20,
@@ -23,5 +23,5 @@
     "height": 36,
     "width": 172
   },
-  "theme": "light"
+  "theme": "dark"
 }

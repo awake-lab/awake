@@ -2,8 +2,11 @@
   "case": "input-states",
   "nodes": {
     "parity-field-1": {
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "borderColor": "oklch(0.922 0 0)",
       "borderRadius": 8,
       "borderWidth": 1,
+      "color": "oklch(0 0 0)",
       "fontSize": 14,
       "height": 36,
       "lineHeight": 20,
@@ -16,8 +19,11 @@
       "y": 0
     },
     "parity-field-2": {
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "borderColor": "oklch(0.922 0 0)",
       "borderRadius": 8,
       "borderWidth": 1,
+      "color": "oklch(0 0 0)",
       "fontSize": 14,
       "height": 36,
       "lineHeight": 20,
@@ -30,8 +36,11 @@
       "y": 48
     },
     "parity-field-3": {
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "borderColor": "oklch(0.922 0 0)",
       "borderRadius": 8,
       "borderWidth": 1,
+      "color": "oklch(0 0 0)",
       "fontSize": 14,
       "height": 36,
       "lineHeight": 20,
