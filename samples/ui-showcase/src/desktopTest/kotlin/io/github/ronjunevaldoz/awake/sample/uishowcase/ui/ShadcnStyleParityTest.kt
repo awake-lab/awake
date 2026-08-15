@@ -117,4 +117,77 @@ class ShadcnStyleParityTest {
             kotlin.test.assertTrue(horizontalPadding >= 4f, "Dropdown item padding should be at least 4dp")
         }
     }
+
+    @Test
+    fun kbdStatesStyleMatchesShadcn() {
+        assertStyle("kbd-states", "light", AwakeKbdLightPreview)
+
+        val scene = renderAnnotatedUiPreviews(AwakeKbdLightPreview).single()
+        val ctrlKbd = scene.semantics.first { it.id == "kbd.ctrl" }
+        kotlin.test.assertEquals(20f, ctrlKbd.bounds.height, 0.5f, "Kbd height must be h-5 (20dp)")
+    }
+
+    @Test
+    fun alertVariantsStyleMatchesShadcn() =
+        assertStyle("alert-variants", "light", AwakeAlertVariantsLightPreview)
+
+    @Test
+    fun avatarStatesStyleMatchesShadcn() =
+        assertStyle("avatar-states", "light", AwakeAvatarLightPreview)
+
+    @Test
+    fun breadcrumbStatesStyleMatchesShadcn() =
+        assertStyle("breadcrumb-states", "light", AwakeBreadcrumbLightPreview)
+
+    @Test
+    fun collapsibleStatesStyleMatchesShadcn() =
+        assertStyle("collapsible-states", "light", AwakeCollapsibleLightPreview)
+
+    @Test
+    fun dialogOpenStyleMatchesShadcn() =
+        assertStyle("dialog-open", "light", AwakeDialogStatesLightPreview)
+
+    @Test
+    fun popoverStatesStyleMatchesShadcn() =
+        assertStyle("popover-states", "light", AwakePopoverStatesLightPreview)
+
+    @Test
+    fun progressStatesStyleMatchesShadcn() =
+        assertStyle("progress-states", "light", AwakeProgressLightPreview)
+
+    @Test
+    fun radioGroupStatesStyleMatchesShadcn() =
+        assertStyle("radio-group-states", "light", AwakeRadioGroupLightPreview)
+
+    @Test
+    fun selectClosedStyleMatchesShadcn() =
+        assertStyle("select-closed", "light", AwakeSelectClosedLightPreview)
+
+    @Test
+    fun skeletonStatesStyleMatchesShadcn() =
+        assertStyle("skeleton-states", "light", AwakeSkeletonLightPreview)
+
+    @Test
+    fun sliderStatesStyleMatchesShadcn() =
+        assertStyle("slider-states", "light", AwakeSliderLightPreview)
+
+    @Test
+    fun spinnerStatesStyleMatchesShadcn() =
+        assertStyle("spinner-states", "light", AwakeSpinnerLightPreview)
+
+    @Test
+    fun tabsStatesStyleMatchesShadcn() =
+        assertStyle("tabs-states", "light", AwakeTabsLightPreview)
+
+    @Test
+    fun textareaStatesStyleMatchesShadcn() =
+        assertStyle("textarea-states", "light", AwakeTextareaStatesLightPreview)
+
+    @Test
+    fun toggleButtonVariantsStyleMatchesShadcn() =
+        assertStyle("toggle-button-variants", "light", AwakeToggleButtonVariantsLightPreview)
+
+    @Test
+    fun tooltipOpenStyleMatchesShadcn() =
+        assertStyle("tooltip-open", "light", AwakeTooltipTriggerLightPreview)
 }

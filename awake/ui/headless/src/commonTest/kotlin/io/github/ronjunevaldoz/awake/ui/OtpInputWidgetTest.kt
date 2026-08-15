@@ -23,6 +23,7 @@ class OtpInputWidgetTest {
             id = "otp.test",
             value = "12",
             length = 4,
+            modifier = Modifier.width(180f.dp),
         ) { index, char -> seen.add(index to char) }
         ui.finishFrame()
 
@@ -38,6 +39,7 @@ class OtpInputWidgetTest {
             id = "otp.grouped",
             value = "123456",
             length = 6,
+            modifier = Modifier.width(180f.dp),
             groupSize = 3,
             separator = { separatorCount++; text("-") },
         ) { _, _ -> }
