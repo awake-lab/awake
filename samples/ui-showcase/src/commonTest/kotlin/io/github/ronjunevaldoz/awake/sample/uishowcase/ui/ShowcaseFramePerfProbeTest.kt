@@ -1,0 +1,62 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
+
+import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.UiInputState
+import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
+import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.weight
+import kotlin.test.Test
+import kotlin.time.measureTime
+
+/** Perf probe for the wasm "1 fps" report: same shell composition, desktop JVM numbers.
+ * Prints steady-state ms/frame and trial-measure passes per frame. */
+class ShowcaseFramePerfProbeTest {
+
+    @Test
+    fun measureShellFrameCost() {
+        val ui = UiContext()
+        val state = UiShowcaseRuntimeState()
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(shadcnThemeValues(dark = false))
+
+        fun frame() {
+            ui.beginFrame(1280f, 900f, UiInputState(pointerX = 400f, pointerY = 300f))
+            ui.createUiScope(UiBounds(0f, 0f, 1280f, 900f)).row(
+                modifier = Modifier.padding(24f.dp).fillMaxWidth().fillMaxHeight(),
+            ) {
+                column(modifier = Modifier.fillMaxHeight()) {
+                    drawUiShowcaseSidebar(compact = false)
+                }
+                column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                    drawUiShowcasePageContent(state, showInlineMenu = false)
+                }
+            }
+            ui.endFrame()
+        }
+
+        repeat(30) { frame() }
+
+        UiMeasureTrialStats.enabled = true
+        UiMeasureTrialStats.reset()
+        val frames = 100
+        val elapsed = measureTime { repeat(frames) { frame() } }
+        val trials = UiMeasureTrialStats.trialCount
+        UiMeasureTrialStats.enabled = false
+
+        val ms = elapsed.inWholeMicroseconds / 1000.0 / frames
+        println("PERF showcase-shell msPerFrame=$ms trialsPerFrame=${trials / frames}")
+    }
+}
