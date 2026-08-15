@@ -61,6 +61,7 @@ fun UiScope.shadcnKbd(
     )
     return surface(
         id = id,
+        verticalArrangement = Arrangement.Center,
         modifier = withIntrinsicLabelSize(label = label, modifier = modifier.height(20f.dp), style = style),
         style = style,
     ) { _ ->

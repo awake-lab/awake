@@ -122,7 +122,7 @@ skins, which belong to `designsystem`'s own doc.
 | Tooltip | `tooltip` | present | 1:1 |
 | CSP Provider, Direction Provider, mergeProps, useRender | — | n/a | React-only plumbing, nothing to map |
 
-**37 real Base UI components (the React-only utils don't count). 36 present, 1 partial (OTP Field) — 36/37 fully covered, 37/37 with at least a foothold.**
+**37 real Base UI components (the React-only utils don't count). 37/37 present.**
 
 Menubar and Toolbar (`ActionRow.kt`) reduce to the same shape at this layer — a
 `Panel`-semantic `surface` wrapping a `row` — so one private `actionRow` backs both public
