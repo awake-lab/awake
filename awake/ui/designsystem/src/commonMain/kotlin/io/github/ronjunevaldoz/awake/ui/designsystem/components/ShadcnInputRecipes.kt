@@ -12,7 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVaria
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextFieldStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextareaStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.textareaVisuals
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.visuals
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
