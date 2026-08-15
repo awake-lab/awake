@@ -243,17 +243,37 @@ step 0.25), and `0.5`/`1.5`/`2.5`/`3.5` are half-steps (2/6/10/14px). `Tw.Spacin
 all of this -- `Tw.Spacing.s9`, `Tw.Spacing.px`, `Tw.Spacing.s1_5` -- so never do the arithmetic by
 hand, just read the step number off the class and use the matching constant.
 
-| Tailwind class | Means | This codebase |
+## MANDATORY: Always Use Tailwind Helpers (`Tw`, `TwLayout`, `Number.tw`, `UiInsets.tw`)
+
+Whenever converting official React `shadcn/ui` Tailwind classes into Awake UI code, **always reach for the `:awake:ui:tailwind` helpers** instead of writing raw `.dp` literals or manual insets:
+
+1. **Spacing Steps (`Tw.Spacing.s*` or `Int.tw`)**:
+   - `p-2` / `gap-2` $\rightarrow$ `Tw.Spacing.s2` or `2.tw` ($8\text{dp}$)
+   - `p-4` / `gap-4` $\rightarrow$ `Tw.Spacing.s4` or `4.tw` ($16\text{dp}$)
+   - `w-9` / `h-9` $\rightarrow$ `Tw.Spacing.s9` or `9.tw` ($36\text{dp}$)
+
+2. **Padding Insets (`UiInsets.tw`)**:
+   - `px-4 py-2` $\rightarrow$ `UiInsets.tw(px = 4, py = 2)`
+   - `px-3 py-1.5` $\rightarrow$ `UiInsets.tw(px = 3, py = 1.5f)`
+
+3. **Flex & Alignment (`TwLayout`)**:
+   - `items-center` on Row $\rightarrow$ `verticalAlignment = TwLayout.itemsCenterRow`
+   - `items-center` on Column $\rightarrow$ `horizontalAlignment = TwLayout.itemsCenterColumn`
+   - `justify-center` on Row $\rightarrow$ `horizontalArrangement = TwLayout.justifyCenterRow`
+   - `justify-center` on Column $\rightarrow$ `verticalArrangement = TwLayout.justifyCenterColumn`
+
+---
+
+| Tailwind Class | Concept | Awake Primitive or `Tw` Equivalent |
 |---|---|---|
-| `h-9` / `w-9` | height/width, scale step 9 | `.height(Tw.Spacing.s9)` / `.width(...)` |
-| `size-9` | height AND width both | both modifiers, same constant |
+| `w-9 h-9` | fixed square icon-button | `Modifier.size(9.tw)` or `Modifier.size(Tw.Spacing.s9)` |
 | `p-4` / `px-3` / `py-2` | padding all / horizontal / vertical | `contentPadding(UiInsets.tw(px = 3, py = 2))` or `3.tw` / `2.tw` |
-| `gap-2` | flex/grid gap between children | `Arrangement.spacedBy(Tw.Spacing.s2)` |
+| `gap-2` | flex/grid gap between children | `Arrangement.spacedBy(Tw.Spacing.s2)` or `Arrangement.spacedBy(2.tw)` |
 | `items-center` (Row) | cross-axis centering in row | `verticalAlignment = UiAlignment.Vertical.Center` or `TwLayout.itemsCenterRow` |
 | `items-center` (Column/Surface) | cross-axis centering in column | `horizontalAlignment = UiAlignment.Horizontal.Center` or `TwLayout.itemsCenterColumn` |
 | `justify-center` (Row) | main-axis centering in row | `horizontalArrangement = Arrangement.Center` or `TwLayout.justifyCenterRow` |
 | `justify-center` (Column/Surface) | main-axis centering in column | `verticalArrangement = Arrangement.Center` or `TwLayout.justifyCenterColumn` |
-| `inline-flex items-center justify-center` | dual-axis centering for pills/badges/kbd | `verticalArrangement = Arrangement.Center` + `text(centered = true)` |
+| `inline-flex items-center justify-center` | dual-axis centering for pills/badges/kbd | `verticalArrangement = TwLayout.justifyCenterColumn` + `text(centered = true)` |
 | `rounded-md` | border radius, *named* not numbered | `theme.radii.md` -- NOT `Tw`, radius is theme-relative here |
 | `w-[100px]` | arbitrary value, escapes the scale | plain `100f.dp` literal, `Tw` has no step for it |
 | `w-3/4` | fraction of parent | no direct equivalent -- see below |
