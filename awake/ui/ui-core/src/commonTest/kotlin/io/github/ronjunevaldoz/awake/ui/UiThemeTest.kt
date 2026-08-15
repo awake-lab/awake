@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 import io.github.ronjunevaldoz.awake.ui.theme.destructiveStyle
@@ -74,6 +76,32 @@ class UiThemeTest {
 
         assertNotEquals(idle, hovered, "hovered destructive must differ from idle")
         assertNotEquals(hovered, active, "active destructive must differ from hovered")
+    }
+
+    // Reproduces the ShadcnTheme composition shape: `style(visual, fallback) = fallback then
+    // Style { visual overrides }`, where `visual` sets a plain unconditional background (like
+    // slider/toggle/switch's static token color) on top of a fallback that also varies by
+    // state. The unconditional override must not silently win over the state rule just because
+    // it was declared in a later `then` block.
+    @Test
+    fun unconditionalOverrideDoesNotClobberStateRuleFromAnEarlierThenBlock() {
+        val staticOverrideColor = Color(r = 0.1f, g = 0.2f, b = 0.3f)
+        val hoverColor = Color(r = 0.5f, g = 0.5f, b = 0.5f)
+        val fallbackWithStateRule = Style {
+            background(Color(r = 1f, g = 1f, b = 1f))
+            hovered { background(hoverColor) }
+        }
+        val staticVisualOverride = Style {
+            background(staticOverrideColor)
+        }
+        val composed = fallbackWithStateRule then staticVisualOverride
+
+        val idle = composed.resolve(MutableStyleState(hovered = false)).background!!
+        val hovered = composed.resolve(MutableStyleState(hovered = true)).background!!
+
+        assertEquals(staticOverrideColor, idle, "idle must use the themed static override")
+        assertEquals(hoverColor, hovered, "hover must still win even though the static override was declared later")
+        assertNotEquals(idle, hovered, "hover must resolve to a different color than idle")
     }
 
     @Test

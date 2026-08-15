@@ -55,7 +55,8 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
     ensureUiQuadPipeline()
     if (font != null) ensureGlyphPipeline(font)
     if (primitives.any { it is UiDrawPrimitive.Texture }) ensureTextureQuadPipeline()
-    if (primitives.any { it is UiDrawPrimitive.RoundedQuad }) ensureRoundedQuadPipeline()
+    // ShadowQuad draws through the SAME rounded-quad SDF pipeline -- see stageShadowQuadRun.
+    if (primitives.any { it is UiDrawPrimitive.RoundedQuad || it is UiDrawPrimitive.ShadowQuad }) ensureRoundedQuadPipeline()
 
     val runs = mutableListOf<Renderer.UiRun>()
     var quadRunCount = 0
@@ -305,7 +306,20 @@ internal fun Renderer.performDrawUi(primitives: List<UiDrawPrimitive>, font: UiF
                     runs += Renderer.UiRun.ClipRun(it.restoreRect)
                 }
             }
-            is UiDrawPrimitive.ShadowQuad -> TODO() // mirrors Vulkan's identical stub -- unimplemented on both backends
+            is UiDrawPrimitive.ShadowQuad -> {
+                // Mirrors Vulkan's identical branch -- see stageShadowQuadRun.
+                @Suppress("UNCHECKED_CAST")
+                val shadowSlice = slice as List<UiDrawPrimitive.ShadowQuad>
+                var chunkStart = 0
+                while (chunkStart < shadowSlice.size) {
+                    val chunkEnd = minOf(chunkStart + Renderer.MAX_UI_QUADS, shadowSlice.size)
+                    val mesh = roundedQuadMeshForRun(roundedQuadRunCount)
+                    stageShadowQuadRun(mesh, shadowSlice.subList(chunkStart, chunkEnd))
+                    runs += Renderer.UiRun.RoundedQuadRun(mesh)
+                    roundedQuadRunCount += 1
+                    chunkStart = chunkEnd
+                }
+            }
         }
     }
     uiRuns = runs
@@ -517,6 +531,58 @@ private fun stageRoundedQuadRun(mesh: DynamicMesh, quads: List<UiDrawPrimitive.R
         writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, quad.x + quad.w, quad.y, halfW, -halfH, halfW, halfH, radius, quad.color, quad.transform)
         writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, quad.x + quad.w, quad.y + quad.h, halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)
         writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, quad.x, quad.y + quad.h, -halfW, halfH, halfW, halfH, radius, quad.color, quad.transform)
+
+        val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
+        val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD
+        indices[indexBase] = vertexOffset
+        indices[indexBase + 1] = vertexOffset + 1
+        indices[indexBase + 2] = vertexOffset + 2
+        indices[indexBase + 3] = vertexOffset + 2
+        indices[indexBase + 4] = vertexOffset + 3
+        indices[indexBase + 5] = vertexOffset
+        quadIndex += 1
+    }
+    mesh.update(vertices, indices)
+}
+
+/** Writes [shadows] (one run's worth) into [mesh] using the rounded-quad vertex layout, so a
+ * drop shadow renders through `ui_rounded_quad.wgsl` unchanged -- no shadow-specific pipeline,
+ * shader, or mesh pool. Mirrors Vulkan's `stageShadowQuadRun`; see its doc comment for why
+ * pre-dividing the SDF inputs by `blur` turns the shader's fixed 1px antialias band into the
+ * soft box-shadow falloff. */
+private fun stageShadowQuadRun(mesh: DynamicMesh, shadows: List<UiDrawPrimitive.ShadowQuad>) {
+    require(shadows.size <= Renderer.MAX_UI_QUADS) {
+        "UI shadow-quad run size (${shadows.size}) exceeds Renderer's DynamicMesh capacity (${Renderer.MAX_UI_QUADS})."
+    }
+    val floatsPerVertex = DynamicMesh.ROUNDED_QUAD_FLOATS_PER_VERTEX
+    val vertices = FloatArray(shadows.size * DynamicMesh.VERTICES_PER_QUAD * floatsPerVertex)
+    val indices = IntArray(shadows.size * DynamicMesh.INDICES_PER_QUAD)
+    var quadIndex = 0
+    while (quadIndex < shadows.size) {
+        val shadow = shadows[quadIndex]
+        val centerX = shadow.x + shadow.offsetX + shadow.w / 2f
+        val centerY = shadow.y + shadow.offsetY + shadow.h / 2f
+        val halfW = (shadow.w / 2f + shadow.spread).coerceAtLeast(0f)
+        val halfH = (shadow.h / 2f + shadow.spread).coerceAtLeast(0f)
+        val radius = (shadow.radius + shadow.spread).coerceIn(0f, minOf(halfW, halfH))
+        val blur = shadow.blurRadius.coerceAtLeast(1f)
+        val pad = blur + 1f
+        val quadHalfW = halfW + pad
+        val quadHalfH = halfH + pad
+        val localW = quadHalfW / blur
+        val localH = quadHalfH / blur
+        val sdfHalfW = halfW / blur
+        val sdfHalfH = halfH / blur
+        val sdfRadius = radius / blur
+        val left = centerX - quadHalfW
+        val top = centerY - quadHalfH
+        val right = centerX + quadHalfW
+        val bottom = centerY + quadHalfH
+        val vertexBase = quadIndex * DynamicMesh.VERTICES_PER_QUAD * floatsPerVertex
+        writeRoundedQuadVertex(vertices, vertexBase + 0 * floatsPerVertex, left, top, -localW, -localH, sdfHalfW, sdfHalfH, sdfRadius, shadow.color)
+        writeRoundedQuadVertex(vertices, vertexBase + 1 * floatsPerVertex, right, top, localW, -localH, sdfHalfW, sdfHalfH, sdfRadius, shadow.color)
+        writeRoundedQuadVertex(vertices, vertexBase + 2 * floatsPerVertex, right, bottom, localW, localH, sdfHalfW, sdfHalfH, sdfRadius, shadow.color)
+        writeRoundedQuadVertex(vertices, vertexBase + 3 * floatsPerVertex, left, bottom, -localW, localH, sdfHalfW, sdfHalfH, sdfRadius, shadow.color)
 
         val vertexOffset = quadIndex * DynamicMesh.VERTICES_PER_QUAD
         val indexBase = quadIndex * DynamicMesh.INDICES_PER_QUAD
