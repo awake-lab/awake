@@ -1006,8 +1006,9 @@ internal object AwakeTooltipTriggerLightPreview : AwakeUiPreviewEntry {
                     .height((metadata.height.toFloat() - 2f).dp),
             ) {
                 shadcnButton(
-                    "parity-tooltip-trigger",
-                    "Hover me",
+                    id = "parity-tooltip-trigger",
+                    label = "Hover me",
+                    variant = io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant.Outline,
                     modifier = Modifier.width(110f.px).height(36f.px),
                 )
             }
