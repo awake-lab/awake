@@ -3,12 +3,14 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.separator
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -34,7 +36,7 @@ class SeparatorWidgetsTest {
         ui.createUiScope(UiBounds(0f, 0f, 200f, 100f)).separator(
             thickness = 2f.dp,
             orientation = UiSeparatorOrientation.Vertical,
-            color = Color(1f, 0f, 0f, 1f),
+            style = Style { background(Color(1f, 0f, 0f, 1f)); shape(UiShape.none) },
         )
         val frame = ui.finishFrame()
 

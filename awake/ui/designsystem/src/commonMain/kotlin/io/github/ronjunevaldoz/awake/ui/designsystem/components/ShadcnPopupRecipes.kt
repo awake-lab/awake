@@ -110,7 +110,7 @@ fun UiScope.shadcnDropdownMenu(
         ) {
             entries.forEach { entry ->
                 when (entry) {
-                    UiMenuSeparator -> separator(color = themeValues.colors.border)
+                    UiMenuSeparator -> separator()
                     is UiMenuItem -> {
                         val source = itemsByActionIndex[entry.index]
                         if (source != null && entry.enabled) {
