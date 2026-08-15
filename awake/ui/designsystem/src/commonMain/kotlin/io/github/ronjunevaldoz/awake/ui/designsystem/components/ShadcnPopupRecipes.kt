@@ -191,7 +191,7 @@ fun UiScope.shadcnAlertDialog(
         expanded = expanded,
         width = width,
         properties = properties.copy(
-            surface = properties.surface then shadcnAlertDialogSurfaceStyle(themeValues),
+            surface = properties.surface then shadcnAlertDialogSurfaceStyle(themeValues, shadcnMetrics),
         ),
     ) {
         text(label = title, style = shadcnDialogTitleStyle(themeValues), wrap = UiTextWrap.Word)

@@ -6,14 +6,14 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
-import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
+import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
-fun UiThemeValues.shadcnTextFieldStyle(variant: ShadcnTextFieldVariant): Style =
-    shadcnInputStyle(variant, UiInsets(12f.dp, ShadcnSpacing.xs))
+fun UiThemeValues.shadcnTextFieldStyle(variant: ShadcnTextFieldVariant, metrics: ShadcnMetrics): Style =
+    shadcnInputStyle(variant, UiInsets(metrics.fieldPaddingX, metrics.inputPaddingY))
 
-fun UiThemeValues.shadcnTextareaStyle(variant: ShadcnTextFieldVariant): Style =
-    shadcnInputStyle(variant, UiInsets(12f.dp, ShadcnSpacing.sm))
+fun UiThemeValues.shadcnTextareaStyle(variant: ShadcnTextFieldVariant, metrics: ShadcnMetrics): Style =
+    shadcnInputStyle(variant, UiInsets(metrics.fieldPaddingX, metrics.fieldPaddingY))
 
 internal fun shadcnSelectOptionStyle(values: UiThemeValues): Style = Style {
     background(values.colors.popover)

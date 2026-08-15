@@ -34,7 +34,7 @@ fun UiScope.shadcnSurface(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = shadcnSurfaceStyle(themeValues, variant),
+    style = shadcnSurfaceStyle(themeValues, shadcnMetrics, variant),
     content = content,
 )
 
@@ -49,7 +49,7 @@ fun UiScope.shadcnCard(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = themeValues.shadcnCardStyle(variant),
+    style = themeValues.shadcnCardStyle(variant, shadcnMetrics),
     verticalArrangement = Arrangement.spacedBy(0f.dp),
 ) {
     if (header != null) {
@@ -86,7 +86,7 @@ fun UiScope.shadcnPopover(
     surface(
         id = "$id.content",
         modifier = Modifier,
-        style = shadcnPopoverContentStyle(themeValues),
+        style = shadcnPopoverContentStyle(themeValues, shadcnMetrics),
         content = content,
     )
 }
