@@ -22,6 +22,11 @@ interface UiTheme : UiThemeValues {
     override val shapes: UiShapeTokens get() = UiFallbackShapeTokens
 }
 
+/** Optional component-style override supplied by a theme above Core. */
+interface UiComponentStylesProvider {
+    val componentStyles: UiComponentStyles
+}
+
 /**
  * Adapts a runtime-free theme value set for the Core context stack.
  *
@@ -39,5 +44,7 @@ fun UiThemeValues.asRuntimeTheme(): UiTheme = this as? UiTheme ?: object : UiThe
     override val colors = this@asRuntimeTheme.colors
     override val typography = this@asRuntimeTheme.typography
     override val shapes = this@asRuntimeTheme.shapes
-    override val components: UiComponentStyles = CoreUiComponentStyles(colors, typography, componentVisuals)
+    override val components: UiComponentStyles =
+        (this@asRuntimeTheme as? UiComponentStylesProvider)?.componentStyles
+            ?: CoreUiComponentStyles(colors, typography)
 }

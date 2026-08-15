@@ -26,7 +26,7 @@ kotlin {
             }
         }
         commonMain.dependencies {
-            // Design-system signatures may expose stable UI values, never raw runtime types.
+            // Design-system themes override Core's neutral component Styles.
             api(project(":awake:ui:ui-core"))
             api(project(":awake:ui:tailwind"))
             api(project(":awake:ui:headless"))
@@ -57,8 +57,6 @@ tasks.register("auditUiDesignsystemHeadlessBoundary") {
             "import io.github.ronjunevaldoz.awake.ui.layouts",
             "import io.github.ronjunevaldoz.awake.ui.unstyled",
             "import io.github.ronjunevaldoz.awake.ui.modifier",
-            "import io.github.ronjunevaldoz.awake.ui.style",
-            "import io.github.ronjunevaldoz.awake.ui.theme",
             "import io.github.ronjunevaldoz.awake.ui.popup",
             "import io.github.ronjunevaldoz.awake.ui.scope",
             "import io.github.ronjunevaldoz.awake.ui.font",
@@ -87,10 +85,10 @@ tasks.register("verifyUiDesignsystemClasspath") {
     doLast {
         val leaked = compileClasspath.get().files
             .filter { it.name.contains("ui-core", ignoreCase = true) }
-        check(leaked.isEmpty()) {
-            "ui-designsystem public compile classpath must not contain ui-core: ${leaked.joinToString()}"
+        check(leaked.isNotEmpty()) {
+            "ui-designsystem themes must have ui-core's Style contracts available"
         }
-        println("ui-designsystem public compile classpath: ui-core absent")
+        println("ui-designsystem public compile classpath: ui-core Style contracts available")
     }
 }
 
