@@ -14,11 +14,11 @@
         "button-local-light": 14.9,
         "button-local-dark": 13.77,
         "tabs-local-light": 12.07,
-        "card-local-light": 9.7,
+        "card-local-light": 9.75,
         "select-local-light": 8.88,
         "switch-local-light": 5.99,
         "progress-local-light": 5.9,
         "checkbox-local-light": 5.86,
-        "input-local-light": 4.6
+        "input-local-light": 5.04
     }
 }

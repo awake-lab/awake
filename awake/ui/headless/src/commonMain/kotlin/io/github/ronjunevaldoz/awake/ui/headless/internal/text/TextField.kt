@@ -289,12 +289,13 @@ fun UiPrimitiveScope.textField(
                             glyphPx,
                             cursor,
                         )
+                    val caretY = textContentSlot.y + (textContentSlot.height - glyphPx) / 2f
                     emitFillAndBorder(
                         slot = UiBounds(
                             caretX,
-                            textContentSlot.y,
+                            caretY,
                             TEXT_FIELD_CARET_WIDTH.toPx(),
-                            textContentSlot.height,
+                            glyphPx,
                         ),
                         fillColor = surface.resolved.foreground ?: theme.colors.foreground,
                         radiusPx = 0f,
