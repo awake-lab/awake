@@ -58,7 +58,9 @@ include(":awake:ui:tailwind-generator")
     - Styled component library following the [shadcn/ui](https://ui.shadcn.com/) design language,
       built on top of `headless` using `tailwind` tokens. It owns named themes and the lower-case
       `UiScope.shadcnTheme(...)` composition entry point.
-      Use `shadcnThemeValues(...)` for an unscoped immutable theme value.
+      `ShadcnThemeExtension` provides root-scoped named-role customization; public recipes expose
+      semantic options instead of a generic `Style` override. Use `shadcnThemeValues(...)` for an
+      unscoped immutable theme value.
 
 - `awake:ui:heroicons`:
     - Integration and vector path definitions for the Heroicons icon set.

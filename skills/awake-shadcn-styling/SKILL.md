@@ -84,8 +84,8 @@ infix fun then(other: Style): Style = when {
 runs its own property-setters on top of an earlier `hovered { }` block's -- only the specific
 properties the later rule sets get overridden, not the whole state.
 
-**The trap this caused:** `shadcnButton(variant = Ghost, style = Style { ... })` composes as
-`ShadcnStyles.button(theme, Ghost) then style` -- Ghost's own `hovered { background(accent);
+**The trap this caused:** an earlier internal ghost-button composition appended `Style { ... }`
+after its resolved Ghost style. Ghost's own `hovered { background(accent);
 foreground(accentForeground) }` runs first, so wrapping a `shadcnButton` as a card's clickable
 header trigger painted a full rounded accent-color fill on hover, reading as "a button", not "part
 of the card" (real shadcn's card-collapsible header has no such fill). The fix is NOT avoiding
@@ -93,14 +93,14 @@ of the card" (real shadcn's card-collapsible header has no such fill). The fix i
 in the caller's own `style` block, which composes *after* the variant and therefore wins:
 
 ```kotlin
-style = Style {
+val triggerStyle = Style {
     foreground(themeValues.colors.foreground)
     hovered { background(ShadcnTransparent); foreground(themeValues.colors.foreground) }
     active { background(ShadcnTransparent); foreground(themeValues.colors.foreground) }
 }
 ```
 
-Setting only `background` in the override and expecting `foreground` to fall back to the
+Setting only `background` in an internal override and expecting `foreground` to fall back to the
 non-hover value does NOT happen -- once Ghost's `hovered` rule sets `foreground`, it stays set for
 that state unless a *later* `hovered` rule also sets it.
 
@@ -117,8 +117,8 @@ actual edge the way real shadcn's card-collapsible reference has it. Zero the ca
 and let the composing component own 100% of the spacing:
 
 ```kotlin
-shadcnCard(id = "$id.card", modifier = modifier.fillMaxWidth(), style = Style { contentPadding(0f.dp) }) { _ ->
-    // trigger row and content both apply their own themeValues spacing inset here
+surface(id = "$id.card", modifier = modifier.fillMaxWidth(), style = Style { contentPadding(0f.dp) }) { _ ->
+    // Private recipe composition; public shadcnCard has no Style escape hatch.
 }
 ```
 

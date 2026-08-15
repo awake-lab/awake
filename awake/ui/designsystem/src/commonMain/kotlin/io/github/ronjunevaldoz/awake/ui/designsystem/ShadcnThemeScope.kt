@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.Provide
 import io.github.ronjunevaldoz.awake.ui.ProvideTextStyle
 import io.github.ronjunevaldoz.awake.ui.ProvideTheme
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
@@ -35,17 +36,25 @@ fun UiScope.shadcnTheme(
     baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral,
     accent: ShadcnAccent = ShadcnAccent.Base,
     dark: Boolean = true,
+    extension: ShadcnThemeExtension = ShadcnThemeExtension(),
     content: UiScope.() -> Unit,
 ) = shadcnTheme(
     values = shadcnThemeValues(preset = preset, baseColor = baseColor, accent = accent, dark = dark),
+    extension = extension,
     content = content,
 )
 
 /** Overload for a theme already built -- app state usually holds one rather than four enum knobs. */
-fun UiScope.shadcnTheme(values: UiThemeValues, content: UiScope.() -> Unit) {
+fun UiScope.shadcnTheme(
+    values: UiThemeValues,
+    extension: ShadcnThemeExtension = ShadcnThemeExtension(),
+    content: UiScope.() -> Unit,
+) {
     primitive.ProvideTheme(values.asRuntimeTheme()) {
-        ProvideTextStyle(TextStyle(size = values.typography.body)) {
-            content(UiScope(this))
+        primitive.Provide(LocalShadcnThemeExtension, extension) {
+            ProvideTextStyle(TextStyle(size = values.typography.body)) {
+                content(UiScope(this))
+            }
         }
     }
 }

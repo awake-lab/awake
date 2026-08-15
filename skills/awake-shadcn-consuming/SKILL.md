@@ -34,6 +34,20 @@ provider:
 val appTheme = shadcnThemeValues(dark = isDark)
 ```
 
+Use [ShadcnThemeExtension] only at that same scoped theme boundary when the product needs to
+customize a named Shadcn role. It never changes one component ad hoc:
+
+```kotlin
+uiScope.shadcnTheme(
+    values = appTheme,
+    extension = ShadcnThemeExtension(
+        text = ShadcnTextTheme(destructive = productErrorColor),
+    ),
+) {
+    shadcnText("Connection failed", tone = ShadcnTextTone.Destructive)
+}
+```
+
 ## Consume recipes; do not restyle Headless in app code
 
 Use `shadcnButton`, `shadcnSurface`, `shadcnInput`, and other `shadcn*` recipes for visible UI.
@@ -41,6 +55,10 @@ Choose their named variant and size. An app or sample must not build its own `St
 for a component or call a Headless widget merely to establish a custom look. If the needed
 variant does not exist, add it in `ui-designsystem` with the official shadcn reference and
 parity coverage.
+
+Shadcn recipes do not expose a public `Style` override. Express local intent with their named
+parameters (`variant`, `size`, `tone`, `emphasis`); put a product-wide visual change in
+`ShadcnThemeExtension`.
 
 Headless remains appropriate for generic structure and behavior when a design-system recipe
 already supplies the visible component. Never make an application theme provider or a local
@@ -58,6 +76,8 @@ needed, but should not import Core primitives or style its own component surface
 - Use `UiScope.shadcnTheme(...)` for scoped provision and `shadcnThemeValues(...)` only for a
   pure value.
 - Use named `shadcn*` variants instead of app-authored component `Style` blocks.
+- Use `ShadcnThemeExtension` at the root for named Shadcn-role customization, never as a
+  per-component visual escape hatch.
 - Keep behavior gaps in `ui-headless`; keep new look/variants in `ui-designsystem`.
 - Compile the affected sample or game target and run its focused UI tests.
 

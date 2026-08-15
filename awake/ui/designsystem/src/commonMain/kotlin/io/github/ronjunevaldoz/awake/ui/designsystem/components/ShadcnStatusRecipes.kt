@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBadgeStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnProgressStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSkeletonStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSpinnerStyle
-import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
@@ -151,9 +150,9 @@ fun UiScope.shadcnAlert(
     modifier = modifier,
     variant = variant,
 ) {
-    shadcnText(title, styleOverride = Style { fontWeight(FontWeight.Medium) })
+    shadcnText(title, emphasis = ShadcnTextEmphasis.Medium)
     if (description != null) {
-        shadcnText(description, styleOverride = Style { textSize(themeValues.typography.caption) })
+        shadcnText(description, style = ShadcnTextStyle.Caption)
     }
 }
 
@@ -174,14 +173,15 @@ fun UiScope.shadcnEmpty(
     ) {
         shadcnText(
             title,
+            style = ShadcnTextStyle.Body,
             centered = true,
-            styleOverride = Style { fontWeight(FontWeight.Medium); textSize(themeValues.typography.body) },
+            emphasis = ShadcnTextEmphasis.Medium,
         )
         if (description != null) {
             shadcnText(
                 description,
                 centered = true,
-                styleOverride = Style { textSize(themeValues.typography.caption) },
+                style = ShadcnTextStyle.Caption,
             )
         }
         if (action != null) {

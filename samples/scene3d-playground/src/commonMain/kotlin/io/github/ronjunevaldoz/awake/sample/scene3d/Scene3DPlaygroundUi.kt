@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTextTone
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -82,7 +83,7 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
                 shadcnText(
                     label = "${stats.frameTimeMs}ms  ${stats.fps.toInt()} fps",
                     modifier = Modifier.offset(8f.dp, 8f.dp),
-                    muted = true,
+                    tone = ShadcnTextTone.Muted,
                 )
             }
 

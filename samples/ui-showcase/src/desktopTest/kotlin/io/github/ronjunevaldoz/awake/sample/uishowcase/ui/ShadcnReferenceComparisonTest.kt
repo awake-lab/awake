@@ -45,11 +45,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSmall
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTextStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -111,7 +111,7 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
                 header = {
                     shadcnText(
                         "Login to your account",
-                        styleOverride = Style { textSize(primitive.theme.typography.title) },
+                        style = ShadcnTextStyle.Title,
                     )
                 },
             ) { _ ->

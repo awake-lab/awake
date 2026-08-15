@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTextTone
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
@@ -72,7 +73,7 @@ internal fun UiScope.drawStudioStatusBar() {
             modifier = Modifier.fillMaxWidth().height(STATUS_BAR_HEIGHT)
                 .padding(BAR_INSET, 0f.dp),
         ) {
-            shadcnText("Edit mode", muted = true)
+            shadcnText("Edit mode", tone = ShadcnTextTone.Muted)
             shadcnBadge(id = "studio-status-backend", label = "Vulkan", variant = ShadcnBadgeVariant.Outline)
         }
     }
