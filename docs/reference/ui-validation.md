@@ -237,7 +237,60 @@ A shared UI change is done only when:
 `ShadcnParityScreenshotTest` (above) is a regression lock: it diffs Awake's render against
 Awake's *own* previously recorded golden. That proves nothing changed by accident, but it
 cannot tell you whether Awake actually looks like real shadcn/ui -- and, until this harness
-existed, nothing automated ever checked. This closes that gap with a real upstream reference:
+existed, nothing automated ever checked. This closes that gap with a real upstream reference.
+
+**Read this first: there are two oracles now, and they answer different questions.**
+
+| oracle | test | answers | reaches 0 mismatch? |
+|---|---|---|---|
+| geometry | `ShadcnGeometryParityTest` | is the size/position right, to sub-pixel precision | yes -- badge and button are already within ~1px |
+| pixel diff | `ShadcnReferenceComparisonTest` | does it look catastrophically wrong (colour/radius/border/shadow) | no, never -- two different rasterizers cannot produce identical anti-aliased pixels, structurally |
+
+Geometry is the primary oracle for layout questions (padding, width, spacing, alignment) as of
+2026-08-15. It compares Awake's semantic bounds against the reference app's own
+`getBoundingClientRect` numbers -- both sides state their geometry exactly, so there is no
+tolerance to tune and no rasterizer/font/anti-aliasing dependency. Three real bugs were found
+*in* the pixel instrument before this existed (a mis-framed reference scored as a fidelity
+number, an unset reference font, a reference rendering every weight as 400) against one real
+bug found *by* it (badge's padding, in one pass, once the instrument itself was fixed) -- that
+ratio is why pixel diff is no longer where a layout question gets decided. See
+`ShadcnReferenceComparisonTest`'s class doc for the detailed account.
+
+What geometry cannot see: fill colour, border colour, shadow, opacity. No oracle for those
+exists yet -- a computed-style comparison (sampling `getComputedStyle` the same way the capture
+already samples `getBoundingClientRect`) is the natural next piece, not yet built. Until it
+exists, pixel diff is the only signal for that dimension and should be trusted for it,
+distrusted for layout.
+
+### Component coverage matrix
+
+One row per component with a geometry oracle. `sub-px` means every dimension checked is within
+the recorded allowance (never more than 2.5px, and that ceiling is stated per-component in
+`ShadcnGeometryParityTest` with the reason). Update this table in the same commit that adds or
+changes a geometry test -- a stale matrix is worse than none.
+
+| component | geometry | light | dark | notes |
+|---|---|---|---|---|
+| badge | sub-px (+0.02..+0.30px) | yes | yes | only component checked in both themes; theme-identity asserted separately |
+| button | sub-px | yes | no | dark preview exists (`AwakeButtonVariantsDarkPreview`) but has no geometry test yet |
+| checkbox | sub-px (<=1.0px) | yes | no | |
+| switch | sub-px (<=1.0px) | yes | no | |
+| input | sub-px (<=1.0px) | yes | no | |
+| tabs | sub-px (<=2.5px) | yes | no | track's allowance is wider because it accumulates both triggers' text-advance rounding |
+| select | sub-px (<=1.0px) | yes | no | |
+| radio-group | not covered | -- | -- | paired for pixel diff only (`2b5e2107`); no `data-parity-id` tags yet |
+| progress | not covered | -- | -- | paired for pixel diff only (`2b5e2107`); no text, so geometry would likely be trivial |
+| card | not covered | -- | -- | pixel diff only, 84% crop coverage |
+| dialog | not covered | -- | -- | pixel diff only, 89.8% crop coverage |
+| tooltip | not covered | -- | -- | pixel diff pair excluded (mis-framed, 75% coverage) |
+| slider | not covered | -- | -- | pixel diff pair excluded (reference crops out the thumb entirely, 25.6% coverage) |
+
+Adding a component to this table: tag the reference app's JSX with `data-parity-id` matching
+Awake's semantic ids (see `tools/shadcn-reference-app/src/cases.tsx`'s badge/button/checkbox/
+switch/input/tabs/select cases for the pattern), re-capture with
+`python3 tools/capture_shadcn_local.py --only <case> --theme light`, add one
+`assertGeometry(...)` call in `ShadcnGeometryParityTest` naming an `allowancePx` you can
+justify, then update this row.
 
 - `tools/capture_shadcn_reference.py` -- renders real shadcn/ui components straight from
   `ui.shadcn.com`'s own docs pages (Playwright, headless Chromium, fixed 1280x800 viewport,
@@ -283,6 +336,10 @@ preset name, not a real shadcn select demo's option text). This harness fixes th
 straight to the upstream demo pages.
 
 ### Shadcn Parity Regression Gate
+
+This is the pixel side's regression mechanics, unchanged by the geometry oracle above --
+it still catches "got worse," it is just no longer where "is this right" gets decided for
+layout. Skip to the component coverage matrix above for which oracle owns which question.
 
 `ShadcnReferenceComparisonTest` used to be deliberately non-failing -- its own header said it
 "only asserts the harness itself ran and produced a report a human can open." That gap was not

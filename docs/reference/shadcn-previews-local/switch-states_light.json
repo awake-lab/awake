@@ -1,0 +1,28 @@
+{
+  "case": "switch-states",
+  "nodes": {
+    "parity-switch-disabled": {
+      "height": 18.390625,
+      "width": 32,
+      "x": 96,
+      "y": 0
+    },
+    "parity-switch-off": {
+      "height": 18.390625,
+      "width": 32,
+      "x": 0,
+      "y": 0
+    },
+    "parity-switch-on": {
+      "height": 18.390625,
+      "width": 32,
+      "x": 48,
+      "y": 0
+    }
+  },
+  "root": {
+    "height": 18.390625,
+    "width": 128
+  },
+  "theme": "light"
+}

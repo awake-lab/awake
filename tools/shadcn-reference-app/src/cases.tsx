@@ -28,12 +28,12 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
   "button-variants": {
     render: () => (
       <div className="flex items-center gap-2">
-        <Button>Default</Button>
-        <Button variant="secondary">Secondary</Button>
-        <Button variant="outline">Outline</Button>
-        <Button variant="ghost">Ghost</Button>
-        <Button variant="destructive">Destructive</Button>
-        <Button variant="link">Link</Button>
+        <Button data-parity-id="parity-default">Default</Button>
+        <Button data-parity-id="parity-secondary" variant="secondary">Secondary</Button>
+        <Button data-parity-id="parity-outline" variant="outline">Outline</Button>
+        <Button data-parity-id="parity-ghost" variant="ghost">Ghost</Button>
+        <Button data-parity-id="parity-destructive" variant="destructive">Destructive</Button>
+        <Button data-parity-id="parity-link" variant="link">Link</Button>
       </div>
     ),
   },
@@ -58,9 +58,9 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
   "checkbox-states": {
     render: () => (
       <div className="flex items-center gap-4">
-        <Checkbox />
-        <Checkbox defaultChecked />
-        <Checkbox disabled />
+        <Checkbox data-parity-id="parity-checkbox-unchecked" />
+        <Checkbox data-parity-id="parity-checkbox-checked" defaultChecked />
+        <Checkbox data-parity-id="parity-checkbox-disabled" disabled />
       </div>
     ),
   },
@@ -91,27 +91,27 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
   "switch-states": {
     render: () => (
       <div className="flex items-center gap-4">
-        <Switch />
-        <Switch defaultChecked />
-        <Switch disabled />
+        <Switch data-parity-id="parity-switch-off" />
+        <Switch data-parity-id="parity-switch-on" defaultChecked />
+        <Switch data-parity-id="parity-switch-disabled" disabled />
       </div>
     ),
   },
   "input-states": {
     render: () => (
       <div className="flex flex-col gap-3 w-64">
-        <Input placeholder="Placeholder" />
-        <Input defaultValue="Typed text" />
-        <Input placeholder="Disabled" disabled />
+        <Input data-parity-id="parity-field-1" placeholder="Placeholder" />
+        <Input data-parity-id="parity-field-2" defaultValue="Typed text" />
+        <Input data-parity-id="parity-field-3" placeholder="Disabled" disabled />
       </div>
     ),
   },
   "tabs-states": {
     render: () => (
       <Tabs defaultValue="account">
-        <TabsList>
-          <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="password">Password</TabsTrigger>
+        <TabsList data-parity-id="parity-tabs.track">
+          <TabsTrigger value="account" data-parity-id="parity-tabs.Account">Account</TabsTrigger>
+          <TabsTrigger value="password" data-parity-id="parity-tabs.Password">Password</TabsTrigger>
         </TabsList>
       </Tabs>
     ),
@@ -126,7 +126,7 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
   "select-closed": {
     render: () => (
       <Select>
-        <SelectTrigger className="w-[172px]">
+        <SelectTrigger className="w-[172px]" data-parity-id="parity-select">
           <SelectValue placeholder="Select a fruit" />
         </SelectTrigger>
         <SelectContent>

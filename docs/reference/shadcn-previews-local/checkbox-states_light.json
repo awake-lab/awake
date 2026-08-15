@@ -1,0 +1,28 @@
+{
+  "case": "checkbox-states",
+  "nodes": {
+    "parity-checkbox-checked": {
+      "height": 16,
+      "width": 16,
+      "x": 32,
+      "y": 0
+    },
+    "parity-checkbox-disabled": {
+      "height": 16,
+      "width": 16,
+      "x": 64,
+      "y": 0
+    },
+    "parity-checkbox-unchecked": {
+      "height": 16,
+      "width": 16,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "root": {
+    "height": 16,
+    "width": 80
+  },
+  "theme": "light"
+}
