@@ -14,11 +14,15 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlin.test.Ignore
@@ -100,6 +104,77 @@ class ShowcaseShellSidebarTest {
             "sidebar body collapsed to ${bodyHeight}px: header ends at " +
                 "${header.bounds.y + header.bounds.height}, footer starts at ${footer.bounds.y}",
         )
+        assertTrue(
+            footer.bounds.y + footer.bounds.height <= sidebar.bounds.y + sidebar.bounds.height + 1f,
+            "footer escaped the sidebar",
+        )
+    }
+
+    /**
+     * On a short viewport the sidebar's menu (~1870px of categories/pages) is taller than the
+     * body available under the pinned footer. Before `ShowcaseApp.kt` wired
+     * `.verticalScroll(sidebarScroll)` into the nav menu's own weighted column, that overflow
+     * painted straight through the footer slot instead of being clipped/scrollable -- the last
+     * few nav items (including "Combobox") rendered on top of the pinned account-switcher
+     * footer. The scroll modifier belongs on that inner column, not on `shadcnSidebar`'s own
+     * modifier -- that outer surface wraps header+content+footer together, so scrolling it would
+     * carry the pinned header/footer along with the menu instead of leaving them fixed.
+     */
+    @Test
+    fun theDesktopSidebarScrollsInsteadOfOverflowingThroughTheFooter() {
+        val ui = UiContext()
+        val input = Input()
+        input.setPointer(down = false, x = -100f, y = -100f)
+
+        ui.beginFrame(1440f, 500f, input.updateSnapshot().toUiInputState())
+        ui.pushFont(BitmapFont())
+        ui.pushTheme(shadcnThemeValues(dark = false))
+
+        val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side-test")
+        ui.createUiScope(UiBounds(0f, 0f, 1440f, 500f)).row(
+            modifier = Modifier.padding(24f.dp).fillMaxWidth().fillMaxHeight(),
+            horizontalArrangement = Arrangement.spacedBy(20f.dp),
+        ) {
+            shadcnSidebar(
+                id = "ui-showcase-sidebar",
+                modifier = Modifier.width(264f.dp).fillMaxHeight(),
+                footer = {
+                    shadcnSidebarFooterButton(
+                        id = "ui-showcase-user-profile",
+                        name = "shadcn",
+                        email = "m@example.com",
+                    )
+                },
+            ) {
+                shadcnSidebarHeaderButton(
+                    id = "ui-showcase-team-switcher",
+                    title = "Acme Inc",
+                    subtitle = "Enterprise",
+                )
+                column(modifier = Modifier.fillMaxWidth().weight(1f).verticalScroll(sidebarScroll)) {
+                    drawUiShowcaseSidebar(compact = false)
+                }
+            }
+        }
+        ui.endFrame()
+
+        // Before the fix there was no scroll modifier on the desktop nav at all, so no
+        // ScrollState was ever established here -- content simply painted at its full,
+        // unbounded height. A real (smaller-than-content) viewport is what makes the menu
+        // clip/scroll instead of bleeding through the pinned footer below it.
+        assertTrue(
+            sidebarScroll.contentHeight > sidebarScroll.viewportHeight,
+            "test setup expected overflowing content: content=${sidebarScroll.contentHeight} " +
+                "viewport=${sidebarScroll.viewportHeight}",
+        )
+        assertTrue(
+            sidebarScroll.viewportHeight > 0f,
+            "sidebar body measured to a zero-height viewport instead of clipping/scrolling",
+        )
+
+        val nodes = ui.semanticNodes()
+        val sidebar = nodes.first { it.id == "ui-showcase-sidebar" }
+        val footer = nodes.first { it.id == "ui-showcase-user-profile" }
         assertTrue(
             footer.bounds.y + footer.bounds.height <= sidebar.bounds.y + sidebar.bounds.height + 1f,
             "footer escaped the sidebar",
