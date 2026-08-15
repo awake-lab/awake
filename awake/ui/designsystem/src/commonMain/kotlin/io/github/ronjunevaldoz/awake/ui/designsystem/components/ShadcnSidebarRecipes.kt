@@ -172,11 +172,17 @@ fun UiScope.shadcnSidebarGroup(
 
 fun UiScope.shadcnSidebarMenu(
     modifier: Modifier = Modifier,
+    // Opt-in cross-frame trial cache (see UiScope.column) -- menus are the deepest static
+    // subtrees in a shell, so a stable key here removes their per-frame measure trials.
+    id: String? = null,
+    cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
 ) {
     column(
-        modifier.fillMaxWidth(),
-        Arrangement.spacedBy(ShadcnSidebarMetrics.menuGap),
+        id = id,
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(ShadcnSidebarMetrics.menuGap),
+        cacheKey = cacheKey,
     ) { content() }
 }
 
@@ -225,6 +231,8 @@ fun UiScope.shadcnSidebarMenuItem(
 
 fun UiScope.shadcnSidebarMenuSub(
     modifier: Modifier = Modifier,
+    id: String? = null,
+    cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
 ) {
     row(modifier = modifier.fillMaxWidth().padding(start = ShadcnSidebarMetrics.submenuIndent)) {
@@ -233,8 +241,10 @@ fun UiScope.shadcnSidebarMenuSub(
             orientation = UiSeparatorOrientation.Vertical,
         )
         column(
+            id = id,
             modifier = Modifier.fillMaxWidth().padding(start = 6f.dp),
-            Arrangement.spacedBy(ShadcnSidebarMetrics.submenuGap),
+            verticalArrangement = Arrangement.spacedBy(ShadcnSidebarMetrics.submenuGap),
+            cacheKey = cacheKey,
         ) {
             content()
         }

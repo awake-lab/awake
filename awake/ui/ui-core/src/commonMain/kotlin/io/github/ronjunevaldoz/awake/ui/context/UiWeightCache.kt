@@ -26,6 +26,47 @@ object UiWeightCacheConsistencyCheck {
  * [id]/[cacheKey] are both required non-null to use the cache at all -- when either is null this
  * is a plain passthrough to [trial], byte-for-byte the pre-existing unconditional-trial behavior.
  */
+/**
+ * Same opt-in id/cacheKey contract as [resolveHasWeightedChild], extended to the WrapContent
+ * SIZING trial's full [UiMeasuredContent]. The design doc's veto on caching sizes targets the
+ * plannedSlots distribution trial -- that one still re-measures at the frame's actual resolved
+ * slot. This cache covers only the pre-claim sizing trial, and it additionally keys on the
+ * geometry inputs the doc lists as knowable-and-comparable ([availableWidth], [gap]): a parent
+ * resize or gap change invalidates automatically, so the caller's [cacheKey] only has to track
+ * what it already tracks for the weight cache -- the content itself changing.
+ */
+internal fun UiContext.resolveMeasuredContentCached(
+    id: String?,
+    cacheKey: Any?,
+    availableWidth: Float,
+    gap: Float,
+    trial: () -> UiMeasuredContent,
+): UiMeasuredContent {
+    if (id == null || cacheKey == null) return trial()
+    val state = widgetStateInternal("__measurecache__$id")
+    val storedKey = state.get<Any?>("cacheKey", null)
+    val storedWidth = state.get("availableWidth", Float.NaN)
+    val storedGap = state.get("gap", Float.NaN)
+    val storedValue = state.get<UiMeasuredContent?>("measured", null)
+    if (storedKey == cacheKey && storedWidth == availableWidth && storedGap == gap && storedValue != null) {
+        if (UiWeightCacheConsistencyCheck.enabled) {
+            val fresh = trial()
+            check(fresh == storedValue) {
+                "measured-content cache for id=\"$id\" returned a stale size ($storedValue vs " +
+                    "fresh $fresh) -- cacheKey ($cacheKey) did not change even though the " +
+                    "content's measured output did. Fix: make cacheKey depend on whatever changed."
+            }
+        }
+        return storedValue
+    }
+    val fresh = trial()
+    state.set("cacheKey", cacheKey)
+    state.set("availableWidth", availableWidth)
+    state.set("gap", gap)
+    state.set("measured", fresh)
+    return fresh
+}
+
 internal fun UiContext.resolveHasWeightedChild(
     id: String?,
     cacheKey: Any?,

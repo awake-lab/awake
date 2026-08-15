@@ -81,6 +81,13 @@ fun ColumnScope.animatedHeight(
     val targetHeight = if (expanded) cachedHeight else 0f
     val animatedHeight =
         animateFloatTween(id, targetHeight, durationMs = durationMs, easing = easing)
+    // Published so an enclosing WrapContent column can use it as a measured-content cacheKey:
+    // the key IS the value that drives this subtree's size, so it changes on every animation
+    // frame (fresh trial, correct) and holds steady once settled (cache hit, cheap). Guarded
+    // like every other stateful write -- a trial pass must not consume the transition.
+    if (!isMeasuring()) {
+        state.set("currentHeight", animatedHeight)
+    }
 
     // 3. Render a clipped container with the animated height
     return if (animatedHeight > 0.01f) {

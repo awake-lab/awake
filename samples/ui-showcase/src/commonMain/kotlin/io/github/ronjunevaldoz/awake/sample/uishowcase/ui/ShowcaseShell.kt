@@ -114,7 +114,12 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
 ) {
     ShowcasePagesByCategory.forEach { (category, pages) ->
         if (compact) {
-            shadcnSidebarMenu {
+            shadcnSidebarMenu(
+                id = "ui-showcase-menu-${category.name}",
+                // Item labels and count are static per category; the active highlight changes
+                // colors only, never measured size, so it stays out of the key.
+                cacheKey = category.name,
+            ) {
                 pages.forEach { page ->
                     shadcnSidebarMenuItem(
                         id = "ui-showcase-page-${page.id}",
@@ -135,7 +140,10 @@ private fun ColumnScope.drawUiShowcaseSidebarMenu(
                 expanded = expanded,
                 onExpandedChange = { expanded = it },
             ) {
-                shadcnSidebarMenuSub {
+                shadcnSidebarMenuSub(
+                    id = "ui-showcase-submenu-${category.name}",
+                    cacheKey = category.name,
+                ) {
                     pages.forEach { page ->
                         shadcnSidebarMenuSubItem(
                             id = "ui-showcase-page-${page.id}",
