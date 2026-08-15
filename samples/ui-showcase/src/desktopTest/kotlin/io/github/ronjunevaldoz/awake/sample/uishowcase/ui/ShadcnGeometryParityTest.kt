@@ -164,8 +164,7 @@ class ShadcnGeometryParityTest {
 
     @Test
     fun dropdownMenuGeometryMatchesShadcn() =
-        // 110.0px: Menu items in Awake are hugged to text content width vs fixed-width menu container in React.
-        assertGeometry("dropdown-menu-states", "light", AwakeDropdownMenuStatesLightPreview, allowancePx = 110.0)
+        assertGeometry("dropdown-menu-states", "light", AwakeDropdownMenuStatesLightPreview, allowancePx = 2.5)
 
     @Test
     fun popoverGeometryMatchesShadcn() =

@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.dialog
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.menu
 import io.github.ronjunevaldoz.awake.ui.headless.menuItem
@@ -35,6 +36,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.popup
 import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.headless.width
 
 /** Public Shadcn menu entries. Popup mechanics remain Headless-owned. */
 sealed interface ShadcnDropdownMenuEntry
@@ -70,50 +72,59 @@ fun UiScope.shadcnDropdownMenu(
             ).also { itemsByActionIndex[actionIndex++] = entry }
         }
     }
-    val result = menu(
+    var selectedItemIndex: Int? = null
+    val result = popup(
         id = id,
         anchorSlot = anchorSlot,
         expanded = expanded,
-        entries = entries,
         width = width,
         height = height,
         positionProvider = positionProvider,
         properties = properties,
-        item = { item ->
-            val source = itemsByActionIndex[item.index]
-            if (source != null) {
-                menuItem(
-                    item = item,
-                    label = source.label,
-                    // Select/DropdownMenu items are menu rows, not trigger buttons. The
-                    // shadcn source uses `w-full py-1.5 px-2 pr-8 text-sm`, which produces a
-                    // 32dp row at the default line metrics. Keep the row geometry explicit so
-                    // the neutral `menuItem` primitive cannot inherit a trigger's sizing or
-                    // make every option look like a separate button.
-                    modifier = Modifier.height(32f.dp),
-                    visuals = SurfaceVisuals(
-                        rest = SurfaceStyle(
-                            background = if (item.index == selectedIndex) themeValues.colors.accent else themeValues.colors.background,
-                            foreground = when {
-                                item.index == selectedIndex -> themeValues.colors.accentForeground
-                                source.destructive -> themeValues.colors.destructive
-                                else -> themeValues.colors.foreground
-                            },
-                            cornerRadius = themeValues.shapes.sm,
-                            contentPadding = UiInsets(horizontal = 8f.dp, vertical = 6f.dp),
-                            textSize = 14f.sp,
-                        ),
-                    ),
-                )
-            } else {
-                false
+    ) {
+        surface(
+            id = "$id.surface",
+            modifier = Modifier.fillMaxWidth(),
+            style = SurfaceStyle(
+                background = themeValues.colors.popover,
+                foreground = themeValues.colors.popoverForeground,
+                border = SurfaceBorder(1f.dp, themeValues.colors.border),
+                cornerRadius = themeValues.shapes.md,
+                contentPadding = UiInsets(4f.dp),
+            ),
+        ) {
+            entries.forEach { entry ->
+                when (entry) {
+                    UiMenuSeparator -> separator(color = themeValues.colors.border)
+                    is UiMenuItem -> {
+                        val source = itemsByActionIndex[entry.index]
+                        if (source != null && entry.enabled) {
+                            val activated = menuItem(
+                                item = entry,
+                                label = source.label,
+                                modifier = Modifier.fillMaxWidth().height(32f.dp),
+                                visuals = SurfaceVisuals(
+                                    rest = SurfaceStyle(
+                                        background = if (entry.index == selectedIndex) themeValues.colors.accent else themeValues.colors.popover,
+                                        foreground = when {
+                                            entry.index == selectedIndex -> themeValues.colors.accentForeground
+                                            source.destructive -> themeValues.colors.destructive
+                                            else -> themeValues.colors.popoverForeground
+                                        },
+                                        cornerRadius = themeValues.shapes.sm,
+                                        contentPadding = UiInsets(horizontal = 8f.dp, vertical = 6f.dp),
+                                        textSize = 14f.sp,
+                                    ),
+                                ),
+                            )
+                            if (activated) selectedItemIndex = entry.index
+                        }
+                    }
+                }
             }
-        },
-        separator = {
-            separator(color = themeValues.colors.border)
-        },
-    )
-    return result
+        }
+    }
+    return UiMenuResult(result.slot, selectedItemIndex, result.dismissed)
 }
 
 fun UiScope.shadcnTooltip(
