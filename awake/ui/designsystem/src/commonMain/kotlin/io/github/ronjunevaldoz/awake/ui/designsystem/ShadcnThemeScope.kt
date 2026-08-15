@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.ui.ProvideTheme
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
-import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
+import io.github.ronjunevaldoz.awake.ui.headless.provideTheme
 
 /**
  * Applies a shadcn theme to everything drawn inside the block.
@@ -41,5 +40,5 @@ fun UiScope.shadcnTheme(
 
 /** Overload for a theme already built -- app state usually holds one rather than four enum knobs. */
 fun UiScope.shadcnTheme(values: UiThemeValues, content: UiScope.() -> Unit) {
-    primitive.ProvideTheme(values.asRuntimeTheme()) { content() }
+    provideTheme(values, content)
 }

@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -25,6 +26,24 @@ class UiScopeFacadeTest {
         assertEquals(UiDefaultTheme.colors, scope.themeValues.colors)
         assertEquals(UiDefaultTheme.typography, scope.themeValues.typography)
         assertEquals(UiDefaultTheme.shapes, scope.themeValues.shapes)
+    }
+
+    @Test
+    fun providesThemeAndTypographyThroughScopedLocals() {
+        val scope = UiContext().createUiScope(UiBounds(0f, 0f, 320f, 240f))
+        var inheritedTypography = false
+        var inheritedTextStyle = false
+
+        scope.provideTheme(UiDefaultTheme) {
+            inheritedTypography = typography == UiDefaultTheme.typography
+            provideTextStyle(TextStyle(size = typography.title)) {
+                inheritedTextStyle = textStyle.size == UiDefaultTheme.typography.title
+            }
+        }
+
+        assertTrue(inheritedTypography)
+        assertTrue(inheritedTextStyle)
+        assertEquals(null, scope.textStyle.size)
     }
 
     @Test
