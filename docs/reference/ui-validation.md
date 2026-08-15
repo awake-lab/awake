@@ -97,6 +97,8 @@ Use these first:
 - `inspectSemanticOverlaps(...)` for sibling-control collision checks
 - snapshot signature tests for locked visual baselines
 - layout signature tests for page-level semantic layout baselines
+- `ShadcnGeometryParityTest` (`samples/ui-showcase:desktopTest`) for automated layout geometry parity (width, height, content padding, position offsets) against official shadcn reference rects
+- `ShadcnBehaviorParityTest` (`samples/ui-showcase:desktopTest`) for automated interactive behavior, click activation, state toggling, space-key activation, menu item selection, and dialog dismissal
 - `ShadcnParityScreenshotTest` (`samples/ui-showcase`) for pixel-baseline parity against the
   shadcn reference — `./gradlew :samples:ui-showcase:desktopTest --tests
   "*ShadcnParityScreenshotTest*"`. Regenerate goldens with `-DAWAKE_RECORD_SNAPSHOTS=true`
