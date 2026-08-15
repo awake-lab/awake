@@ -154,7 +154,7 @@ fun UiScope.shadcnTabs(
 ): String {
     val track = SurfaceStyle(
         background = themeValues.colors.muted,
-        cornerRadius = themeValues.shapes.md,
+        cornerRadius = themeValues.shapes.lg,
         contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(3f.dp),
     )
     var resolved = selected
@@ -175,7 +175,7 @@ fun UiScope.shadcnTabs(
                             background = if (active) themeValues.colors.background else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
                             foreground = if (active) themeValues.colors.foreground else themeValues.colors.foreground.withAlpha(0.6f),
                             border = SurfaceBorder(1f.dp, io.github.ronjunevaldoz.awake.core.colors.Color.Transparent),
-                            cornerRadius = themeValues.shapes.sm,
+                            cornerRadius = themeValues.shapes.md,
                             contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp, 4f.dp),
                             shadow = if (active) {
                                 SurfaceShadow(
