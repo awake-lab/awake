@@ -27,6 +27,16 @@ if [[ -n "$MODIFIED_FILE" ]]; then
   esac
 fi
 
+# Pixel-valued identifier wrapped as Dp: `somethingPx.dp` re-multiplies by UiDensity.scale at
+# resolve time -- invisible at density 1, double-sized on Retina (see awake-ui-authoring's
+# "pixels wrapped as Dp" section; StudioShell shipped exactly this).
+if [[ -n "$MODIFIED_FILE" && "$MODIFIED_FILE" == *.kt && -f "$MODIFIED_FILE" ]]; then
+  if grep -nE '[a-zA-Z]Px\.dp\b' "$MODIFIED_FILE"; then
+    echo "px-as-Dp: a *Px value wrapped as .dp double-scales on Retina — use .px instead." >&2
+    exit 1
+  fi
+fi
+
 if [[ ! -f "$AUDIT_SCRIPT" ]]; then
   echo "audit_project.py not found at $AUDIT_SCRIPT" >&2
   exit 1
