@@ -82,13 +82,17 @@ styles with Headless behavior.
 ```
 awake:ui:designsystem
     └── awake:ui:headless   (public API surface)
+    └── awake:ui:ui-core    (internal theme/style infrastructure only)
     └── awake:ui:tailwind   (spacing / text-scale tokens)
     └── awake:ui:heroicons  (icon set)
     └── awake:ui:ui-api     (Dp, UiBounds, UiThemeValues)
 ```
 
-`awake:ui:ui-core` must **not** appear on the `designsystem` public compile classpath.
-All primitive access goes through `headless`.
+`awake:ui:ui-core` is an `implementation` dependency: it may support theme/text providers,
+CompositionLocal mechanics, and `Style` resolution, but Core types must not appear in the Design
+System's public API. Component recipes call Headless widgets for behavior and must not call Core
+layout, drawing, hit-testing, slot-claiming, or semantic primitives directly. A need to do so
+means Headless needs a generic API or slot.
 
 ---
 

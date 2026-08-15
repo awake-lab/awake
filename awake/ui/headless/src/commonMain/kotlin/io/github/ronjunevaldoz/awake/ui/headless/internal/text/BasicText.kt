@@ -6,6 +6,8 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.textStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.intersect
@@ -76,8 +78,7 @@ internal fun UiPrimitiveScope.renderTextBlock(
     val clippedBounds = if (shouldClip) contentBounds.intersect(slot) else contentBounds
 
     val textColor =
-        color ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).color
-            ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.foreground
+        color ?: textStyle.color ?: theme.colors.foreground
 
     recordSemantic(
         role = semanticRole,

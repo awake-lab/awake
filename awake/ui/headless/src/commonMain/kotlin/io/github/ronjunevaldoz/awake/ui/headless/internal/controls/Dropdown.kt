@@ -4,6 +4,8 @@ package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.dp
@@ -48,7 +50,7 @@ fun UiPrimitiveScope.select(
     enabled: Boolean = true,
     placeholder: String = "",
 ): Int? {
-    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+    val theme = theme
     val expandedState = rememberPopupState(id, key = "expanded")
     val resolvedDefaults = theme.components.dropdown
     val selectedLabel = options.getOrNull(selectedIndex) ?: placeholder
@@ -162,8 +164,8 @@ fun UiPrimitiveScope.drawDropdownTriggerContent(
     // `selectedIndex == null` case) -- muted, same treatment textField gives its placeholder.
     isPlaceholder: Boolean = false,
 ) {
-    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
-    val resolvedFont = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont)
+    val theme = theme
+    val resolvedFont = font
     val resolved = resolveStyle(
         defaults = style,
         state = MutableStyleState(

@@ -92,6 +92,7 @@ graph TD
     TEXT --> HEADLESS
 
     HEADLESS --> DS
+    CORE -. "internal infrastructure" .-> DS
 ```
 
 ### Guide & Tools

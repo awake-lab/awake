@@ -94,9 +94,9 @@ in the caller's own `style` block, which composes *after* the variant and theref
 
 ```kotlin
 style = Style {
-    foreground(shadcnTheme.colors.foreground)
-    hovered { background(ShadcnTransparent); foreground(shadcnTheme.colors.foreground) }
-    active { background(ShadcnTransparent); foreground(shadcnTheme.colors.foreground) }
+    foreground(themeValues.colors.foreground)
+    hovered { background(ShadcnTransparent); foreground(themeValues.colors.foreground) }
+    active { background(ShadcnTransparent); foreground(themeValues.colors.foreground) }
 }
 ```
 
@@ -118,7 +118,7 @@ and let the composing component own 100% of the spacing:
 
 ```kotlin
 shadcnCard(id = "$id.card", modifier = modifier.fillMaxWidth(), style = Style { contentPadding(0f.dp) }) { _ ->
-    // trigger row and content both apply their own shadcnTheme.spacing.sm inset here
+    // trigger row and content both apply their own themeValues spacing inset here
 }
 ```
 
@@ -160,6 +160,18 @@ function (`shadcnCollapsibleCard`) that composes `shadcnCard` (visual) with `ani
 primitive ends up knowing the other exists. When a request sounds like "component A styled like
 component B," check whether A already exposes its own headless/primary form before adding B's
 styling logic into A's own file.
+
+## Core is infrastructure; Headless is the component boundary
+
+`ui-designsystem` may use `ui-core` internally for `Style`, scoped-theme providers, and local
+mechanics. Do not leak Core types in public recipe APIs. A `shadcn*` recipe must call Headless for
+widget behavior; it must not directly claim slots, draw, hit-test, record semantics, or invoke
+Core controls/layout. Repeated recipe boilerplate is evidence that Headless needs a generic slot
+or behavior API.
+
+Within a recipe, read the design-system-local `themeValues` accessor. `UiScope.shadcnTheme { }`
+is the scoped provider; the similarly named non-receiver theme factory exists only to build a
+theme value for app state or a root host before a `UiScope` exists.
 
 ---
 

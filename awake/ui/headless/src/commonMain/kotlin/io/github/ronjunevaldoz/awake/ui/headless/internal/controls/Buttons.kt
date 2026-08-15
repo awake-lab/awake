@@ -4,6 +4,9 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.ProvideTextStyle
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.Dp
@@ -43,7 +46,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
     semanticRole: UiSemanticRole = UiSemanticRole.Button,
     crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): UiButtonResult {
-    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+    val theme = theme
     val defaults = theme.components.button then Style.Companion {
         shape(radius)
         if (variant == UiButtonVariant.Outline) {
@@ -74,22 +77,20 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
             fillColor = fillColor,
         )
         // Slot-API content (an arbitrary caller-composed lambda) has no other way to know this
-        // button's resolved themed foreground -- push it as the ambient text style so any `text()`
+        // button's resolved themed foreground -- provide it as the ambient text style so any `text()`
         // called inside `drawContent` picks up the right contrast automatically, the same way
         // `surface()`/`column()`/`row()`/`box()` already propagate their resolved text style to
         // their own children. Mirrors the explicit `color = resolved.foreground` passed to the
         // label overload's own internal `text()` call below.
-        context.pushLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle,
-            surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground),
-        )
-        // A button's content is its own subtree, not a sibling list for whatever column contains
-        // the button -- see compositeContent(). Without this, a sidebar header button's inner rows
-        // were counted as direct children of the sidebar, and the weighted content slot below it
-        // resolved to zero height.
-        compositeContent {
-            childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
+        ProvideTextStyle(surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground)) {
+            // A button's content is its own subtree, not a sibling list for whatever column contains
+            // the button -- see compositeContent(). Without this, a sidebar header button's inner rows
+            // were counted as direct children of the sidebar, and the weighted content slot below it
+            // resolved to zero height.
+            compositeContent {
+                childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
+            }
         }
-        context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
     }
     recordSemantic(
         role = semanticRole,
@@ -152,7 +153,7 @@ fun UiPrimitiveScope.buttonSlot(
     radius = radius,
     semanticLabel = label,
     intrinsicWidth = label?.let { labelText ->
-        val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+        val theme = theme
         val defaults = theme.components.button then Style.Companion {
             shape(radius)
             if (variant == UiButtonVariant.Outline) {
@@ -170,11 +171,11 @@ fun UiPrimitiveScope.buttonSlot(
     semanticRole = semanticRole,
     drawContent = { contentSlot, resolved ->
         if (label != null) {
-            val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+            val theme = theme
             text(
                 label = label,
                 slot = contentSlot,
-                font = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
+                font = font,
                 color = resolved.foreground ?: theme.colors.foreground,
                 centered = centered,
                 verticallyCentered = verticallyCentered,

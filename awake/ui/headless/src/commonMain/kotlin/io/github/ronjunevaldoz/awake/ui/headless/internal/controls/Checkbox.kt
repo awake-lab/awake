@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.Dp
@@ -44,7 +46,7 @@ fun UiPrimitiveScope.checkbox(
     indeterminate: Boolean = false,
     enabled: Boolean = true,
 ): Boolean {
-    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+    val theme = theme
     val defaults = theme.components.checkbox
     val sizedModifier = modifier.withSizeFallback(
         label?.let {
@@ -105,7 +107,7 @@ fun UiPrimitiveScope.checkbox(
         } else if (newChecked) {
             emitCheckmark(boxSlot)
         }
-        val resolvedFont = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont)
+        val resolvedFont = font
         if (label != null) {
             val gapPx = CHECKBOX_LABEL_GAP.toPx()
             val labelSlot = UiBounds(
@@ -156,7 +158,7 @@ fun UiPrimitiveScope.radio(
     enabled: Boolean = true,
     boxSize: Dp = 16f.dp,
 ): Boolean {
-    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+    val theme = theme
     val surface = resolveInteractiveSurface(
         id = id,
         // A shadcn RadioGroupItem is `size-4`, not a full-width checkbox row. Its authored

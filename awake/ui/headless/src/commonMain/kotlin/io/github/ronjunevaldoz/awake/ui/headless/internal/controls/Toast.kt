@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
@@ -43,7 +45,7 @@ fun UiPrimitiveScope.toast(
     if (elapsed.value >= durationMs) return false
     elapsed.value += frameDeltaSeconds() * 1000f
 
-    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+    val theme = theme
     val surface = resolveSurface(
         // WrapContent needs a measuring composite pass to resolve (AbsoluteScope.claimSlot
         // throws without one, see UiScopeMetrics), so -- same reasoning Dropdown.kt/TextField.kt
@@ -59,7 +61,7 @@ fun UiPrimitiveScope.toast(
     text(
         message,
         slot = surface.contentSlot,
-        font = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
+        font = font,
         color = surface.resolved.foreground ?: theme.colors.foreground,
         verticallyCentered = true,
         semanticId = "$id.label",

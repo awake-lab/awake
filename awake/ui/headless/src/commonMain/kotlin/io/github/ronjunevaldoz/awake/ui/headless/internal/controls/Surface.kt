@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
@@ -144,7 +145,7 @@ internal fun UiPrimitiveScope.paintSurface(
     borderColor: Color? = null,
     shapeSpec: UiShapeSpec? = resolved.shapeSpec,
 ) {
-    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+    val theme = theme
     emitFillAndBorder(
         slot = slot,
         fillColor = fillColor ?: resolved.background ?: theme.colors.background,
