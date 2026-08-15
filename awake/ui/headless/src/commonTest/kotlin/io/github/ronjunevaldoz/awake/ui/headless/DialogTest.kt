@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -28,7 +29,7 @@ class DialogTest {
             properties = DialogProperties(
                 showScrim = true,
                 scrimColor = Color.Black,
-                surface = SurfaceStyle(background = Color.White, cornerRadius = 4f.dp),
+                surface = Style { background(Color.White); shape(4f.dp) },
             ),
         ) { }
 

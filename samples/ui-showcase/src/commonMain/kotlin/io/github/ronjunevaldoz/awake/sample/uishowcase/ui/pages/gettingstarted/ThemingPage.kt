@@ -10,7 +10,7 @@ internal val ThemingPage = ShowcasePage(
     title = "Theming",
     category = ShowcaseCategory.GettingStarted,
     description = "Live preset, base color, accent, and dark mode theme controls.",
-    usageCode = "val theme = shadcnTheme(preset = ShadcnStylePreset.Vega, dark = true)",
+    usageCode = "val theme = shadcnThemeValues(preset = ShadcnStylePreset.Vega, dark = true)",
     previewWidth = 920,
     previewHeight = 640,
     notes = listOf("Re-themes content pane live while maintaining shell chrome."),

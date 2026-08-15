@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
@@ -17,8 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -124,22 +121,19 @@ fun UiScope.shadcnAlert(
 ): UiBounds = surface(
     id = id,
     modifier = modifier.fillMaxWidth(),
-    style = SurfaceStyle(
-        background = if (variant == ShadcnAlertVariant.Destructive) {
+    style = Style {
+        background(if (variant == ShadcnAlertVariant.Destructive) {
             themeValues.colors.destructive.withAlpha(
                 0.1f,
             )
         } else {
             themeValues.colors.muted
-        },
-        foreground = if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.foreground,
-        border = SurfaceBorder(
-            1f.dp,
-            if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.border,
-        ),
-        cornerRadius = themeValues.shapes.lg,
-        contentPadding = UiInsets(16f.dp),
-    ),
+        })
+        foreground(if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.foreground)
+        border(1f.dp, if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.border)
+        shape(themeValues.shapes.lg)
+        contentPadding(16f.dp)
+    },
 ) {
     column(verticalArrangement = Arrangement.spacedBy(4f.dp)) {
         content()
@@ -157,9 +151,9 @@ fun UiScope.shadcnAlert(
     modifier = modifier,
     variant = variant,
 ) {
-    shadcnText(title, visuals = SurfaceStyle(fontWeight = FontWeight.Medium))
+    shadcnText(title, styleOverride = Style { fontWeight(FontWeight.Medium) })
     if (description != null) {
-        shadcnText(description, visuals = SurfaceStyle(textSize = themeValues.typography.caption))
+        shadcnText(description, styleOverride = Style { textSize(themeValues.typography.caption) })
     }
 }
 
@@ -172,9 +166,7 @@ fun UiScope.shadcnEmpty(
 ): UiBounds = surface(
     id = id,
     modifier = modifier.fillMaxWidth(),
-    style = SurfaceStyle(
-        contentPadding = UiInsets(24f.dp),
-    ),
+    style = Style { contentPadding(24f.dp) },
 ) {
     column(
         horizontalAlignment = io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment.Horizontal.Center,
@@ -183,16 +175,13 @@ fun UiScope.shadcnEmpty(
         shadcnText(
             title,
             centered = true,
-            visuals = SurfaceStyle(
-                fontWeight = FontWeight.Medium,
-                textSize = themeValues.typography.body,
-            ),
+            styleOverride = Style { fontWeight(FontWeight.Medium); textSize(themeValues.typography.body) },
         )
         if (description != null) {
             shadcnText(
                 description,
                 centered = true,
-                visuals = SurfaceStyle(textSize = themeValues.typography.caption),
+                styleOverride = Style { textSize(themeValues.typography.caption) },
             )
         }
         if (action != null) {

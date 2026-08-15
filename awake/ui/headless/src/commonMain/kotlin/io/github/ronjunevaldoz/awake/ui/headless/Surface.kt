@@ -26,14 +26,3 @@ fun UiScope.surface(
     verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
     clipContent = clipContent,
 ) { slot -> content(asHeadlessScope(), slot) }
-
-/** Compatibility overload while callers migrate to [Style]. */
-@Deprecated("Use the Style overload", ReplaceWith("surface(id, modifier, style.asStyle(), verticalArrangement, clipContent, content)"))
-fun UiScope.surface(
-    id: String,
-    modifier: Modifier = Modifier,
-    style: SurfaceStyle,
-    verticalArrangement: Arrangement = Arrangement.Start,
-    clipContent: Boolean = false,
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = surface(id, modifier, style.asPrimitiveStyle(), verticalArrangement, clipContent, content)

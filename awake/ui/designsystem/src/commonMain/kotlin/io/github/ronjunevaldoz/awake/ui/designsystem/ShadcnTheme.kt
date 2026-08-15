@@ -120,7 +120,7 @@ data class ShadcnThemeConfig(
     val dark: Boolean = true,
 )
 
-fun shadcnTheme(preset: ShadcnStylePreset = ShadcnStylePreset.Vega, baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral, accent: ShadcnAccent = ShadcnAccent.Base, dark: Boolean = true): UiThemeValues =
+fun shadcnThemeValues(preset: ShadcnStylePreset = ShadcnStylePreset.Vega, baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral, accent: ShadcnAccent = ShadcnAccent.Base, dark: Boolean = true): UiThemeValues =
     shadcnThemeData(
         ShadcnThemeConfig(
             preset = preset,

@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** A neutral menu item contract. Visuals and item content belong to the caller's skin. */
 data class UiMenuItem(
@@ -25,12 +26,12 @@ fun ColumnScope.menuItem(
     item: UiMenuItem,
     label: String,
     modifier: Modifier = Modifier,
-    visuals: SurfaceVisuals = SurfaceVisuals(),
+    style: Style = Style.Empty,
 ): Boolean = button(
     id = item.id,
     label = label,
     modifier = modifier,
-    visuals = visuals,
+    style = style,
     enabled = item.enabled,
     semanticRole = UiSemanticRole.MenuItem,
 )

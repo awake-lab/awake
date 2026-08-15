@@ -30,7 +30,7 @@ class ShadcnDrawerDialogFidelityTest {
             val ui = UiContext()
             ui.pushFont(BitmapFont())
             val theme =
-                shadcnTheme(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
+                shadcnThemeValues(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
             ui.pushTheme(theme)
 
             ui.beginFrame(

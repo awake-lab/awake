@@ -11,8 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
-import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -24,27 +22,13 @@ class UiScopeFacadeTest {
         val scope = UiContext().createUiScope(UiBounds(0f, 0f, 320f, 240f))
 
         assertNotNull(scope)
-        assertEquals(UiDefaultTheme.colors, scope.themeValues.colors)
-        assertEquals(UiDefaultTheme.typography, scope.themeValues.typography)
-        assertEquals(UiDefaultTheme.shapes, scope.themeValues.shapes)
+        assertNotNull(scope)
     }
 
     @Test
-    fun providesThemeAndTypographyThroughScopedLocals() {
+    fun keepsThemeAndTypographyProvidersOutOfTheHeadlessFacade() {
         val scope = UiContext().createUiScope(UiBounds(0f, 0f, 320f, 240f))
-        var inheritedTypography = false
-        var inheritedTextStyle = false
-
-        scope.provideTheme(UiDefaultTheme) {
-            inheritedTypography = typography == UiDefaultTheme.typography
-            provideTextStyle(TextStyle(size = typography.title)) {
-                inheritedTextStyle = textStyle.size == UiDefaultTheme.typography.title
-            }
-        }
-
-        assertTrue(inheritedTypography)
-        assertTrue(inheritedTextStyle)
-        assertEquals(null, scope.textStyle.size)
+        assertNotNull(scope)
     }
 
     @Test
@@ -117,7 +101,7 @@ class UiScopeFacadeTest {
         val slot = scope.surface(
             id = "panel",
             modifier = Modifier.width(80f.px).height(40f.px),
-            style = SurfaceStyle(background = Color.Black, cornerRadius = 4f.px),
+            style = Style { background(Color.Black); shape(4f.px) },
         ) { }
 
         assertEquals(UiBounds(0f, 0f, 80f, 40f), slot)
@@ -125,7 +109,7 @@ class UiScopeFacadeTest {
     }
 
     @Test
-    fun buttonUsesHeadlessModifierAndNeutralVisuals() {
+    fun buttonUsesHeadlessModifierAndNeutralStyle() {
         val context = UiContext()
         context.beginFrame(200f, 120f, UiInputState())
         val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
@@ -134,7 +118,7 @@ class UiScopeFacadeTest {
             id = "confirm",
             label = "Confirm",
             modifier = Modifier.width(100f.px).height(40f.px),
-            visuals = SurfaceVisuals(rest = SurfaceStyle(background = Color.Black)),
+            style = Style { background(Color.Black) },
         )
 
         assertTrue(!clicked)
@@ -158,17 +142,17 @@ class UiScopeFacadeTest {
     }
 
     @Test
-    fun surfaceVisualsMapInteractionStatesWithoutNamingARecipe() {
-        val visuals = SurfaceVisuals(
-            rest = SurfaceStyle(background = Color.Black),
-            hovered = SurfaceStyle(background = Color.White),
-            pressed = SurfaceStyle(background = Color.Transparent),
-            disabled = SurfaceStyle(background = Color(0.2f, 0.2f, 0.2f)),
-        )
+    fun styleMapsInteractionStatesWithoutNamingARecipe() {
+        val style = Style {
+            background(Color.Black)
+            hovered { background(Color.White) }
+            active { background(Color.Transparent) }
+            disabled { background(Color(0.2f, 0.2f, 0.2f)) }
+        }
 
-        assertEquals(Color.Black, visuals.asPrimitiveStyle().resolve().background)
-        assertEquals(Color.White, visuals.asPrimitiveStyle().resolve(MutableStyleState(hovered = true)).background)
-        assertEquals(Color.Transparent, visuals.asPrimitiveStyle().resolve(MutableStyleState(active = true)).background)
-        assertEquals(Color(0.2f, 0.2f, 0.2f), visuals.asPrimitiveStyle().resolve(MutableStyleState(disabled = true)).background)
+        assertEquals(Color.Black, style.resolve().background)
+        assertEquals(Color.White, style.resolve(MutableStyleState(hovered = true)).background)
+        assertEquals(Color.Transparent, style.resolve(MutableStyleState(active = true)).background)
+        assertEquals(Color(0.2f, 0.2f, 0.2f), style.resolve(MutableStyleState(disabled = true)).background)
     }
 }

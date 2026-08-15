@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
@@ -22,7 +22,7 @@ class HierarchyPanelTest {
         world.add(camera, Name("Camera"))
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnTheme(dark = true))
+        ui.pushTheme(shadcnThemeValues(dark = true))
         var selected: Int? = null
 
         fun draw(input: UiInputState) = ui.apply {

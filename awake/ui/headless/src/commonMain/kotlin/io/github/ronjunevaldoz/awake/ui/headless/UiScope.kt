@@ -3,10 +3,16 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelSize as primitiveWithIntrinsicLabelSize
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.font
+import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx as primitiveResolveGlyphPx
+import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 
 @DslMarker
 annotation class AwakeUiDsl
@@ -32,6 +38,18 @@ fun UiScope(primitive: UiPrimitiveScope): UiScope = DefaultUiScope(primitive)
 /** Requests keyboard focus for a Headless-owned input or composite widget. */
 fun UiScope.requestFocus(id: String) = primitive.context.requestFocus(id)
 
+/** Current composition font for Headless measurement recipes. */
+val UiScope.currentFont: UiFont
+    get() = primitive.font
+
+/** Resolves a text style through the current composition font and density. */
+fun UiScope.resolveGlyphPx(textStyle: TextStyle): Float = primitive.primitiveResolveGlyphPx(textStyle = textStyle)
+
+/** Records a generic panel semantic for a Headless-owned composite region. */
+fun UiScope.panelSemantics(id: String, bounds: UiBounds) {
+    primitive.recordSemantic(role = UiSemanticRole.Panel, id = id, bounds = bounds)
+}
+
 /** Applies natural label width and font-metric height to surface recipes. */
 fun UiScope.withIntrinsicLabelSize(
     label: String,
@@ -44,14 +62,6 @@ fun UiScope.withIntrinsicLabelSize(
         style = style,
     ),
 )
-
-/** Compatibility overload while callers migrate to [Style]. */
-@Deprecated("Use the Style overload")
-fun UiScope.withIntrinsicLabelSize(
-    label: String,
-    modifier: Modifier = Modifier,
-    style: SurfaceStyle,
-): Modifier = withIntrinsicLabelSize(label, modifier, style.asPrimitiveStyle())
 
 /**
  * Creates the public Headless receiver for a root UI region.

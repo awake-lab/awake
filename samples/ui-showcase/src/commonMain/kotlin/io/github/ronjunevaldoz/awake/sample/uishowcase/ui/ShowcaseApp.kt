@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarFooterButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHeaderButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -25,7 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 
-private val ShowcaseChromeTheme = shadcnTheme(dark = false)
+private val ShowcaseChromeTheme = shadcnThemeValues(dark = false)
 
 internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): GameUiSpec = gameUi {
     theme(ShowcaseChromeTheme)

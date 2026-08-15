@@ -27,7 +27,7 @@ class ShadcnSelectFidelityTest {
         val aggregatedReport = FigmaModeMatrix.runValidationMatrix { config ->
             val ui = UiContext()
             ui.pushFont(BitmapFont())
-            val theme = shadcnTheme(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
+            val theme = shadcnThemeValues(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
             ui.pushTheme(theme)
 
             ui.beginFrame(300f * config.scale.scale, 100f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))

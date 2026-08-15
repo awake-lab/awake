@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarFooterButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHeaderButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -113,7 +113,7 @@ class ShowcaseShellSidebarTest {
 
         ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnTheme(dark = false))
+        ui.pushTheme(shadcnThemeValues(dark = false))
 
         ui.createUiScope(UiBounds(0f, 0f, 1440f, 900f)).row(
             modifier = Modifier.padding(24f.dp).fillMaxWidth().fillMaxHeight(),

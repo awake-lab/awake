@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Neutral behavior and visual inputs for a modal [dialog]. */
 data class DialogProperties(
@@ -14,7 +15,7 @@ data class DialogProperties(
     val showScrim: Boolean = false,
     val scrimColor: Color? = null,
     val popupProperties: UiPopupProperties = UiPopupProperties(),
-    val surface: SurfaceStyle = SurfaceStyle(),
+    val surface: Style = Style.Empty,
 )
 
 /** Result/action contracts for a branded alert-dialog recipe. */

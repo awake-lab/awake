@@ -13,10 +13,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 import io.github.ronjunevaldoz.awake.ui.headless.width
 
@@ -37,19 +37,20 @@ internal val PopoverPage = ShowcasePage(
             modifier = Modifier.height(36f.dp),
         ) {
             spacer(Modifier.width(100f.dp))
-            val trigger = buttonSlot(
+            shadcnButton(
                 id = "showcase-popover-trigger",
-                label = "Share",
                 modifier = Modifier.width(120f.dp).height(36f.dp),
-            )
-            uiScope().shadcnPopover(
-                id = "showcase-popover",
-                anchorSlot = trigger.slot,
-                expanded = true,
-                width = Dimension.Fixed(280f.dp),
-            ) {
-                shadcnText("Share scene")
-                shadcnMuted("Anyone with the link can view this scene until you revoke it.")
+            ) { trigger ->
+                text("Share", centered = true)
+                uiScope().shadcnPopover(
+                    id = "showcase-popover",
+                    anchorSlot = trigger,
+                    expanded = true,
+                    width = Dimension.Fixed(280f.dp),
+                ) {
+                    shadcnText("Share scene")
+                    shadcnMuted("Anyone with the link can view this scene until you revoke it.")
+                }
             }
             shadcnButton(
                 id = "showcase-popover-secondary",

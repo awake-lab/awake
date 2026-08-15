@@ -10,8 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.math.pow
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -60,10 +60,10 @@ class ShadcnTextContrastMatrixTest {
     private fun UiContext.insideColouredSurface(body: () -> Unit) {
         headlessRoot().surface(
             id = "contrast-host",
-            style = SurfaceStyle(
-                background = currentTheme.colors.card,
-                foreground = currentTheme.colors.foreground,
-            ),
+            style = Style {
+                background(currentTheme.colors.card)
+                foreground(currentTheme.colors.foreground)
+            },
         ) { body() }
     }
 
@@ -105,7 +105,7 @@ class ShadcnTextContrastMatrixTest {
 
     /** Ratio between each glyph and the nearest fill drawn under it, or null when nothing is drawn. */
     private fun worstRatio(dark: Boolean, case: Case): Pair<Float, String>? {
-        val theme = shadcnTheme(dark = dark)
+        val theme = shadcnThemeValues(dark = dark)
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(theme)

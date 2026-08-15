@@ -15,10 +15,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 import io.github.ronjunevaldoz.awake.ui.headless.width
 
@@ -45,20 +45,21 @@ internal val DropdownMenuPage = ShowcasePage(
             horizontalArrangement = Arrangement.spacedBy(12f.dp),
             modifier = Modifier.height(36f.dp),
         ) {
-            val trigger = buttonSlot(
+            shadcnButton(
                 id = "showcase-dropdown-trigger",
-                label = "Actions",
                 modifier = Modifier.width(124f.dp).height(36f.dp),
-            )
-            uiScope().shadcnDropdownMenu(
-                id = "showcase-dropdown-menu",
-                anchorSlot = trigger.slot,
-                expanded = true,
-                items = MenuItems,
-                selectedIndex = 1,
-                width = Dimension.Fixed(340f.dp),
-                positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
-            )
+            ) { trigger ->
+                text("Actions", centered = true)
+                uiScope().shadcnDropdownMenu(
+                    id = "showcase-dropdown-menu",
+                    anchorSlot = trigger,
+                    expanded = true,
+                    items = MenuItems,
+                    selectedIndex = 1,
+                    width = Dimension.Fixed(340f.dp),
+                    positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
+                )
+            }
             shadcnButton(
                 id = "showcase-dropdown-secondary",
                 label = "Secondary",

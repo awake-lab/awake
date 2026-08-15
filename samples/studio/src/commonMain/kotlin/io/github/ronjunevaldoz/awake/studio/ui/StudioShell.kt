@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableP
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggleGroup
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiResizableDirection
@@ -33,7 +33,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.toPx
 
-internal val StudioTheme = shadcnTheme(dark = true)
+internal val StudioTheme = shadcnThemeValues(dark = true)
 
 // Dark neutral gray, not pure black -- Renderer.clearColor otherwise defaults to stark black,
 // which reads as "nothing rendered" rather than a real viewport background. Same reasoning

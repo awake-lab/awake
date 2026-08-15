@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -63,7 +63,7 @@ class ResizablePageDragProbeTest {
             input.setPointer(down = down, x = x, y = y)
             ui.beginFrame(frameW, frameH, input.updateSnapshot().toUiInputState())
             ui.pushFont(BitmapFont())
-            ui.pushTheme(shadcnTheme(dark = false))
+            ui.pushTheme(shadcnThemeValues(dark = false))
             ui.createUiScope(UiBounds(0f, 0f, frameW, frameH)).column(
                 modifier = Modifier.padding(24f.dp).fillMaxWidth().fillMaxHeight(),
             ) {

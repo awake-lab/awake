@@ -12,10 +12,9 @@ import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -28,17 +27,13 @@ import io.github.ronjunevaldoz.awake.ui.headless.size
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.weight
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
-private fun sidebarStyle(scope: UiScope): SurfaceStyle = SurfaceStyle(
-    background = scope.themeValues.colors.card,
-    foreground = scope.themeValues.colors.foreground,
-    contentPadding = UiInsets(
-        top = 8f.dp,
-        bottom = 8f.dp,
-        start = 8f.dp,
-        end = 8f.dp,
-    ),
-)
+private fun sidebarStyle(scope: UiScope): Style = Style {
+    background(scope.themeValues.colors.card)
+    foreground(scope.themeValues.colors.foreground)
+    contentPadding(8f.dp)
+}
 
 fun UiScope.shadcnSidebar(
     id: String,
@@ -70,23 +65,16 @@ fun UiScope.shadcnSidebarHeaderButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ): Boolean {
-    val clicked = buttonSlot(
+    val clicked = button(
         id = id,
         modifier = modifier.fillMaxWidth().height(48f.dp),
-        visuals = io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals(
-            rest = SurfaceStyle(
-                background = io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
-                foreground = themeValues.colors.foreground,
-                cornerRadius = themeValues.shapes.md,
-                contentPadding = UiInsets(horizontal = 6f.dp, vertical = 4f.dp),
-            ),
-            hovered = SurfaceStyle(
-                background = themeValues.colors.accent,
-                foreground = themeValues.colors.accentForeground,
-                cornerRadius = themeValues.shapes.md,
-                contentPadding = UiInsets(horizontal = 6f.dp, vertical = 4f.dp),
-            ),
-        ),
+        style = Style {
+            background(io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
+            foreground(themeValues.colors.foreground)
+            shape(themeValues.shapes.md)
+            contentPadding(horizontal = 6f.dp, vertical = 4f.dp)
+            hovered { background(themeValues.colors.accent); foreground(themeValues.colors.accentForeground) }
+        },
     ) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -100,38 +88,26 @@ fun UiScope.shadcnSidebarHeaderButton(
                 surface(
                     id = "$id.badge",
                     modifier = Modifier.size(32f.dp),
-                    style = SurfaceStyle(
-                        background = themeValues.colors.primary,
-                        foreground = themeValues.colors.primaryForeground,
-                        cornerRadius = themeValues.shapes.md,
-                        contentPadding = UiInsets(6f.dp),
-                    ),
+                    style = Style { background(themeValues.colors.primary); foreground(themeValues.colors.primaryForeground); shape(themeValues.shapes.md); contentPadding(6f.dp) },
                 ) {
                     icon(ShadcnIcons.squares2x2)
                 }
                 column {
                     text(
                         label = title,
-                        visuals = SurfaceStyle(
-                            textSize = 14f.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            foreground = themeValues.colors.foreground,
-                        ),
+                        style = Style { textSize(14f.sp); fontWeight(FontWeight.SemiBold); foreground(themeValues.colors.foreground) },
                     )
                     text(
                         label = subtitle,
-                        visuals = SurfaceStyle(
-                            textSize = 11f.sp,
-                            foreground = themeValues.colors.mutedForeground,
-                        ),
+                        style = Style { textSize(11f.sp); foreground(themeValues.colors.mutedForeground) },
                     )
                 }
             }
             icon(ShadcnIcons.chevronDown)
         }
     }
-    if (clicked.clicked) onClick()
-    return clicked.clicked
+    if (clicked) onClick()
+    return clicked
 }
 
 fun UiScope.shadcnSidebarFooterButton(
@@ -141,23 +117,16 @@ fun UiScope.shadcnSidebarFooterButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ): Boolean {
-    val clicked = buttonSlot(
+    val clicked = button(
         id = id,
         modifier = modifier.fillMaxWidth().height(48f.dp),
-        visuals = io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals(
-            rest = SurfaceStyle(
-                background = io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
-                foreground = themeValues.colors.foreground,
-                cornerRadius = themeValues.shapes.md,
-                contentPadding = UiInsets(horizontal = 6f.dp, vertical = 4f.dp),
-            ),
-            hovered = SurfaceStyle(
-                background = themeValues.colors.accent,
-                foreground = themeValues.colors.accentForeground,
-                cornerRadius = themeValues.shapes.md,
-                contentPadding = UiInsets(horizontal = 6f.dp, vertical = 4f.dp),
-            ),
-        ),
+        style = Style {
+            background(io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
+            foreground(themeValues.colors.foreground)
+            shape(themeValues.shapes.md)
+            contentPadding(horizontal = 6f.dp, vertical = 4f.dp)
+            hovered { background(themeValues.colors.accent); foreground(themeValues.colors.accentForeground) }
+        },
     ) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -171,38 +140,26 @@ fun UiScope.shadcnSidebarFooterButton(
                 surface(
                     id = "$id.avatar",
                     modifier = Modifier.size(32f.dp),
-                    style = SurfaceStyle(
-                        background = themeValues.colors.secondary,
-                        foreground = themeValues.colors.secondaryForeground,
-                        cornerRadius = 16f.dp,
-                        contentPadding = UiInsets(6f.dp),
-                    ),
+                    style = Style { background(themeValues.colors.secondary); foreground(themeValues.colors.secondaryForeground); shape(16f.dp); contentPadding(6f.dp) },
                 ) {
                     icon(ShadcnIcons.user)
                 }
                 column {
                     text(
                         label = name,
-                        visuals = SurfaceStyle(
-                            textSize = 14f.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            foreground = themeValues.colors.foreground,
-                        ),
+                        style = Style { textSize(14f.sp); fontWeight(FontWeight.SemiBold); foreground(themeValues.colors.foreground) },
                     )
                     text(
                         label = email,
-                        visuals = SurfaceStyle(
-                            textSize = 11f.sp,
-                            foreground = themeValues.colors.mutedForeground,
-                        ),
+                        style = Style { textSize(11f.sp); foreground(themeValues.colors.mutedForeground) },
                     )
                 }
             }
             icon(ShadcnIcons.chevronDown)
         }
     }
-    if (clicked.clicked) onClick()
-    return clicked.clicked
+    if (clicked) onClick()
+    return clicked
 }
 
 fun UiScope.shadcnSidebarGroup(
@@ -217,13 +174,13 @@ fun UiScope.shadcnSidebarGroup(
         label?.let {
             text(
                 label = it.uppercase(),
-                visuals = SurfaceStyle(
-                    foreground = themeValues.colors.mutedForeground,
+                style = Style {
+                    foreground(themeValues.colors.mutedForeground)
                     // Sidebar group titles are Tailwind `text-xs` (12px) and `font-medium`.
-                    textSize = 12f.sp,
-                    fontWeight = FontWeight.Medium,
-                    contentPadding = UiInsets(horizontal = 8f.dp, vertical = 0f.dp),
-                ),
+                    textSize(12f.sp)
+                    fontWeight(FontWeight.Medium)
+                    contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
+                },
             )
         }
         content()
@@ -249,24 +206,16 @@ fun UiScope.shadcnSidebarMenuItem(
     badge: String? = null,
     onClick: () -> Unit = {},
 ): Boolean {
-    val insets = UiInsets(horizontal = 8f.dp, vertical = 0f.dp)
-    val clicked = buttonSlot(
+    val clicked = button(
         id = id,
         modifier = modifier.fillMaxWidth().height(ShadcnSidebarMetrics.menuButtonHeight),
-        visuals = io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals(
-            rest = SurfaceStyle(
-                background = if (active) themeValues.colors.secondary else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
-                foreground = if (active) themeValues.colors.secondaryForeground else themeValues.colors.foreground,
-                cornerRadius = themeValues.shapes.md,
-                contentPadding = insets,
-            ),
-            hovered = SurfaceStyle(
-                background = themeValues.colors.accent,
-                foreground = themeValues.colors.accentForeground,
-                cornerRadius = themeValues.shapes.md,
-                contentPadding = insets,
-            ),
-        ),
+        style = Style {
+            background(if (active) themeValues.colors.secondary else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
+            foreground(if (active) themeValues.colors.secondaryForeground else themeValues.colors.foreground)
+            shape(themeValues.shapes.md)
+            contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
+            hovered { background(themeValues.colors.accent); foreground(themeValues.colors.accentForeground) }
+        },
     ) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -282,25 +231,19 @@ fun UiScope.shadcnSidebarMenuItem(
                 }
                 text(
                     label = label,
-                    visuals = SurfaceStyle(
-                        textSize = 14f.sp,
-                        fontWeight = if (active) FontWeight.Medium else FontWeight.Normal,
-                    ),
+                    style = Style { textSize(14f.sp); fontWeight(if (active) FontWeight.Medium else FontWeight.Normal) },
                 )
             }
             if (badge != null) {
                 text(
                     label = badge,
-                    visuals = SurfaceStyle(
-                        textSize = 11f.sp,
-                        foreground = themeValues.colors.mutedForeground,
-                    ),
+                    style = Style { textSize(11f.sp); foreground(themeValues.colors.mutedForeground) },
                 )
             }
         }
     }
-    if (clicked.clicked) onClick()
-    return clicked.clicked
+    if (clicked) onClick()
+    return clicked
 }
 
 fun UiScope.shadcnSidebarMenuSub(
@@ -329,24 +272,16 @@ fun UiScope.shadcnSidebarMenuSubItem(
     icon: UiImageVector? = null,
     onClick: () -> Unit = {},
 ): Boolean {
-    val insets = UiInsets(horizontal = 8f.dp, vertical = 0f.dp)
-    val clicked = buttonSlot(
+    val clicked = button(
         id = id,
         modifier = modifier.fillMaxWidth().height(ShadcnSidebarMetrics.submenuButtonHeight),
-        visuals = io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals(
-            rest = SurfaceStyle(
-                background = if (active) themeValues.colors.secondary else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent,
-                foreground = if (active) themeValues.colors.secondaryForeground else themeValues.colors.foreground,
-                cornerRadius = themeValues.shapes.md,
-                contentPadding = insets,
-            ),
-            hovered = SurfaceStyle(
-                background = themeValues.colors.accent,
-                foreground = themeValues.colors.accentForeground,
-                cornerRadius = themeValues.shapes.md,
-                contentPadding = insets,
-            ),
-        ),
+        style = Style {
+            background(if (active) themeValues.colors.secondary else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
+            foreground(if (active) themeValues.colors.secondaryForeground else themeValues.colors.foreground)
+            shape(themeValues.shapes.md)
+            contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
+            hovered { background(themeValues.colors.accent); foreground(themeValues.colors.accentForeground) }
+        },
     ) {
         row(
             horizontalArrangement = Arrangement.spacedBy(8f.dp),
@@ -358,13 +293,10 @@ fun UiScope.shadcnSidebarMenuSubItem(
             }
             text(
                 label = label,
-                visuals = SurfaceStyle(
-                    textSize = 13f.sp,
-                    fontWeight = if (active) FontWeight.Medium else FontWeight.Normal,
-                ),
+                style = Style { textSize(13f.sp); fontWeight(if (active) FontWeight.Medium else FontWeight.Normal) },
             )
         }
     }
-    if (clicked.clicked) onClick()
-    return clicked.clicked
+    if (clicked) onClick()
+    return clicked
 }

@@ -5,13 +5,13 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 
 /**
@@ -40,7 +40,7 @@ fun UiScope.shadcnText(
     modifier: Modifier = Modifier,
     centered: Boolean = false,
     muted: Boolean = false,
-    visuals: SurfaceStyle = SurfaceStyle(),
+    styleOverride: Style = Style.Empty,
     maxLines: Int = Int.MAX_VALUE,
     wrap: UiTextWrap = UiTextWrap.Word,
     overflow: UiTextOverflow = UiTextOverflow.Ellipsis,
@@ -59,17 +59,11 @@ fun UiScope.shadcnText(
         ShadcnTextStyle.Code -> Triple(Tw.Text.sm, FontWeight.SemiBold, false)
     }
 
-    val foregroundColor = when {
-        muted || isMutedDefault -> themeValues.colors.mutedForeground
-        visuals.foreground != io.github.ronjunevaldoz.awake.core.colors.Color.Transparent -> visuals.foreground
-        else -> themeValues.colors.foreground
+    val defaultStyle = Style {
+        foreground(if (muted || isMutedDefault) themeValues.colors.mutedForeground else themeValues.colors.foreground)
+        textSize(defaultSize)
+        fontWeight(defaultWeight)
     }
-
-    val effectiveVisuals = visuals.copy(
-        foreground = foregroundColor,
-        textSize = visuals.textSize ?: defaultSize,
-        fontWeight = defaultWeight,
-    )
 
     val effectiveModifier = if (style == ShadcnTextStyle.Blockquote) {
         modifier.padding(start = Tw.Spacing.s4)
@@ -81,7 +75,7 @@ fun UiScope.shadcnText(
         label = label,
         modifier = effectiveModifier,
         centered = centered,
-        visuals = effectiveVisuals,
+        style = defaultStyle then styleOverride,
         maxLines = maxLines,
         wrap = wrap,
         overflow = overflow,

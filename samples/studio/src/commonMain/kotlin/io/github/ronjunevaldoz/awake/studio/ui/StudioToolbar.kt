@@ -2,26 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.ui
 
-import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.surface
 
 // internal, not private -- StudioShell.kt reads both to size the panels group's own height
 // explicitly (see its doc comment for why that's computed rather than a weight(1f) fill).
@@ -35,19 +32,10 @@ private val BAR_INSET = 12f.dp
  * bottom border. Replaces the old floating [shadcnCard] toolbar that used to sit inside the
  * viewport. */
 internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
-    // Identified so the shell's full-bleed invariant stays checkable. A bare row() threads
-    // testTag for layout debugging but never records a semantic node, so StudioShellLayoutTest
-    // could not see this bar at all and asserted on null. Transparent, zero-padding, zero-border:
-    // the row inside still owns every inset, so this adds an identity and nothing visual.
-    surface(
+    shadcnSurface(
         id = "studio-top-bar",
         modifier = Modifier.fillMaxWidth(),
-        style = SurfaceStyle(
-            background = Color.Transparent,
-            border = SurfaceBorder(0f.dp, Color.Transparent),
-            contentPadding = UiInsets.Zero,
-            cornerRadius = 0f.dp,
-        ),
+        variant = ShadcnSurfaceVariant.Muted,
     ) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -73,19 +61,10 @@ internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
  * not read live from the running window -- nothing in this `ui` package can reach that without
  * depending on `app`. */
 internal fun UiScope.drawStudioStatusBar() {
-    // Identified so the shell's full-bleed invariant stays checkable. A bare row() threads
-    // testTag for layout debugging but never records a semantic node, so StudioShellLayoutTest
-    // could not see this bar at all and asserted on null. Transparent, zero-padding, zero-border:
-    // the row inside still owns every inset, so this adds an identity and nothing visual.
-    surface(
+    shadcnSurface(
         id = "studio-status-bar",
         modifier = Modifier.fillMaxWidth(),
-        style = SurfaceStyle(
-            background = Color.Transparent,
-            border = SurfaceBorder(0f.dp, Color.Transparent),
-            contentPadding = UiInsets.Zero,
-            cornerRadius = 0f.dp,
-        ),
+        variant = ShadcnSurfaceVariant.Muted,
     ) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,

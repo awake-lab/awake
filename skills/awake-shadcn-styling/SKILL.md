@@ -181,7 +181,7 @@ When building `ui-designsystem` recipes, avoid creating a single generic `fieldV
 
 - **The trap**: `shadcnInput` and `shadcnTextarea` used to both call `fieldVisuals`, which hardcoded single-line input padding (`px-3 py-1` = 12px horizontal, 4px vertical). `shadcnTextarea` received 4px vertical padding instead of shadcn's official multi-line `px-3 py-2` (8px vertical padding).
 - **Rule**: Every distinct component type MUST have its own explicit visual resolver function (e.g. `textFieldVisuals` vs `textareaVisuals`, `selectOptionVisuals`, `badgeVisuals`, `buttonVisuals`).
-- **Check**: When adding a new component or variant, verify its inner paddings, borders, and typography against upstream `getComputedStyle` reference outputs rather than reusing an existing component's `SurfaceVisuals` helper.
+- **Check**: When adding a new component or variant, verify its inner paddings, borders, and typography against upstream `getComputedStyle` reference outputs rather than reusing another component's `Style` helper.
 
 ---
 

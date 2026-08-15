@@ -9,9 +9,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -22,8 +24,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.surface
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 
 private val BOTTOM_DOCK_TABS = listOf("Console", "Timeline", "Assets")
@@ -43,10 +43,9 @@ internal fun UiScope.drawStudioBottomDock(store: StudioStore) {
     // The shell paints no root background (the 3D viewport must show through its own panel), so
     // every non-viewport panel owns its fill. Without this the dock was a transparent hole over
     // the renderer clear color.
-    surface(
+    shadcnSurface(
         id = "studio-bottom-dock-surface",
-        style = Style { background(StudioTheme.colors.background) },
-        verticalArrangement = Arrangement.spacedBy(8f.dp),
+        variant = ShadcnSurfaceVariant.Muted,
         modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(BOTTOM_DOCK_INSET),
     ) {
         val requestedTab = shadcnTabs(

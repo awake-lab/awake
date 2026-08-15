@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectThemeParity
 import io.github.ronjunevaldoz.awake.testing.ui.measureUiFrame
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.button
@@ -24,8 +24,8 @@ class UiCrossPlatformQualityTest {
     @Test
     fun buttonStructureStaysStableAcrossShadcnThemes() {
         val font = UiFonts.default()
-        val dark = measureButtonMetrics(shadcnTheme(dark = true).asRuntimeTheme(), font)
-        val light = measureButtonMetrics(shadcnTheme(dark = false).asRuntimeTheme(), font)
+        val dark = measureButtonMetrics(shadcnThemeValues(dark = true).asRuntimeTheme(), font)
+        val light = measureButtonMetrics(shadcnThemeValues(dark = false).asRuntimeTheme(), font)
 
         inspectThemeParity(dark, light).requireClean()
     }
@@ -46,7 +46,7 @@ class UiCrossPlatformQualityTest {
         val context = UiContext()
         context.beginFrame(frame.width, frame.height, testSnapshot())
         context.pushFont(font)
-        context.pushTheme(shadcnTheme(dark = false).asRuntimeTheme())
+        context.pushTheme(shadcnThemeValues(dark = false).asRuntimeTheme())
         context.createAbsolute(x = 20f, y = 20f)
             .button("fit", label = "Awake Button", modifier = Modifier.width(180f.px).height(44f.px))
 
@@ -68,7 +68,7 @@ class UiCrossPlatformQualityTest {
         frameHeight: Float,
         buttonWidth: Float,
         buttonHeight: Float,
-        theme: UiTheme = shadcnTheme(dark = true).asRuntimeTheme(),
+        theme: UiTheme = shadcnThemeValues(dark = true).asRuntimeTheme(),
     ) = UiContext().let { context ->
         context.beginFrame(frameWidth, frameHeight, testSnapshot())
         context.pushFont(font)

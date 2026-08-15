@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
@@ -25,7 +25,7 @@ class StudioFramePerfProbeTest {
         val world = World()
         val renderer = PerfNoopRenderer()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnTheme(dark = true))
+        ui.pushTheme(shadcnThemeValues(dark = true))
 
         fun frame() {
             ui.beginFrame(1440f, 900f, UiInputState(pointerX = 400f, pointerY = 300f))

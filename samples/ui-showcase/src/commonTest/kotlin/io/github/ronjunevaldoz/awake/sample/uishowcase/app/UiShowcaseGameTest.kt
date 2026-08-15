@@ -45,7 +45,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnStylePreset
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
@@ -219,7 +219,7 @@ class UiShowcaseGameTest {
 
     @Test
     fun uiShowcaseChromeUsesLightShellTheme() = runTest {
-        val shellTheme = shadcnTheme(dark = false)
+        val shellTheme = shadcnThemeValues(dark = false)
         val renderer = RecordingRenderer()
         val game = uiShowcase()
 
@@ -365,7 +365,7 @@ class UiShowcaseGameTest {
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnTheme(dark = false))
+        ui.pushTheme(shadcnThemeValues(dark = false))
         ui.createUiScope(UiBounds(0f, 0f, 1440f, 900f)).row(
             modifier = Modifier.fillMaxSize().padding(24f.dp),
             horizontalArrangement = Arrangement.spacedBy(20f.dp),
@@ -418,7 +418,7 @@ class UiShowcaseGameTest {
             // Large deltaSeconds lets the collapsible's height animation converge in one frame.
             ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState(), deltaSeconds = 5f)
             ui.pushFont(BitmapFont())
-            ui.pushTheme(shadcnTheme(dark = false))
+            ui.pushTheme(shadcnThemeValues(dark = false))
             ui.createUiScope(UiBounds(0f, 0f, 264f, 900f)).column {
                 drawUiShowcaseSidebar(compact = false)
             }
@@ -459,7 +459,7 @@ class UiShowcaseGameTest {
 
         ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState(), deltaSeconds = 5f)
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnTheme(dark = false))
+        ui.pushTheme(shadcnThemeValues(dark = false))
         ui.createUiScope(UiBounds(0f, 0f, 264f, 900f)).column {
             drawUiShowcaseSidebar(compact = false)
         }

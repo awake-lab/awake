@@ -32,7 +32,7 @@ internal data class InteractiveSurface(
     val contentSlot: UiBounds,
 )
 
-internal data class SurfaceStyle(
+internal data class ResolvedSurfaceStyle(
     val resolved: ResolvedStyle,
     val contentSlot: UiBounds,
 )
@@ -119,7 +119,7 @@ private fun UiPrimitiveScope.resolveSurfaceStyle(
     focused: Boolean,
     hovered: Boolean,
     active: Boolean,
-): SurfaceStyle {
+): ResolvedSurfaceStyle {
     val state = MutableStyleState(
         hovered = hovered,
         active = active,
@@ -132,7 +132,7 @@ private fun UiPrimitiveScope.resolveSurfaceStyle(
         defaults = defaults,
         state = state,
     )
-    return SurfaceStyle(
+    return ResolvedSurfaceStyle(
         resolved = resolved,
         contentSlot = slot.inset(resolved.contentPadding),
     )

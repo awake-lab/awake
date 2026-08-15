@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
@@ -19,33 +18,32 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnCardStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.popup
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
-private fun surfaceStyle(values: UiThemeValues, variant: ShadcnSurfaceVariant?): SurfaceStyle {
+private fun surfaceStyle(values: UiThemeValues, variant: ShadcnSurfaceVariant?): Style {
     val colors = values.colors
     val shapes = values.shapes
     return when (variant) {
-        ShadcnSurfaceVariant.Muted -> SurfaceStyle(
-            background = colors.muted,
-            foreground = colors.foreground,
-            cornerRadius = shapes.lg,
-            contentPadding = UiInsets(16f.dp),
-        )
+        ShadcnSurfaceVariant.Muted -> Style {
+            background(colors.muted)
+            foreground(colors.foreground)
+            shape(shapes.lg)
+            contentPadding(16f.dp)
+        }
 
-        else -> SurfaceStyle(
-            background = colors.card,
-            foreground = colors.cardForeground,
-            border = SurfaceBorder(1f.dp, colors.border),
-            cornerRadius = shapes.lg,
-            contentPadding = UiInsets(24f.dp),
-        )
+        else -> Style {
+            background(colors.card)
+            foreground(colors.cardForeground)
+            border(1f.dp, colors.border)
+            shape(shapes.lg)
+            contentPadding(24f.dp)
+        }
     }
 }
 
@@ -109,13 +107,13 @@ fun UiScope.shadcnPopover(
     surface(
         id = "$id.content",
         modifier = Modifier,
-        style = SurfaceStyle(
-            background = themeValues.colors.popover,
-            foreground = themeValues.colors.popoverForeground,
-            border = SurfaceBorder(1f.dp, themeValues.colors.border),
-            cornerRadius = themeValues.shapes.md,
-            contentPadding = UiInsets(16f.dp),
-        ),
+        style = Style {
+            background(themeValues.colors.popover)
+            foreground(themeValues.colors.popoverForeground)
+            border(1f.dp, themeValues.colors.border)
+            shape(themeValues.shapes.md)
+            contentPadding(16f.dp)
+        },
         content = content,
     )
 }

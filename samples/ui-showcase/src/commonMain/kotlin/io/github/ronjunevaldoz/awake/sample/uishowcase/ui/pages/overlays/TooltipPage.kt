@@ -15,10 +15,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 import io.github.ronjunevaldoz.awake.ui.headless.width
 
@@ -38,18 +38,19 @@ internal val TooltipPage = ShowcasePage(
             horizontalArrangement = Arrangement.spacedBy(12f.dp),
             modifier = Modifier.height(36f.dp),
         ) {
-            val trigger = buttonSlot(
+            shadcnButton(
                 id = "showcase-tooltip-trigger",
-                label = "Hover target",
                 modifier = Modifier.width(156f.dp).height(36f.dp),
-            )
-            uiScope().shadcnTooltip(
-                anchorSlot = trigger.slot,
-                visible = true,
-                width = Dimension.Fixed(260f.dp),
-                positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
-            ) {
-                shadcnText("Scene stats stay live here when the cursor rests on the trigger.")
+            ) { trigger ->
+                text("Hover target", centered = true)
+                uiScope().shadcnTooltip(
+                    anchorSlot = trigger,
+                    visible = true,
+                    width = Dimension.Fixed(260f.dp),
+                    positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
+                ) {
+                    shadcnText("Scene stats stay live here when the cursor rests on the trigger.")
+                }
             }
             shadcnButton(
                 id = "showcase-tooltip-secondary",
@@ -63,18 +64,19 @@ internal val TooltipPage = ShowcasePage(
             horizontalArrangement = Arrangement.spacedBy(12f.dp),
             modifier = Modifier.height(36f.dp),
         ) {
-            val textTrigger = buttonSlot(
+            shadcnButton(
                 id = "showcase-tooltip-text-trigger",
-                label = "Text-only tooltip",
                 modifier = Modifier.width(200f.dp).height(36f.dp),
-            )
-            uiScope().shadcnTooltipText(
-                id = "showcase-tooltip-text",
-                anchorSlot = textTrigger.slot,
-                visible = true,
-                text = "shadcnTooltipText skips the custom content lambda for a plain wrapped label.",
-                positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
-            )
+            ) { trigger ->
+                text("Text-only tooltip", centered = true)
+                uiScope().shadcnTooltipText(
+                    id = "showcase-tooltip-text",
+                    anchorSlot = trigger,
+                    visible = true,
+                    text = "shadcnTooltipText skips the custom content lambda for a plain wrapped label.",
+                    positionProvider = UiPopupDefaults.dropdown(offsetY = 4f.dp),
+                )
+            }
         }
     },
 )

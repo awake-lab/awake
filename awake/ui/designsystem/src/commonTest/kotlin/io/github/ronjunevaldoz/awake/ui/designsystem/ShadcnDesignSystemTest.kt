@@ -49,7 +49,7 @@ class ShadcnDesignSystemTest {
 
     @Test
     fun shadcnThemeKeepsInteractiveRolesDistinct() {
-        val theme = shadcnTheme(baseColor = ShadcnBaseColor.Zinc)
+        val theme = shadcnThemeValues(baseColor = ShadcnBaseColor.Zinc)
         assertTrue(theme.colors.secondary != theme.colors.muted)
         assertTrue(theme.colors.accent != theme.colors.secondary)
         assertTrue(ShadcnTheme.sidebarAccent != ShadcnTheme.sidebar)
@@ -57,7 +57,7 @@ class ShadcnDesignSystemTest {
 
     @Test
     fun shadcnThemeFactoryAppliesPresetBaseAndAccentOverrides() {
-        val theme = shadcnTheme(
+        val theme = shadcnThemeValues(
             preset = ShadcnStylePreset.Vega,
             baseColor = ShadcnBaseColor.Neutral,
             accent = ShadcnAccent.Base,

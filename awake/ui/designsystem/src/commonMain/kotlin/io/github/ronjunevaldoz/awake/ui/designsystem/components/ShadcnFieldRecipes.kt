@@ -11,7 +11,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVaria
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
@@ -24,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.weight
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.math.round
 
 fun UiScope.shadcnField(
@@ -54,16 +54,16 @@ fun UiScope.shadcnFieldLabel(
 ): UiBounds = text(
     label = if (required) "$text *" else text,
     modifier = modifier,
-    visuals = SurfaceStyle(
-        foreground = if (disabled) themeValues.colors.mutedForeground else themeValues.colors.foreground,
-        textSize = themeValues.typography.label,
-    ),
+    style = Style {
+        foreground(if (disabled) themeValues.colors.mutedForeground else themeValues.colors.foreground)
+        textSize(themeValues.typography.label)
+    },
 )
 
 fun UiScope.shadcnFieldDescription(text: String, modifier: Modifier = Modifier): UiBounds = text(
     label = text,
     modifier = modifier,
-    visuals = SurfaceStyle(foreground = themeValues.colors.mutedForeground, textSize = themeValues.typography.caption),
+    style = Style { foreground(themeValues.colors.mutedForeground); textSize(themeValues.typography.caption) },
     wrap = UiTextWrap.Word,
     overflow = UiTextOverflow.Ellipsis,
 )
@@ -71,7 +71,7 @@ fun UiScope.shadcnFieldDescription(text: String, modifier: Modifier = Modifier):
 fun UiScope.shadcnFieldError(text: String, modifier: Modifier = Modifier): UiBounds = text(
     label = text,
     modifier = modifier,
-    visuals = SurfaceStyle(foreground = themeValues.colors.destructive, textSize = themeValues.typography.caption),
+    style = Style { foreground(themeValues.colors.destructive); textSize(themeValues.typography.caption) },
     wrap = UiTextWrap.Word,
     overflow = UiTextOverflow.Ellipsis,
 )
@@ -113,13 +113,13 @@ fun UiScope.shadcnFieldSeparator(
         surface(
             id = "field.sep.left",
             modifier = Modifier.weight(1f).height(1f.dp),
-            style = SurfaceStyle(background = themeValues.colors.border),
+            style = Style { background(themeValues.colors.border) },
         ) {}
         shadcnFieldDescription(label)
         surface(
             id = "field.sep.right",
             modifier = Modifier.weight(1f).height(1f.dp),
-            style = SurfaceStyle(background = themeValues.colors.border),
+            style = Style { background(themeValues.colors.border) },
         ) {}
     }
 }
@@ -231,7 +231,7 @@ fun UiScope.shadcnFieldSliderWithValue(
     text(
         label = valueLabel(next, min, max),
         modifier = Modifier.fillMaxWidth(),
-        visuals = SurfaceStyle(foreground = themeValues.colors.mutedForeground, textSize = themeValues.typography.caption),
+        style = Style { foreground(themeValues.colors.mutedForeground); textSize(themeValues.typography.caption) },
         wrap = UiTextWrap.None,
         overflow = UiTextOverflow.Clip,
     )
