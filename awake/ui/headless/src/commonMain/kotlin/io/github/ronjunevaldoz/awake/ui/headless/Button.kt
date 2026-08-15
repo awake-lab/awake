@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.headless
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.headless.button as primitiveButton
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot as primitiveButtonSlot
@@ -74,7 +75,7 @@ fun UiScope.button(
     enabled = enabled,
     semanticRole = semanticRole,
 ) { slot ->
-    BoxScope(primitive.childBox(slot)).content(slot)
+    BoxScope(primitive.childBox(slot, contentAlignment = UiAlignment.Center)).content(slot)
 }.clicked
 
 /** Compatibility bridge for recipes that still require a button's resolved bounds. */
@@ -100,7 +101,7 @@ fun UiScope.buttonSlot(
     content: BoxScope.(slot: UiBounds) -> Unit,
 ): HeadlessButtonResult {
     val result = primitive.primitiveButtonSlot(id, modifier.asPrimitiveModifier(), style, enabled = enabled) { slot ->
-        BoxScope(primitive.childBox(slot)).content(slot)
+        BoxScope(primitive.childBox(slot, contentAlignment = UiAlignment.Center)).content(slot)
     }
     return HeadlessButtonResult(result.clicked, result.slot)
 }
@@ -143,7 +144,7 @@ fun UiScope.button(
     enabled = enabled,
     semanticRole = semanticRole,
 ) { slot ->
-    BoxScope(primitive.childBox(slot)).content(slot)
+    BoxScope(primitive.childBox(slot, contentAlignment = UiAlignment.Center)).content(slot)
 }.clicked
 
 /** Compatibility bridge for legacy visual DTO callers. */
@@ -172,6 +173,6 @@ fun UiScope.buttonSlot(
 ): HeadlessButtonResult {
     val result = primitive.primitiveButtonSlot(
         id, modifier.asPrimitiveModifier(), visuals.asPrimitiveStyle(), enabled = enabled,
-    ) { slot -> BoxScope(primitive.childBox(slot)).content(slot) }
+    ) { slot -> BoxScope(primitive.childBox(slot, contentAlignment = UiAlignment.Center)).content(slot) }
     return HeadlessButtonResult(result.clicked, result.slot)
 }
