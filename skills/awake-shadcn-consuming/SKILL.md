@@ -21,7 +21,7 @@ Install a named design-system theme at the application root. Do not rely on Core
 fallback theme in a sample or game.
 
 ```kotlin
-uiScope.shadcnTheme(themeValues = ShadcnDefaultTheme) {
+uiScope.shadcnTheme(values = ShadcnDefaultTheme) {
     shadcnButton(id = "save") { text("Save") }
 }
 ```
@@ -31,7 +31,7 @@ Use `shadcnThemeValues(...)` only when a pure `UiThemeValues` value is required 
 provider:
 
 ```kotlin
-val appTheme = shadcnThemeValues(darkTheme = isDark)
+val appTheme = shadcnThemeValues(dark = isDark)
 ```
 
 ## Consume recipes; do not restyle Headless in app code
