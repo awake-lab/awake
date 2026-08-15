@@ -6,6 +6,8 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.context.UiLocal
+import io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle
+import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
@@ -31,21 +33,11 @@ fun <T> UiPrimitiveScope.Provide(local: UiLocal<T>, value: T, content: UiPrimiti
 }
 
 fun UiPrimitiveScope.ProvideTextStyle(style: TextStyle, content: UiPrimitiveScope.() -> Unit) {
-    context.pushTextStyle(style)
-    try {
-        this.content()
-    } finally {
-        context.popTextStyle()
-    }
+    Provide(LocalTextStyle, style, content)
 }
 
 fun UiPrimitiveScope.ProvideTheme(theme: UiTheme, content: UiPrimitiveScope.() -> Unit) {
-    context.pushTheme(theme)
-    try {
-        this.content()
-    } finally {
-        context.popTheme()
-    }
+    Provide(LocalTheme, theme, content)
 }
 
 fun UiPrimitiveScope.ProvideFont(font: UiFont, content: UiPrimitiveScope.() -> Unit) {

@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import kotlin.test.Test
@@ -137,6 +138,22 @@ class UiScopeFacadeTest {
         )
 
         assertTrue(!clicked)
+        assertTrue(context.endFrame().filterIsInstance<UiDrawPrimitive.Quad>().any { it.color == Color.Black })
+    }
+
+    @Test
+    fun buttonUsesTheStyleNativeApi() {
+        val context = UiContext()
+        context.beginFrame(200f, 120f, UiInputState())
+        val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
+
+        scope.button(
+            id = "confirm-style",
+            label = "Confirm",
+            modifier = Modifier.width(100f.px).height(40f.px),
+            style = Style { background(Color.Black) },
+        )
+
         assertTrue(context.endFrame().filterIsInstance<UiDrawPrimitive.Quad>().any { it.color == Color.Black })
     }
 
