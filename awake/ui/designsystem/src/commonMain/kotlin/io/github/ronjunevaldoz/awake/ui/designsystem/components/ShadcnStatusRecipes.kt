@@ -2,18 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.style
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBadgeStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnProgressStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSkeletonStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSpinnerStyle
 import io.github.ronjunevaldoz.awake.ui.font.FontWeight
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
+import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -26,7 +31,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.spinner
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.withIntrinsicLabelSize
-import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Branded status pill. Behavior and layout remain owned by ui-headless. */
 fun UiScope.shadcnBadge(
@@ -34,7 +38,7 @@ fun UiScope.shadcnBadge(
     label: String,
     variant: ShadcnBadgeVariant = ShadcnBadgeVariant.Secondary,
 ): UiBounds {
-    val style = variant.style(themeValues)
+    val style = themeValues.shadcnBadgeStyle(variant)
     return surface(
         id = id,
         modifier = withIntrinsicLabelSize(label = label, style = style),
@@ -50,14 +54,14 @@ fun UiScope.shadcnKbd(
     label: String,
     modifier: Modifier = Modifier,
 ): UiBounds {
-    val style = SurfaceStyle(
-        background = themeValues.colors.muted,
-        foreground = themeValues.colors.mutedForeground,
-        border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        cornerRadius = themeValues.shapes.xs,
-        contentPadding = UiInsets(horizontal = 6f.dp, vertical = 0f.dp),
-        textSize = 10f.sp,
-    )
+    val style = Style {
+        background(themeValues.colors.muted)
+        foreground(themeValues.colors.mutedForeground)
+        border(1f.dp, themeValues.colors.border)
+        shape(themeValues.shapes.xs)
+        contentPadding(6f.dp, 0f.dp, 6f.dp, 0f.dp)
+        textSize(10f.sp)
+    }
     return surface(
         id = id,
         verticalArrangement = Arrangement.Center,
@@ -89,7 +93,7 @@ fun UiScope.shadcnProgress(
     id = id,
     value = value,
     modifier = modifier,
-    style = Style { background(themeValues.colors.primary.withAlpha(0.2f)); foreground(themeValues.colors.primary); border(0f.dp, Color.Transparent); shape(themeValues.shapes.full) },
+    style = shadcnProgressStyle(themeValues),
 )
 
 fun UiScope.shadcnSkeleton(
@@ -100,7 +104,7 @@ fun UiScope.shadcnSkeleton(
     id = id,
     modifier = modifier,
     shimmer = shimmer,
-    style = Style { background(themeValues.colors.muted); shape(themeValues.shapes.md) },
+    style = shadcnSkeletonStyle(themeValues),
 )
 
 fun UiScope.shadcnSpinner(
@@ -109,7 +113,7 @@ fun UiScope.shadcnSpinner(
 ): Unit = spinner(
     id = id,
     modifier = modifier,
-    style = Style { foreground(themeValues.colors.primary) },
+    style = shadcnSpinnerStyle(themeValues),
 )
 
 fun UiScope.shadcnAlert(
