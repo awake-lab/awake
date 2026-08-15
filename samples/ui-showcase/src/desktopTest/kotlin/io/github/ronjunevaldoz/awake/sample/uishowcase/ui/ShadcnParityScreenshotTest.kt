@@ -268,20 +268,38 @@ internal object AwakeButtonVariantsDarkPreview : AwakeUiPreviewEntry {
 )
 internal object AwakeBadgeVariantsLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
-        parityFrame(metadata) {
-            // Use the Headless Row receiver so each pill owns a semantic surface node and its
-            // caption is composed inside that surface (the legacy Core badge bridge only exposes a
-            // bare text node, which cannot produce a reliable component crop).
-            row(
-                horizontalArrangement = Arrangement.spacedBy(8f.dp),
-                modifier = Modifier.height(metadata.height.toFloat().dp),
-            ) {
-                shadcnBadge("badge.Default", "Default", variant = ShadcnBadgeVariant.Primary)
-                shadcnBadge("badge.Secondary", "Secondary", variant = ShadcnBadgeVariant.Secondary)
-                shadcnBadge("badge.Destructive", "Destructive", variant = ShadcnBadgeVariant.Danger)
-                shadcnBadge("badge.Outline", "Outline", variant = ShadcnBadgeVariant.Outline)
-            }
-        }
+        parityFrame(metadata) { drawParityBadgeVariants(metadata) }
+}
+
+@AwakeUiPreview(
+    id = "awake-badge-variants-dark",
+    title = "Awake Badge Variants (dark)",
+    group = "Shadcn Parity",
+    summary = "Dark twin of awake-badge-variants-light, sharing its body through " +
+        "drawParityBadgeVariants so the two cannot drift apart. Geometry must be identical to the " +
+        "light case -- a theme changes colour, not layout -- which makes this pair a check on the " +
+        "geometry oracle as much as on the badge.",
+    width = 308,
+    height = 22,
+)
+internal object AwakeBadgeVariantsDarkPreview : AwakeUiPreviewEntry {
+    override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame =
+        parityFrame(metadata, dark = true) { drawParityBadgeVariants(metadata) }
+}
+
+// Use the Headless Row receiver so each pill owns a semantic surface node and its caption is
+// composed inside that surface (the legacy Core badge bridge only exposes a bare text node, which
+// cannot produce a reliable component crop).
+private fun UiScope.drawParityBadgeVariants(metadata: AwakeUiPreviewMetadata) {
+    row(
+        horizontalArrangement = Arrangement.spacedBy(8f.dp),
+        modifier = Modifier.height(metadata.height.toFloat().dp),
+    ) {
+        shadcnBadge("badge.Default", "Default", variant = ShadcnBadgeVariant.Primary)
+        shadcnBadge("badge.Secondary", "Secondary", variant = ShadcnBadgeVariant.Secondary)
+        shadcnBadge("badge.Destructive", "Destructive", variant = ShadcnBadgeVariant.Danger)
+        shadcnBadge("badge.Outline", "Outline", variant = ShadcnBadgeVariant.Outline)
+    }
 }
 
 @AwakeUiPreview(
