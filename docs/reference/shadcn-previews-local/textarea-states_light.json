@@ -1,0 +1,28 @@
+{
+  "case": "textarea-states",
+  "nodes": {
+    "parity-textarea-1": {
+      "height": 60,
+      "width": 272,
+      "x": 0,
+      "y": 0
+    },
+    "parity-textarea-2": {
+      "height": 60,
+      "width": 272,
+      "x": 0,
+      "y": 76
+    },
+    "parity-textarea-3": {
+      "height": 60,
+      "width": 272,
+      "x": 0,
+      "y": 152
+    }
+  },
+  "root": {
+    "height": 212,
+    "width": 272
+  },
+  "theme": "light"
+}

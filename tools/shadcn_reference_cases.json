@@ -62,6 +62,52 @@
       "id": "dialog-open",
       "why": "An open dialog with title, description and a save action, matching our dialog preview.",
       "selector": "[data-slot=\"dialog-content\"]"
+    },
+    {
+      "id": "textarea-states",
+      "why": "Placeholder, multi-line typed text and disabled states."
+    },
+    {
+      "id": "toggle-button-variants",
+      "why": "Off, on, and disabled pressable toggle buttons."
+    },
+    {
+      "id": "alert-variants",
+      "why": "Default and destructive alert banners."
+    },
+    {
+      "id": "avatar-states",
+      "why": "Initials avatar fallbacks."
+    },
+    {
+      "id": "breadcrumb-states",
+      "why": "Inline breadcrumb link trail."
+    },
+    {
+      "id": "collapsible-states",
+      "why": "Expanded collapsible panel."
+    },
+    {
+      "id": "kbd-states",
+      "why": "Inline key-cap badges."
+    },
+    {
+      "id": "skeleton-states",
+      "why": "Placeholder loading pulse blocks."
+    },
+    {
+      "id": "spinner-states",
+      "why": "Loading spinner indicator."
+    },
+    {
+      "id": "dropdown-menu-states",
+      "why": "Open dropdown menu content.",
+      "selector": "[data-slot=\"dropdown-menu-content\"]"
+    },
+    {
+      "id": "popover-states",
+      "why": "Open popover content panel.",
+      "selector": "[data-slot=\"popover-content\"]"
     }
   ]
 }

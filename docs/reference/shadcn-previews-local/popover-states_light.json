@@ -1,0 +1,16 @@
+{
+  "case": "popover-states",
+  "nodes": {
+    "parity-popover.content": {
+      "height": 54,
+      "width": 260,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "root": {
+    "height": 54,
+    "width": 260
+  },
+  "theme": "light"
+}

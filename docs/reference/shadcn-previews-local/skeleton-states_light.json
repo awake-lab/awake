@@ -1,0 +1,22 @@
+{
+  "case": "skeleton-states",
+  "nodes": {
+    "parity-skeleton-1": {
+      "height": 16,
+      "width": 192,
+      "x": 0,
+      "y": 0
+    },
+    "parity-skeleton-2": {
+      "height": 16,
+      "width": 140,
+      "x": 0,
+      "y": 26
+    }
+  },
+  "root": {
+    "height": 42,
+    "width": 192
+  },
+  "theme": "light"
+}

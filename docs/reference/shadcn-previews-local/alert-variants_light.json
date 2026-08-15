@@ -1,0 +1,22 @@
+{
+  "case": "alert-variants",
+  "nodes": {
+    "parity-alert-default": {
+      "height": 92,
+      "width": 272,
+      "x": 0,
+      "y": 0
+    },
+    "parity-alert-destructive": {
+      "height": 92,
+      "width": 272,
+      "x": 0,
+      "y": 108
+    }
+  },
+  "root": {
+    "height": 200,
+    "width": 272
+  },
+  "theme": "light"
+}

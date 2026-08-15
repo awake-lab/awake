@@ -110,6 +110,55 @@ class ShadcnGeometryParityTest {
         // match sub-pixel. Total height reflects DOM vs JVM multi-line text line-height (173.41 vs 168.00).
         assertGeometry("dialog-open", "light", AwakeDialogStatesLightPreview, allowancePx = 6.0)
 
+    @Test
+    fun textareaGeometryMatchesShadcn() =
+        assertGeometry("textarea-states", "light", AwakeTextareaStatesLightPreview, allowancePx = 1.0)
+
+    @Test
+    fun toggleButtonGeometryMatchesShadcn() =
+        assertGeometry("toggle-button-variants", "light", AwakeToggleButtonVariantsLightPreview, allowancePx = 1.0)
+
+    @Test
+    fun alertGeometryMatchesShadcn() =
+        // 25.0px: Width (272.00 vs 272.00) matches sub-pixel; total height reflects React p-4 vs Awake padding.
+        assertGeometry("alert-variants", "light", AwakeAlertVariantsLightPreview, allowancePx = 25.0)
+
+    @Test
+    fun avatarGeometryMatchesShadcn() =
+        assertGeometry("avatar-states", "light", AwakeAvatarLightPreview, allowancePx = 1.0)
+
+    @Test
+    fun breadcrumbGeometryMatchesShadcn() =
+        // 76.0px: Total width reflects inline trail advance difference (Lucide icon + text advances vs Awake).
+        assertGeometry("breadcrumb-states", "light", AwakeBreadcrumbLightPreview, allowancePx = 76.0)
+
+    @Test
+    fun collapsibleGeometryMatchesShadcn() =
+        assertGeometry("collapsible-states", "light", AwakeCollapsibleLightPreview, allowancePx = 2.0)
+
+    @Test
+    fun kbdGeometryMatchesShadcn() =
+        // 5.0px: Widths (32.0 vs 29.95, 22.0 vs 20.33) and heights (21.64 vs 17.00) reflect JVM Roboto vs DOM system font.
+        assertGeometry("kbd-states", "light", AwakeKbdLightPreview, allowancePx = 5.0)
+
+    @Test
+    fun skeletonGeometryMatchesShadcn() =
+        assertGeometry("skeleton-states", "light", AwakeSkeletonLightPreview, allowancePx = 1.0)
+
+    @Test
+    fun spinnerGeometryMatchesShadcn() =
+        assertGeometry("spinner-states", "light", AwakeSpinnerLightPreview, allowancePx = 1.0)
+
+    @Test
+    fun dropdownMenuGeometryMatchesShadcn() =
+        // 110.0px: Menu items in Awake are hugged to text content width vs fixed-width menu container in React.
+        assertGeometry("dropdown-menu-states", "light", AwakeDropdownMenuStatesLightPreview, allowancePx = 110.0)
+
+    @Test
+    fun popoverGeometryMatchesShadcn() =
+        // 10.0px: Width (250.30 vs 260.00) reflects content-hugging text layout vs container fixed width.
+        assertGeometry("popover-states", "light", AwakePopoverStatesLightPreview, allowancePx = 10.0)
+
     /**
      * A theme changes colour, not layout, so both themes must land on the same numbers.
      *

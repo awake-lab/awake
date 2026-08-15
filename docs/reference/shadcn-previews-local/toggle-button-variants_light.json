@@ -1,0 +1,28 @@
+{
+  "case": "toggle-button-variants",
+  "nodes": {
+    "parity-toggle-disabled": {
+      "height": 40,
+      "width": 40,
+      "x": 100,
+      "y": 0
+    },
+    "parity-toggle-off": {
+      "height": 40,
+      "width": 40,
+      "x": 0,
+      "y": 0
+    },
+    "parity-toggle-on": {
+      "height": 40,
+      "width": 40,
+      "x": 50,
+      "y": 0
+    }
+  },
+  "root": {
+    "height": 40,
+    "width": 140
+  },
+  "theme": "light"
+}
