@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTabItem
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.collapsible
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.icon
@@ -68,7 +69,7 @@ fun UiScope.shadcnCollapsible(
             row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = UiAlignment.Vertical.Center,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
             ) {
                 text(title, visuals = SurfaceStyle(textSize = themeValues.typography.body))
                 icon(if (isOpen) ShadcnIcons.chevronDown else ShadcnIcons.chevronRight)
