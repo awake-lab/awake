@@ -93,8 +93,22 @@ class ShadcnStyleParityTest {
                 assertions++
             }
 
-            // Assert extracted CSS Color Strings
-            if (refNode.backgroundColor.isNotEmpty()) {
+            // Assert extracted CSS Color Strings against actual RoundedQuad primitive fill color
+            if (quad != null && refNode.backgroundColor.isNotEmpty() && !refNode.backgroundColor.contains("rgba(0, 0, 0, 0)")) {
+                val bg = refNode.backgroundColor
+                if (bg.contains("0.985") || bg.contains("255, 255, 255") || bg.contains("1 0 0")) {
+                    assertTrue(
+                        quad.color.r > 0.6f && quad.color.g > 0.6f && quad.color.b > 0.6f,
+                        "Expected light background for $nodeId in case $caseId [$theme], got r=${quad.color.r}, g=${quad.color.g}, b=${quad.color.b}",
+                    )
+                } else if (bg.contains("oklch(0 ") || bg.contains("rgb(0, 0, 0)") || bg.contains("oklch(0.145") || bg.contains("oklch(0.205")) {
+                    assertTrue(
+                        quad.color.r < 0.4f && quad.color.g < 0.4f && quad.color.b < 0.4f,
+                        "Expected dark background for $nodeId in case $caseId [$theme], got r=${quad.color.r}, g=${quad.color.g}, b=${quad.color.b}",
+                    )
+                }
+                assertions++
+            } else if (refNode.backgroundColor.isNotEmpty()) {
                 assertions++
             }
             if (refNode.color.isNotEmpty()) {
