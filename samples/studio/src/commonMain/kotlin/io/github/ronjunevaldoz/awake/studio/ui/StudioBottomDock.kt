@@ -22,6 +22,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 
 private val BOTTOM_DOCK_TABS = listOf("Console", "Timeline", "Assets")
@@ -38,7 +40,12 @@ internal fun UiScope.drawStudioBottomDock(store: StudioStore) {
     // Switching immediately makes the render pass claim a different number of child slots than
     // the measured plan and crashes ColumnScope.claimSlot().
     val renderedTab = selectedTab
-    column(
+    // The shell paints no root background (the 3D viewport must show through its own panel), so
+    // every non-viewport panel owns its fill. Without this the dock was a transparent hole over
+    // the renderer clear color.
+    surface(
+        id = "studio-bottom-dock-surface",
+        style = Style { background(themeValues.colors.background) },
         verticalArrangement = Arrangement.spacedBy(8f.dp),
         modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(BOTTOM_DOCK_INSET),
     ) {
