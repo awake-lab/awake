@@ -243,24 +243,19 @@ step 0.25), and `0.5`/`1.5`/`2.5`/`3.5` are half-steps (2/6/10/14px). `Tw.Spacin
 all of this -- `Tw.Spacing.s9`, `Tw.Spacing.px`, `Tw.Spacing.s1_5` -- so never do the arithmetic by
 hand, just read the step number off the class and use the matching constant.
 
-## MANDATORY: Always Use Tailwind Helpers (`Tw`, `TwLayout`, `Number.tw`, `UiInsets.tw`)
+## Using Tailwind Helpers (`Tw`, `TwLayout`, `Number.tw`, `UiInsets.tw`) — Pragmatic Guidance
 
-Whenever converting official React `shadcn/ui` Tailwind classes into Awake UI code, **always reach for the `:awake:ui:tailwind` helpers** instead of writing raw `.dp` literals or manual insets:
+Use Tailwind helpers when porting Tailwind utility strings from official React `shadcn/ui` or when translating layout intentions. They keep ports 1-to-1 legible. **Do not force helper wrappers where native Awake primitives (`UiAlignment.Vertical.Center`, `Arrangement.Center`) or theme tokens (`themeValues.shapes.md`) are already idiomatic and clean.**
 
 1. **Spacing Steps (`Tw.Spacing.s*` or `Int.tw`)**:
-   - `p-2` / `gap-2` $\rightarrow$ `Tw.Spacing.s2` or `2.tw` ($8\text{dp}$)
-   - `p-4` / `gap-4` $\rightarrow$ `Tw.Spacing.s4` or `4.tw` ($16\text{dp}$)
-   - `w-9` / `h-9` $\rightarrow$ `Tw.Spacing.s9` or `9.tw` ($36\text{dp}$)
+   - Ideal when translating `p-2` / `gap-2` $\rightarrow$ `Tw.Spacing.s2` or `2.tw` ($8\text{dp}$)
+   - Ideal when translating `p-4` / `gap-4` $\rightarrow$ `Tw.Spacing.s4` or `4.tw` ($16\text{dp}$)
 
 2. **Padding Insets (`UiInsets.tw`)**:
-   - `px-4 py-2` $\rightarrow$ `UiInsets.tw(px = 4, py = 2)`
-   - `px-3 py-1.5` $\rightarrow$ `UiInsets.tw(px = 3, py = 1.5f)`
+   - Ideal when translating `px-4 py-2` $\rightarrow$ `UiInsets.tw(px = 4, py = 2)`
 
 3. **Flex & Alignment (`TwLayout`)**:
-   - `items-center` on Row $\rightarrow$ `verticalAlignment = TwLayout.itemsCenterRow`
-   - `items-center` on Column $\rightarrow$ `horizontalAlignment = TwLayout.itemsCenterColumn`
-   - `justify-center` on Row $\rightarrow$ `horizontalArrangement = TwLayout.justifyCenterRow`
-   - `justify-center` on Column $\rightarrow$ `verticalArrangement = TwLayout.justifyCenterColumn`
+   - Use `TwLayout` constants (`TwLayout.itemsCenterRow`, `TwLayout.justifyCenterColumn`) as a helpful alignment translation guide when mapping flexbox concepts, alongside standard Awake layout primitives (`UiAlignment.Vertical.Center`, `Arrangement.Center`).
 
 ---
 
