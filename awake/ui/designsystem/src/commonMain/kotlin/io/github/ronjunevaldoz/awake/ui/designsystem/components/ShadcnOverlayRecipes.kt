@@ -96,7 +96,7 @@ fun UiScope.shadcnSheet(
         surface(
             id = "$id.surface",
             modifier = if (side == ShadcnSheetSide.Left || side == ShadcnSheetSide.Right) Modifier.fillMaxHeight() else Modifier.height(size),
-            style = shadcnSheetSurfaceStyle(themeValues),
+            style = shadcnSheetSurfaceStyle(themeValues, shadcnMetrics),
         ) { _ ->
             column {
                 row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
@@ -135,7 +135,7 @@ fun UiScope.shadcnDrawer(
     properties = DialogProperties(
         dismissOnClickOutside = true,
         showScrim = true,
-        surface = shadcnDrawerSurfaceStyle(themeValues),
+        surface = shadcnDrawerSurfaceStyle(themeValues, shadcnMetrics),
     ),
 ) { slot ->
     column {
@@ -162,7 +162,7 @@ fun UiScope.shadcnDialog(
     properties = DialogProperties(
         dismissOnClickOutside = true,
         showScrim = true,
-        surface = shadcnDialogSurfaceStyle(themeValues),
+        surface = shadcnDialogSurfaceStyle(themeValues, shadcnMetrics),
     ),
 ) { slot ->
     column(verticalArrangement = Arrangement.spacedBy(16f.dp)) {

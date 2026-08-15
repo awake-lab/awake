@@ -50,8 +50,9 @@ fun UiScope.shadcnTheme(
     extension: ShadcnThemeExtension = ShadcnThemeExtension(),
     content: UiScope.() -> Unit,
 ) {
+    val resolvedExtension = extension.copy(metrics = extension.metrics ?: values.asShadcnTheme().metrics)
     primitive.ProvideTheme(values.asRuntimeTheme()) {
-        primitive.Provide(LocalShadcnThemeExtension, extension) {
+        primitive.Provide(LocalShadcnThemeExtension, resolvedExtension) {
             ProvideTextStyle(TextStyle(size = values.typography.body)) {
                 content(UiScope(this))
             }
