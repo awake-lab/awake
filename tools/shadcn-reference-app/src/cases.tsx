@@ -186,10 +186,12 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
   "badge-variants": {
     render: () => (
       <div className="flex items-center gap-2">
-        <Badge>Default</Badge>
-        <Badge variant="secondary">Secondary</Badge>
-        <Badge variant="destructive">Destructive</Badge>
-        <Badge variant="outline">Outline</Badge>
+        {/* data-parity-id maps this element to the Awake semantic node of the same id, so the
+            capture can export its box and a test can compare numbers instead of pixels. */}
+        <Badge data-parity-id="badge.Default">Default</Badge>
+        <Badge data-parity-id="badge.Secondary" variant="secondary">Secondary</Badge>
+        <Badge data-parity-id="badge.Destructive" variant="destructive">Destructive</Badge>
+        <Badge data-parity-id="badge.Outline" variant="outline">Outline</Badge>
       </div>
     ),
   },
