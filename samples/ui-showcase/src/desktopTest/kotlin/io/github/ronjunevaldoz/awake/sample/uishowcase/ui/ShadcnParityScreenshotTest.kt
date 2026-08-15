@@ -30,6 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnAvatarSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTextStyle
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
@@ -63,7 +64,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -1038,7 +1038,7 @@ internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
                     header = {
                         shadcnText(
                             "Edit profile",
-                            styleOverride = Style { textSize(primitive.theme.typography.title) },
+                            style = ShadcnTextStyle.Title,
                         )
                     },
                     actions = {
@@ -1050,7 +1050,7 @@ internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
                 ) { _ ->
                     shadcnText(
                         "Make changes to your profile here. Click save when you're done.",
-                        styleOverride = Style { textSize(primitive.theme.typography.body) },
+                        style = ShadcnTextStyle.Body,
                         wrap = UiTextWrap.Word,
                     )
                 }
@@ -1114,7 +1114,7 @@ internal object AwakePopoverStatesLightPreview : AwakeUiPreviewEntry {
                 ) {
                     shadcnText(
                         "Place content for the popover here.",
-                        styleOverride = Style { textSize(primitive.theme.typography.body) },
+                        style = ShadcnTextStyle.Body,
                     )
                 }
             }

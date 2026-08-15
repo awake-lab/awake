@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTextTone
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
@@ -96,7 +97,7 @@ private fun ColumnScope.inspectorField(label: String, value: String) {
         horizontalArrangement = Arrangement.spacedBy(8f.dp),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        shadcnText(label, modifier = Modifier.width(InspectorFieldLabelWidth), muted = true)
+        shadcnText(label, modifier = Modifier.width(InspectorFieldLabelWidth), tone = ShadcnTextTone.Muted)
         shadcnText(value, modifier = Modifier.weight(1f))
     }
 }

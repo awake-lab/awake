@@ -29,7 +29,16 @@ enum class ShadcnTextStyle {
     Muted, // sm text-muted-foreground
     Blockquote, // italic, border-l-2, pl-4
     Code, // mono, rounded, bg-muted, px-1.5 py-0.5
+    Body, // Awake semantic body used when a recipe needs the installed theme's body size
+    Title, // Awake semantic title used by overlays and cards
+    Caption, // Awake semantic caption used by component metadata and supporting copy
 }
+
+/** Semantic foreground roles supplied by the active shadcn theme extension. */
+enum class ShadcnTextTone { Default, Muted, Destructive }
+
+/** Explicit emphasis without exposing a per-call visual [Style] escape hatch. */
+enum class ShadcnTextEmphasis { Inherit, Medium }
 
 /**
  * Unified typography entry point for all shadcn/ui text variants.
@@ -39,8 +48,8 @@ fun UiScope.shadcnText(
     style: ShadcnTextStyle = ShadcnTextStyle.P,
     modifier: Modifier = Modifier,
     centered: Boolean = false,
-    muted: Boolean = false,
-    styleOverride: Style = Style.Empty,
+    tone: ShadcnTextTone = ShadcnTextTone.Default,
+    emphasis: ShadcnTextEmphasis = ShadcnTextEmphasis.Inherit,
     maxLines: Int = Int.MAX_VALUE,
     wrap: UiTextWrap = UiTextWrap.Word,
     overflow: UiTextOverflow = UiTextOverflow.Ellipsis,
@@ -57,12 +66,26 @@ fun UiScope.shadcnText(
         ShadcnTextStyle.Muted -> Triple(Tw.Text.sm, FontWeight.Normal, true)
         ShadcnTextStyle.Blockquote -> Triple(Tw.Text.base, FontWeight.Normal, false)
         ShadcnTextStyle.Code -> Triple(Tw.Text.sm, FontWeight.SemiBold, false)
+        ShadcnTextStyle.Body -> Triple(themeValues.typography.body, FontWeight.Normal, false)
+        ShadcnTextStyle.Title -> Triple(themeValues.typography.title, FontWeight.SemiBold, false)
+        ShadcnTextStyle.Caption -> Triple(themeValues.typography.caption, FontWeight.Normal, false)
+    }
+
+    val effectiveTone = when {
+        tone != ShadcnTextTone.Default -> tone
+        isMutedDefault -> ShadcnTextTone.Muted
+        else -> ShadcnTextTone.Default
+    }
+    val foreground = when (effectiveTone) {
+        ShadcnTextTone.Default -> shadcnThemeExtension.text.default ?: themeValues.colors.foreground
+        ShadcnTextTone.Muted -> shadcnThemeExtension.text.muted ?: themeValues.colors.mutedForeground
+        ShadcnTextTone.Destructive -> shadcnThemeExtension.text.destructive ?: themeValues.colors.destructive
     }
 
     val defaultStyle = Style {
-        foreground(if (muted || isMutedDefault) themeValues.colors.mutedForeground else themeValues.colors.foreground)
+        foreground(foreground)
         textSize(defaultSize)
-        fontWeight(defaultWeight)
+        fontWeight(if (emphasis == ShadcnTextEmphasis.Medium) FontWeight.Medium else defaultWeight)
     }
 
     val effectiveModifier = if (style == ShadcnTextStyle.Blockquote) {
@@ -75,7 +98,7 @@ fun UiScope.shadcnText(
         label = label,
         modifier = effectiveModifier,
         centered = centered,
-        style = defaultStyle then styleOverride,
+        style = defaultStyle,
         maxLines = maxLines,
         wrap = wrap,
         overflow = overflow,
@@ -123,7 +146,7 @@ fun UiScope.shadcnSectionTitle(
     modifier: Modifier = Modifier,
     muted: Boolean = false,
 ): UiBounds = column(modifier = modifier) {
-    shadcnText(label = title, style = ShadcnTextStyle.H3, muted = muted)
+    shadcnText(label = title, style = ShadcnTextStyle.H3, tone = if (muted) ShadcnTextTone.Muted else ShadcnTextTone.Default)
     if (description != null) {
         shadcnText(label = description, style = ShadcnTextStyle.Muted)
     }

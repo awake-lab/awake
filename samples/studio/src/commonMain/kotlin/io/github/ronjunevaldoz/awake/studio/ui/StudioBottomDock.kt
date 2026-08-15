@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTextTone
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
@@ -88,21 +89,24 @@ private fun ColumnScope.drawStudioConsole(store: StudioStore) {
     val log = entries.takeLast(MAX_VISIBLE_CONSOLE_ENTRIES)
         .joinToString(separator = "\n") { it.message }
         .ifEmpty { "No console output." }
-    shadcnText(log, muted = entries.all { it.level == StudioContract.ConsoleLevel.Info })
+    shadcnText(
+        log,
+        tone = if (entries.all { it.level == StudioContract.ConsoleLevel.Info }) ShadcnTextTone.Muted else ShadcnTextTone.Default,
+    )
 }
 
 private const val MAX_VISIBLE_CONSOLE_ENTRIES = 4
 
 private fun ColumnScope.drawStudioTimelinePlaceholder() {
     column(modifier = Modifier.fillMaxWidth().weight(1f)) {
-        shadcnText("Timeline", muted = true)
-        shadcnText("Animation clips will appear here.", muted = true)
+        shadcnText("Timeline", tone = ShadcnTextTone.Muted)
+        shadcnText("Animation clips will appear here.", tone = ShadcnTextTone.Muted)
     }
 }
 
 private fun ColumnScope.drawStudioAssetsPlaceholder() {
     column(modifier = Modifier.fillMaxWidth().weight(1f)) {
-        shadcnText("Assets", muted = true)
-        shadcnText("Project assets will appear here.", muted = true)
+        shadcnText("Assets", tone = ShadcnTextTone.Muted)
+        shadcnText("Project assets will appear here.", tone = ShadcnTextTone.Muted)
     }
 }
