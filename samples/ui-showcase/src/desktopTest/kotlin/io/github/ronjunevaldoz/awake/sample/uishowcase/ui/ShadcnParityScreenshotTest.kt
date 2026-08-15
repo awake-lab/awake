@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnAvatarSize
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAvatar
@@ -486,7 +487,7 @@ internal object AwakeAvatarLightPreview : AwakeUiPreviewEntry {
                     modifier = Modifier.height(48f.dp),
                 ) {
                     shadcnAvatar("avatar.1", "CN")
-                    shadcnAvatar("avatar.2", "RV", modifier = Modifier.size(48f.dp))
+                    shadcnAvatar("avatar.2", "RV", size = ShadcnAvatarSize.Lg)
                 }
             }
         }

@@ -1,0 +1,16 @@
+{
+  "case": "breadcrumb-states",
+  "nodes": {
+    "breadcrumb-parity-test": {
+      "height": 20,
+      "width": 261.8125,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "root": {
+    "height": 20,
+    "width": 261.8125
+  },
+  "theme": "light"
+}

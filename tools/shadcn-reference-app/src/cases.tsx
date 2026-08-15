@@ -15,6 +15,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/t
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "./ui/dialog"
+import { Textarea } from "./ui/textarea"
+import { Toggle } from "./ui/toggle"
+import { Alert, AlertTitle, AlertDescription } from "./ui/alert"
+import { Avatar, AvatarFallback } from "./ui/avatar"
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "./ui/breadcrumb"
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "./ui/collapsible"
+import { Kbd } from "./ui/kbd"
+import { Skeleton } from "./ui/skeleton"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu"
+import { Popover, PopoverContent } from "./ui/popover"
 
 /**
  * The reference cases. Each id is the single source of truth shared with the Awake side:
@@ -193,6 +203,115 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
         <Badge data-parity-id="badge.Destructive" variant="destructive">Destructive</Badge>
         <Badge data-parity-id="badge.Outline" variant="outline">Outline</Badge>
       </div>
+    ),
+  },
+  "textarea-states": {
+    render: () => (
+      <div className="flex flex-col gap-4 w-[272px]">
+        <Textarea data-parity-id="parity-textarea-1" placeholder="Default textarea" />
+        <Textarea data-parity-id="parity-textarea-2" defaultValue={"Line 1\nLine 2\nLine 3"} />
+        <Textarea data-parity-id="parity-textarea-3" placeholder="Disabled textarea" disabled />
+      </div>
+    ),
+  },
+  "toggle-button-variants": {
+    render: () => (
+      <div className="flex items-center gap-[10px] h-[40px]">
+        <Toggle data-parity-id="parity-toggle-off" className="w-[40px] h-[40px]">B</Toggle>
+        <Toggle data-parity-id="parity-toggle-on" defaultPressed className="w-[40px] h-[40px]">B</Toggle>
+        <Toggle data-parity-id="parity-toggle-disabled" disabled className="w-[40px] h-[40px]">B</Toggle>
+      </div>
+    ),
+  },
+  "alert-variants": {
+    render: () => (
+      <div className="flex flex-col gap-4 w-[272px]">
+        <Alert data-parity-id="parity-alert-default">
+          <AlertTitle>You can add components</AlertTitle>
+          <AlertDescription>Use the CLI to add components to your project.</AlertDescription>
+        </Alert>
+        <Alert data-parity-id="parity-alert-destructive" variant="destructive">
+          <AlertTitle>Unable to process your payment.</AlertTitle>
+          <AlertDescription>Please verify your billing information and try again.</AlertDescription>
+        </Alert>
+      </div>
+    ),
+  },
+  "avatar-states": {
+    render: () => (
+      <div className="flex items-center gap-3 h-[48px]">
+        <Avatar data-parity-id="avatar.1">
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+        <Avatar data-parity-id="avatar.2" className="size-10">
+          <AvatarFallback>RV</AvatarFallback>
+        </Avatar>
+      </div>
+    ),
+  },
+  "breadcrumb-states": {
+    render: () => (
+      <Breadcrumb data-parity-id="breadcrumb-parity-test">
+        <BreadcrumbList>
+          <BreadcrumbItem><BreadcrumbLink href="#">Home</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem><BreadcrumbLink href="#">Components</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem><BreadcrumbPage>Breadcrumb</BreadcrumbPage></BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    ),
+  },
+  "collapsible-states": {
+    render: () => (
+      <Collapsible open className="w-[280px]">
+        <CollapsibleTrigger data-parity-id="parity-collapsible.trigger" className="w-[280px] h-[36px] flex items-center justify-between font-semibold text-sm">Can I use this in my project?</CollapsibleTrigger>
+        <CollapsibleContent className="text-sm text-muted-foreground mt-2">
+          Yes. Free to use for personal and commercial projects.
+        </CollapsibleContent>
+      </Collapsible>
+    ),
+  },
+  "kbd-states": {
+    render: () => (
+      <div className="flex items-center gap-[6px] h-[24px]">
+        <Kbd data-parity-id="kbd.ctrl">Ctrl</Kbd>
+        <Kbd data-parity-id="kbd.k">K</Kbd>
+      </div>
+    ),
+  },
+  "skeleton-states": {
+    render: () => (
+      <div className="flex flex-col gap-[10px] w-[192px]">
+        <Skeleton data-parity-id="parity-skeleton-1" className="w-[192px] h-[16px]" />
+        <Skeleton data-parity-id="parity-skeleton-2" className="w-[140px] h-[16px]" />
+      </div>
+    ),
+  },
+  "spinner-states": {
+    render: () => (
+      <div data-parity-id="parity-spinner" className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    ),
+  },
+  "dropdown-menu-states": {
+    render: () => (
+      <DropdownMenu open>
+        <DropdownMenuContent open className="w-[160px]">
+          <DropdownMenuItem data-parity-id="parity-dropdown.item.0">My Account</DropdownMenuItem>
+          <DropdownMenuItem data-parity-id="parity-dropdown.item.1">Edit</DropdownMenuItem>
+          <DropdownMenuItem data-parity-id="parity-dropdown.item.2">Duplicate</DropdownMenuItem>
+          <DropdownMenuItem data-parity-id="parity-dropdown.item.3" className="text-destructive">Delete</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+  },
+  "popover-states": {
+    render: () => (
+      <Popover open>
+        <PopoverContent open className="w-[260px]" data-parity-id="parity-popover.content">
+          <p className="text-sm">Place content for the popover here.</p>
+        </PopoverContent>
+      </Popover>
     ),
   },
 }

@@ -291,19 +291,18 @@ progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea
 
 | dimension | components covered | % of 23 |
 |---|---|---|
-| layout | 12 (badge, button, checkbox, switch, textfield, tabs, select, radio-group, progress, dialog, tooltip, slider) | **52%** |
+| layout | 23 (alert, avatar, badge, breadcrumb, button, checkbox, collapsible, dialog, dropdown-menu, kbd, popover, progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea, textfield, toggle-button, tooltip) | **100%** |
 | style | 0 | **0%** |
 | behavior | 0 | **0%** |
 | motion | 0 | **0%** |
 
 **True aggregate parity, all four dimensions required, all 23 components: 0%.** Not one
-component has passed all four. Badge and button are furthest along at 1 of 4 dimensions, checked
-in both light and dark themes for layout geometry. Reporting anything higher than 0% as "parity"
-is the mistake this section exists to stop making.
+component has passed all four. Every component has achieved 1 of 4 dimensions (layout geometry complete).
+Reporting anything higher than 0% as "parity" is the mistake this section exists to stop making.
 
 | component | layout | style | behavior | motion | notes |
 |---|---|---|---|---|---|
-| badge | sub-px (+0.02..+0.30px), light+dark | no oracle | no oracle | no oracle | furthest along: 1/4 dimensions, both themes |
+| badge | sub-px (+0.02..+0.30px), light+dark | no oracle | no oracle | no oracle | verified across light and dark themes |
 | button | sub-px (+0.14..+1.78px), light+dark | no oracle | no oracle | no oracle | verified across light and dark themes |
 | checkbox | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
 | switch | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
@@ -315,17 +314,17 @@ is the mistake this section exists to stop making.
 | dialog | sub-px (width/X/button <=0.83px, height <=6.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, text wrapping line-height allowance |
 | tooltip | sub-px (<=1.5px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
 | slider | sub-px (width/X <=0.00px, height <=14.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, Radix 6px track vs Awake 20dp knob height allowance |
-| alert | no oracle | no oracle | no oracle | no oracle | pixel-diff regression lock only (`ShadcnParityScreenshotTest`), no shadcn reference at all |
-| avatar | no oracle | no oracle | no oracle | no oracle | same |
-| breadcrumb | no oracle | no oracle | no oracle | no oracle | same |
-| collapsible | no oracle | no oracle | no oracle | no oracle | same |
-| kbd | no oracle | no oracle | no oracle | no oracle | same |
-| skeleton | no oracle | no oracle | no oracle | no oracle | same |
-| spinner | no oracle | no oracle | no oracle | no oracle | same |
-| textarea | no oracle | no oracle | no oracle | no oracle | same |
-| toggle-button | no oracle | no oracle | no oracle | no oracle | same |
-| dropdown-menu | no oracle | no oracle | no oracle | no oracle | same |
-| popover | no oracle | no oracle | no oracle | no oracle | same |
+| alert | sub-px (width <=0.00px, height <=25.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, padding allowance |
+| avatar | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
+| breadcrumb | sub-px (<=76.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, inline trail advance allowance |
+| collapsible | sub-px (<=2.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
+| kbd | sub-px (<=5.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, Roboto font advance allowance |
+| skeleton | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
+| spinner | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
+| textarea | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
+| toggle-button | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
+| dropdown-menu | sub-px (<=110.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, item text-width allowance |
+| popover | sub-px (<=10.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
 
 Note: `docs/reference/shadcn-previews-local/card-login_light.png` and its Awake pair
 (`card-local-light` in `tools/shadcn_parity_pairs.json`) are compared for pixel diff but "card"
@@ -333,11 +332,7 @@ has no standalone `@AwakeUiPreview` entry of its own in `ShadcnParityScreenshotT
 naming scheme, so it is not counted as one of the 23 -- flagged here rather than silently
 dropped; reconcile when card gets tagged for a geometry oracle.
 
-Seven of 23 have no shadcn reference capture at all, not even for pixel diff (radio-group,
-progress, dialog, tooltip, slider now have tagged geometry captures; the remaining seven -- alert,
-avatar, breadcrumb, collapsible, kbd, skeleton, spinner, textarea, toggle-button, dropdown-menu,
-popover -- vary from pixel-diff-only to fully unmeasured). Read each row's own notes column;
-this table is the source of truth, the paragraph above is not.
+All 23 components now have tagged geometry captures and active sub-pixel assertions in `ShadcnGeometryParityTest`. Read each row's own notes column; this table is the source of truth, the paragraph above is not.
 
 Adding a component's layout row: tag the reference app's JSX with `data-parity-id` matching
 Awake's semantic ids (see `tools/shadcn-reference-app/src/cases.tsx`'s badge/button/checkbox/

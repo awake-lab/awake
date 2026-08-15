@@ -1,0 +1,22 @@
+{
+  "case": "kbd-states",
+  "nodes": {
+    "kbd.ctrl": {
+      "height": 17,
+      "width": 29.953125,
+      "x": 0,
+      "y": 3.5
+    },
+    "kbd.k": {
+      "height": 17,
+      "width": 20.328125,
+      "x": 35.953125,
+      "y": 3.5
+    }
+  },
+  "root": {
+    "height": 24,
+    "width": 56.28125
+  },
+  "theme": "light"
+}

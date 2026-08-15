@@ -1,0 +1,16 @@
+{
+  "case": "spinner-states",
+  "nodes": {
+    "parity-spinner": {
+      "height": 24,
+      "width": 24,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "root": {
+    "height": 24,
+    "width": 24
+  },
+  "theme": "light"
+}
