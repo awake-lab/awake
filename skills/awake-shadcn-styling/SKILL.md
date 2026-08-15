@@ -143,6 +143,16 @@ styling logic into A's own file.
 
 ---
 
+## Every component MUST own its dedicated visual style recipe -- do NOT over-share generic `*Visuals` functions
+
+When building `ui-designsystem` recipes, avoid creating a single generic `fieldVisuals` or `buttonVisuals` shared across distinct control types.
+
+- **The trap**: `shadcnInput` and `shadcnTextarea` used to both call `fieldVisuals`, which hardcoded single-line input padding (`px-3 py-1` = 12px horizontal, 4px vertical). `shadcnTextarea` received 4px vertical padding instead of shadcn's official multi-line `px-3 py-2` (8px vertical padding).
+- **Rule**: Every distinct component type MUST have its own explicit visual resolver function (e.g. `textFieldVisuals` vs `textareaVisuals`, `selectOptionVisuals`, `badgeVisuals`, `buttonVisuals`).
+- **Check**: When adding a new component or variant, verify its inner paddings, borders, and typography against upstream `getComputedStyle` reference outputs rather than reusing an existing component's `SurfaceVisuals` helper.
+
+---
+
 ## `animateFloat` (spring/exponential decay) never truly reaches its target -- don't use it for anything that must visibly finish
 
 ```kotlin
