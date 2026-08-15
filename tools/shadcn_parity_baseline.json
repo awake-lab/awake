@@ -1,22 +1,23 @@
 {
-  "_comment": "Committed regression baseline for ShadcnReferenceComparisonTest.kt's gate (samples/ui-showcase). Each 'baseline' value is the mismatchPct recorded the last time a maintainer looked at its diff PNG and accepted it -- the test fails if a pair's current mismatchPct exceeds its recorded value by more than tolerancePct. This does NOT gate fidelity to real shadcn/ui (that stays informational, see tools/shadcn_parity_thresholds.json); it gates REGRESSION -- getting worse without anyone deciding that's OK. Regenerate with: ./gradlew :samples:ui-showcase:desktopTest --tests \"*ShadcnReferenceComparisonTest*\" -DAWAKE_RECORD_SNAPSHOTS=true -- same convention as ShadcnParityScreenshotTest, run without recording first and read the diff PNG before recording (skills/awake-ui-verification/SKILL.md).",
-  "_toleranceNote": "1.0 percentage point. Four back-to-back runs on unchanged code produced byte-identical shadcn-parity-metrics.json (0.00pp drift) -- the harness has no measured run-to-run noise on one machine/JVM. 1.0pp is headroom above that measured-zero floor for cross-machine/JDK/font-rendering variance, not a response to observed flakiness. See docs/reference/ui-validation.md's gate section for the live perturbation proof: forcing the checked checkbox's fill red moved checkbox-local-light from 26.32% to 30.77% (+4.45pp, over 4x this tolerance) and the gate failed with that exact message; reverting returned it to exactly 26.32% and the gate passed.",
-  "tolerancePct": 1.0,
-  "excluded": {
-    "slider-local-light": "docs/reference/shadcn-previews-local/slider-states_light.png is itself only 256x6px before any Awake-side cropping runs -- the reference capture's own bounding box doesn't include the slider thumb (a capture-tool issue in tools/capture_shadcn_local.py / the reference app's Slider wrapper, not an Awake rendering or alignment problem). No aligned-crop tuning on the Kotlin comparison side can make this number mean anything; still rendered and reported (uncapped) so the diff heatmap stays available, just not gated.",
-    "tooltip-local-light": "Same class as slider-local-light, found by the coverage gate rather than by eye: the Awake render is 112x32 and docs/reference/shadcn-previews-local/tooltip-open_light.png is 101x28, so only 96x28 -- 75% of the larger image -- is ever compared and the remaining border is neither compared nor reported. The recorded 27.08% describes that crop, not the tooltip. Needs a re-capture that frames the same box (the capture's selector picks up the arrow, the Awake preview's canvas does not), after which this exclusion should be removed rather than re-recorded."
-  },
-  "baseline": {
-    "badge-local-light": 27.29,
-    "tooltip-local-light": 27.08,
-    "button-local-light": 20.35,
-    "button-local-dark": 19.95,
-    "dialog-local-light": 15.26,
-    "tabs-local-light": 14.64,
-    "card-local-light": 9.57,
-    "select-local-light": 8.87,
-    "switch-local-light": 5.99,
-    "checkbox-local-light": 5.86,
-    "input-local-light": 4.95
-  }
+    "_comment": "Committed regression baseline for ShadcnReferenceComparisonTest.kt's gate (samples/ui-showcase). Each 'baseline' value is the mismatchPct recorded the last time a maintainer looked at its diff PNG and accepted it -- the test fails if a pair's current mismatchPct exceeds its recorded value by more than tolerancePct. This does NOT gate fidelity to real shadcn/ui (that stays informational, see tools/shadcn_parity_thresholds.json); it gates REGRESSION -- getting worse without anyone deciding that's OK. Regenerate with: ./gradlew :samples:ui-showcase:desktopTest --tests \"*ShadcnReferenceComparisonTest*\" -DAWAKE_RECORD_SNAPSHOTS=true -- same convention as ShadcnParityScreenshotTest, run without recording first and read the diff PNG before recording (skills/awake-ui-verification/SKILL.md).",
+    "_toleranceNote": "1.0 percentage point. Four back-to-back runs on unchanged code produced byte-identical shadcn-parity-metrics.json (0.00pp drift) -- the harness has no measured run-to-run noise on one machine/JVM. 1.0pp is headroom above that measured-zero floor for cross-machine/JDK/font-rendering variance, not a response to observed flakiness. See docs/reference/ui-validation.md's gate section for the live perturbation proof: forcing the checked checkbox's fill red moved checkbox-local-light from 26.32% to 30.77% (+4.45pp, over 4x this tolerance) and the gate failed with that exact message; reverting returned it to exactly 26.32% and the gate passed.",
+    "tolerancePct": 1.0,
+    "excluded": {
+        "slider-local-light": "docs/reference/shadcn-previews-local/slider-states_light.png is itself only 256x6px before any Awake-side cropping runs -- the reference capture's own bounding box doesn't include the slider thumb (a capture-tool issue in tools/capture_shadcn_local.py / the reference app's Slider wrapper, not an Awake rendering or alignment problem). No aligned-crop tuning on the Kotlin comparison side can make this number mean anything; still rendered and reported (uncapped) so the diff heatmap stays available, just not gated.",
+        "tooltip-local-light": "Same class as slider-local-light, found by the coverage gate rather than by eye: the Awake render is 112x32 and docs/reference/shadcn-previews-local/tooltip-open_light.png is 101x28, so only 96x28 -- 75% of the larger image -- is ever compared and the remaining border is neither compared nor reported. The recorded 27.08% describes that crop, not the tooltip. Needs a re-capture that frames the same box (the capture's selector picks up the arrow, the Awake preview's canvas does not), after which this exclusion should be removed rather than re-recorded."
+    },
+    "baseline": {
+        "badge-local-light": 27.29,
+        "button-local-light": 20.35,
+        "button-local-dark": 19.95,
+        "radiogroup-local-light": 18.58,
+        "dialog-local-light": 15.26,
+        "tabs-local-light": 14.64,
+        "card-local-light": 9.57,
+        "select-local-light": 8.87,
+        "switch-local-light": 5.99,
+        "progress-local-light": 5.9,
+        "checkbox-local-light": 5.86,
+        "input-local-light": 4.95
+    }
 }

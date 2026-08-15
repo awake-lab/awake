@@ -360,8 +360,11 @@ internal object AwakeAlertVariantsLightPreview : AwakeUiPreviewEntry {
     id = "awake-radiogroup-light",
     title = "Awake RadioGroup (light)",
     group = "Shadcn Parity",
-    summary = "Public Headless radio recipe: 16dp circular indicators with 8dp inline labels and 12dp group gaps, matching the pinned shadcn radio-group case.",
-    width = 160,
+    summary = "Public Headless radio recipe: 16dp circular indicators with 8dp inline labels and " +
+        "12dp group gaps, matching the pinned shadcn radio-group case. Canvas is the reference's " +
+        "own 107x72 content box -- at 160 wide the extra 53px of background was counted as " +
+        "uncompared area and dropped parity coverage to 60%.",
+    width = 107,
     height = 72,
 )
 internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
@@ -384,9 +387,12 @@ internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
     id = "awake-progress-light",
     title = "Awake Progress (light)",
     group = "Shadcn Parity",
-    summary = "New component -- non-interactive track+fill, ProgressWidget.kt reuses slider()'s painting logic minus the knob/drag handling.",
-    width = 260,
-    height = 96,
+    summary = "New component -- non-interactive track+fill, ProgressWidget.kt reuses slider()'s " +
+        "painting logic minus the knob/drag handling. Canvas matches the reference's 212x32 box: " +
+        "the same two bars (0.25, 0.65) at the same 16dp gap, but the old 260x96 canvas with a " +
+        "24px inset left 73% of the image as background the comparison never looked at.",
+    width = 212,
+    height = 32,
 )
 internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
@@ -396,9 +402,9 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
         fun composeFrame() {
             ui.pushFont(font)
             ui.pushTheme(theme)
-            ui.createUiScope(UiBounds(24f, 24f, 212f, metadata.height.toFloat() - 48f)).column(
+            ui.createUiScope(UiBounds(0f, 0f, 212f, metadata.height.toFloat())).column(
                 modifier = Modifier.width(212f.dp)
-                    .height((metadata.height.toFloat() - 48f).dp),
+                    .height(metadata.height.toFloat().dp),
                 verticalArrangement = Arrangement.spacedBy(16f.dp),
             ) {
                 shadcnProgress(

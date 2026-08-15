@@ -371,6 +371,8 @@ class ShadcnReferenceComparisonTest {
             AwakeSliderLightPreview,
             AwakeTooltipContentLightPreview,
             AwakeDialogStatesLightPreview,
+            AwakeRadioGroupLightPreview,
+            AwakeProgressLightPreview,
         ).forEach { entry -> renderAnnotatedUiPreviews(entry).forEach { saveAwakeUiPreview(it) } }
 
         // Gradle's Test task working dir is the module dir (samples/ui-showcase/) -- same
