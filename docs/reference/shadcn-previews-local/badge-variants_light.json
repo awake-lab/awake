@@ -3,32 +3,32 @@
   "nodes": {
     "badge.Default": {
       "height": 22,
-      "width": 56.40625,
+      "width": 56.703125,
       "x": 0,
       "y": 0
     },
     "badge.Destructive": {
       "height": 22,
-      "width": 78.265625,
-      "x": 146.796875,
+      "width": 78.984375,
+      "x": 147.609375,
       "y": 0
     },
     "badge.Outline": {
       "height": 22,
-      "width": 55.625,
-      "x": 233.0625,
+      "width": 56.171875,
+      "x": 234.59375,
       "y": 0
     },
     "badge.Secondary": {
       "height": 22,
-      "width": 74.390625,
-      "x": 64.40625,
+      "width": 74.90625,
+      "x": 64.703125,
       "y": 0
     }
   },
   "root": {
     "height": 22,
-    "width": 288.6875
+    "width": 290.765625
   },
   "theme": "light"
 }

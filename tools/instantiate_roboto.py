@@ -29,20 +29,24 @@ OUT_DIR = REPO / "awake/ui/text/src/commonMain/resources/fonts"
 # Only the weights with real call sites. Counted across awake/ui and samples: Medium 14, Normal 8,
 # SemiBold 7, ExtraBold 1. Each face costs roughly 1.1 MB of generated Kotlin, so this list is
 # deliberately short -- add a weight when something needs it, not in advance.
+# Regular is what Awake packs. Medium exists only so the reference app can render shadcn's
+# `font-medium` honestly -- serving one face declared as `font-weight: 100 900` made the browser
+# draw 500 in Regular, which quietly put the whole parity comparison at the wrong weight.
 FACES = {
-    "Roboto-Regular.ttf": 400,
-    "Roboto-Medium.ttf": 500,
+    "Roboto-Regular.ttf": (400, OUT_DIR),
+    "Roboto-Medium.ttf": (500, REPO / "tools/shadcn-reference-app/public/fonts"),
 }
 
 
 def main() -> int:
     source = TTFont(SOURCE)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    for filename, weight in FACES.items():
+    for filename, (weight, destination) in FACES.items():
+        destination.mkdir(parents=True, exist_ok=True)
         instance = instantiateVariableFont(
             copy.deepcopy(source), {"wght": weight, "wdth": 100}, inplace=False
         )
-        out = OUT_DIR / filename
+        out = destination / filename
         instance.save(out)
         print(f"{filename:22} wght={weight}  {out.stat().st_size:>8,} bytes")
     return 0
