@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import kotlin.math.abs
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
@@ -43,11 +44,49 @@ class ShadcnGeometryParityTest {
     private data class Rect2(val width: Double, val height: Double)
 
     @Test
-    fun badgeGeometryMatchesShadcn() {
-        val reference = Json { ignoreUnknownKeys = true }.decodeFromString<ReferenceGeometry>(
-            File("../../docs/reference/shadcn-previews-local/badge-variants_light.json").readText(),
+    fun badgeGeometryMatchesShadcn() = assertBadgeGeometry("light", AwakeBadgeVariantsLightPreview)
+
+    @Test
+    fun badgeGeometryMatchesShadcnInDark() = assertBadgeGeometry("dark", AwakeBadgeVariantsDarkPreview)
+
+    /**
+     * A theme changes colour, not layout, so both themes must land on the same numbers.
+     *
+     * shadcn agrees with itself here to the last decimal -- its light and dark captures report
+     * identical rects -- so any divergence on the Awake side is ours, and this catches the class of
+     * bug where a dark-only token carries different padding or border width by accident.
+     */
+    @Test
+    fun badgeGeometryIsIdenticalAcrossThemes() {
+        val light = boundsById(AwakeBadgeVariantsLightPreview)
+        val dark = boundsById(AwakeBadgeVariantsDarkPreview)
+        assertEquals(light.keys, dark.keys, "the two themes emitted different nodes")
+        val drift = light.filter { (id, l) ->
+            val d = dark.getValue(id)
+            abs(l.width - d.width) > 0.01f || abs(l.height - d.height) > 0.01f || abs(l.x - d.x) > 0.01f
+        }
+        assertTrue(
+            drift.isEmpty(),
+            "theme changed layout for ${drift.keys.sorted()}:\n" +
+                drift.keys.sorted().joinToString("\n") { id ->
+                    "  $id light=${light.getValue(id)} dark=${dark.getValue(id)}"
+                },
         )
-        val scene = renderAnnotatedUiPreviews(AwakeBadgeVariantsLightPreview).single()
+    }
+
+    private fun boundsById(entry: io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry) =
+        renderAnnotatedUiPreviews(entry).single().semantics
+            .filter { it.id != null }
+            .associate { it.id!! to it.bounds }
+
+    private fun assertBadgeGeometry(
+        theme: String,
+        entry: io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry,
+    ) {
+        val reference = Json { ignoreUnknownKeys = true }.decodeFromString<ReferenceGeometry>(
+            File("../../docs/reference/shadcn-previews-local/badge-variants_$theme.json").readText(),
+        )
+        val scene = renderAnnotatedUiPreviews(entry).single()
         val awake = scene.semantics.filter { it.id != null }.associateBy { it.id!! }
 
         val rows = reference.nodes.toSortedMap().map { (id, ref) ->
@@ -72,7 +111,7 @@ class ShadcnGeometryParityTest {
                 r.awakeHeight, r.referenceHeight,
             )
         }
-        println("badge geometry vs shadcn:\n$table")
+        println("badge geometry vs shadcn [$theme]:\n$table")
 
         val offenders = rows.filter { abs(it.widthDelta) > KNOWN_WIDTH_GAP_PX || abs(it.heightDelta) > TOLERANCE_PX }
         assertTrue(

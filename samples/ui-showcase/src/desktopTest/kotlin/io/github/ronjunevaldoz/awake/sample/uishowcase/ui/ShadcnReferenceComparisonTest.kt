@@ -3,24 +3,26 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 /**
- * Answers a different question than [ShadcnParityScreenshotTest]. That test diffs Awake's
- * render against Awake's *own* previously recorded golden -- a regression lock, useful for
- * "did this change on purpose" but blind to "is this actually close to real shadcn/ui". This
- * test diffs Awake's render against a real `ui.shadcn.com` capture (every PNG checked into
- * `docs/reference/shadcn-previews`, refreshed by `tools/capture_shadcn_reference.py` straight
- * from the live docs site -- see that script's header for why the previous set of "shadcn
- * reference" images wasn't actually from shadcn/ui at all).
+ * DEMOTED. [ShadcnGeometryParityTest] is the primary parity oracle now, comparing Awake's
+ * semantic bounds against shadcn's own getBoundingClientRect numbers -- exact, in pixels,
+ * independent of rasterizer/font/anti-aliasing. This test is what is left over: colour, corner
+ * radius, border width, shadow -- the dimensions geometry cannot see.
  *
- * Absolute mismatch against the real reference is real, expected, and not something this test
- * fixes -- pixel-perfect parity with shadcn/ui isn't the goal (different rasterizer, different
- * font). What IS gated is *drift*: each pair's mismatch% is checked against a committed baseline
- * (`tools/shadcn_parity_baseline.json`) plus a small tolerance, so a regression that makes a
- * component look measurably less like its reference fails the build instead of silently landing
- * in a report nobody re-reads. This replaced an earlier version of this test that only asserted
- * the harness ran -- real regressions (e.g. a checkbox radius change that turned it into a
- * circle) reached users through that gap because "compared and wrote a report" was mistaken for
- * "verified". See docs/reference/ui-validation.md's "Shadcn Parity Regression Gate" section for
- * the noise-floor measurement behind the tolerance and re-recording instructions.
+ * It was the primary oracle for one session, and every promotion of a number it produced turned
+ * out to be wrong in a way geometry would not have been:
+ *  - a mis-framed reference (256x6 for a 300x20 render) scored as a fidelity number until the
+ *    coverage gate below started reporting framing
+ *  - the reference app rendered in no particular font (a self-referential CSS variable) until
+ *    that was matched, moving four numbers with zero Awake-side change
+ *  - even matched, the reference initially rendered every weight as 400 (one @font-face
+ *    covering "100 900"), so a component tuned against it would have been tuned against the
+ *    wrong weight
+ * Three real bugs in the instrument, only one real bug in a component (badge's padding, found by
+ * geometry in one pass once the instrument was fixed). That ratio is why this demotes.
+ *
+ * mismatchPct below stays informative -- printed, tracked in the metrics JSON, ratcheted against
+ * regression -- but it is no longer where a padding or advance-width question gets decided.
+ * [ShadcnGeometryParityTest] decides those. This decides "does the badge still look red."
  *
  * Renders its own Awake-side previews (rather than depending on [ShadcnParityScreenshotTest]
  * having already run in the same invocation) so `--tests "*ShadcnReferenceComparisonTest*"`
@@ -371,6 +373,7 @@ class ShadcnReferenceComparisonTest {
             AwakeSliderLightPreview,
             AwakeTooltipContentLightPreview,
             AwakeDialogStatesLightPreview,
+            AwakeBadgeVariantsDarkPreview,
             AwakeRadioGroupLightPreview,
             AwakeProgressLightPreview,
         ).forEach { entry -> renderAnnotatedUiPreviews(entry).forEach { saveAwakeUiPreview(it) } }

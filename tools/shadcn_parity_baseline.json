@@ -8,6 +8,7 @@
     },
     "baseline": {
         "badge-local-light": 25.23,
+        "badge-local-dark": 23.41,
         "radiogroup-local-light": 18.76,
         "button-local-light": 14.9,
         "dialog-local-light": 14.43,
