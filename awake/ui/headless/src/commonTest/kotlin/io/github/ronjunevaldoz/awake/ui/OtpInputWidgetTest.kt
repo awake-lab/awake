@@ -35,14 +35,13 @@ class OtpInputWidgetTest {
     fun separatorFiresOnlyAtGroupBoundariesNotAtIndexZero() {
         val ui = UiContext()
         ui.beginFrame(200f, 100f, testSnapshot())
-        var separatorSlotIndex = 0
         ui.createUiScope(UiBounds(0f, 0f, 200f, 100f)).otpInput(
             id = "otp.grouped",
             value = "123456",
             length = 6,
             groupSize = 3,
-            separator = {
-                text("-", semanticId = "otp.grouped.separator.${separatorSlotIndex++}")
+            separator = { beforeIndex ->
+                text("-", semanticId = "otp.grouped.separator.$beforeIndex")
             },
         ) { _, _ -> }
         val frame = ui.finishFrame()
