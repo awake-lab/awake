@@ -133,9 +133,16 @@ class Style private constructor(
         else -> Style(rules + other.rules)
     }
 
+    // State rules (hovered/active/focused/disabled/selected) must win over any unconditional
+    // rule regardless of declaration order: `then` concatenates rule lists, and a later Style
+    // block's own unconditional override (e.g. a themed component's static background) would
+    // otherwise clobber an earlier block's state-conditional rule even when the state predicate
+    // matches -- this silently killed hover/active/focus styling on slider/toggle/switch/
+    // textField wherever a theme layered a plain color on top of a state-varying fallback.
     fun resolve(state: StyleState = MutableStyleState(), fallbackTextStyle: TextStyle = TextStyle.Default): ResolvedStyle {
         val builder = ResolvedStyleBuilder(textStyle = fallbackTextStyle)
-        rules.forEach { it.apply(state, builder) }
+        rules.filter { !it.isConditional }.forEach { it.apply(state, builder) }
+        rules.filter { it.isConditional }.forEach { it.apply(state, builder) }
         return builder.build()
     }
 }
@@ -176,6 +183,7 @@ private class ResolvedStyleBuilder(
 
 private data class StyleRule(
     val predicate: (StyleState) -> Boolean,
+    val isConditional: Boolean,
     val mutation: ResolvedStyleBuilder.() -> Unit,
 ) {
     fun apply(state: StyleState, builder: ResolvedStyleBuilder) {
@@ -185,45 +193,50 @@ private data class StyleRule(
 
 private class StyleBuilder(
     private val predicate: (StyleState) -> Boolean = { true },
+    private val isConditional: Boolean = false,
 ) : StyleScope {
     private val rules = ArrayList<StyleRule>()
+
+    private fun rule(mutation: ResolvedStyleBuilder.() -> Unit) {
+        rules += StyleRule(predicate, isConditional, mutation)
+    }
 
     fun build(): List<StyleRule> = rules
 
     override fun background(color: Color, tokenId: String?) {
-        rules += StyleRule(predicate) {
+        rule {
             background = color
             backgroundToken = tokenId
         }
     }
 
     override fun foreground(color: Color, tokenId: String?) {
-        rules += StyleRule(predicate) {
+        rule {
             foreground = color
             foregroundToken = tokenId
         }
     }
 
     override fun borderWidth(width: Dp) {
-        rules += StyleRule(predicate) { borderWidth = width }
+        rule { borderWidth = width }
     }
 
     override fun borderColor(color: Color, tokenId: String?) {
-        rules += StyleRule(predicate) {
+        rule {
             borderColor = color
             borderColorToken = tokenId
         }
     }
 
     override fun shape(radius: Dp) {
-        rules += StyleRule(predicate) {
+        rule {
             shape = radius
             shapeSpec = null
         }
     }
 
     override fun shape(shape: UiShapeSpec) {
-        rules += StyleRule(predicate) {
+        rule {
             this.shape = UiShape.none
             shapeSpec = shape
         }
@@ -237,7 +250,7 @@ private class StyleBuilder(
         spread: Dp,
         tokenId: String?,
     ) {
-        rules += StyleRule(predicate) {
+        rule {
             shadow = UiShadow(
                 color = color,
                 offsetX = offsetX,
@@ -250,33 +263,33 @@ private class StyleBuilder(
     }
 
     override fun textStyle(style: TextStyle, tokenId: String?) {
-        rules += StyleRule(predicate) {
+        rule {
             textStyle = textStyle then style
             textStyleToken = tokenId
         }
     }
 
     override fun textScale(scale: Float) {
-        rules += StyleRule(predicate) { textStyle = textStyle.copy(scale = scale) }
+        rule { textStyle = textStyle.copy(scale = scale) }
     }
 
     override fun textSize(size: Sp, tokenId: String?) {
-        rules += StyleRule(predicate) {
+        rule {
             textStyle = textStyle.copy(size = size)
             textStyleToken = tokenId
         }
     }
 
     override fun lineHeight(height: Sp) {
-        rules += StyleRule(predicate) { textStyle = textStyle.copy(lineHeight = height) }
+        rule { textStyle = textStyle.copy(lineHeight = height) }
     }
 
     override fun fontWeight(weight: FontWeight) {
-        rules += StyleRule(predicate) { textStyle = textStyle.copy(weight = weight) }
+        rule { textStyle = textStyle.copy(weight = weight) }
     }
 
     override fun letterSpacing(spacing: Sp) {
-        rules += StyleRule(predicate) { textStyle = textStyle.copy(letterSpacing = spacing) }
+        rule { textStyle = textStyle.copy(letterSpacing = spacing) }
     }
 
     override fun contentPadding(all: Dp) {
@@ -292,7 +305,7 @@ private class StyleBuilder(
     }
 
     private fun contentPadding(insets: UiInsets) {
-        rules += StyleRule(predicate) { contentPadding = insets }
+        rule { contentPadding = insets }
     }
 
     override fun hovered(block: StyleScope.() -> Unit) {
@@ -320,11 +333,14 @@ private class StyleBuilder(
     }
 
     override fun animate(style: Style, responsiveness: Float) {
-        rules += StyleRule(predicate) { animation = StyleAnimation(style, responsiveness) }
+        rule { animation = StyleAnimation(style, responsiveness) }
     }
 
     private fun nested(extraPredicate: (StyleState) -> Boolean, block: StyleScope.() -> Unit) {
-        val nestedBuilder = StyleBuilder { state -> predicate(state) && extraPredicate(state) }
+        val nestedBuilder = StyleBuilder(
+            predicate = { state -> predicate(state) && extraPredicate(state) },
+            isConditional = true,
+        )
         nestedBuilder.block()
         rules += nestedBuilder.build()
     }
