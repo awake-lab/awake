@@ -1,0 +1,34 @@
+{
+  "case": "badge-variants",
+  "nodes": {
+    "badge.Default": {
+      "height": 22,
+      "width": 56.84375,
+      "x": 0,
+      "y": 0
+    },
+    "badge.Destructive": {
+      "height": 22,
+      "width": 79.34375,
+      "x": 148.15625,
+      "y": 0
+    },
+    "badge.Outline": {
+      "height": 22,
+      "width": 56.203125,
+      "x": 235.5,
+      "y": 0
+    },
+    "badge.Secondary": {
+      "height": 22,
+      "width": 75.3125,
+      "x": 64.84375,
+      "y": 0
+    }
+  },
+  "root": {
+    "height": 22,
+    "width": 291.703125
+  },
+  "theme": "light"
+}

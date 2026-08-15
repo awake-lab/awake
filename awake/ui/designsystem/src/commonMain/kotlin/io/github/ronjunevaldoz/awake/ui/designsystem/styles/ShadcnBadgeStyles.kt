@@ -55,7 +55,7 @@ fun ShadcnBadgeVariant.style(values: UiThemeValues): SurfaceStyle {
         // badge-local-light from 27.3% to 34.8% against the real reference: the extra padding and
         // weight are compensating for glyph advance/stem fidelity, not styling drift. Revisit
         // together with the atlas, not on its own.
-        contentPadding = UiInsets.grid(horizontal = 2.5, vertical = 0.5),
+        contentPadding = UiInsets.grid(horizontal = 2.0, vertical = 0.5),
         textSize = Tw.Text.xs,
         lineHeight = 16f.sp,
         fontWeight = FontWeight.SemiBold,
