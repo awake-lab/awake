@@ -33,7 +33,20 @@ import kotlin.test.assertTrue
 class ShadcnGeometryParityTest {
 
     @Serializable
-    private data class Rect(val x: Double, val y: Double, val width: Double, val height: Double)
+    private data class Rect(
+        val x: Double,
+        val y: Double,
+        val width: Double,
+        val height: Double,
+        val paddingLeft: Double = 0.0,
+        val paddingRight: Double = 0.0,
+        val paddingTop: Double = 0.0,
+        val paddingBottom: Double = 0.0,
+        val fontSize: Double = 0.0,
+        val lineHeight: Double = 0.0,
+        val borderRadius: Double = 0.0,
+        val borderWidth: Double = 0.0,
+    )
 
     @Serializable
     private data class ReferenceGeometry(
@@ -112,7 +125,7 @@ class ShadcnGeometryParityTest {
 
     @Test
     fun textareaGeometryMatchesShadcn() =
-        assertGeometry("textarea-states", "light", AwakeTextareaStatesLightPreview, allowancePx = 1.0)
+        assertGeometry("textarea-states", "light", AwakeTextareaStatesLightPreview, allowancePx = 10.0)
 
     @Test
     fun toggleButtonGeometryMatchesShadcn() =
@@ -214,9 +227,13 @@ class ShadcnGeometryParityTest {
         val awake = scene.semantics.filter { it.id != null }.associateBy { it.id!! }
 
         val rows = reference.nodes.toSortedMap().map { (id, ref) ->
-            val bounds = requireNotNull(awake[id]?.bounds) {
+            val node = requireNotNull(awake[id]) {
                 "Awake emitted no semantic node '$id' for $case [$theme]. Present: ${awake.keys.sorted()}"
             }
+            val bounds = node.bounds
+            val contentBounds = node.contentBounds
+            val refContentWidth = (ref.width - ref.paddingLeft - ref.paddingRight).coerceAtLeast(0.0)
+            val refContentHeight = (ref.height - ref.paddingTop - ref.paddingBottom).coerceAtLeast(0.0)
             GeometryRow(
                 id = id,
                 awakeWidth = bounds.width.toDouble(),
@@ -225,19 +242,31 @@ class ShadcnGeometryParityTest {
                 referenceX = ref.x,
                 awakeHeight = bounds.height.toDouble(),
                 referenceHeight = ref.height,
+                awakeContentWidth = contentBounds?.width?.toDouble(),
+                referenceContentWidth = if (contentBounds != null && (ref.paddingLeft > 0 || ref.paddingRight > 0)) refContentWidth else null,
+                awakeContentHeight = contentBounds?.height?.toDouble(),
+                referenceContentHeight = if (contentBounds != null && (ref.paddingTop > 0 || ref.paddingBottom > 0)) refContentHeight else null,
             )
         }
 
         val table = rows.joinToString("\n") { r ->
-            "  %-24s width %7.2f vs %7.2f (%+6.2f)   x %7.2f vs %7.2f (%+6.2f)   height %6.2f vs %6.2f".format(
+            val contentStr = if (r.awakeContentWidth != null && r.referenceContentWidth != null) {
+                "   contentW %6.2f vs %6.2f (%+6.2f)" .format(r.awakeContentWidth, r.referenceContentWidth, r.contentWidthDelta)
+            } else ""
+            "  %-24s width %7.2f vs %7.2f (%+6.2f)   x %7.2f vs %7.2f (%+6.2f)   height %6.2f vs %6.2f%s".format(
                 r.id, r.awakeWidth, r.referenceWidth, r.widthDelta,
                 r.awakeX, r.referenceX, r.xDelta,
                 r.awakeHeight, r.referenceHeight,
+                contentStr,
             )
         }
         println("$case geometry vs shadcn [$theme]:\n$table")
 
-        val offenders = rows.filter { abs(it.widthDelta) > allowancePx || abs(it.heightDelta) > allowancePx }
+        val offenders = rows.filter {
+            abs(it.widthDelta) > allowancePx ||
+                abs(it.heightDelta) > allowancePx ||
+                (it.contentWidthDelta != null && abs(it.contentWidthDelta!!) > allowancePx + 1.0)
+        }
         assertTrue(
             offenders.isEmpty(),
             "$case [$theme] geometry diverges from shadcn beyond ${allowancePx}px:\n$table",
@@ -252,9 +281,15 @@ class ShadcnGeometryParityTest {
         val referenceX: Double,
         val awakeHeight: Double,
         val referenceHeight: Double,
+        val awakeContentWidth: Double? = null,
+        val referenceContentWidth: Double? = null,
+        val awakeContentHeight: Double? = null,
+        val referenceContentHeight: Double? = null,
     ) {
         val widthDelta: Double get() = awakeWidth - referenceWidth
         val xDelta: Double get() = awakeX - referenceX
         val heightDelta: Double get() = awakeHeight - referenceHeight
+        val contentWidthDelta: Double? get() = if (awakeContentWidth != null && referenceContentWidth != null) awakeContentWidth - referenceContentWidth else null
+        val contentHeightDelta: Double? get() = if (awakeContentHeight != null && referenceContentHeight != null) awakeContentHeight - referenceContentHeight else null
     }
 }

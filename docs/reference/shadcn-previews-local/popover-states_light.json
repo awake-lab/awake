@@ -2,7 +2,15 @@
   "case": "popover-states",
   "nodes": {
     "parity-popover.content": {
+      "borderRadius": 8,
+      "borderWidth": 1,
+      "fontSize": 16,
       "height": 54,
+      "lineHeight": 24,
+      "paddingBottom": 16,
+      "paddingLeft": 16,
+      "paddingRight": 16,
+      "paddingTop": 16,
       "width": 260,
       "x": 0,
       "y": 0

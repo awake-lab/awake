@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
@@ -83,6 +84,7 @@ fun UiScope.shadcnToggle(
             background = if (checked) themeValues.colors.accent else themeValues.colors.background,
             foreground = themeValues.colors.foreground,
             cornerRadius = themeValues.shapes.md,
+            contentPadding = UiInsets(12f.dp, 10f.dp),
         ),
     ),
 )

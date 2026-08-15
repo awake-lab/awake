@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.textareaVisuals
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.visuals
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -139,7 +140,7 @@ fun UiScope.shadcnTextarea(
     value = value,
     placeholder = placeholder,
     modifier = modifier,
-    visuals = fieldVisuals(themeValues, variant),
+    visuals = variant.textareaVisuals(themeValues),
     enabled = enabled,
     isError = isError,
     minLines = minLines,

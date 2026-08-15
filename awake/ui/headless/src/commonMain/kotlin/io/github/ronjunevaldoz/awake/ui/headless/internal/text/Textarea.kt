@@ -383,7 +383,8 @@ private fun cursorPositionPx(
     for (i in 0 until colIdx.coerceAtMost(line.length)) {
         x += font.advanceFor(line[i], glyphPx)
     }
-    val y = contentSlot.y + lineIdx * (glyphPx + lineGap)
+    val lineStep = glyphPx * font.lineHeightEm + lineGap
+    val y = contentSlot.y + lineIdx * lineStep
     return x to y
 }
 
@@ -397,7 +398,8 @@ private fun indexForPointerXY(
     pointerX: Float,
     pointerY: Float,
 ): Int {
-    val lineIdx = ((pointerY - contentSlot.y) / (glyphPx + lineGap)).toInt()
+    val lineStep = glyphPx * font.lineHeightEm + lineGap
+    val lineIdx = ((pointerY - contentSlot.y) / lineStep).toInt()
         .coerceIn(0, layout.lines.lastIndex.coerceAtLeast(0))
     val line = layout.lines.getOrNull(lineIdx) ?: ""
 

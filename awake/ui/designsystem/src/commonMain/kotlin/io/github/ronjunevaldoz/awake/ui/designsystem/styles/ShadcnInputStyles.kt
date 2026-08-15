@@ -49,3 +49,39 @@ fun ShadcnTextFieldVariant.visuals(values: UiThemeValues): SurfaceVisuals {
         disabled = rest.copy(foreground = colors.mutedForeground),
     )
 }
+
+fun ShadcnTextFieldVariant.textareaVisuals(values: UiThemeValues): SurfaceVisuals {
+    val colors = values.colors
+    val shapes = values.shapes
+    val textareaPadding = UiInsets(12f.dp, ShadcnSpacing.sm)
+    val rest = when (this) {
+        ShadcnTextFieldVariant.Default -> SurfaceStyle(
+            background = Color.Transparent,
+            foreground = colors.foreground,
+            border = SurfaceBorder(1f.dp, colors.input),
+            cornerRadius = shapes.md,
+            contentPadding = textareaPadding,
+            textSize = values.typography.label,
+        )
+        ShadcnTextFieldVariant.Filled -> SurfaceStyle(
+            background = colors.muted,
+            foreground = colors.foreground,
+            cornerRadius = shapes.md,
+            contentPadding = textareaPadding,
+            textSize = values.typography.label,
+        )
+        ShadcnTextFieldVariant.Ghost -> SurfaceStyle(
+            background = Color.Transparent,
+            foreground = colors.foreground,
+            cornerRadius = shapes.md,
+            contentPadding = textareaPadding,
+            textSize = values.typography.label,
+        )
+    }
+    return SurfaceVisuals(
+        rest = rest,
+        hovered = if (this == ShadcnTextFieldVariant.Ghost) null else rest.copy(background = colors.card),
+        pressed = if (this == ShadcnTextFieldVariant.Ghost) null else rest.copy(background = colors.card),
+        disabled = rest.copy(foreground = colors.mutedForeground),
+    )
+}

@@ -2,19 +2,43 @@
   "case": "switch-states",
   "nodes": {
     "parity-switch-disabled": {
+      "borderRadius": 33554400,
+      "borderWidth": 1,
+      "fontSize": 16,
       "height": 18.390625,
+      "lineHeight": 24,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "paddingTop": 0,
       "width": 32,
       "x": 96,
       "y": 0
     },
     "parity-switch-off": {
+      "borderRadius": 33554400,
+      "borderWidth": 1,
+      "fontSize": 16,
       "height": 18.390625,
+      "lineHeight": 24,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "paddingTop": 0,
       "width": 32,
       "x": 0,
       "y": 0
     },
     "parity-switch-on": {
+      "borderRadius": 33554400,
+      "borderWidth": 1,
+      "fontSize": 16,
       "height": 18.390625,
+      "lineHeight": 24,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "paddingTop": 0,
       "width": 32,
       "x": 48,
       "y": 0
