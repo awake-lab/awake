@@ -29,6 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.pointerY
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.requestCursor
 import io.github.ronjunevaldoz.awake.ui.toPx
+import kotlin.math.floor
 
 /** Axis a [resizablePanelGroup] lays panels/handles out along -- react-resizable-panels'
  * `orientation` prop, the upstream shadcn's `Resizable` wraps. */
@@ -204,6 +205,33 @@ class ResizablePanelGroupScope internal constructor(
         }
         handleIndex++
         recordSemantic(role = UiSemanticRole.Separator, id = id, bounds = slot)
+        // Reference's always-visible separator line (resizable.tsx: `w-px bg-border` full
+        // cross-axis) -- a hairline centered in the grab strip, drawn whether or not the grip
+        // box is requested. Before this the strip was fully invisible without `withHandle`.
+        // Snapped to whole pixels: the strip's center is fraction-derived, and a 1px quad at
+        // a fractional coordinate anti-aliases into an invisible smear after the first drag.
+        val lineThickness = 1f.dp.toPx()
+        if (direction == ResizableDirection.Horizontal) {
+            emit(
+                UiDrawPrimitive.Quad(
+                    x = floor(slot.x + (slot.width - lineThickness) / 2f),
+                    y = slot.y,
+                    w = lineThickness,
+                    h = slot.height,
+                    color = context.currentTheme.colors.border,
+                ),
+            )
+        } else {
+            emit(
+                UiDrawPrimitive.Quad(
+                    x = slot.x,
+                    y = floor(slot.y + (slot.height - lineThickness) / 2f),
+                    w = slot.width,
+                    h = lineThickness,
+                    color = context.currentTheme.colors.border,
+                ),
+            )
+        }
         if (withHandle) {
             // Matches shadcn/ui's own grip box (resizable.tsx: `h-4 w-3 rounded-xs border
             // bg-border`, holding a GripVerticalIcon) -- small and squared-off, not the oversized
@@ -211,8 +239,10 @@ class ResizablePanelGroupScope internal constructor(
             // `border` class's visual (a hairline the same border color as the fill) is
             // approximated by insetting a slightly darker/inset second quad is not attempted here;
             // one flat fill is the honest approximation until RoundedQuad grows a stroke param.
-            val gripWidth = 12f.dp.toPx()
-            val gripHeight = 16f.dp.toPx()
+            // Long axis follows the line: upright on a vertical divider, rotated flat on a
+            // horizontal one (reference rotates the same grip box 90deg per orientation).
+            val gripWidth = (if (direction == ResizableDirection.Horizontal) 12f else 16f).dp.toPx()
+            val gripHeight = (if (direction == ResizableDirection.Horizontal) 16f else 12f).dp.toPx()
             val gripX = slot.x + (slot.width - gripWidth) / 2f
             val gripY = slot.y + (slot.height - gripHeight) / 2f
             emit(
