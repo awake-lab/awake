@@ -4,6 +4,10 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTableCaptionStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTableCellStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTableHeaderStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTableStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -14,7 +18,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.weight
-import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Shadcn table scope backed by neutral row/cell primitives. Cells are intentionally text-only;
  * richer cells can be added
@@ -32,7 +35,7 @@ class ShadcnTableScope internal constructor(private val owner: ColumnScope) {
                     text(
                         label = value,
                         modifier = Modifier.weight(1f),
-                        style = Style { foreground(themeValues.colors.foreground); textSize(themeValues.typography.body) },
+                        style = shadcnTableCellStyle(themeValues),
                         semanticId = "cell.$rowNumber.$index",
                     )
                 }
@@ -64,11 +67,7 @@ fun UiScope.shadcnTable(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = Style {
-        border(1f.dp, themeValues.colors.border)
-        shape(themeValues.shapes.md)
-        contentPadding(8f.dp)
-    },
+    style = shadcnTableStyle(themeValues),
     verticalArrangement = Arrangement.spacedBy(0f.dp),
 ) {
     row(modifier = Modifier.height(40f.dp)) {
@@ -76,15 +75,12 @@ fun UiScope.shadcnTable(
             text(
                 column.header,
                 modifier = Modifier.weight(column.weight),
-                style = Style {
-                    foreground(themeValues.colors.mutedForeground)
-                    textSize(themeValues.typography.label)
-                },
+                style = shadcnTableHeaderStyle(themeValues),
                 semanticId = "$id.header.cell.$index",
             )
         }
     }
     separator()
     ShadcnTableScope(this).content()
-    caption?.let { text(it, style = Style { foreground(themeValues.colors.mutedForeground); textSize(themeValues.typography.caption) }) }
+    caption?.let { text(it, style = shadcnTableCaptionStyle(themeValues)) }
 }

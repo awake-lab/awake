@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.FontWeight
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
@@ -11,7 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.text
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 
 /**
@@ -82,11 +82,11 @@ fun UiScope.shadcnText(
         ShadcnTextTone.Destructive -> shadcnThemeExtension.text.destructive ?: themeValues.colors.destructive
     }
 
-    val defaultStyle = Style {
-        foreground(foreground)
-        textSize(defaultSize)
-        fontWeight(if (emphasis == ShadcnTextEmphasis.Medium) FontWeight.Medium else defaultWeight)
-    }
+    val defaultStyle = shadcnTextStyle(
+        foreground = foreground,
+        size = defaultSize,
+        weight = if (emphasis == ShadcnTextEmphasis.Medium) FontWeight.Medium else defaultWeight,
+    )
 
     val effectiveModifier = if (style == ShadcnTextStyle.Blockquote) {
         modifier.padding(start = Tw.Spacing.s4)

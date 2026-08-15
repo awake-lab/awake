@@ -8,6 +8,8 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnRadioMetrics
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnRadioStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnRadioGroupStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnRadioLabelStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnToggleGroupItemStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
@@ -20,7 +22,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.toggleGroup
-import io.github.ronjunevaldoz.awake.ui.style.Style
 
 fun UiScope.shadcnToggleGroup(
     id: String,
@@ -80,7 +81,7 @@ fun UiScope.shadcnRadioGroup(
     surface(
         id = id,
         modifier = modifier,
-        style = Style { contentPadding(12f.dp) },
+        style = shadcnRadioGroupStyle(),
         verticalArrangement = Arrangement.spacedBy(ShadcnRadioMetrics.groupGap),
         content = { content() },
     )
@@ -121,7 +122,7 @@ fun UiScope.shadcnRadioGroup(
                 )
                 text(
                     label = label,
-                    style = Style { textSize(themeValues.typography.label) },
+                    style = shadcnRadioLabelStyle(themeValues),
                     semanticId = "$id.$index.label",
                 )
             }

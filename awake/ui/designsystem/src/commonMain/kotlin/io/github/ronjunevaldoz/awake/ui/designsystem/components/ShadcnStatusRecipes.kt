@@ -4,14 +4,15 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBadgeStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAlertStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnKbdStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnProgressStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSkeletonStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSpinnerStyle
-import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnStatusEmptyStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -50,14 +51,7 @@ fun UiScope.shadcnKbd(
     label: String,
     modifier: Modifier = Modifier,
 ): UiBounds {
-    val style = Style {
-        background(themeValues.colors.muted)
-        foreground(themeValues.colors.mutedForeground)
-        border(1f.dp, themeValues.colors.border)
-        shape(themeValues.shapes.xs)
-        contentPadding(6f.dp, 0f.dp, 6f.dp, 0f.dp)
-        textSize(10f.sp)
-    }
+    val style = shadcnKbdStyle(themeValues)
     return surface(
         id = id,
         verticalArrangement = Arrangement.Center,
@@ -120,19 +114,7 @@ fun UiScope.shadcnAlert(
 ): UiBounds = surface(
     id = id,
     modifier = modifier.fillMaxWidth(),
-    style = Style {
-        background(if (variant == ShadcnAlertVariant.Destructive) {
-            themeValues.colors.destructive.withAlpha(
-                0.1f,
-            )
-        } else {
-            themeValues.colors.muted
-        })
-        foreground(if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.foreground)
-        border(1f.dp, if (variant == ShadcnAlertVariant.Destructive) themeValues.colors.destructive else themeValues.colors.border)
-        shape(themeValues.shapes.lg)
-        contentPadding(16f.dp)
-    },
+    style = shadcnAlertStyle(themeValues, variant),
 ) {
     column(verticalArrangement = Arrangement.spacedBy(4f.dp)) {
         content()
@@ -165,7 +147,7 @@ fun UiScope.shadcnEmpty(
 ): UiBounds = surface(
     id = id,
     modifier = modifier.fillMaxWidth(),
-    style = Style { contentPadding(24f.dp) },
+    style = shadcnStatusEmptyStyle(),
 ) {
     column(
         horizontalAlignment = io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment.Horizontal.Center,

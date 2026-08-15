@@ -8,10 +8,17 @@ import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.font.FontWeight
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAccordionContentStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBreadcrumbItemStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBreadcrumbContainerStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBreadcrumbMutedStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnCollapsibleCardStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnCollapsibleTitleStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnCollapsibleTriggerStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTabsTrackStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTabStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -28,7 +35,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.wrapContentWidth
-import io.github.ronjunevaldoz.awake.ui.style.Style
 
 fun UiScope.shadcnCollapsible(
     id: String,
@@ -52,22 +58,14 @@ fun UiScope.shadcnCollapsible(
         val clicked = button(
             id = "$id.trigger",
             modifier = Modifier.fillMaxWidth().height(36f.dp),
-            style = Style {
-                background(io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
-                foreground(themeValues.colors.foreground)
-                shape(themeValues.shapes.md)
-                hovered {
-                    background(themeValues.colors.accent)
-                    foreground(themeValues.colors.accentForeground)
-                }
-            },
+            style = shadcnCollapsibleTriggerStyle(themeValues),
         ) {
             row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = UiAlignment.Vertical.Center,
                 modifier = Modifier.fillMaxWidth().fillMaxHeight(),
             ) {
-                text(title, style = Style { textSize(themeValues.typography.body) })
+                text(title, style = shadcnCollapsibleTitleStyle(themeValues))
                 icon(if (isOpen) ShadcnIcons.chevronDown else ShadcnIcons.chevronRight)
             }
         }
@@ -97,12 +95,7 @@ fun UiScope.shadcnCollapsibleCard(
     surface(
         id = "$id.card",
         modifier = modifier,
-        style = Style {
-            background(themeValues.colors.card)
-            foreground(themeValues.colors.foreground)
-            border(1f.dp, themeValues.colors.border)
-            shape(themeValues.shapes.lg)
-        },
+        style = shadcnCollapsibleCardStyle(themeValues),
     ) {
         resolved = shadcnCollapsible(
             id = id,
@@ -136,7 +129,7 @@ fun <T> UiScope.shadcnAccordion(
             surface(
                 id = "$itemId.content",
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8f.dp, vertical = 0f.dp),
-                style = Style { contentPadding(0f.dp, 0f.dp, 0f.dp, 16f.dp) },
+                style = shadcnAccordionContentStyle(),
             ) { content(item) }
         }
     }
@@ -149,11 +142,7 @@ fun UiScope.shadcnTabs(
     modifier: Modifier = Modifier,
     height: Dp = 36f.dp,
 ): String {
-    val track = Style {
-        background(themeValues.colors.muted)
-        shape(themeValues.shapes.lg)
-        contentPadding(3f.dp)
-    }
+    val track = shadcnTabsTrackStyle(themeValues)
     var resolved = selected
     surface(id = "$id.track", modifier = modifier.wrapContentWidth().height(height), style = track) {
         row(
@@ -167,16 +156,7 @@ fun UiScope.shadcnTabs(
                     id = "$id.${item.value}",
                     label = item.label,
                     modifier = Modifier.height(height - 6f.dp),
-                    style = Style {
-                        background(if (active) themeValues.colors.background else io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
-                        foreground(if (active) themeValues.colors.foreground else themeValues.colors.foreground.withAlpha(0.6f))
-                        border(1f.dp, io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
-                        shape(themeValues.shapes.md)
-                        contentPadding(horizontal = 8f.dp, vertical = 4f.dp)
-                        if (active) shadow(io.github.ronjunevaldoz.awake.core.colors.Color.Black.withAlpha(0.12f), offsetY = 1f.dp, blurRadius = 2f.dp)
-                        textSize(14f.sp)
-                        fontWeight(FontWeight.Medium)
-                    },
+                    style = shadcnTabStyle(themeValues, active),
                 )
                 if (clicked) resolved = item.value
             }
@@ -207,7 +187,7 @@ fun UiScope.shadcnBreadcrumb(
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = Style.Empty,
+    style = shadcnBreadcrumbContainerStyle(),
 ) {
     row(
         horizontalArrangement = Arrangement.spacedBy(6f.dp),
@@ -216,15 +196,12 @@ fun UiScope.shadcnBreadcrumb(
         items.forEachIndexed { index, label ->
             text(
                 label,
-                style = Style {
-                    foreground(if (index == items.lastIndex) themeValues.colors.foreground else themeValues.colors.mutedForeground)
-                    textSize(themeValues.typography.caption)
-                },
+                style = shadcnBreadcrumbItemStyle(themeValues, current = index == items.lastIndex),
             )
             if (index != items.lastIndex) {
                 text(
                     separator,
-                    style = Style { foreground(themeValues.colors.mutedForeground); textSize(themeValues.typography.caption) },
+                    style = shadcnBreadcrumbMutedStyle(themeValues),
                 )
             }
         }
@@ -248,7 +225,7 @@ fun UiScope.shadcnBreadcrumbLink(
 fun UiScope.shadcnBreadcrumbPage(label: String, modifier: Modifier = Modifier): UiBounds = text(
     label,
     modifier = modifier,
-    style = Style { foreground(themeValues.colors.foreground); textSize(themeValues.typography.caption) },
+    style = shadcnBreadcrumbItemStyle(themeValues, current = true),
 )
 
 fun UiScope.shadcnBreadcrumbSeparator(
@@ -257,7 +234,7 @@ fun UiScope.shadcnBreadcrumbSeparator(
 ): UiBounds = text(
     label,
     modifier = modifier,
-    style = Style { foreground(themeValues.colors.mutedForeground); textSize(themeValues.typography.caption) },
+    style = shadcnBreadcrumbMutedStyle(themeValues),
 )
 
 fun UiScope.shadcnBreadcrumbEllipsis(modifier: Modifier = Modifier): UiBounds =

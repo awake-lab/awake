@@ -6,11 +6,15 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnInputGroupAffixStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnInputGroupAffixTextStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnInputGroupStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSelectedOptionStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSelectOptionStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSliderStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextFieldStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextareaStyle
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
@@ -26,26 +30,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.textField
 import io.github.ronjunevaldoz.awake.ui.headless.textarea
 
-internal fun fieldStyle(values: UiThemeValues, variant: ShadcnTextFieldVariant): Style =
-    values.shadcnTextFieldStyle(variant)
-
-/** SelectContent rows are menu items, so they intentionally do not reuse trigger chrome. */
-private fun selectOptionStyle(values: UiThemeValues): Style = Style {
-    background(values.colors.popover)
-    foreground(values.colors.popoverForeground)
-    contentPadding(horizontal = 8f.dp, vertical = 6f.dp)
-    textSize(values.typography.label)
-    hovered { background(values.colors.accent); foreground(values.colors.accentForeground) }
-    active { background(values.colors.accent); foreground(values.colors.accentForeground) }
-    disabled { foreground(values.colors.mutedForeground) }
-}
-
-private fun selectedOptionStyle(values: UiThemeValues): Style = Style {
-    background(values.colors.accent)
-    foreground(values.colors.accentForeground)
-    shape(values.shapes.md)
-}
-
 fun UiScope.shadcnSelect(
     id: String,
     options: List<String>,
@@ -59,9 +43,9 @@ fun UiScope.shadcnSelect(
     selectedIndex = selectedIndex,
     modifier = modifier,
     placeholder = placeholder,
-    style = fieldStyle(themeValues, ShadcnTextFieldVariant.Default),
-    selectedStyle = selectedOptionStyle(themeValues),
-    optionStyle = selectOptionStyle(themeValues),
+    style = themeValues.shadcnTextFieldStyle(ShadcnTextFieldVariant.Default),
+    selectedStyle = shadcnSelectedOptionStyle(themeValues),
+    optionStyle = shadcnSelectOptionStyle(themeValues),
     enabled = enabled,
 )
 
@@ -83,10 +67,10 @@ fun UiScope.shadcnCombobox(
     placeholder = placeholder,
     filterPlaceholder = filterPlaceholder,
     emptyLabel = emptyLabel,
-    style = fieldStyle(themeValues, ShadcnTextFieldVariant.Default),
-    selectedStyle = selectedOptionStyle(themeValues),
-    optionStyle = selectOptionStyle(themeValues),
-    filterStyle = fieldStyle(themeValues, ShadcnTextFieldVariant.Ghost),
+    style = themeValues.shadcnTextFieldStyle(ShadcnTextFieldVariant.Default),
+    selectedStyle = shadcnSelectedOptionStyle(themeValues),
+    optionStyle = shadcnSelectOptionStyle(themeValues),
+    filterStyle = themeValues.shadcnTextFieldStyle(ShadcnTextFieldVariant.Ghost),
 )
 
 fun UiScope.shadcnInput(
@@ -149,11 +133,7 @@ fun UiScope.shadcnSlider(
     value = value,
     label = label,
     modifier = modifier,
-    style = Style {
-        background(themeValues.colors.muted)
-        foreground(themeValues.colors.primary)
-        shape(themeValues.shapes.full)
-    },
+    style = shadcnSliderStyle(themeValues),
     enabled = enabled,
     showKnob = showKnob,
 )
@@ -175,11 +155,7 @@ fun UiScope.shadcnRangeSlider(
     valueEnd = valueEnd,
     label = label,
     modifier = modifier,
-    style = Style {
-        background(themeValues.colors.muted)
-        foreground(themeValues.colors.primary)
-        shape(themeValues.shapes.full)
-    },
+    style = shadcnSliderStyle(themeValues),
     enabled = enabled,
 )
 
@@ -196,20 +172,16 @@ fun UiScope.shadcnInputGroup(
     surface(
         id = "$id.group",
         modifier = modifier.fillMaxWidth(),
-        style = Style {
-            background(themeValues.colors.background)
-            border(1f.dp, themeValues.colors.input)
-            shape(themeValues.shapes.md)
-        },
+        style = shadcnInputGroupStyle(themeValues),
     ) {
         row(verticalAlignment = UiAlignment.Vertical.Center) {
             prefixText?.let { prefix ->
                 surface(
                     id = "$id.prefix",
                     modifier = Modifier.padding(start = 12f.dp, end = 12f.dp),
-                    style = Style { foreground(themeValues.colors.mutedForeground) },
+                    style = shadcnInputGroupAffixStyle(themeValues),
                 ) {
-                    text(label = prefix, style = Style { textSize(themeValues.typography.label) })
+                    text(label = prefix, style = shadcnInputGroupAffixTextStyle(themeValues))
                 }
             }
             result = shadcnInput(
@@ -223,9 +195,9 @@ fun UiScope.shadcnInputGroup(
                 surface(
                     id = "$id.suffix",
                     modifier = Modifier.padding(start = 12f.dp, end = 12f.dp),
-                    style = Style { foreground(themeValues.colors.mutedForeground) },
+                    style = shadcnInputGroupAffixStyle(themeValues),
                 ) {
-                    text(label = suffix, style = Style { textSize(themeValues.typography.label) })
+                    text(label = suffix, style = shadcnInputGroupAffixTextStyle(themeValues))
                 }
             }
         }

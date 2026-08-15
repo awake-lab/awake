@@ -6,7 +6,6 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAvatarBadgeStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAvatarStyle
-import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.avatar
