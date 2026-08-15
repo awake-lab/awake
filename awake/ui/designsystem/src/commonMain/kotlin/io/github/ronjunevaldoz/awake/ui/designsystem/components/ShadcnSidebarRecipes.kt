@@ -12,12 +12,12 @@ import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
 import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.column
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.icon
@@ -32,7 +32,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.weight
 private fun sidebarStyle(scope: UiScope): SurfaceStyle = SurfaceStyle(
     background = scope.themeValues.colors.card,
     foreground = scope.themeValues.colors.foreground,
-    border = SurfaceBorder(1f.dp, scope.themeValues.colors.border),
     contentPadding = UiInsets(
         top = 8f.dp,
         bottom = 8f.dp,
@@ -92,7 +91,7 @@ fun UiScope.shadcnSidebarHeaderButton(
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         ) {
             row(
                 horizontalArrangement = Arrangement.spacedBy(8f.dp),
@@ -163,7 +162,7 @@ fun UiScope.shadcnSidebarFooterButton(
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         ) {
             row(
                 horizontalArrangement = Arrangement.spacedBy(8f.dp),
@@ -272,7 +271,7 @@ fun UiScope.shadcnSidebarMenuItem(
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         ) {
             row(
                 horizontalArrangement = Arrangement.spacedBy(8f.dp),
