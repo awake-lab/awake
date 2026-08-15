@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.ResizableDirection
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.resizablePanelGroup
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import io.github.ronjunevaldoz.awake.ui.style.Style
@@ -176,6 +177,101 @@ class ResizablePanelDragConservationTest {
             card!!.width,
             0.5f,
             "a WrapContent surface must not grow because a handle inside it was dragged",
+        )
+    }
+
+    // Studio's shell shape: a fixed-height vertical split (main/dock) whose main panel nests a
+    // horizontal 3-panel group (sidebar | viewport | inspector) with min/max clamps -- two
+    // handles in one group, plus a handle in the enclosing group.
+    @Test
+    fun nestedThreePanelStudioShapeDragsExactlyOnAllHandles() {
+        val ui = UiContext()
+        val input = Input()
+        var sidebar: UiBounds? = null
+        var viewport: UiBounds? = null
+        var inspector: UiBounds? = null
+        var main: UiBounds? = null
+        var dock: UiBounds? = null
+        var leftHandle: UiBounds? = null
+        var rightHandle: UiBounds? = null
+        var dockHandle: UiBounds? = null
+
+        fun studioFrame(pointerDown: Boolean, x: Float, y: Float) {
+            ui.simulateFrame(pointerDown = pointerDown, x = x, y = y, input = input) {
+                ui.createAbsolute(x = 0f, y = 0f).resizablePanelGroup(
+                    id = "workspace",
+                    direction = ResizableDirection.Vertical,
+                    modifier = Modifier.width(1000f.px).height(700f.px),
+                ) {
+                    main = panel("main", defaultSize = 0.72f, minSize = 0.4f, maxSize = 0.86f) {
+                        resizablePanelGroup(
+                            id = "panels",
+                            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
+                        ) {
+                            sidebar = panel("sidebar", defaultSize = 0.18f, minSize = 0.12f, maxSize = 0.32f) { }
+                            leftHandle = handle("left")
+                            viewport = panel("viewport", defaultSize = 0.62f, minSize = 0.3f) { }
+                            rightHandle = handle("right")
+                            inspector = panel("inspector", defaultSize = 0.2f, minSize = 0.14f, maxSize = 0.32f) { }
+                        }
+                    }
+                    dockHandle = handle("dock-handle")
+                    dock = panel("dock", defaultSize = 0.28f, minSize = 0.14f, maxSize = 0.6f) { }
+                }
+            }
+        }
+
+        studioFrame(pointerDown = false, x = -100f, y = -100f)
+        studioFrame(pointerDown = false, x = -100f, y = -100f)
+
+        // Drag the left handle +80: sidebar grows, viewport shrinks, inspector untouched.
+        val lh = leftHandle!!
+        val lhx = lh.x + lh.width / 2f
+        val lhy = lh.y + lh.height / 2f
+        val sidebarBefore = sidebar!!.width
+        val viewportBefore = viewport!!.width
+        val inspectorBefore = inspector!!.width
+        studioFrame(pointerDown = true, x = lhx, y = lhy)
+        studioFrame(pointerDown = true, x = lhx + 80f, y = lhy)
+        studioFrame(pointerDown = true, x = lhx + 80f, y = lhy)
+        studioFrame(pointerDown = false, x = lhx + 80f, y = lhy)
+        studioFrame(pointerDown = false, x = -100f, y = -100f)
+        assertEquals(sidebarBefore + 80f, sidebar!!.width, 1f, "sidebar must grow by the 80px drag")
+        assertEquals(viewportBefore - 80f, viewport!!.width, 1f, "viewport must give up the 80px")
+        assertEquals(inspectorBefore, inspector!!.width, 0.5f, "inspector must not move on a left-handle drag")
+
+        // Drag the right handle -60: viewport shrinks, inspector grows.
+        val rh = rightHandle!!
+        val rhx = rh.x + rh.width / 2f
+        val rhy = rh.y + rh.height / 2f
+        val viewportMid = viewport!!.width
+        val inspectorMid = inspector!!.width
+        studioFrame(pointerDown = true, x = rhx, y = rhy)
+        studioFrame(pointerDown = true, x = rhx - 60f, y = rhy)
+        studioFrame(pointerDown = true, x = rhx - 60f, y = rhy)
+        studioFrame(pointerDown = false, x = rhx - 60f, y = rhy)
+        studioFrame(pointerDown = false, x = -100f, y = -100f)
+        assertEquals(viewportMid - 60f, viewport!!.width, 1f, "viewport must shrink by the 60px drag")
+        assertEquals(inspectorMid + 60f, inspector!!.width, 1f, "inspector must grow by the 60px drag")
+
+        // Drag the dock handle -50 (vertical): main shrinks, dock grows.
+        val dh = dockHandle!!
+        val dhx = dh.x + dh.width / 2f
+        val dhy = dh.y + dh.height / 2f
+        val mainBefore = main!!.height
+        val dockBefore = dock!!.height
+        studioFrame(pointerDown = true, x = dhx, y = dhy)
+        studioFrame(pointerDown = true, x = dhx, y = dhy - 50f)
+        studioFrame(pointerDown = true, x = dhx, y = dhy - 50f)
+        studioFrame(pointerDown = false, x = dhx, y = dhy - 50f)
+        studioFrame(pointerDown = false, x = -100f, y = -100f)
+        assertEquals(mainBefore - 50f, main!!.height, 1f, "main workspace must shrink by the 50px drag")
+        assertEquals(dockBefore + 50f, dock!!.height, 1f, "dock must grow by the 50px drag")
+        assertEquals(
+            700f,
+            main!!.height + dock!!.height + dh.height,
+            1f,
+            "vertical split must conserve the workspace height",
         )
     }
 

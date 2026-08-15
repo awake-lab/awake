@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableHandle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
@@ -118,7 +119,9 @@ private fun UiScope.drawStudioWorkspace(
     shadcnResizablePanelGroup(
         id = "studio-workspace-group",
         direction = UiResizableDirection.Vertical,
-        modifier = Modifier.fillMaxWidth().height(heightPx.dp),
+        // heightPx is already pixels (computed from the shell slot) -- .px, not .dp: wrapping a
+        // pixel value as Dp re-multiplies by UiDensity.scale and doubled the workspace on Retina.
+        modifier = Modifier.fillMaxWidth().height(heightPx.px),
     ) {
         shadcnResizablePanel(
             id = "studio-workspace-main",

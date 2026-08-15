@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
+import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
@@ -57,6 +58,34 @@ class StudioShellLayoutTest {
         ui.createUiScope(slot = UiBounds(0f, 0f, FRAME_WIDTH, FRAME_HEIGHT))
             .drawStudioShellBody(StudioStore(), World(), NoopRenderer())
         return ui.finishFrame().semantics
+    }
+
+    // The live app runs at Retina density; the shell computes its workspace height in pixels,
+    // and wrapping that pixel value back as Dp re-multiplied it by UiDensity.scale -- the
+    // workspace claimed twice the available height, pushing the dock handle and status bar off
+    // the frame. Only reproduces with scale != 1, which every other test here leaves at 1.
+    @Test
+    fun workspaceStaysInsideTheShellAtRetinaDensity() {
+        val previousScale = UiDensity.scale
+        UiDensity.scale = 2f
+        try {
+            val semantics = renderShell()
+            val statusBar = assertNotNull(semantics.firstOrNull { it.id == "studio-status-bar" })
+            val dockHandle = assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock-handle" })
+            assertEquals(
+                FRAME_HEIGHT,
+                statusBar.bounds.y + statusBar.bounds.height,
+                HAIRLINE_TOLERANCE,
+                "status bar must stay flush with the bottom edge at density 2",
+            )
+            assertTrue(
+                dockHandle.bounds.y + dockHandle.bounds.height < FRAME_HEIGHT,
+                "dock handle must stay inside the frame at density 2 " +
+                    "(was at y=${dockHandle.bounds.y})",
+            )
+        } finally {
+            UiDensity.scale = previousScale
+        }
     }
 
     @Test
