@@ -42,12 +42,18 @@ Companion docs: `ui-component-coverage.md` (per-component inventory + missing li
 | `ShadcnRadiusScaleTest` | Radius ladder matches Tailwind's formula | Any component uses it correctly |
 | `ShadcnReferenceTokenTest` | Color values match published OKLCH | Anything about layout |
 | `*FidelityTest` | Exact per-component dimensions | Correctness vs shadcn — the numbers are ours, and use `BitmapFont` |
-| `UiShowcaseLayoutSignatureTest` | Page layout didn't change unnoticed | That the current layout is right |
+| `UiShowcaseLayoutSignatureTest` | Same page renders identically twice; no two pages collide | That the current layout is right (see `ShadcnGeometryParityTest`) |
 | `ShadcnParityScreenshotTest` | Pixels didn't change unnoticed | Same |
-| `ShadcnReferenceComparisonTest` | Mismatch % didn't get **worse** | Fidelity — baselines were frozen *after* divergence existed (accepts 28–44%) |
+| `ShadcnReferenceComparisonTest` | Colour/radius/border/shadow mismatch % didn't get **worse** | Layout fidelity — demoted 2026-08-15, see `docs/reference/ui-validation.md`'s coverage matrix |
+| `ShadcnGeometryParityTest` | Exact size/position vs shadcn's own `getBoundingClientRect`, sub-pixel | Colour, border, shadow — no dimension it doesn't literally have a number for |
 
-**The pattern:** every gate is a *regression* gate. Only the radius and color tests encode an
-external truth. That is the structural gap behind every bug found on 2026-08-10.
+**The pattern above is now half-fixed.** Layout has an external-truth oracle
+(`ShadcnGeometryParityTest`, 2026-08-15) covering 7 of ~14 components, both themes for badge
+only. Colour/radius/border/shadow still has none — pixel diff is a regression gate for that
+dimension, not a correctness one, same structural gap this section originally described.
+`UiShowcaseLayoutSignatureTest`'s 54 recorded hex constants were dropped the same day: a
+baseline nobody reads on regeneration isn't a gate, and it was bulk-regenerated four times in
+one session.
 
 ## Open risks
 

@@ -1,0 +1,28 @@
+{
+  "case": "tabs-states",
+  "nodes": {
+    "parity-tabs.Account": {
+      "height": 29,
+      "width": 70.09375,
+      "x": 3,
+      "y": 3.5
+    },
+    "parity-tabs.Password": {
+      "height": 29,
+      "width": 79.859375,
+      "x": 73.09375,
+      "y": 3.5
+    },
+    "parity-tabs.track": {
+      "height": 36,
+      "width": 155.953125,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "root": {
+    "height": 36,
+    "width": 155.953125
+  },
+  "theme": "light"
+}
