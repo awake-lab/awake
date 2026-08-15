@@ -72,31 +72,26 @@ fun ShadcnButtonVariant.visuals(
         )
     }
 
+    // Reference hover treatments (button.tsx): primary/90, secondary/80, destructive/90,
+    // outline+ghost -> accent. Link changes only text decoration, which text styling cannot
+    // express yet, so it keeps its rest colors. No separate pressed styles: shadcn buttons
+    // keep the hover treatment while pressed. State styles must re-pass cornerRadius and
+    // contentPadding -- a state rule's SurfaceStyle applies its (zero) padding unconditionally.
+    fun hover(background: Color, foreground: Color) = SurfaceStyle(
+        background = background,
+        foreground = foreground,
+        cornerRadius = if (this == ShadcnButtonVariant.Link) theme.shapes.xs else theme.shapes.md,
+        contentPadding = insets,
+    )
     return SurfaceVisuals(
         rest = rest,
         hovered = when (this) {
-            ShadcnButtonVariant.Outline -> SurfaceStyle(
-                background = colors.secondary,
-                foreground = colors.secondaryForeground,
-                cornerRadius = theme.shapes.md,
-                contentPadding = insets,
-            )
-            ShadcnButtonVariant.Ghost -> SurfaceStyle(
-                background = colors.accent,
-                foreground = colors.accentForeground,
-                cornerRadius = theme.shapes.md,
-                contentPadding = insets,
-            )
-            else -> null
+            ShadcnButtonVariant.Primary -> hover(colors.primary.withAlpha(0.9f), colors.primaryForeground)
+            ShadcnButtonVariant.Secondary -> hover(colors.secondary.withAlpha(0.8f), colors.secondaryForeground)
+            ShadcnButtonVariant.Danger -> hover(colors.destructive.withAlpha(0.9f), Color.White)
+            ShadcnButtonVariant.Outline -> hover(colors.accent, colors.accentForeground)
+            ShadcnButtonVariant.Ghost -> hover(colors.accent, colors.accentForeground)
+            ShadcnButtonVariant.Link -> null
         },
-        pressed = when (this) {
-            ShadcnButtonVariant.Outline, ShadcnButtonVariant.Ghost -> SurfaceStyle(
-                background = colors.accent,
-                foreground = colors.accentForeground,
-                cornerRadius = theme.shapes.md,
-                contentPadding = insets,
-            )
-            else -> null
-        },
-    ).withDisabledDim(theme)
+    )
 }

@@ -86,5 +86,12 @@ fun UiScope.shadcnToggle(
             cornerRadius = themeValues.shapes.md,
             contentPadding = UiInsets(12f.dp, 10f.dp),
         ),
+        // Reference toggle hover is muted; the on state keeps accent while hovered.
+        hovered = SurfaceStyle(
+            background = if (checked) themeValues.colors.accent else themeValues.colors.muted,
+            foreground = if (checked) themeValues.colors.foreground else themeValues.colors.mutedForeground,
+            cornerRadius = themeValues.shapes.md,
+            contentPadding = UiInsets(12f.dp, 10f.dp),
+        ),
     ),
 )
