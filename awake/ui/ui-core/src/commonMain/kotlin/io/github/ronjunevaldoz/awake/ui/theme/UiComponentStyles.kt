@@ -15,6 +15,7 @@ interface UiComponentStyles {
     val checkbox: Style
     val slider: Style
     val dropdown: Style
+    val separator: Style
     val surface: Style
     val textField: Style
     val avatar: Style
@@ -54,6 +55,10 @@ class CoreUiComponentStyles(
         borderColor(tokens.border)
         shape(UiShape.sm)
         textSize(typography.label)
+    }
+    override val separator: Style = Style {
+        background(tokens.border)
+        shape(UiShape.none)
     }
     override val surface: Style = Style {
             background(tokens.background)
