@@ -6,10 +6,32 @@
    taken. */
 @import "tailwindcss";
 
+/* The reference must render text in the SAME typeface Awake does, or the parity numbers measure
+   the font instead of the component.
+
+   Upstream's globals.css leaves --font-sans as `var(--font-sans)` -- self-referential, so it
+   resolves to nothing and the browser falls back to its own default sans. Awake renders a packed
+   Roboto atlas, so every text-heavy case was being scored against a different typeface at a
+   different weight: badge 27%, button 20%, radio-group 19%, tabs 15%, against 5-6% for the cases
+   with little or no text. That ordering was the font, not the components.
+
+   This is the exact TTF Awake packs (awake/ui/text/src/commonMain/resources/fonts), copied into
+   public/fonts, so the two sides cannot drift.
+
+   Note this is deliberately NOT what shadcn ships (Geist). Matching Awake isolates layout parity
+   from typeface parity; adopting Geist on both sides is the separate, larger question. */
+@font-face {
+  font-family: "Roboto";
+  src: url("/fonts/Roboto-Regular.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+
 @theme inline {
   --breakpoint-3xl: 1600px;
   --breakpoint-4xl: 2000px;
-  --font-sans: var(--font-sans);
+  --font-sans: "Roboto", sans-serif;
   --font-heading: var(--font-heading);
   --font-mono: var(--font-mono);
   --radius-sm: calc(var(--radius) * 0.6);
@@ -150,7 +172,7 @@
 
 @layer base {
   * { border-color: var(--border); outline-color: color-mix(in oklch, var(--ring) 50%, transparent); }
-  body { background: var(--background); color: var(--foreground); margin: 0; }
+  body { background: var(--background); color: var(--foreground); margin: 0; font-family: var(--font-sans); }
   /* Captures must not race an animation. */
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
