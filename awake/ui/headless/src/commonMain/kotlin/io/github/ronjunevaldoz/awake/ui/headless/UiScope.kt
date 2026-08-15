@@ -10,6 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelSize as primitiveWithIntrinsicLabelSize
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.textStyle
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 
@@ -28,7 +30,7 @@ interface UiScope {
 
     /** Immutable values from the currently installed theme, without Core runtime access. */
     val themeValues: UiThemeValues
-        get() = primitive.context.currentTheme
+        get() = primitive.theme
 
     /** Typography supplied by the nearest [provideTheme] block. */
     val typography
@@ -36,7 +38,7 @@ interface UiScope {
 
     /** Effective inherited text styling at this point in the UI tree. */
     val textStyle: TextStyle
-        get() = primitive.context.currentTextStyle
+        get() = primitive.textStyle
 }
 
 internal class DefaultUiScope internal constructor(

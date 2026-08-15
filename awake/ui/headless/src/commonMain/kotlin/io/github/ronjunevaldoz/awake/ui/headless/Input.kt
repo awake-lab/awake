@@ -6,6 +6,67 @@ import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.rangeSlider a
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.slider as primitiveSlider
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.textField as primitiveTextField
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.textarea as primitiveTextarea
+import io.github.ronjunevaldoz.awake.ui.style.Style
+
+/** Style-native single-line text input. */
+fun UiScope.textField(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    modifier: Modifier = Modifier,
+    style: Style,
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    leadingIcon: (BoxScope.() -> Unit)? = null,
+    trailingIcon: (BoxScope.() -> Unit)? = null,
+    visualTransformation: (String) -> String = { it },
+): String = primitive.primitiveTextField(
+    id, value, placeholder, modifier.asPrimitiveModifier(), style, enabled, isError,
+    leadingIcon?.let { content -> { content(asHeadlessScope()) } },
+    trailingIcon?.let { content -> { content(asHeadlessScope()) } }, visualTransformation,
+)
+
+/** Style-native multi-line text input. */
+fun UiScope.textarea(
+    id: String,
+    value: String,
+    placeholder: String = "",
+    modifier: Modifier = Modifier,
+    style: Style,
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    minLines: Int = 3,
+): String = primitive.primitiveTextarea(
+    id, value, placeholder, modifier.asPrimitiveModifier(), style, enabled, isError, minLines,
+)
+
+/** Style-native continuous slider. */
+fun UiScope.slider(
+    id: String,
+    min: Float,
+    max: Float,
+    value: Float,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    style: Style,
+    enabled: Boolean = true,
+    showKnob: Boolean = true,
+): Float = primitive.primitiveSlider(id, min, max, value, label, modifier.asPrimitiveModifier(), style, enabled, showKnob)
+
+/** Style-native dual-thumb slider. */
+fun UiScope.rangeSlider(
+    id: String,
+    min: Float,
+    max: Float,
+    valueStart: Float,
+    valueEnd: Float,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    style: Style,
+    enabled: Boolean = true,
+): Pair<Float, Float> = primitive.primitiveRangeSlider(
+    id, min, max, valueStart, valueEnd, label, modifier.asPrimitiveModifier(), style, enabled,
+)
 
 /** Generic single-line text input. State and focus behavior stay in the Headless primitive. */
 fun UiScope.textField(
