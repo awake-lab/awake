@@ -200,17 +200,9 @@ internal class UiContextMeasureState {
                 deltaSeconds = 0f,
             ),
         )
-        // Reset (not push) theme/font/textStyle -- this context is reused across many trial
-        // passes within (and across) frames, and is never explicitly popped back to empty the
-        // way a real widget's push/pop pair is, so pushing every call would grow the stacks
-        // unboundedly. See UiContextStacks.resetForTrial's doc for why resetting directly to
-        // sourceContext's current values is behavior-identical to the old fresh-context
-        // push-once sequence.
-        measureContext.resetStacksForTrialInternal(
-            theme = sourceContext.currentTheme,
-            textStyle = sourceContext.currentTextStyle,
-            font = sourceContext.currentFont,
-        )
+        // Restore all effective ambient locals (not named theme/font/text values). This keeps a
+        // trial consistent with the source tree even when an app provides its own UiLocal.
+        measureContext.restoreAmbientSnapshotInternal(sourceContext.ambientSnapshotInternal())
         measureContext
     }
 }

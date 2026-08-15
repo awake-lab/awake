@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.contextMenuTrigger as primitiveContextMenuTrigger
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.filterOptionsByQuery as primitiveFilterOptionsByQuery
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.select as primitiveSelect
+import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot as primitiveButtonSlot
 
 /** Generic select behavior with a stable Headless receiver. */
 fun UiScope.select(
@@ -54,10 +55,10 @@ fun UiScope.combobox(
     val popupState = rememberPopupState(id, key = "expanded")
     val filterState = rememberStateValue(id, key = "filter") { "" }
     val selectedLabel = options.getOrNull(selectedIndex ?: -1) ?: placeholder
-    val trigger = buttonSlot(
+    val trigger = primitive.primitiveButtonSlot(
         id = "$id.trigger",
-        modifier = modifier,
-        visuals = visuals,
+        modifier = modifier.asPrimitiveModifier(),
+        style = visuals.asPrimitiveStyle(),
         enabled = enabled,
     )
     if (trigger.clicked) {

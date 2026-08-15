@@ -3,6 +3,9 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
+import io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle
+import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 
@@ -12,13 +15,13 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
  * as a styling bag.
  */
 val UiPrimitiveScope.theme: UiTheme
-    get() = context.currentTheme
+    get() = context.current(LocalTheme)
 
 val UiPrimitiveScope.font: UiFont
-    get() = context.currentFont
+    get() = context.current(LocalFont)
 
 val UiPrimitiveScope.textStyle: TextStyle
-    get() = context.currentTextStyle
+    get() = context.current(LocalTextStyle)
 
 val UiPrimitiveScope.resolvedThemeCaptionStyle: TextStyle
-    get() = context.currentTextStyle then TextStyle(size = context.currentTheme.typography.caption)
+    get() = textStyle then TextStyle(size = theme.typography.caption)

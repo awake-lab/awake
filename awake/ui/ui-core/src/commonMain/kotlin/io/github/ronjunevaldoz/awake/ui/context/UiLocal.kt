@@ -27,6 +27,11 @@ class UiLocal<T> internal constructor(
     internal val combine: (parent: T, incoming: T) -> T,
 )
 
+/** Effective scoped-local state captured for a measurement trial. */
+internal class UiLocalSnapshot internal constructor(
+    internal val stacks: Array<Any?>,
+)
+
 private var nextLocalSlot = 0
 
 /**
@@ -80,6 +85,25 @@ internal class UiLocalValues {
         val stack = stackFor(local)
         stack.clear()
         stack.add(value)
+    }
+
+    /**
+     * Copies every local stack, including app-declared locals, for a nested measurement context.
+     * A trial must observe the same ambient values as its source without knowing their types.
+     */
+    fun snapshot(): UiLocalSnapshot = UiLocalSnapshot(
+        Array(stacks.size) { index ->
+            @Suppress("UNCHECKED_CAST")
+            (stacks[index] as? MutableList<Any?>)?.toMutableList()
+        },
+    )
+
+    /** Restores a snapshot without coupling this store to any named local. */
+    fun restore(snapshot: UiLocalSnapshot) {
+        stacks = Array(snapshot.stacks.size.coerceAtLeast(INITIAL_SLOTS)) { index ->
+            @Suppress("UNCHECKED_CAST")
+            (snapshot.stacks.getOrNull(index) as? MutableList<Any?>)?.toMutableList()
+        }
     }
 
     /** Collapses every local that has ever been touched back to its default. A reused trial context

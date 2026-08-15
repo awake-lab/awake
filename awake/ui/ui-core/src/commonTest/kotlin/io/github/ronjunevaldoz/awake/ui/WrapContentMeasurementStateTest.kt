@@ -5,12 +5,14 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.uiLocalOf
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.Provide
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -25,6 +27,40 @@ import kotlin.test.assertTrue
  * actual current value.
  */
 class WrapContentMeasurementStateTest {
+    private val LocalRowCount = uiLocalOf(1)
+
+    @Test
+    fun wrapContentTrialInheritsAppDefinedLocal() {
+        val ui = UiContext()
+        ui.beginFrame(920f, 620f, testSnapshot())
+
+        var content: UiBounds? = null
+        ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
+            id = "content-viewport",
+            modifier = Modifier.width(Dimension.FillMax).height(Dimension.FillMax),
+        ) {
+            Provide(LocalRowCount, 4) {
+                content = surface(
+                    id = "content",
+                    modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent),
+                ) {
+                    repeat(context.current(LocalRowCount)) { index ->
+                        surface(
+                            id = "row-$index",
+                            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(36f.px)),
+                        ) { }
+                    }
+                }
+            }
+        }
+        ui.endFrame()
+
+        assertTrue(
+            (content?.height ?: 0f) > 144f,
+            "the WrapContent trial must inherit the app-provided row count, not use its default",
+        )
+    }
+
     @Test
     fun wrapContentSurfaceSizesAgainstRealPersistedStateNotDefault() {
         val ui = UiContext()

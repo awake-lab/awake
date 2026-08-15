@@ -58,6 +58,8 @@ internal class UiContextStacks {
     fun <T> current(local: UiLocal<T>): T = locals.current(local)
     fun <T> push(local: UiLocal<T>, value: T) = locals.push(local, value)
     fun <T> pop(local: UiLocal<T>) = locals.pop(local)
+    fun snapshot(): UiLocalSnapshot = locals.snapshot()
+    fun restore(snapshot: UiLocalSnapshot) = locals.restore(snapshot)
 
     fun pushTheme(theme: UiTheme) = locals.push(LocalTheme, theme)
     fun popTheme() = locals.pop(LocalTheme)
