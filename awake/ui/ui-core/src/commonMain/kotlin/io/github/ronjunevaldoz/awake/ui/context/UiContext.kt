@@ -76,6 +76,10 @@ class UiContext internal constructor(
     internal fun resetStacksForTrialInternal(theme: UiTheme, textStyle: TextStyle, font: UiFont) =
         stacks.resetForTrial(theme, textStyle, font)
 
+    /** Internal ambient-state handoff for a cached measurement context. */
+    internal fun ambientSnapshotInternal(): UiLocalSnapshot = stacks.snapshot()
+    internal fun restoreAmbientSnapshotInternal(snapshot: UiLocalSnapshot) = stacks.restore(snapshot)
+
     /**
      * Resets the context for a new frame. Accepts [UiInputState] to remain
      * decoupled from hardware input modules.

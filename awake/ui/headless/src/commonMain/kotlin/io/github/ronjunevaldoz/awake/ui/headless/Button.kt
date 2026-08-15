@@ -10,7 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.button as primitiveButton
 import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot as primitiveButtonSlot
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
-/** Headless button slot result containing click state and resolved bounds. */
+/** @deprecated Design-system recipes must migrate to callback/content composition. */
+@Deprecated("Internal layout detail; use button(..., onClick = ...) instead")
 data class HeadlessButtonResult(val clicked: Boolean, val slot: UiBounds)
 
 /** Style-native button API. State rules belong in [style], not in a parallel visual DTO. */
@@ -33,6 +34,31 @@ fun UiScope.button(
     semanticRole = semanticRole,
 )
 
+/** Callback-oriented button API for application composition. */
+fun UiScope.button(
+    id: String,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    style: Style = Style.Empty,
+    centered: Boolean = true,
+    enabled: Boolean = true,
+    semanticRole: UiSemanticRole = UiSemanticRole.Button,
+) {
+    if (
+        primitive.primitiveButton(
+            id = id,
+            label = label,
+            modifier = modifier.asPrimitiveModifier(),
+            style = style,
+            radius = 0.dp,
+            centered = centered,
+            enabled = enabled,
+            semanticRole = semanticRole,
+        )
+    ) onClick()
+}
+
 /** Slot variant of the Style-native button API. */
 fun UiScope.button(
     id: String,
@@ -51,6 +77,8 @@ fun UiScope.button(
     BoxScope(primitive.childBox(slot)).content(slot)
 }.clicked
 
+/** Compatibility bridge for recipes that still require a button's resolved bounds. */
+@Deprecated("Internal layout detail; use button(..., onClick = ...) instead")
 fun UiScope.buttonSlot(
     id: String,
     label: String? = null,
@@ -62,6 +90,8 @@ fun UiScope.buttonSlot(
     return HeadlessButtonResult(result.clicked, result.slot)
 }
 
+/** Compatibility bridge for recipes that still require a button's resolved bounds. */
+@Deprecated("Internal layout detail; use button(..., onClick = ...) instead")
 fun UiScope.buttonSlot(
     id: String,
     modifier: Modifier = Modifier,
@@ -116,6 +146,8 @@ fun UiScope.button(
     BoxScope(primitive.childBox(slot)).content(slot)
 }.clicked
 
+/** Compatibility bridge for legacy visual DTO callers. */
+@Deprecated("Internal layout detail; use button(..., onClick = ...) instead")
 fun UiScope.buttonSlot(
     id: String,
     label: String? = null,
@@ -124,15 +156,13 @@ fun UiScope.buttonSlot(
     enabled: Boolean = true,
 ): HeadlessButtonResult {
     val result = primitive.primitiveButtonSlot(
-        id = id,
-        label = label,
-        modifier = modifier.asPrimitiveModifier(),
-        style = visuals.asPrimitiveStyle(),
-        enabled = enabled,
+        id, label, modifier.asPrimitiveModifier(), visuals.asPrimitiveStyle(), enabled = enabled,
     )
     return HeadlessButtonResult(result.clicked, result.slot)
 }
 
+/** Compatibility bridge for legacy visual DTO callers. */
+@Deprecated("Internal layout detail; use button(..., onClick = ...) instead")
 fun UiScope.buttonSlot(
     id: String,
     modifier: Modifier = Modifier,
@@ -141,12 +171,7 @@ fun UiScope.buttonSlot(
     content: BoxScope.(slot: UiBounds) -> Unit,
 ): HeadlessButtonResult {
     val result = primitive.primitiveButtonSlot(
-        id = id,
-        modifier = modifier.asPrimitiveModifier(),
-        style = visuals.asPrimitiveStyle(),
-        enabled = enabled,
-    ) { slot ->
-        BoxScope(primitive.childBox(slot)).content(slot)
-    }
+        id, modifier.asPrimitiveModifier(), visuals.asPrimitiveStyle(), enabled = enabled,
+    ) { slot -> BoxScope(primitive.childBox(slot)).content(slot) }
     return HeadlessButtonResult(result.clicked, result.slot)
 }

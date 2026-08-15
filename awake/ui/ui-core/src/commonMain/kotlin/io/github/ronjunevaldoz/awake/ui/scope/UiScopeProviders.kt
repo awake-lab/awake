@@ -8,6 +8,8 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.context.UiLocal
 import io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle
 import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
+import io.github.ronjunevaldoz.awake.ui.context.LocalShapeSpec
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
@@ -41,19 +43,9 @@ fun UiPrimitiveScope.ProvideTheme(theme: UiTheme, content: UiPrimitiveScope.() -
 }
 
 fun UiPrimitiveScope.ProvideFont(font: UiFont, content: UiPrimitiveScope.() -> Unit) {
-    context.pushFont(font)
-    try {
-        this.content()
-    } finally {
-        context.popFont()
-    }
+    Provide(LocalFont, font, content)
 }
 
 fun UiPrimitiveScope.ProvideShapeSpec(spec: UiShapeSpec?, content: UiPrimitiveScope.() -> Unit) {
-    context.pushShapeSpec(spec)
-    try {
-        this.content()
-    } finally {
-        context.popShapeSpec()
-    }
+    Provide(LocalShapeSpec, spec, content)
 }
