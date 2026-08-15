@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarFooterButton
@@ -12,7 +14,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -169,26 +170,19 @@ class ShadcnSidebarFooterVisibilityTest {
 
     @Test
     fun aButtonHeaderAboveTheContentSlotStillPinsTheFooterToTheBottom() {
-        // The preview's exact shape, and the one that isolates the bug: a real
+        // The preview's exact shape, and the one that isolated the bug: a real
         // shadcnSidebarHeaderButton above the weighted content slot. Every other case here uses a
-        // spacer or a plain surface as the header and passes. Font and density are matched to the
-        // preview too, though neither turned out to matter -- the button did.
-        val previous = UiDensity.scale
-        UiDensity.scale = 2f
-        try {
-            val ui = UiContext()
-            ui.pushFont(UiFonts.default(cellSize = 24))
-            ui.pushTheme(ShadcnTheme)
-            ui.beginFrame(600f, 1040f, testSnapshot())
-            val sidebar = ui.headlessRoot().shadcnSidebar(
+        // spacer or a plain surface as the header and passes.
+        //
+        // Written on renderUiComponent rather than by hand -- this is the same six lines of
+        // context/font/theme/beginFrame/finishFrame the other cases above still spell out.
+        var sidebar: UiBounds? = null
+        val frame = renderUiComponent(width = 600f, height = 1040f, theme = ShadcnTheme, density = 2f) {
+            sidebar = shadcnSidebar(
                 id = "sidebar",
                 modifier = Modifier.width(264f.dp).height(360f.dp),
                 header = {
-                    shadcnSidebarHeaderButton(
-                        id = "sidebar-team",
-                        title = "Acme Inc",
-                        subtitle = "Enterprise",
-                    )
+                    shadcnSidebarHeaderButton(id = "sidebar-team", title = "Acme Inc", subtitle = "Enterprise")
                 },
                 footer = {
                     shadcnSidebarFooterButton(id = FOOTER_ID, name = "shadcn", email = "m@example.com")
@@ -196,27 +190,21 @@ class ShadcnSidebarFooterVisibilityTest {
             ) {
                 shadcnSidebarGroup(label = "PLATFORM") {
                     shadcnSidebarMenu {
-                        repeat(4) { index ->
-                            shadcnSidebarMenuItem(id = "item-$index", label = "Item $index")
-                        }
+                        repeat(4) { index -> shadcnSidebarMenuItem(id = "item-$index", label = "Item $index") }
                     }
                 }
             }
-            val output = ui.finishFrame()
-            val footer = requireNotNull(output.semantics.firstOrNull { it.id == FOOTER_ID }) {
-                "no semantic node for '$FOOTER_ID'"
-            }
-            val sidebarBottom = sidebar.y + sidebar.height
-            val footerBottom = footer.bounds.y + footer.bounds.height
-
-            assertTrue(
-                footerBottom >= sidebarBottom - footer.bounds.height,
-                "footer ${footer.bounds.y}..$footerBottom in a sidebar ${sidebar.y}..$sidebarBottom " +
-                    "-- the weighted content slot collapsed and the footer rode up with it.",
-            )
-        } finally {
-            UiDensity.scale = previous
         }
+
+        val sidebarBottom = requireNotNull(sidebar).let { it.y + it.height }
+        val footer = frame.bounds(FOOTER_ID)
+        val footerBottom = frame.bottomOf(FOOTER_ID)
+
+        assertTrue(
+            footerBottom >= sidebarBottom - footer.height,
+            "footer ${footer.y}..$footerBottom in a sidebar ending at $sidebarBottom -- the " +
+                "weighted content slot collapsed and the footer rode up with it.",
+        )
     }
 
     @Test

@@ -233,7 +233,20 @@ data class ShadcnParityMetric(
     val referenceSize: List<Int>,
     val comparedSize: List<Int>,
     val diffImage: String,
-)
+) {
+    /** Compared area as a share of the larger image -- 100% when both sides framed the same box. */
+    fun coveragePct(): Double {
+        val compared = (comparedSize[0].toDouble() * comparedSize[1]).coerceAtLeast(0.0)
+        val largest = maxOf(
+            awakeSize[0].toDouble() * awakeSize[1],
+            referenceSize[0].toDouble() * referenceSize[1],
+        ).coerceAtLeast(1.0)
+        return compared / largest * 100.0
+    }
+}
+
+/** Below this, the pair is mis-framed rather than merely different, and its mismatch%% is noise. */
+private const val MIN_COVERAGE_PCT = 80.0
 
 // Same heuristic and constants as tools/compare_parity.py's trim_uniform_border /
 // PIXEL_MISMATCH_DELTA -- keep both in sync if the comparison approach changes.
@@ -385,17 +398,7 @@ class ShadcnReferenceComparisonTest {
             }
         }.sortedByDescending { it.mismatchPct }
 
-        println("%-10s %10s %10s %11s".format("name", "mismatch%", "maxDelta", "meanDelta"))
-        results.forEach { r ->
-            println(
-                "%-10s %9.2f%% %10d %11.2f".format(
-                    r.name,
-                    r.mismatchPct,
-                    r.maxChannelDelta,
-                    r.meanDelta,
-                ),
-            )
-        }
+        printParityTable(results)
 
         metricsFile.parentFile.mkdirs()
         metricsFile.writeText(Json { prettyPrint = true }.encodeToString(results))
@@ -438,6 +441,8 @@ class ShadcnReferenceComparisonTest {
             return
         }
 
+        requireConsistentFraming(results, current.excluded.keys)
+
         val missing = mutableListOf<String>()
         val regressed = mutableListOf<String>()
         results.forEach { r ->
@@ -471,5 +476,61 @@ class ShadcnReferenceComparisonTest {
                     "-DAWAKE_RECORD_SNAPSHOTS=true after confirming the diff image looks right.",
             )
         }
+    }
+}
+
+private fun printParityTable(results: List<ShadcnParityMetric>) {
+    println(
+        "%-24s %10s %10s %11s %9s %-11s %-11s".format(
+            "name",
+            "mismatch%",
+            "maxDelta",
+            "meanDelta",
+            "covered%",
+            "awake",
+            "reference",
+        ),
+    )
+    results.forEach { r ->
+        println(
+            "%-24s %9.2f%% %10d %11.2f %8.1f%% %-11s %-11s".format(
+                r.name,
+                r.mismatchPct,
+                r.maxChannelDelta,
+                r.meanDelta,
+                r.coveragePct(),
+                "${r.awakeSize[0]}x${r.awakeSize[1]}",
+                "${r.referenceSize[0]}x${r.referenceSize[1]}",
+            ),
+        )
+    }
+}
+
+private fun requireConsistentFraming(results: List<ShadcnParityMetric>, excluded: Set<String>) {
+    // Framing is checked before drift, and is NOT ratcheted.
+    //
+    // compareAgainstReference walks the intersection of the two images -- min(width) by
+    // min(height) -- so a reference captured at a different size is silently compared on its
+    // top-left corner only, and the leftover area is neither compared nor reported. The
+    // resulting number still reads as a fidelity score. slider-local-light sat at 50.98%
+    // that way against a 256x6 reference of a 300x20 render: the capture cropped the thumb
+    // out entirely, so the figure described the crop, not the slider.
+    //
+    // A ratchet cannot catch this -- a mis-framed pair is stable, so it passes forever at
+    // whatever number the framing produces.
+    val misframed = results.filter { it.name !in excluded && it.coveragePct() < MIN_COVERAGE_PCT }
+    if (misframed.isNotEmpty()) {
+        throw AssertionError(
+            "Reference and render disagree on size, so the mismatch%% below is measured on a " +
+                "crop and means nothing:\n" +
+                misframed.joinToString("\n") { r ->
+                    "  ${r.name}: awake ${r.awakeSize[0]}x${r.awakeSize[1]}, reference " +
+                        "${r.referenceSize[0]}x${r.referenceSize[1]}, compared " +
+                        "${r.comparedSize[0]}x${r.comparedSize[1]} " +
+                        "(${round2(r.coveragePct())}%% of the larger image)"
+                } +
+                "\nRe-capture the reference with tools/capture_shadcn_reference.py so it frames " +
+                "the same content, or fix the Awake preview's canvas to match it.",
+        )
     }
 }
