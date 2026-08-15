@@ -54,7 +54,18 @@ vertical variant, no component. Named blocker in the placeholder: shadcnButton o
 corners; a grouped-border recipe (first/last radii, collapsed inner borders) doesn't exist.
 Reference: `registry/new-york-v4/examples/button-group-demo.tsx`.
 
-## Resizable (P0)
+## Resizable (P0) — core drag bug FIXED 2026-08-15
+
+Fixed (commit 189bd0f6): the "2x drag" and "group grows" symptoms were one bug — the
+group's interior claims (panel/handle at `fraction x resolved bound`) leaked into an
+enclosing WrapContent surface's measure trial as phantom intrinsic width, re-sizing the
+card and re-basing the panel budget mid-gesture. Not dpr-related. `resizablePanelGroup`
+now wraps its walk in `boundDerivedContent` (public wrapper over
+`withMeasuredSubtreeIsolated`). Exact-value tests: delta-exact redistribution,
+conservation, 1:1 tracking, density 1 and 2, full showcase composition. Still open below:
+cursor plumbing on wasm, divider line, centered labels, nested demo.
+
+Original findings:
 
 - **Drag delta ≈ 2× pointer movement.** Measured: 100 CSS px drag → ~182 CSS px handle
   travel. wasm host publishes pointer in physical px (`offsetX * density`,
