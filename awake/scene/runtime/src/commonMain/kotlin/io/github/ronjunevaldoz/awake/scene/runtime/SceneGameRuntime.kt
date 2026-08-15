@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
@@ -56,6 +57,13 @@ class SceneGameRuntime internal constructor(
 
     val uiContext = UiContext()
     val font: UiFont = UiFonts.default()
+
+    /** The overlay's cursor request for the current frame -- a desktop host applies it by
+     * passing `cursor = { runtime.cursor }` to `runVulkanDesktopGame` (see GameUiRuntime.cursor,
+     * the same opt-in shape). Dropped on the floor before this existed: resize handles and text
+     * fields requested cursors that no platform call ever consumed. */
+    var cursor: UiCursor = UiCursor.Default
+        private set
 
     /** Rolling window backing [averageFrameTimeMs]/[fps] -- same shape as
      * `GameUiRuntime.recordFrameTime`'s own tracker (see `SceneGameFrame.kt`'s `frameStats()`
@@ -151,6 +159,7 @@ class SceneGameRuntime internal constructor(
 
         // 4. Sync UI focus state back to session input.
         input.textInputFocused = uiFrame.effects.requestKeyboard
+        cursor = uiFrame.effects.cursor
     }
 
     override fun resize(width: Float, height: Float) = Unit

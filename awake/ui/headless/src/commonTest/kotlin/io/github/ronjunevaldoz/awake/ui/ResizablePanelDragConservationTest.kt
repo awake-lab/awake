@@ -57,7 +57,9 @@ class ResizablePanelDragConservationTest {
         assertEquals(298f, panels.p1!!.width, 0.5f, "press alone must not move the split")
         assertEquals(298f, panels.p2!!.width, 0.5f, "press alone must not move the split")
 
-        frame(ui, input, panels, pointerDown = true, x = 400f)
+        // One movement frame applies the full delta to BOTH panels -- the pre-walk drag
+        // resolution means the before-panel is never a frame behind (the old lag made
+        // everything after the handle jitter sideways during a live drag).
         frame(ui, input, panels, pointerDown = true, x = 400f)
 
         assertEquals(398f, panels.p1!!.width, 1f, "p1 must grow by exactly the 100px pointer delta")
@@ -231,14 +233,22 @@ class ResizablePanelDragConservationTest {
         val sidebarBefore = sidebar!!.width
         val viewportBefore = viewport!!.width
         val inspectorBefore = inspector!!.width
+        val inspectorXBefore = inspector!!.x
         studioFrame(pointerDown = true, x = lhx, y = lhy)
+        // Mid-drag frames: the inspector (declared after both dragged panels) must hold both
+        // its size AND position on the very frame the delta lands -- the one-frame stale
+        // before-panel made it jitter sideways during live drags.
         studioFrame(pointerDown = true, x = lhx + 80f, y = lhy)
-        studioFrame(pointerDown = true, x = lhx + 80f, y = lhy)
+        assertEquals(inspectorBefore, inspector!!.width, 0.5f, "inspector width must hold mid-drag")
+        assertEquals(inspectorXBefore, inspector!!.x, 0.5f, "inspector position must hold mid-drag")
+        assertEquals(sidebarBefore + 80f, sidebar!!.width, 1f, "sidebar must grow on the movement frame itself")
+        assertEquals(viewportBefore - 80f, viewport!!.width, 1f, "viewport must shrink on the movement frame itself")
         studioFrame(pointerDown = false, x = lhx + 80f, y = lhy)
         studioFrame(pointerDown = false, x = -100f, y = -100f)
         assertEquals(sidebarBefore + 80f, sidebar!!.width, 1f, "sidebar must grow by the 80px drag")
         assertEquals(viewportBefore - 80f, viewport!!.width, 1f, "viewport must give up the 80px")
         assertEquals(inspectorBefore, inspector!!.width, 0.5f, "inspector must not move on a left-handle drag")
+        assertEquals(inspectorXBefore, inspector!!.x, 0.5f, "inspector must not shift on a left-handle drag")
 
         // Drag the right handle -60: viewport shrinks, inspector grows.
         val rh = rightHandle!!
