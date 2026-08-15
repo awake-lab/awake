@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.strokeToFillPath
 fun UiPrimitiveScope.icon(
     imageVector: UiImageVector,
     modifier: UiModifier = Modifier,
-    tint: Color = context.currentTheme.colors.foreground,
+    tint: Color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.foreground,
     overlay: Boolean = false,
 ): UiBounds {
     val slot = claimModifiedSlot(

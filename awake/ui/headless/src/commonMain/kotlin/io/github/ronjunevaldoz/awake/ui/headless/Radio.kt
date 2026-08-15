@@ -4,23 +4,35 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.radio as primitiveRadio
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 fun UiScope.radio(
     id: String,
     selected: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    visuals: SurfaceStyle = SurfaceStyle(cornerRadius = 9999f.dp),
+    style: Style = Style { shape(9999f.dp) },
     onClick: () -> Unit = {},
 ): Boolean {
     val next = primitive.primitiveRadio(
         id = id,
         selected = selected,
         modifier = modifier.asPrimitiveModifier(),
-        style = visuals.asPrimitiveStyle(),
+        style = style,
         boxSize = 16f.dp,
         enabled = enabled,
     )
     if (next != selected) onClick()
     return next
 }
+
+/** Compatibility bridge while callers migrate to [Style]. */
+@Deprecated("Use the Style overload")
+fun UiScope.radio(
+    id: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    visuals: SurfaceStyle,
+    onClick: () -> Unit = {},
+): Boolean = radio(id, selected, modifier, enabled, visuals.asPrimitiveStyle(), onClick)

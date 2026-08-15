@@ -45,7 +45,7 @@ internal fun UiPrimitiveScope.drawResolvedText(
     shimmer: Boolean = false,
     semanticBounds: UiBounds? = null,
 ): UiBounds {
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     if (
         resolvedStyle.background != null ||
         resolvedStyle.borderWidth.toPx() > 0f ||
@@ -68,7 +68,7 @@ internal fun UiPrimitiveScope.drawResolvedText(
         slot = slot.inset(resolvedStyle.contentPadding),
         font = resolvedFont,
         color = color ?: resolvedStyle.foreground ?: textStyle.color
-            ?: context.currentTextStyle.color ?: theme.colors.foreground,
+            ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).color ?: theme.colors.foreground,
         centered = centered,
         verticallyCentered = verticallyCentered,
         wrap = wrap,
@@ -91,7 +91,7 @@ fun UiPrimitiveScope.text(
     label: String,
     slot: UiBounds,
     style: Style = Style.Empty,
-    font: UiFont = context.currentFont,
+    font: UiFont = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
     color: Color? = null,
     centered: Boolean = false,
     verticallyCentered: Boolean = true,
@@ -104,11 +104,11 @@ fun UiPrimitiveScope.text(
     shimmer: Boolean = false,
 ): UiBounds {
     val slotAsSlot = slot
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     val resolved = resolveStyle(
         style = style,
         defaults = Style {
-            if (context.currentTextStyle.color == null) {
+            if (context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).color == null) {
                 foreground(theme.colors.foreground)
             }
         },
@@ -142,7 +142,7 @@ fun UiPrimitiveScope.text(
     label: String,
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-    font: UiFont = context.currentFont,
+    font: UiFont = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
     color: Color? = null,
     centered: Boolean = false,
     verticallyCentered: Boolean = true,
@@ -154,7 +154,7 @@ fun UiPrimitiveScope.text(
     semanticRole: UiSemanticRole = UiSemanticRole.Text,
 ): UiBounds {
     val resolvedFont = font
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     val resolvedSemanticId = semanticId ?: modifier.testTag
         ?: if (modifier.shimmer) "shimmer-${label.hashCode()}" else null
 
@@ -175,7 +175,7 @@ fun UiPrimitiveScope.text(
         val resolved = resolveStyle(
             style = style,
             defaults = Style {
-                if (context.currentTextStyle.color == null) {
+                if (context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).color == null) {
                     foreground(theme.colors.foreground)
                 }
             },

@@ -52,12 +52,11 @@ These are placement rules, not style preferences.
 Concrete rule for what belongs in each module, beyond "generic" vs "branded":
 
 - Every reusable leaf widget in `ui-headless` gets a bare, unbranded name (`checkbox`, `button`,
-  `slider`, `dropdown`, ...) and carries no named visual recipe. It accepts neutral visual-state
-  data such as `SurfaceVisuals(rest, hovered, pressed, disabled)`, not `Primary`, `Ghost`,
-  `Outline`, Material, or shadcn vocabulary.
+  `slider`, `dropdown`, ...) and carries no named visual recipe. It accepts one neutral `Style`,
+  including its state rules, not `Primary`, `Ghost`, `Outline`, Material, or shadcn vocabulary.
 - `ui-designsystem` provides exactly one themed wrapper per `ui-headless` widget it recipes,
   named `shadcn<Widget>` (brand prefix + the same widget name, e.g. `checkbox` ->
-  `shadcnCheckbox`). The wrapper maps a branded variant to neutral Headless visual states; it
+  `shadcnCheckbox`). The wrapper maps a branded variant to a neutral Headless `Style`; it
   must not add new structural or behavioral logic the underlying widget doesn't already have.
   If a wrapper needs real new logic, that logic belongs in `ui-headless` (generic) -- see the
   note on neutral composition below.
@@ -78,8 +77,8 @@ out of Headless rather than letting a temporary exception become an ownership le
 | Module | Responsibility | Examples |
 |---|---|---|
 | `awake:engine:ui:ui-api` | Immutable cross-layer values and theme-value contracts | `UiBounds`, `Dimension`, `Dp`, `Sp`, color/shape/typography contracts |
-| `awake:engine:ui:ui-core` | Runtime layout, drawing, input, and state mechanics | low-level layout, clipping, slots, pixel resolution, neutral fallback resolver |
-| `awake:engine:ui:ui-headless` | Reusable leaf-widget behavior and neutral visual states | button mechanics, `SurfaceVisuals`, checkbox, text field, slider, primitive panels |
+| `awake:engine:ui:ui-core` | Runtime layout, drawing, input, state, and neutral component-style fallback | low-level layout, clipping, slots, pixel resolution, `CoreUiComponentStyles` |
+| `awake:engine:ui:ui-headless` | Reusable leaf-widget behavior and neutral `Style` application | button mechanics, checkbox, text field, slider, primitive panels |
 | `awake:engine:ui:ui-dsl` | Neutral multi-widget and tooling composition when needed | property rows/lists, inspector scaffolds, tooling shells |
 | `awake:engine:ui:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
 | `samples:*` or game modules | Sample/game adapters and authored usage | scene inspector bindings, demo-specific overlays, debug HUD wiring |
@@ -126,14 +125,13 @@ Theme *values* and component visual policy are deliberately separate:
 - `ui-api` owns immutable, runtime-free value contracts such as `UiColorTokens`,
   `UiShapeTokens`, and `UiTypography`. They describe values; they do not prescribe a component
   recipe or a named design language.
-- `ui-core` resolves and applies those values while running the UI, and may provide one neutral
-  fallback theme. It must not expose a `UiComponentStyles`-like component-style registry: that
-  is component visual policy, not runtime mechanics.
-- `ui-headless` owns the generic visual-state shape a widget needs, for example target
-  `SurfaceVisuals(rest, hovered, pressed, disabled)`. The current generic `SurfaceStyle`
-  façade is an interim bridge toward that model, not permission to introduce named visual
-  recipes. Headless must not name a state `Primary`, `Ghost`, `Outline`, Material, or shadcn,
-  and must not hardcode `Color(...)` values.
+- `ui-core` resolves and applies those values while running the UI, and provides the neutral
+  `UiComponentStyles` contract plus `CoreUiComponentStyles` fallback. Its defaults must remain
+  generic and free of brand, product, or named-variant policy.
+- `ui-headless` accepts and applies the generic `Style` shape a widget needs, including state
+  rules. `SurfaceStyle`/`SurfaceVisuals` are deprecated compatibility bridges, not an API model.
+  Headless must not name a state `Primary`, `Ghost`, `Outline`, Material, or shadcn, and must
+  not invent token names or hardcode `Color(...)` values.
 - `ui-designsystem` owns named themes, token instances, component recipes, and branded variants.
   A wrapper maps its brand-specific variant onto Headless's neutral visual states. It is the only
   module allowed to hardcode `Color(...)`/`Color.fromOklch(...)` literals, and only inside
@@ -149,8 +147,8 @@ Theme *values* and component visual policy are deliberately separate:
 | `UiSlot.anchored(anchor, width, height, margin)` | `ui-core` | pure placement math returning a slot |
 | `button`, `checkbox`, `slider` | `ui-headless` | generic reusable leaf widgets |
 | `UiColorTokens`, `UiShapeTokens`, `UiTypography` | `ui-api` | immutable, runtime-free theme value contracts |
-| neutral fallback theme resolution | `ui-core` | runtime fallback only; no component-style registry |
-| `SurfaceVisuals` / generic interaction-state visuals | `ui-headless` | widget-state contract without branded names |
+| neutral fallback theme resolution and `CoreUiComponentStyles` | `ui-core` | generic runtime fallback, not branded policy |
+| `Style` / generic interaction-state rules | `ui-headless` | widget-state contract without branded names |
 | `PropertyList`, `PropertyRow`, `propertyCheckbox`, generic inspector scaffolds | `ui-dsl` | neutral multi-widget/tooling composition, not a leaf widget |
 | `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme` | `ui-designsystem` | named authored themes belong above engine core |
 | `ShadcnPanelStyle`, `Primary`/`Ghost`/`Outline` variants | `ui-designsystem` | branded visual policy, not engine primitive |

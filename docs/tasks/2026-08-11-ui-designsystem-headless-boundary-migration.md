@@ -1,5 +1,12 @@
 # Final Plan: UI API / Core / Headless Boundary
 
+> **Superseded visual-policy decision (2026-08-15):** the module-boundary work in this document
+> remains historical context, but its prohibition of `UiComponentStyles` in Core and its
+> `SurfaceVisuals` target are no longer authoritative. Core owns the neutral
+> `UiComponentStyles` contract and `CoreUiComponentStyles` fallback; Design System overrides it.
+> Headless accepts and applies `Style` with state rules. `SurfaceStyle`/`SurfaceVisuals` are
+> deprecated compatibility bridges during migration.
+
 ## Outcome
 
 `ui-designsystem` compiles only against `ui-headless` and `ui-api`. It has no `ui-core`
@@ -22,20 +29,21 @@ ui-api
 ui-core
   UiContext, UiPrimitiveScope, frame lifecycle, layout, draw collection,
   hit testing, input/focus/state, renderer-facing mechanics, and a neutral
-  fallback resolver. No public UiComponentStyles-style component recipe registry.
+  fallback resolver including the neutral UiComponentStyles/CoreUiComponentStyles contract.
+  No branded component recipes or named variants.
   Depends on ui-api.
 
 ui-headless
   Public UiScope, ColumnScope, RowScope, BoxScope, and AbsoluteScope facades;
-  generic leaf widgets, interaction behavior, and neutral visual-state
-  contracts such as SurfaceVisuals(rest, hovered, pressed, disabled). These
+  generic leaf widgets, interaction behavior, and neutral Style application,
+  including Style state rules. These
   scopes hold internal raw primitive-scope references. No named variants.
   Depends on ui-api and implementation(ui-core).
 
 ui-designsystem
   UiScope.shadcn* recipes, named themes, token instances, branded variants,
-  icons, and branded composition. It maps branded variants to Headless neutral
-  visual states. Depends on ui-api and ui-headless. Never depends on ui-core.
+  icons, and branded composition. It maps branded variants to Style and overrides
+  Core's neutral component styles. Depends on ui-api and ui-headless. Never depends on ui-core.
 
 ui-dsl (when production composition warrants the module)
   Neutral multi-widget/tooling composition such as property rows, inspector
@@ -62,7 +70,7 @@ apps/samples
   designsystem or ordinary headless APIs.
 - `awake.ui-ownership-convention` remains defense in depth, not the primary boundary.
 - Named variants (`Primary`, `Ghost`, `Outline`, and brand vocabulary) are forbidden in
-  `ui-headless`; a public Core component-style registry is forbidden in `ui-core`.
+  `ui-headless`; Core's component-style contract remains neutral and unbranded.
 
 ## Implementation Sequence
 
@@ -82,9 +90,9 @@ Gate: the inventory has a target module and test owner for every item.
 2. Move pure values first: units, bounds/dimensions, and color/shape/typography contracts. Keep
    `UiContext`, drawing/layout machinery, and any type with runtime behavior in Core. Do not
    move behavioral scope receivers to `ui-api` merely to make a dependency graph compile.
-3. Replace Core's `UiComponentStyles`/`CoreUiComponentStyles` direction with a Headless generic
-   visual-state model. Do not move the registry wholesale: its component-specific fields are the
-   visual-policy leak this migration is eliminating.
+3. Keep Core's neutral `UiComponentStyles`/`CoreUiComponentStyles` contract and route component
+   defaults through `Style`. Design System supplies branded overrides through the same contract;
+   do not create a parallel Headless visual DTO registry.
 4. Make `ui-core` depend on `ui-api`; update imports with no behavior changes.
 
 Gate: all moved types compile on every existing KMP target and `ui-api` has no dependency on
@@ -124,7 +132,7 @@ Migrate one behavior at a time, always retaining `UiScope.shadcn*` syntax:
 5. Tabs and collapsible state/measurement.
 6. OTP focus traversal, resize drag handling, and remaining reusable drawing/layout helpers.
 
-For each slice: move generic behavior and neutral state contracts to Headless; leave Shadcn
+For each slice: move generic behavior and neutral `Style` application to Headless; leave Shadcn
 tokens, named variants, and composition in Design System; and add a Headless behavior test plus
 Design System desktop regression coverage.
 

@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow as PrimitiveTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextWrap as PrimitiveTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text as primitiveText
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 enum class UiTextWrap { None, Word }
 enum class UiTextOverflow { Visible, Clip, Ellipsis }
@@ -26,7 +27,7 @@ private fun UiTextOverflow.asPrimitive(): PrimitiveTextOverflow = when (this) {
 fun UiScope.text(
     label: String,
     modifier: Modifier = Modifier,
-    visuals: SurfaceStyle = SurfaceStyle(),
+    style: Style = Style.Empty,
     color: Color? = null,
     centered: Boolean = false,
     wrap: UiTextWrap = UiTextWrap.None,
@@ -36,7 +37,7 @@ fun UiScope.text(
 ): UiBounds = primitive.primitiveText(
     label = label,
     modifier = modifier.asPrimitiveModifier(),
-    style = visuals.asPrimitiveStyle(),
+    style = style,
     color = color,
     centered = centered,
     wrap = wrap.asPrimitive(),
@@ -44,3 +45,17 @@ fun UiScope.text(
     maxLines = maxLines,
     semanticId = semanticId,
 )
+
+/** Compatibility bridge while callers migrate to [Style]. */
+@Deprecated("Use the Style overload")
+fun UiScope.text(
+    label: String,
+    modifier: Modifier = Modifier,
+    visuals: SurfaceStyle,
+    color: Color? = null,
+    centered: Boolean = false,
+    wrap: UiTextWrap = UiTextWrap.None,
+    overflow: UiTextOverflow = UiTextOverflow.Visible,
+    maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
+    semanticId: String? = null,
+): UiBounds = text(label, modifier, visuals.asPrimitiveStyle(), color, centered, wrap, overflow, maxLines, semanticId)

@@ -16,7 +16,7 @@ fun UiPrimitiveScope.resolveStyle(
     style: Style = Style.Empty,
     defaults: Style = Style.Empty,
     state: StyleState = MutableStyleState(),
-): ResolvedStyle = (defaults then style).resolve(state, context.currentTextStyle)
+): ResolvedStyle = (defaults then style).resolve(state, context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle))
 
 fun UiPrimitiveScope.recordSemantic(
     role: UiSemanticRole,

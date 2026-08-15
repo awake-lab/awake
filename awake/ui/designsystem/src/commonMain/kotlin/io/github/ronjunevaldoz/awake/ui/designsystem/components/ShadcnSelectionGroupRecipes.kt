@@ -7,12 +7,11 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnRadioMetrics
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnRadioStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnToggleGroupItemStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -21,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.toggleGroup
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 fun UiScope.shadcnToggleGroup(
     id: String,
@@ -34,14 +34,7 @@ fun UiScope.shadcnToggleGroup(
         options = options,
         selectedIndices = selectedIndices,
         modifier = modifier,
-        visuals = SurfaceVisuals(
-            rest = SurfaceStyle(
-                background = themeValues.colors.card,
-                foreground = themeValues.colors.foreground,
-                border = SurfaceBorder(1f.dp, themeValues.colors.border),
-                cornerRadius = themeValues.shapes.md,
-            ),
-        ),
+        style = shadcnToggleGroupItemStyle(themeValues),
         onSelectedIndicesChange = onSelectedIndicesChange,
     )
 }
@@ -58,14 +51,7 @@ fun UiScope.shadcnToggleGroup(
         options = options,
         selectedIndex = selectedIndex,
         modifier = modifier,
-        visuals = SurfaceVisuals(
-            rest = SurfaceStyle(
-                background = themeValues.colors.card,
-                foreground = themeValues.colors.foreground,
-                border = SurfaceBorder(1f.dp, themeValues.colors.border),
-                cornerRadius = themeValues.shapes.md,
-            ),
-        ),
+        style = shadcnToggleGroupItemStyle(themeValues),
         onIndexChange = onIndexChange,
     )
 }
@@ -81,12 +67,7 @@ fun UiScope.shadcnRadioButton(
     selected = selected,
     modifier = modifier,
     enabled = enabled,
-    visuals = SurfaceStyle(
-        background = themeValues.colors.background,
-        foreground = themeValues.colors.primary,
-        border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        cornerRadius = themeValues.shapes.full,
-    ),
+    style = shadcnRadioStyle(themeValues),
     onClick = onClick,
 )
 
@@ -99,7 +80,7 @@ fun UiScope.shadcnRadioGroup(
     surface(
         id = id,
         modifier = modifier,
-        style = SurfaceStyle(contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(12f.dp)),
+        style = Style { contentPadding(12f.dp) },
         verticalArrangement = Arrangement.spacedBy(ShadcnRadioMetrics.groupGap),
         content = { content() },
     )
@@ -132,12 +113,7 @@ fun UiScope.shadcnRadioGroup(
                     selected = wasSelected,
                     modifier = Modifier.height(ShadcnRadioMetrics.itemSize),
                     enabled = enabled,
-                    visuals = SurfaceStyle(
-                        background = themeValues.colors.background,
-                        foreground = themeValues.colors.primary,
-                        border = SurfaceBorder(1f.dp, themeValues.colors.border),
-                        cornerRadius = themeValues.shapes.full,
-                    ),
+                    style = shadcnRadioStyle(themeValues),
                     onClick = {
                         resolved = index
                         onIndexChange(index)
@@ -145,7 +121,7 @@ fun UiScope.shadcnRadioGroup(
                 )
                 text(
                     label = label,
-                    visuals = SurfaceStyle(textSize = themeValues.typography.label),
+                    style = Style { textSize(themeValues.typography.label) },
                     semanticId = "$id.$index.label",
                 )
             }

@@ -22,7 +22,7 @@ fun UiPrimitiveScope.border(
     overlay: Boolean = false,
     tokenId: String? = null,
 ) {
-    val strokeColor = color ?: context.currentTheme.colors.border
+    val strokeColor = color ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.border
     val w = width.toPx()
     if (w <= 0f) return
     val x = pixelPerfectPixel(slot.x)

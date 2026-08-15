@@ -42,9 +42,12 @@ class UiContext internal constructor(
     private val measurement = UiMeasurementRuntime()
     private val layouts = UiLayoutFactory(this)
 
-    val currentTheme: UiTheme get() = stacks.currentTheme
-    val currentTextStyle: TextStyle get() = stacks.currentTextStyle
-    val currentFont get() = stacks.currentFont
+    @Deprecated("Use current(LocalTheme) from a UiPrimitiveScope or UiScope accessor instead")
+    val currentTheme: UiTheme get() = current(LocalTheme)
+    @Deprecated("Use current(LocalTextStyle) from a UiPrimitiveScope or UiScope accessor instead")
+    val currentTextStyle: TextStyle get() = current(LocalTextStyle)
+    @Deprecated("Use current(LocalFont) from a UiPrimitiveScope or UiScope accessor instead")
+    val currentFont get() = current(LocalFont)
     val currentShapeSpec get() = stacks.currentShapeSpec
     val inputState: UiInputState get() = runtime.inputState
 
@@ -55,26 +58,27 @@ class UiContext internal constructor(
     fun <T> pushLocal(local: UiLocal<T>, value: T) = stacks.push(local, value)
     fun <T> popLocal(local: UiLocal<T>) = stacks.pop(local)
 
-    fun pushTheme(theme: UiTheme) = stacks.pushTheme(theme)
+    @Deprecated("Use pushLocal(LocalTheme, theme), preferably through ProvideTheme")
+    fun pushTheme(theme: UiTheme) = pushLocal(LocalTheme, theme)
 
     /** Installs a runtime-free theme contract; Core supplies neutral fallback recipes internally. */
-    fun pushTheme(theme: UiThemeValues) = stacks.pushTheme(theme.asRuntimeTheme())
-    fun popTheme() = stacks.popTheme()
+    @Deprecated("Use pushLocal(LocalTheme, theme.asRuntimeTheme()), preferably through ProvideTheme")
+    fun pushTheme(theme: UiThemeValues) = pushLocal(LocalTheme, theme.asRuntimeTheme())
+    @Deprecated("Use popLocal(LocalTheme), preferably through ProvideTheme")
+    fun popTheme() = popLocal(LocalTheme)
 
-    fun pushTextStyle(style: TextStyle) = stacks.pushTextStyle(style)
-    fun popTextStyle() = stacks.popTextStyle()
+    @Deprecated("Use pushLocal(LocalTextStyle, style), preferably through ProvideTextStyle")
+    fun pushTextStyle(style: TextStyle) = pushLocal(LocalTextStyle, style)
+    @Deprecated("Use popLocal(LocalTextStyle), preferably through ProvideTextStyle")
+    fun popTextStyle() = popLocal(LocalTextStyle)
 
-    fun pushFont(font: UiFont) = stacks.pushFont(font)
-    fun popFont() = stacks.popFont()
+    @Deprecated("Use pushLocal(LocalFont, font), preferably through ProvideFont")
+    fun pushFont(font: UiFont) = pushLocal(LocalFont, font)
+    @Deprecated("Use popLocal(LocalFont), preferably through ProvideFont")
+    fun popFont() = popLocal(LocalFont)
 
     fun pushShapeSpec(spec: io.github.ronjunevaldoz.awake.ui.UiShapeSpec?) = stacks.pushShapeSpec(spec)
     fun popShapeSpec() = stacks.popShapeSpec()
-
-    /** See [UiContextStacks.resetForTrial] -- used only by a reused trial [UiContext]
-     * (see [UiContextMeasureState.createMeasureContext]) to seed its theme/font/textStyle before
-     * each trial pass without growing the stacks across reuses. */
-    internal fun resetStacksForTrialInternal(theme: UiTheme, textStyle: TextStyle, font: UiFont) =
-        stacks.resetForTrial(theme, textStyle, font)
 
     /** Internal ambient-state handoff for a cached measurement context. */
     internal fun ambientSnapshotInternal(): UiLocalSnapshot = stacks.snapshot()

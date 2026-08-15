@@ -30,9 +30,12 @@ fun UiPrimitiveScope.box(
         active = modifier.forceActive ?: false,
         focused = modifier.forceFocus ?: false,
     )
-    val textStyle = (modifier.styleable ?: Style.Empty).resolve(styleState, context.currentTextStyle).textStyle
+    val textStyle = (modifier.styleable ?: Style.Empty).resolve(
+        styleState,
+        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle),
+    ).textStyle
 
-    context.pushTextStyle(textStyle)
+    context.pushLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle, textStyle)
     val scope = childBox(slot, contentAlignment = contentAlignment)
     // Matches UiPrimitiveScope.row()/column()/surface()'s own withMeasuredRecordingSuppressed { scope.
     // content(slot) } -- box() is just as much a composite widget as those, so its children's
@@ -43,6 +46,6 @@ fun UiPrimitiveScope.box(
     // content) desyncs resolveWeightedMainAxis()'s index pairing and the ancestor's slot
     // consumption order, corrupting sibling layout the same way the pre-fix surface() bug did.
     context.withMeasuredRecordingSuppressed { scope.content(slot) }
-    context.popTextStyle()
+    context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
     return slot
 }

@@ -48,7 +48,7 @@ fun UiPrimitiveScope.select(
     enabled: Boolean = true,
     placeholder: String = "",
 ): Int? {
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     val expandedState = rememberPopupState(id, key = "expanded")
     val resolvedDefaults = theme.components.dropdown
     val selectedLabel = options.getOrNull(selectedIndex) ?: placeholder
@@ -162,8 +162,8 @@ fun UiPrimitiveScope.drawDropdownTriggerContent(
     // `selectedIndex == null` case) -- muted, same treatment textField gives its placeholder.
     isPlaceholder: Boolean = false,
 ) {
-    val theme = context.currentTheme
-    val resolvedFont = context.currentFont
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
+    val resolvedFont = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont)
     val resolved = resolveStyle(
         defaults = style,
         state = MutableStyleState(

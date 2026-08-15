@@ -32,7 +32,7 @@ fun UiPrimitiveScope.progress(
     modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
 ) {
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     val surface = resolveSurface(
         modifier = modifier.withSizeFallback(
             Dimension.FillMax,

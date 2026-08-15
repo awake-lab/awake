@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.checkbox as p
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.switch as primitiveSwitch
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toggle as primitiveToggle
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toggleGroup as primitiveToggleGroup
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 fun UiScope.checkbox(
     id: String,
@@ -16,17 +17,29 @@ fun UiScope.checkbox(
     boxSize: Dp,
     indeterminate: Boolean = false,
     enabled: Boolean = true,
-    visuals: SurfaceVisuals = SurfaceVisuals(),
+    style: Style = Style.Empty,
 ): Boolean = primitive.primitiveCheckbox(
     id = id,
     checked = checked,
     label = label,
     modifier = modifier.asPrimitiveModifier(),
-    style = visuals.asPrimitiveStyle(),
+    style = style,
     boxSize = boxSize,
     indeterminate = indeterminate,
     enabled = enabled,
 )
+/** Compatibility bridge while callers migrate to [Style]. */
+@Deprecated("Use the Style overload")
+fun UiScope.checkbox(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    boxSize: Dp,
+    indeterminate: Boolean = false,
+    enabled: Boolean = true,
+    visuals: SurfaceVisuals,
+): Boolean = checkbox(id, checked, label, modifier, boxSize, indeterminate, enabled, visuals.asPrimitiveStyle())
 
 fun UiScope.switch(
     id: String,
@@ -34,15 +47,26 @@ fun UiScope.switch(
     label: String? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    visuals: SurfaceVisuals = SurfaceVisuals(),
+    style: Style = Style.Empty,
 ): Boolean = primitive.primitiveSwitch(
     id = id,
     checked = checked,
     label = label,
     modifier = modifier.asPrimitiveModifier(),
-    style = visuals.rest.asPrimitiveStyle(),
+    style = style,
     enabled = enabled,
 )
+
+/** Compatibility bridge while callers migrate to [Style]. */
+@Deprecated("Use the Style overload")
+fun UiScope.switch(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    visuals: SurfaceVisuals,
+): Boolean = switch(id, checked, label, modifier, enabled, visuals.asPrimitiveStyle())
 
 fun UiScope.toggle(
     id: String,
@@ -51,23 +75,35 @@ fun UiScope.toggle(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit = {},
-    visuals: SurfaceVisuals = SurfaceVisuals(),
+    style: Style = Style.Empty,
 ): Boolean = primitive.primitiveToggle(
     id = id,
     checked = checked,
     label = label,
     modifier = modifier.asPrimitiveModifier(),
-    style = visuals.asPrimitiveStyle(),
+    style = style,
     enabled = enabled,
     onCheckedChange = onCheckedChange,
 )
+
+/** Compatibility bridge while callers migrate to [Style]. */
+@Deprecated("Use the Style overload")
+fun UiScope.toggle(
+    id: String,
+    checked: Boolean,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit = {},
+    visuals: SurfaceVisuals,
+): Boolean = toggle(id, checked, label, modifier, enabled, onCheckedChange, visuals.asPrimitiveStyle())
 
 fun UiScope.toggleGroup(
     id: String,
     options: List<String>,
     selectedIndices: Set<Int>,
     modifier: Modifier = Modifier,
-    visuals: SurfaceVisuals = SurfaceVisuals(),
+    style: Style = Style.Empty,
     onSelectedIndicesChange: (Set<Int>) -> Unit = {},
 ) {
     primitive.primitiveToggleGroup(
@@ -75,17 +111,28 @@ fun UiScope.toggleGroup(
         options = options,
         selectedIndices = selectedIndices,
         modifier = modifier.asPrimitiveModifier(),
-        itemStyle = visuals.asPrimitiveStyle(),
+        itemStyle = style,
         onSelectedIndicesChange = onSelectedIndicesChange,
     )
 }
+
+/** Compatibility bridge while callers migrate to [Style]. */
+@Deprecated("Use the Style overload")
+fun UiScope.toggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndices: Set<Int>,
+    modifier: Modifier = Modifier,
+    visuals: SurfaceVisuals,
+    onSelectedIndicesChange: (Set<Int>) -> Unit = {},
+) = toggleGroup(id, options, selectedIndices, modifier, visuals.asPrimitiveStyle(), onSelectedIndicesChange)
 
 fun UiScope.toggleGroup(
     id: String,
     options: List<String>,
     selectedIndex: Int,
     modifier: Modifier = Modifier,
-    visuals: SurfaceVisuals = SurfaceVisuals(),
+    style: Style = Style.Empty,
     onIndexChange: (Int) -> Unit = {},
 ) {
     primitive.primitiveToggleGroup(
@@ -93,7 +140,18 @@ fun UiScope.toggleGroup(
         options = options,
         selectedIndex = selectedIndex,
         modifier = modifier.asPrimitiveModifier(),
-        itemStyle = visuals.asPrimitiveStyle(),
+        itemStyle = style,
         onIndexChange = onIndexChange,
     )
 }
+
+/** Compatibility bridge while callers migrate to [Style]. */
+@Deprecated("Use the Style overload")
+fun UiScope.toggleGroup(
+    id: String,
+    options: List<String>,
+    selectedIndex: Int,
+    modifier: Modifier = Modifier,
+    visuals: SurfaceVisuals,
+    onIndexChange: (Int) -> Unit = {},
+) = toggleGroup(id, options, selectedIndex, modifier, visuals.asPrimitiveStyle(), onIndexChange)

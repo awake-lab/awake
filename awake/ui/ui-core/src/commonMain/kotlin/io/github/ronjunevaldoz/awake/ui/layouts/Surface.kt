@@ -134,7 +134,7 @@ fun UiPrimitiveScope.surface(
     )
     val resolved = resolveStyle(
         style = effectiveStyle,
-        defaults = context.currentTheme.components.surface,
+        defaults = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).components.surface,
         state = styleState,
     )
     // The surface text style participates in measurement as well as painting. Without this,
@@ -143,13 +143,13 @@ fun UiPrimitiveScope.surface(
     // a line. Keep the same resolved foreground propagation for both passes.
     // A surface's `foreground` IS its content colour (shadcn's bg-*/text-* pairing), so it has to
     // beat whatever colour was merely inherited. Style.resolve() seeds its builder FROM
-    // context.currentTextStyle, so `resolved.textStyle.color` is non-null the moment any ancestor
+    // LocalTextStyle, so `resolved.textStyle.color` is non-null the moment any ancestor
     // sets one -- testing it for null only ever succeeded at the top of the tree, and every nested
     // surface silently kept the ancestor's colour instead of its own. A Primary badge measured
     // 17:1 standalone and 1.1:1 inside a card, which is dark-on-dark. Comparing against the
     // inherited value distinguishes "declared on this surface" from "merely inherited", so an
     // explicit per-call text colour still wins.
-    val inheritedTextColor = context.currentTextStyle.color
+    val inheritedTextColor = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).color
     val declaresOwnTextColor =
         resolved.textStyle.color != null && resolved.textStyle.color != inheritedTextColor
     val contentTextStyle = if (!declaresOwnTextColor && resolved.foreground != null) {
@@ -165,7 +165,7 @@ fun UiPrimitiveScope.surface(
             Dimension.FillMax -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: 0f
             Dimension.WrapContent -> (fillWidthOrNull()?.minus(paddingWidth))?.coerceAtLeast(0f) ?: 4096f
         }
-        context.pushTextStyle(contentTextStyle)
+        context.pushLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle, contentTextStyle)
         try {
             context.measureColumnContent(
                 width = maxContentWidth,
@@ -173,7 +173,7 @@ fun UiPrimitiveScope.surface(
                 content = content,
             )
         } finally {
-            context.popTextStyle()
+            context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
         }
     } else {
         null
@@ -212,7 +212,8 @@ fun UiPrimitiveScope.surface(
         fillColor = resolved.background ?: Color.Transparent,
         radiusPx = resolved.shape.toPx(),
         borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: context.currentTheme.colors.border,
+        borderColor = resolved.borderColor
+            ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.border,
         shapeSpec = resolved.shapeSpec,
         fillTokenId = resolved.backgroundToken,
         borderTokenId = resolved.borderColorToken,
@@ -234,7 +235,7 @@ fun UiPrimitiveScope.surface(
     // theme's own foreground -- which on an inverted surface is the same colour as the
     // background it is sitting on. shadcn's tooltip (bg-foreground/text-background) rendered as
     // an unreadable dark-on-dark pill because of it. An explicit textStyle colour still wins.
-    context.pushTextStyle(contentTextStyle)
+    context.pushLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle, contentTextStyle)
     val effectiveShape = resolved.shapeSpec ?: UiShapeSpec.RoundedRectangle(resolved.shape)
     context.pushShapeSpec(effectiveShape)
 
@@ -280,6 +281,6 @@ fun UiPrimitiveScope.surface(
         }
     }
     context.popShapeSpec()
-    context.popTextStyle()
+    context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
     return slot
 }
