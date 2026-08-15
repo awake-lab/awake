@@ -78,6 +78,17 @@ fun UiPrimitiveScope.childAbsolute(
 fun <T> UiPrimitiveScope.compositeContent(block: () -> T): T =
     context.withMeasuredRecordingSuppressed(block)
 
+/**
+ * Runs content whose interior layout is derived entirely from the bound the widget was given --
+ * a scroll viewport's content, a fraction-splitting panel group -- so no descendant claim leaks
+ * into an ancestor's WrapContent hugging. Stronger than [compositeContent]: it isolates the
+ * wrap-extent trackers too, not just the direct-child slot/weight lists. Without this, a
+ * FillMax resizable group measured inside a WrapContent card reported `fraction x trial-bound`
+ * as intrinsic width, so dragging its handle re-sized the card itself.
+ */
+fun <T> UiPrimitiveScope.boundDerivedContent(block: () -> T): T =
+    context.withMeasuredSubtreeIsolated(block)
+
 fun UiPrimitiveScope.childBox(
     slot: UiBounds,
     modifier: UiModifier = Modifier,
