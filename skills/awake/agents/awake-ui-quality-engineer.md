@@ -37,12 +37,15 @@ You work on Awake's UI validation surface. Read
 
 ## Working Rules
 
-- start from `docs/reference/ui-validation.md`'s "Canonical Test Surfaces" list — it names the
-  actual tools (`ShadcnParityScreenshotTest`, the headless-render-and-dump-PNG pattern, the
-  frame-cost harness, the semantic component crop/diff tool in
-  `tools/compare_component_crops.py`, and the throwaway-probe-measuring-real-bounds idiom) and when to reach for
-  each. Don't invent a new verification mechanism before checking whether one of these already
-  fits
+- start from `docs/reference/ui-validation.md`'s "Canonical Test Surfaces" list and its
+  "Component coverage matrix" — the matrix names which of the four parity dimensions (layout,
+  style, behavior, motion) has an oracle per component; only layout does, via
+  `ShadcnGeometryParityTest`, and only for 7 of 23. The tools list names the rest
+  (`ShadcnParityScreenshotTest`, `ShadcnReferenceComparisonTest` for colour/border/shadow — demoted
+  as of 2026-08-15, never the source of a layout number — the headless-render-and-dump-PNG pattern,
+  the frame-cost harness, `tools/compare_component_crops.py`, and the
+  throwaway-probe-measuring-real-bounds idiom) and when to reach for each. Don't invent a new
+  verification mechanism before checking whether one of these already fits
 - prefer machine-checkable assertions before manual screenshot review
 - treat snapshots as one layer of proof, not the only proof
 - add structural inspections for overlap, out-of-bounds content, clip-stack correctness, and text-fit before expanding golden-image coverage
