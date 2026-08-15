@@ -33,6 +33,10 @@ class PackedUiFontMetricsTest {
         assertEquals(bottoms.first(), font.ascentEm, "ascentEm must be the measured baseline")
     }
 
+    // 2026-08-15: descent re-pinned for Roboto 3.015. The atlas was built from Roboto 1.00000
+    // (2011); the project now instantiates its faces from the variable source google/fonts ships,
+    // and the two releases genuinely differ. Ascent and cap height were unchanged by that move.
+    //
     // 2026-08-10: re-pinned after tools/generate_ui_font_atlas.py was replaced by
     // :awake:ui:font-atlas-generator, which reads these from the TTF's own outline
     // geometry (continuous doubles) instead of the antialiased raster ink bbox (quantized to
@@ -40,7 +44,7 @@ class PackedUiFontMetricsTest {
     @Test
     fun metricsAreTheMeasuredValuesNotTheInterfaceDefaults() {
         assertEquals(0.927735f, font.ascentEm)
-        assertEquals(0.22656202f, font.descentEm)
+        assertEquals(0.22949207f, font.descentEm)
         assertEquals(0.710938f, font.capHeightEm)
     }
 
