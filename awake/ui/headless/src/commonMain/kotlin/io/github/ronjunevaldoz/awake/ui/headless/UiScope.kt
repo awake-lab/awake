@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelSize as primitiveWithIntrinsicLabelSize
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 @DslMarker
 annotation class AwakeUiDsl
@@ -39,14 +40,22 @@ fun UiScope.requestFocus(id: String) = primitive.context.requestFocus(id)
 fun UiScope.withIntrinsicLabelSize(
     label: String,
     modifier: Modifier = Modifier,
-    style: SurfaceStyle = SurfaceStyle(),
+    style: Style = Style.Empty,
 ): Modifier = HeadlessModifier(
     primitive.primitiveWithIntrinsicLabelSize(
         modifier = modifier.asPrimitiveModifier(),
         label = label,
-        style = style.asPrimitiveStyle(),
+        style = style,
     ),
 )
+
+/** Compatibility overload while callers migrate to [Style]. */
+@Deprecated("Use the Style overload")
+fun UiScope.withIntrinsicLabelSize(
+    label: String,
+    modifier: Modifier = Modifier,
+    style: SurfaceStyle,
+): Modifier = withIntrinsicLabelSize(label, modifier, style.asPrimitiveStyle())
 
 /**
  * Creates the public Headless receiver for a root UI region.

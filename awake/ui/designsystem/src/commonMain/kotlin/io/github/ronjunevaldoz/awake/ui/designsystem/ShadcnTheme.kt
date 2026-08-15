@@ -5,14 +5,12 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiComponentVisuals
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiShapeTokens
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeComponents
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
+import io.github.ronjunevaldoz.awake.ui.theme.UiComponentStylesProvider
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnPalette
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
@@ -165,7 +163,7 @@ fun UiThemeValues.asShadcnTheme(): ShadcnResolvedTheme = this as? ShadcnResolved
  */
 private class RuntimeShadcnTheme(
     private val values: UiThemeValues,
-) : ShadcnResolvedTheme {
+) : ShadcnResolvedTheme, UiComponentStylesProvider {
     private val tokens = values.colors
 
     override val config: ShadcnThemeConfig = ShadcnThemeConfig()
@@ -180,7 +178,7 @@ private class RuntimeShadcnTheme(
     )
     override val metrics: ShadcnMetrics = ShadcnStylePreset.Vega.metrics
     override val colors: UiColorTokens = tokens
-    override val componentVisuals: UiThemeComponents = values.componentVisuals
+    override val componentStyles = ShadcnComponentStyles(this)
     override val palette: ShadcnPalette = ShadcnPalette(
         background = tokens.background,
         foreground = tokens.foreground,
@@ -222,7 +220,7 @@ private class RuntimeShadcnTheme(
 
 private fun shadcnThemeData(config: ShadcnThemeConfig = ShadcnThemeConfig()): ShadcnResolvedTheme = ConfiguredShadcnTheme(config)
 
-private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : ShadcnResolvedTheme {
+private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : ShadcnResolvedTheme, UiComponentStylesProvider {
     override val radii: ShadcnRadiusScale = ShadcnRadiusScale.fromBase(config.preset.baseRadius)
     override val metrics: ShadcnMetrics = config.preset.metrics
     override val palette: ShadcnPalette = createPalette(config)
@@ -249,89 +247,8 @@ private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : Sh
         override val input = palette.input
         override val ring = palette.ring
     }
+    override val componentStyles = ShadcnComponentStyles(this)
 
-    override val componentVisuals: UiThemeComponents = UiThemeComponents(
-        button = UiComponentVisuals(
-            background = palette.primary,
-            backgroundToken = "primary",
-            foreground = palette.primaryForeground,
-            foregroundToken = "primary-foreground",
-            shape = radii.md,
-            textSize = typography.label,
-        ),
-        toggle = UiComponentVisuals(
-            background = palette.secondary,
-            backgroundToken = "secondary",
-            foreground = palette.secondaryForeground,
-            foregroundToken = "secondary-foreground",
-            shape = radii.md,
-            textSize = typography.label,
-        ),
-        checkbox = UiComponentVisuals(
-            background = palette.background,
-            backgroundToken = "background",
-            foreground = palette.foreground,
-            foregroundToken = "foreground",
-            borderWidth = 1f.dp,
-            borderColor = palette.input,
-            borderColorToken = "input",
-            shape = 4f.dp,
-            textSize = typography.label,
-        ),
-        slider = UiComponentVisuals(
-            background = palette.input,
-            backgroundToken = "input",
-            foreground = palette.foreground,
-            foregroundToken = "foreground",
-            borderWidth = 1f.dp,
-            borderColor = palette.input,
-            borderColorToken = "input",
-            shape = radii.full,
-            textSize = typography.label,
-        ),
-        dropdown = UiComponentVisuals(
-            background = palette.background,
-            backgroundToken = "background",
-            foreground = palette.foreground,
-            foregroundToken = "foreground",
-            borderWidth = 1f.dp,
-            borderColor = palette.input,
-            borderColorToken = "input",
-            shape = radii.md,
-            contentPadding = UiInsets(metrics.fieldPaddingX, metrics.fieldPaddingY),
-            textSize = typography.label,
-        ),
-        surface = UiComponentVisuals(
-            background = palette.card,
-            backgroundToken = "card",
-            foreground = palette.cardForeground,
-            foregroundToken = "card-foreground",
-            borderWidth = 1f.dp,
-            borderColor = palette.border,
-            borderColorToken = "border",
-            shape = radii.xl,
-            contentPadding = UiInsets(metrics.panelPadding),
-        ),
-        textField = UiComponentVisuals(
-            background = palette.background,
-            backgroundToken = "background",
-            foreground = palette.foreground,
-            foregroundToken = "foreground",
-            borderWidth = 1f.dp,
-            borderColor = palette.input,
-            borderColorToken = "input",
-            shape = radii.md,
-            contentPadding = UiInsets(metrics.fieldPaddingX, metrics.inputPaddingY),
-            textSize = typography.label,
-        ),
-        avatar = UiComponentVisuals(
-            background = palette.muted,
-            backgroundToken = "muted",
-            foreground = palette.foreground,
-            foregroundToken = "foreground",
-            textSize = typography.label,
-        ),
-    )
 }
 
 private fun createTypography(config: ShadcnThemeConfig): UiTypography = when (config.preset) {
