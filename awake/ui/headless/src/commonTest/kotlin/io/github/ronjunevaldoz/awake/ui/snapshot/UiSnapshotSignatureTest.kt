@@ -135,12 +135,15 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // 2026-08-15: ui-component-state-matrix only -- focused text fields now border in
 // theme.colors.ring instead of reusing the unfocused border color at a thicker width, matching
 // upstream's focus-visible:border-ring. It is the one scene with a focused field.
+// 2026-08-16: ui-component-state-matrix only -- Headless controls now apply generic Style
+// directly after the legacy visual-data contract removal. The fixture deliberately calls the
+// unskinned Headless controls, so it no longer inherits the old Core component visual fallback.
 private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x6a983a490866bb5buL,
     "ui-shaped-panel" to 0xe7d4595f9dce9c9fuL,
     "ui-panel-controls" to 0x48857545493d9b37uL,
     "ui-alert-dialog" to 0xd86c496ca1a25736uL,
-    "ui-component-state-matrix" to 0xcf50cfa4fec15865uL,
+    "ui-component-state-matrix" to 0x1db499fead8b89c9uL,
     "ui-rounded-clip-vector" to 0xf2cd41c5da7ae2cduL,
     "ui-awake-shadcn-showcase" to 0x9900cb4fb67ecb53uL,
 )
