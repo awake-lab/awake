@@ -45,7 +45,7 @@ internal fun UiScope.drawStudioBottomDock(store: StudioStore) {
     // the renderer clear color.
     surface(
         id = "studio-bottom-dock-surface",
-        style = Style { background(themeValues.colors.background) },
+        style = Style { background(StudioTheme.colors.background) },
         verticalArrangement = Arrangement.spacedBy(8f.dp),
         modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(BOTTOM_DOCK_INSET),
     ) {

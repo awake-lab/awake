@@ -33,7 +33,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.toPx
 
-private val StudioTheme = shadcnTheme(dark = true)
+internal val StudioTheme = shadcnTheme(dark = true)
 
 // Dark neutral gray, not pure black -- Renderer.clearColor otherwise defaults to stark black,
 // which reads as "nothing rendered" rather than a real viewport background. Same reasoning
