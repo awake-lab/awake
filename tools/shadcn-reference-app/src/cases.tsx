@@ -71,10 +71,10 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
           ["default", "Default"],
           ["comfortable", "Comfortable"],
           ["compact", "Compact"],
-        ].map(([value, label]) => (
+        ].map(([value, label], idx) => (
           <div className="flex items-center gap-2" key={value}>
-            <RadioGroupItem value={value} id={`radio-${value}`} />
-            <Label htmlFor={`radio-${value}`}>{label}</Label>
+            <RadioGroupItem value={value} id={`radio-${value}`} data-parity-id={`parity-radio.${idx}`} />
+            <Label htmlFor={`radio-${value}`} data-parity-id={`parity-radio.${idx}.label`}>{label}</Label>
           </div>
         ))}
       </RadioGroup>
@@ -83,8 +83,8 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
   "progress-states": {
     render: () => (
       <div className="flex w-[212px] flex-col gap-4">
-        <Progress value={25} />
-        <Progress value={65} />
+        <Progress value={25} data-parity-id="parity-progress-1" />
+        <Progress value={65} data-parity-id="parity-progress-2" />
       </div>
     ),
   },
@@ -118,8 +118,8 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
   },
   "slider-states": {
     render: () => (
-      <div className="w-64">
-        <Slider defaultValue={[50]} max={100} step={1} />
+      <div className="w-[300px]">
+        <Slider defaultValue={[50]} max={100} step={1} data-parity-id="parity-slider" />
       </div>
     ),
   },
@@ -159,7 +159,7 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
       <TooltipProvider>
         <Tooltip defaultOpen>
           <TooltipTrigger asChild>
-            <Button variant="outline">Hover</Button>
+            <Button variant="outline" className="w-[110px]" data-parity-id="parity-tooltip-trigger">Hover me</Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">Add to library</TooltipContent>
         </Tooltip>
@@ -169,7 +169,7 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
   "dialog-open": {
     render: () => (
       <Dialog open>
-        <DialogContent showCloseButton={false} className="w-[320px]">
+        <DialogContent showCloseButton={false} className="w-[320px]" data-parity-id="parity-dialog">
           <DialogHeader>
             <DialogTitle>Edit profile</DialogTitle>
             <DialogDescription>
@@ -177,7 +177,7 @@ export const CASES: Record<string, { render: () => ReactNode }> = {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button>Save changes</Button>
+            <Button data-parity-id="parity-dialog-save">Save changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

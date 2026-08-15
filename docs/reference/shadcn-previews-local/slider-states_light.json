@@ -1,0 +1,16 @@
+{
+  "case": "slider-states",
+  "nodes": {
+    "parity-slider": {
+      "height": 6,
+      "width": 300,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "root": {
+    "height": 6,
+    "width": 300
+  },
+  "theme": "light"
+}

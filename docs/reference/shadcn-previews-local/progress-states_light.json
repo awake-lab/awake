@@ -1,0 +1,22 @@
+{
+  "case": "progress-states",
+  "nodes": {
+    "parity-progress-1": {
+      "height": 8,
+      "width": 212,
+      "x": 0,
+      "y": 0
+    },
+    "parity-progress-2": {
+      "height": 8,
+      "width": 212,
+      "x": 0,
+      "y": 24
+    }
+  },
+  "root": {
+    "height": 32,
+    "width": 212
+  },
+  "theme": "light"
+}

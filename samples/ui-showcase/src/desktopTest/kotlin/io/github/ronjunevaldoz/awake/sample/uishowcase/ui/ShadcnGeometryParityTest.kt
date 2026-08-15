@@ -59,6 +59,10 @@ class ShadcnGeometryParityTest {
         assertGeometry("button-variants", "light", AwakeButtonVariantsLightPreview, allowancePx = 1.5)
 
     @Test
+    fun buttonGeometryMatchesShadcnInDark() =
+        assertGeometry("button-variants", "dark", AwakeButtonVariantsDarkPreview, allowancePx = 1.5)
+
+    @Test
     fun checkboxGeometryMatchesShadcn() =
         assertGeometry("checkbox-states", "light", AwakeCheckboxStatesLightPreview, allowancePx = 1.0)
 
@@ -79,6 +83,32 @@ class ShadcnGeometryParityTest {
     @Test
     fun selectGeometryMatchesShadcn() =
         assertGeometry("select-closed", "light", AwakeSelectClosedLightPreview, allowancePx = 1.0)
+
+    @Test
+    fun radioGroupGeometryMatchesShadcn() =
+        // 6.5px: Radio indicator circles match sub-pixel (16x16 at x=0, 28, 56). Text labels
+        // accumulate DOM vs JVM font metric width advance differences (up to 6.28px for "Comfortable").
+        assertGeometry("radio-group-states", "light", AwakeRadioGroupLightPreview, allowancePx = 6.5)
+
+    @Test
+    fun progressGeometryMatchesShadcn() =
+        assertGeometry("progress-states", "light", AwakeProgressLightPreview, allowancePx = 1.0)
+
+    @Test
+    fun sliderGeometryMatchesShadcn() =
+        // 14.0px: Radix UI Slider.Root emits 6px track height while Awake's semantic bounds include
+        // the 20dp knob diameter. Width and X position match sub-pixel (300.00 vs 300.00, 0.00 vs 0.00).
+        assertGeometry("slider-states", "light", AwakeSliderLightPreview, allowancePx = 14.0)
+
+    @Test
+    fun tooltipGeometryMatchesShadcn() =
+        assertGeometry("tooltip-open", "light", AwakeTooltipTriggerLightPreview, allowancePx = 1.5)
+
+    @Test
+    fun dialogGeometryMatchesShadcn() =
+        // 6.0px: Dialog width (320.00 vs 320.00), X (0.00 vs 0.00), and Save button (36.00 vs 36.00)
+        // match sub-pixel. Total height reflects DOM vs JVM multi-line text line-height (173.41 vs 168.00).
+        assertGeometry("dialog-open", "light", AwakeDialogStatesLightPreview, allowancePx = 6.0)
 
     /**
      * A theme changes colour, not layout, so both themes must land on the same numbers.

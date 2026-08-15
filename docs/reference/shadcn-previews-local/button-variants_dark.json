@@ -1,0 +1,46 @@
+{
+  "case": "button-variants",
+  "nodes": {
+    "parity-default": {
+      "height": 36,
+      "width": 77.15625,
+      "x": 0,
+      "y": 0
+    },
+    "parity-destructive": {
+      "height": 36,
+      "width": 103.140625,
+      "x": 355.21875,
+      "y": 0
+    },
+    "parity-ghost": {
+      "height": 36,
+      "width": 69.140625,
+      "x": 278.078125,
+      "y": 0
+    },
+    "parity-link": {
+      "height": 36,
+      "width": 58.234375,
+      "x": 466.359375,
+      "y": 0
+    },
+    "parity-outline": {
+      "height": 36,
+      "width": 78.53125,
+      "x": 191.546875,
+      "y": 0
+    },
+    "parity-secondary": {
+      "height": 36,
+      "width": 98.390625,
+      "x": 85.15625,
+      "y": 0
+    }
+  },
+  "root": {
+    "height": 36,
+    "width": 524.59375
+  },
+  "theme": "dark"
+}

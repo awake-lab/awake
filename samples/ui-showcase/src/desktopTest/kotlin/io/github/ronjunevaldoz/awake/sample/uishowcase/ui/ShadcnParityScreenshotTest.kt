@@ -1021,7 +1021,7 @@ internal object AwakeTooltipTriggerLightPreview : AwakeUiPreviewEntry {
         "Canvas hugs the dialog panel itself instead of the old 420x260 canvas (content was only 320x150) -- the " +
         "reference is a full 1280x800 viewport capture, so it never limits this pair's comparedSize; only Awake's " +
         "own oversized canvas did.",
-    width = 344,
+    width = 320,
     height = 174,
 )
 internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
@@ -1042,7 +1042,6 @@ internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
                         shadcnButton(
                             "parity-dialog-save",
                             "Save changes",
-                            modifier = Modifier.width(120f.px).height(32f.px),
                         )
                     },
                 ) { _ ->

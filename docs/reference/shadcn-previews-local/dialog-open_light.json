@@ -1,0 +1,22 @@
+{
+  "case": "dialog-open",
+  "nodes": {
+    "parity-dialog": {
+      "height": 168,
+      "width": 320,
+      "x": 0,
+      "y": 0
+    },
+    "parity-dialog-save": {
+      "height": 36,
+      "width": 118.828125,
+      "x": 176.171875,
+      "y": 107
+    }
+  },
+  "root": {
+    "height": 168,
+    "width": 320
+  },
+  "theme": "light"
+}
