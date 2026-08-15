@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
+import io.github.ronjunevaldoz.awake.ui.context.resolveMeasuredContentCached
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -190,12 +191,23 @@ private fun UiPrimitiveScope.resolveMeasuredColumn(
                     fillWidthOrNull() ?: 4096f
                 }
         }
-        context.measureColumnContent(
-            width = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f),
-            gap = verticalArrangement.baseSpacingPx(),
-            insets = insets,
-            content = content,
-        )
+        val trialWidth = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f)
+        val trialGap = verticalArrangement.baseSpacingPx()
+        // Opt-in cross-frame reuse of this sizing trial (see resolveMeasuredContentCached) --
+        // with id/cacheKey null this is byte-for-byte the unconditional trial.
+        context.resolveMeasuredContentCached(
+            id = id,
+            cacheKey = cacheKey,
+            availableWidth = trialWidth,
+            gap = trialGap,
+        ) {
+            context.measureColumnContent(
+                width = trialWidth,
+                gap = trialGap,
+                insets = insets,
+                content = content,
+            )
+        }
     } else {
         null
     }

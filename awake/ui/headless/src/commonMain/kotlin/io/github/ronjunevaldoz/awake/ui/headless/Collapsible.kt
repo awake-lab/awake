@@ -34,7 +34,13 @@ fun UiScope.collapsible(
     content: ColumnScope.() -> Unit,
 ): Boolean {
     var resolved = expanded
-    column(modifier = modifier) {
+    // Keyed on the disclosure's CURRENT animated height (published by animatedHeight), not on
+    // [expanded]: the height animates over several frames while the boolean holds one value, so
+    // an expanded-derived key returns stale mid-animation sizes (caught by
+    // ShowcaseMeasureCacheConsistencyTest when tried). The animated value is the exact driver of
+    // this subtree's measured size -- distinct every animation frame, constant once settled.
+    val animatedHeightKey = primitive.widgetState("$id.content").get("currentHeight", -1f)
+    column(id = "$id.shell", cacheKey = expanded to animatedHeightKey, modifier = modifier) {
         resolved = collapsible(
             id = id,
             expanded = expanded,
