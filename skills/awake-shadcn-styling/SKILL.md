@@ -50,6 +50,26 @@ component, extend ui-designsystem.
 
 ---
 
+## Mandatory Rule: Proof of Official Reference for Every Style Recipe
+
+Every visual style in `awake:ui:designsystem` (colors, borders, paddings, corner radii, alignments) **MUST HAVE PROOF** originating directly from official React `shadcn/ui`. Agents and developers are strictly forbidden from hand-guessing or inventing arbitrary padding/radius values.
+
+### How Proof Is Captured & Verified:
+
+1. **Official Browser Capture (`tools/capture_shadcn_local.py`)**:
+   Playwright renders official React `shadcn/ui` components and dumps computed DOM style metrics (`getBoundingClientRect` & `getComputedStyle`) to:
+   `docs/reference/shadcn-previews-local/<component>_<theme>.json`
+
+2. **Automated CI Parity Gating (`ShadcnStyleParityTest.kt` & `ShadcnGeometryParityTest.kt`)**:
+   Every component recipe must be registered in the automated Parity Test Suite:
+   - `ShadcnGeometryParityTest`: Verifies width, height, and padding against DOM bounds.
+   - `ShadcnStyleParityTest`: Verifies actual drawn `RoundedQuad` corner radius and fill/border colors against computed CSS metrics.
+   - `ShadcnBehaviorParityTest`: Verifies state changes (hover, active, expanded, selected, disabled).
+
+**If a component style lacks a corresponding reference JSON or fails parity assertions, IT CANNOT BE MERGED.**
+
+---
+
 ## `Style.then` merges by concatenating rules, not replacing whole state blocks
 
 ```kotlin

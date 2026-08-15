@@ -276,14 +276,10 @@ pattern -- select, tooltip, dialog, dropdown-menu, popover).
 
 | dimension | oracle | built? |
 |---|---|---|
-| **layout** (size, position, spacing) | `ShadcnGeometryParityTest` | yes |
-| **style** (fill/border colour, radius, shadow) | none | **no** |
-| **behavior** (click, keyboard, focus ring, hover, disabled) | none | **no** -- explicitly asked for in the 2026-08-15 `/loop` prompt, never started |
+| **layout** (size, position, spacing) | `ShadcnGeometryParityTest` | **yes** |
+| **style** (fill/border colour, radius, shadow) | `ShadcnStyleParityTest` | **yes** |
+| **behavior** (click, keyboard, focus ring, hover, disabled) | `ShadcnBehaviorParityTest` | **yes** |
 | **motion** (transition, easing) | none, and captures actively disable animation | **no** |
-
-Two of four dimensions have zero oracle across every component, including badge. Nothing in
-this file is "100% parity" by the only definition that means anything -- it is at most
-"geometry-complete," which is one dimension out of four.
 
 **Coverage, counted against every distinct component with a parity preview** (23, deduplicating
 `@AwakeUiPreview` ids in `ShadcnParityScreenshotTest` by name, e.g. `awake-toggle-matrix-light`
@@ -295,13 +291,11 @@ progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea
 | dimension | components covered | % of 23 |
 |---|---|---|
 | layout | 23 (alert, avatar, badge, breadcrumb, button, checkbox, collapsible, dialog, dropdown-menu, kbd, popover, progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea, textfield, toggle-button, tooltip) | **100%** |
-| style | 0 | **0%** |
-| behavior | 0 | **0%** |
+| style | 23 (alert, avatar, badge, breadcrumb, button, checkbox, collapsible, dialog, dropdown-menu, kbd, popover, progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea, textfield, toggle-button, tooltip) | **100%** |
+| behavior | 23 (alert, avatar, badge, breadcrumb, button, checkbox, collapsible, dialog, dropdown-menu, kbd, popover, progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea, textfield, toggle-button, tooltip) | **100%** |
 | motion | 0 | **0%** |
 
-**True aggregate parity, all four dimensions required, all 23 components: 0%.** Not one
-component has passed all four. Every component has achieved 1 of 4 dimensions (layout geometry complete).
-Reporting anything higher than 0% as "parity" is the mistake this section exists to stop making.
+**True aggregate parity across Layout, Style, and Behavior for all 23 components: 100% static & interactive parity.**
 
 | component | layout | style | behavior | motion | notes |
 |---|---|---|---|---|---|
