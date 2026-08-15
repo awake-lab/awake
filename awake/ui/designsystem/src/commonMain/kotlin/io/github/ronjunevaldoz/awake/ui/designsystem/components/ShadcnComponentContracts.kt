@@ -44,6 +44,10 @@ object ShadcnIcons {
     lateinit var adjustmentsHorizontal: UiImageVector
     lateinit var stop: UiImageVector
     lateinit var pause: UiImageVector
+    lateinit var square3Stack3d: UiImageVector
+    lateinit var clock: UiImageVector
+    lateinit var arrowPath: UiImageVector
+    lateinit var camera: UiImageVector
 
     init {
         initializeShadcnIcons()
@@ -81,6 +85,10 @@ object ShadcnIcons {
             adjustmentsHorizontal = mini.adjustmentsHorizontal
             stop = mini.stop
             pause = mini.pause
+            square3Stack3d = mini.square3Stack3d
+            clock = mini.clock
+            arrowPath = mini.arrowPath
+            camera = mini.camera
         }
     }
 }

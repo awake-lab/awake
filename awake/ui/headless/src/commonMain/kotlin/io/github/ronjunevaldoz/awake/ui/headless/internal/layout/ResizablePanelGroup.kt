@@ -47,20 +47,16 @@ enum class ResizableDirection { Horizontal, Vertical }
 // it does, one honest 4dp value beats a split that breaks two things to fix a 3dp discrepancy.
 private val RESIZABLE_HANDLE_THICKNESS = 4f.dp
 
-/** One [resizablePanelGroup] panel's identity, captured by [ResizablePanelGroupScope.panel]
- * immediately before a [ResizablePanelGroupScope.handle] call so that handle's drag can read/
- * write this panel's fraction without needing to know about a panel declared *after* it in the
+/** One [resizablePanelGroup] panel's identity -- collected for every panel, in declaration order,
+ * by the dry counting walk (see [ResizablePanelGroupScope.collectedPanels]), so that a [handle]
+ * can read/write the fraction of the panel *after* it without that panel having run yet in the
  * same content lambda. */
-private class ResizablePanelSpec(
+internal class ResizablePanelSpec(
     val fractionKey: String,
     val min: Float,
     val max: Float,
     val default: Float,
 )
-
-/** A handle's pointer-driven fraction delta, computed in [ResizablePanelGroupScope.handle] and
- * consumed by the very next [ResizablePanelGroupScope.panel] call. */
-private class PendingHandleDrag(val mirroredDeltaFraction: Float)
 
 /**
  * Scope for [resizablePanelGroup]'s content -- a cursor-based walk along [direction] (mirrors
@@ -69,12 +65,14 @@ private class PendingHandleDrag(val mirroredDeltaFraction: Float)
  * shares, since dragging needs a live, mutable value. A [handle] couples only the two panels
  * immediately touching it -- dragging one handle never touches a third panel.
  *
- * ponytail: a handle's drag applies to the panel *before* it immediately, but the mirrored
- * shrink/grow on the panel *after* it only lands once that next `panel()` call runs later in the
- * same synchronous walk -- both settle within the same frame, but if `before` and `after` hit
- * their own min/max on the *same* frame the pair can drift slightly out of budget. Upgrade path:
- * resolve both panels' fractions together before drawing either, the way row()/column() resolve
- * weighted children in one trial pass first.
+ * Panels and handles strictly alternate (`panel, handle, panel, handle, panel, ...`), so the Nth
+ * handle's neighbors are always [panelSpecs]`[N]` (before) and [panelSpecs]`[N + 1]` (after) --
+ * [panelSpecs] is built once by the dry counting walk, before the real walk that resolves drags
+ * runs, so both neighbors' min/max are known up front. [handle] resolves both fractions together
+ * (each clamped to its own bounds, with the tighter of the two clamps applied symmetrically to
+ * both) and writes both directly into [groupState] before either panel's own `panel()` call reads
+ * it back -- unlike computing the "after" delta from the "before" delta alone, this can't drift
+ * the pair out of budget when one of them hits its bound and the other doesn't.
  */
 class ResizablePanelGroupScope internal constructor(
     context: UiContext,
@@ -83,6 +81,7 @@ class ResizablePanelGroupScope internal constructor(
     private val bounds: UiBounds,
     private val availableMainAxisPx: Float,
     private val countingOnly: Boolean,
+    private val panelSpecs: List<ResizablePanelSpec> = emptyList(),
     emitToOverlay: Boolean = false,
 ) : AbstractUiScope(context, emitToOverlay) {
 
@@ -91,9 +90,12 @@ class ResizablePanelGroupScope internal constructor(
     internal var handleCount: Int = 0
         private set
 
+    /** Populated only by [resizablePanelGroup]'s dry counting walk -- every [panel]'s identity,
+     * in declaration order, read to build [panelSpecs] for the real walk. */
+    internal val collectedPanels: MutableList<ResizablePanelSpec> = mutableListOf()
+
     private var cursorMain = if (direction == ResizableDirection.Horizontal) bounds.x else bounds.y
-    private var lastPanel: ResizablePanelSpec? = null
-    private var pendingDrag: PendingHandleDrag? = null
+    private var handleIndex = 0
 
     override fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight?): UiBounds {
         val w = resolveAxis(width, bounds.width)
@@ -123,15 +125,12 @@ class ResizablePanelGroupScope internal constructor(
         maxSize: Float = 1f,
         content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiBounds {
-        if (countingOnly) return UiBounds(0f, 0f, 0f, 0f)
         val fractionKey = "$id.fraction"
-        var fraction = groupState.get(fractionKey, defaultSize)
-        pendingDrag?.let { drag ->
-            fraction = (fraction + drag.mirroredDeltaFraction).coerceIn(minSize, maxSize)
-            groupState.set(fractionKey, fraction)
-            pendingDrag = null
+        if (countingOnly) {
+            collectedPanels.add(ResizablePanelSpec(fractionKey, minSize, maxSize, defaultSize))
+            return UiBounds(0f, 0f, 0f, 0f)
         }
-        lastPanel = ResizablePanelSpec(fractionKey, minSize, maxSize, defaultSize)
+        val fraction = groupState.get(fractionKey, defaultSize)
         val sizePx = (fraction * availableMainAxisPx).coerceAtLeast(0f)
         val modifier = if (direction == ResizableDirection.Horizontal) {
             Modifier.width(sizePx.px).height(Dimension.FillMax)
@@ -191,39 +190,51 @@ class ResizablePanelGroupScope internal constructor(
         // after it in the same frame, permanently zeroing every real frame's pointer delta --
         // the actual "dragging does nothing" bug. Guard this side effect like every other
         // stateful UiContext operation (see UiContext.animateFloat's identical isMeasuring() gate).
-        pendingDrag = if (isMeasuring()) {
-            null
+        val before = panelSpecs.getOrNull(handleIndex)
+        val after = panelSpecs.getOrNull(handleIndex + 1)
+        if (isMeasuring()) {
+            // See the isMeasuring() note above `pendingDrag` in the previous revision of this
+            // function: a trial-measurement pass must never touch groupState.
         } else if (dragging) {
             val previousPointerMain = groupState.get(lastPointerKey, pointerMain)
             groupState.set(lastPointerKey, pointerMain)
-            val before = lastPanel
-            if (before != null && availableMainAxisPx > 0f) {
-                val deltaFraction = (pointerMain - previousPointerMain) / availableMainAxisPx
-                val oldFraction = groupState.get(before.fractionKey, before.default)
-                val newFraction = (oldFraction + deltaFraction).coerceIn(before.min, before.max)
-                groupState.set(before.fractionKey, newFraction)
-                PendingHandleDrag(mirroredDeltaFraction = -(newFraction - oldFraction))
-            } else {
-                null
+            if (before != null && after != null && availableMainAxisPx > 0f) {
+                val rawDelta = (pointerMain - previousPointerMain) / availableMainAxisPx
+                val beforeOld = groupState.get(before.fractionKey, before.default)
+                val afterOld = groupState.get(after.fractionKey, after.default)
+                var appliedDelta = (beforeOld + rawDelta).coerceIn(before.min, before.max) - beforeOld
+                val afterNew = (afterOld - appliedDelta).coerceIn(after.min, after.max)
+                // If `after` clamped harder than `before` did, the pair no longer sums to zero --
+                // re-derive `before`'s delta from `after`'s actual, already-clamped change so both
+                // panels move by exactly the same magnitude and the group's total width never drifts.
+                appliedDelta = afterOld - afterNew
+                groupState.set(before.fractionKey, beforeOld + appliedDelta)
+                groupState.set(after.fractionKey, afterNew)
             }
         } else {
             groupState.remove(lastPointerKey)
-            null
         }
+        handleIndex++
         recordSemantic(role = UiSemanticRole.Separator, id = id, bounds = slot)
         if (withHandle) {
-            val pillWidth = 12f.dp.toPx()
-            val pillHeight = 20f.dp.toPx()
-            val pillX = slot.x + (slot.width - pillWidth) / 2f
-            val pillY = slot.y + (slot.height - pillHeight) / 2f
+            // Matches shadcn/ui's own grip box (resizable.tsx: `h-4 w-3 rounded-xs border
+            // bg-border`, holding a GripVerticalIcon) -- small and squared-off, not the oversized
+            // filled capsule this used to draw. RoundedQuad has no stroke of its own, so the
+            // `border` class's visual (a hairline the same border color as the fill) is
+            // approximated by insetting a slightly darker/inset second quad is not attempted here;
+            // one flat fill is the honest approximation until RoundedQuad grows a stroke param.
+            val gripWidth = 12f.dp.toPx()
+            val gripHeight = 16f.dp.toPx()
+            val gripX = slot.x + (slot.width - gripWidth) / 2f
+            val gripY = slot.y + (slot.height - gripHeight) / 2f
             emit(
                 UiDrawPrimitive.RoundedQuad(
-                    x = pillX,
-                    y = pillY,
-                    w = pillWidth,
-                    h = pillHeight,
+                    x = gripX,
+                    y = gripY,
+                    w = gripWidth,
+                    h = gripHeight,
                     color = context.currentTheme.colors.border,
-                    radius = 4f,
+                    radius = 2f,
                 ),
             )
         }
@@ -246,10 +257,10 @@ fun UiPrimitiveScope.resizablePanelGroup(
     val groupState = widgetState(id)
     val mainAxisTotal = if (direction == ResizableDirection.Horizontal) slot.width else slot.height
 
-    // Dry pass: count handles only, so their combined thickness can be subtracted from the
-    // main-axis budget before any panel's own fraction -> pixel conversion runs -- a panel
-    // drawn before the group knows the true handle count would overclaim space (see the
-    // ResizablePanelGroupScope class doc's ponytail note for the sibling tradeoff this mirrors).
+    // Dry pass: count handles and collect every panel's id/min/max, so their combined handle
+    // thickness can be subtracted from the main-axis budget before any panel's own fraction ->
+    // pixel conversion runs, AND so a handle in the real pass already knows both of its
+    // neighboring panels' bounds (the panel *after* it hasn't run yet in that same walk).
     val counter = ResizablePanelGroupScope(
         context,
         direction,
@@ -257,7 +268,7 @@ fun UiPrimitiveScope.resizablePanelGroup(
         slot,
         mainAxisTotal,
         countingOnly = true,
-        emitsToOverlay,
+        emitToOverlay = emitsToOverlay,
     )
     counter.content()
     val availableMainAxisPx =
@@ -270,7 +281,8 @@ fun UiPrimitiveScope.resizablePanelGroup(
         slot,
         availableMainAxisPx,
         countingOnly = false,
-        emitsToOverlay,
+        panelSpecs = counter.collectedPanels,
+        emitToOverlay = emitsToOverlay,
     )
     real.content()
     return slot

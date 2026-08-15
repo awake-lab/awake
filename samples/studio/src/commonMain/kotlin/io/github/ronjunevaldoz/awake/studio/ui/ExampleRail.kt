@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -78,35 +79,16 @@ internal fun UiScope.drawExampleRail(
     }
 }
 
-/**
- * Mirrors [io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem]'s own
- * look -- that component has no leading-icon slot to extend -- with two differences: a leading
- * [glyph] in the row, and `theme.colors.accent`/`accentForeground` in place of the sidebar-
- * specific tokens (the `asShadcnTheme()` that reads those is `internal` to `ui-designsystem`,
- * unreachable from this module).
- *
- * [active] switches the variant to `Primary` instead of staying `Ghost`: `shadcnButton`'s `Ghost`
- * variant (`UiButtonVariant.resolveFill`) hardcodes its idle, non-hover fill to fully transparent
- * regardless of what a caller's own [Style] sets for the base (non-hover) state, so a persistent
- * "this is the active item" background never painted while staying `Ghost` -- confirmed
- * empirically, the active item's semantic `backgroundColor` resolved to `Color.Transparent`
- * (alpha 0) despite the `Style` block below asking for the accent fill. `Primary`
- * (`UiButtonVariant.Filled`) always honors the resolved background, and the `Style` block
- * overrides its default fill/foreground down to the accent tokens either way. Same fix
- * `IconRail.kt`'s own `railButton` already uses for its active tool, and the one landing in
- * `shadcnSidebarMenuItem` itself.
- */
 private fun io.github.ronjunevaldoz.awake.ui.headless.ColumnScope.exampleMenuItem(
     id: String,
     label: String,
     active: Boolean,
     onClick: () -> Unit,
 ) {
-    shadcnButton(
+    shadcnSidebarMenuItem(
         id = id,
-        modifier = Modifier.fillMaxWidth().height(32f.dp),
-        variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
         label = label,
+        active = active,
         onClick = onClick,
     )
 }
