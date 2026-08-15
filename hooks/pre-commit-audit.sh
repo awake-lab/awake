@@ -21,9 +21,11 @@ if [[ ! -f "$AUDIT_SCRIPT" ]]; then
 fi
 
 echo "Running architecture audit on staged Kotlin files..."
-if ! python3 "$AUDIT_SCRIPT" "$REPO_ROOT"; then
+# audit_project.py only accepts a project root, so this is a full-repo scan; cap it so a
+# slow scan can never hang the commit (perl alarm because macOS has no coreutils timeout).
+if ! perl -e 'alarm 20; exec @ARGV' python3 "$AUDIT_SCRIPT" "$REPO_ROOT"; then
   echo ""
-  echo "Architecture audit found issues (warn-only — not blocking this commit)."
+  echo "Architecture audit found issues or timed out (warn-only — not blocking this commit)."
   echo "Run: python3 .claude/skills/kmp-audit/scripts/audit_project.py ."
   # ponytail: warn-only until the pre-existing findings backlog is cleared,
   # then drop this line so a non-zero audit blocks the commit again.
