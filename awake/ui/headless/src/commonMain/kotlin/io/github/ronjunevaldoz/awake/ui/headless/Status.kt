@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.progress as primitiveProgress
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.skeleton as primitiveSkeleton
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.spinner as primitiveSpinner
@@ -12,13 +13,13 @@ fun UiScope.progress(
     id: String,
     value: Float,
     modifier: Modifier = Modifier,
-    visuals: SurfaceStyle = SurfaceStyle(),
+    style: Style = Style.Empty,
 ) {
     primitive.primitiveProgress(
         id = id,
         value = value,
         modifier = modifier.asPrimitiveModifier(),
-        style = visuals.asPrimitiveStyle(),
+        style = style,
     )
 }
 
@@ -26,13 +27,13 @@ fun UiScope.progress(
 fun UiScope.skeleton(
     id: String,
     modifier: Modifier = Modifier,
-    visuals: SurfaceStyle = SurfaceStyle(),
+    style: Style = Style.Empty,
     shimmer: Boolean = false,
 ) {
     primitive.primitiveSkeleton(
         id = id,
         modifier = modifier.asPrimitiveModifier(),
-        style = visuals.asPrimitiveStyle(),
+        style = style,
         shimmer = shimmer,
     )
 }
@@ -41,12 +42,12 @@ fun UiScope.skeleton(
 fun UiScope.spinner(
     id: String,
     modifier: Modifier = Modifier,
-    visuals: SurfaceStyle = SurfaceStyle(),
+    style: Style = Style.Empty,
 ) {
     primitive.primitiveSpinner(
         id = id,
         modifier = modifier.asPrimitiveModifier(),
-        style = visuals.asPrimitiveStyle(),
+        style = style,
     )
 }
 
@@ -56,11 +57,11 @@ fun UiScope.toast(
     message: String,
     modifier: Modifier = Modifier,
     durationMs: Float = 3000f,
-    visuals: SurfaceStyle = SurfaceStyle(),
+    style: Style = Style.Empty,
 ): Boolean = primitive.primitiveToast(
     id = id,
     message = message,
     modifier = modifier.asPrimitiveModifier(),
     durationMs = durationMs,
-    style = visuals.asPrimitiveStyle(),
+    style = style,
 )

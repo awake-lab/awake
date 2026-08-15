@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /**
  * Shared shape behind [menubar] and [toolbar]: a [Panel]-rooted bounded row. Both Base UI
@@ -13,7 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 private fun UiScope.actionRow(
     id: String,
     modifier: Modifier,
-    style: SurfaceStyle,
+    style: Style,
     horizontalArrangement: Arrangement,
     content: RowScope.() -> Unit,
 ): UiBounds = surface(id = id, modifier = modifier, style = style) {
@@ -24,7 +25,7 @@ private fun UiScope.actionRow(
 fun UiScope.menubar(
     id: String,
     modifier: Modifier = Modifier,
-    style: SurfaceStyle = SurfaceStyle(),
+    style: Style = Style.Empty,
     horizontalArrangement: Arrangement = Arrangement.Start,
     content: RowScope.() -> Unit,
 ): UiBounds = actionRow(id, modifier, style, horizontalArrangement, content)
@@ -33,7 +34,7 @@ fun UiScope.menubar(
 fun UiScope.toolbar(
     id: String,
     modifier: Modifier = Modifier,
-    style: SurfaceStyle = SurfaceStyle(),
+    style: Style = Style.Empty,
     horizontalArrangement: Arrangement = Arrangement.Start,
     content: RowScope.() -> Unit,
 ): UiBounds = actionRow(id, modifier, style, horizontalArrangement, content)

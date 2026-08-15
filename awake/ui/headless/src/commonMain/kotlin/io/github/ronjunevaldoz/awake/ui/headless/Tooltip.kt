@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.interact
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /**
  * Unstyled tooltip primitive with hover-intent delay timer state and popup anchor positioning.
@@ -17,7 +18,7 @@ fun UiScope.tooltip(
     tooltipText: String,
     delayMs: Float = 300f,
     modifier: Modifier = Modifier,
-    surfaceStyle: SurfaceStyle = SurfaceStyle(contentPadding = io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets(8f.dp, 4f.dp)),
+    style: Style = Style { contentPadding(horizontal = 8f.dp, vertical = 4f.dp) },
     trigger: UiScope.() -> UiBounds,
 ): UiPopupResult {
     val anchorBounds = trigger()
@@ -42,7 +43,7 @@ fun UiScope.tooltip(
     ) { _ ->
         surface(
             id = "$id.surface",
-            style = surfaceStyle,
+            style = style,
         ) {
             text(label = tooltipText, centered = true)
         }

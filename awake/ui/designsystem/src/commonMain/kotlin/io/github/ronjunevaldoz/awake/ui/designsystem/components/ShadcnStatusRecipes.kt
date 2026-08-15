@@ -14,8 +14,6 @@ import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -28,6 +26,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.spinner
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.withIntrinsicLabelSize
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Branded status pill. Behavior and layout remain owned by ui-headless. */
 fun UiScope.shadcnBadge(
@@ -90,12 +89,7 @@ fun UiScope.shadcnProgress(
     id = id,
     value = value,
     modifier = modifier,
-    visuals = SurfaceStyle(
-        background = themeValues.colors.primary.withAlpha(0.2f),
-        foreground = themeValues.colors.primary,
-        border = SurfaceBorder(0f.dp, Color.Transparent),
-        cornerRadius = themeValues.shapes.full,
-    ),
+    style = Style { background(themeValues.colors.primary.withAlpha(0.2f)); foreground(themeValues.colors.primary); border(0f.dp, Color.Transparent); shape(themeValues.shapes.full) },
 )
 
 fun UiScope.shadcnSkeleton(
@@ -106,10 +100,7 @@ fun UiScope.shadcnSkeleton(
     id = id,
     modifier = modifier,
     shimmer = shimmer,
-    visuals = SurfaceStyle(
-        background = themeValues.colors.muted,
-        cornerRadius = themeValues.shapes.md,
-    ),
+    style = Style { background(themeValues.colors.muted); shape(themeValues.shapes.md) },
 )
 
 fun UiScope.shadcnSpinner(
@@ -118,9 +109,7 @@ fun UiScope.shadcnSpinner(
 ): Unit = spinner(
     id = id,
     modifier = modifier,
-    visuals = SurfaceStyle(
-        foreground = themeValues.colors.primary,
-    ),
+    style = Style { foreground(themeValues.colors.primary) },
 )
 
 fun UiScope.shadcnAlert(

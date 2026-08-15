@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.avatar
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -13,13 +12,13 @@ import io.github.ronjunevaldoz.awake.ui.headless.offset
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
-private fun avatarStyle(values: io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues): SurfaceStyle =
-    SurfaceStyle(
-        background = values.colors.muted,
-        foreground = values.colors.foreground,
-        cornerRadius = values.shapes.full,
-    )
+private fun avatarStyle(values: io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues): Style = Style {
+    background(values.colors.muted)
+    foreground(values.colors.foreground)
+    shape(values.shapes.full)
+}
 
 fun UiScope.shadcnAvatar(
     id: String,

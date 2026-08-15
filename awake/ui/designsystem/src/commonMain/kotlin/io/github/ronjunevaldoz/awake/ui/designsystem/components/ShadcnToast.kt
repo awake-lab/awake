@@ -4,10 +4,9 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.toast
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Shadcn toast recipe backed by Headless self-dismissal behavior. */
 fun UiScope.shadcnToast(
@@ -20,10 +19,5 @@ fun UiScope.shadcnToast(
     message = message,
     modifier = modifier,
     durationMs = durationMs,
-    visuals = SurfaceStyle(
-        background = themeValues.colors.card,
-        foreground = themeValues.colors.cardForeground,
-        border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        cornerRadius = themeValues.shapes.lg,
-    ),
+    style = Style { background(themeValues.colors.card); foreground(themeValues.colors.cardForeground); border(1f.dp, themeValues.colors.border); shape(themeValues.shapes.lg) },
 )
