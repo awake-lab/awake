@@ -4,7 +4,6 @@
   <CurrentIssues>
     <ID>ComplexCondition:AwakeUiPreviewValidator.kt$r1 != r2 || g1 != g2 || b1 != b2 || a1 != a2</ID>
     <ID>ComplexCondition:UiMetrics.kt$bounds.x &lt; allowedBounds.x - tolerancePx || bounds.y &lt; allowedBounds.y - tolerancePx || bounds.x + bounds.width > allowedBounds.x + allowedBounds.width + tolerancePx || bounds.y + bounds.height > allowedBounds.y + allowedBounds.height + tolerancePx</ID>
-    <ID>ConstructorParameterNaming:FigmaVariableProvider.kt$DesignTokensSchema$val file_key: String</ID>
     <ID>CyclomaticComplexMethod:AwakeUiPreviewValidation.kt$fun validateAwakeUiPreview( metadata: AwakeUiPreviewMetadata, frame: AwakeUiPreviewFrame, config: AwakeUiPreviewValidationConfig = AwakeUiPreviewValidationConfig(), ): AwakeUiPreviewValidationReport</ID>
     <ID>CyclomaticComplexMethod:UiInspection.kt$fun inspectUiFrame( primitives: List&lt;UiDrawPrimitive>, frame: UiBounds, font: UiFont? = null, ): UiInspectionReport</ID>
     <ID>CyclomaticComplexMethod:UiRasterizer.kt$fun List&lt;UiDrawPrimitive>.rasterize( width: Int, height: Int, background: Color = Color(0.1f, 0.1f, 0.12f, 1f), font: UiFont? = null, ): ByteArray</ID>
