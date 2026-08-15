@@ -3,11 +3,15 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
+import io.github.ronjunevaldoz.awake.ui.ProvideTextStyle
+import io.github.ronjunevaldoz.awake.ui.ProvideTheme
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelSize as primitiveWithIntrinsicLabelSize
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 
 @DslMarker
 annotation class AwakeUiDsl
@@ -25,6 +29,14 @@ interface UiScope {
     /** Immutable values from the currently installed theme, without Core runtime access. */
     val themeValues: UiThemeValues
         get() = primitive.context.currentTheme
+
+    /** Typography supplied by the nearest [provideTheme] block. */
+    val typography
+        get() = themeValues.typography
+
+    /** Effective inherited text styling at this point in the UI tree. */
+    val textStyle: TextStyle
+        get() = primitive.context.currentTextStyle
 }
 
 internal class DefaultUiScope internal constructor(
@@ -35,6 +47,19 @@ fun UiScope(primitive: UiPrimitiveScope): UiScope = DefaultUiScope(primitive)
 
 /** Requests keyboard focus for a Headless-owned input or composite widget. */
 fun UiScope.requestFocus(id: String) = primitive.context.requestFocus(id)
+
+/**
+ * Provides theme values to this subtree. Child widgets read them from [themeValues] rather than
+ * receiving theme or typography plumbing parameters.
+ */
+fun UiScope.provideTheme(values: UiThemeValues, content: UiScope.() -> Unit) {
+    primitive.ProvideTheme(values.asRuntimeTheme()) { content(DefaultUiScope(this)) }
+}
+
+/** Provides an inheritable text-style override to this subtree. */
+fun UiScope.provideTextStyle(style: TextStyle, content: UiScope.() -> Unit) {
+    primitive.ProvideTextStyle(style) { content(DefaultUiScope(this)) }
+}
 
 /** Applies natural label width and font-metric height to surface recipes. */
 fun UiScope.withIntrinsicLabelSize(
