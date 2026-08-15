@@ -5,25 +5,14 @@ package io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiColorTokens
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
-/** hovered -> muted, active -> accent, base -> background. */
+/**
+ * State-neutral base colors. Interaction-state styling (hover/pressed/disabled) is owned by
+ * the widget's caller-supplied style, never by theme defaults: a default state rule outranks
+ * a caller's unconditional fill under state-conditional resolution, which is how every filled
+ * shadcn button variant turned muted-gray on hover (2026-08-15 audit).
+ */
 fun UiColorTokens.neutralStyle(): Style =
     Style {
         background(background)
         foreground(foreground)
-        hovered { background(muted) }
-        active { background(accent) }
     }
-
-/** Same state-varying shape as [neutralStyle], but for the destructive role. */
-fun UiColorTokens.destructiveStyle(): Style =
-    Style {
-        background(destructive)
-        foreground(destructiveForeground)
-        hovered { background(brighten(destructive, 1.05f)) }
-        active { background(brighten(destructive, 1.15f)) }
-    }
-
-private fun brighten(
-    color: io.github.ronjunevaldoz.awake.core.colors.Color,
-    brightness: Float,
-): io.github.ronjunevaldoz.awake.core.colors.Color = color.brighten(brightness)

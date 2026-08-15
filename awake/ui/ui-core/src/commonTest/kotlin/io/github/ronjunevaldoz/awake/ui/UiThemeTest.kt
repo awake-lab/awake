@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.theme.destructiveStyle
 import io.github.ronjunevaldoz.awake.ui.theme.neutralStyle
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,8 +14,12 @@ import kotlin.test.assertNotEquals
 
 class UiThemeTest {
 
+    // Theme defaults are state-neutral: a default hover/active rule would outrank any
+    // caller's unconditional fill under state-conditional resolution, repainting every
+    // filled variant with the default color on hover. Interaction states belong to the
+    // caller-supplied style.
     @Test
-    fun neutralStyleResolvesDistinctColorsPerState() {
+    fun neutralStyleIsStateNeutral() {
         val tokens = UiDefaultTheme.colors
         val idle = tokens.neutralStyle().resolve(MutableStyleState(hovered = false, active = false)).background!!
         val hovered = tokens.neutralStyle().resolve(
@@ -27,8 +30,8 @@ class UiThemeTest {
         ).background!!
         val active = tokens.neutralStyle().resolve(MutableStyleState(hovered = true, active = true)).background!!
 
-        assertNotEquals(idle, hovered, "hovered must resolve to a different color than idle")
-        assertNotEquals(hovered, active, "active must resolve to a different color than hovered")
+        assertEquals(idle, hovered, "theme defaults must not restyle hover")
+        assertEquals(idle, active, "theme defaults must not restyle active")
     }
 
     @Test
@@ -46,36 +49,10 @@ class UiThemeTest {
 
     @Test
     fun coreUiThemeSharesOneNeutralStyleAcrossWidgetKinds() {
-        val state = MutableStyleState(hovered = true, active = false)
+        val state = MutableStyleState(hovered = false, active = false)
         val a = UiDefaultTheme.components.button.resolve(state).background!!
         val b = UiDefaultTheme.components.slider.resolve(state).background!!
         assertEquals(a, b)
-    }
-
-    @Test
-    fun destructiveStyleVariesByStateInsteadOfReturningOneFlatColor() {
-        val tokens = UiDefaultTheme.colors
-        val idle = tokens.destructiveStyle().resolve(
-            MutableStyleState(
-                hovered = false,
-                active = false,
-            ),
-        ).background!!
-        val hovered = tokens.destructiveStyle().resolve(
-            MutableStyleState(
-                hovered = true,
-                active = false,
-            ),
-        ).background!!
-        val active = tokens.destructiveStyle().resolve(
-            MutableStyleState(
-                hovered = true,
-                active = true,
-            ),
-        ).background!!
-
-        assertNotEquals(idle, hovered, "hovered destructive must differ from idle")
-        assertNotEquals(hovered, active, "active destructive must differ from hovered")
     }
 
     // Reproduces the ShadcnTheme composition shape: `style(visual, fallback) = fallback then
