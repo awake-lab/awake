@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.WidgetState
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.boundDerivedContent
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -284,6 +285,10 @@ fun UiPrimitiveScope.resizablePanelGroup(
         panelSpecs = counter.collectedPanels,
         emitToOverlay = emitsToOverlay,
     )
-    real.content()
+    // Panel/handle claims are `fraction x this group's own resolved bound` -- not intrinsic
+    // sizes. Left visible to an enclosing WrapContent parent's measure trial, the handle's claim
+    // at its fraction-derived x reported a phantom content width that re-sized the parent on
+    // every drag (the showcase card grew by the drag delta).
+    boundDerivedContent { real.content() }
     return slot
 }
