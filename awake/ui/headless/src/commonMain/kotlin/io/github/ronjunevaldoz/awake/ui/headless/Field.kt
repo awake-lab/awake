@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Form field context passed down to child controls and accessibility helpers. */
 data class FieldState(
@@ -31,6 +32,9 @@ fun UiScope.field(
     error: String? = null,
     disabled: Boolean = false,
     modifier: Modifier = Modifier,
+    labelStyle: Style = Style.Empty,
+    descriptionStyle: Style = Style.Empty,
+    errorStyle: Style = Style.Empty,
     content: FieldScope.() -> Unit,
 ): UiBounds = column(
     modifier = modifier,
@@ -48,7 +52,7 @@ fun UiScope.field(
     if (label != null) {
         text(
             label = label,
-            color = if (disabled) themeValues.colors.mutedForeground else themeValues.colors.foreground,
+            style = labelStyle,
         )
     }
 
@@ -57,12 +61,12 @@ fun UiScope.field(
     if (error != null) {
         text(
             label = error,
-            color = themeValues.colors.destructive,
+            style = errorStyle,
         )
     } else if (description != null) {
         text(
             label = description,
-            color = themeValues.colors.mutedForeground,
+            style = descriptionStyle,
         )
     }
 }
