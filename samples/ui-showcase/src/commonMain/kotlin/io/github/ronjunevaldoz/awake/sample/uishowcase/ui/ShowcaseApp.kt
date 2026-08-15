@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 
@@ -99,7 +100,15 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                         title = "Acme Inc",
                         subtitle = "Enterprise",
                     )
-                    drawUiShowcaseSidebar(compact = false)
+                    // The category/page menu is the part that overflows a short viewport --
+                    // scroll just this weighted slice instead of the whole body, so the switcher
+                    // above and the footer slot below stay pinned instead of the tail of the
+                    // menu (e.g. the Combobox entry) painting through the footer.
+                    column(
+                        modifier = Modifier.fillMaxWidth().weight(1f).verticalScroll(sidebarScroll),
+                    ) {
+                        drawUiShowcaseSidebar(compact = false)
+                    }
                 }
 
                 column(
