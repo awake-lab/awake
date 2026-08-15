@@ -83,15 +83,8 @@ tasks.register("developerDocs") {
         ":awake:ui:ui-headless:uiTutorialDocsReport",
         ":samples:ui-showcase:desktopTest",
         ":samples:ui-showcase:uiShowcasePreviewReport",
-        "uiComponentLookupReport",
-        "syncFigma"
+        "uiComponentLookupReport"
     )
-}
-
-tasks.register<Exec>("syncFigma") {
-    group = "design"
-    description = "Sync design tokens from Figma using the sync-figma-variables.py script."
-    commandLine("python3", "scripts/sync-figma-variables.py")
 }
 
 // A single, searchable component lookup that merges the ui-showcase page-level preview

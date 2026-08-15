@@ -25,7 +25,7 @@ fun UiScope.shadcnButton(
     id = id,
     label = label,
     modifier = modifier.heightOrDefault(size.heightDp),
-    visuals = variant.visuals(themeValues, size),
+    style = variant.visuals(themeValues, size),
     centered = centered,
     enabled = enabled,
 ).also { if (it) onClick?.invoke() }
@@ -41,7 +41,7 @@ fun UiScope.shadcnButton(
 ): Boolean = button(
     id = id,
     modifier = modifier.heightOrDefault(size.heightDp),
-    visuals = variant.visuals(themeValues, size),
+    style = variant.visuals(themeValues, size),
     enabled = enabled,
     content = content,
 ).also { if (it) onClick?.invoke() }
