@@ -341,32 +341,41 @@ own doc comment.
 
 ## There is already parity tooling -- use it before eyeballing a diff
 
-`tools/` ships a full perceptual-parity pipeline that predates any manual audit:
+As of 2026-08-15, "does this look right vs shadcn" splits into two oracles that answer different
+parts of it. Read `docs/reference/ui-validation.md`'s component coverage matrix before trusting
+either in isolation -- most components (16 of 23) have neither.
 
-- `fetch_shadcn_reference.sh` / `capture_shadcn_local.py` / `tools/shadcn-reference-app` -- capture
-  real shadcn/ui component PNGs.
-- `compare_parity.py` -- trims both images to their own content bbox, crops to the intersection,
-  and reports mismatch %, max/mean channel delta, plus a red/blue heatmap PNG. Explicitly a
-  *perceptual fidelity signal*, not a golden-image lock.
-- `shadcn_parity_baseline.json` + `ShadcnReferenceComparisonTest` -- gates **regression** (a pair
-  getting worse than its accepted mismatch %), deliberately NOT absolute fidelity, which stays
-  informational in `shadcn_parity_thresholds.json`.
-- `ShadcnParityScreenshotTest` -- the separate golden-image lock, re-recorded with
-  `-DAWAKE_RECORD_SNAPSHOTS=true`.
+- **Layout (size, position, spacing) -- `ShadcnGeometryParityTest`.** Compares Awake's semantic
+  bounds against the reference app's own `getBoundingClientRect`, both sides exact numbers, no
+  rasterizer or font dependency. This is the first stop for a padding/width/spacing question, not
+  the pixel diff below -- three real bugs (a mis-framed reference, an unset reference font, a
+  reference rendering every weight as 400) were found *in* the pixel instrument before this
+  existed, against one real component bug found *by* it. `tools/shadcn-reference-app/src/cases.tsx`
+  tags each reference element with `data-parity-id`; `tools/capture_shadcn_local.py` exports the
+  rects alongside the PNG.
+- **Colour, border, shadow -- `ShadcnReferenceComparisonTest` (demoted, not removed).** Still the
+  only oracle for this dimension. `compare_parity.py` / `shadcn_parity_baseline.json` /
+  `shadcn_parity_thresholds.json` are its supporting tooling, same as before -- what changed is
+  that its mismatch% is no longer where a layout question gets decided, and it will never reach 0%
+  even for a pixel-perfect layout (different rasterizer, different font hinting).
+- **Behavior, motion -- no oracle.** Not built yet.
+- `ShadcnParityScreenshotTest` -- the separate golden-image regression lock (Awake vs Awake's own
+  prior render), re-recorded with `-DAWAKE_RECORD_SNAPSHOTS=true`. Unrelated to either oracle
+  above; it proves nothing changed by accident, not that anything is correct.
 
-So: for "does this component look right vs real shadcn," run the comparison and read the heatmap
-rather than squinting at a screenshot. For "did my change move something," the layout-signature and
-golden-image tests already answer it. Reach for a manual source-reading audit (the previous two
-sections) for *numeric* spec questions -- `h-9` vs `h-10` -- which pixel diffing can suggest but
-never name.
+For "did my change move something," the layout-signature and golden-image tests answer it. Reach
+for a manual source-reading audit (the previous two sections) for *numeric* spec questions --
+`h-9` vs `h-10` -- which neither oracle names on its own; geometry will tell you the number is
+wrong, not which Tailwind class it should have matched.
 
 ---
 
 ## Fidelity tests run a different font than the real app -- vertical-centering bugs can survive them
 
 `UiFonts.default()` resolves to `PackedUiFont(RobotoRegularUiFontData)` -- a **generated** atlas
-(`:awake:ui:font-atlas-generator`'s `generateFontAtlas` task, ~6.5k lines of packed
-per-glyph quad metrics) that overrides
+(`:awake:ui:font-atlas-generator`'s `generateFontAtlas` task, ~8.8k lines of packed
+per-glyph quad metrics, instantiated from `tools/fonts/Roboto[wdth,wght].ttf` -- Roboto 3.015,
+not the 2011 static this atlas shipped with before 2026-08-15) that overrides
 `visibleTopEm`/`visibleBottomEm` with values computed from real glyph ink, and reports
 `lineHeightEm = 1.1875`.
 

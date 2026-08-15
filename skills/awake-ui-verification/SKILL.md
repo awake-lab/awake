@@ -16,7 +16,8 @@ tools. Never let one stand in for the other.**
 | Question | Tool | What a pass means |
 |---|---|---|
 | Did this change? | Snapshot goldens (`snapshots/ui/*.png`), signature maps | Output matches what Awake produced *before*. Says nothing about correctness. |
-| Is this right? | `ShadcnReferenceComparisonTest` vs `docs/reference/shadcn-previews/` | Output resembles a real shadcn screenshot. |
+| Is this right, layout? | `ShadcnGeometryParityTest` vs the reference app's own `getBoundingClientRect` | Size/position match shadcn to sub-pixel, exactly, no rasterizer dependency. |
+| Is this right, everything else? | Nothing yet | Colour, border, shadow and all behavior (click/keyboard/focus/hover) have no oracle. `ShadcnReferenceComparisonTest` still runs but is demoted -- see below. |
 | Is this value right? | `ShadcnReferenceTokenExpandedTest` vs generated `ShadcnReferenceTokens.kt` | A token equals the pinned reference exactly. |
 | Does the logic hold? | Unit tests, throwaway probes reading real `UiBounds`/pixels | The measured number is what you claim. |
 
@@ -59,10 +60,22 @@ so it names one scene while many have drifted. `UiShowcaseLayoutSignatureTest` d
 opposite — it always prints the complete matrix, most of which is unchanged. Diff the printed
 values against the recorded ones rather than trusting the headline.
 
-## Reading a parity number
+## Parity is four dimensions, not one number
 
-`ShadcnReferenceComparisonTest` writes `build/reports/shadcn-parity-metrics.json`. Each entry
-carries `awakeSize`, `referenceSize` and `comparedSize`.
+Read `docs/reference/ui-validation.md`'s "Component coverage matrix" before citing any parity
+percentage. Layout, style, behavior and motion are independent, and as of 2026-08-15 only
+layout has an oracle -- 7 of 23 components, 0 of 23 for the other three. There is no single
+"parity%" to quote; asking for one and getting a pixel mismatch number back is how a font
+mismatch and a mis-framed reference both got mistaken for component bugs earlier that session.
+
+## Reading a pixel parity number (demoted, colour/border/shadow only)
+
+`ShadcnReferenceComparisonTest` writes `build/reports/shadcn-parity-metrics.json`. Since
+`ShadcnGeometryParityTest` landed, this test no longer decides layout questions -- padding,
+width, spacing, advance. It answers "does this still look like the right colour/radius/border",
+nothing more, and its mismatch% will never reach 0 even for a pixel-perfect layout (different
+rasterizer, different font hinting). Each entry carries `awakeSize`, `referenceSize` and
+`comparedSize`.
 
 **`comparedSize` gates whether `mismatchPct` means anything.** The two images are framed
 differently, so the harness compares their aligned intersection. When that intersection is a
@@ -145,7 +158,8 @@ cannot double as correctness gates.
 |---|---|---|
 | sizing, scrolling, measurement | `ui-core` | fast, exact, no baselines |
 | does a recipe pass the right modifiers | `ui-designsystem` | composition, not layout maths |
-| pixels, shadcn parity | `ui-showcase` | the only thing needing a render |
+| geometry vs shadcn (layout) | `ui-showcase` (`ShadcnGeometryParityTest`) | exact, sub-pixel, no render needed beyond the semantic tree |
+| pixels vs shadcn (colour/border/shadow) | `ui-showcase` (`ShadcnReferenceComparisonTest`) | the only thing needing a render |
 
 A layout assertion in `ui-showcase` is a slow duplicate of a `ui-core` case that fails for
 unrelated reasons. Push it down.
