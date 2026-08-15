@@ -7,17 +7,17 @@
         "tooltip-local-light": "Same class as slider-local-light, found by the coverage gate rather than by eye: the Awake render is 112x32 and docs/reference/shadcn-previews-local/tooltip-open_light.png is 101x28, so only 96x28 -- 75% of the larger image -- is ever compared and the remaining border is neither compared nor reported. The recorded 27.08% describes that crop, not the tooltip. Needs a re-capture that frames the same box (the capture's selector picks up the arrow, the Awake preview's canvas does not), after which this exclusion should be removed rather than re-recorded."
     },
     "baseline": {
-        "badge-local-light": 26.43,
-        "radiogroup-local-light": 18.91,
-        "button-local-light": 16.04,
-        "button-local-dark": 14.58,
-        "dialog-local-light": 14.51,
-        "tabs-local-light": 10.49,
-        "card-local-light": 9.52,
-        "select-local-light": 9.19,
+        "badge-local-light": 25.86,
+        "radiogroup-local-light": 17.65,
+        "button-local-light": 16.22,
+        "button-local-dark": 15.37,
+        "dialog-local-light": 14.02,
+        "tabs-local-light": 12.61,
+        "card-local-light": 9.48,
+        "select-local-light": 8.88,
         "switch-local-light": 5.99,
         "progress-local-light": 5.9,
         "checkbox-local-light": 5.86,
-        "input-local-light": 4.78
+        "input-local-light": 4.6
     }
 }

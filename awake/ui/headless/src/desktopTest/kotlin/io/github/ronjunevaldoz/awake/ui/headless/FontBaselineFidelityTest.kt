@@ -48,12 +48,11 @@ class FontBaselineFidelityTest {
      * exactly one pixel: the round glyphs' designed baseline overshoot (~0.01em, sub-pixel)
      * can quantize their ink bottom one row below the flat glyphs'. Chromium's hinter snaps
      * that overshoot away; we render unhinted. */
-    private val knownBaselineDrift = mapOf(
-        "roundvsflat-12" to 1,
-        "roundvsflat-14" to 1,
-        "roundvsflat-16" to 1,
-        "email-12" to 1,
-    )
+    // Empty since Roboto 3.015: every sample now lands every glyph on one baseline, so the
+    // allowance the older 2011 atlas needed is gone. The test only permits shrinking this map,
+    // and this is it shrinking to nothing -- if a future font change needs an entry back, that is
+    // a regression to explain rather than a number to record.
+    private val knownBaselineDrift = emptyMap<String, Int>()
 
     private fun inkBottomsPerGlyph(luma: (Int, Int) -> Int, width: Int, height: Int): List<Int> {
         val lit = (0 until width).map { x -> (0 until height).any { y -> luma(x, y) > 40 } }
