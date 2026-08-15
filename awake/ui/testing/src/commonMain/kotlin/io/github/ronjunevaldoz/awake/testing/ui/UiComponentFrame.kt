@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.testing.ui
 
+import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
@@ -13,6 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
+import io.github.ronjunevaldoz.awake.ui.toUiInputState
 
 /**
  * One rendered frame, with lookups that say what went wrong.
@@ -42,6 +44,59 @@ class UiComponentFrame(
 
     fun rightOf(id: String): Float = bounds(id).let { it.x + it.width }
 }
+
+/**
+ * Multi-frame sibling of [renderUiComponent] for interaction tests: one persistent context and
+ * input across frames, so press/move/release sequences read as three `frame(...)` calls instead
+ * of a hand-rolled UiContext + Input + density dance per test. Restores [UiDensity.scale] on
+ * [close]; use through [uiTestSession] so the restore can't be forgotten.
+ */
+class UiTestSession(
+    val width: Float = 400f,
+    val height: Float = 400f,
+    theme: UiThemeValues? = null,
+    font: UiFont = UiFonts.default(),
+    density: Float = 1f,
+) : AutoCloseable {
+    private val previousDensity = UiDensity.scale
+    val ui = UiContext()
+    val input = Input()
+
+    init {
+        UiDensity.scale = density
+        ui.pushFont(font)
+        if (theme != null) ui.pushTheme(theme)
+    }
+
+    /** Renders one frame with the pointer at ([x], [y]) and returns its [UiComponentFrame]. */
+    fun frame(
+        x: Float = -100f,
+        y: Float = -100f,
+        down: Boolean = false,
+        content: UiScope.(root: UiBounds) -> Unit,
+    ): UiComponentFrame {
+        input.setPointer(down = down, x = x, y = y)
+        ui.beginFrame(width, height, input.updateSnapshot().toUiInputState())
+        val root = UiBounds(0f, 0f, width, height)
+        ui.createUiScope(root).content(root)
+        val frame = ui.finishFrame()
+        return UiComponentFrame(semantics = frame.semantics, root = root)
+    }
+
+    override fun close() {
+        UiDensity.scale = previousDensity
+    }
+}
+
+/** Scoped [UiTestSession]: density restore is guaranteed even when an assertion throws. */
+fun <T> uiTestSession(
+    width: Float = 400f,
+    height: Float = 400f,
+    theme: UiThemeValues? = null,
+    font: UiFont = UiFonts.default(),
+    density: Float = 1f,
+    block: UiTestSession.() -> T,
+): T = UiTestSession(width, height, theme, font, density).use(block)
 
 /**
  * Renders [content] in a frame and returns it, replacing the six lines every component test opens
