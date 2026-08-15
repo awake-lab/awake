@@ -73,6 +73,16 @@
       "awake": "awake-dialog-states-light",
       "reference": "dialog-open_light.png",
       "local": true
+    },
+    {
+      "name": "radiogroup-local-light",
+      "awake": "awake-radiogroup-light",
+      "reference": "radio-group-states_light.png"
+    },
+    {
+      "name": "progress-local-light",
+      "awake": "awake-progress-light",
+      "reference": "progress-states_light.png"
     }
   ],
   "_localComment": "Pairs whose reference lives in docs/reference/shadcn-previews-local/ come from the local reference app (tools/capture_shadcn_local.py) and carry a 'local': true flag. Those are authoritative: components render from the pinned shadcn checkout. Entries without the flag still point at the legacy scrape of ui.shadcn.com and are being migrated."
