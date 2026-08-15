@@ -247,6 +247,7 @@ private class ConfiguredShadcnTheme(override val config: ShadcnThemeConfig) : Sh
         override val destructiveForeground = palette.destructiveForeground
         override val border = palette.border
         override val input = palette.input
+        override val ring = palette.ring
     }
 
     override val componentVisuals: UiThemeComponents = UiThemeComponents(

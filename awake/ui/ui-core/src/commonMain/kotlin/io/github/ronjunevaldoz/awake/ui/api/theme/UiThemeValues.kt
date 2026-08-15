@@ -38,6 +38,9 @@ interface UiColorTokens {
 
     /** Control-outline/input surface token. Defaults to [border] for neutral themes. */
     val input: Color get() = border
+
+    /** Focus-ring outline token. Defaults to [primary] for themes without a separate role. */
+    val ring: Color get() = primary
 }
 
 /** Immutable semantic corner-radius values shared by UI layers. */
