@@ -71,6 +71,8 @@ It establishes the theme and default text style for recipes without passing them
 through component parameters. Recipes may read the design-system-local `themeValues` accessor;
 Headless primitives must not.
 
+Use `shadcnThemeValues(...)` when constructing plain theme values outside a composition scope.
+
 Put each component's visual factories in its dedicated `Shadcn<Family>Styles.kt` file. That file
 owns its neutral, hover, active, disabled, and variant `Style` values; recipe files compose those
 styles with Headless behavior.

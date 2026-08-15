@@ -17,7 +17,7 @@ class ShadcnProgressRecipeTest {
 
     @Test
     fun progressUsesBorderlessPrimaryTwentyPercentTrack() {
-        val theme = shadcnTheme(dark = false)
+        val theme = shadcnThemeValues(dark = false)
         val ui = UiContext()
         ui.pushTheme(theme)
         ui.beginFrame(240f, 32f, testSnapshot(x = -100f, y = -100f, down = false))

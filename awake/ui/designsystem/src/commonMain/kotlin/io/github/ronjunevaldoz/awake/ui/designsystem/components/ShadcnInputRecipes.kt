@@ -6,18 +6,13 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextFieldStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextareaStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.visuals
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.combobox
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -154,13 +149,11 @@ fun UiScope.shadcnSlider(
     value = value,
     label = label,
     modifier = modifier,
-    visuals = SurfaceVisuals(
-        rest = SurfaceStyle(
-            background = themeValues.colors.muted,
-            foreground = themeValues.colors.primary,
-            cornerRadius = themeValues.shapes.full,
-        ),
-    ),
+    style = Style {
+        background(themeValues.colors.muted)
+        foreground(themeValues.colors.primary)
+        shape(themeValues.shapes.full)
+    },
     enabled = enabled,
     showKnob = showKnob,
 )
@@ -182,13 +175,11 @@ fun UiScope.shadcnRangeSlider(
     valueEnd = valueEnd,
     label = label,
     modifier = modifier,
-    visuals = SurfaceVisuals(
-        rest = SurfaceStyle(
-            background = themeValues.colors.muted,
-            foreground = themeValues.colors.primary,
-            cornerRadius = themeValues.shapes.full,
-        ),
-    ),
+    style = Style {
+        background(themeValues.colors.muted)
+        foreground(themeValues.colors.primary)
+        shape(themeValues.shapes.full)
+    },
     enabled = enabled,
 )
 
@@ -205,20 +196,20 @@ fun UiScope.shadcnInputGroup(
     surface(
         id = "$id.group",
         modifier = modifier.fillMaxWidth(),
-        style = SurfaceStyle(
-            background = themeValues.colors.background,
-            border = SurfaceBorder(1f.dp, themeValues.colors.input),
-            cornerRadius = themeValues.shapes.md,
-        ),
+        style = Style {
+            background(themeValues.colors.background)
+            border(1f.dp, themeValues.colors.input)
+            shape(themeValues.shapes.md)
+        },
     ) {
         row(verticalAlignment = UiAlignment.Vertical.Center) {
             prefixText?.let { prefix ->
                 surface(
                     id = "$id.prefix",
                     modifier = Modifier.padding(start = 12f.dp, end = 12f.dp),
-                    style = SurfaceStyle(foreground = themeValues.colors.mutedForeground),
+                    style = Style { foreground(themeValues.colors.mutedForeground) },
                 ) {
-                    text(label = prefix, visuals = SurfaceStyle(textSize = themeValues.typography.label))
+                    text(label = prefix, style = Style { textSize(themeValues.typography.label) })
                 }
             }
             result = shadcnInput(
@@ -232,9 +223,9 @@ fun UiScope.shadcnInputGroup(
                 surface(
                     id = "$id.suffix",
                     modifier = Modifier.padding(start = 12f.dp, end = 12f.dp),
-                    style = SurfaceStyle(foreground = themeValues.colors.mutedForeground),
+                    style = Style { foreground(themeValues.colors.mutedForeground) },
                 ) {
-                    text(label = suffix, visuals = SurfaceStyle(textSize = themeValues.typography.label))
+                    text(label = suffix, style = Style { textSize(themeValues.typography.label) })
                 }
             }
         }

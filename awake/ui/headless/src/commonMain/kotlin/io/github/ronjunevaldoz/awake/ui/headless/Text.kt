@@ -45,17 +45,3 @@ fun UiScope.text(
     maxLines = maxLines,
     semanticId = semanticId,
 )
-
-/** Compatibility bridge while callers migrate to [Style]. */
-@Deprecated("Use the Style overload")
-fun UiScope.text(
-    label: String,
-    modifier: Modifier = Modifier,
-    visuals: SurfaceStyle,
-    color: Color? = null,
-    centered: Boolean = false,
-    wrap: UiTextWrap = UiTextWrap.None,
-    overflow: UiTextOverflow = UiTextOverflow.Visible,
-    maxLines: Int = if (wrap == UiTextWrap.None) 1 else Int.MAX_VALUE,
-    semanticId: String? = null,
-): UiBounds = text(label, modifier, visuals.asPrimitiveStyle(), color, centered, wrap, overflow, maxLines, semanticId)

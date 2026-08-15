@@ -15,6 +15,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
  * the same manual step already used for `docs/reference/shadcn-previews/`.
  */
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
@@ -54,7 +55,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
@@ -62,7 +63,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -162,7 +163,7 @@ private fun parityFrame(
     dark: Boolean = false,
     body: UiScope.() -> Unit,
 ): AwakeUiPreviewFrame {
-    val theme = shadcnTheme(dark = dark)
+    val theme = shadcnThemeValues(dark = dark)
     val font = UiFonts.default()
     val ui = UiContext()
     ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
@@ -415,7 +416,7 @@ internal object AwakeRadioGroupLightPreview : AwakeUiPreviewEntry {
 )
 internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
-        val theme = shadcnTheme(dark = false)
+        val theme = shadcnThemeValues(dark = false)
         val font = UiFonts.default()
         val ui = UiContext()
         fun composeFrame() {
@@ -771,7 +772,7 @@ internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
 )
 internal object AwakeSliderMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
-        val theme = shadcnTheme(dark = false)
+        val theme = shadcnThemeValues(dark = false)
         return metadata.headlessComponentStateMatrix(theme = theme) { forcedModifier ->
             shadcnSlider("slider", 0f, 100f, 50f, label = "Slider", modifier = forcedModifier)
         }
@@ -814,7 +815,7 @@ internal object AwakeSliderLightPreview : AwakeUiPreviewEntry {
 )
 internal object AwakeTextareaMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
-        val theme = shadcnTheme(dark = false)
+        val theme = shadcnThemeValues(dark = false)
         return metadata.headlessComponentStateMatrix(theme = theme) { forcedModifier ->
             shadcnTextarea(
                 "textarea",
@@ -839,7 +840,7 @@ internal object AwakeTextareaMatrixLightPreview : AwakeUiPreviewEntry {
 )
 internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
-        val theme = shadcnTheme(dark = false)
+        val theme = shadcnThemeValues(dark = false)
         return metadata.headlessComponentStateMatrix(theme = theme) { forcedModifier ->
             row(
                 horizontalArrangement = Arrangement.spacedBy(10f.dp),
@@ -875,7 +876,7 @@ internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
 )
 internal object AwakeTextFieldMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
-        val theme = shadcnTheme(dark = false)
+        val theme = shadcnThemeValues(dark = false)
         return metadata.headlessComponentStateMatrix(theme = theme) { forcedModifier ->
             shadcnInput("textfield", value = "", placeholder = "Default", modifier = forcedModifier)
         }
@@ -895,7 +896,7 @@ internal object AwakeTextFieldMatrixLightPreview : AwakeUiPreviewEntry {
 )
 internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
-        val theme = shadcnTheme(dark = false)
+        val theme = shadcnThemeValues(dark = false)
         return metadata.headlessComponentStateMatrix(theme = theme) { forcedModifier ->
             row(
                 horizontalArrangement = Arrangement.spacedBy(10f.dp),
@@ -1037,7 +1038,7 @@ internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
                     header = {
                         shadcnText(
                             "Edit profile",
-                            visuals = SurfaceStyle(textSize = themeValues.typography.title),
+                            styleOverride = Style { textSize(primitive.theme.typography.title) },
                         )
                     },
                     actions = {
@@ -1049,7 +1050,7 @@ internal object AwakeDialogStatesLightPreview : AwakeUiPreviewEntry {
                 ) { _ ->
                     shadcnText(
                         "Make changes to your profile here. Click save when you're done.",
-                        visuals = SurfaceStyle(textSize = themeValues.typography.body),
+                        styleOverride = Style { textSize(primitive.theme.typography.body) },
                         wrap = UiTextWrap.Word,
                     )
                 }
@@ -1113,7 +1114,7 @@ internal object AwakePopoverStatesLightPreview : AwakeUiPreviewEntry {
                 ) {
                     shadcnText(
                         "Place content for the popover here.",
-                        visuals = SurfaceStyle(textSize = themeValues.typography.body),
+                        styleOverride = Style { textSize(primitive.theme.typography.body) },
                     )
                 }
             }

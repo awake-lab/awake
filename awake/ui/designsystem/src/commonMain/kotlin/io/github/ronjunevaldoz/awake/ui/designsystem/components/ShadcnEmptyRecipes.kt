@@ -8,13 +8,13 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.text
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /**
  * Empty state container component.
@@ -37,19 +37,18 @@ fun UiScope.shadcnEmpty(
     }
     text(
         label = title,
-        visuals = SurfaceStyle(
-            foreground = themeValues.colors.foreground,
-            textSize = themeValues.typography.title,
-
-        ),
+        style = Style {
+            foreground(themeValues.colors.foreground)
+            textSize(themeValues.typography.title)
+        },
     )
     description?.let { desc ->
         text(
             label = desc,
-            visuals = SurfaceStyle(
-                foreground = themeValues.colors.mutedForeground,
-                textSize = themeValues.typography.body,
-            ),
+            style = Style {
+                foreground(themeValues.colors.mutedForeground)
+                textSize(themeValues.typography.body)
+            },
         )
     }
     action?.invoke(this)

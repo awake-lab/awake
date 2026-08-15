@@ -25,14 +25,3 @@ fun UiScope.radio(
     if (next != selected) onClick()
     return next
 }
-
-/** Compatibility bridge while callers migrate to [Style]. */
-@Deprecated("Use the Style overload")
-fun UiScope.radio(
-    id: String,
-    selected: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    visuals: SurfaceStyle,
-    onClick: () -> Unit = {},
-): Boolean = radio(id, selected, modifier, enabled, visuals.asPrimitiveStyle(), onClick)

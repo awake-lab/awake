@@ -207,7 +207,7 @@ class ShadcnReferenceTokenExpandedTest {
         // Vega is the only preset with a correctness obligation to the real shadcn reference --
         // see ShadcnStylePresetVerificationTest for the other 7 (Awake-original, no upstream
         // counterpart) presets' own structural/regression coverage.
-        val oursDp = shadcnTheme().shapes.lg.value
+        val oursDp = shadcnThemeValues().shapes.lg.value
         val referenceDp = ShadcnReferenceTokens.RADIUS_REM * 16f
         assertTrue(
             abs(oursDp - referenceDp) < 0.01f,
@@ -224,7 +224,7 @@ class ShadcnReferenceTokenExpandedTest {
                     "tools/extract_shadcn_tokens.py's THEME_NAMES and ShadcnBaseColor have drifted apart",
             )
         val reference = if (dark) referenceTokens.dark else referenceTokens.light
-        val theme = shadcnTheme(baseColor = baseColor, dark = dark).asShadcnTheme()
+        val theme = shadcnThemeValues(baseColor = baseColor, dark = dark).asShadcnTheme()
         val locked = knownDrifted["$refKey.$mode"] ?: emptyMap()
         val ours: Map<String, Color> = mapOf(
             "background" to theme.colors.background,

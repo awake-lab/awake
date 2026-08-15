@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.box
@@ -31,7 +31,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.width
  * [io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme]) and has to be pushed explicitly every
  * frame -- the same [io.github.ronjunevaldoz.awake.ui.context.UiContext.pushTheme] call
  * `UiShowcaseUi.kt`'s `drawUiShowcaseOverlay` already makes. */
-private val PlaygroundTheme = shadcnTheme(dark = false)
+private val PlaygroundTheme = shadcnThemeValues(dark = false)
 
 /** Three-column playground shell: demo menu (left) | live viewport (center) | per-demo controls
  * (right). Only lays out chrome and delegates to whichever [Scene3DDemo] is active for both the

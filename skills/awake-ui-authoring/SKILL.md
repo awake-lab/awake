@@ -153,13 +153,15 @@ state supplied by that style.
 
 `ui-designsystem` maps `Primary`, `Ghost`, or a shadcn preset to component `Style` factories.
 Stateful details such as rest, hover, pressed, and disabled live beside that component's design
-system style, not in a Headless visual DTO. `SurfaceStyle` and `SurfaceVisuals` are deprecated
-compatibility bridges only; do not add new uses.
+system style, not in a Headless visual DTO. `Style` is the only Headless visual contract.
 
 Expose branded composition through a lower-case design-system extension such as
 `fun UiScope.shadcnTheme(...)`. It delegates to Core's neutral providers and establishes the
 ambient values that shadcn recipes read. Do not add `ShadcnTheme` or other branded APIs to Core
 or Headless.
+
+Use `shadcnThemeValues(...)` when only immutable theme values are needed; it does not install a
+composition scope.
 
 ## Design System may use Core infrastructure, never Core widget primitives
 
@@ -252,7 +254,7 @@ naming the missing primitive, not silence.
 - [ ] No decoration choice (border width, chosen semantic colour), named variant, or direct
       `UiContext`/`Local*` stack read in `ui-headless`.
 - [ ] New visual state is represented by generic `Style` and implemented in that component's
-      design-system style file, never by a new `SurfaceVisuals` DTO.
+      design-system style file, never by a parallel visual DTO.
 - [ ] Name matches the Radix concept; file name matches what the file exports.
 - [ ] New behaviour landed in `ui-headless`, not in the `shadcn*` wrapper.
 - [ ] One public function on `UiScope` -- no per-scope overload that only changes a default.

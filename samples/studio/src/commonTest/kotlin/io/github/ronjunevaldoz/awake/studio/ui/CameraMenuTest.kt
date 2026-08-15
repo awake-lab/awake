@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.studio.ui
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
@@ -20,7 +20,7 @@ class CameraMenuTest {
     fun rightClickOverTheViewportOpensTheMenuAndPickingAnItemReportsItsIndex() {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnTheme(dark = false))
+        ui.pushTheme(shadcnThemeValues(dark = false))
 
         var picked: Int? = null
 
@@ -61,7 +61,7 @@ class CameraMenuTest {
     fun clickOutsideTheViewportDoesNotOpenTheMenu() {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnTheme(dark = false))
+        ui.pushTheme(shadcnThemeValues(dark = false))
 
         var picked: Int? = null
         ui.beginFrame(

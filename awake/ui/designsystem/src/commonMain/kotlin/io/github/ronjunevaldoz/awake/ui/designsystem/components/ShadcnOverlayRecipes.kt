@@ -13,14 +13,11 @@ import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.DialogProperties
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceBorder
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.animateFloatTween
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -32,11 +29,12 @@ import io.github.ronjunevaldoz.awake.ui.headless.frameBounds
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.overlayScrim
+import io.github.ronjunevaldoz.awake.ui.headless.panelSemantics
 import io.github.ronjunevaldoz.awake.ui.headless.popup
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
-import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Public, skin-level menu entries. They intentionally contain no Core style or layout types. */
 sealed interface ShadcnMenuEntry
@@ -92,20 +90,16 @@ fun UiScope.shadcnSheet(
         positionProvider = sheetPositionProvider(side, size.toPx(), progress),
         properties = UiPopupProperties(dismissOnClickOutside = true, clippingEnabled = false),
     ) { slot ->
-        primitive.recordSemantic(
-            role = io.github.ronjunevaldoz.awake.ui.UiSemanticRole.Panel,
-            id = id,
-            bounds = slot,
-        )
+        panelSemantics(id = id, bounds = slot)
         surface(
             id = "$id.surface",
             modifier = if (side == ShadcnSheetSide.Left || side == ShadcnSheetSide.Right) Modifier.fillMaxHeight() else Modifier.height(size),
-            style = SurfaceStyle(
-                background = themeValues.colors.background,
-                foreground = themeValues.colors.foreground,
-                border = SurfaceBorder(1f.dp, themeValues.colors.border),
-                contentPadding = UiInsets(16f.dp),
-            ),
+            style = Style {
+                background(themeValues.colors.background)
+                foreground(themeValues.colors.foreground)
+                border(1f.dp, themeValues.colors.border)
+                contentPadding(16f.dp)
+            },
         ) { _ ->
             column {
                 row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
@@ -144,12 +138,12 @@ fun UiScope.shadcnDrawer(
     properties = DialogProperties(
         dismissOnClickOutside = true,
         showScrim = true,
-        surface = SurfaceStyle(
-            background = themeValues.colors.background,
-            foreground = themeValues.colors.foreground,
-            border = SurfaceBorder(1f.dp, themeValues.colors.border),
-            contentPadding = UiInsets(16f.dp),
-        ),
+        surface = Style {
+            background(themeValues.colors.background)
+            foreground(themeValues.colors.foreground)
+            border(1f.dp, themeValues.colors.border)
+            contentPadding(16f.dp)
+        },
     ),
 ) { slot ->
     column {
@@ -176,13 +170,13 @@ fun UiScope.shadcnDialog(
     properties = DialogProperties(
         dismissOnClickOutside = true,
         showScrim = true,
-        surface = SurfaceStyle(
-            background = themeValues.colors.card,
-            foreground = themeValues.colors.cardForeground,
-            border = SurfaceBorder(1f.dp, themeValues.colors.border),
-            cornerRadius = themeValues.shapes.lg,
-            contentPadding = UiInsets(24f.dp),
-        ),
+        surface = Style {
+            background(themeValues.colors.card)
+            foreground(themeValues.colors.cardForeground)
+            border(1f.dp, themeValues.colors.border)
+            shape(themeValues.shapes.lg)
+            contentPadding(24f.dp)
+        },
     ),
 ) { slot ->
     column(verticalArrangement = Arrangement.spacedBy(16f.dp)) {

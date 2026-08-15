@@ -48,7 +48,7 @@ class ShadcnSpecAssertionTest {
     /** Vega is the only preset mapped to real shadcn -- the other seven are Awake-original
      * density variants with no upstream spec, so asserting them against Tailwind is meaningless
      * (see ShadcnStylePreset's own doc comment). */
-    private val vega = shadcnTheme(preset = ShadcnStylePreset.Vega)
+    private val vega = shadcnThemeValues(preset = ShadcnStylePreset.Vega)
     private val metrics = ShadcnStylePreset.Vega.metrics
 
     private fun rows(): List<SpecRow> = listOf(

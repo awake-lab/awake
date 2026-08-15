@@ -21,7 +21,7 @@ class ShadcnTooltipContrastTest {
 
     @Test
     fun tooltipTextUsesTheInvertedContentColour() {
-        val theme = shadcnTheme(dark = false)
+        val theme = shadcnThemeValues(dark = false)
         val ui = UiContext()
         ui.pushFont(BitmapFont())
         ui.pushTheme(theme)

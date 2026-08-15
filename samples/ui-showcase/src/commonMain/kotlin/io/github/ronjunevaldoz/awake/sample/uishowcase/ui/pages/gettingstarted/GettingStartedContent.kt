@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.gettingstarted
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
@@ -23,7 +24,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -32,6 +32,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
     shadcnBadge(id = "showcase-badge-showcase", label = "SHOWCASE", variant = ShadcnBadgeVariant.Secondary)
@@ -142,10 +143,10 @@ private fun RowScope.themeLabel(label: String, width: io.github.ronjunevaldoz.aw
     text(
         label = label,
         modifier = Modifier.width(width),
-        visuals = SurfaceStyle(
-            foreground = themeValues.colors.foreground,
-            textSize = themeValues.typography.label,
-        ),
+        style = Style {
+            foreground(primitive.theme.colors.foreground)
+            textSize(primitive.theme.typography.label)
+        },
     )
 }
 

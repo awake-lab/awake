@@ -29,6 +29,7 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
  * alone is sufficient -- Gradle doesn't guarantee cross-class ordering under a test filter.
  */
 import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
@@ -45,10 +46,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSmall
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -94,7 +95,7 @@ private fun comparisonTestSnapshot(): UiInputState {
 )
 internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
-        val theme = shadcnTheme(dark = false)
+        val theme = shadcnThemeValues(dark = false)
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), comparisonTestSnapshot())
@@ -110,7 +111,7 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
                 header = {
                     shadcnText(
                         "Login to your account",
-                        visuals = SurfaceStyle(textSize = themeValues.typography.title),
+                        styleOverride = Style { textSize(primitive.theme.typography.title) },
                     )
                 },
             ) { _ ->
@@ -164,7 +165,7 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
 )
 internal object AwakeTooltipContentLightPreview : AwakeUiPreviewEntry {
     override fun render(metadata: AwakeUiPreviewMetadata): AwakeUiPreviewFrame {
-        val theme = shadcnTheme(dark = false)
+        val theme = shadcnThemeValues(dark = false)
         val font = UiFonts.default()
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), comparisonTestSnapshot())

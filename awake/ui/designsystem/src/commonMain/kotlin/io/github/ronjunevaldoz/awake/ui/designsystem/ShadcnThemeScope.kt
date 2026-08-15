@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
  * Applies a shadcn theme to everything drawn inside the block.
  *
  * ```kotlin
- * shadcnTheme(dark = true) {
+ * ui.shadcnTheme(dark = true) {
  *     drawApp()
  * }
  * ```
@@ -37,7 +37,7 @@ fun UiScope.shadcnTheme(
     dark: Boolean = true,
     content: UiScope.() -> Unit,
 ) = shadcnTheme(
-    values = shadcnTheme(preset = preset, baseColor = baseColor, accent = accent, dark = dark),
+    values = shadcnThemeValues(preset = preset, baseColor = baseColor, accent = accent, dark = dark),
     content = content,
 )
 

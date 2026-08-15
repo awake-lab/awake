@@ -9,7 +9,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.ResizablePanelGroupScope
 import io.github.ronjunevaldoz.awake.ui.headless.ScrollState
-import io.github.ronjunevaldoz.awake.ui.headless.SurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.UiResizableDirection
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.handle
@@ -45,8 +44,5 @@ fun UiScope.shadcnScrollArea(
 ): UiBounds = surface(
     id = id,
     modifier = modifier.verticalScroll(state),
-    style = SurfaceStyle(
-        scrollThumbColor = themeValues.colors.border,
-    ),
     content = content,
 )

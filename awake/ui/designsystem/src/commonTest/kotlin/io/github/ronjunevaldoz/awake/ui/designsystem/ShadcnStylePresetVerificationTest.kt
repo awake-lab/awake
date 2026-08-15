@@ -43,7 +43,7 @@ class ShadcnStylePresetVerificationTest {
     fun radiusScaleFollowsTheMultiplicativeRuleForEveryPreset() {
         for (preset in ShadcnStylePreset.values()) {
             val base = preset.baseRadius.value
-            val shapes = shadcnTheme(preset = preset).shapes
+            val shapes = shadcnThemeValues(preset = preset).shapes
             val expectedXs = (base * 0.4f).coerceAtLeast(0f)
             val expectedSm = (base * 0.6f).coerceAtLeast(0f)
             val expectedMd = (base * 0.8f).coerceAtLeast(0f)
@@ -110,7 +110,7 @@ class ShadcnStylePresetVerificationTest {
             for (baseColor in ShadcnBaseColor.values()) {
                 for (dark in listOf(false, true)) {
                     combinations++
-                    val theme = shadcnTheme(preset = preset, baseColor = baseColor, dark = dark)
+                    val theme = shadcnThemeValues(preset = preset, baseColor = baseColor, dark = dark)
                     // Resolution itself not throwing is most of the value here; a few cheap
                     // well-formedness checks on top catch a corrupted-config class of regression.
                     assertEquals(preset.baseRadius.value, theme.shapes.lg.value, "${preset.label}/${baseColor.label}/dark=$dark: lg radius mismatch")

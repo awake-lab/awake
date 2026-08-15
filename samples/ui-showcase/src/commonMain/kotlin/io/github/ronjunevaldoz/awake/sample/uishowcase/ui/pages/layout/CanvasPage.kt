@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.layout
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcaseCategory
+import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcasePage
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
@@ -29,7 +30,7 @@ internal val CanvasPage = ShowcasePage(
             modifier = Modifier.width(420f.dp).height(220f.dp),
         ) {
             canvas(id = "showcase-canvas-root", modifier = Modifier.width(360f.dp).height(190f.dp)) {
-                val colors = themeValues.colors
+                val colors = primitive.theme.colors
                 drawGradientRect(
                     x = 0f,
                     y = 0f,
@@ -44,7 +45,7 @@ internal val CanvasPage = ShowcasePage(
                     drawRect(20f, 18f, 48f, 48f, colors.accent)
                 }
                 nested(x = 188f, y = 82f, width = 92f, height = 92f) {
-                    drawRoundRect(0f, 0f, 92f, 92f, colors.muted, radius = themeValues.shapes.md)
+                    drawRoundRect(0f, 0f, 92f, 92f, colors.muted, radius = primitive.theme.shapes.md)
                     drawLine(12f, 70f, 78f, 22f, colors.primary, strokeWidth = 2f.dp)
                 }
             }

@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
-import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.otpDigitsOnly as primitiveOtpDigitsOnly
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.otpShowsSeparatorBefore as primitiveOtpShowsSeparatorBefore
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /**
  * Generic OTP/PIN input behavior: one focus-carrying hidden text field driving [length] digit
@@ -40,13 +40,12 @@ fun UiScope.otpInput(
             id = id,
             value = value,
             modifier = fieldModifier,
-            visuals = SurfaceVisuals(
-                rest = SurfaceStyle(
-                    background = Color.Transparent,
-                    foreground = Color.Transparent,
-                    border = SurfaceBorder(0f.dp, Color.Transparent),
-                ),
-            ),
+            style = Style {
+                background(io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
+                foreground(io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
+                border(0f.dp, io.github.ronjunevaldoz.awake.core.colors.Color.Transparent)
+                contentPadding(0f.dp)
+            },
             enabled = enabled,
         )
         val next = primitiveOtpDigitsOnly(input, length)

@@ -22,7 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
@@ -53,7 +53,7 @@ class StudioShellLayoutTest {
     private fun renderShell(): List<UiSemanticNode> {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnTheme(dark = true))
+        ui.pushTheme(shadcnThemeValues(dark = true))
         ui.beginFrame(FRAME_WIDTH, FRAME_HEIGHT, UiInputState(pointerX = -100f, pointerY = -100f))
         ui.createUiScope(slot = UiBounds(0f, 0f, FRAME_WIDTH, FRAME_HEIGHT))
             .drawStudioShellBody(StudioStore(), World(), NoopRenderer())
@@ -124,7 +124,7 @@ class StudioShellLayoutTest {
     fun activeExampleItemPaintsAVisibleHighlightNotATransparentFill() {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnTheme(dark = true))
+        ui.pushTheme(shadcnThemeValues(dark = true))
         val activeId = StudioExamples.first().id
         ui.beginFrame(400f, 600f, UiInputState(pointerX = -100f, pointerY = -100f))
         ui.createUiScope(slot = UiBounds(0f, 0f, 400f, 600f))
@@ -195,7 +195,7 @@ class StudioShellLayoutTest {
         val store = StudioStore()
         val world = World()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnTheme(dark = true))
+        ui.pushTheme(shadcnThemeValues(dark = true))
 
         fun frame(input: UiInputState): List<UiSemanticNode> {
             ui.beginFrame(FRAME_WIDTH, FRAME_HEIGHT, input)
