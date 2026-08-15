@@ -20,10 +20,23 @@
 
    Note this is deliberately NOT what shadcn ships (Geist). Matching Awake isolates layout parity
    from typeface parity; adopting Geist on both sides is the separate, larger question. */
+/* One @font-face per real face, each declaring only the weight it actually is.
+   An earlier version declared the single Regular file as `font-weight: 100 900`, which told the
+   browser that one file covered the whole range -- so shadcn's `font-medium` rendered in Regular
+   and the reference sat at 400 while claiming 500. Awake matched it better at 400 than at 500,
+   which looked like Medium making parity worse. */
 @font-face {
   font-family: "Roboto";
   src: url("/fonts/Roboto-Regular.ttf") format("truetype");
-  font-weight: 100 900;
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("/fonts/Roboto-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
   font-display: block;
 }
