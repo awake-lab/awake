@@ -3,10 +3,10 @@
   "nodes": {
     "parity-radio.0": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 33554400,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.922 0 0)",
       "fontSize": 16,
       "height": 16,
       "lineHeight": 24,
@@ -20,10 +20,10 @@
     },
     "parity-radio.0.label": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 0,
       "borderWidth": 0,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 14,
       "lineHeight": 14,
@@ -37,10 +37,10 @@
     },
     "parity-radio.1": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 33554400,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.922 0 0)",
       "fontSize": 16,
       "height": 16,
       "lineHeight": 24,
@@ -54,10 +54,10 @@
     },
     "parity-radio.1.label": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 0,
       "borderWidth": 0,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 14,
       "lineHeight": 14,
@@ -71,10 +71,10 @@
     },
     "parity-radio.2": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 33554400,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.922 0 0)",
       "fontSize": 16,
       "height": 16,
       "lineHeight": 24,
@@ -88,10 +88,10 @@
     },
     "parity-radio.2.label": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 0,
       "borderWidth": 0,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 14,
       "lineHeight": 14,
@@ -108,5 +108,5 @@
     "height": 72,
     "width": 102.609375
   },
-  "theme": "light"
+  "theme": "dark"
 }

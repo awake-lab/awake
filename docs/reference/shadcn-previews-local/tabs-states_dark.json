@@ -2,11 +2,11 @@
   "case": "tabs-states",
   "nodes": {
     "parity-tabs.Account": {
-      "backgroundColor": "oklch(1 0 0)",
+      "backgroundColor": "oklch(0.145 0 0)",
       "borderColor": "rgba(0, 0, 0, 0)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 29,
       "lineHeight": 20,
@@ -23,7 +23,7 @@
       "borderColor": "rgba(0, 0, 0, 0)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklab(0 0 0 / 0.6)",
+      "color": "oklab(0.985 0 0 / 0.6)",
       "fontSize": 14,
       "height": 29,
       "lineHeight": 20,
@@ -36,11 +36,11 @@
       "y": 3.5
     },
     "parity-tabs.track": {
-      "backgroundColor": "oklch(0.97 0 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "backgroundColor": "oklch(0.269 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 10,
       "borderWidth": 0,
-      "color": "oklch(0.556 0 0)",
+      "color": "oklch(0.708 0 0)",
       "fontSize": 16,
       "height": 36,
       "lineHeight": 24,
@@ -57,5 +57,5 @@
     "height": 36,
     "width": 155.953125
   },
-  "theme": "light"
+  "theme": "dark"
 }

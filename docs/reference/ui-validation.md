@@ -98,6 +98,7 @@ Use these first:
 - snapshot signature tests for locked visual baselines
 - layout signature tests for page-level semantic layout baselines
 - `ShadcnGeometryParityTest` (`samples/ui-showcase:desktopTest`) for automated layout geometry parity (width, height, content padding, position offsets) against official shadcn reference rects
+- `ShadcnStyleParityTest` (`samples/ui-showcase:desktopTest`) for automated computed style color & border parity (borderRadius, borderWidth, computed background/foreground tokens) against official shadcn reference styles
 - `ShadcnBehaviorParityTest` (`samples/ui-showcase:desktopTest`) for automated interactive behavior, click activation, state toggling, space-key activation, menu item selection, and dialog dismissal
 - `ShadcnParityScreenshotTest` (`samples/ui-showcase`) for pixel-baseline parity against the
   shadcn reference — `./gradlew :samples:ui-showcase:desktopTest --tests

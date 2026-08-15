@@ -154,6 +154,9 @@ def main() -> int:
                                     lineHeight: parseFloat(cs.lineHeight) || 0,
                                     borderRadius: parseFloat(cs.borderRadius) || 0,
                                     borderWidth: parseFloat(cs.borderWidth) || 0,
+                                    backgroundColor: cs.backgroundColor,
+                                    color: cs.color,
+                                    borderColor: cs.borderColor,
                                 };
                             }
                             return out;

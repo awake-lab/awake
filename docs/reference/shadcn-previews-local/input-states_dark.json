@@ -1,61 +1,61 @@
 {
-  "case": "textarea-states",
+  "case": "input-states",
   "nodes": {
-    "parity-textarea-1": {
+    "parity-field-1": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
-      "height": 60,
+      "height": 36,
       "lineHeight": 20,
-      "paddingBottom": 8,
+      "paddingBottom": 4,
       "paddingLeft": 12,
       "paddingRight": 12,
-      "paddingTop": 8,
-      "width": 272,
+      "paddingTop": 4,
+      "width": 256,
       "x": 0,
       "y": 0
     },
-    "parity-textarea-2": {
+    "parity-field-2": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
-      "height": 60,
+      "height": 36,
       "lineHeight": 20,
-      "paddingBottom": 8,
+      "paddingBottom": 4,
       "paddingLeft": 12,
       "paddingRight": 12,
-      "paddingTop": 8,
-      "width": 272,
+      "paddingTop": 4,
+      "width": 256,
       "x": 0,
-      "y": 76
+      "y": 48
     },
-    "parity-textarea-3": {
+    "parity-field-3": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.15)",
       "borderRadius": 8,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
-      "height": 60,
+      "height": 36,
       "lineHeight": 20,
-      "paddingBottom": 8,
+      "paddingBottom": 4,
       "paddingLeft": 12,
       "paddingRight": 12,
-      "paddingTop": 8,
-      "width": 272,
+      "paddingTop": 4,
+      "width": 256,
       "x": 0,
-      "y": 152
+      "y": 96
     }
   },
   "root": {
-    "height": 212,
-    "width": 272
+    "height": 132,
+    "width": 256
   },
-  "theme": "light"
+  "theme": "dark"
 }

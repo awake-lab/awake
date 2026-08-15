@@ -2,11 +2,11 @@
   "case": "dialog-open",
   "nodes": {
     "parity-dialog": {
-      "backgroundColor": "oklch(1 0 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "backgroundColor": "oklch(0.145 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 10,
       "borderWidth": 1,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 16,
       "height": 168,
       "lineHeight": 24,
@@ -19,11 +19,11 @@
       "y": 0
     },
     "parity-dialog-save": {
-      "backgroundColor": "oklch(0 0 0)",
-      "borderColor": "oklch(0.708 0 0)",
+      "backgroundColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(0.556 0 0)",
       "borderRadius": 8,
       "borderWidth": 0,
-      "color": "oklch(0.985 0 0)",
+      "color": "oklch(0.205 0 0)",
       "fontSize": 14,
       "height": 36,
       "lineHeight": 20,
@@ -40,5 +40,5 @@
     "height": 168,
     "width": 320
   },
-  "theme": "light"
+  "theme": "dark"
 }

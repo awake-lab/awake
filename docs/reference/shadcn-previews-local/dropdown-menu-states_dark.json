@@ -3,10 +3,10 @@
   "nodes": {
     "parity-dropdown.item.0": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 6,
       "borderWidth": 0,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 32,
       "lineHeight": 20,
@@ -20,10 +20,10 @@
     },
     "parity-dropdown.item.1": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 6,
       "borderWidth": 0,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 32,
       "lineHeight": 20,
@@ -37,10 +37,10 @@
     },
     "parity-dropdown.item.2": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 6,
       "borderWidth": 0,
-      "color": "oklch(0 0 0)",
+      "color": "oklch(0.985 0 0)",
       "fontSize": 14,
       "height": 32,
       "lineHeight": 20,
@@ -54,10 +54,10 @@
     },
     "parity-dropdown.item.3": {
       "backgroundColor": "rgba(0, 0, 0, 0)",
-      "borderColor": "oklch(0.922 0 0)",
+      "borderColor": "oklch(1 0 0 / 0.1)",
       "borderRadius": 6,
       "borderWidth": 0,
-      "color": "oklch(0.577 0.245 27.325)",
+      "color": "oklch(0.704 0.191 22.216)",
       "fontSize": 14,
       "height": 32,
       "lineHeight": 20,
@@ -74,5 +74,5 @@
     "height": 138,
     "width": 160
   },
-  "theme": "light"
+  "theme": "dark"
 }
