@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
 import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
 import kotlinx.serialization.Serializable
@@ -65,8 +66,26 @@ class ShadcnStyleParityTest {
         for ((nodeId, refNode) in ref.nodes) {
             val semantics = awakeNodes[nodeId] ?: continue
 
-            // Assert Border Radius & Border Width metrics
-            if (refNode.borderRadius >= 0) {
+            val quad = scene.primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
+                .firstOrNull { 
+                    it.radius > 0f &&
+                    Math.abs(it.x - semantics.bounds.x) < 4f && 
+                    Math.abs(it.y - semantics.bounds.y) < 4f &&
+                    Math.abs(it.w - semantics.bounds.width) < 4f
+                }
+
+            // Assert Border Radius metrics against actual drawn RoundedQuad primitives
+            if (quad != null && refNode.borderRadius > 0) {
+                val expectedRadius = if (refNode.borderRadius > 50.0) (refNode.height / 2.0).toFloat() else refNode.borderRadius.toFloat()
+                val actualRadius = Math.min(quad.radius, quad.h / 2f)
+                kotlin.test.assertEquals(
+                    expectedRadius,
+                    actualRadius,
+                    1.5f,
+                    "Corner radius mismatch for $nodeId in case $caseId [$theme]: expected=$expectedRadius, actual=$actualRadius",
+                )
+                assertions++
+            } else if (refNode.borderRadius >= 0) {
                 assertions++
             }
 

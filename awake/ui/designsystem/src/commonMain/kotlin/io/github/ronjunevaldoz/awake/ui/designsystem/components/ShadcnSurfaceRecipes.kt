@@ -113,7 +113,7 @@ fun UiScope.shadcnPopover(
             background = themeValues.colors.popover,
             foreground = themeValues.colors.popoverForeground,
             border = SurfaceBorder(1f.dp, themeValues.colors.border),
-            cornerRadius = themeValues.shapes.xl,
+            cornerRadius = themeValues.shapes.md,
             contentPadding = UiInsets(16f.dp),
         ),
         content = content,

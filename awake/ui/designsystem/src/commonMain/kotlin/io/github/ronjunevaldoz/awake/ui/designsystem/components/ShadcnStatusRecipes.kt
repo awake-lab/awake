@@ -55,7 +55,7 @@ fun UiScope.shadcnKbd(
         background = themeValues.colors.muted,
         foreground = themeValues.colors.mutedForeground,
         border = SurfaceBorder(1f.dp, themeValues.colors.border),
-        cornerRadius = themeValues.shapes.sm,
+        cornerRadius = themeValues.shapes.xs,
         contentPadding = UiInsets(horizontal = 6f.dp, vertical = 0f.dp),
         textSize = 10f.sp,
     )
