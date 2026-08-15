@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.headless
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.Sp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 enum class AvatarStatus { Idle, Loading, Loaded, Error }
 
@@ -13,7 +14,7 @@ fun UiScope.avatar(
     id: String,
     size: Dp,
     modifier: Modifier = Modifier,
-    style: SurfaceStyle = SurfaceStyle(),
+    style: Style = Style.Empty,
     content: ColumnScope.(UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
@@ -28,11 +29,11 @@ fun UiScope.avatar(
     size: Dp,
     textSize: Sp,
     modifier: Modifier = Modifier,
-    style: SurfaceStyle = SurfaceStyle(),
+    style: Style = Style.Empty,
 ): UiBounds = surface(
     id = id,
     modifier = modifier.width(size).height(size),
-    style = style.copy(textSize = textSize),
+    style = style then Style { textSize(textSize) },
 ) {
-    text(label = initials, modifier = Modifier.fillMaxSize(), color = style.foreground, centered = true)
+    text(label = initials, modifier = Modifier.fillMaxSize(), style = style then Style { textSize(textSize) }, centered = true)
 }
