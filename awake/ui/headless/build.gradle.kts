@@ -168,3 +168,40 @@ tasks.register("uiCrossPlatformSnapshotCheck") {
     description = "Run shared UI snapshot regression tests on desktop and web targets."
     dependsOn("desktopTest", "wasmJsBrowserTest")
 }
+
+tasks.register("auditUiHeadlessThemeIndependence") {
+    group = "verification"
+    description = "Verifies production Headless sources do not depend on Core theme APIs."
+    val sourceRoot = layout.projectDirectory.dir("src/commonMain/kotlin")
+    val forbiddenTokens = listOf(
+        "UiThemeValues",
+        "UiTheme",
+        "LocalTheme",
+        "ProvideTheme",
+        "CoreUiComponentStyles",
+        "UiComponentStyles",
+    )
+
+    doLast {
+        val violations = sourceRoot.asFile.walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .flatMap { file ->
+                file.readLines().mapIndexedNotNull { index, line ->
+                    val token = forbiddenTokens.firstOrNull { candidate ->
+                        Regex("\\b${Regex.escape(candidate)}\\b").containsMatchIn(line)
+                    }
+                    token?.let {
+                        "${file.relativeTo(projectDir)}:${index + 1} must not reference $it"
+                    }
+                }
+            }
+            .toList()
+
+        val message = buildString {
+            append("ui-headless theme-independence violations:\n")
+            append(violations.joinToString("\n"))
+        }
+        check(violations.isEmpty()) { message }
+        println("ui-headless theme independence: no Core theme API references")
+    }
+}
