@@ -169,9 +169,11 @@ widget behavior; it must not directly claim slots, draw, hit-test, record semant
 Core controls/layout. Repeated recipe boilerplate is evidence that Headless needs a generic slot
 or behavior API.
 
-Within a recipe, read the design-system-local `themeValues` accessor. `UiScope.shadcnTheme { }`
-is the scoped provider; the similarly named non-receiver theme factory exists only to build a
-theme value for app state or a root host before a `UiScope` exists.
+Within a recipe, read the design-system-local `shadcnTheme` value for branded metrics; read
+`themeValues` only for the neutral Core color, shape, and typography
+contracts. `UiScope.shadcnTheme { }` provides one complete `ShadcnThemeValues` object to the
+subtree, analogous to a Compose theme local. The non-receiver factory exists only to build Core
+values before a `UiScope` exists.
 
 ---
 

@@ -34,7 +34,7 @@ enum class ShadcnTextStyle {
     Caption, // Awake semantic caption used by component metadata and supporting copy
 }
 
-/** Semantic foreground roles supplied by the active shadcn theme extension. */
+/** Semantic foreground roles supplied by the active Core theme value. */
 enum class ShadcnTextTone { Default, Muted, Destructive }
 
 /** Explicit emphasis without exposing a per-call visual [Style] escape hatch. */
@@ -77,9 +77,9 @@ fun UiScope.shadcnText(
         else -> ShadcnTextTone.Default
     }
     val foreground = when (effectiveTone) {
-        ShadcnTextTone.Default -> shadcnThemeExtension.text.default ?: themeValues.colors.foreground
-        ShadcnTextTone.Muted -> shadcnThemeExtension.text.muted ?: themeValues.colors.mutedForeground
-        ShadcnTextTone.Destructive -> shadcnThemeExtension.text.destructive ?: themeValues.colors.destructive
+        ShadcnTextTone.Default -> themeValues.colors.foreground
+        ShadcnTextTone.Muted -> themeValues.colors.mutedForeground
+        ShadcnTextTone.Destructive -> themeValues.colors.destructive
     }
 
     val defaultStyle = shadcnTextStyle(
