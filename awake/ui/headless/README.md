@@ -71,6 +71,96 @@ second public modifier type.
 
 ---
 
+### Base UI component parity
+
+Every component in [Base UI's directory](https://base-ui.com/react/components), checked
+against **this module's own primitives only** (function-level, not filename guessing — see
+`docs/reference/ui-validation.md`'s "proof over eyeballing" rule). `designsystem` depends on
+`headless`, never the reverse — see the dependency rule above and
+[`docs/reference/ui-ownership.md`](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md)
+— so this table stays scoped to what exists at this layer; it says nothing about `shadcn`
+skins, which belong to `designsystem`'s own doc.
+
+| Base UI component | Backed by | Status | How it maps |
+|---|---|---|---|
+| Accordion | `accordion` | present | 1:1 |
+| Alert Dialog | `dialog` | present | 1:1 |
+| Autocomplete | `combobox` | present | same filter+select mechanic, one name |
+| Avatar | `avatar` | present | 1:1 |
+| Button | `button` | present | 1:1 |
+| Checkbox | `checkbox` | present | 1:1 |
+| Checkbox Group | `toggleGroup(options, selectedIndices: Set<Int>)` | present | a set of togglable options, already what this returns |
+| Collapsible | `collapsible` | present | 1:1 |
+| Combobox | `combobox` | present | 1:1 |
+| Context Menu | `contextMenuTrigger` | present | 1:1 |
+| Dialog | `dialog` | present | 1:1 |
+| Drawer | `popup` | present | slide-in is a placement variant of the same popup mechanic, not its own primitive |
+| Field | `field` | present | 1:1 |
+| Fieldset | `column` | present | grouping fields is layout, not new behavior |
+| Form | `field` | present | validation composes over repeated `field` calls, no dedicated form runtime |
+| Input | `textField` | present | 1:1 |
+| Menu | `menu` | present | 1:1 |
+| Menubar | none | **absent** | no primitive renders a persistent horizontal menu row |
+| Number Field | `numberField` | present | 1:1 |
+| OTP Field | `OtpInput.kt` (`otpDigitsOnly`, `otpActiveSlotIndex`, `otpShowsSeparatorBefore`) | partial | this layer only holds the slot math; the widget itself assembles from repeated `textField` calls one layer up |
+| Radio | `radio` | present | 1:1 |
+| Select | `select` | present | 1:1 |
+| Slider | `slider` | present | 1:1 |
+| Switch | `switch` | present | 1:1 |
+| Toggle | `toggle` | present | 1:1 |
+| Toggle Group | `toggleGroup` | present | 1:1 |
+| Meter | `progress` | present | same value/range primitive, Meter just drops the indeterminate state |
+| Navigation Menu | `menu`, `tabs` | present | breadcrumb/tab/sidebar navigation in this project compose from these two; nothing here needs a mega-menu |
+| Popover | `popup` | present | 1:1 |
+| Preview Card | `popup` | present | anchored content-on-demand is the same mechanic; only the hover-intent delay is missing, and nothing asks for it |
+| Progress | `progress` | present | 1:1 |
+| Scroll Area | `rememberScrollState` | present | 1:1 |
+| Separator | `separator` | present | 1:1 |
+| Tabs | `tabs` | present | 1:1 |
+| Toast | `toast` | present | 1:1 |
+| Toolbar | none | **absent** | no primitive renders a bounded row of actions |
+| Tooltip | `tooltip` | present | 1:1 |
+| CSP Provider, Direction Provider, mergeProps, useRender | — | n/a | React-only plumbing, nothing to map |
+
+**37 real Base UI components (the React-only utils don't count). 34 present, 1 partial (OTP Field), 2 absent (Menubar, Toolbar) — 34/37 fully covered, 35/37 with at least a foothold.**
+
+#### The two real gaps
+
+**Menubar** and **Toolbar** are the only Base UI components with nothing to point to at this
+layer — every other row above resolves to an existing primitive or a plain composition of
+existing primitives. Neither has a consumer yet (checked `samples/studio`,
+`samples/scene3d-playground`, `samples/ui-showcase` — zero hits), so build only when a real
+caller needs one, per
+[`skills/awake-ui-authoring/SKILL.md`](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ui-authoring/SKILL.md)'s
+no-speculative-primitive rule.
+
+Proposed shape when that day comes — deliberately simplified relative to Base UI's version,
+which adds keyboard roving-focus/ARIA menu semantics this project has no consumer for yet:
+
+```kotlin
+// Menubar: horizontal row of Menu triggers. No roving-focus/keyboard-nav semantics.
+fun UiScope.menubar(
+    id: String,
+    modifier: Modifier = Modifier,
+    content: RowScope.() -> Unit,
+): UiBounds = row(id = id, modifier = modifier, content = content)
+
+// Toolbar: horizontal row of buttons/toggles, no ARIA toolbar semantics.
+fun UiScope.toolbar(
+    id: String,
+    modifier: Modifier = Modifier,
+    content: RowScope.() -> Unit,
+): UiBounds = row(id = id, modifier = modifier, content = content)
+```
+
+Both are the "Adding a new primitive" recipe below applied to this specific pair — a
+`designsystem` skin (`shadcnMenubar`/`shadcnToolbar`) is written separately once these land,
+same as every other primitive in this file. See
+[`docs/reference/ui-validation.md`](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-validation.md)
+for the required proof (semantic + geometry parity test) either ships with.
+
+---
+
 ### Adding a new primitive
 
 1. Add a file under `headless/` named after the primitive concept (e.g. `Slider.kt`).

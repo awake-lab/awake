@@ -140,11 +140,20 @@ def main() -> int:
                             const out = {};
                             for (const el of document.querySelectorAll('[data-parity-id]')) {
                                 const r = el.getBoundingClientRect();
+                                const cs = window.getComputedStyle(el);
                                 out[el.getAttribute('data-parity-id')] = {
                                     x: r.left - origin.left,
                                     y: r.top - origin.top,
                                     width: r.width,
                                     height: r.height,
+                                    paddingLeft: parseFloat(cs.paddingLeft) || 0,
+                                    paddingRight: parseFloat(cs.paddingRight) || 0,
+                                    paddingTop: parseFloat(cs.paddingTop) || 0,
+                                    paddingBottom: parseFloat(cs.paddingBottom) || 0,
+                                    fontSize: parseFloat(cs.fontSize) || 0,
+                                    lineHeight: parseFloat(cs.lineHeight) || 0,
+                                    borderRadius: parseFloat(cs.borderRadius) || 0,
+                                    borderWidth: parseFloat(cs.borderWidth) || 0,
                                 };
                             }
                             return out;

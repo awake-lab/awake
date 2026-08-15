@@ -2,7 +2,15 @@
   "case": "breadcrumb-states",
   "nodes": {
     "breadcrumb-parity-test": {
+      "borderRadius": 0,
+      "borderWidth": 0,
+      "fontSize": 16,
       "height": 20,
+      "lineHeight": 24,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "paddingTop": 0,
       "width": 261.8125,
       "x": 0,
       "y": 0

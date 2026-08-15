@@ -2,19 +2,43 @@
   "case": "tabs-states",
   "nodes": {
     "parity-tabs.Account": {
+      "borderRadius": 8,
+      "borderWidth": 1,
+      "fontSize": 14,
       "height": 29,
+      "lineHeight": 20,
+      "paddingBottom": 4,
+      "paddingLeft": 8,
+      "paddingRight": 8,
+      "paddingTop": 4,
       "width": 70.09375,
       "x": 3,
       "y": 3.5
     },
     "parity-tabs.Password": {
+      "borderRadius": 8,
+      "borderWidth": 1,
+      "fontSize": 14,
       "height": 29,
+      "lineHeight": 20,
+      "paddingBottom": 4,
+      "paddingLeft": 8,
+      "paddingRight": 8,
+      "paddingTop": 4,
       "width": 79.859375,
       "x": 73.09375,
       "y": 3.5
     },
     "parity-tabs.track": {
+      "borderRadius": 10,
+      "borderWidth": 0,
+      "fontSize": 16,
       "height": 36,
+      "lineHeight": 24,
+      "paddingBottom": 3,
+      "paddingLeft": 3,
+      "paddingRight": 3,
+      "paddingTop": 3,
       "width": 155.953125,
       "x": 0,
       "y": 0

@@ -2,13 +2,29 @@
   "case": "dialog-open",
   "nodes": {
     "parity-dialog": {
+      "borderRadius": 10,
+      "borderWidth": 1,
+      "fontSize": 16,
       "height": 168,
+      "lineHeight": 24,
+      "paddingBottom": 24,
+      "paddingLeft": 24,
+      "paddingRight": 24,
+      "paddingTop": 24,
       "width": 320,
       "x": 0,
       "y": 0
     },
     "parity-dialog-save": {
+      "borderRadius": 8,
+      "borderWidth": 0,
+      "fontSize": 14,
       "height": 36,
+      "lineHeight": 20,
+      "paddingBottom": 8,
+      "paddingLeft": 16,
+      "paddingRight": 16,
+      "paddingTop": 8,
       "width": 118.828125,
       "x": 176.171875,
       "y": 107

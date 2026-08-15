@@ -2,19 +2,43 @@
   "case": "textarea-states",
   "nodes": {
     "parity-textarea-1": {
+      "borderRadius": 8,
+      "borderWidth": 1,
+      "fontSize": 14,
       "height": 60,
+      "lineHeight": 20,
+      "paddingBottom": 8,
+      "paddingLeft": 12,
+      "paddingRight": 12,
+      "paddingTop": 8,
       "width": 272,
       "x": 0,
       "y": 0
     },
     "parity-textarea-2": {
+      "borderRadius": 8,
+      "borderWidth": 1,
+      "fontSize": 14,
       "height": 60,
+      "lineHeight": 20,
+      "paddingBottom": 8,
+      "paddingLeft": 12,
+      "paddingRight": 12,
+      "paddingTop": 8,
       "width": 272,
       "x": 0,
       "y": 76
     },
     "parity-textarea-3": {
+      "borderRadius": 8,
+      "borderWidth": 1,
+      "fontSize": 14,
       "height": 60,
+      "lineHeight": 20,
+      "paddingBottom": 8,
+      "paddingLeft": 12,
+      "paddingRight": 12,
+      "paddingTop": 8,
       "width": 272,
       "x": 0,
       "y": 152

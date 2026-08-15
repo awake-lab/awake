@@ -2,13 +2,29 @@
   "case": "skeleton-states",
   "nodes": {
     "parity-skeleton-1": {
+      "borderRadius": 8,
+      "borderWidth": 0,
+      "fontSize": 16,
       "height": 16,
+      "lineHeight": 24,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "paddingTop": 0,
       "width": 192,
       "x": 0,
       "y": 0
     },
     "parity-skeleton-2": {
+      "borderRadius": 8,
+      "borderWidth": 0,
+      "fontSize": 16,
       "height": 16,
+      "lineHeight": 24,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "paddingTop": 0,
       "width": 140,
       "x": 0,
       "y": 26

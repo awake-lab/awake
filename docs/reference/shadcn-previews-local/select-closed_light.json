@@ -2,7 +2,15 @@
   "case": "select-closed",
   "nodes": {
     "parity-select": {
+      "borderRadius": 8,
+      "borderWidth": 1,
+      "fontSize": 14,
       "height": 36,
+      "lineHeight": 20,
+      "paddingBottom": 8,
+      "paddingLeft": 12,
+      "paddingRight": 12,
+      "paddingTop": 8,
       "width": 172,
       "x": 0,
       "y": 0

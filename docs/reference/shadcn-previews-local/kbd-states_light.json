@@ -2,13 +2,29 @@
   "case": "kbd-states",
   "nodes": {
     "kbd.ctrl": {
+      "borderRadius": 4,
+      "borderWidth": 1,
+      "fontSize": 10,
       "height": 17,
+      "lineHeight": 15,
+      "paddingBottom": 0,
+      "paddingLeft": 6,
+      "paddingRight": 6,
+      "paddingTop": 0,
       "width": 29.953125,
       "x": 0,
       "y": 3.5
     },
     "kbd.k": {
+      "borderRadius": 4,
+      "borderWidth": 1,
+      "fontSize": 10,
       "height": 17,
+      "lineHeight": 15,
+      "paddingBottom": 0,
+      "paddingLeft": 6,
+      "paddingRight": 6,
+      "paddingTop": 0,
       "width": 20.328125,
       "x": 35.953125,
       "y": 3.5

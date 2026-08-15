@@ -2,19 +2,43 @@
   "case": "input-states",
   "nodes": {
     "parity-field-1": {
+      "borderRadius": 8,
+      "borderWidth": 1,
+      "fontSize": 14,
       "height": 36,
+      "lineHeight": 20,
+      "paddingBottom": 4,
+      "paddingLeft": 12,
+      "paddingRight": 12,
+      "paddingTop": 4,
       "width": 256,
       "x": 0,
       "y": 0
     },
     "parity-field-2": {
+      "borderRadius": 8,
+      "borderWidth": 1,
+      "fontSize": 14,
       "height": 36,
+      "lineHeight": 20,
+      "paddingBottom": 4,
+      "paddingLeft": 12,
+      "paddingRight": 12,
+      "paddingTop": 4,
       "width": 256,
       "x": 0,
       "y": 48
     },
     "parity-field-3": {
+      "borderRadius": 8,
+      "borderWidth": 1,
+      "fontSize": 14,
       "height": 36,
+      "lineHeight": 20,
+      "paddingBottom": 4,
+      "paddingLeft": 12,
+      "paddingRight": 12,
+      "paddingTop": 4,
       "width": 256,
       "x": 0,
       "y": 96

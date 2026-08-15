@@ -127,4 +127,26 @@ class TextareaWidgetTest {
             "textarea semantic lineCount must reflect the wrapped value typed during this frame",
         )
     }
+
+    @Test
+    fun pointerClickMapsToCorrectMultiLineTextIndex() {
+        val ui = UiContext()
+        val input = Input()
+        var value = "First Line\nSecond Line\nThird Line"
+        // Click on the second line (y = 20 + 20)
+        ui.simulateClick(x = 25f, y = 40f, screenHeight = 200f, input = input) {
+            ui.pushFont(BitmapFont())
+            value = ui.createAbsolute(x = 20f, y = 20f)
+                .textarea(
+                    "notes",
+                    value,
+                    modifier = Modifier.width(160f.px).height(80f.px),
+                    minLines = 3,
+                )
+        }
+        val node = requireNotNull(
+            ui.semanticNodes().firstOrNull { it.id == "notes" && it.role == UiSemanticRole.Text },
+        )
+        assertEquals(true, node.selected, "Clicked textarea should be focused/selected")
+    }
 }

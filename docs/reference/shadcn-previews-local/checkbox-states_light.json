@@ -2,19 +2,43 @@
   "case": "checkbox-states",
   "nodes": {
     "parity-checkbox-checked": {
+      "borderRadius": 4,
+      "borderWidth": 1,
+      "fontSize": 16,
       "height": 16,
+      "lineHeight": 24,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "paddingTop": 0,
       "width": 16,
       "x": 32,
       "y": 0
     },
     "parity-checkbox-disabled": {
+      "borderRadius": 4,
+      "borderWidth": 1,
+      "fontSize": 16,
       "height": 16,
+      "lineHeight": 24,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "paddingTop": 0,
       "width": 16,
       "x": 64,
       "y": 0
     },
     "parity-checkbox-unchecked": {
+      "borderRadius": 4,
+      "borderWidth": 1,
+      "fontSize": 16,
       "height": 16,
+      "lineHeight": 24,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "paddingTop": 0,
       "width": 16,
       "x": 0,
       "y": 0

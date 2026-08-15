@@ -2,7 +2,15 @@
   "case": "spinner-states",
   "nodes": {
     "parity-spinner": {
+      "borderRadius": 33554400,
+      "borderWidth": 2,
+      "fontSize": 16,
       "height": 24,
+      "lineHeight": 24,
+      "paddingBottom": 0,
+      "paddingLeft": 0,
+      "paddingRight": 0,
+      "paddingTop": 0,
       "width": 24,
       "x": 0,
       "y": 0
