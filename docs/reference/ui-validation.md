@@ -264,33 +264,88 @@ distrusted for layout.
 
 ### Component coverage matrix
 
-One row per component with a geometry oracle. `sub-px` means every dimension checked is within
-the recorded allowance (never more than 2.5px, and that ceiling is stated per-component in
-`ShadcnGeometryParityTest` with the reason). Update this table in the same commit that adds or
-changes a geometry test -- a stale matrix is worse than none.
+"Parity" is not one number. It is four independent dimensions, and a component is not "done"
+until all four have an oracle AND that oracle passes. Update this table in the same commit
+that adds or changes any of the four -- a stale matrix is worse than none, which is why this
+one got rewritten instead of patched quietly (its first version undercounted the catalog at
+18 by missing five components whose object names don't follow the `AwakeXLightPreview`
+pattern -- select, tooltip, dialog, dropdown-menu, popover).
 
-| component | geometry | light | dark | notes |
-|---|---|---|---|---|
-| badge | sub-px (+0.02..+0.30px) | yes | yes | only component checked in both themes; theme-identity asserted separately |
-| button | sub-px | yes | no | dark preview exists (`AwakeButtonVariantsDarkPreview`) but has no geometry test yet |
-| checkbox | sub-px (<=1.0px) | yes | no | |
-| switch | sub-px (<=1.0px) | yes | no | |
-| input | sub-px (<=1.0px) | yes | no | |
-| tabs | sub-px (<=2.5px) | yes | no | track's allowance is wider because it accumulates both triggers' text-advance rounding |
-| select | sub-px (<=1.0px) | yes | no | |
-| radio-group | not covered | -- | -- | paired for pixel diff only (`2b5e2107`); no `data-parity-id` tags yet |
-| progress | not covered | -- | -- | paired for pixel diff only (`2b5e2107`); no text, so geometry would likely be trivial |
-| card | not covered | -- | -- | pixel diff only, 84% crop coverage |
-| dialog | not covered | -- | -- | pixel diff only, 89.8% crop coverage |
-| tooltip | not covered | -- | -- | pixel diff pair excluded (mis-framed, 75% coverage) |
-| slider | not covered | -- | -- | pixel diff pair excluded (reference crops out the thumb entirely, 25.6% coverage) |
+| dimension | oracle | built? |
+|---|---|---|
+| **layout** (size, position, spacing) | `ShadcnGeometryParityTest` | yes |
+| **style** (fill/border colour, radius, shadow) | none | **no** |
+| **behavior** (click, keyboard, focus ring, hover, disabled) | none | **no** -- explicitly asked for in the 2026-08-15 `/loop` prompt, never started |
+| **motion** (transition, easing) | none, and captures actively disable animation | **no** |
 
-Adding a component to this table: tag the reference app's JSX with `data-parity-id` matching
+Two of four dimensions have zero oracle across every component, including badge. Nothing in
+this file is "100% parity" by the only definition that means anything -- it is at most
+"geometry-complete," which is one dimension out of four.
+
+**Coverage, counted against every distinct component with a parity preview** (23, deduplicating
+`@AwakeUiPreview` ids in `ShadcnParityScreenshotTest` by name, e.g. `awake-toggle-matrix-light`
+and `awake-toggle-button-variants-light` are the same component sampled two ways): alert,
+avatar, badge, breadcrumb, button, checkbox, collapsible, dialog, dropdown-menu, kbd, popover,
+progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea, textfield
+(input), toggle-button, tooltip.
+
+| dimension | components covered | % of 23 |
+|---|---|---|
+| layout | 7 (badge, button, checkbox, switch, textfield, tabs, select) | **30%** |
+| style | 0 | **0%** |
+| behavior | 0 | **0%** |
+| motion | 0 | **0%** |
+
+**True aggregate parity, all four dimensions required, all 23 components: 0%.** Not one
+component has passed all four. Badge is furthest along at 1 of 4 dimensions, but the only one
+checked in both themes for that dimension. Reporting anything higher than 0% as "parity" is the
+mistake this section exists to stop making.
+
+| component | layout | style | behavior | motion | notes |
+|---|---|---|---|---|---|
+| badge | sub-px (+0.02..+0.30px), light+dark | no oracle | no oracle | no oracle | furthest along: 1/4 dimensions, both themes |
+| button | sub-px, light only | no oracle | no oracle | no oracle | dark preview exists, no geometry test against it yet |
+| checkbox | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
+| switch | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
+| textfield (input) | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
+| tabs | sub-px (<=2.5px) | no oracle | no oracle | no oracle | track's allowance is wider -- accumulates both triggers' text-advance rounding |
+| select | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
+| radio-group | no oracle | no oracle | no oracle | no oracle | pixel-diff only (`2b5e2107`), no `data-parity-id` tags |
+| progress | no oracle | no oracle | no oracle | no oracle | pixel-diff only (`2b5e2107`), no `data-parity-id` tags |
+| dialog | no oracle | no oracle | no oracle | no oracle | pixel-diff only, 89.8% crop coverage |
+| tooltip | no oracle | no oracle | no oracle | no oracle | pixel-diff pair excluded (mis-framed, 75% coverage) |
+| slider | no oracle | no oracle | no oracle | no oracle | pixel-diff pair excluded (thumb cropped out of reference, 25.6% coverage) |
+| alert | no oracle | no oracle | no oracle | no oracle | pixel-diff regression lock only (`ShadcnParityScreenshotTest`), no shadcn reference at all |
+| avatar | no oracle | no oracle | no oracle | no oracle | same |
+| breadcrumb | no oracle | no oracle | no oracle | no oracle | same |
+| collapsible | no oracle | no oracle | no oracle | no oracle | same |
+| kbd | no oracle | no oracle | no oracle | no oracle | same |
+| skeleton | no oracle | no oracle | no oracle | no oracle | same |
+| spinner | no oracle | no oracle | no oracle | no oracle | same |
+| textarea | no oracle | no oracle | no oracle | no oracle | same |
+| toggle-button | no oracle | no oracle | no oracle | no oracle | same |
+| dropdown-menu | no oracle | no oracle | no oracle | no oracle | same |
+| popover | no oracle | no oracle | no oracle | no oracle | same |
+
+Note: `docs/reference/shadcn-previews-local/card-login_light.png` and its Awake pair
+(`card-local-light` in `tools/shadcn_parity_pairs.json`) are compared for pixel diff but "card"
+has no standalone `@AwakeUiPreview` entry of its own in `ShadcnParityScreenshotTest` under this
+naming scheme, so it is not counted as one of the 23 -- flagged here rather than silently
+dropped; reconcile when card gets tagged for a geometry oracle.
+
+Twelve of 23 have no shadcn reference capture at all, not even for pixel diff (radio-group and
+progress are pixel-paired; the other ten -- dialog, tooltip, slider excluded, plus alert,
+avatar, breadcrumb, collapsible, kbd, skeleton, spinner, textarea, toggle-button, dropdown-menu,
+popover -- vary from pixel-diff-only to fully unmeasured). Read each row's own notes column;
+this table is the source of truth, the paragraph above is not.
+
+Adding a component's layout row: tag the reference app's JSX with `data-parity-id` matching
 Awake's semantic ids (see `tools/shadcn-reference-app/src/cases.tsx`'s badge/button/checkbox/
 switch/input/tabs/select cases for the pattern), re-capture with
 `python3 tools/capture_shadcn_local.py --only <case> --theme light`, add one
 `assertGeometry(...)` call in `ShadcnGeometryParityTest` naming an `allowancePx` you can
-justify, then update this row.
+justify, then update this table. Style, behavior and motion columns cannot be filled in yet --
+no oracle exists for them.
 
 - `tools/capture_shadcn_reference.py` -- renders real shadcn/ui components straight from
   `ui.shadcn.com`'s own docs pages (Playwright, headless Chromium, fixed 1280x800 viewport,
