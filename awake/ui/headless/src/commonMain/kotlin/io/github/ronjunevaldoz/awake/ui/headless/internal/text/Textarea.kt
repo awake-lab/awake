@@ -265,7 +265,7 @@ fun UiPrimitiveScope.textarea(
             contentSlot.x,
             contentSlot.y - scrollOffsetY,
             contentSlot.width,
-            contentSlot.height,
+            maxOf(contentSlot.height, contentHeight),
         )
 
         clip(contentSlot) {

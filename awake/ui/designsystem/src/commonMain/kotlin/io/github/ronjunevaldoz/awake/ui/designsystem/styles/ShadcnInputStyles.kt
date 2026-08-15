@@ -17,27 +17,28 @@ import io.github.ronjunevaldoz.awake.ui.headless.SurfaceVisuals
 fun ShadcnTextFieldVariant.visuals(values: UiThemeValues): SurfaceVisuals {
     val colors = values.colors
     val shapes = values.shapes
+    val inputPadding = UiInsets(12f.dp, ShadcnSpacing.xs)
     val rest = when (this) {
         ShadcnTextFieldVariant.Default -> SurfaceStyle(
             background = Color.Transparent,
             foreground = colors.foreground,
             border = SurfaceBorder(1f.dp, colors.input),
             cornerRadius = shapes.md,
-            contentPadding = UiInsets(ShadcnSpacing.md, ShadcnSpacing.xs),
+            contentPadding = inputPadding,
             textSize = values.typography.label,
         )
         ShadcnTextFieldVariant.Filled -> SurfaceStyle(
             background = colors.muted,
             foreground = colors.foreground,
             cornerRadius = shapes.md,
-            contentPadding = UiInsets(ShadcnSpacing.md, ShadcnSpacing.xs),
+            contentPadding = inputPadding,
             textSize = values.typography.label,
         )
         ShadcnTextFieldVariant.Ghost -> SurfaceStyle(
             background = Color.Transparent,
             foreground = colors.foreground,
             cornerRadius = shapes.md,
-            contentPadding = UiInsets(ShadcnSpacing.md, ShadcnSpacing.xs),
+            contentPadding = inputPadding,
             textSize = values.typography.label,
         )
     }
