@@ -351,7 +351,7 @@ fun UiScope.shadcnSidebarMenuSubItem(
         row(
             horizontalArrangement = Arrangement.spacedBy(8f.dp),
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         ) {
             if (icon != null) {
                 icon(icon)
