@@ -216,9 +216,10 @@ class CanvasScope internal constructor(
         text: String,
         x: Float,
         y: Float,
-        color: Color = context.currentTextStyle.color ?: context.currentTheme.colors.foreground,
-        font: UiFont = context.currentFont,
-        textStyle: TextStyle = context.currentTextStyle,
+        color: Color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).color
+            ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.foreground,
+        font: UiFont = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
+        textStyle: TextStyle = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle),
         overlay: Boolean = false,
     ) {
         if (text.isEmpty()) return

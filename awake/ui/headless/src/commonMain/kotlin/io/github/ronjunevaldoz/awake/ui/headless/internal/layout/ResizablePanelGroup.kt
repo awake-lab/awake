@@ -95,6 +95,10 @@ class ResizablePanelGroupScope internal constructor(
      * in declaration order, read to build [panelSpecs] for the real walk. */
     internal val collectedPanels: MutableList<ResizablePanelSpec> = mutableListOf()
 
+    /** Populated only by the dry counting walk -- every [handle]'s id, in declaration order,
+     * read by [resolveHandleDrags] so drags resolve before the real walk lays any panel out. */
+    internal val collectedHandleIds: MutableList<String> = mutableListOf()
+
     private var cursorMain = if (direction == ResizableDirection.Horizontal) bounds.x else bounds.y
     private var handleIndex = 0
 
@@ -151,6 +155,7 @@ class ResizablePanelGroupScope internal constructor(
     fun handle(id: String, withHandle: Boolean = false): UiBounds {
         if (countingOnly) {
             handleCount++
+            collectedHandleIds.add(id)
             return UiBounds(0f, 0f, 0f, 0f)
         }
         val modifier = if (direction == ResizableDirection.Horizontal) {
@@ -183,37 +188,19 @@ class ResizablePanelGroupScope internal constructor(
                 },
             )
         }
-        // A WrapContent/scroll trial-measurement pass re-executes this whole content lambda
-        // against a scratch UiContext that shares the real, persisted groupState but starts with
-        // its own blank input/activation state (see UiContextMeasureState.createMeasureContext),
-        // so `dragging` above always reads false there. Left unguarded, the trial's own `else`
-        // branch below would delete lastPointerKey out from under the real pass that runs right
-        // after it in the same frame, permanently zeroing every real frame's pointer delta --
-        // the actual "dragging does nothing" bug. Guard this side effect like every other
-        // stateful UiContext operation (see UiContext.animateFloat's identical isMeasuring() gate).
-        val before = panelSpecs.getOrNull(handleIndex)
-        val after = panelSpecs.getOrNull(handleIndex + 1)
-        if (isMeasuring()) {
-            // See the isMeasuring() note above `pendingDrag` in the previous revision of this
-            // function: a trial-measurement pass must never touch groupState.
-        } else if (dragging) {
-            val previousPointerMain = groupState.get(lastPointerKey, pointerMain)
-            groupState.set(lastPointerKey, pointerMain)
-            if (before != null && after != null && availableMainAxisPx > 0f) {
-                val rawDelta = (pointerMain - previousPointerMain) / availableMainAxisPx
-                val beforeOld = groupState.get(before.fractionKey, before.default)
-                val afterOld = groupState.get(after.fractionKey, after.default)
-                var appliedDelta = (beforeOld + rawDelta).coerceIn(before.min, before.max) - beforeOld
-                val afterNew = (afterOld - appliedDelta).coerceIn(after.min, after.max)
-                // If `after` clamped harder than `before` did, the pair no longer sums to zero --
-                // re-derive `before`'s delta from `after`'s actual, already-clamped change so both
-                // panels move by exactly the same magnitude and the group's total width never drifts.
-                appliedDelta = afterOld - afterNew
-                groupState.set(before.fractionKey, beforeOld + appliedDelta)
-                groupState.set(after.fractionKey, afterNew)
-            }
-        } else {
-            groupState.remove(lastPointerKey)
+        // Fraction mutation itself lives in [resolveHandleDrags], which runs before the real
+        // walk so every panel -- including the one declared BEFORE this handle -- reads the
+        // post-drag fraction in the same frame. Resolving it here (the old shape) updated the
+        // before-panel one frame late, so during a live drag the panels after it jittered
+        // sideways every frame. The one thing the walk still owns is the press-frame baseline:
+        // interact() latches activation during this call, after the pre-pass already ran, so
+        // the gesture's starting pointer position must be recorded here or the first movement
+        // frame would measure its delta from wherever the pointer already moved to.
+        // isMeasuring() guard: a trial pass shares the persisted groupState but has blank
+        // input/activation state -- it must never touch drag bookkeeping (see the identical
+        // gate in UiContext.animateFloat).
+        if (!isMeasuring() && dragging) {
+            groupState.set(lastPointerKey, groupState.get(lastPointerKey, pointerMain))
         }
         handleIndex++
         recordSemantic(role = UiSemanticRole.Separator, id = id, bounds = slot)
@@ -234,7 +221,7 @@ class ResizablePanelGroupScope internal constructor(
                     y = gripY,
                     w = gripWidth,
                     h = gripHeight,
-                    color = context.currentTheme.colors.border,
+                    color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.border,
                     radius = 2f,
                 ),
             )
@@ -275,6 +262,14 @@ fun UiPrimitiveScope.resizablePanelGroup(
     val availableMainAxisPx =
         (mainAxisTotal - counter.handleCount * RESIZABLE_HANDLE_THICKNESS.toPx()).coerceAtLeast(0f)
 
+    resolveHandleDrags(
+        direction = direction,
+        groupState = groupState,
+        handleIds = counter.collectedHandleIds,
+        panelSpecs = counter.collectedPanels,
+        availableMainAxisPx = availableMainAxisPx,
+    )
+
     val real = ResizablePanelGroupScope(
         context,
         direction,
@@ -291,4 +286,44 @@ fun UiPrimitiveScope.resizablePanelGroup(
     // every drag (the showcase card grew by the drag delta).
     boundDerivedContent { real.content() }
     return slot
+}
+
+/**
+ * Applies every in-progress handle drag to its neighboring panels' fractions BEFORE the real
+ * walk lays anything out, so all panels -- including one declared before its handle -- render
+ * the post-drag split in the same frame. The walk itself only records the press-frame baseline
+ * (see [ResizablePanelGroupScope.handle]); activation is read from interact()'s persisted
+ * state, so a gesture's first movement resolves here one frame after the press latches.
+ */
+private fun UiPrimitiveScope.resolveHandleDrags(
+    direction: ResizableDirection,
+    groupState: WidgetState,
+    handleIds: List<String>,
+    panelSpecs: List<ResizablePanelSpec>,
+    availableMainAxisPx: Float,
+) {
+    if (isMeasuring() || availableMainAxisPx <= 0f) return
+    val pointerMain = if (direction == ResizableDirection.Horizontal) pointerX() else pointerY()
+    handleIds.forEachIndexed { index, id ->
+        val lastPointerKey = "$id.lastPointerMain"
+        if (!(isActive(id) && pointerDown())) {
+            groupState.remove(lastPointerKey)
+            return@forEachIndexed
+        }
+        val previousPointerMain = groupState.get(lastPointerKey, pointerMain)
+        groupState.set(lastPointerKey, pointerMain)
+        val before = panelSpecs.getOrNull(index) ?: return@forEachIndexed
+        val after = panelSpecs.getOrNull(index + 1) ?: return@forEachIndexed
+        val rawDelta = (pointerMain - previousPointerMain) / availableMainAxisPx
+        val beforeOld = groupState.get(before.fractionKey, before.default)
+        val afterOld = groupState.get(after.fractionKey, after.default)
+        var appliedDelta = (beforeOld + rawDelta).coerceIn(before.min, before.max) - beforeOld
+        val afterNew = (afterOld - appliedDelta).coerceIn(after.min, after.max)
+        // If `after` clamped harder than `before` did, the pair no longer sums to zero --
+        // re-derive `before`'s delta from `after`'s actual, already-clamped change so both
+        // panels move by exactly the same magnitude and the group's total never drifts.
+        appliedDelta = afterOld - afterNew
+        groupState.set(before.fractionKey, beforeOld + appliedDelta)
+        groupState.set(after.fractionKey, afterNew)
+    }
 }

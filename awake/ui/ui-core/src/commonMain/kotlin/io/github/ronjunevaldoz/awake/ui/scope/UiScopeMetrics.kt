@@ -25,13 +25,16 @@ import kotlin.math.roundToInt
 fun pixelPerfectPixel(value: Float): Float = value.roundToInt().toFloat()
 
 fun UiPrimitiveScope.resolvedTextScale(): Float =
-    pixelPerfectTextScale(context.currentTextStyle.scale, context.currentFont.textScaleStep)
+    pixelPerfectTextScale(
+        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).scale,
+        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont).textScaleStep,
+    )
 
 fun UiPrimitiveScope.resolveGlyphPx(
-    font: UiFont = context.currentFont,
-    textStyle: TextStyle = context.currentTextStyle,
+    font: UiFont = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
+    textStyle: TextStyle = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle),
 ): Float {
-    val baseSize = textStyle.size ?: context.currentTheme.typography.body
+    val baseSize = textStyle.size ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).typography.body
     val scale = pixelPerfectTextScale(textStyle.scale, font.textScaleStep)
     return pixelPerfectPixel(baseSize.value * UiDensity.scale * UiDensity.fontScale * scale)
         .coerceAtLeast(1f)

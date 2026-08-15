@@ -40,7 +40,7 @@ private inline fun UiPrimitiveScope.toggleInternal(
     // rest of the frame.
     crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): Boolean {
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     val defaults = theme.components.button then Style.Companion {
         // Mirrors buttonSlotInternal's Outline treatment: always draw a border, regardless
         // of checked state, so an idle Outline toggle still reads as a bordered control.
@@ -131,8 +131,8 @@ fun UiPrimitiveScope.toggle(
         text(
             label = label,
             slot = contentSlot,
-            font = context.currentFont,
-            color = resolved.foreground ?: context.currentTheme.colors.foreground,
+            font = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
+            color = resolved.foreground ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.foreground,
             centered = true,
             verticallyCentered = true,
             overflow = UiTextOverflow.Ellipsis,

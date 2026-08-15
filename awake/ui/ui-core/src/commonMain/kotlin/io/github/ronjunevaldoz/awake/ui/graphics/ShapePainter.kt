@@ -86,7 +86,7 @@ fun UiPrimitiveScope.emitFillAndBorder(
     fillColor: Color,
     radiusPx: Float,
     borderWidth: Dp,
-    borderColor: Color = context.currentTheme.colors.border,
+    borderColor: Color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.border,
     shapeSpec: UiShapeSpec? = null,
     overlay: Boolean = emitsToOverlay,
     fillTokenId: String? = null,
@@ -192,7 +192,7 @@ fun UiPrimitiveScope.emitInsetAccent(
     val h = slot.height - inset * 2
     emitFillShape(
         slot = UiBounds(x, y, w, h),
-        color = context.currentTheme.colors.primary,
+        color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.primary,
         radiusPx = (radiusPx - inset).coerceAtLeast(0f),
         shapeSpec = shapeSpec,
     )
@@ -209,7 +209,7 @@ fun UiPrimitiveScope.emitCheckmark(slot: UiBounds) {
         UiDrawPrimitive.StrokedPath(
             path = path,
             stroke = UiStroke(1.75f.px, UiStrokeCap.Round, UiStrokeJoin.Round),
-            color = context.currentTheme.colors.primaryForeground,
+            color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.primaryForeground,
         ),
         overlay = false,
     )
@@ -246,7 +246,7 @@ fun UiPrimitiveScope.emitInsetDash(
             innerW,
             thickness,
         ),
-        color = context.currentTheme.colors.primary,
+        color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.primary,
         radiusPx = thickness / 2f,
         shapeSpec = null,
     )

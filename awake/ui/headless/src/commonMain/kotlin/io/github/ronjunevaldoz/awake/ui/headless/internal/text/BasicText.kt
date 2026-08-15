@@ -76,7 +76,8 @@ internal fun UiPrimitiveScope.renderTextBlock(
     val clippedBounds = if (shouldClip) contentBounds.intersect(slot) else contentBounds
 
     val textColor =
-        color ?: context.currentTextStyle.color ?: context.currentTheme.colors.foreground
+        color ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).color
+            ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.foreground
 
     recordSemantic(
         role = semanticRole,

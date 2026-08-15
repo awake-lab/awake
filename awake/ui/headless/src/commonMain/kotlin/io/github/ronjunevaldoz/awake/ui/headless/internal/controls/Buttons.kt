@@ -43,7 +43,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
     semanticRole: UiSemanticRole = UiSemanticRole.Button,
     crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): UiButtonResult {
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     val defaults = theme.components.button then Style.Companion {
         shape(radius)
         if (variant == UiButtonVariant.Outline) {
@@ -79,7 +79,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
         // `surface()`/`column()`/`row()`/`box()` already propagate their resolved text style to
         // their own children. Mirrors the explicit `color = resolved.foreground` passed to the
         // label overload's own internal `text()` call below.
-        context.pushTextStyle(
+        context.pushLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle,
             surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground),
         )
         // A button's content is its own subtree, not a sibling list for whatever column contains
@@ -89,7 +89,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
         compositeContent {
             childAbsolute(slot = surface.contentSlot).drawContent(surface.contentSlot, surface.resolved)
         }
-        context.popTextStyle()
+        context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
     }
     recordSemantic(
         role = semanticRole,
@@ -152,7 +152,7 @@ fun UiPrimitiveScope.buttonSlot(
     radius = radius,
     semanticLabel = label,
     intrinsicWidth = label?.let { labelText ->
-        val theme = context.currentTheme
+        val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
         val defaults = theme.components.button then Style.Companion {
             shape(radius)
             if (variant == UiButtonVariant.Outline) {
@@ -170,11 +170,11 @@ fun UiPrimitiveScope.buttonSlot(
     semanticRole = semanticRole,
     drawContent = { contentSlot, resolved ->
         if (label != null) {
-            val theme = context.currentTheme
+            val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
             text(
                 label = label,
                 slot = contentSlot,
-                font = context.currentFont,
+                font = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
                 color = resolved.foreground ?: theme.colors.foreground,
                 centered = centered,
                 verticallyCentered = verticallyCentered,

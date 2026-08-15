@@ -44,7 +44,7 @@ fun UiPrimitiveScope.checkbox(
     indeterminate: Boolean = false,
     enabled: Boolean = true,
 ): Boolean {
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     val defaults = theme.components.checkbox
     val sizedModifier = modifier.withSizeFallback(
         label?.let {
@@ -105,7 +105,7 @@ fun UiPrimitiveScope.checkbox(
         } else if (newChecked) {
             emitCheckmark(boxSlot)
         }
-        val resolvedFont = context.currentFont
+        val resolvedFont = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont)
         if (label != null) {
             val gapPx = CHECKBOX_LABEL_GAP.toPx()
             val labelSlot = UiBounds(
@@ -156,7 +156,7 @@ fun UiPrimitiveScope.radio(
     enabled: Boolean = true,
     boxSize: Dp = 16f.dp,
 ): Boolean {
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     val surface = resolveInteractiveSurface(
         id = id,
         // A shadcn RadioGroupItem is `size-4`, not a full-width checkbox row. Its authored

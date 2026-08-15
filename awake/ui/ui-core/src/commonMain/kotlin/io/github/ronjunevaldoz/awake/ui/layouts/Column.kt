@@ -85,8 +85,13 @@ private fun UiPrimitiveScope.hasResolvedVisuals(
         active = modifier.forceActive ?: (id?.let { isActive(it) } ?: false),
         focused = modifier.forceFocus ?: (id?.let { context.isFocused(it) } ?: false),
     )
-    val visualDefaults = if (role == UiSemanticRole.Panel) context.currentTheme.components.surface else Style.Empty
-    return (visualDefaults then effectiveStyle).resolve(styleState, context.currentTextStyle).let {
+    val visualDefaults = if (role == UiSemanticRole.Panel) {
+        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).components.surface
+    } else Style.Empty
+    return (visualDefaults then effectiveStyle).resolve(
+        styleState,
+        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle),
+    ).let {
         it.background != null || it.borderWidth.toPx() > 0f || it.shape.toPx() > 0f
     }
 }
@@ -234,7 +239,9 @@ private fun UiPrimitiveScope.resolveMeasuredColumn(
         )
         val resolved = resolveStyle(
             style = effectiveStyle,
-            defaults = if (role == UiSemanticRole.Panel) context.currentTheme.components.surface else Style.Empty,
+            defaults = if (role == UiSemanticRole.Panel) {
+                context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).components.surface
+            } else Style.Empty,
             state = styleState,
         )
         recordSemantic(
@@ -413,9 +420,12 @@ fun UiPrimitiveScope.column(
         active = modifier.forceActive ?: false,
         focused = modifier.forceFocus ?: false,
     )
-    val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
+    val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(
+        styleState,
+        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle),
+    ).textStyle
 
-    context.pushTextStyle(textStyle)
+    context.pushLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle, textStyle)
     val requestedWidth = sizedModifier.widthDimension ?: Dimension.FillMax
     val requestedHeight = sizedModifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = verticalArrangement
@@ -499,6 +509,6 @@ fun UiPrimitiveScope.column(
     // column's own real children so a composite (e.g. weighted) child's grandchildren don't
     // corrupt an ancestor row/column's own in-progress measured.slots/weights trial.
     context.withMeasuredRecordingSuppressed { scope.content(slot) }
-    context.popTextStyle()
+    context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
     return slot
 }

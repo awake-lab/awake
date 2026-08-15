@@ -44,7 +44,7 @@ internal fun UiPrimitiveScope.withIntrinsicLabelWidth(
         state = MutableStyleState(),
     )
     val glyphPx = resolveGlyphPx(textStyle = resolved.textStyle)
-    val labelWidthPx = context.currentFont.measureTextWidth(label, glyphPx, resolved.textStyle.weight)
+    val labelWidthPx = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont).measureTextWidth(label, glyphPx, resolved.textStyle.weight)
     // CSS borders participate in the element's intrinsic border-box even when their color is
     // transparent (`border border-transparent` is part of shadcn Button and Badge). Resolve the
     // width from the style instead of compensating in individual recipes.
@@ -76,14 +76,14 @@ internal fun UiPrimitiveScope.withIntrinsicLabelSize(
     )
     val glyphPx = resolveGlyphPx(textStyle = resolved.textStyle)
     val result = if (modifier.widthDimension == null) {
-        val labelWidthPx = context.currentFont.measureTextWidth(label, glyphPx, resolved.textStyle.weight)
+        val labelWidthPx = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont).measureTextWidth(label, glyphPx, resolved.textStyle.weight)
         val borderPx = resolved.borderWidth.toPx() * 2f
         modifier.width(ceil(labelWidthPx + resolved.contentPadding.horizontalPx() + borderPx + extraWidth.toPx()).px)
     } else {
         modifier
     }
     if (result.heightDimension != null) return result
-    val lineMetrics = resolveTextLineMetrics(context.currentFont, glyphPx, resolved.textStyle)
+    val lineMetrics = resolveTextLineMetrics(context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont), glyphPx, resolved.textStyle)
     val borderPx = resolved.borderWidth.toPx() * 2f
     return result.height(
         (lineMetrics.lineHeightPx + lineMetrics.lineGapPx + resolved.contentPadding.verticalPx() + borderPx).px,

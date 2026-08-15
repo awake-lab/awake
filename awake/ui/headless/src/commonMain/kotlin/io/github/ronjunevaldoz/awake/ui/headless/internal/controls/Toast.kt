@@ -43,7 +43,7 @@ fun UiPrimitiveScope.toast(
     if (elapsed.value >= durationMs) return false
     elapsed.value += frameDeltaSeconds() * 1000f
 
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     val surface = resolveSurface(
         // WrapContent needs a measuring composite pass to resolve (AbsoluteScope.claimSlot
         // throws without one, see UiScopeMetrics), so -- same reasoning Dropdown.kt/TextField.kt
@@ -59,7 +59,7 @@ fun UiPrimitiveScope.toast(
     text(
         message,
         slot = surface.contentSlot,
-        font = context.currentFont,
+        font = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
         color = surface.resolved.foreground ?: theme.colors.foreground,
         verticallyCentered = true,
         semanticId = "$id.label",

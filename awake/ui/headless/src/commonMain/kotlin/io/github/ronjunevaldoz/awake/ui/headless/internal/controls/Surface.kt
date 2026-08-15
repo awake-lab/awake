@@ -144,7 +144,7 @@ internal fun UiPrimitiveScope.paintSurface(
     borderColor: Color? = null,
     shapeSpec: UiShapeSpec? = resolved.shapeSpec,
 ) {
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     emitFillAndBorder(
         slot = slot,
         fillColor = fillColor ?: resolved.background ?: theme.colors.background,

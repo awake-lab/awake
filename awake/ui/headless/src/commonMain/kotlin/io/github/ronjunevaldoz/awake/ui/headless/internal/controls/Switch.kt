@@ -51,19 +51,19 @@ fun UiPrimitiveScope.switch(
     style: Style = Style.Empty,
     enabled: Boolean = true,
 ): Boolean {
-    val theme = context.currentTheme
+    val theme = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme)
     // Measured before claiming a slot, not a fixed guess: the label paints at
     // trackSlot.x + trackWidth + gap regardless of what width the widget claims, so if the
     // claimed slot is narrower than track+gap+label, row()'s layout allocates too little space
     // and the next sibling gets placed on top of this label's tail. A caller-visible bug, not
     // theoretical -- two switches side by side with no explicit .width() on either overlapped.
     // Measured with the SAME textStyle the label is later painted with (theme.components.toggle
-    // then style) -- measuring against the ambient context.currentTextStyle instead caused the
+    // then style) -- measuring against the ambient LocalTextStyle instead caused the
     // opposite bug: toggle's textSize token differs from ambient body text, so the claimed slot
     // undershot the real render width and text() silently ellipsized the label.
     val labelTextStyle = resolveStyle(style = style, defaults = theme.components.toggle).textStyle
     val labelWidthPx = label?.let {
-        context.currentFont.measureTextWidth(
+        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont).measureTextWidth(
             it,
             resolveGlyphPx(textStyle = labelTextStyle),
         )
@@ -163,7 +163,7 @@ fun UiPrimitiveScope.switch(
                     labelWidth,
                     surface.interaction.slot.height,
                 ),
-                font = context.currentFont,
+                font = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
                 color = surface.resolved.foreground ?: theme.colors.foreground,
                 centered = false,
                 verticallyCentered = true,

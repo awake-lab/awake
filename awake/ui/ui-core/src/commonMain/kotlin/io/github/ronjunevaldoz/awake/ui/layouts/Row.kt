@@ -300,9 +300,12 @@ fun UiPrimitiveScope.row(
         active = modifier.forceActive ?: false,
         focused = modifier.forceFocus ?: false,
     )
-    val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(styleState, context.currentTextStyle).textStyle
+    val textStyle = (style then (modifier.styleable ?: Style.Empty)).resolve(
+        styleState,
+        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle),
+    ).textStyle
 
-    context.pushTextStyle(textStyle)
+    context.pushLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle, textStyle)
     val requestedWidth = sizedModifier.widthDimension ?: Dimension.FillMax
     val requestedHeight = sizedModifier.heightDimension ?: Dimension.WrapContent
     val effectiveArrangement = horizontalArrangement
@@ -393,6 +396,6 @@ fun UiPrimitiveScope.row(
     // that window so a weighted sibling's WrapContent content doesn't corrupt this row's own
     // already-computed measured.slots/weights (see UiContext.withMeasuredRecordingSuppressed).
     context.withMeasuredRecordingSuppressed { scope.content(slot) }
-    context.popTextStyle()
+    context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
     return slot
 }
