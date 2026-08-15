@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.drawDropdownTriggerContent
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.contextMenuTrigger as primitiveContextMenuTrigger
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.filterOptionsByQuery as primitiveFilterOptionsByQuery
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.select as primitiveSelect
@@ -22,17 +23,17 @@ fun UiScope.select(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     placeholder: String = "",
-    visuals: SurfaceVisuals = SurfaceVisuals(),
-    selectedVisuals: SurfaceStyle? = null,
-    optionVisuals: SurfaceVisuals? = null,
+    style: Style = Style.Empty,
+    selectedStyle: Style? = null,
+    optionStyle: Style? = null,
 ): Int? = primitive.primitiveSelect(
     id = id,
     options = options,
     selectedIndex = selectedIndex ?: -1,
     modifier = modifier.asPrimitiveModifier(),
-    style = visuals.asPrimitiveStyle(),
-    selectedStyle = selectedVisuals?.asPrimitiveStyle(),
-    optionStyle = optionVisuals?.asPrimitiveStyle(),
+    style = style,
+    selectedStyle = selectedStyle,
+    optionStyle = optionStyle,
     enabled = enabled,
     placeholder = placeholder,
 )
@@ -47,10 +48,10 @@ fun UiScope.combobox(
     placeholder: String = "",
     filterPlaceholder: String = "Search...",
     emptyLabel: String = "No results found.",
-    visuals: SurfaceVisuals = SurfaceVisuals(),
-    selectedVisuals: SurfaceStyle? = null,
-    optionVisuals: SurfaceVisuals = SurfaceVisuals(),
-    filterVisuals: SurfaceVisuals = SurfaceVisuals(),
+    style: Style = Style.Empty,
+    selectedStyle: Style? = null,
+    optionStyle: Style = Style.Empty,
+    filterStyle: Style = Style.Empty,
 ): Int? {
     val popupState = rememberPopupState(id, key = "expanded")
     val filterState = rememberStateValue(id, key = "filter") { "" }
@@ -58,7 +59,7 @@ fun UiScope.combobox(
     val trigger = primitive.primitiveButtonSlot(
         id = "$id.trigger",
         modifier = modifier.asPrimitiveModifier(),
-        style = visuals.asPrimitiveStyle(),
+        style = style,
         enabled = enabled,
     )
     if (trigger.clicked) {
@@ -70,7 +71,7 @@ fun UiScope.combobox(
         slot = trigger.slot,
         label = selectedLabel,
         expanded = popupState.expanded,
-        style = visuals.asPrimitiveStyle(),
+        style = style,
         // The Dropdown node below owns `id`; the label is a separate text node. Passing `id`
         // here made both claim it, which is a duplicate semantic id. primitiveSelect has
         // always used the `.label` suffix -- this widget just never matched it.
@@ -99,27 +100,23 @@ fun UiScope.combobox(
             value = filterState.value,
             placeholder = filterPlaceholder,
             modifier = Modifier.fillMaxWidth().height(36f.dp),
-            visuals = filterVisuals,
+            style = filterStyle,
             enabled = enabled,
         )
         filterState.value = query
         separator()
         val filtered = filterOptionsByQuery(options, query)
         if (filtered.isEmpty()) {
-            text(emptyLabel, modifier = Modifier.fillMaxWidth(), visuals = optionVisuals.rest)
+            text(emptyLabel, modifier = Modifier.fillMaxWidth(), style = optionStyle)
         } else {
             filtered.forEach { indexed ->
-                val rowVisuals = if (indexed.index == selectedIndex && selectedVisuals != null) {
-                    optionVisuals.copy(rest = selectedVisuals)
-                } else {
-                    optionVisuals
-                }
+                val rowStyle = if (indexed.index == selectedIndex) selectedStyle ?: optionStyle else optionStyle
                 if (
                     button(
                         id = "$id.option.${indexed.index}",
                         label = indexed.value,
                         modifier = Modifier.fillMaxWidth().height(32f.dp),
-                        visuals = rowVisuals,
+                        style = rowStyle,
                         enabled = enabled,
                         semanticRole = UiSemanticRole.MenuItem,
                     )

@@ -9,6 +9,9 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextFieldStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextareaStyle
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.textareaVisuals
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.visuals
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
@@ -29,27 +32,25 @@ import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.textField
 import io.github.ronjunevaldoz.awake.ui.headless.textarea
 
-internal fun fieldVisuals(values: UiThemeValues, variant: ShadcnTextFieldVariant): SurfaceVisuals =
-    variant.visuals(values)
+internal fun fieldStyle(values: UiThemeValues, variant: ShadcnTextFieldVariant): Style =
+    values.shadcnTextFieldStyle(variant)
 
 /** SelectContent rows are menu items, so they intentionally do not reuse trigger chrome. */
-private fun selectOptionVisuals(values: UiThemeValues): SurfaceVisuals = SurfaceVisuals(
-    rest = SurfaceStyle(
-        background = values.colors.popover,
-        foreground = values.colors.popoverForeground,
-        contentPadding = UiInsets(horizontal = 8f.dp, vertical = 6f.dp),
-        textSize = values.typography.label,
-    ),
-    hovered = SurfaceStyle(
-        background = values.colors.accent,
-        foreground = values.colors.accentForeground,
-    ),
-    pressed = SurfaceStyle(
-        background = values.colors.accent,
-        foreground = values.colors.accentForeground,
-    ),
-    disabled = SurfaceStyle(foreground = values.colors.mutedForeground),
-)
+private fun selectOptionStyle(values: UiThemeValues): Style = Style {
+    background(values.colors.popover)
+    foreground(values.colors.popoverForeground)
+    contentPadding(horizontal = 8f.dp, vertical = 6f.dp)
+    textSize(values.typography.label)
+    hovered { background(values.colors.accent); foreground(values.colors.accentForeground) }
+    active { background(values.colors.accent); foreground(values.colors.accentForeground) }
+    disabled { foreground(values.colors.mutedForeground) }
+}
+
+private fun selectedOptionStyle(values: UiThemeValues): Style = Style {
+    background(values.colors.accent)
+    foreground(values.colors.accentForeground)
+    shape(values.shapes.md)
+}
 
 fun UiScope.shadcnSelect(
     id: String,
@@ -64,13 +65,9 @@ fun UiScope.shadcnSelect(
     selectedIndex = selectedIndex,
     modifier = modifier,
     placeholder = placeholder,
-    visuals = fieldVisuals(themeValues, ShadcnTextFieldVariant.Default),
-    selectedVisuals = SurfaceStyle(
-        background = themeValues.colors.accent,
-        foreground = themeValues.colors.accentForeground,
-        cornerRadius = themeValues.shapes.md,
-    ),
-    optionVisuals = selectOptionVisuals(themeValues),
+    style = fieldStyle(themeValues, ShadcnTextFieldVariant.Default),
+    selectedStyle = selectedOptionStyle(themeValues),
+    optionStyle = selectOptionStyle(themeValues),
     enabled = enabled,
 )
 
@@ -92,14 +89,10 @@ fun UiScope.shadcnCombobox(
     placeholder = placeholder,
     filterPlaceholder = filterPlaceholder,
     emptyLabel = emptyLabel,
-    visuals = fieldVisuals(themeValues, ShadcnTextFieldVariant.Default),
-    selectedVisuals = SurfaceStyle(
-        background = themeValues.colors.accent,
-        foreground = themeValues.colors.accentForeground,
-        cornerRadius = themeValues.shapes.md,
-    ),
-    optionVisuals = selectOptionVisuals(themeValues),
-    filterVisuals = fieldVisuals(themeValues, ShadcnTextFieldVariant.Ghost),
+    style = fieldStyle(themeValues, ShadcnTextFieldVariant.Default),
+    selectedStyle = selectedOptionStyle(themeValues),
+    optionStyle = selectOptionStyle(themeValues),
+    filterStyle = fieldStyle(themeValues, ShadcnTextFieldVariant.Ghost),
 )
 
 fun UiScope.shadcnInput(
@@ -118,7 +111,7 @@ fun UiScope.shadcnInput(
     value = value,
     placeholder = placeholder,
     modifier = modifier,
-    visuals = fieldVisuals(themeValues, variant),
+    style = themeValues.shadcnTextFieldStyle(variant),
     enabled = enabled,
     isError = isError,
     leadingIcon = leadingIcon,
@@ -140,7 +133,7 @@ fun UiScope.shadcnTextarea(
     value = value,
     placeholder = placeholder,
     modifier = modifier,
-    visuals = variant.textareaVisuals(themeValues),
+    style = themeValues.shadcnTextareaStyle(variant),
     enabled = enabled,
     isError = isError,
     minLines = minLines,
