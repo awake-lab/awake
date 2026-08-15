@@ -26,6 +26,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
+import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.dialog
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -37,6 +38,9 @@ import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
+import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** Public Shadcn menu entries. Popup mechanics remain Headless-owned. */
 sealed interface ShadcnDropdownMenuEntry
@@ -73,11 +77,22 @@ fun UiScope.shadcnDropdownMenu(
         }
     }
     var selectedItemIndex: Int? = null
+    val resolvedWidth = if (width == Dimension.WrapContent) {
+        val font = primitive.context.currentFont
+        val glyphPx = primitive.resolveGlyphPx(textStyle = TextStyle(size = themeValues.typography.label))
+        val maxLabelWidthPx = items.filterIsInstance<ShadcnDropdownMenuItem>().maxOfOrNull { item ->
+            font.measureTextWidth(item.label, glyphPx)
+        } ?: 80f
+        val calcWidthPx = kotlin.math.ceil(maxLabelWidthPx + 40f.dp.toPx()).coerceAtLeast(128f.dp.toPx())
+        Dimension.Fixed(calcWidthPx.dp)
+    } else {
+        width
+    }
     val result = popup(
         id = id,
         anchorSlot = anchorSlot,
         expanded = expanded,
-        width = width,
+        width = resolvedWidth,
         height = height,
         positionProvider = positionProvider,
         properties = properties,

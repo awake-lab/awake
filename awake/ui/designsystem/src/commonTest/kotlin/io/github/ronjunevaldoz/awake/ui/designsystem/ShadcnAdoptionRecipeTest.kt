@@ -19,7 +19,7 @@ class ShadcnAdoptionRecipeTest {
     fun testShadcnKbdRendersBounds() {
         val context = UiContext()
         val scope = context.createUiScope(UiBounds(0f, 0f, 300f, 200f))
-        val kbdBounds = scope.shadcnKbd("⌘K")
+        val kbdBounds = scope.shadcnKbd(id = "kbd", label = "⌘K")
         assertNotNull(kbdBounds)
     }
 
