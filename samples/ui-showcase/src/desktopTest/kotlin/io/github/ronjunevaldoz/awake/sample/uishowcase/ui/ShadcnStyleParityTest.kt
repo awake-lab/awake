@@ -106,6 +106,15 @@ class ShadcnStyleParityTest {
         assertStyle("input-states", "light", AwakeTextFieldStatesLightPreview)
 
     @Test
-    fun dropdownMenuStatesStyleMatchesShadcn() =
+    fun dropdownMenuStatesStyleMatchesShadcn() {
         assertStyle("dropdown-menu-states", "light", AwakeDropdownMenuStatesLightPreview)
+
+        val scene = renderAnnotatedUiPreviews(AwakeDropdownMenuStatesLightPreview).single()
+        val item3 = scene.semantics.first { it.id == "parity-dropdown.item.3" }
+        kotlin.test.assertEquals(32f, item3.bounds.height, 0.5f, "Dropdown item height must be h-8 (32dp)")
+        if (item3.contentBounds != null) {
+            val horizontalPadding = (item3.bounds.width - item3.contentBounds!!.width) / 2f
+            kotlin.test.assertTrue(horizontalPadding >= 4f, "Dropdown item padding should be at least 4dp")
+        }
+    }
 }

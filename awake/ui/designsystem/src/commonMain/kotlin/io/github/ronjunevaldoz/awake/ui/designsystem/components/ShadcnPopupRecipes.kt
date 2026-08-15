@@ -115,6 +115,13 @@ fun UiScope.shadcnDropdownMenu(
                                         contentPadding = UiInsets(horizontal = 8f.dp, vertical = 6f.dp),
                                         textSize = 14f.sp,
                                     ),
+                                    hovered = SurfaceStyle(
+                                        background = if (source.destructive) themeValues.colors.destructive.withAlpha(0.1f) else themeValues.colors.accent,
+                                        foreground = if (source.destructive) themeValues.colors.destructive else themeValues.colors.accentForeground,
+                                        cornerRadius = themeValues.shapes.sm,
+                                        contentPadding = UiInsets(horizontal = 8f.dp, vertical = 6f.dp),
+                                        textSize = 14f.sp,
+                                    ),
                                 ),
                             )
                             if (activated) selectedItemIndex = entry.index
