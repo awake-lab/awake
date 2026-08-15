@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
+import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.style
@@ -19,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.progress
 import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.skeleton
@@ -43,19 +45,23 @@ fun UiScope.shadcnBadge(
     }
 }
 
-/** Branded key-cap pill. */
-fun UiScope.shadcnKbd(id: String, label: String): UiBounds {
+/** Branded key-cap pill matching official shadcn `kbd.tsx` (`h-5 text-[10px] py-0`). */
+fun UiScope.shadcnKbd(
+    id: String,
+    label: String,
+    modifier: Modifier = Modifier,
+): UiBounds {
     val style = SurfaceStyle(
         background = themeValues.colors.muted,
-        foreground = themeValues.colors.foreground,
-        border = SurfaceBorder(1f.dp, themeValues.colors.input),
+        foreground = themeValues.colors.mutedForeground,
+        border = SurfaceBorder(1f.dp, themeValues.colors.border),
         cornerRadius = themeValues.shapes.sm,
-        contentPadding = UiInsets(6f.dp, 2f.dp),
-        textSize = themeValues.typography.caption,
+        contentPadding = UiInsets(horizontal = 6f.dp, vertical = 0f.dp),
+        textSize = 10f.sp,
     )
     return surface(
         id = id,
-        modifier = withIntrinsicLabelSize(label = label, style = style),
+        modifier = withIntrinsicLabelSize(label = label, modifier = modifier.height(20f.dp), style = style),
         style = style,
     ) { _ ->
         text(label = label, centered = true)

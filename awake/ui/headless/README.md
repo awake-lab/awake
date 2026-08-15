@@ -102,7 +102,7 @@ skins, which belong to `designsystem`'s own doc.
 | Menu | `menu` | present | 1:1 |
 | Menubar | `menubar` (`ActionRow.kt`) | present | thin `surface`+`row` composition, no roving-focus/keyboard-nav semantics yet |
 | Number Field | `numberField` | present | 1:1 |
-| OTP Field | `OtpInput.kt` (`otpDigitsOnly`, `otpActiveSlotIndex`, `otpShowsSeparatorBefore`) | partial | this layer only holds the slot math; the widget itself assembles from repeated `textField` calls one layer up |
+| OTP Field | `otpInput` (`OtpInput.kt`) | present | owns focus/value/separator-placement; caller supplies each slot's/separator's visuals via lambda |
 | Radio | `radio` | present | 1:1 |
 | Select | `select` | present | 1:1 |
 | Slider | `slider` | present | 1:1 |
