@@ -35,7 +35,9 @@ fn vertexMain(
 // fragment could use to transform the normal into world space. Upgrade path: add a
 // model-matrix (or normal-matrix) uniform once a demo actually needs light that stays fixed
 // while the mesh spins.
-const AMBIENT_STRENGTH : f32 = 0.35;
+// Matches lit_shadow.wgsl's AMBIENT_STRENGTH so the two backends read close in brightness --
+// this shader has no PBR/shadow term to match beyond that (see lit_shadow.wgsl's header for why).
+const AMBIENT_STRENGTH : f32 = 0.08;
 
 @fragment
 fn fragmentMain(@location(0) color : vec3f, @location(1) normal : vec3f) -> @location(0) vec4f {
@@ -43,5 +45,9 @@ fn fragmentMain(@location(0) color : vec3f, @location(1) normal : vec3f) -> @loc
   let l = normalize(uniforms.lightDirection.xyz);
   let diffuse = max(dot(n, l), 0.0);
   let shade = AMBIENT_STRENGTH + (1.0 - AMBIENT_STRENGTH) * diffuse;
-  return vec4f(color * shade * uniforms.lightColor.xyz, 1.0);
+  let lit = color * shade * uniforms.lightColor.xyz;
+  // Same Reinhard curve as lit_shadow.wgsl, so a bright highlight rolls off instead of clipping
+  // to flat white on one backend and not the other.
+  let mapped = lit / (lit + vec3f(1.0));
+  return vec4f(mapped, 1.0);
 }
