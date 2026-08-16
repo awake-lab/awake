@@ -167,6 +167,17 @@ class Mat4 {
         return translation * this
     }
 
+    /**
+     * Right-handed rotation of [angle] radians about [axis] -- counter-clockwise looking down
+     * the axis toward the origin, which is what [rotateZ] and [Quat.fromAxisAngle] have always
+     * done.
+     *
+     * This, [rotateX] and [rotateY] used to store the TRANSPOSE of that, i.e. they rotated the
+     * opposite way, while [rotateZ] did not. Nothing caught it because the CPU never transformed
+     * a point on the render path and a cube spinning backwards still looks like a spinning cube;
+     * it surfaced when quaternions and matrices had to agree. Objects with an authored X or Y
+     * rotation now turn the other way -- that is this fix, not a regression.
+     */
     fun rotate(angle: Float, axis: Vec3): Mat4 {
         val rotationMatrix = Mat4()
         val normalizedAxis = axis.normalized()
@@ -181,15 +192,15 @@ class Mat4 {
 
         // Calculate elements of the rotation matrix
         rotationMatrix.m00 = cosTheta + x * x * oneMinusCosTheta
-        rotationMatrix.m10 = x * y * oneMinusCosTheta - z * sinTheta
-        rotationMatrix.m20 = x * z * oneMinusCosTheta + y * sinTheta
+        rotationMatrix.m01 = x * y * oneMinusCosTheta - z * sinTheta
+        rotationMatrix.m02 = x * z * oneMinusCosTheta + y * sinTheta
 
-        rotationMatrix.m01 = x * y * oneMinusCosTheta + z * sinTheta
+        rotationMatrix.m10 = x * y * oneMinusCosTheta + z * sinTheta
         rotationMatrix.m11 = cosTheta + y * y * oneMinusCosTheta
-        rotationMatrix.m21 = y * z * oneMinusCosTheta - x * sinTheta
+        rotationMatrix.m12 = y * z * oneMinusCosTheta - x * sinTheta
 
-        rotationMatrix.m02 = x * z * oneMinusCosTheta - y * sinTheta
-        rotationMatrix.m12 = y * z * oneMinusCosTheta + x * sinTheta
+        rotationMatrix.m20 = x * z * oneMinusCosTheta - y * sinTheta
+        rotationMatrix.m21 = y * z * oneMinusCosTheta + x * sinTheta
         rotationMatrix.m22 = cosTheta + z * z * oneMinusCosTheta
 
         return rotationMatrix * this
@@ -202,8 +213,8 @@ class Mat4 {
         val cos = cos(angleRad)
 
         rotationMatrix.m11 = cos
-        rotationMatrix.m12 = sin
-        rotationMatrix.m21 = -sin
+        rotationMatrix.m12 = -sin
+        rotationMatrix.m21 = sin
         rotationMatrix.m22 = cos
 
         return rotationMatrix * this
@@ -216,8 +227,8 @@ class Mat4 {
         val cos = cos(angleRad)
 
         rotationMatrix.m00 = cos
-        rotationMatrix.m02 = -sin
-        rotationMatrix.m20 = sin
+        rotationMatrix.m02 = sin
+        rotationMatrix.m20 = -sin
         rotationMatrix.m22 = cos
 
         return rotationMatrix * this
@@ -605,3 +616,35 @@ fun Mat4.inverse(): Mat4? {
         out.m33 = (m20 * s3 - m21 * s1 + m22 * s0) * invDet
     }
 }
+
+/** Rows and columns swapped. */
+fun Mat4.transpose(): Mat4 = Mat4().also { out ->
+    out.m00 = m00
+    out.m01 = m10
+    out.m02 = m20
+    out.m03 = m30
+    out.m10 = m01
+    out.m11 = m11
+    out.m12 = m21
+    out.m13 = m31
+    out.m20 = m02
+    out.m21 = m12
+    out.m22 = m22
+    out.m23 = m32
+    out.m30 = m03
+    out.m31 = m13
+    out.m32 = m23
+    out.m33 = m33
+}
+
+/**
+ * The inverse-transpose of this model matrix -- what normals must be transformed by, and `null`
+ * when the model matrix is singular.
+ *
+ * Transforming a normal by the model matrix itself is only correct under uniform scale. Under
+ * non-uniform scale it skews the normal off the surface, and the lighting goes subtly wrong with
+ * nothing crashing: squash an object on one axis and it lights as though it were still round.
+ * The shaders in this repo are handed `model` today, so this is the fix for that, not a
+ * speculative helper.
+ */
+fun Mat4.normalMatrix(): Mat4? = inverse()?.transpose()

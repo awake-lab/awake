@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.math
 
+import kotlin.math.PI
+import kotlin.math.asin
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -42,11 +45,104 @@ data class Quat(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w: 
         }
     }
 
+    /**
+     * `this` then [other] -- the rotation you get by applying this one first.
+     *
+     * Quaternion multiplication is not commutative, and this is the Hamilton product with its
+     * operands SWAPPED, so that `(a * b)` means "a then b" and agrees with `a.toMat4() *
+     * b.toMat4()` -- [Mat4.times] itself computes the reversed product (`A * B` is the
+     * conventional `B * A`), so an unswapped product here would rotate in the opposite order
+     * from the matrices built out of the same quaternions. QuatOpsTest pins it down.
+     */
+    operator fun times(other: Quat): Quat = Quat(
+        other.w * x + other.x * w + other.y * z - other.z * y,
+        other.w * y - other.x * z + other.y * w + other.z * x,
+        other.w * z + other.x * y - other.y * x + other.z * w,
+        other.w * w - other.x * x - other.y * y - other.z * z,
+    )
+
+    /** The opposite rotation. Equal to the inverse for a unit quaternion, which every quaternion
+     * this class produces is -- [inverse] is the one to use when that is not guaranteed. */
+    fun conjugate(): Quat = Quat(-x, -y, -z, w)
+
+    /** The true inverse, or `null` for a zero quaternion (which encodes no rotation to undo). */
+    fun inverse(): Quat? {
+        val lengthSquared = x * x + y * y + z * z + w * w
+        if (lengthSquared < DEGENERATE_LENGTH_SQUARED) return null
+        val inverseLengthSquared = 1f / lengthSquared
+        return Quat(
+            -x * inverseLengthSquared,
+            -y * inverseLengthSquared,
+            -z * inverseLengthSquared,
+            w * inverseLengthSquared,
+        )
+    }
+
+    /** [point] rotated by this quaternion, allocating one result -- the pure form, per [Vec3]'s
+     * naming contract. */
+    fun rotate(point: Vec3): Vec3 {
+        // v + 2 * cross(q.xyz, cross(q.xyz, v) + q.w * v): the standard expansion, which avoids
+        // building a rotation matrix to turn a single point.
+        val tx = 2f * (y * point.z - z * point.y)
+        val ty = 2f * (z * point.x - x * point.z)
+        val tz = 2f * (x * point.y - y * point.x)
+        return Vec3(
+            point.x + w * tx + (y * tz - z * ty),
+            point.y + w * ty + (z * tx - x * tz),
+            point.z + w * tz + (x * ty - y * tx),
+        )
+    }
+
+    /**
+     * This rotation as the `(x, y, z)` radians [io.github.ronjunevaldoz.awake.scene.core]'s
+     * `Transform.rotation` stores, in the same order it composes them.
+     *
+     * Round-trips with [fromEuler] except at the poles, where pitch reaches +/-90 degrees and
+     * yaw and roll describe the same axis (gimbal lock): infinitely many Euler triples encode
+     * that rotation, and this returns one of them with roll folded into yaw.
+     */
+    fun toEuler(): Vec3 {
+        // Read back off this rotation's own matrix rather than from a hand-expanded formula:
+        // that way the extraction cannot drift out of step with [fromEuler]'s composition order,
+        // which is the only thing here that can silently be wrong.
+        val m = toMat4()
+        val pitch = -m.m20
+        return if (pitch >= 1f - GIMBAL_EPSILON || pitch <= -1f + GIMBAL_EPSILON) {
+            // At a pole X and Z turn about the same axis: infinitely many triples describe this
+            // rotation, and this returns the one with X folded into Z.
+            Vec3(0f, if (pitch > 0f) HALF_PI else -HALF_PI, atan2(-m.m01, m.m11))
+        } else {
+            Vec3(atan2(m.m21, m.m22), asin(pitch.coerceIn(-1f, 1f)), atan2(m.m10, m.m00))
+        }
+    }
+
     companion object {
         val IDENTITY = Quat(0f, 0f, 0f, 1f)
 
         /** A quaternion encodes half the rotation angle. */
         private const val HALF_TURN_SCALE = 0.5f
+
+        private const val DEGENERATE_LENGTH_SQUARED = 1e-12f
+
+        /** How close to a pole counts as gimbal lock -- see [toEuler]. */
+        private const val GIMBAL_EPSILON = 1e-6f
+
+        private val HALF_PI = (PI / 2.0).toFloat()
+
+        /**
+         * The rotation `Transform.rotation`'s `(x, y, z)` radians describe, applied in the same
+         * order `Transform`'s own matrix applies them: X, then Y, then Z. (Its builder reads
+         * `rotateZ().rotateY().rotateX()`, which is the reverse spelling of the same thing --
+         * [Mat4.times] composes backwards.)
+         *
+         * Built from three axis rotations rather than a hand-expanded formula: the order is the
+         * only thing that can be wrong here, and spelling it out means it matches `Transform` by
+         * construction rather than by a comment claiming it does.
+         */
+        fun fromEuler(radians: Vec3): Quat =
+            fromAxisAngle(Vec3(1f, 0f, 0f), radians.x) *
+                fromAxisAngle(Vec3(0f, 1f, 0f), radians.y) *
+                fromAxisAngle(Vec3(0f, 0f, 1f), radians.z)
 
         /** Below this an axis carries no direction to rotate about. */
         private const val DEGENERATE_AXIS_LENGTH = 1e-6f
