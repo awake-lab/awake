@@ -6,12 +6,11 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewDimensionRule
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
@@ -28,13 +27,13 @@ class ShadcnSliderFidelityTest {
 
     @Test
     fun shadcnSliderHeightAndNoOverlayTextFidelity() = runTest {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-
         val sliderWidth = 240f
 
-        ui.beginFrame(400f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.headlessRoot().shadcnTheme {
+        val frameOutput = renderUiComponent(
+            width = 400f,
+            height = 200f,
+            rootProvider = { content -> shadcnTheme { content() } },
+        ) {
             shadcnSlider(
                 id = "test-slider",
                 min = 0f,
@@ -43,7 +42,6 @@ class ShadcnSliderFidelityTest {
                 modifier = Modifier.width(sliderWidth.dp),
             )
         }
-        val frameOutput = ui.finishFrame()
 
         val sliderNode = frameOutput.semantics.firstOrNull { it.id == "test-slider" }
         requireNotNull(sliderNode) { "Slider node 'test-slider' must exist in semantic tree" }
@@ -77,7 +75,7 @@ class ShadcnSliderFidelityTest {
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ShadcnTheme.colors.background,
-                font = ui.currentFont,
+                font = frameOutput.font,
                 semantics = frameOutput.semantics,
             ),
             config = config,
@@ -86,11 +84,11 @@ class ShadcnSliderFidelityTest {
 
     @Test
     fun shadcnFieldSliderWithValueProximitySpacingFidelity() = runTest {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-
-        ui.beginFrame(400f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.headlessRoot().shadcnTheme {
+        val frameOutput = renderUiComponent(
+            width = 400f,
+            height = 200f,
+            rootProvider = { content -> shadcnTheme { content() } },
+        ) {
             column(modifier = Modifier.fillMaxSize()) {
                 shadcnFieldSliderWithValue(
                     id = "field-slider-test",
@@ -101,7 +99,6 @@ class ShadcnSliderFidelityTest {
                 )
             }
         }
-        val frameOutput = ui.finishFrame()
 
         val sliderNode = frameOutput.semantics.firstOrNull { it.id == "field-slider-test" }
         requireNotNull(sliderNode) { "Slider node 'field-slider-test' must exist" }
@@ -130,7 +127,7 @@ class ShadcnSliderFidelityTest {
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ShadcnTheme.colors.background,
-                font = ui.currentFont,
+                font = frameOutput.font,
                 semantics = frameOutput.semantics,
             ),
             config = config,

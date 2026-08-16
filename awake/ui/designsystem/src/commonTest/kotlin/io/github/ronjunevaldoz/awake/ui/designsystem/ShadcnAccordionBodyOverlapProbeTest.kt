@@ -4,11 +4,10 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.UiInspectionIssueKind
 import io.github.ronjunevaldoz.awake.testing.ui.inspectUiFrame
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAccordion
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -44,14 +43,16 @@ class ShadcnAccordionBodyOverlapProbeTest {
     @Test
     fun expandedAccordionBodyStaysWithinItsColumnAcrossASelectionSwitch() {
         ensureShadcnTestIconsInitialized()
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
         val items = listOf("item-1", "item-2")
         var selectedId: String? = "item-1"
 
-        fun frame(): List<UiDrawPrimitive> {
-            ui.beginFrame(320f, 600f, UiInputState())
-            ui.headlessRoot().shadcnTheme {
+        uiTestSession(
+            width = 320f,
+            height = 600f,
+            font = BitmapFont(),
+            rootProvider = { content -> shadcnTheme { content() } },
+        ) {
+            fun frame(): List<UiDrawPrimitive> = frame {
                 column(modifier = Modifier.width(columnWidth.dp)) {
                     shadcnAccordion(
                         items = items,
@@ -63,32 +64,31 @@ class ShadcnAccordionBodyOverlapProbeTest {
                         shadcnText(longBodies.getValue(item))
                     }
                 }
-            }
-            return ui.endFrame()
-        }
+            }.primitives
 
-        // Settle with item-1 open, then click item-2 (real accordion mutex: item-1 collapses,
-        // item-2 expands in the same frame) and sample every frame of the transition.
-        repeat(10) { frame() }
-        selectedId = "item-2"
-        repeat(20) { frameIndex ->
-            val primitives = frame()
-            val glyphs = primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
-            val maxGlyphRight = glyphs.maxOfOrNull { it.x + it.w } ?: 0f
-            check(maxGlyphRight <= columnWidth + 0.5f) {
-                "frame $frameIndex: body text glyph right edge $maxGlyphRight exceeds the " +
-                    "column width $columnWidth -- text claimed a slot wider than its column " +
-                    "and will visually spill into whatever sits next to it."
-            }
+            // Settle with item-1 open, then click item-2 (real accordion mutex: item-1 collapses,
+            // item-2 expands in the same frame) and sample every frame of the transition.
+            repeat(10) { frame() }
+            selectedId = "item-2"
+            repeat(20) { frameIndex ->
+                val primitives = frame()
+                val glyphs = primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
+                val maxGlyphRight = glyphs.maxOfOrNull { it.x + it.w } ?: 0f
+                check(maxGlyphRight <= columnWidth + 0.5f) {
+                    "frame $frameIndex: body text glyph right edge $maxGlyphRight exceeds the " +
+                        "column width $columnWidth -- text claimed a slot wider than its column " +
+                        "and will visually spill into whatever sits next to it."
+                }
 
-            val inspection = inspectUiFrame(
-                primitives,
-                frame = UiBounds(0f, 0f, 320f, 600f),
-                font = BitmapFont(),
-            )
-            val boundsIssues = inspection.issues.filter { it.kind != UiInspectionIssueKind.GlyphMissingFont }
-            check(boundsIssues.isEmpty()) {
-                "frame $frameIndex: primitives escaped their clip/frame: $boundsIssues"
+                val inspection = inspectUiFrame(
+                    primitives,
+                    frame = UiBounds(0f, 0f, 320f, 600f),
+                    font = BitmapFont(),
+                )
+                val boundsIssues = inspection.issues.filter { it.kind != UiInspectionIssueKind.GlyphMissingFont }
+                check(boundsIssues.isEmpty()) {
+                    "frame $frameIndex: primitives escaped their clip/frame: $boundsIssues"
+                }
             }
         }
     }
