@@ -21,15 +21,12 @@ class SliderEnabledTest {
     private fun dragToRightEdge(enabled: Boolean): Float {
         var value = 0f
         uiTestSession(width = 200f, height = 100f) {
-            fun step(down: Boolean, x: Float) = frame(x = x, y = 36f, down = down) {
+            drag(20f, 36f, 180f, 36f) {
                 value = primitive.context.createAbsolute(x = 20f, y = 20f).slider(
                     "sl", min = 0f, max = 100f, value = value,
                     modifier = Modifier.width(160f.px).height(32f.px), enabled = enabled,
                 )
             }
-            step(true, 20f)
-            step(true, 180f)
-            step(false, 180f)
         }
         return value
     }
