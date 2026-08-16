@@ -35,10 +35,10 @@ private val GltfJson = Json { ignoreUnknownKeys = true }
  * only. Deliberately narrow scope for this MVP phase (per docs/MVP_PLAN.md's Phase 4
  * checklist: "cube can be hardcoded, but the first real model needs this. Full glTF
  * (skinning, animation) is post-MVP"):
- * - **No external `.bin` buffer files** -- only base64 data URIs are decoded. A real asset
- *   pipeline would resolve an external `uri` relative to the `.gltf`'s own resource path
- *   via `readResourceBytes`; deferred since a self-contained (embedded-buffer) `.gltf` is
- *   sufficient to prove the accessor/bufferView decoding this parser exists for.
+ * - **External `.bin`/image files** are supported via the `externalResources` parameter --
+ *   a `uri -> bytes` map the caller pre-fetches (e.g. with `readResourceBytes`, which is
+ *   `suspend`, so this parser stays synchronous). Use [externalUris] to find out which URIs
+ *   a document references before parsing it.
  * - **No materials or textures beyond a base color texture** -- [parse] reads only the first
  *   mesh's first primitive's `POSITION`/`NORMAL`/`COLOR_0`/`TEXCOORD_0`/`JOINTS_0`/`WEIGHTS_0`
  *   attributes, its index accessor, and (if present) its material's embedded `baseColorTexture`
@@ -52,15 +52,26 @@ private val GltfJson = Json { ignoreUnknownKeys = true }
  *   practice.
  */
 object GltfParser {
-    fun parse(json: String): GltfMesh {
+    fun parse(json: String, externalResources: Map<String, ByteArray> = emptyMap()): GltfMesh {
         val document = GltfJson.decodeFromString(GltfDocument.serializer(), json)
         val mesh = document.meshes.firstOrNull()
             ?: error("glTF document has no meshes.")
         val primitive = mesh.primitives.firstOrNull()
             ?: error("glTF mesh '${mesh.name}' has no primitives.")
 
-        val buffers = document.buffers.map(::decodeBuffer)
-        return readPrimitive(document, buffers, primitive)
+        val buffers = document.buffers.map { decodeBuffer(it, externalResources) }
+        return readPrimitive(document, buffers, primitive, externalResources)
+    }
+
+    /** Every buffer/image `uri` in [json] that isn't a `data:` URI -- i.e. everything the
+     * caller needs to fetch (e.g. via `readResourceBytes`, relative to the `.gltf`'s own
+     * resource path) and pass back in as `externalResources` before calling [parse]/
+     * [parseScene]/[parseSkinned]. */
+    fun externalUris(json: String): List<String> {
+        val document = GltfJson.decodeFromString(GltfDocument.serializer(), json)
+        val bufferUris = document.buffers.mapNotNull { it.uri }
+        val imageUris = document.images.mapNotNull { it.uri }
+        return (bufferUris + imageUris).filterNot { it.startsWith("data:") }.distinct()
     }
 
     /**
@@ -71,10 +82,10 @@ object GltfParser {
      * resolves buffers with no `uri` (i.e. glTF's "use the GLB BIN chunk" convention) in
      * addition to base64 data URIs.
      */
-    fun parseScene(bytes: ByteArray): LoadedScene {
+    fun parseScene(bytes: ByteArray, externalResources: Map<String, ByteArray> = emptyMap()): LoadedScene {
         val (json, glbBin) = readGlbContainer(bytes)
         val document = GltfJson.decodeFromString(GltfDocument.serializer(), json)
-        val buffers = document.buffers.map { decodeBufferOrGlbBin(it, glbBin) }
+        val buffers = document.buffers.map { decodeBufferOrGlbBin(it, glbBin, externalResources) }
 
         val loadedMeshes = mutableListOf<LoadedMesh>()
 
@@ -88,7 +99,7 @@ object GltfParser {
                     error("glTF mesh index $meshIndex is out of range (${document.meshes.size} meshes).")
                 }
                 val primitives = meshDef.primitives.map { primitive ->
-                    val raw = readPrimitive(document, buffers, primitive)
+                    val raw = readPrimitive(document, buffers, primitive, externalResources)
                     LoadedPrimitive(raw.toInterleavedPositionColorUv(), raw.indices, world)
                 }
                 loadedMeshes += LoadedMesh(meshDef.name ?: "", primitives)
@@ -107,6 +118,7 @@ object GltfParser {
         document: GltfDocument,
         buffers: List<ByteArray>,
         primitive: GltfPrimitive,
+        externalResources: Map<String, ByteArray> = emptyMap(),
     ): GltfMesh {
         val positionAccessor = primitive.attributes.position
             ?: error("glTF primitive is missing a POSITION attribute.")
@@ -128,7 +140,7 @@ object GltfParser {
         val jointWeights = primitive.attributes.weights0?.let {
             readFloatAccessor(document, buffers, it, componentsPerElement = 4)
         }
-        val baseColorImageBytes = readBaseColorImageBytes(document, primitive)
+        val baseColorImageBytes = readBaseColorImageBytes(document, primitive, externalResources)
 
         return GltfMesh(
             positions,
@@ -143,12 +155,14 @@ object GltfParser {
     }
 
     /** Resolves [primitive]'s material -> `pbrMetallicRoughness.baseColorTexture` -> texture ->
-     * image, returning that image's still-encoded bytes (decoded from its base64 data URI) --
-     * `null` at any missing link in that chain (no material, no base color texture, an
-     * external/non-embedded image URI). */
+     * image, returning that image's still-encoded bytes -- decoded from its base64 data URI,
+     * or looked up in [externalResources] for an external image `uri` -- `null` at any missing
+     * link in that chain (no material, no base color texture, or an external image whose bytes
+     * the caller didn't provide). */
     private fun readBaseColorImageBytes(
         document: GltfDocument,
         primitive: GltfPrimitive,
+        externalResources: Map<String, ByteArray>,
     ): ByteArray? {
         val uri = primitive.material
             ?.let { document.materials.getOrNull(it) }
@@ -159,7 +173,7 @@ object GltfParser {
             ?.let { document.images.getOrNull(it) }
             ?.uri
             ?: return null
-        return if (uri.startsWith("data:")) decodeBase64DataUri(uri) else null // External image files aren't supported.
+        return if (uri.startsWith("data:")) decodeBase64DataUri(uri) else externalResources[uri]
     }
 
     /**
@@ -169,9 +183,9 @@ object GltfParser {
      * this reads the whole node hierarchy -- a skin's joints are node indices, so the demo layer
      * needs the real scene graph, not just one primitive's raw attributes.
      */
-    fun parseSkinned(json: String): LoadedSkinnedScene {
+    fun parseSkinned(json: String, externalResources: Map<String, ByteArray> = emptyMap()): LoadedSkinnedScene {
         val document = GltfJson.decodeFromString(GltfDocument.serializer(), json)
-        val buffers = document.buffers.map(::decodeBuffer)
+        val buffers = document.buffers.map { decodeBuffer(it, externalResources) }
 
         val nodes = document.nodes.map { node ->
             val explicitMatrix = node.matrix?.let { m ->
@@ -194,7 +208,7 @@ object GltfParser {
         val meshes = document.meshes.map { meshDef ->
             val primitive = meshDef.primitives.firstOrNull()
                 ?: error("glTF mesh '${meshDef.name}' has no primitives.")
-            readPrimitive(document, buffers, primitive)
+            readPrimitive(document, buffers, primitive, externalResources)
         }
         val skins = document.skins.indices.map { parseSkin(document, buffers, it) }
         val animations = document.animations.indices.map { parseAnimation(document, buffers, it) }
@@ -295,23 +309,35 @@ object GltfParser {
         return (json ?: error("glTF binary (GLB) file has no JSON chunk.")) to bin
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
-    private fun decodeBuffer(buffer: GltfBuffer): ByteArray {
+    /** Decodes [buffer]'s `uri` -- a base64 data URI, or an external file looked up in
+     * [externalResources] (see [externalUris]). */
+    private fun decodeBuffer(buffer: GltfBuffer, externalResources: Map<String, ByteArray>): ByteArray {
         val uri = buffer.uri
-            ?: error(
-                "glTF buffer has no uri -- external .bin buffers are not supported by " +
-                    "this parser (only base64 data URIs).",
-            )
-        return decodeBase64DataUri(uri)
+            ?: error("glTF buffer has no uri -- only GLB-embedded (BIN chunk) buffers may omit it.")
+        return resolveUri(uri, externalResources)
     }
 
     /** Like [decodeBuffer], but a buffer with no `uri` resolves to [glbBin] (the GLB
      * container's BIN chunk) instead of erroring -- per the glTF 2.0 spec's "GLB-stored
      * Buffer" convention. */
-    private fun decodeBufferOrGlbBin(buffer: GltfBuffer, glbBin: ByteArray?): ByteArray {
+    private fun decodeBufferOrGlbBin(
+        buffer: GltfBuffer,
+        glbBin: ByteArray?,
+        externalResources: Map<String, ByteArray>,
+    ): ByteArray {
         val uri = buffer.uri ?: return glbBin
             ?: error("glTF buffer has no uri and the GLB container has no BIN chunk.")
-        return decodeBase64DataUri(uri)
+        return resolveUri(uri, externalResources)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    private fun resolveUri(uri: String, externalResources: Map<String, ByteArray>): ByteArray {
+        if (uri.startsWith("data:")) return decodeBase64DataUri(uri)
+        return externalResources[uri]
+            ?: error(
+                "glTF buffer uri '$uri' is external and wasn't provided in externalResources -- " +
+                    "fetch it (see externalUris) and pass its bytes in before parsing.",
+            )
     }
 
     @OptIn(ExperimentalEncodingApi::class)
