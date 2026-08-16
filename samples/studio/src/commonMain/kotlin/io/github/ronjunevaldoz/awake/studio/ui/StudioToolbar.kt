@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.ui
 
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
@@ -15,7 +16,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.padding
@@ -33,16 +38,11 @@ private val BAR_INSET = 12f.dp
  * bottom border. Replaces the old floating [shadcnCard] toolbar that used to sit inside the
  * viewport. */
 internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
-    shadcnSurface(
-        id = "studio-top-bar",
-        modifier = Modifier.fillMaxWidth(),
-        variant = ShadcnSurfaceVariant.Muted,
-    ) {
+    barBand(id = "studio-top-bar", height = TOP_BAR_HEIGHT) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.fillMaxWidth().height(TOP_BAR_HEIGHT)
-                .padding(BAR_INSET, 0f.dp),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         ) {
             shadcnText("Awake Studio")
             shadcnButton(
@@ -62,19 +62,36 @@ internal fun UiScope.drawStudioTopBar(onPlay: () -> Unit) {
  * not read live from the running window -- nothing in this `ui` package can reach that without
  * depending on `app`. */
 internal fun UiScope.drawStudioStatusBar() {
-    shadcnSurface(
-        id = "studio-status-bar",
-        modifier = Modifier.fillMaxWidth(),
-        variant = ShadcnSurfaceVariant.Muted,
-    ) {
+    barBand(id = "studio-status-bar", height = STATUS_BAR_HEIGHT) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.fillMaxWidth().height(STATUS_BAR_HEIGHT)
-                .padding(BAR_INSET, 0f.dp),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         ) {
             shadcnText("Edit mode", tone = ShadcnTextTone.Muted)
             shadcnBadge(id = "studio-status-backend", label = "Vulkan", variant = ShadcnBadgeVariant.Outline)
         }
     }
+}
+
+/**
+ * A full-bleed shell band: exactly [height] tall, muted, square-cornered, inset horizontally
+ * only.
+ *
+ * Not `shadcnSurface`: that is a CARD (rounded lg, 16dp padding on every side), and wrapping a
+ * fixed-height row in one made each band 32px taller than the constant that names it --
+ * `drawStudioShellBody` subtracts those constants to size the workspace, so the shell overflowed
+ * its frame by exactly the two bands' padding (64px) and pushed the status bar off-screen.
+ * A band's declared height must BE its rendered height.
+ */
+private fun UiScope.barBand(id: String, height: Dp, content: ColumnScope.() -> Unit) {
+    surface(
+        id = id,
+        modifier = Modifier.fillMaxWidth().height(height),
+        style = Style {
+            background(StudioTheme.colors.muted)
+            shape(0f.dp)
+            contentPadding(BAR_INSET, 0f.dp, BAR_INSET, 0f.dp)
+        },
+    ) { content() }
 }
