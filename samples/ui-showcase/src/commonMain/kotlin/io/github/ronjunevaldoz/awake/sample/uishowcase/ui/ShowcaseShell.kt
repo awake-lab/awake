@@ -18,12 +18,18 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
+import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.heightIn
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.width
+
+/** Floor for a page hero so short samples keep the preview card a consistent size. */
+private val HERO_MIN_HEIGHT = 160f.dp
 
 internal fun ColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
     var selectedPage by rememberStateValue("ui-showcase-page", "entry") {
@@ -95,7 +101,15 @@ internal fun ColumnScope.renderUiShowcasePagePreview(
     page: ShowcasePage,
     state: UiShowcaseRuntimeState,
 ) {
-    page.hero(this, state)
+    // The hero owns the full width of the preview card and never collapses below
+    // [HERO_MIN_HEIGHT]. Left to wrap its content, a one-widget hero (a lone button, a single
+    // avatar row) shrank the card around it, so the catalog's preview area jumped size from
+    // page to page and short heroes read as broken rather than compact.
+    column(
+        modifier = Modifier.fillMaxWidth().heightIn(min = HERO_MIN_HEIGHT),
+    ) {
+        page.hero(this, state)
+    }
     page.variants?.let { renderer ->
         spacer(Modifier.height(16f.dp))
         shadcnSectionTitle("Variants")
