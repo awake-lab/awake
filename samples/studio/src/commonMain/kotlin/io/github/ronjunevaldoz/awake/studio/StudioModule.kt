@@ -43,6 +43,9 @@ import io.github.ronjunevaldoz.awake.studio.gizmo.ViewportProjection
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.studio.ui.drawStudioShell
+import kotlin.math.asin
+import kotlin.math.atan2
+import kotlin.math.sqrt
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /** mvp(16) + lightDirection(4) + lightColor(4) + lightMvp(16) + model(16) + cameraPosition(4)
@@ -157,6 +160,13 @@ private class PlayModeSystem(private val delegate: System, private val store: St
  * The viewport rect comes from [StudioViewportRect], written by the shell during layout -- the
  * same rect the scene is rendered into, so a pick can never disagree with what the user sees.
  */
+/** Below this the authored eye sits on the target and describes no direction to orbit from. */
+private const val MIN_AUTHORED_DISTANCE = 1e-4f
+
+/** Standing eye height above the aim point, so first person starts outside whatever it was
+ * looking at rather than inside it. */
+private const val FIRST_PERSON_EYE_HEIGHT = 1.8f
+
 private class StudioGizmoSystem(
     private val runtime: SceneGameRuntime,
     private val store: StudioStore,
@@ -295,15 +305,11 @@ private class StudioExampleDriverSystem(
         // Transform target for every mode, so the camera entity itself owns a stable target
         // initialized from the document's original aim point.
         val target = world.ensure(entity, ::Transform)
-        if (needsTargetInitialization) {
-            target.position.set(renderingCamera.camera.center)
-            // CameraComponent defaults offsetPosition to a 1.8 eye height, which is right for a
-            // character controller and wrong here: ThirdPerson aims at target + offset, so the
-            // orbit centre sat 1.8 units ABOVE the model and every mode framed it low. Studio's
-            // target is the scene's aim point, not a pair of feet.
-            camera.offsetPosition.set(0f, 0f, 0f)
-        }
+        if (needsTargetInitialization) target.position.set(renderingCamera.camera.center)
         camera.targetEntity = entity
+        if (needsTargetInitialization) {
+            seedFromAuthoredPose(camera, renderingCamera.camera)
+        }
         val stateBeforeSync = store.state.value.camera
         val sameCamera = syncedCameraEntity == entity
         val modeChangedByInput = sameCamera &&
@@ -312,6 +318,7 @@ private class StudioExampleDriverSystem(
         if (modeChangedByInput) store.dispatch(StudioContract.Intent.SetCameraMode(camera.mode))
 
         val state = store.state.value.camera
+        applyModeOffset(camera, state.mode)
         // Store changes originate in studio's header/menu. Input changes originate in the
         // engine's CameraInputSystem. Keep both paths live without reapplying stale yaw, pitch,
         // or distance over CameraSystem's per-mode gesture state every frame.
@@ -329,6 +336,51 @@ private class StudioExampleDriverSystem(
             StudioContract.Projection.Perspective -> CoreCamera.Projection.Perspective
             StudioContract.Projection.Orthographic -> CoreCamera.Projection.Orthographic
         }
+    }
+
+    /**
+     * The eye offset each mode actually wants.
+     *
+     * `CameraComponent` defaults it to a 1.8 eye height, which is a character controller's, and
+     * the two modes read it for opposite purposes. The orbit modes aim at `target + offset`, so a
+     * non-zero offset put the orbit centre 1.8 units ABOVE the model and framed every scene low.
+     * FirstPerson instead PLACES the eye there -- so zeroing it for everything, which is what
+     * fixed the orbit framing, dropped the first-person eye exactly onto the orbit target and put
+     * the viewer inside the cube it was aiming at.
+     */
+    private fun applyModeOffset(camera: CameraComponent, mode: CameraMode) {
+        if (mode == CameraMode.FirstPerson) {
+            camera.offsetPosition.set(0f, FIRST_PERSON_EYE_HEIGHT, 0f)
+        } else {
+            camera.offsetPosition.set(0f, 0f, 0f)
+        }
+    }
+
+    /**
+     * Adopts the scene document's own camera as the starting orbit.
+     *
+     * `CameraSystem` recomputes the eye from yaw/pitch/distance every frame, so an authored eye
+     * is overwritten on the first frame and the scene is framed by whatever the mode's defaults
+     * happen to be -- rotating-cube authors an eye 10 units back and got 4.6, well inside its own
+     * ground plane. Converting that eye into the angles the system actually reads makes the first
+     * frame match the document, and leaves the camera fully input-driven from there.
+     *
+     * Clears `needsReset` because setting the mode above raised it, and the reset it asks for is
+     * exactly the mode-default pose being replaced here.
+     */
+    private fun seedFromAuthoredPose(camera: CameraComponent, authored: CoreCamera) {
+        val offsetX = authored.eye.x - authored.center.x
+        val offsetY = authored.eye.y - authored.center.y
+        val offsetZ = authored.eye.z - authored.center.z
+        val distance = sqrt(offsetX * offsetX + offsetY * offsetY + offsetZ * offsetZ)
+        if (distance < MIN_AUTHORED_DISTANCE) return
+        // CameraSystem places the eye at `center - forward * distance`, so the authored offset is
+        // that forward negated -- see its own forwardFrom for the basis these angles feed.
+        camera.pitch = asin((-offsetY / distance).coerceIn(-1f, 1f))
+        camera.yaw = atan2(-offsetX, offsetZ)
+        camera.maxDistance = maxOf(camera.maxDistance, distance)
+        camera.distance = distance
+        camera.needsReset = false
     }
 
     /** Mirrors `RenderSystem.primaryCamera`, but returns the ENTITY: the camera components live
