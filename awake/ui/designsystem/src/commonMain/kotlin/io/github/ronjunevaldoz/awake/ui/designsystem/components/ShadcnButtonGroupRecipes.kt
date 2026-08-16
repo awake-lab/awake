@@ -51,21 +51,6 @@ internal fun UiScope.currentLocal(
     local: UiLocal<ShadcnButtonGroupContext?>,
 ): ShadcnButtonGroupContext? = primitive.context.current(local)
 
-enum class ShadcnButtonGroupPosition {
-    First,
-    Middle,
-    Last,
-    Single,
-}
-
-fun UiScope.buttonGroupItemStyle(
-    position: ShadcnButtonGroupPosition = ShadcnButtonGroupPosition.Middle,
-): Style = Style {
-    // Buttons inside a joined group have 0dp radius so their active/hover fills
-    // cleanly occupy their segment without rounded inner gaps against adjacent buttons.
-    shape(0f.dp)
-}
-
 /**
  * shadcn's `ButtonGroup`: buttons joined into one control, sharing a single border and outer
  * radius.
@@ -123,8 +108,16 @@ private fun UiScope.groupSurface(
         foreground(themeValues.colors.cardForeground)
         border(1f.dp, themeValues.colors.border)
         shape(themeValues.shapes.md)
-        // No padding: the children ARE the control's edges, which is what makes the group read
-        // as one button rather than a card with buttons in it.
+        // Zero, as in shadcn: the children ARE the control's edges.
+        //
+        // Known limit: a filled end segment (Primary, active, hover) is a square rect whose
+        // corners overhang the group's rounded arc. shadcn strips the adjacent corners per child
+        // (`[&>*:not(:first-child)]:rounded-l-none`), which this engine cannot express --
+        // UiShapeSpec.RoundedRectangle carries one uniform radius, and the clip that would
+        // otherwise mask it is a rectangular scissor in both backends (vkCmdSetScissor /
+        // setScissorRect). A hairline inset hides it, but padding here makes the vertical group
+        // expand instead of wrapping its content (ShadcnButtonGroupTest covers that), so the
+        // overhang stays until the shape stack grows per-corner radii.
         contentPadding(0f.dp)
     },
 ) { content() }
