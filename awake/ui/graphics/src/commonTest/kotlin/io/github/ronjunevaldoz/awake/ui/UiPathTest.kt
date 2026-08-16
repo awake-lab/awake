@@ -240,4 +240,50 @@ class UiPathTest {
             fitted.commands,
         )
     }
+
+    /**
+     * A segmented control's leading member: rounded on the outside, square where it meets its
+     * neighbour. One uniform radius cannot say that, so a zero corner must emit the corner POINT
+     * and no arc -- otherwise the member's fill overhangs the group's rounded border.
+     */
+    @Test
+    fun roundedCornersRoundsOnlyTheCornersGivenARadius() {
+        val bounds = UiBounds(0f, 0f, 40f, 20f)
+        val path = UiShapeSpec.RoundedCorners(
+            topLeft = 6f.dp,
+            topRight = 0f.dp,
+            bottomRight = 0f.dp,
+            bottomLeft = 6f.dp,
+        ).toPath(bounds)
+
+        val arcs = path.commands.filterIsInstance<UiPathCommand.ArcTo>()
+        assertEquals(2, arcs.size, "only the two left corners round")
+
+        val points = path.commands.mapNotNull {
+            when (it) {
+                is UiPathCommand.MoveTo -> it.x to it.y
+                is UiPathCommand.LineTo -> it.x to it.y
+                else -> null
+            }
+        }
+        assertTrue(points.any { it == 40f to 0f }, "square top-right reaches the corner point")
+        assertTrue(points.any { it == 40f to 20f }, "square bottom-right reaches the corner point")
+        assertTrue(points.none { it.first == 0f && it.second == 0f }, "rounded top-left is cut")
+    }
+
+    @Test
+    fun roundedCornersClampsEachCornerIndependently() {
+        val path = UiShapeSpec.RoundedCorners(
+            topLeft = 999f.dp,
+            topRight = 0f.dp,
+            bottomRight = 0f.dp,
+            bottomLeft = 0f.dp,
+        ).toPath(UiBounds(0f, 0f, 40f, 20f))
+
+        // Clamped to half the SHORTER side (10), so the arc's box is that diameter -- an
+        // over-large corner cannot eat the edge its neighbour needs.
+        val arc = path.commands.filterIsInstance<UiPathCommand.ArcTo>().single()
+        assertEquals(20f, arc.right - arc.left)
+        assertEquals(20f, arc.bottom - arc.top)
+    }
 }

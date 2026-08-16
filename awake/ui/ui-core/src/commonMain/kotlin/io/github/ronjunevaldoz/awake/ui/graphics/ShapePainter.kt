@@ -47,6 +47,7 @@ private fun roundedRadiusFor(slot: UiBounds, radiusPx: Float, shapeSpec: UiShape
         UiShapeSpec.Pill -> minOf(slot.width, slot.height) / 2f
         UiShapeSpec.Circle -> if (slot.width == slot.height) slot.width / 2f else 0f
         is UiShapeSpec.CutCorner -> 0f
+        is UiShapeSpec.RoundedCorners -> 0f
     }
 
 private fun UiPrimitiveScope.pathOnlyShape(slot: UiBounds, shapeSpec: UiShapeSpec?): UiShapeSpec? =
@@ -54,6 +55,8 @@ private fun UiPrimitiveScope.pathOnlyShape(slot: UiBounds, shapeSpec: UiShapeSpe
         null, UiShapeSpec.Rectangle, UiShapeSpec.Pill, is UiShapeSpec.RoundedRectangle -> null
         UiShapeSpec.Circle -> if (slot.width == slot.height) null else shapeSpec
         is UiShapeSpec.CutCorner -> shapeSpec
+        // Always a path: RoundedQuad's SDF takes one radius, so per-corner has no primitive.
+        is UiShapeSpec.RoundedCorners -> shapeSpec
     }
 
 private fun UiPrimitiveScope.emitFillShape(

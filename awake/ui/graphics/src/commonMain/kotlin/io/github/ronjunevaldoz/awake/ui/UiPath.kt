@@ -218,6 +218,22 @@ sealed interface UiShapeSpec {
     data object Circle : UiShapeSpec
     data object Pill : UiShapeSpec
     data class CutCorner(val size: Dp) : UiShapeSpec
+
+    /**
+     * A rectangle whose corners round independently -- Compose's `RoundedCornerShape(topStart,
+     * topEnd, bottomEnd, bottomStart)`.
+     *
+     * A segmented control needs its end members rounded on the outside and square where they meet
+     * a neighbour; one uniform radius cannot say that. Rendered as a filled path rather than a
+     * [UiDrawPrimitive.RoundedQuad], whose SDF carries a single radius -- and deliberately not by
+     * clipping the group, which would eat children's focus rings.
+     */
+    data class RoundedCorners(
+        val topLeft: Dp,
+        val topRight: Dp,
+        val bottomRight: Dp,
+        val bottomLeft: Dp,
+    ) : UiShapeSpec
 }
 
 fun UiShapeSpec.toPath(bounds: UiBounds, fillRule: UiFillRule = UiFillRule.NonZero): UiPath = when (this) {
@@ -226,6 +242,7 @@ fun UiShapeSpec.toPath(bounds: UiBounds, fillRule: UiFillRule = UiFillRule.NonZe
     UiShapeSpec.Circle -> circlePath(bounds, fillRule)
     UiShapeSpec.Pill -> pillPath(bounds, fillRule)
     is UiShapeSpec.CutCorner -> cutCornerPath(bounds, size, fillRule)
+    is UiShapeSpec.RoundedCorners -> roundedCornersPath(bounds, this, fillRule)
 }
 
 /**
@@ -245,6 +262,13 @@ fun UiShapeSpec.safeInteriorMargin(bounds: UiBounds): Float = when (this) {
     // pillPath below) -- same margin formula, not a separate derivation.
     UiShapeSpec.Circle, UiShapeSpec.Pill -> min(bounds.width, bounds.height) / 2f
     is UiShapeSpec.CutCorner -> size.toPx().coerceIn(0f, min(bounds.width, bounds.height) / 2f)
+    // The largest corner governs -- the margin has to clear every one of them.
+    is UiShapeSpec.RoundedCorners -> maxOf(
+        topLeft.toPx(),
+        topRight.toPx(),
+        bottomRight.toPx(),
+        bottomLeft.toPx(),
+    ).coerceIn(0f, min(bounds.width, bounds.height) / 2f)
 }
 
 fun UiPath.bounds(): UiBounds {
@@ -1542,6 +1566,43 @@ private fun roundedRectanglePath(bounds: UiBounds, radius: Dp, fillRule: UiFillR
         arcTo(left, bottom - 2f * r, left + 2f * r, bottom, 90f, 90f)
         lineTo(left, top + r)
         arcTo(left, top, left + 2f * r, top + 2f * r, 180f, 90f)
+        close()
+    }
+}
+
+/**
+ * [roundedRectanglePath] with a radius per corner. Each is clamped to half the shorter side on
+ * its own, so one large corner cannot eat the edge its neighbour needs; a zero radius emits the
+ * corner point.
+ */
+private fun roundedCornersPath(
+    bounds: UiBounds,
+    spec: UiShapeSpec.RoundedCorners,
+    fillRule: UiFillRule,
+): UiPath {
+    val limit = min(bounds.width, bounds.height) / 2f
+    val topLeft = spec.topLeft.toPx().coerceIn(0f, limit)
+    val topRight = spec.topRight.toPx().coerceIn(0f, limit)
+    val bottomRight = spec.bottomRight.toPx().coerceIn(0f, limit)
+    val bottomLeft = spec.bottomLeft.toPx().coerceIn(0f, limit)
+
+    val left = bounds.x
+    val top = bounds.y
+    val right = bounds.x + bounds.width
+    val bottom = bounds.y + bounds.height
+
+    return uiPath(fillRule) {
+        moveTo(left + topLeft, top)
+        lineTo(right - topRight, top)
+        if (topRight > 0f) arcTo(right - 2f * topRight, top, right, top + 2f * topRight, -90f, 90f)
+        lineTo(right, bottom - bottomRight)
+        if (bottomRight > 0f) {
+            arcTo(right - 2f * bottomRight, bottom - 2f * bottomRight, right, bottom, 0f, 90f)
+        }
+        lineTo(left + bottomLeft, bottom)
+        if (bottomLeft > 0f) arcTo(left, bottom - 2f * bottomLeft, left + 2f * bottomLeft, bottom, 90f, 90f)
+        lineTo(left, top + topLeft)
+        if (topLeft > 0f) arcTo(left, top, left + 2f * topLeft, top + 2f * topLeft, 180f, 90f)
         close()
     }
 }
