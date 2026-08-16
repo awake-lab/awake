@@ -23,3 +23,20 @@ data class TextureAsset(val data: ByteArray, val width: Int, val height: Int) {
         return result
     }
 }
+
+/**
+ * The rest of a glTF metallic-roughness material's texture channels, alongside
+ * [io.github.ronjunevaldoz.awake.render.renderer.Renderer.createMaterial]'s existing `texture`
+ * (base color) parameter -- each `null` unless
+ * the source material has that channel (see
+ * [io.github.ronjunevaldoz.awake.asset.gltf.GltfMesh]'s `metallicRoughnessImageBytes`/
+ * `normalImageBytes`/`occlusionImageBytes`/`emissiveImageBytes`, which this bundles after a
+ * caller decodes them the same way it decodes `baseColorImageBytes` into the `texture`
+ * parameter today). A backend without full PBR support is free to ignore whichever fields it
+ * doesn't sample. */
+data class PbrTextureSet(
+    val metallicRoughness: TextureAsset? = null,
+    val normal: TextureAsset? = null,
+    val occlusion: TextureAsset? = null,
+    val emissive: TextureAsset? = null,
+)

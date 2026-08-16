@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
+import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -330,6 +331,7 @@ class Renderer(
         texture: TextureAsset?,
         renderTarget: RenderTarget?,
         uniformFloatCount: Int,
+        pbrTextures: PbrTextureSet?,
     ): RenderMaterial {
         require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
         val material = Material(graphicsDevice, uniformFloatCount, shadowMap)
