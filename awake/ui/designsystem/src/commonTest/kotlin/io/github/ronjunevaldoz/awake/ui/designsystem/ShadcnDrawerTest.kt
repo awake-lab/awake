@@ -21,15 +21,16 @@ class ShadcnDrawerTest {
         ensureShadcnTestIconsInitialized()
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
         ui.beginFrame(400f, 600f, UiInputState())
 
         var dismissed = false
-        ui.createUiScope(UiBounds(0f, 0f, 400f, 600f)).shadcnDrawer(
-            id = "drawer-1",
-            expanded = true,
-            onDismissRequest = { dismissed = true },
-        ) { text("Settings Drawer\nDrawer Content") }
+        ui.createUiScope(UiBounds(0f, 0f, 400f, 600f)).shadcnTheme {
+            shadcnDrawer(
+                id = "drawer-1",
+                expanded = true,
+                onDismissRequest = { dismissed = true },
+            ) { text("Settings Drawer\nDrawer Content") }
+        }
 
         assertFalse(dismissed)
     }
@@ -42,14 +43,15 @@ class ShadcnDrawerTest {
         ensureShadcnTestIconsInitialized()
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
         ui.beginFrame(400f, 600f, UiInputState())
 
-        ui.createUiScope(UiBounds(0f, 0f, 400f, 600f)).shadcnDrawer(
-            id = "drawer-close",
-            expanded = true,
-            onDismissRequest = {},
-        ) { text("Drawer Content") }
+        ui.createUiScope(UiBounds(0f, 0f, 400f, 600f)).shadcnTheme {
+            shadcnDrawer(
+                id = "drawer-close",
+                expanded = true,
+                onDismissRequest = {},
+            ) { text("Drawer Content") }
+        }
 
         val primitives = ui.finishFrame().primitives
         assertTrue(

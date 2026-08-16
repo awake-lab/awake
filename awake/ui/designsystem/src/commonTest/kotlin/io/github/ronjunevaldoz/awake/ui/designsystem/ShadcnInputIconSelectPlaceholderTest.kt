@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
@@ -23,7 +22,7 @@ class ShadcnInputIconSelectPlaceholderTest {
 
     @Test
     fun leadingIconDoesNotOverlapTypedText() {
-        val semantics = renderUiComponent(width = 300f, height = 80f, theme = ShadcnTheme, font = BitmapFont()) {
+        val semantics = renderShadcnComponent(width = 300f, height = 80f, font = BitmapFont()) {
             shadcnInput(
                 id = "search",
                 value = "hello",
@@ -45,7 +44,7 @@ class ShadcnInputIconSelectPlaceholderTest {
     fun visualTransformationMasksDisplayButNotStoredValue() {
         val real = "secret"
         var returned = ""
-        val semantics = renderUiComponent(width = 300f, height = 80f, theme = ShadcnTheme, font = BitmapFont()) {
+        val semantics = renderShadcnComponent(width = 300f, height = 80f, font = BitmapFont()) {
             returned = shadcnInput(
                 id = "password",
                 value = real,
@@ -64,7 +63,7 @@ class ShadcnInputIconSelectPlaceholderTest {
 
     @Test
     fun selectWithNullIndexShowsPlaceholder() {
-        val semantics = renderUiComponent(width = 300f, height = 200f, theme = ShadcnTheme, font = BitmapFont()) {
+        val semantics = renderShadcnComponent(width = 300f, height = 200f, font = BitmapFont()) {
             shadcnSelect(
                 id = "fruit",
                 options = listOf("Apple", "Banana"),

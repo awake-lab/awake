@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
@@ -18,7 +17,7 @@ class ShadcnBadgeIntrinsicWidthTest {
 
     @Test
     fun columnBadgeUsesNaturalWidthInsteadOfSurfaceWidth() {
-        val frame = renderUiComponent(width = 200f, height = 80f, theme = ShadcnTheme, font = BitmapFont()) {
+        val frame = renderShadcnComponent(width = 200f, height = 80f, font = BitmapFont()) {
             column(modifier = Modifier.fillMaxSize()) {
                 shadcnBadge(
                     id = "column-badge",
@@ -39,7 +38,7 @@ class ShadcnBadgeIntrinsicWidthTest {
 
     @Test
     fun rootBadgeKeepsItsCaptionInsideTheSurface() {
-        val frame = renderUiComponent(width = 200f, height = 80f, theme = ShadcnTheme, font = BitmapFont()) {
+        val frame = renderShadcnComponent(width = 200f, height = 80f, font = BitmapFont()) {
             shadcnBadge(
                 id = "root-badge",
                 label = "INPUTS",

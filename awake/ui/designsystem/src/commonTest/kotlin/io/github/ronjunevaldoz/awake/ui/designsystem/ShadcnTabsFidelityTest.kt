@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.UiTabItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTabs
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -24,7 +23,7 @@ class ShadcnTabsFidelityTest {
 
     @Test
     fun shadcnTabsRendersTrackAndTriggers() {
-        val frame = renderUiComponent(width = 400f, height = 200f, theme = ShadcnTheme, font = BitmapFont()) {
+        val frame = renderShadcnComponent(width = 400f, height = 200f, font = BitmapFont()) {
             column(Modifier.fillMaxSize()) {
                 shadcnTabs(
                     id = "tabs-fidelity",

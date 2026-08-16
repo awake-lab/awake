@@ -81,14 +81,15 @@ class ShadcnDesignSystemTest {
     fun recipesComposeThroughPublicHeadlessScope() {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
         ui.beginFrame(320f, 200f, UiInputState())
-        ui.headlessRoot().column(Modifier.fillMaxSize()) {
-            shadcnSurface(id = "surface", modifier = Modifier.width(280f.dp)) {
-                shadcnBadge(id = "status", label = "READY", variant = ShadcnBadgeVariant.Primary)
-                shadcnButton(id = "launch", label = "Launch", variant = ShadcnButtonVariant.Secondary)
+        ui.headlessRoot().shadcnTheme {
+            column(Modifier.fillMaxSize()) {
+                shadcnSurface(id = "surface", modifier = Modifier.width(280f.dp)) {
+                    shadcnBadge(id = "status", label = "READY", variant = ShadcnBadgeVariant.Primary)
+                    shadcnButton(id = "launch", label = "Launch", variant = ShadcnButtonVariant.Secondary)
+                }
+                shadcnCard(id = "card") { text("Card body") }
             }
-            shadcnCard(id = "card") { text("Card body") }
         }
         val frame = ui.finishFrame()
         assertTrue(frame.primitives.isNotEmpty())

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
@@ -22,7 +21,7 @@ class ShadcnSidebarMenuItemTest {
      */
     @Test
     fun activeItemBackgroundMatchesSidebarAccentAtRest() {
-        val semantics = renderUiComponent(width = 320f, height = 200f, theme = ShadcnTheme, font = BitmapFont()) {
+        val semantics = renderShadcnComponent(width = 320f, height = 200f, font = BitmapFont()) {
             column {
                 shadcnSidebarMenuItem(id = "item", label = "Scene", active = true)
             }
@@ -38,7 +37,7 @@ class ShadcnSidebarMenuItemTest {
 
     @Test
     fun inactiveItemStaysTransparentAtRest() {
-        val semantics = renderUiComponent(width = 320f, height = 200f, theme = ShadcnTheme, font = BitmapFont()) {
+        val semantics = renderShadcnComponent(width = 320f, height = 200f, font = BitmapFont()) {
             column {
                 shadcnSidebarMenuItem(id = "item", label = "Scene", active = false)
             }
@@ -53,7 +52,7 @@ class ShadcnSidebarMenuItemTest {
 
     @Test
     fun activeSubItemBackgroundMatchesSidebarAccentAtRest() {
-        val semantics = renderUiComponent(width = 320f, height = 200f, theme = ShadcnTheme, font = BitmapFont()) {
+        val semantics = renderShadcnComponent(width = 320f, height = 200f, font = BitmapFont()) {
             column {
                 shadcnSidebarMenuSubItem(id = "sub-item", label = "Detail", active = true)
             }

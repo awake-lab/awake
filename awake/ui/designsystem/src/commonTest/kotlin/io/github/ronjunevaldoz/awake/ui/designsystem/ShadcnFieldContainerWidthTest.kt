@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSet
@@ -27,7 +26,7 @@ class ShadcnFieldContainerWidthTest {
 
     @Test
     fun aFieldInsideAGroupSpansTheAvailableWidth() {
-        val frame = renderUiComponent(width = frameWidth, height = 300f, theme = ShadcnTheme, font = BitmapFont()) {
+        val frame = renderShadcnComponent(width = frameWidth, height = 300f, font = BitmapFont()) {
             column(modifier = Modifier.fillMaxSize()) {
                 shadcnFieldSet(id = "set") {
                     shadcnFieldGroup(id = "group") {
@@ -51,7 +50,7 @@ class ShadcnFieldContainerWidthTest {
 
     @Test
     fun anExplicitCallerWidthStillWins() {
-        val frame = renderUiComponent(width = frameWidth, height = 300f, theme = ShadcnTheme, font = BitmapFont()) {
+        val frame = renderShadcnComponent(width = frameWidth, height = 300f, font = BitmapFont()) {
             column(modifier = Modifier.fillMaxSize()) {
                 shadcnFieldGroup(id = "narrow-group", modifier = Modifier.width(120f.dp)) {
                     shadcnFieldTextField(id = "name", label = "Name", value = "")

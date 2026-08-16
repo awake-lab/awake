@@ -18,24 +18,23 @@ class ShadcnRemainingRecipeTest {
     @Test
     fun comboboxSheetAndToastUseThePublicHeadlessBoundary() {
         val context = UiContext()
-        context.pushTheme(ShadcnTheme)
         context.beginFrame(320f, 240f, UiInputState())
-        val scope = context.createUiScope(UiBounds(0f, 0f, 320f, 240f))
-
-        assertNull(
-            scope.combobox(
+        context.createUiScope(UiBounds(0f, 0f, 320f, 240f)).shadcnTheme {
+            assertNull(
+                combobox(
                 id = "settings.theme",
                 options = listOf("Light", "Dark"),
                 selectedIndex = null,
-            ),
-        )
-        scope.shadcnSheet(
-            id = "settings.sheet",
-            expanded = true,
-            onDismissRequest = {},
-            side = ShadcnSheetSide.Right,
-        ) { _ -> text("Settings") }
-        scope.shadcnToast(id = "settings.saved", message = "Saved")
+                ),
+            )
+            shadcnSheet(
+                id = "settings.sheet",
+                expanded = true,
+                onDismissRequest = {},
+                side = ShadcnSheetSide.Right,
+            ) { _ -> text("Settings") }
+            shadcnToast(id = "settings.saved", message = "Saved")
+        }
 
         context.endFrame()
     }

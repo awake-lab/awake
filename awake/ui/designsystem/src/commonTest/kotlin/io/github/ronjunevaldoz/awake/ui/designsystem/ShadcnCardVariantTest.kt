@@ -23,14 +23,15 @@ class ShadcnCardVariantTest {
         fun quadCount(variant: ShadcnCardVariant): Int {
             val ui = UiContext()
             ui.pushFont(BitmapFont())
-            ui.pushTheme(ShadcnTheme)
             ui.beginFrame(200f, 200f, testSnapshot())
-            ui.headlessRoot().shadcnCard(
-                id = "card",
-                variant = variant,
-                modifier = Modifier,
-            ) {
-                // no body content needed
+            ui.headlessRoot().shadcnTheme {
+                shadcnCard(
+                    id = "card",
+                    variant = variant,
+                    modifier = Modifier,
+                ) {
+                    // no body content needed
+                }
             }
             return ui.finishFrame().primitives.count { it is UiDrawPrimitive.Quad || it is UiDrawPrimitive.ShadowQuad }
         }
@@ -46,16 +47,17 @@ class ShadcnCardVariantTest {
         fun cardHeight(size: ShadcnCardSize): Float {
             val ui = UiContext()
             ui.pushFont(BitmapFont())
-            ui.pushTheme(ShadcnTheme)
             ui.beginFrame(280f, 260f, testSnapshot())
-            ui.headlessRoot().shadcnCard(
-                id = "card",
-                size = size,
-                modifier = Modifier,
-                header = { text("Title") },
-                footer = { text("Footer") },
-            ) {
-                text("Body")
+            ui.headlessRoot().shadcnTheme {
+                shadcnCard(
+                    id = "card",
+                    size = size,
+                    modifier = Modifier,
+                    header = { text("Title") },
+                    footer = { text("Footer") },
+                ) {
+                    text("Body")
+                }
             }
             return assertNotNull(ui.finishFrame().semantics.firstOrNull { it.id == "card" }).bounds.height
         }
