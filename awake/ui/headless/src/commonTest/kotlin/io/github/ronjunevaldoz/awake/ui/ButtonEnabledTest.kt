@@ -23,12 +23,7 @@ class ButtonEnabledTest {
     fun clickFiresWhenEnabled() {
         var clicked = false
         uiTestSession(width = 200f, height = 100f) {
-            frame(x = 100f, y = 40f, down = true) {
-                if (primitive.context.createAbsolute(x = 20f, y = 20f)
-                        .button("btn", "Go", modifier = Modifier.width(160f.px).height(40f.px))
-                ) clicked = true
-            }
-            frame(x = 100f, y = 40f, down = false) {
+            click(100f, 40f) {
                 if (primitive.context.createAbsolute(x = 20f, y = 20f)
                         .button("btn", "Go", modifier = Modifier.width(160f.px).height(40f.px))
                 ) clicked = true
@@ -41,12 +36,7 @@ class ButtonEnabledTest {
     fun clickDoesNotFireWhenDisabled() {
         var clicked = false
         uiTestSession(width = 200f, height = 100f) {
-            frame(x = 100f, y = 40f, down = true) {
-                if (primitive.context.createAbsolute(x = 20f, y = 20f)
-                        .button("btn", "Go", modifier = Modifier.width(160f.px).height(40f.px), enabled = false)
-                ) clicked = true
-            }
-            frame(x = 100f, y = 40f, down = false) {
+            click(100f, 40f) {
                 if (primitive.context.createAbsolute(x = 20f, y = 20f)
                         .button("btn", "Go", modifier = Modifier.width(160f.px).height(40f.px), enabled = false)
                 ) clicked = true
@@ -59,12 +49,7 @@ class ButtonEnabledTest {
     fun spaceActivatesTheButtonAClickAlreadyFocused() {
         var clicks = 0
         uiTestSession(width = 200f, height = 100f) {
-            frame(x = 100f, y = 40f, down = true) {
-                if (primitive.context.createAbsolute(x = 20f, y = 20f)
-                        .button("btn", "Go", modifier = Modifier.width(160f.px).height(40f.px))
-                ) clicks++
-            }
-            frame(x = 100f, y = 40f, down = false) {
+            click(100f, 40f) {
                 if (primitive.context.createAbsolute(x = 20f, y = 20f)
                         .button("btn", "Go", modifier = Modifier.width(160f.px).height(40f.px))
                 ) clicks++
