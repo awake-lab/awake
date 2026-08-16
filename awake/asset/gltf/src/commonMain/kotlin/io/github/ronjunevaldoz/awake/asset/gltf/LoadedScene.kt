@@ -7,12 +7,17 @@ import io.github.ronjunevaldoz.awake.core.math.Mat4
 /**
  * A single decoded glTF primitive, ready to hand to a backend's vertex/index buffer upload --
  * see [GltfParser.parseScene]. [vertices] is interleaved pos3+color3+uv2 (8 floats/vertex),
- * the same layout [GltfMesh.toInterleavedPositionColorUv] already produces.
+ * the same layout [GltfMesh.toInterleavedPositionColorUv] already produces. [baseColorImageBytes]
+ * is this primitive's own material's base color texture, still encoded -- `null` unless this
+ * primitive has a material with one -- same "per-primitive, not per-mesh" scoping [GltfMesh]
+ * already uses, since sibling primitives of one mesh (e.g. skin vs. clothing) commonly use
+ * different materials.
  */
 data class LoadedPrimitive(
     val vertices: FloatArray,
     val indices: IntArray,
     val localTransform: Mat4,
+    val baseColorImageBytes: ByteArray? = null,
 )
 
 data class LoadedMesh(
