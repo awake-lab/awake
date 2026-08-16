@@ -3,8 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.testing.ui.UiComponentFrame
+import io.github.ronjunevaldoz.awake.testing.ui.UiTestSession
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
@@ -30,7 +32,7 @@ import kotlin.test.assertTrue
  * down and up frames -- matching the real construction shape used by
  * `UiShowcaseSidebarGapProbeTest`/`ShadcnCollapsibleScrolledCollapseFrameCaptureTest`.
  *
- * Real bounds are read every frame from [UiContext.semanticNodes] (not hand-computed layout
+ * Real bounds are read every frame from the rendered semantics (not hand-computed layout
  * math), so pointer coordinates always target where a button's slot ACTUALLY is that frame --
  * exactly what a real OS pointer would be doing relative to scrolled screen-space content.
  */
@@ -38,18 +40,21 @@ class ShadcnButtonScrollClickInteractionTest {
 
     private val pages = (0 until 12).map { "item-$it" }
 
-    private fun boundsOf(ui: UiContext, id: String) =
-        ui.semanticNodes().first { it.role == UiSemanticRole.Button && it.id == id }.bounds
+    private fun boundsOf(frame: UiComponentFrame, id: String) =
+        frame.semantics.first { it.role == UiSemanticRole.Button && it.id == id }.bounds
 
     private var lastClickedIds: Set<String> = emptySet()
 
-    private fun buildFrameCapturingClicks(ui: UiContext, x: Float, y: Float, down: Boolean, scrollDeltaY: Float) {
+    private fun buildFrameCapturingClicks(
+        session: UiTestSession,
+        x: Float,
+        y: Float,
+        down: Boolean,
+        scrollDeltaY: Float,
+    ): UiComponentFrame {
         val clicked = mutableSetOf<String>()
-        ui.beginFrame(300f, 220f, testSnapshot(x = x, y = y, down = down, scrollDeltaY = scrollDeltaY))
-        ui.pushFont(BitmapFont())
-        val root = ui.headlessRoot()
-        root.shadcnTheme {
-            val scroll = root.rememberScrollState("interleave-sidebar-scroll")
+        val frame = session.frame(testSnapshot(x = x, y = y, down = down, scrollDeltaY = scrollDeltaY)) {
+            val scroll = rememberScrollState("interleave-sidebar-scroll")
             shadcnSidebar(
                 id = "interleave-sidebar",
                 modifier = Modifier.verticalScroll(scroll).width(260f.dp).height(220f.dp),
@@ -63,32 +68,40 @@ class ShadcnButtonScrollClickInteractionTest {
                 }
             }
         }
-        ui.endFrame()
         lastClickedIds = clicked
+        return frame
     }
+
+    private fun runSession(block: UiTestSession.() -> Unit) = uiTestSession(
+        width = 300f,
+        height = 220f,
+        font = BitmapFont(),
+        rootProvider = { content -> shadcnTheme { content() } },
+        block = block,
+    )
 
     @Test
     fun scrollDuringHold_thenReleaseOffTarget_doesNotClickEitherButton() {
-        val ui = UiContext()
-        buildFrameCapturingClicks(ui, x = -100f, y = -100f, down = false, scrollDeltaY = 0f) // settle mount
+        runSession {
+        var frame = buildFrameCapturingClicks(this, x = -100f, y = -100f, down = false, scrollDeltaY = 0f)
 
-        val target = boundsOf(ui, "item-3")
+        val target = boundsOf(frame, "item-3")
         val px = target.x + target.width / 2f
         val py = target.y + target.height / 2f
 
         // Frame N: pointer-down squarely on item-3.
-        buildFrameCapturingClicks(ui, px, py, down = true, scrollDeltaY = 0f)
+        frame = buildFrameCapturingClicks(this, px, py, down = true, scrollDeltaY = 0f)
         assertTrue(lastClickedIds.isEmpty(), "down edge must never itself fire clicked")
 
         // Frames N+1..N+3: scroll while still held, at the SAME stationary pointer position --
         // item-3 physically moves out from under the pointer. Negative scrollDeltaY scrolls
         // content DOWN (increases offsetY) -- see ScrollContainers.kt's `-scrollDeltaY * speed`.
         repeat(3) {
-            buildFrameCapturingClicks(ui, px, py, down = true, scrollDeltaY = -40f)
+            frame = buildFrameCapturingClicks(this, px, py, down = true, scrollDeltaY = -40f)
             assertTrue(lastClickedIds.isEmpty(), "must never click while pointer is still down")
         }
 
-        val movedTarget = boundsOf(ui, "item-3")
+        val movedTarget = boundsOf(frame, "item-3")
         assertTrue(
             movedTarget.y != target.y,
             "test setup bug: item-3 didn't actually move -- scroll had no effect, sidebar isn't scrollable at this size",
@@ -96,14 +109,14 @@ class ShadcnButtonScrollClickInteractionTest {
 
         // Whatever item now sits at the stationary pointer's (px, py) after scrolling.
         val relocatedId = pages.firstOrNull { id ->
-            val b = boundsOf(ui, id)
+            val b = boundsOf(frame, id)
             px in b.x..(b.x + b.width) && py in b.y..(b.y + b.height)
         }
 
         // Release at the same stationary (px, py): item-3 has scrolled away (release-outside,
         // must not click), and whatever new item is now under the pointer must ALSO not click,
         // since activeId is bound to item-3's own id, not to "whatever is at this pixel".
-        buildFrameCapturingClicks(ui, px, py, down = false, scrollDeltaY = 0f)
+        buildFrameCapturingClicks(this, px, py, down = false, scrollDeltaY = 0f)
         assertFalse(lastClickedIds.contains("item-3"), "release-outside after scroll must not click the scrolled-away original target")
         if (relocatedId != null && relocatedId != "item-3") {
             assertFalse(
@@ -112,46 +125,49 @@ class ShadcnButtonScrollClickInteractionTest {
             )
         }
         assertTrue(lastClickedIds.isEmpty(), "no click at all should fire from this release-outside sequence")
+        }
     }
 
     @Test
     fun scrollAwayThenScrollBack_beforeRelease_stillClicksOriginalTarget() {
-        val ui = UiContext()
-        buildFrameCapturingClicks(ui, x = -100f, y = -100f, down = false, scrollDeltaY = 0f)
+        runSession {
+        var frame = buildFrameCapturingClicks(this, x = -100f, y = -100f, down = false, scrollDeltaY = 0f)
 
-        val target = boundsOf(ui, "item-3")
+        val target = boundsOf(frame, "item-3")
         val px = target.x + target.width / 2f
         val py = target.y + target.height / 2f
 
-        buildFrameCapturingClicks(ui, px, py, down = true, scrollDeltaY = 0f)
-        buildFrameCapturingClicks(ui, px, py, down = true, scrollDeltaY = -40f) // scroll down/away
-        buildFrameCapturingClicks(ui, px, py, down = true, scrollDeltaY = 40f) // scroll back up to original offset
+        buildFrameCapturingClicks(this, px, py, down = true, scrollDeltaY = 0f)
+        buildFrameCapturingClicks(this, px, py, down = true, scrollDeltaY = -40f) // scroll down/away
+        frame = buildFrameCapturingClicks(this, px, py, down = true, scrollDeltaY = 40f) // scroll back up to original offset
         assertTrue(lastClickedIds.isEmpty())
 
-        val restoredTarget = boundsOf(ui, "item-3")
+        val restoredTarget = boundsOf(frame, "item-3")
         assertEquals(target.y, restoredTarget.y, 0.01f, "test setup bug: net-zero scroll didn't restore original offset")
 
-        buildFrameCapturingClicks(ui, px, py, down = false, scrollDeltaY = 0f)
+        buildFrameCapturingClicks(this, px, py, down = false, scrollDeltaY = 0f)
         assertTrue(lastClickedIds.contains("item-3"), "hover restored by the time of release must still register the click")
+        }
     }
 
     @Test
     fun releaseImmediatelyThenScrollAfterward_noSpuriousClickDuringScroll() {
-        val ui = UiContext()
-        buildFrameCapturingClicks(ui, x = -100f, y = -100f, down = false, scrollDeltaY = 0f)
+        runSession {
+        val frame = buildFrameCapturingClicks(this, x = -100f, y = -100f, down = false, scrollDeltaY = 0f)
 
-        val target = boundsOf(ui, "item-3")
+        val target = boundsOf(frame, "item-3")
         val px = target.x + target.width / 2f
         val py = target.y + target.height / 2f
 
-        buildFrameCapturingClicks(ui, px, py, down = true, scrollDeltaY = 0f)
-        buildFrameCapturingClicks(ui, px, py, down = false, scrollDeltaY = 0f)
+        buildFrameCapturingClicks(this, px, py, down = true, scrollDeltaY = 0f)
+        buildFrameCapturingClicks(this, px, py, down = false, scrollDeltaY = 0f)
         assertTrue(lastClickedIds.contains("item-3"))
 
         // Pointer moves away and scroll continues -- must be totally quiet, no residual click.
         repeat(5) {
-            buildFrameCapturingClicks(ui, -100f, -100f, down = false, scrollDeltaY = 30f)
+            buildFrameCapturingClicks(this, -100f, -100f, down = false, scrollDeltaY = 30f)
             assertTrue(lastClickedIds.isEmpty(), "scrolling after an unrelated release must never fire a click")
+        }
         }
     }
 
@@ -162,19 +178,20 @@ class ShadcnButtonScrollClickInteractionTest {
      * never get misread as a scroll gesture. */
     @Test
     fun dragWithoutWheelDelta_neverScrolls() {
-        val ui = UiContext()
-        buildFrameCapturingClicks(ui, x = -100f, y = -100f, down = false, scrollDeltaY = 0f)
-        val before = boundsOf(ui, "item-3").y
+        runSession {
+        var frame = buildFrameCapturingClicks(this, x = -100f, y = -100f, down = false, scrollDeltaY = 0f)
+        val before = boundsOf(frame, "item-3").y
 
-        val target = boundsOf(ui, "item-3")
-        buildFrameCapturingClicks(ui, target.x + 5f, target.y + 5f, down = true, scrollDeltaY = 0f)
+        val target = boundsOf(frame, "item-3")
+        buildFrameCapturingClicks(this, target.x + 5f, target.y + 5f, down = true, scrollDeltaY = 0f)
         // "Drag" the pointer down the sidebar with the button held, zero wheel delta each frame.
         for (i in 1..10) {
-            buildFrameCapturingClicks(ui, target.x + 5f, target.y + 5f + i * 8f, down = true, scrollDeltaY = 0f)
+            buildFrameCapturingClicks(this, target.x + 5f, target.y + 5f + i * 8f, down = true, scrollDeltaY = 0f)
         }
-        buildFrameCapturingClicks(ui, target.x + 5f, target.y + 85f, down = false, scrollDeltaY = 0f)
+        frame = buildFrameCapturingClicks(this, target.x + 5f, target.y + 85f, down = false, scrollDeltaY = 0f)
 
-        val after = boundsOf(ui, "item-3").y
+        val after = boundsOf(frame, "item-3").y
         assertEquals(before, after, 0.01f, "pointer drag with zero wheel delta must never scroll the sidebar")
+        }
     }
 }
