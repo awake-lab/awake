@@ -85,4 +85,31 @@ class AabbTest {
         assertEquals(9f, moved.min.x, TOLERANCE)
         assertEquals(11f, moved.max.x, TOLERANCE)
     }
+
+    @Test
+    fun cornersAreEveryMinMaxCombination() {
+        val box = Aabb(Vec3(-1f, -2f, -3f), Vec3(1f, 2f, 3f))
+
+        val corners = box.corners()
+
+        assertEquals(8, corners.size)
+        assertEquals(Vec3(-1f, -2f, -3f), corners[0])
+        assertEquals(Vec3(1f, 2f, 3f), corners[7])
+        // Every coordinate is either the box's min or max on that axis.
+        for (corner in corners) {
+            assertTrue(corner.x == box.min.x || corner.x == box.max.x)
+            assertTrue(corner.y == box.min.y || corner.y == box.max.y)
+            assertTrue(corner.z == box.min.z || corner.z == box.max.z)
+        }
+    }
+
+    @Test
+    fun edgesReferenceAllEightCornersExactlyThreeTimesEach() {
+        val counts = IntArray(8)
+        for ((a, b) in Aabb.EDGES) {
+            counts[a]++
+            counts[b]++
+        }
+        assertEquals(List(8) { 3 }, counts.toList())
+    }
 }
