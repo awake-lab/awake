@@ -3,8 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
+import io.github.ronjunevaldoz.awake.testing.ui.UiComponentFrame
+import io.github.ronjunevaldoz.awake.testing.ui.UiTestSession
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -33,13 +35,16 @@ class ShadcnRadioGroupClickProbeTest {
     private var lastSelection: Int = -1
     private val trace = mutableListOf<String>()
 
-    private fun buildFrame(ui: UiContext, x: Float, y: Float, down: Boolean, scrolled: Boolean) {
-        ui.beginFrame(400f, 300f, testSnapshot(x = x, y = y, down = down))
-        ui.pushFont(BitmapFont())
-        val root = ui.headlessRoot()
-        root.shadcnTheme {
+    private fun buildFrame(
+        session: UiTestSession,
+        x: Float,
+        y: Float,
+        down: Boolean,
+        scrolled: Boolean,
+    ): UiComponentFrame {
+        val frame = session.frame(x = x, y = y, down = down) {
             if (scrolled) {
-                val scroll = root.rememberScrollState("radio-probe-scroll")
+                val scroll = rememberScrollState("radio-probe-scroll")
                 column(
                     modifier = Modifier.verticalScroll(scroll).width(360f.dp).height(280f.dp),
                 ) {
@@ -65,31 +70,41 @@ class ShadcnRadioGroupClickProbeTest {
                 lastSelection = returned
             }
         }
-        val radio2 = ui.semanticNodes().firstOrNull { it.id == "radio-probe.2" }?.bounds
+        val radio2 = frame.boundsOrNull("radio-probe.2")
         trace += "  post: radio2=$radio2 pointer=($x,$y)"
-        ui.endFrame()
+        return frame
     }
 
-    private fun clickOption(ui: UiContext, index: Int, scrolled: Boolean) {
-        val target = ui.semanticNodes()
+    private fun clickOption(
+        session: UiTestSession,
+        previous: UiComponentFrame,
+        index: Int,
+        scrolled: Boolean,
+    ): UiComponentFrame {
+        val target = previous.semantics
             .first { it.role == UiSemanticRole.Radio && it.id == "radio-probe.$index" }
             .bounds
         val px = target.x + target.width / 2f
         val py = target.y + target.height / 2f
-        buildFrame(ui, px, py, down = true, scrolled = scrolled)
-        buildFrame(ui, px, py, down = false, scrolled = scrolled)
+        buildFrame(session, px, py, down = true, scrolled = scrolled)
+        return buildFrame(session, px, py, down = false, scrolled = scrolled)
     }
 
     private fun runScenario(scrolled: Boolean) {
         lastSelection = 0
-        val ui = UiContext()
-        buildFrame(ui, x = -100f, y = -100f, down = false, scrolled = scrolled) // settle mount
+        uiTestSession(
+            width = 400f,
+            height = 300f,
+            font = BitmapFont(),
+            rootProvider = { content -> shadcnTheme { content() } },
+        ) {
+            var frame = buildFrame(this, x = -100f, y = -100f, down = false, scrolled = scrolled)
+            frame = clickOption(this, frame, index = 2, scrolled = scrolled)
+            assertEquals(2, lastSelection, "clicking option 2 (scrolled=$scrolled)\n" + trace.joinToString("\n"))
 
-        clickOption(ui, index = 2, scrolled = scrolled)
-        assertEquals(2, lastSelection, "clicking option 2 (scrolled=$scrolled)\n" + trace.joinToString("\n"))
-
-        clickOption(ui, index = 1, scrolled = scrolled)
-        assertEquals(1, lastSelection, "clicking option 1 after 2 (scrolled=$scrolled)")
+            clickOption(this, frame, index = 1, scrolled = scrolled)
+            assertEquals(1, lastSelection, "clicking option 1 after 2 (scrolled=$scrolled)")
+        }
     }
 
     @Test
@@ -99,14 +114,16 @@ class ShadcnRadioGroupClickProbeTest {
      * group sits in a scrolled column like the real content pane. */
     @Test
     fun radioGroupBackedByRememberedStateSelectsTheClickedOption() {
-        val ui = UiContext()
-        fun frame(x: Float, y: Float, down: Boolean): Int {
-            ui.beginFrame(400f, 300f, testSnapshot(x = x, y = y, down = down))
-            ui.pushFont(BitmapFont())
-            val root = ui.headlessRoot()
+        uiTestSession(
+            width = 400f,
+            height = 300f,
+            font = BitmapFont(),
+            rootProvider = { content -> shadcnTheme { content() } },
+        ) {
+            fun frame(x: Float, y: Float, down: Boolean): Pair<Int, UiComponentFrame> {
             var result = -1
-            root.shadcnTheme {
-                val scroll = root.rememberScrollState("radio-state-scroll")
+                val output = frame(x = x, y = y, down = down) {
+                    val scroll = rememberScrollState("radio-state-scroll")
                 column(
                     modifier = Modifier.verticalScroll(scroll).width(360f.dp).height(280f.dp),
                 ) {
@@ -120,16 +137,16 @@ class ShadcnRadioGroupClickProbeTest {
                     result = selected
                 }
             }
-            ui.endFrame()
-            return result
+                return result to output
+            }
+            val initial = frame(-100f, -100f, down = false).second
+            val target = initial.node("radio-state-probe.2").bounds
+            val px = target.x + target.width / 2f
+            val py = target.y + target.height / 2f
+            frame(px, py, down = true)
+            val after = frame(px, py, down = false).first
+            assertEquals(2, after, "remembered-state radio selection after clicking option 2")
         }
-        frame(-100f, -100f, down = false)
-        val target = ui.semanticNodes().first { it.id == "radio-state-probe.2" }.bounds
-        val px = target.x + target.width / 2f
-        val py = target.y + target.height / 2f
-        frame(px, py, down = true)
-        val after = frame(px, py, down = false)
-        assertEquals(2, after, "remembered-state radio selection after clicking option 2")
     }
 
     @Test
