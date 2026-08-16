@@ -20,9 +20,8 @@ You work on Awake's shared UI mechanics. Read
 
 ## Owns
 
-- `awake:engine:ui:ui-core`
-- `awake:engine:ui:ui-headless`
-- `awake:engine:ui-dsl`
+- `awake:ui:ui-core`
+- `awake:ui:headless`
 - low-level layout, text, input, clipping, and animation behavior
 
 ## Does Not Own

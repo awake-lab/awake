@@ -259,7 +259,7 @@ confirm the decision already made.
    result — report the pass count (e.g. "5/5 passing"), don't just claim tests exist. A
    test file that doesn't compile or fails silently is worse than no test.
 4. When wiring `RenderSystem` into the existing `Renderer`/`DrawCall` in `:awake:engine`,
-   compile-check `:samples:hello-cube` too (`compileKotlinDesktop`/`compileAndroidMain`) to
+   compile-check `:samples:scene3d-playground` too (`compileKotlinDesktop`/`compileAndroidMain`) to
    catch integration breaks early, same as `awake-render-backend-engineer`'s methodology. **No APK
    build or device/hardware verification is needed for this module** — `awake-ecs` is pure
    JVM/commonTest logic with no GPU-facing code, unlike the Vulkan extraction work.

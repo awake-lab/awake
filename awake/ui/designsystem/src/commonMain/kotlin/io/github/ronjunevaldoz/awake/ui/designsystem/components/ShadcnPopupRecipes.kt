@@ -123,7 +123,7 @@ fun UiScope.shadcnDropdownMenu(
             }
         }
     }
-    return UiMenuResult(result.slot, selectedItemIndex, result.dismissed)
+    return UiMenuResult(result, selectedItemIndex)
 }
 
 fun UiScope.shadcnTooltip(
