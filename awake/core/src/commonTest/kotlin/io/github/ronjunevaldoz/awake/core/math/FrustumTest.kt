@@ -115,6 +115,58 @@ class FrustumTest {
         assertEquals(List(8) { 3 }, counts.toList())
     }
 
+    @Test
+    fun boxOnTheForwardAxisIntersects() {
+        val camera = identityViewCamera()
+        val box = Aabb(Vec3(-0.5f, -0.5f, -5.5f), Vec3(0.5f, 0.5f, -4.5f))
+
+        assertTrue(Frustum.intersects(camera, aspect = 1f, box))
+    }
+
+    @Test
+    fun boxBehindTheCameraDoesNotIntersect() {
+        val camera = identityViewCamera()
+        // Camera looks down -Z from the origin -- +Z is directly behind it.
+        val box = Aabb(Vec3(-0.5f, -0.5f, 4.5f), Vec3(0.5f, 0.5f, 5.5f))
+
+        assertTrue(!Frustum.intersects(camera, aspect = 1f, box))
+    }
+
+    @Test
+    fun boxAboveTheTopPlaneDoesNotIntersect() {
+        val camera = identityViewCamera()
+        // 90-degree fovY, near quad half-height 1 at z=-1 -- well above the top plane at any
+        // depth along the forward axis.
+        val box = Aabb(Vec3(-0.5f, 500f, -5.5f), Vec3(0.5f, 501f, -4.5f))
+
+        assertTrue(!Frustum.intersects(camera, aspect = 1f, box))
+    }
+
+    @Test
+    fun boxBelowTheBottomPlaneDoesNotIntersect() {
+        val camera = identityViewCamera()
+        val box = Aabb(Vec3(-0.5f, -501f, -5.5f), Vec3(0.5f, -500f, -4.5f))
+
+        assertTrue(!Frustum.intersects(camera, aspect = 1f, box))
+    }
+
+    @Test
+    fun boxPastTheFarPlaneDoesNotIntersect() {
+        val camera = identityViewCamera()
+        val box = Aabb(Vec3(-0.5f, -0.5f, -1000f), Vec3(0.5f, 0.5f, -999f))
+
+        assertTrue(!Frustum.intersects(camera, aspect = 1f, box))
+    }
+
+    @Test
+    fun boxInFrontOfTheNearPlaneDoesNotIntersect() {
+        val camera = identityViewCamera()
+        // Near = 1, camera at origin looking down -Z -- z in (-1, 0] is closer than near.
+        val box = Aabb(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.5f, 0.5f, 0f))
+
+        assertTrue(!Frustum.intersects(camera, aspect = 1f, box))
+    }
+
     private fun assertVec3Equals(expected: Vec3, actual: Vec3, epsilon: Float = 1e-4f) {
         assertTrue(kotlin.math.abs(expected.x - actual.x) < epsilon, "x: expected ${expected.x}, got ${actual.x}")
         assertTrue(kotlin.math.abs(expected.y - actual.y) < epsilon, "y: expected ${expected.y}, got ${actual.y}")
