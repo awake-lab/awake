@@ -7,10 +7,14 @@ import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
 
 private val Scene3DPlaygroundShaders = gameShaderSet("triangle")
+private val Scene3DPlaygroundTexturedShaders = gameShaderSet("textured")
 
 fun createScene3DPlaygroundWebGpuApplication(): WebGpuGameApplication = WebGpuGameApplication(
     shaderSet = Scene3DPlaygroundShaders,
     vertexFormat = VertexFormat.PositionNormalColor,
     game = scene3DPlayground(),
     wireframeSupport = true,
+    // Textured only, unlike the Vulkan bootstrap: skinned.wgsl also needs the joint-palette
+    // uniform path (DrawCall.extraUniformFloats), which this backend doesn't write yet.
+    additionalPipelines = mapOf(VertexFormat.PositionNormalColorUv to Scene3DPlaygroundTexturedShaders),
 )

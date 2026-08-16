@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.pipeline
 
+import io.github.ronjunevaldoz.awake.render.mesh.VertexAttributeFormat
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
@@ -33,6 +35,10 @@ import io.ygdrasil.webgpu.VertexState
  * combined source already has both stages). [renderPass]/[pipelineCache] have no WebGPU
  * equivalent and stay 0.
  *
+ * The vertex buffer layout is derived from [vertexFormat]'s own attributes/offsets (rather
+ * than a hardcoded three-attribute table plus a bare stride), so any format -- including
+ * `PositionNormalColorUv`'s four attributes -- maps without editing this class.
+ *
  * [topology] defaults to `TriangleList`; a `LineList` companion pipeline (built with the same
  * shader/vertex layout, just this one field different) is how `Renderer.wireframe` is
  * implemented on this backend -- see `webgpu.renderer.Renderer`'s own doc comment for why
@@ -44,7 +50,7 @@ class RenderPipeline(
     descriptorSetLayout: DescriptorSetLayoutHandle,
     vertShaderCode: ByteArray,
     fragShaderCode: ByteArray,
-    vertexStride: Int,
+    val vertexFormat: VertexFormat,
     vertexEntryPoint: String = DEFAULT_VERTEX_ENTRY_POINT,
     fragmentEntryPoint: String = DEFAULT_FRAGMENT_ENTRY_POINT,
     topology: GPUPrimitiveTopology = GPUPrimitiveTopology.TriangleList,
@@ -66,24 +72,14 @@ class RenderPipeline(
                     entryPoint = vertexEntryPoint,
                     buffers = listOf(
                         VertexBufferLayout(
-                            arrayStride = vertexStride.toULong(),
-                            attributes = listOf(
+                            arrayStride = vertexFormat.strideBytes.toULong(),
+                            attributes = vertexFormat.entries.map { (attribute, offsetBytes) ->
                                 VertexAttribute(
-                                    shaderLocation = 0u,
-                                    offset = 0uL,
-                                    format = GPUVertexFormat.Float32x3,
-                                ),
-                                VertexAttribute(
-                                    shaderLocation = 1u,
-                                    offset = (3 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x3,
-                                ),
-                                VertexAttribute(
-                                    shaderLocation = 2u,
-                                    offset = (6 * Float.SIZE_BYTES).toULong(),
-                                    format = GPUVertexFormat.Float32x2,
-                                ),
-                            ),
+                                    shaderLocation = attribute.location.toUInt(),
+                                    offset = offsetBytes.toULong(),
+                                    format = attribute.format.toGpuVertexFormat(),
+                                )
+                            },
                         ),
                     ),
                 ),
@@ -123,4 +119,11 @@ class RenderPipeline(
         const val DEFAULT_VERTEX_ENTRY_POINT = "vertexMain"
         const val DEFAULT_FRAGMENT_ENTRY_POINT = "fragmentMain"
     }
+}
+
+private fun VertexAttributeFormat.toGpuVertexFormat(): GPUVertexFormat = when (this) {
+    VertexAttributeFormat.Float2 -> GPUVertexFormat.Float32x2
+    VertexAttributeFormat.Float3 -> GPUVertexFormat.Float32x3
+    VertexAttributeFormat.Float4 -> GPUVertexFormat.Float32x4
+    VertexAttributeFormat.UInt4 -> GPUVertexFormat.Uint32x4
 }
