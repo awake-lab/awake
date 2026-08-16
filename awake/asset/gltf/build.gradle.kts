@@ -1,6 +1,6 @@
 /*
  * Awake
- * Awake.awake-base
+ * Awake.awake-asset-gltf
  *
  * Copyright (c) ronjunevaldoz 2023.
  *
@@ -19,6 +19,7 @@
 
 plugins {
     id("awake.kmp-library-convention")
+    alias(libs.plugins.kotlin.serialization)
     id("awake.publish-convention")
     id("awake.dokka-convention")
     id("awake.detekt-convention")
@@ -27,30 +28,25 @@ plugins {
 
 kotlin {
     android {
-        namespace = "io.github.ronjunevaldoz.awake.base"
+        namespace = "io.github.ronjunevaldoz.awake.asset.gltf"
     }
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.napier)
-            implementation(libs.kotlinx.coroutines.core)
+            // Mat4/Quat/Vec3 (node transforms), createBitmap/readResourceBytes (base color
+            // texture decode, external buffer/image resource loading).
+            implementation(project(":awake:core"))
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
-        }
-        // Web demo (see docs/MVP_PLAN.md's decision log): readResourceBytes' wasmJs actual
-        // needs a real browser fetch() -- kotlinx-browser wraps it.
-        named("wasmJsMain") {
-            dependencies {
-                implementation(libs.kotlinx.browser)
-            }
         }
     }
 }
 
 mavenPublishing {
     pom {
-        name.set("Awake Base")
-        description.set("Dependency-free foundation: math, input, fixed-timestep loop, resource/bitmap I/O")
+        name.set("Awake Asset glTF")
+        description.set("glTF 2.0 mesh/scene/skinning importer")
     }
 }

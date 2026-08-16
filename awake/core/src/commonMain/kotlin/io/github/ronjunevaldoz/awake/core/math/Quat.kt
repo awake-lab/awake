@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.core.math
 import kotlin.math.sqrt
 
 /** `[x, y, z, w]` rotation quaternion -- glTF's own component order. Same
- * quaternion-to-rotation-matrix formula [GltfParser][io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser]'s
+ * quaternion-to-rotation-matrix formula [GltfParser][io.github.ronjunevaldoz.awake.asset.gltf.GltfParser]'s
  * `trsMatrix` already used inline; factored out here so animation playback (which only has a
  * rotation, no translation/scale to compose alongside it) doesn't need to fake a full TRS call. */
 data class Quat(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w: Float = 1f) {

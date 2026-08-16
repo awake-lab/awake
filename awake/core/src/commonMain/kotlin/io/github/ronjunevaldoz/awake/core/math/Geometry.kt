@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.core.math
 import kotlin.math.sqrt
 
 /** Largest distance from the origin across every vertex position in [positions] (a flat
- * x/y/z-per-vertex array, e.g. [io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfMesh
+ * x/y/z-per-vertex array, e.g. [io.github.ronjunevaldoz.awake.asset.gltf.GltfMesh
  * .positions]) -- a cheap bounding-sphere radius, good enough to pick a camera zoom that frames
  * a whole model without computing a real AABB. Returns `1f` for an empty/degenerate
  * (all-zero) [positions], never `0f`, so a caller can safely divide by this to normalize scale. */
