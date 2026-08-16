@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.TextEditAction
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.textarea
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -22,38 +22,20 @@ class TextareaWidgetTest {
         // its fixed height used to just clip the overflow with no way to reach it -- no scroll
         // offset was ever applied to the drawn text or caret. Typing past the visible bottom of
         // a 3-line-tall box (minLines=3) must scroll the caret's line back into view.
-        val ui = UiContext()
-        val input = Input()
         var value = ""
-        ui.simulateClick(x = 100f, y = 20f, screenHeight = 200f, input = input) {
-            ui.pushFont(BitmapFont())
-            value = ui.createAbsolute(x = 20f, y = 20f)
-                .textarea(
-                    "notes",
-                    value,
-                    modifier = Modifier.width(160f.px).height(60f.px),
-                    minLines = 3,
+        val glyphCount = uiTestSession(width = 200f, height = 200f, font = BitmapFont()) {
+            fun UiScope.draw() {
+                value = primitive.context.createAbsolute(x = 20f, y = 20f).textarea(
+                    "notes", value, modifier = Modifier.width(160f.px).height(60f.px), minLines = 3,
                 )
-        }
-
-        // 6 newlines -> 7 lines, well beyond the 3-line-tall box.
-        repeat(6) { input.pushEditAction(TextEditAction.Enter) }
-        input.pushTypedText("last line")
-        ui.simulateFrame(
-            pointerDown = false,
-            x = 100f,
-            y = 20f,
-            screenHeight = 200f,
-            input = input,
-        ) {
-            ui.pushFont(BitmapFont())
-            value = ui.createAbsolute(x = 20f, y = 20f)
-                .textarea(
-                    "notes",
-                    value,
-                    modifier = Modifier.width(160f.px).height(60f.px),
-                    minLines = 3,
-                )
+            }
+            frame(x = 100f, y = 20f, down = true) { draw() }
+            frame(x = 100f, y = 20f, down = false) { draw() }
+            repeat(6) { input.pushEditAction(TextEditAction.Enter) }
+            input.pushTypedText("last line")
+            frame(x = 100f, y = 20f, down = false) { draw() }
+            frame(x = 100f, y = 20f, down = false) { draw() }
+                .primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size
         }
         assertEquals(
             7,
@@ -65,19 +47,6 @@ class TextareaWidgetTest {
             "typed text past the visible bottom must not be lost",
         )
 
-        // Render once more and prove the caret's final line actually got laid out as glyphs --
-        // not left clipped out by a box that never scrolled to follow it.
-        input.setPointer(down = false, x = 100f, y = 20f)
-        ui.beginFrame(200f, 200f, input.updateSnapshot().toUiInputState())
-        ui.pushFont(BitmapFont())
-        value = ui.createAbsolute(x = 20f, y = 20f)
-            .textarea(
-                "notes",
-                value,
-                modifier = Modifier.width(160f.px).height(60f.px),
-                minLines = 3,
-            )
-        val glyphCount = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().size
         assertEquals(
             "last line".length,
             glyphCount,
@@ -87,40 +56,21 @@ class TextareaWidgetTest {
 
     @Test
     fun typedTextRecomputesWrappedSemanticLineCountInTheSameFrame() {
-        val ui = UiContext()
-        val input = Input()
         var value = ""
-        ui.simulateClick(x = 42f, y = 28f, screenHeight = 180f, input = input) {
-            ui.pushFont(BitmapFont())
-            value = ui.createAbsolute(x = 20f, y = 20f)
-                .textarea(
-                    "notes",
-                    value,
-                    modifier = Modifier.width(96f.px).height(80f.px),
-                    minLines = 3,
+        val frame = uiTestSession(width = 200f, height = 180f, font = BitmapFont()) {
+            fun UiScope.draw() {
+                value = primitive.context.createAbsolute(x = 20f, y = 20f).textarea(
+                    "notes", value, modifier = Modifier.width(96f.px).height(80f.px), minLines = 3,
                 )
-        }
-
-        input.pushTypedText("ANTIDISESTABLISHMENTARIANISM_ANTIDISESTABLISHMENTARIANISM")
-        ui.simulateFrame(
-            pointerDown = false,
-            x = 42f,
-            y = 28f,
-            screenHeight = 180f,
-            input = input,
-        ) {
-            ui.pushFont(BitmapFont())
-            value = ui.createAbsolute(x = 20f, y = 20f)
-                .textarea(
-                    "notes",
-                    value,
-                    modifier = Modifier.width(96f.px).height(80f.px),
-                    minLines = 3,
-                )
+            }
+            frame(x = 42f, y = 28f, down = true) { draw() }
+            frame(x = 42f, y = 28f, down = false) { draw() }
+            input.pushTypedText("ANTIDISESTABLISHMENTARIANISM_ANTIDISESTABLISHMENTARIANISM")
+            frame(x = 42f, y = 28f, down = false) { draw() }
         }
 
         val textareaNode = requireNotNull(
-            ui.semanticNodes().firstOrNull { it.id == "notes" && it.role == UiSemanticRole.Text },
+            frame.semantics.firstOrNull { it.id == "notes" && it.role == UiSemanticRole.Text },
         ) { "textarea should record its own semantic node" }
         assertTrue(
             textareaNode.lineCount > 1,
@@ -130,22 +80,19 @@ class TextareaWidgetTest {
 
     @Test
     fun pointerClickMapsToCorrectMultiLineTextIndex() {
-        val ui = UiContext()
-        val input = Input()
         var value = "First Line\nSecond Line\nThird Line"
         // Click on the second line (y = 20 + 20)
-        ui.simulateClick(x = 25f, y = 40f, screenHeight = 200f, input = input) {
-            ui.pushFont(BitmapFont())
-            value = ui.createAbsolute(x = 20f, y = 20f)
-                .textarea(
-                    "notes",
-                    value,
-                    modifier = Modifier.width(160f.px).height(80f.px),
-                    minLines = 3,
+        val frame = uiTestSession(width = 200f, height = 200f, font = BitmapFont()) {
+            fun UiScope.draw() {
+                value = primitive.context.createAbsolute(x = 20f, y = 20f).textarea(
+                    "notes", value, modifier = Modifier.width(160f.px).height(80f.px), minLines = 3,
                 )
+            }
+            frame(x = 25f, y = 40f, down = true) { draw() }
+            frame(x = 25f, y = 40f, down = false) { draw() }
         }
         val node = requireNotNull(
-            ui.semanticNodes().firstOrNull { it.id == "notes" && it.role == UiSemanticRole.Text },
+            frame.semantics.firstOrNull { it.id == "notes" && it.role == UiSemanticRole.Text },
         )
         assertEquals(true, node.selected, "Clicked textarea should be focused/selected")
     }
