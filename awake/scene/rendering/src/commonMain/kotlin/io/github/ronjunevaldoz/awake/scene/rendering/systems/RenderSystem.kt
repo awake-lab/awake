@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.scene.rendering.systems
 
 import io.github.ronjunevaldoz.awake.core.math.Frustum
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.intersects
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
@@ -14,6 +15,7 @@ import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
+import io.github.ronjunevaldoz.awake.scene.rendering.components.LodGroup
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
@@ -66,6 +68,22 @@ class RenderSystem(
                     instanceModels = instanced.transforms,
                 ),
             )
+        }
+        // LodGroup picks ONE level's mesh/material by distance to the camera eye -- see that
+        // component's own doc comment for why an entity carries this instead of MeshRenderer,
+        // not both. LOD selects detail, it doesn't cull -- MeshBounds/frustum culling still
+        // applies on top when present.
+        world.family<Transform, LodGroup>().forEach { entity, transform, lodGroup ->
+            val worldPosition = Vec3(transform.worldMatrix.m03, transform.worldMatrix.m13, transform.worldMatrix.m23)
+            val distance = (worldPosition - camera.camera.eye).length3()
+            val level = lodGroup.levels.firstOrNull { distance <= it.maxDistance } ?: lodGroup.levels.last()
+
+            val bounds = world.get<MeshBounds>(entity)
+            if (bounds != null) {
+                val worldBounds = bounds.localBounds.transformed(transform.worldMatrix)
+                if (!Frustum.intersects(camera.camera, CONSERVATIVE_ASPECT, worldBounds)) return@forEach
+            }
+            drawCalls.add(DrawCall(mesh = level.mesh, material = level.material, model = transform.worldMatrix))
         }
         renderer.draw(camera.camera, drawCalls, sceneLight(world))
     }

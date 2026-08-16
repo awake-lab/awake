@@ -23,6 +23,8 @@ import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
+import io.github.ronjunevaldoz.awake.scene.rendering.components.LodGroup
+import io.github.ronjunevaldoz.awake.scene.rendering.components.LodLevel
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
@@ -198,6 +200,55 @@ class RenderSystemTest {
         RenderSystem(renderer).update(world, 1f / 60f)
 
         assertEquals(0, renderer.lastDrawCalls.size)
+    }
+
+    @Test
+    fun lodGroupPicksTheNearestLevelWhoseMaxDistanceCoversTheEntity() {
+        val world = worldWithPrimaryCamera()
+        val nearMesh = fakeMesh()
+        val farMesh = fakeMesh()
+        val entity = world.create()
+        // Camera eye=(0,0,5), entity at the origin -- distance 5.
+        world.add(entity, Transform())
+        world.add(
+            entity,
+            LodGroup(
+                listOf(
+                    LodLevel(nearMesh, fakeMaterial(), maxDistance = 10f),
+                    LodLevel(farMesh, fakeMaterial(), maxDistance = 1000f),
+                ),
+            ),
+        )
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        assertSame(nearMesh, renderer.lastDrawCalls.single().mesh)
+    }
+
+    @Test
+    fun lodGroupFallsBackToTheCoarsestLevelBeyondEveryThreshold() {
+        val world = worldWithPrimaryCamera()
+        val nearMesh = fakeMesh()
+        val farMesh = fakeMesh()
+        val entity = world.create()
+        // Camera eye=(0,0,5) -- z=-995 is distance 1000, past both thresholds below.
+        world.add(entity, Transform(worldMatrix = Mat4().translate(0f, 0f, -995f)))
+        world.add(
+            entity,
+            LodGroup(
+                listOf(
+                    LodLevel(nearMesh, fakeMaterial(), maxDistance = 10f),
+                    LodLevel(farMesh, fakeMaterial(), maxDistance = 100f),
+                ),
+            ),
+        )
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        // LOD selects detail, it never culls -- the coarsest level still draws.
+        assertSame(farMesh, renderer.lastDrawCalls.single().mesh)
     }
 
     private fun fakeMesh(): Mesh = object : Mesh {
