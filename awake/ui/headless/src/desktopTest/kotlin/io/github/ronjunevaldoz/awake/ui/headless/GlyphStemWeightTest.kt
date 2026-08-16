@@ -37,6 +37,7 @@ import kotlin.test.assertTrue
  *
  * MTSDF resolves the edge analytically per pixel, which is what makes this assertion holdable.
  */
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Measures rendered glyph stem pixels directly")
 class GlyphStemWeightTest {
 
     /** Single vertical stems, no curves or crossbars: their rendered width IS the stroke weight,

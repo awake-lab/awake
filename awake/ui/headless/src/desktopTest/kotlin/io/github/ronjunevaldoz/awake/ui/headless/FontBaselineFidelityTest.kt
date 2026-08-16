@@ -26,6 +26,7 @@ import kotlin.test.assertTrue
  * a pixel at 12 and 14. The drift is recorded below rather than asserted away, so it cannot
  * widen unnoticed and disappears from the map when the atlas is fixed.
  */
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Measures rendered font baseline pixels directly")
 class FontBaselineFidelityTest {
 
     private data class Sample(val id: String, val text: String, val sizePx: Float)

@@ -28,6 +28,7 @@ import kotlin.test.assertTrue
  * fails against the placeholder-rect path (which draws ~0.5-0.62x of the quad), so the gate also
  * guards the harness itself against ever silently losing its font again.
  */
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Measures rendered glyph size pixels directly")
 class GlyphAbsoluteSizeTest {
 
     /** Half of the stored alpha range. The metric boundary is the outline (signed distance

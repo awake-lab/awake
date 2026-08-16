@@ -18,6 +18,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks popup placement, dismissal, and exit-frame lifecycle")
 class UiPopupTest {
 
     @Test

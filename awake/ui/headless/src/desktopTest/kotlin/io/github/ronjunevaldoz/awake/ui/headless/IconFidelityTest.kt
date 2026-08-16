@@ -32,6 +32,7 @@ import kotlin.test.assertTrue
  * white glyph"), not a byte-identical pixel diff -- see [passThreshold]'s doc comment for the
  * measured correct-vs-corrupted separation that sets the gate.
  */
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Measures rasterized icon fidelity directly")
 class IconFidelityTest {
 
     private val size = 128

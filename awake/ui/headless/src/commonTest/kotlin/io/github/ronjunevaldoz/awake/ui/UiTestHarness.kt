@@ -1,5 +1,9 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
+@file:io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest(
+    "Provides legacy low-level frame helpers used by Core lifecycle tests",
+)
+
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input

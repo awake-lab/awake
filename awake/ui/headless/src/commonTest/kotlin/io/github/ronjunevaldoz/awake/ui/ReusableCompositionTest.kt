@@ -26,6 +26,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks public custom-composition contracts against the Core scope")
 class ReusableCompositionTest {
 
     @Test

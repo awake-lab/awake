@@ -16,6 +16,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks Headless facade mapping to low-level scope mechanics")
 class UiScopeFacadeTest {
     @Test
     fun createsAHeadlessFacadeForTheRootRegion() {

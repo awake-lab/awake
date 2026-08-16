@@ -53,6 +53,10 @@ change from becoming a large maintenance task.
   Add a row or case there.
 - Use raw `UiContext` only when the lifecycle itself is what the test proves: Core/runtime,
   layout/cache, renderer/backend, or pixel-fidelity mechanics.
+- A test using `beginFrame`, `endFrame`, or `finishFrame` directly in `ui-headless` or
+  `ui-designsystem` must declare `@UiLowLevelTest("why this lifecycle is under test")` on the
+  class (or a low-level helper file).
+  `verifyUiTestLifecycle` runs from `check` and rejects unmarked manual lifecycle code.
 
 Read [UI Testing Dictionary](ui-testing-dictionary.md) when a term is unfamiliar. Prefer clear,
 specific names such as `popupDismissesOnOutsideClick`; avoid incident-only names such as
