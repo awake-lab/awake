@@ -21,37 +21,30 @@ Covered by `UiPathTest.roundedCorners*`.
 
 Nothing consumes it yet, so there is no visual change to look at.
 
-## Next: `Dimension.IntrinsicMin`
+## Next: let a FillMax child report its intrinsic size to a WrapContent parent
+
+No new `Dimension` is needed — an earlier draft of this doc proposed `Dimension.IntrinsicMin`
+before the root cause was located. The bug is in the measure pass, at `ColumnScope.claimSlot`:
 
 ```kotlin
-sealed class Dimension {
-    data class Fixed(val dp: Dp) : Dimension()
-    data object FillMax : Dimension()
-    data object WrapContent : Dimension()
-    data object IntrinsicMin : Dimension()   // NEW
-}
+context.recordMeasuredSlot(slot, contributesToWrapWidth = width != Dimension.FillMax)
 ```
 
-`WrapContent` sizes to what children asked for. `IntrinsicMin` sizes to the largest *minimum*
-a child needs and then hands that back down as the constraint children resolve `fillMax*`
-against — that second half is what fixes the vertical group's width, not the first.
+Every member of a vertical group is `fillMaxWidth()`, so every child is excluded, the column
+measures 0 wide, and `wrapContentWidthOrDefault()` falls back to the frame — hence 600px.
 
-Spec is already in the tree as a failing test:
-`verticalButtonGroupWrapsContentWidthAndButtonsFillMaxWidth` (pre-existing failure, confirmed
-by stashing).
+That exclusion is right for a BOUNDED column and wrong for a wrap-content one. `IntrinsicSize.Min`
+is exactly this distinction: a `fillMaxWidth` child still reports its minimum intrinsic width
+upward, then fills whatever the parent resolves to. During a wrap-content measure pass, resolve a
+`FillMax` child as `WrapContent` so it contributes; symmetric in `RowScope` for height.
 
-Then the group becomes:
+Fixes every wrap+fill combination, not just this component. Spec is already in the tree as a
+failing test: `verticalButtonGroupWrapsContentWidthAndButtonsFillMaxWidth` (pre-existing failure,
+confirmed by stashing).
 
-```kotlin
-Horizontal -> row(modifier = Modifier.height(Dimension.IntrinsicMin)) { content() }
-Vertical   -> column(modifier = Modifier.width(Dimension.IntrinsicMin)) { content() }
-```
-
-Delete `minWidth`, `widthIn`, and `wrapContentWidthOrDefault`.
-
-Whether the per-child `fillMax*` survives depends on how `IntrinsicMin` propagates constraints.
-The reference keeps `fillMaxHeight()` on the *separator* precisely because a bounded cross axis
-gives it something to resolve against, so expect the same here — but let the measure pass decide.
+The group then becomes a plain `row`/`column`; delete `minWidth`, `widthIn`, and
+`wrapContentWidthOrDefault`. Keep the per-child `fillMax*` — that is what the reference does, and
+it is what makes the members share the resolved cross-axis size.
 
 ## Then: corners
 
