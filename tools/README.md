@@ -1,7 +1,63 @@
-# Tools
+# UI tooling
 
-Build-time and verification tooling. None of these run as part of a normal build — they
-generate committed artifacts or produce reports, and you invoke them by hand.
+This folder contains the implementation details behind Awake's UI workflow. Start with the
+single front door instead of choosing scripts yourself:
+
+```bash
+scripts/awake ui <reference|preview|validate> ...
+```
+
+Use the lower-level tools only when you are maintaining the reference pipeline, adding a new
+fixture, or investigating a renderer/font/icon problem.
+
+## Choose the right lane
+
+| Need | Use | A pass means |
+|---|---|---|
+| Check a component while iterating | `awake ui reference`, `preview`, or `validate` | You produced the relevant reference, Awake preview, or semantic crop. Review the generated image. |
+| Prove a layout matches shadcn | `ShadcnGeometryParityTest` | The measured bounds match the pinned reference. |
+| Detect an unintended visual change | snapshot tests or `ShadcnReferenceComparisonTest` | Awake did not drift from its accepted output. This is not proof of fidelity. |
+| Maintain upstream shadcn inputs | fetch, extract, and capture tools below | The pinned source, tokens, and captures are refreshed. |
+| Diagnose rendering assets | font or icon fidelity tools below | Awake is compared with the original asset rendered externally. |
+
+Live preview serving is optional convenience tooling. It is never a verification gate.
+
+Read `docs/reference/ui-validation.md` for the required proof for a UI change, and
+`docs/reference/ui-testing-dictionary.md` for plain-English test terms.
+
+## Normal component workflow
+
+For a component that already has registered fixtures:
+
+```bash
+# Render the official pinned reference in Chromium.
+scripts/awake ui reference --component button --state rest --theme light
+
+# Render Awake's matching fixture. Add --debug-layout when bounds need inspection.
+scripts/awake ui preview --component button --state rest --theme light
+
+# Crop Awake by semantic node and compare it with the reference. This never records a baseline.
+scripts/awake ui validate --component button --theme light
+```
+
+The command fails for an unregistered state or pairing rather than guessing. Add the reference
+case, Awake fixture, and manifest entry together when expanding support.
+
+## Maintainer workflow
+
+Run this only when changing the pinned shadcn source, its token extraction, or the full
+reference-report pipeline:
+
+```bash
+tools/fetch_shadcn_reference.sh
+python3 tools/extract_shadcn_tokens.py
+./gradlew :samples:ui-showcase:desktopTest --tests "*ShadcnReferenceComparisonTest*"
+python3 tools/generate_parity_report.py
+python3 tools/generate_ui_status.py
+```
+
+The generated reports are status aids, not independent sources of truth. If they disagree with
+the code or the tests, repair the generator before relying on the report.
 
 ## Asset generation
 
@@ -37,7 +93,7 @@ python3 tools/capture_font_reference.py
 ./gradlew :awake:ui:headless:desktopTest --tests "*FontBaselineFidelityTest*"
 ```
 
-## Shadcn parity
+## Shadcn reference implementation details
 
 The chain that answers "does this actually look like shadcn?" rather than "did this change?".
 Read `docs/reference/shadcn-reference-pipeline.md` first.
@@ -149,7 +205,7 @@ python3 tools/capture_heroicons_reference.py --only chevron-down,camera
 ./gradlew :awake:ui:headless:desktopTest --tests "*IconFidelityTest*"
 ```
 
-`IconFidelityTest` (`awake/engine/ui/ui-headless/src/desktopTest/`) renders each icon through
+`IconFidelityTest` (`awake/ui/headless/src/desktopTest/`) renders each icon through
 the real CPU rasterizer at the same 128x128 size and compares coverage-mask IoU against the
 reference (threshold and measured correct-vs-corrupted separation are documented on
 `passThreshold` in the test). It writes a reference/ours/diff PNG per icon to
@@ -161,7 +217,7 @@ Does not catch sub-pixel drift -- both pipelines' antialiasing differs enough th
 can't distinguish a 1px edge nudge from noise; that is a known ceiling, not a gap this guard
 silently papers over.
 
-## Preview serving
+## Optional live preview
 
 `ui_preview_server.py` and `ui_preview_watch.sh` serve rendered preview PNGs for manual
 review. They are a convenience for eyeballing, not a verification gate — see
