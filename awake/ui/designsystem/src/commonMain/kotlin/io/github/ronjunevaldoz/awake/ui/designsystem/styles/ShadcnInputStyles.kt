@@ -21,8 +21,14 @@ internal fun shadcnSelectOptionStyle(values: ShadcnThemeValues): Style = Style {
     foreground(values.colors.popoverForeground)
     contentPadding(horizontal = 8f.dp, vertical = 6f.dp)
     textSize(values.typography.label)
-    hovered { background(values.colors.accent); foreground(values.colors.accentForeground) }
-    active { background(values.colors.accent); foreground(values.colors.accentForeground) }
+    hovered {
+        background(values.colors.accent)
+        foreground(values.colors.accentForeground)
+    }
+    active {
+        background(values.colors.accent)
+        foreground(values.colors.accentForeground)
+    }
     disabled { foreground(values.colors.mutedForeground) }
 }
 

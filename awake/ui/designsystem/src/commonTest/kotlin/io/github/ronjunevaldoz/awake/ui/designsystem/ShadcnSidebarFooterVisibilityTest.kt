@@ -128,7 +128,7 @@ class ShadcnSidebarFooterVisibilityTest {
         val output = renderShadcnComponent(
             width = 600f,
             height = SIDEBAR_HEIGHT,
-                        font = BitmapFont(),
+            font = BitmapFont(),
             density = density,
         ) {
             row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {

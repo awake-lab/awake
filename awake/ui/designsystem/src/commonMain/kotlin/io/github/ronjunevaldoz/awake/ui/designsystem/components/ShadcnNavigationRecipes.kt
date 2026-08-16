@@ -11,14 +11,14 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAccordionContentStyle
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBreadcrumbItemStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBreadcrumbContainerStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBreadcrumbItemStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBreadcrumbMutedStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnCollapsibleCardStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnCollapsibleTitleStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnCollapsibleTriggerStyle
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTabsTrackStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTabStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTabsTrackStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier

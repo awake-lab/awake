@@ -20,12 +20,12 @@ import kotlin.test.assertTrue
 class ShadcnScrollAreaTest {
 
     private fun buildFrame(contentHeightDp: Float) = renderShadcnComponent(width = 300f, height = 220f) {
-            shadcnScrollArea(
-                id = "scroll-area",
-                modifier = Modifier.width(200f.dp).height(100f.dp),
-            ) {
-                spacer(Modifier.height(contentHeightDp.dp))
-            }
+        shadcnScrollArea(
+            id = "scroll-area",
+            modifier = Modifier.width(200f.dp).height(100f.dp),
+        ) {
+            spacer(Modifier.height(contentHeightDp.dp))
+        }
     }
 
     @Test

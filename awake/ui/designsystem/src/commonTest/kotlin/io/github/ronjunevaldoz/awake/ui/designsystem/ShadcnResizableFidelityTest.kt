@@ -22,15 +22,15 @@ import kotlin.test.assertTrue
 class ShadcnResizableFidelityTest {
 
     private fun drawGroup(withHandle: Boolean) = renderShadcnComponent(width = 400f, height = 200f) {
-            shadcnResizablePanelGroup(
-                id = "fidelity-group",
-                direction = UiResizableDirection.Horizontal,
-                modifier = Modifier.width(300f.dp).height(100f.dp),
-            ) {
-                shadcnResizablePanel(id = "left", defaultSize = 0.5f) { }
-                shadcnResizableHandle(id = "handle", withHandle = withHandle)
-                shadcnResizablePanel(id = "right", defaultSize = 0.5f) { }
-            }
+        shadcnResizablePanelGroup(
+            id = "fidelity-group",
+            direction = UiResizableDirection.Horizontal,
+            modifier = Modifier.width(300f.dp).height(100f.dp),
+        ) {
+            shadcnResizablePanel(id = "left", defaultSize = 0.5f) { }
+            shadcnResizableHandle(id = "handle", withHandle = withHandle)
+            shadcnResizablePanel(id = "right", defaultSize = 0.5f) { }
+        }
     }
 
     private fun gripNear(primitives: List<UiDrawPrimitive>, centerX: Float, centerY: Float): UiDrawPrimitive.RoundedQuad? =

@@ -21,10 +21,10 @@ class ShadcnButtonStateColorTest {
     private fun hoveredButtonBackground(variant: ShadcnButtonVariant) = shadcnTestSession(width = 300f, height = 120f) {
         val id = "state-btn"
         fun renderFrame(x: Float, y: Float) = frame(x = x, y = y) {
-                column {
-                    shadcnButton(id = id, label = "STATE", variant = variant)
-                }
+            column {
+                shadcnButton(id = id, label = "STATE", variant = variant)
             }
+        }
         val settled = renderFrame(x = -100f, y = -100f) // settle mount
         val bounds = settled.bounds(id)
         renderFrame(x = bounds.x + bounds.width / 2f, y = bounds.y + bounds.height / 2f)

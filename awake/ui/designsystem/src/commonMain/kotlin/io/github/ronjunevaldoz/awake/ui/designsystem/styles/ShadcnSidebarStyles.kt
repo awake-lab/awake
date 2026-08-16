@@ -20,7 +20,10 @@ internal fun shadcnSidebarActionStyle(values: ShadcnThemeValues): Style = Style 
     foreground(values.colors.foreground)
     shape(values.shapes.md)
     contentPadding(horizontal = 6f.dp, vertical = 4f.dp)
-    hovered { background(values.colors.accent); foreground(values.colors.accentForeground) }
+    hovered {
+        background(values.colors.accent)
+        foreground(values.colors.accentForeground)
+    }
 }
 
 internal fun shadcnSidebarHeaderBadgeStyle(values: ShadcnThemeValues): Style = Style {
@@ -60,7 +63,10 @@ internal fun shadcnSidebarMenuItemStyle(values: ShadcnThemeValues, active: Boole
     foreground(if (active) values.colors.secondaryForeground else values.colors.foreground)
     shape(values.shapes.md)
     contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
-    hovered { background(values.colors.accent); foreground(values.colors.accentForeground) }
+    hovered {
+        background(values.colors.accent)
+        foreground(values.colors.accentForeground)
+    }
 }
 
 internal fun shadcnSidebarMenuLabelStyle(active: Boolean): Style = Style {

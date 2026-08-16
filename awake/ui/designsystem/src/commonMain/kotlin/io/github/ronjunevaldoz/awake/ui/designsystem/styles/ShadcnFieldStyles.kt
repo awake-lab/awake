@@ -9,6 +9,12 @@ internal fun shadcnFieldLabelStyle(values: ShadcnThemeValues, disabled: Boolean)
     foreground(if (disabled) values.colors.mutedForeground else values.colors.foreground)
     textSize(values.typography.label)
 }
-internal fun shadcnFieldDescriptionStyle(values: ShadcnThemeValues): Style = Style { foreground(values.colors.mutedForeground); textSize(values.typography.caption) }
-internal fun shadcnFieldErrorStyle(values: ShadcnThemeValues): Style = Style { foreground(values.colors.destructive); textSize(values.typography.caption) }
+internal fun shadcnFieldDescriptionStyle(values: ShadcnThemeValues): Style = Style {
+    foreground(values.colors.mutedForeground)
+    textSize(values.typography.caption)
+}
+internal fun shadcnFieldErrorStyle(values: ShadcnThemeValues): Style = Style {
+    foreground(values.colors.destructive)
+    textSize(values.typography.caption)
+}
 internal fun shadcnFieldSeparatorStyle(values: ShadcnThemeValues): Style = Style { background(values.colors.border) }

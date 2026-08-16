@@ -13,7 +13,10 @@ internal fun shadcnCollapsibleTriggerStyle(values: ShadcnThemeValues): Style = S
     background(Color.Transparent)
     foreground(values.colors.foreground)
     shape(values.shapes.md)
-    hovered { background(values.colors.accent); foreground(values.colors.accentForeground) }
+    hovered {
+        background(values.colors.accent)
+        foreground(values.colors.accentForeground)
+    }
 }
 
 internal fun shadcnCollapsibleTitleStyle(values: ShadcnThemeValues): Style = Style {

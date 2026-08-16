@@ -19,12 +19,31 @@ fun ShadcnButtonVariant.visuals(
     val shape = if (this == ShadcnButtonVariant.Link) theme.shapes.xs else theme.shapes.md
     return Style {
         when (this@visuals) {
-            ShadcnButtonVariant.Primary -> { background(colors.primary, "primary"); foreground(colors.primaryForeground, "primary-foreground") }
-            ShadcnButtonVariant.Secondary -> { background(colors.secondary, "secondary"); foreground(colors.secondaryForeground, "secondary-foreground") }
-            ShadcnButtonVariant.Outline -> { background(colors.background, "background"); foreground(colors.foreground, "foreground"); border(1f.dp, colors.input, "input") }
-            ShadcnButtonVariant.Ghost -> { background(Color.Transparent); foreground(colors.foreground, "foreground") }
-            ShadcnButtonVariant.Danger -> { background(colors.destructive, "destructive"); foreground(Color.White) }
-            ShadcnButtonVariant.Link -> { background(Color.Transparent); foreground(colors.primary, "primary") }
+            ShadcnButtonVariant.Primary -> {
+                background(colors.primary, "primary")
+                foreground(colors.primaryForeground, "primary-foreground")
+            }
+            ShadcnButtonVariant.Secondary -> {
+                background(colors.secondary, "secondary")
+                foreground(colors.secondaryForeground, "secondary-foreground")
+            }
+            ShadcnButtonVariant.Outline -> {
+                background(colors.background, "background")
+                foreground(colors.foreground, "foreground")
+                border(1f.dp, colors.input, "input")
+            }
+            ShadcnButtonVariant.Ghost -> {
+                background(Color.Transparent)
+                foreground(colors.foreground, "foreground")
+            }
+            ShadcnButtonVariant.Danger -> {
+                background(colors.destructive, "destructive")
+                foreground(Color.White)
+            }
+            ShadcnButtonVariant.Link -> {
+                background(Color.Transparent)
+                foreground(colors.primary, "primary")
+            }
         }
         shape(shape)
         contentPadding(size.paddingX, 0f.dp)

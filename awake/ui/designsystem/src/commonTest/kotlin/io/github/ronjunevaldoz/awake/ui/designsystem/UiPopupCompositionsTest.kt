@@ -14,9 +14,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlertDialo
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDialog
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
-import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.UiAlertDialogResult
 import io.github.ronjunevaldoz.awake.ui.headless.UiMenuResult
+import io.github.ronjunevaldoz.awake.ui.headless.text
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
