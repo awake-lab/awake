@@ -59,7 +59,6 @@ fun UiScope.shadcnButtonGroupColumn(
 ): UiBounds = groupSurface(id, modifier) {
     column(
         verticalArrangement = Arrangement.spacedBy(0f.dp),
-        modifier = Modifier.fillMaxWidth(),
     ) { content() }
 }
 
@@ -85,13 +84,21 @@ private fun UiScope.groupSurface(
  * The hairline between two members of a group -- shadcn's `ButtonGroupSeparator`, which defaults
  * to `orientation="vertical"` and `self-stretch` because it divides a horizontal row.
  */
-fun RowScope.shadcnButtonGroupSeparator(modifier: Modifier = Modifier): UiBounds = shadcnSeparator(
+fun RowScope.shadcnButtonGroupSeparator(
+    id: String = "separator",
+    modifier: Modifier = Modifier,
+): UiBounds = shadcnSeparator(
+    id = id,
     modifier = modifier.fillMaxHeight(),
     orientation = UiSeparatorOrientation.Vertical,
 )
 
 /** The vertical group's divider: a horizontal rule between stacked members. */
-fun ColumnScope.shadcnButtonGroupSeparator(modifier: Modifier = Modifier): UiBounds = shadcnSeparator(
+fun ColumnScope.shadcnButtonGroupSeparator(
+    id: String = "separator",
+    modifier: Modifier = Modifier,
+): UiBounds = shadcnSeparator(
+    id = id,
     modifier = modifier.fillMaxWidth(),
     orientation = UiSeparatorOrientation.Horizontal,
 )

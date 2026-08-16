@@ -19,14 +19,6 @@ internal val FormBlockPage = showcasePlaceholder(
     referenceExample = "registry/new-york-v4/examples/form-demo.tsx",
 )
 
-internal val ButtonGroupBlockPage = showcasePlaceholder(
-    id = "button-group",
-    title = "Button Group",
-    category = ShowcaseCategory.Blocks,
-    description = "Buttons joined into one segmented control with shared borders and radii.",
-    missing = "no grouped-border recipe; shadcnButton owns its own corners",
-    referenceExample = "registry/new-york-v4/examples/button-group-demo.tsx",
-)
 
 internal val ItemBlockPage = showcasePlaceholder(
     id = "item",
@@ -66,7 +58,6 @@ internal val DatePickerBlockPage = showcasePlaceholder(
 
 internal val BlockPlaceholderPages = listOf(
     FormBlockPage,
-    ButtonGroupBlockPage,
     ItemBlockPage,
     ChartBlockPage,
     CarouselBlockPage,
