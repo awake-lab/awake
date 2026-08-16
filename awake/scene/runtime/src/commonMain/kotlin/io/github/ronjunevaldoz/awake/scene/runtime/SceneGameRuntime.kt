@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.core.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.systems.DebugVisualizationSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
@@ -259,8 +260,13 @@ class SceneGameRuntime internal constructor(
     }
 }
 
-/** The standard infrastructure pair every 3D scene needs -- transform resolution then the
- * draw pass, always last. See [SceneGameSpec.infrastructureSystemsFactory]'s doc comment for
- * why this lives here instead of being wired through the authoring DSL. */
+/** The standard infrastructure trio every 3D scene needs -- transform resolution, the draw
+ * pass, then debug wireframes (frustum/[io.github.ronjunevaldoz.awake.scene.rendering
+ * .components.MeshBounds] boxes) drawn over whatever [RenderSystem] just drew. See
+ * [SceneGameSpec.infrastructureSystemsFactory]'s doc comment for why this lives here instead
+ * of being wired through the authoring DSL. [DebugVisualizationSystem] is a no-op (draws
+ * nothing extra) unless a scene adds a
+ * [io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings] entity and
+ * toggles it on -- every existing scene is unaffected by its presence here. */
 fun SceneGameRuntime.defaultInfrastructureSystems(): List<System> =
-    listOf(TransformSystem(), RenderSystem(renderer))
+    listOf(TransformSystem(), RenderSystem(renderer), DebugVisualizationSystem(renderer))

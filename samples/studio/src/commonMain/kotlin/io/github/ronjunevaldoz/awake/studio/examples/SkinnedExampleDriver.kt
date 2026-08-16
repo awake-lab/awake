@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.asset.gltf.LoadedAnimation
 import io.github.ronjunevaldoz.awake.asset.gltf.LoadedSkin
 import io.github.ronjunevaldoz.awake.asset.gltf.SkinnedAnimationPlayer
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -58,11 +57,11 @@ internal object SkinnedExampleDriver {
     /** The joint palette's initial value is sized/valued from the parsed skin, which no static
      * scene document can author -- called once right after instantiate, same shape the
      * original demo used (`world.add(skinnedEntity, SkinnedPose(currentPlayer.jointPalette(...)))`. */
-    fun attachPose(instance: SceneInstance, world: World) {
+    fun attachPose(instance: SceneInstance, runtime: SceneGameRuntime) {
         val currentPlayer = requireNotNull(player)
         val currentSkin = requireNotNull(skin)
         val node = instance.roots.find { it.name == "skinned-mesh" } ?: return
-        world.add(node.entity, SkinnedPose(currentPlayer.jointPalette(currentSkin)))
+        runtime.world.add(node.entity, SkinnedPose(currentPlayer.jointPalette(currentSkin)))
     }
 
     fun advance(runtime: SceneGameRuntime, delta: Float) {
