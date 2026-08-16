@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
+import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
@@ -36,11 +37,22 @@ fun ColumnScope.menuItem(
     semanticRole = UiSemanticRole.MenuItem,
 )
 
+/**
+ * A menu outcome IS a popup outcome plus the index that was chosen, so it composes
+ * [UiPopupResult] rather than re-declaring its fields -- the shape [UiAlertDialogResult] already
+ * uses. Flattening them meant [menu] destructured a [UiPopupResult] it was already holding and
+ * copied two of its fields into a parallel type, so the same relationship was modelled two
+ * different ways depending on which overlay you happened to be reading.
+ *
+ * [slot]/[dismissed] stay available directly so call sites read the same as before.
+ */
 data class UiMenuResult(
-    val slot: UiBounds?,
+    val popup: UiPopupResult,
     val selectedIndex: Int?,
-    val dismissed: Boolean,
-)
+) {
+    val slot: UiBounds? get() = popup.slot
+    val dismissed: Boolean get() = popup.dismissed
+}
 
 /**
  * Composes menu popup behavior without choosing a visual language.
@@ -78,5 +90,5 @@ fun UiScope.menu(
             }
         }
     }
-    return UiMenuResult(result.slot, selectedIndex, result.dismissed)
+    return UiMenuResult(result, selectedIndex)
 }
