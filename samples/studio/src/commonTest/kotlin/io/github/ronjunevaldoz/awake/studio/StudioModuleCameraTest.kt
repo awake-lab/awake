@@ -114,7 +114,7 @@ class StudioModuleCameraTest {
 
         fun drive(input: UiInputState) = runtime.uiContext.let { ui ->
             ui.beginFrame(UiFrameInput(viewportWidth = 800f, viewportHeight = 600f, input = input))
-            with(runtime) { drawStudioShell(store, 800f, 600f) }
+            with(runtime) { drawStudioShell(store, backend = "Vulkan", viewportWidth = 800f, viewportHeight = 600f) }
             ui.finishFrame()
         }
 

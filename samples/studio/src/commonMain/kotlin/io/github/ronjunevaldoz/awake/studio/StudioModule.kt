@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.ecs.ensure
 import io.github.ronjunevaldoz.awake.engine.game.GameModule
+import io.github.ronjunevaldoz.awake.engine.game.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
 import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraInputSystem
 import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraSystem
@@ -17,6 +18,7 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.studio.app.platformBackendPreference
 import io.github.ronjunevaldoz.awake.studio.examples.ExampleLoader
 import io.github.ronjunevaldoz.awake.studio.examples.GltfViewerAssets
 import io.github.ronjunevaldoz.awake.studio.examples.SkinnedExampleDriver
@@ -32,8 +34,15 @@ import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
  * + material(4). Must match `lit_shadow.wgsl`'s Uniforms field order. */
 internal const val LIT_SHADOW_UNIFORM_FLOAT_COUNT = 64
 
-internal fun studioModule(store: StudioStore = StudioStore()): GameModule {
+/** [backend] is only a status-bar label. It is the backend this game asks its window for (see
+ * `configureStudioWindow`), which is the closest honest answer available: `Renderer` exposes no
+ * identity of its own. */
+internal fun studioModule(
+    store: StudioStore = StudioStore(),
+    backend: GameWindowBackend = platformBackendPreference(),
+): GameModule {
     val loader = ExampleLoader()
+    val backendLabel = backend.label()
     return gameModule {
         scene("studio") {
             assets {
@@ -66,12 +75,22 @@ internal fun studioModule(store: StudioStore = StudioStore()): GameModule {
             overlay { viewportWidth, viewportHeight ->
                 drawStudioShell(
                     store,
+                    backendLabel,
                     viewportWidth,
                     viewportHeight,
                 )
             }
         }
     }
+}
+
+// Spelled out rather than derived from `name`: enum-case text ("WEBGPU") is not how any of these
+// backends is written.
+private fun GameWindowBackend.label(): String = when (this) {
+    GameWindowBackend.DEFAULT -> "Default"
+    GameWindowBackend.VULKAN -> "Vulkan"
+    GameWindowBackend.WEBGPU -> "WebGPU"
+    GameWindowBackend.OPENGL -> "OpenGL"
 }
 
 private class StudioExampleDriverSystem(
@@ -124,7 +143,14 @@ private class StudioExampleDriverSystem(
         // Transform target for every mode, so the camera entity itself owns a stable target
         // initialized from the document's original aim point.
         val target = world.ensure(entity, ::Transform)
-        if (needsTargetInitialization) target.position.set(renderingCamera.camera.center)
+        if (needsTargetInitialization) {
+            target.position.set(renderingCamera.camera.center)
+            // CameraComponent defaults offsetPosition to a 1.8 eye height, which is right for a
+            // character controller and wrong here: ThirdPerson aims at target + offset, so the
+            // orbit centre sat 1.8 units ABOVE the model and every mode framed it low. Studio's
+            // target is the scene's aim point, not a pair of feet.
+            camera.offsetPosition.set(0f, 0f, 0f)
+        }
         camera.targetEntity = entity
         val stateBeforeSync = store.state.value.camera
         val sameCamera = syncedCameraEntity == entity

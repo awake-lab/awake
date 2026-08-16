@@ -3,6 +3,19 @@
 Audited 2026-08-11 against `samples/studio/src/commonMain/kotlin/.../ui/`. Findings are from
 reading the wiring, not from opinion about styling.
 
+## Status as of 2026-08-16
+
+Resolved: engine camera adopted (rec. 1); left dock is the hierarchy and selection is wired end
+to end (2, 3); the tool rail's five inert buttons are deleted, leaving reset and camera (4); the
+status bar reports the configured backend and the scene's entity count; `SceneLoader.fromWorld`
+supplies the `World -> SceneDocument` direction the design doc listed as missing.
+
+Open: gizmo and transform tools, editable inspector (needs a numeric drag field), edit/play mode
+split, save/load UI on top of `fromWorld`, timeline and asset dock tabs, multi-scene tabs.
+
+The demo picker moved to the top bar rather than a tab strip -- a strip over one openable scene
+is the mistake the design doc's own tab-strip note warns about.
+
 ## Current layout
 
     +--------------------------------------------------------------+

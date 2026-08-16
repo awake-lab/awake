@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
+import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
@@ -140,6 +141,10 @@ class Renderer(
 
     /** See this class's own `wireframePipelinesByFormat` constructor parameter doc comment. */
     override var wireframe: Boolean = false
+
+    /** Applied to the 3D pass only (viewport + scissor + projection aspect); the UI pass keeps
+     * the full swapchain extent. See the interface's own doc comment. */
+    override var sceneViewport: RenderViewport? = null
 
     /** [clearColor] converted to this backend's clear-value type -- read fresh every render
      * pass (not cached), so a [clearColor] mutation takes effect on the very next frame. */

@@ -76,6 +76,25 @@ interface Renderer {
      * to enable. */
     var shadowsEnabled: Boolean
 
+    /**
+     * The sub-rect of the surface [draw]'s 3D pass renders into, and the aspect ratio its
+     * projection is built for -- `null` (the default) means the whole surface, which is what
+     * every game that never sets this always got.
+     *
+     * An editor sets this so the scene stays inside its viewport panel instead of filling the
+     * window behind the surrounding chrome. Only the 3D pass is confined: [drawUi] still covers
+     * the full surface, since the chrome is what defines the rect in the first place.
+     *
+     * Accessors default to "ignore" rather than being abstract: a backend that has no way to
+     * scissor a pass, and every test double, keeps rendering full-surface unchanged. A backend
+     * that supports it overrides this with real storage.
+     */
+    var sceneViewport: RenderViewport?
+        get() = null
+
+        @Suppress("UNUSED_PARAMETER")
+        set(value) = Unit
+
     /** Uploads [geometry] as a GPU mesh, on demand -- a game calls this itself for whatever
      * assets it wants, whenever it wants (not something the render bootstrap decides upfront
      * from a constructor-supplied asset list). */

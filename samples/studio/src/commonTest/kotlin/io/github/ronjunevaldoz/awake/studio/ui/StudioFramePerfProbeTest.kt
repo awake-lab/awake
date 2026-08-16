@@ -4,14 +4,14 @@ package io.github.ronjunevaldoz.awake.studio.ui
 
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
+import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
 import kotlin.time.measureTime
@@ -33,7 +33,7 @@ class StudioFramePerfProbeTest {
             ui.createUiScope(slot = UiBounds(0f, 0f, 1440f, 900f)).shadcnTheme(
                 theme = shadcnThemeValues(dark = true),
             ) {
-                drawStudioShellBody(store, world, renderer)
+                drawStudioShellBody(store, world, renderer, backend = "Vulkan")
             }
             ui.finishFrame()
         }
