@@ -33,8 +33,12 @@ from __future__ import annotations
 
 import argparse
 import math
+import os
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
 import xml.etree.ElementTree as ET
 
 SVG_NS = "{http://www.w3.org/2000/svg}"
@@ -591,6 +595,45 @@ def self_test():
     print("self-test OK")
 
 
+def preprocess_svg(svg_path: str, use_svgo: bool = False, expand_strokes: bool = False) -> str:
+    """Preprocesses an SVG file via SVGO (flatten shapes/transforms) and/or picosvg (expand strokes to fill).
+    Returns path to a temporary processed SVG file, or the original path if no processing was applied."""
+    current_path = svg_path
+    created_temps = []
+
+    # 1. SVGO Optimization Pass
+    if use_svgo:
+        svgo_bin = shutil.which("svgo") or shutil.which("npx")
+        if svgo_bin:
+            handle, temp_file = tempfile.mkstemp(suffix=".svg")
+            os.close(handle)
+            created_temps.append(temp_file)
+            cmd = [svgo_bin, "svgo", current_path, "-o", temp_file] if svgo_bin.endswith("npx") else [svgo_bin, current_path, "-o", temp_file]
+            try:
+                subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                current_path = temp_file
+            except Exception:
+                pass
+        else:
+            sys.stderr.write("warning: svgo/npx not found on PATH; skipping SVGO preprocessing\n")
+
+    # 2. picosvg Stroke Expansion Pass
+    if expand_strokes:
+        try:
+            from picosvg.svg import SVG
+            with open(current_path, "r", encoding="utf-8") as f:
+                svg_text = f.read()
+            pico_xml = SVG.fromstring(svg_text).topicosvg().tostring()
+            handle, temp_file = tempfile.mkstemp(suffix=".svg")
+            os.write(handle, pico_xml.encode("utf-8"))
+            os.close(handle)
+            current_path = temp_file
+        except ImportError:
+            sys.stderr.write("warning: picosvg is not installed; skipping stroke-to-fill expansion\n")
+
+    return current_path
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("svg", nargs="?", help="input .svg file")
@@ -598,6 +641,8 @@ def main():
     ap.add_argument("--dp", type=float, default=None, help="defaultWidth/Height in dp (default: viewport size)")
     ap.add_argument("--source", default="", help="provenance note for the generated KDoc")
     ap.add_argument("--indent-level", type=int, default=2, help="indent depth of the emitted val (default 2 = nested object)")
+    ap.add_argument("--svgo", action="store_true", help="run SVGO preprocessing via npx/svgo to flatten shapes and transforms")
+    ap.add_argument("--expand-strokes", action="store_true", help="run picosvg stroke expansion to convert stroke centerlines into pre-expanded fill paths")
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args()
 
@@ -607,9 +652,14 @@ def main():
     if not args.svg or not args.name:
         ap.error("svg and --name are required")
 
-    viewport, _ = parse_svg(args.svg)
-    dp = args.dp if args.dp is not None else viewport[0]
-    print(convert(args.svg, args.name, dp, args.source, args.indent_level))
+    processed_svg = preprocess_svg(args.svg, use_svgo=args.svgo, expand_strokes=args.expand_strokes)
+    try:
+        viewport, _ = parse_svg(processed_svg)
+        dp = args.dp if args.dp is not None else viewport[0]
+        print(convert(processed_svg, args.name, dp, args.source, args.indent_level))
+    finally:
+        if processed_svg != args.svg and os.path.exists(processed_svg):
+            os.unlink(processed_svg)
 
 
 if __name__ == "__main__":
