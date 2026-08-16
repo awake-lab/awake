@@ -143,11 +143,7 @@ class ShadcnInputOTPTest {
         val clickX = slot0.bounds.x + slot0.bounds.width / 2f
         val clickY = slot0.bounds.y + slot0.bounds.height / 2f
 
-        frame(x = clickX, y = clickY, down = true) {
-            shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)
-        }
-
-        frame(x = clickX, y = clickY, down = false) {
+        click(clickX, clickY) {
             shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)
         }
 
