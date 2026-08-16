@@ -109,6 +109,10 @@ object GltfParser {
                         raw.normalImageBytes,
                         raw.occlusionImageBytes,
                         raw.emissiveImageBytes,
+                        raw.baseColorFactor,
+                        raw.metallicFactor,
+                        raw.roughnessFactor,
+                        raw.emissiveFactor,
                     )
                 }
                 loadedMeshes += LoadedMesh(meshDef.name ?: "", primitives)
@@ -160,6 +164,11 @@ object GltfParser {
         val normalImageBytes = readMaterialImageBytes(document, material?.normalTexture, externalResources)
         val occlusionImageBytes = readMaterialImageBytes(document, material?.occlusionTexture, externalResources)
         val emissiveImageBytes = readMaterialImageBytes(document, material?.emissiveTexture, externalResources)
+        val pbr = material?.pbrMetallicRoughness
+        val baseColorFactor = pbr?.baseColorFactor?.toFloatArray() ?: floatArrayOf(1f, 1f, 1f, 1f)
+        val metallicFactor = pbr?.metallicFactor ?: 1f
+        val roughnessFactor = pbr?.roughnessFactor ?: 1f
+        val emissiveFactor = material?.emissiveFactor?.toFloatArray() ?: floatArrayOf(0f, 0f, 0f)
 
         return GltfMesh(
             positions,
@@ -174,6 +183,10 @@ object GltfParser {
             normalImageBytes,
             occlusionImageBytes,
             emissiveImageBytes,
+            baseColorFactor,
+            metallicFactor,
+            roughnessFactor,
+            emissiveFactor,
         )
     }
 

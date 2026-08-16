@@ -13,7 +13,9 @@ import io.github.ronjunevaldoz.awake.core.math.Mat4
  * already uses, since sibling primitives of one mesh (e.g. skin vs. clothing) commonly use
  * different materials. [metallicRoughnessImageBytes]/[normalImageBytes]/[occlusionImageBytes]/
  * [emissiveImageBytes] are the same per-primitive scoping for the rest of [GltfMesh]'s PBR
- * texture channels.
+ * texture channels, and [baseColorFactor]/[metallicFactor]/[roughnessFactor]/[emissiveFactor]
+ * for its factor scalars/vectors (see [GltfMesh]'s own doc comment for their glTF spec
+ * defaults).
  */
 data class LoadedPrimitive(
     val vertices: FloatArray,
@@ -24,6 +26,10 @@ data class LoadedPrimitive(
     val normalImageBytes: ByteArray? = null,
     val occlusionImageBytes: ByteArray? = null,
     val emissiveImageBytes: ByteArray? = null,
+    val baseColorFactor: FloatArray = floatArrayOf(1f, 1f, 1f, 1f),
+    val metallicFactor: Float = 1f,
+    val roughnessFactor: Float = 1f,
+    val emissiveFactor: FloatArray = floatArrayOf(0f, 0f, 0f),
 )
 
 data class LoadedMesh(

@@ -10,8 +10,11 @@ import kotlinx.serialization.Serializable
  * glTF-2.0.html) this parser actually reads: enough to pull mesh vertex attributes/indices,
  * a node hierarchy, skeletal skinning/animation, and base color/metallic-roughness/normal/
  * occlusion/emissive textures out of a `.gltf` file -- see [GltfParser]'s doc comment for
- * exactly which parts of [materials]/[textures]/[images] are read (still-encoded image bytes
- * per channel, no other material fields like `emissiveFactor` or normal `scale`).
+ * exactly which parts of [materials]/[textures]/[images] are read: still-encoded image bytes
+ * per channel, plus [GltfPbrMetallicRoughness]'s `baseColorFactor`/`metallicFactor`/
+ * `roughnessFactor` and [GltfMaterial.emissiveFactor] -- the scalar/vector factors a
+ * texture-free (or partially textured) material tints or replaces its maps with. No other
+ * material fields (normal `scale`, occlusion `strength`) are read.
  */
 @Serializable
 data class GltfDocument(
@@ -38,15 +41,28 @@ data class GltfMaterial(
     val normalTexture: GltfTextureRef? = null,
     val occlusionTexture: GltfTextureRef? = null,
     val emissiveTexture: GltfTextureRef? = null,
+    /** Linear RGB `[r, g, b]`, multiplied into [emissiveTexture]'s sample (or standing alone
+     * when there's no emissive texture) -- glTF 2.0 spec default `[0, 0, 0]` (no emission). */
+    val emissiveFactor: List<Float>? = null,
 )
 
 @Serializable
 data class GltfPbrMetallicRoughness(
     val baseColorTexture: GltfTextureRef? = null,
+    /** Linear RGBA `[r, g, b, a]`, multiplied into [baseColorTexture]'s sample (or standing
+     * alone when there's no base color texture) -- glTF 2.0 spec default `[1, 1, 1, 1]`
+     * (opaque white, i.e. the texture's own color passes through unmodified). */
+    val baseColorFactor: List<Float>? = null,
     /** Green channel = roughness, blue channel = metalness (glTF 2.0 spec) -- read as one
      * still-encoded image, same "backend decides how to sample its channels" scope
      * [readBaseColorImageBytes]'s sibling readers already have. */
     val metallicRoughnessTexture: GltfTextureRef? = null,
+    /** Multiplies [metallicRoughnessTexture]'s blue channel (or stands alone when there's no
+     * texture) -- glTF 2.0 spec default `1.0`. */
+    val metallicFactor: Float? = null,
+    /** Multiplies [metallicRoughnessTexture]'s green channel (or stands alone when there's no
+     * texture) -- glTF 2.0 spec default `1.0`. */
+    val roughnessFactor: Float? = null,
 )
 
 @Serializable

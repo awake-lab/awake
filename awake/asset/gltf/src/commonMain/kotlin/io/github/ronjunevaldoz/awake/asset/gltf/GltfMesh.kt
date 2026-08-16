@@ -17,7 +17,11 @@ package io.github.ronjunevaldoz.awake.asset.gltf
  * -- see `io.github.ronjunevaldoz.awake.core.graphics.createBitmap`. [metallicRoughnessImageBytes]/
  * [normalImageBytes]/[occlusionImageBytes]/[emissiveImageBytes] are the same kind of
  * still-encoded, per-material image bytes, one per glTF PBR texture channel -- `null` unless
- * the primitive's material has that channel.
+ * the primitive's material has that channel. [baseColorFactor] (`[r,g,b,a]`)/[metallicFactor]/
+ * [roughnessFactor]/[emissiveFactor] (`[r,g,b]`) are the corresponding scalar/vector factors,
+ * always present (glTF 2.0 spec default when the primitive has no material, or the material
+ * doesn't set that field: `[1,1,1,1]`/`1f`/`1f`/`[0,0,0]`) -- multiplied into their texture's
+ * sample, or standing alone when that channel has no texture at all.
  */
 data class GltfMesh(
     val positions: FloatArray,
@@ -32,6 +36,10 @@ data class GltfMesh(
     val normalImageBytes: ByteArray? = null,
     val occlusionImageBytes: ByteArray? = null,
     val emissiveImageBytes: ByteArray? = null,
+    val baseColorFactor: FloatArray = floatArrayOf(1f, 1f, 1f, 1f),
+    val metallicFactor: Float = 1f,
+    val roughnessFactor: Float = 1f,
+    val emissiveFactor: FloatArray = floatArrayOf(0f, 0f, 0f),
 ) {
     val vertexCount: Int get() = positions.size / POSITION_COMPONENTS
 

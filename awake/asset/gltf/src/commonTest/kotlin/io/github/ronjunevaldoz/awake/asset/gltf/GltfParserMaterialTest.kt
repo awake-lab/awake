@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.asset.gltf
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -172,6 +173,54 @@ class GltfParserMaterialTest {
         assertNull(mesh.normalImageBytes)
         assertNull(mesh.occlusionImageBytes)
         assertNull(mesh.emissiveImageBytes)
+    }
+
+    @Test
+    fun pbrFactorsDefaultPerGltfSpecWhenPrimitiveHasNoMaterial() {
+        val json = """
+            {
+              $triangleAccessorsAndBuffer,
+              "meshes": [
+                { "primitives": [ { "attributes": { "POSITION": 0 } } ] }
+              ]
+            }
+        """.trimIndent()
+
+        val mesh = GltfParser.parse(json)
+
+        assertEquals(listOf(1f, 1f, 1f, 1f), mesh.baseColorFactor.toList())
+        assertEquals(1f, mesh.metallicFactor)
+        assertEquals(1f, mesh.roughnessFactor)
+        assertEquals(listOf(0f, 0f, 0f), mesh.emissiveFactor.toList())
+    }
+
+    @Test
+    fun pbrFactorsAreReadFromTheMaterialWhenPresent() {
+        val json = """
+            {
+              $triangleAccessorsAndBuffer,
+              "materials": [
+                {
+                  "pbrMetallicRoughness": {
+                    "baseColorFactor": [0.1, 0.2, 0.3, 0.4],
+                    "metallicFactor": 0.7,
+                    "roughnessFactor": 0.6
+                  },
+                  "emissiveFactor": [0.5, 0.6, 0.7]
+                }
+              ],
+              "meshes": [
+                { "primitives": [ { "attributes": { "POSITION": 0 }, "material": 0 } ] }
+              ]
+            }
+        """.trimIndent()
+
+        val mesh = GltfParser.parse(json)
+
+        assertEquals(listOf(0.1f, 0.2f, 0.3f, 0.4f), mesh.baseColorFactor.toList())
+        assertEquals(0.7f, mesh.metallicFactor)
+        assertEquals(0.6f, mesh.roughnessFactor)
+        assertEquals(listOf(0.5f, 0.6f, 0.7f), mesh.emissiveFactor.toList())
     }
 
     @Test
