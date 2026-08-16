@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.ui.UiInputState
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInputOTP
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.math.abs
@@ -16,22 +15,15 @@ import kotlin.test.assertTrue
 class ShadcnInputOTPTest {
 
     // ──────────────────────────────────────────────────────────
-    // Helper: build a fresh UiContext with a default BitmapFont
-    // ──────────────────────────────────────────────────────────
-    private fun uiContext() = UiContext().also { it.pushFont(BitmapFont()) }
-
-    // ──────────────────────────────────────────────────────────
     // Slot count
     // ──────────────────────────────────────────────────────────
 
     @Test
     fun shadcnInputOTPRendersCorrectSlotCount() {
-        val ui = uiContext()
-
-        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 160f, input = UiInputState()))
         var value = "12"
-        value = ui.headlessRoot().shadcnInputOTP(id = "otp-1", value = value, length = 6)
-        val output = ui.finishFrame()
+        val output = renderUiComponent(width = 300f, height = 160f, font = BitmapFont()) {
+            value = shadcnInputOTP(id = "otp-1", value = value, length = 6)
+        }
 
         assertEquals("12", value, "value must be unchanged when no input event")
 
@@ -52,12 +44,10 @@ class ShadcnInputOTPTest {
      */
     @Test
     fun shadcnInputOTPDigitIsCenteredInSlot() {
-        val ui = uiContext()
-
         // Use a wide viewport so slots are not constrained, and a pre-filled digit
-        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 80f, input = UiInputState()))
-        ui.headlessRoot().shadcnInputOTP(id = "otp", value = "4", length = 6)
-        val output = ui.finishFrame()
+        val output = renderUiComponent(width = 400f, height = 80f, font = BitmapFont()) {
+            shadcnInputOTP(id = "otp", value = "4", length = 6)
+        }
 
         // 1. Locate the slot-0 Panel node
         val slot0 = output.semantics.firstOrNull { it.id == "otp.slot.0" }
@@ -100,12 +90,11 @@ class ShadcnInputOTPTest {
 
     @Test
     fun shadcnInputOTPAllFilledDigitsAreCenteredInTheirSlots() {
-        val ui = uiContext()
         val digits = "482019"
 
-        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 80f, input = UiInputState()))
-        ui.headlessRoot().shadcnInputOTP(id = "otp", value = digits, length = 6)
-        val output = ui.finishFrame()
+        val output = renderUiComponent(width = 400f, height = 80f, font = BitmapFont()) {
+            shadcnInputOTP(id = "otp", value = digits, length = 6)
+        }
 
         val tolerancePx = 1f
         val violations = mutableListOf<String>()
@@ -143,25 +132,27 @@ class ShadcnInputOTPTest {
     }
 
     @Test
-    fun shadcnInputOTPFocusesInputOnSlotClick() {
-        val ui = uiContext()
-        ui.pushTheme(ShadcnTheme)
-
-        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 80f, input = testSnapshot(x = -100f, y = -100f, down = false)))
-        ui.headlessRoot().shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)
-        val output = ui.finishFrame()
+    fun shadcnInputOTPFocusesInputOnSlotClick() = uiTestSession(
+        width = 400f,
+        height = 80f,
+        theme = ShadcnTheme,
+        font = BitmapFont(),
+    ) {
+        val output = frame {
+            shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)
+        }
 
         val slot0 = output.semantics.first { it.id == "otp-focus-test.slot.0" }
         val clickX = slot0.bounds.x + slot0.bounds.width / 2f
         val clickY = slot0.bounds.y + slot0.bounds.height / 2f
 
-        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 80f, input = testSnapshot(x = clickX, y = clickY, down = true)))
-        ui.headlessRoot().shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)
-        ui.finishFrame()
+        frame(x = clickX, y = clickY, down = true) {
+            shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)
+        }
 
-        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 80f, input = testSnapshot(x = clickX, y = clickY, down = false)))
-        ui.headlessRoot().shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)
-        ui.finishFrame()
+        frame(x = clickX, y = clickY, down = false) {
+            shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)
+        }
 
         assertTrue(ui.isFocused("otp-focus-test"), "Clicking OTP slot 0 must delegate focus to input 'otp-focus-test'")
     }

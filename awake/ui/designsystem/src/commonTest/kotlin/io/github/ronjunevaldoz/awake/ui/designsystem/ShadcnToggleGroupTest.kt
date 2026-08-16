@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -24,23 +25,25 @@ class ShadcnToggleGroupTest {
      * picked for a transparent background.
      */
     @Test
-    fun uncheckedSegmentLabelsUseTheGroupForegroundNotMutedForeground() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(300f, 120f, testSnapshot())
-
-        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
-            shadcnToggleGroup(
-                id = "group",
-                options = listOf("Left", "Center", "Right"),
-                selectedIndex = 0,
-                modifier = Modifier.width(300f.dp).height(40f.dp),
-            )
+    fun uncheckedSegmentLabelsUseTheGroupForegroundNotMutedForeground() = uiTestSession(
+        width = 300f,
+        height = 120f,
+        theme = ShadcnTheme,
+        font = BitmapFont(),
+    ) {
+        val rendered = frame {
+            column(modifier = Modifier.fillMaxSize()) {
+                shadcnToggleGroup(
+                    id = "group",
+                    options = listOf("Left", "Center", "Right"),
+                    selectedIndex = 0,
+                    modifier = Modifier.width(300f.dp).height(40f.dp),
+                )
+            }
         }
 
         val colors = ui.currentTheme.asShadcnTheme().colors
-        val labelColors = ui.finishFrame().semantics
+        val labelColors = rendered.semantics
             .filter { it.id?.endsWith(".label") == true }
             .mapNotNull { it.foregroundColor }
 
@@ -53,21 +56,18 @@ class ShadcnToggleGroupTest {
 
     @Test
     fun containerWrapsEverySegmentWithoutCollapsingTheirWidths() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(300f, 120f, testSnapshot())
-
-        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
-            shadcnToggleGroup(
-                id = "group",
-                options = listOf("Left", "Center", "Right"),
-                selectedIndex = 1,
-                modifier = Modifier.width(300f.dp).height(40f.dp),
-            )
+        val frame = renderUiComponent(width = 300f, height = 120f, theme = ShadcnTheme, font = BitmapFont()) {
+            column(modifier = Modifier.fillMaxSize()) {
+                shadcnToggleGroup(
+                    id = "group",
+                    options = listOf("Left", "Center", "Right"),
+                    selectedIndex = 1,
+                    modifier = Modifier.width(300f.dp).height(40f.dp),
+                )
+            }
         }
 
-        val widths = ui.finishFrame().semantics
+        val widths = frame.semantics
             .filter { it.id?.startsWith("group.") == true && it.id?.endsWith(".label") == false }
             .map { it.bounds.width }
 
@@ -77,21 +77,18 @@ class ShadcnToggleGroupTest {
 
     @Test
     fun wrapHeightDoesNotExpandSegmentsToTheMeasurementSentinel() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(300f, 120f, testSnapshot())
-
-        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
-            shadcnToggleGroup(
-                id = "wrap-height-group",
-                options = listOf("Left", "Right"),
-                selectedIndex = 0,
-                modifier = Modifier.width(300f.dp),
-            )
+        val frame = renderUiComponent(width = 300f, height = 120f, theme = ShadcnTheme, font = BitmapFont()) {
+            column(modifier = Modifier.fillMaxSize()) {
+                shadcnToggleGroup(
+                    id = "wrap-height-group",
+                    options = listOf("Left", "Right"),
+                    selectedIndex = 0,
+                    modifier = Modifier.width(300f.dp),
+                )
+            }
         }
 
-        val firstSegment = ui.finishFrame().semantics.first { it.id == "wrap-height-group.0" }
+        val firstSegment = frame.semantics.first { it.id == "wrap-height-group.0" }
         assertEquals(40f, firstSegment.bounds.height, "wrap-height groups must use the toggle height")
     }
 }

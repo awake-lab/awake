@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
+import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
 import kotlin.time.measureTime
@@ -23,7 +24,7 @@ class StudioFramePerfProbeTest {
         val ui = UiContext()
         val store = StudioStore()
         val world = World()
-        val renderer = PerfNoopRenderer()
+        val renderer = NoopRenderer()
         ui.pushFont(BitmapFont())
         ui.pushTheme(shadcnThemeValues(dark = true))
 
@@ -48,48 +49,4 @@ class StudioFramePerfProbeTest {
             "PERF studio-shell msPerFrame=$msPerFrame trialsPerFrame=${trialCount / frames}",
         )
     }
-}
-
-private class PerfNoopRenderer : io.github.ronjunevaldoz.awake.render.renderer.Renderer {
-    override val clipSpace = io.github.ronjunevaldoz.awake.core.math.ClipSpace.WebGpu
-    override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
-    override var wireframe: Boolean = false
-    override var shadowsEnabled: Boolean = true
-    override fun createMesh(geometry: io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry) =
-        object : io.github.ronjunevaldoz.awake.render.mesh.Mesh {
-            override val format = geometry.format
-            override fun bind(commandBuffer: Long) = Unit
-            override fun draw(commandBuffer: Long) = Unit
-            override fun destroy() = Unit
-        }
-    override fun createMaterial(
-        texture: io.github.ronjunevaldoz.awake.render.texture.TextureAsset?,
-        renderTarget: io.github.ronjunevaldoz.awake.render.texture.RenderTarget?,
-        uniformFloatCount: Int,
-    ) = object : io.github.ronjunevaldoz.awake.render.material.Material {
-        override fun updateUniformBuffer(mvp: FloatArray) = Unit
-        override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
-        override fun destroy() = Unit
-    }
-    override fun createRenderTarget(width: Int, height: Int) =
-        object : io.github.ronjunevaldoz.awake.render.texture.RenderTarget {
-            override val width: Int = width
-            override val height: Int = height
-            override fun destroy() = Unit
-        }
-    override fun draw(
-        camera: io.github.ronjunevaldoz.awake.core.math.Camera,
-        drawCalls: List<io.github.ronjunevaldoz.awake.render.renderer.DrawCall>,
-        light: io.github.ronjunevaldoz.awake.render.renderer.SceneLight,
-    ) = Unit
-    override fun renderToTexture(
-        target: io.github.ronjunevaldoz.awake.render.texture.RenderTarget,
-        camera: io.github.ronjunevaldoz.awake.core.math.Camera,
-        drawCalls: List<io.github.ronjunevaldoz.awake.render.renderer.DrawCall>,
-    ) = Unit
-    override suspend fun readPixels(target: io.github.ronjunevaldoz.awake.render.texture.RenderTarget) =
-        io.github.ronjunevaldoz.awake.render.texture.TextureAsset(ByteArray(0), 0, 0)
-    override fun drawUi(primitives: List<io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive>, font: io.github.ronjunevaldoz.awake.ui.font.UiFont?) = Unit
-    override fun drawDebugLines(lines: List<io.github.ronjunevaldoz.awake.render.renderer.LineSegment>) = Unit
-    override fun destroy() = Unit
 }

@@ -5,30 +5,21 @@ package io.github.ronjunevaldoz.awake.studio
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.math.Camera
-import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.game.requireService
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
-import io.github.ronjunevaldoz.awake.render.material.Material
-import io.github.ronjunevaldoz.awake.render.mesh.Mesh
-import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
-import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
-import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
-import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
-import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.studio.ui.drawStudioShell
-import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlinx.coroutines.test.runTest
 import kotlin.math.PI
 import kotlin.math.sin
@@ -208,39 +199,10 @@ class StudioModuleCameraTest {
     }
 }
 
-internal class RecordingCameraRenderer : Renderer {
+internal class RecordingCameraRenderer : NoopRenderer() {
     var lastEye: Vec3? = null
     var lastProjection: Camera.Projection? = null
     var lastOrthoHalfHeight: Float = 0f
-
-    override val clipSpace: ClipSpace = ClipSpace.WebGpu
-    override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
-    override var wireframe: Boolean = false
-    override var shadowsEnabled: Boolean = true
-
-    override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
-        override val format: VertexFormat = geometry.format
-        override fun bind(commandBuffer: Long) = Unit
-        override fun draw(commandBuffer: Long) = Unit
-        override fun destroy() = Unit
-    }
-
-    override fun createMaterial(
-        texture: TextureAsset?,
-        renderTarget: RenderTarget?,
-        uniformFloatCount: Int,
-    ): Material =
-        object : Material {
-            override fun updateUniformBuffer(mvp: FloatArray) = Unit
-            override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
-            override fun destroy() = Unit
-        }
-
-    override fun createRenderTarget(width: Int, height: Int): RenderTarget = object : RenderTarget {
-        override val width: Int = width
-        override val height: Int = height
-        override fun destroy() = Unit
-    }
 
     override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) {
         // Snapshot, not a reference -- `camera.eye` is mutated in place next frame, so holding
@@ -249,16 +211,4 @@ internal class RecordingCameraRenderer : Renderer {
         lastProjection = camera.projection
         lastOrthoHalfHeight = camera.orthoHalfHeight
     }
-
-    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) =
-        Unit
-
-    override suspend fun readPixels(target: RenderTarget): TextureAsset =
-        TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)
-
-    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) = Unit
-
-    override fun drawDebugLines(lines: List<LineSegment>) = Unit
-
-    override fun destroy() = Unit
 }

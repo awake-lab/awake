@@ -2,30 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.ui
 
-import io.github.ronjunevaldoz.awake.core.math.Camera
-import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.render.material.Material
-import io.github.ronjunevaldoz.awake.render.mesh.Mesh
-import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
-import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
-import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
-import io.github.ronjunevaldoz.awake.render.renderer.Renderer
-import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
-import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
-import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
-import io.github.ronjunevaldoz.awake.ui.UiDensity
-import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiInputState
+import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -50,15 +35,15 @@ private const val ESCAPE_FACTOR = 2f
  * ui-showcase's job, not this sample's; see the design-system engineer's validation notes. */
 class StudioShellLayoutTest {
 
-    private fun renderShell(): List<UiSemanticNode> {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnThemeValues(dark = true))
-        ui.beginFrame(FRAME_WIDTH, FRAME_HEIGHT, UiInputState(pointerX = -100f, pointerY = -100f))
-        ui.createUiScope(slot = UiBounds(0f, 0f, FRAME_WIDTH, FRAME_HEIGHT))
-            .drawStudioShellBody(StudioStore(), World(), NoopRenderer())
-        return ui.finishFrame().semantics
-    }
+    private fun renderShell(density: Float = 1f): List<UiSemanticNode> = renderUiComponent(
+        width = FRAME_WIDTH,
+        height = FRAME_HEIGHT,
+        theme = shadcnThemeValues(dark = true),
+        font = BitmapFont(),
+        density = density,
+    ) {
+        drawStudioShellBody(StudioStore(), World(), NoopRenderer())
+    }.semantics
 
     // The live app runs at Retina density; the shell computes its workspace height in pixels,
     // and wrapping that pixel value back as Dp re-multiplied it by UiDensity.scale -- the
@@ -66,26 +51,20 @@ class StudioShellLayoutTest {
     // the frame. Only reproduces with scale != 1, which every other test here leaves at 1.
     @Test
     fun workspaceStaysInsideTheShellAtRetinaDensity() {
-        val previousScale = UiDensity.scale
-        UiDensity.scale = 2f
-        try {
-            val semantics = renderShell()
-            val statusBar = assertNotNull(semantics.firstOrNull { it.id == "studio-status-bar" })
-            val dockHandle = assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock-handle" })
-            assertEquals(
-                FRAME_HEIGHT,
-                statusBar.bounds.y + statusBar.bounds.height,
-                HAIRLINE_TOLERANCE,
-                "status bar must stay flush with the bottom edge at density 2",
-            )
-            assertTrue(
-                dockHandle.bounds.y + dockHandle.bounds.height < FRAME_HEIGHT,
-                "dock handle must stay inside the frame at density 2 " +
-                    "(was at y=${dockHandle.bounds.y})",
-            )
-        } finally {
-            UiDensity.scale = previousScale
-        }
+        val semantics = renderShell(density = 2f)
+        val statusBar = assertNotNull(semantics.firstOrNull { it.id == "studio-status-bar" })
+        val dockHandle = assertNotNull(semantics.firstOrNull { it.id == "studio-bottom-dock-handle" })
+        assertEquals(
+            FRAME_HEIGHT,
+            statusBar.bounds.y + statusBar.bounds.height,
+            HAIRLINE_TOLERANCE,
+            "status bar must stay flush with the bottom edge at density 2",
+        )
+        assertTrue(
+            dockHandle.bounds.y + dockHandle.bounds.height < FRAME_HEIGHT,
+            "dock handle must stay inside the frame at density 2 " +
+                "(was at y=${dockHandle.bounds.y})",
+        )
     }
 
     @Test
@@ -122,14 +101,11 @@ class StudioShellLayoutTest {
 
     @Test
     fun activeExampleItemPaintsAVisibleHighlightNotATransparentFill() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnThemeValues(dark = true))
         val activeId = StudioExamples.first().id
-        ui.beginFrame(400f, 600f, UiInputState(pointerX = -100f, pointerY = -100f))
-        ui.createUiScope(slot = UiBounds(0f, 0f, 400f, 600f))
-            .drawExampleRail(activeExampleId = activeId, onSelectExample = {})
-        val item = assertNotNull(ui.finishFrame().semantics.firstOrNull { it.id == "studio-example-$activeId" })
+        val frame = renderUiComponent(width = 400f, height = 600f, theme = shadcnThemeValues(dark = true), font = BitmapFont()) {
+            drawExampleRail(activeExampleId = activeId, onSelectExample = {})
+        }
+        val item = assertNotNull(frame.semantics.firstOrNull { it.id == "studio-example-$activeId" })
         // Regression: shadcnButton's Ghost variant hardcodes an idle (non-hover) fill of fully
         // transparent regardless of what a caller's own Style sets, so the "active" item's real
         // highlight never painted while staying Ghost -- exampleMenuItem switches to Primary
@@ -190,66 +166,30 @@ class StudioShellLayoutTest {
     }
 
     @Test
-    fun switchingBottomDockTabsKeepsMeasuredChildrenInSync() {
-        val ui = UiContext()
-        val store = StudioStore()
-        val world = World()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnThemeValues(dark = true))
+    fun switchingBottomDockTabsKeepsMeasuredChildrenInSync() =
+        uiTestSession(
+            width = FRAME_WIDTH,
+            height = FRAME_HEIGHT,
+            theme = shadcnThemeValues(dark = true),
+            font = BitmapFont(),
+        ) {
+            val store = StudioStore()
+            val world = World()
 
-        fun frame(input: UiInputState): List<UiSemanticNode> {
-            ui.beginFrame(FRAME_WIDTH, FRAME_HEIGHT, input)
-            ui.createUiScope(slot = UiBounds(0f, 0f, FRAME_WIDTH, FRAME_HEIGHT))
-                .drawStudioShellBody(store, world, NoopRenderer())
-            return ui.finishFrame().semantics
+            fun shellFrame(x: Float = -100f, y: Float = -100f, down: Boolean = false): List<UiSemanticNode> =
+                frame(x = x, y = y, down = down) {
+                    drawStudioShellBody(store, world, NoopRenderer())
+                }.semantics
+
+            fun click(tabId: String) {
+                val tab = assertNotNull(shellFrame().firstOrNull { it.id == tabId })
+                val x = tab.bounds.x + tab.bounds.width / 2f
+                val y = tab.bounds.y + tab.bounds.height / 2f
+                shellFrame(x, y, down = true)
+                shellFrame(x, y, down = false)
+            }
+
+            click("studio-bottom-dock.Timeline")
+            click("studio-bottom-dock.Console")
         }
-
-        fun click(tabId: String) {
-            val tab = assertNotNull(
-                frame(UiInputState(pointerX = -100f, pointerY = -100f))
-                    .firstOrNull { it.id == tabId },
-            )
-            val x = tab.bounds.x + tab.bounds.width / 2f
-            val y = tab.bounds.y + tab.bounds.height / 2f
-            frame(UiInputState(pointerX = x, pointerY = y, pointerDown = true))
-            frame(UiInputState(pointerX = x, pointerY = y, pointerDown = false))
-        }
-
-        click("studio-bottom-dock.Timeline")
-        click("studio-bottom-dock.Console")
-    }
-}
-
-private class NoopRenderer : Renderer {
-    override val clipSpace: ClipSpace = ClipSpace.WebGpu
-    override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
-    override var wireframe: Boolean = false
-    override var shadowsEnabled: Boolean = true
-
-    override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
-        override val format = geometry.format
-        override fun bind(commandBuffer: Long) = Unit
-        override fun draw(commandBuffer: Long) = Unit
-        override fun destroy() = Unit
-    }
-
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): Material =
-        object : Material {
-            override fun updateUniformBuffer(mvp: FloatArray) = Unit
-            override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
-            override fun destroy() = Unit
-        }
-
-    override fun createRenderTarget(width: Int, height: Int): RenderTarget = object : RenderTarget {
-        override val width: Int = width
-        override val height: Int = height
-        override fun destroy() = Unit
-    }
-
-    override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) = Unit
-    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) = Unit
-    override suspend fun readPixels(target: RenderTarget): TextureAsset = TextureAsset(ByteArray(0), 0, 0)
-    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) = Unit
-    override fun drawDebugLines(lines: List<LineSegment>) = Unit
-    override fun destroy() = Unit
 }

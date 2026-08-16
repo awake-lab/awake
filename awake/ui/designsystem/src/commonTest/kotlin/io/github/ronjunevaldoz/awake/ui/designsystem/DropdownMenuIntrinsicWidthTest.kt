@@ -3,14 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDropdownMenu
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -28,46 +27,38 @@ class DropdownMenuIntrinsicWidthTest {
      */
     @Test
     fun wrapContentMenuDoesNotTruncateItsWidestItem() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(640f, 400f, testSnapshot(x = -100f, y = -100f, down = false))
-
-        ui.createUiScope(UiBounds(0f, 0f, 640f, 400f)).shadcnDropdownMenu(
-            id = "camera-menu",
-            anchorSlot = UiBounds(120f, 80f, 0f, 0f),
-            expanded = true,
-            items = listOf(
-                ShadcnDropdownMenuItem(label = "Perspective"),
-                ShadcnDropdownMenuItem(label = "Orthographic"),
-            ),
-            width = Dimension.WrapContent,
-        )
-
-        val semantics = ui.finishFrame().semantics
+        val semantics = renderUiComponent(width = 640f, height = 400f, theme = ShadcnTheme, font = BitmapFont()) {
+            shadcnDropdownMenu(
+                id = "camera-menu",
+                anchorSlot = UiBounds(120f, 80f, 0f, 0f),
+                expanded = true,
+                items = listOf(
+                    ShadcnDropdownMenuItem(label = "Perspective"),
+                    ShadcnDropdownMenuItem(label = "Orthographic"),
+                ),
+                width = Dimension.WrapContent,
+            )
+        }.semantics
         val report = inspectTextTruncation(semantics)
         assertTrue(report.isClean, "camera menu items must not truncate: ${report.summary()}")
     }
 
     @Test
     fun menuItemsUseMenuRowGeometryAndSemantics() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(640f, 400f, testSnapshot(x = -100f, y = -100f, down = false))
+        val frame = renderUiComponent(width = 640f, height = 400f, theme = ShadcnTheme, font = BitmapFont()) {
+            shadcnDropdownMenu(
+                id = "actions-menu",
+                anchorSlot = UiBounds(120f, 80f, 0f, 0f),
+                expanded = true,
+                items = listOf(
+                    ShadcnDropdownMenuItem(label = "Edit"),
+                    ShadcnDropdownMenuItem(label = "Delete", destructive = true),
+                ),
+                width = Dimension.WrapContent,
+            )
+        }
 
-        ui.createUiScope(UiBounds(0f, 0f, 640f, 400f)).shadcnDropdownMenu(
-            id = "actions-menu",
-            anchorSlot = UiBounds(120f, 80f, 0f, 0f),
-            expanded = true,
-            items = listOf(
-                ShadcnDropdownMenuItem(label = "Edit"),
-                ShadcnDropdownMenuItem(label = "Delete", destructive = true),
-            ),
-            width = Dimension.WrapContent,
-        )
-
-        val itemSemantics = ui.finishFrame().semantics.filter {
+        val itemSemantics = frame.semantics.filter {
             it.id?.let { id -> id.startsWith("actions-menu.item.") && !id.endsWith(".label") } == true
         }
         assertEquals(2, itemSemantics.size)
