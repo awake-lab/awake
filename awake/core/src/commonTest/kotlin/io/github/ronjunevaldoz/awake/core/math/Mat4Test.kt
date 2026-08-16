@@ -268,7 +268,7 @@ class Mat4Test {
         assertTrue(sum.data.all { it == 2f }, "expected every entry to be the buggy 2f, got ${sum.data.toList()}")
     }
 
-    // DEFECT: Mat4.plus (matrix.kt:441) is a matrix-*multiply* loop with '+' substituted for
+    // DEFECT: Mat4.plus (Matrix.kt:441) is a matrix-*multiply* loop with '+' substituted for
     // '*' -- it sums a[i,k] + b[k,j] over k instead of adding matching entries. Dead code today
     // (no callers). Un-@Ignore once it is fixed or deleted.
     @Ignore

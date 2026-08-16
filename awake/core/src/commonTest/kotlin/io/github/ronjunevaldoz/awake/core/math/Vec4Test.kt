@@ -92,7 +92,7 @@ class Vec4Test {
         assertVec4(expected, v)
     }
 
-    /** The defect this once characterised is fixed: vector.kt and matrix.kt now agree on the
+    /** The defect this once characterised is fixed: Vector.kt and Matrix.kt now agree on the
      * `M * v` convention the shaders use, so transforming through a composed matrix and through
      * its factors give the same answer. */
     @Test

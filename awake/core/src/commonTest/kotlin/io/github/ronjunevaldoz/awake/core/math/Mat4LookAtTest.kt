@@ -79,7 +79,7 @@ class Mat4LookAtTest {
     // camera only lands on the view-space origin when its basis happens to be the identity --
     // i.e. eye on +Z looking down -Z, the one case every existing test uses. Fix: swap the nine
     // rotation assignments to m00/m01/m02 = s, m10/m11/m12 = u, m20/m21/m22 = -f. Un-@Ignore
-    // once matrix.kt is fixed.
+    // once Matrix.kt is fixed.
     @Ignore
     @Test
     fun viewMatrixShouldMapTheCameraPositionToTheOrigin() {
