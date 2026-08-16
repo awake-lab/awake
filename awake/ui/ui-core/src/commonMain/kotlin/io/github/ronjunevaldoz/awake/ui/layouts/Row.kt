@@ -331,6 +331,7 @@ fun UiPrimitiveScope.row(
     }
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
     val slot = claimModifiedSlot(sizedModifier)
+    val nodeKey = context.enterLayoutNodeInternal()
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: hitTest(slot),
         active = modifier.forceActive ?: false,
@@ -359,11 +360,20 @@ fun UiPrimitiveScope.row(
     // regardless of hasWeightedChild's value -- `||` short-circuits, so the trial to the right
     // never runs in that case, skipping a full throwaway execution of [content] that the branch
     // decision below never needed anyway.
+    // Last frame's observed answer for this same structural position (see
+    // UiContext.enterLayoutNodeInternal) -- the throwaway trial below only runs on this node's
+    // first frame, or after a structural change moved it. Callers that supply id/cacheKey keep
+    // their own explicit cache path unchanged.
+    val remembered = if (id != null && cacheKey != null) {
+        null
+    } else {
+        context.rememberedHasWeightedChildInternal(nodeKey)
+    }
     val hasWeightedChild = effectiveArrangement.requiresMeasuredDistribution() ||
         if (precomputedMeasured != null) {
             precomputedMeasured.weights.any { it != null }
         } else {
-            context.resolveHasWeightedChild(id, cacheKey) {
+            remembered ?: context.resolveHasWeightedChild(id, cacheKey) {
                 context.measureRowContent(
                     height = slot.height,
                     gap = effectiveArrangement.baseSpacingPx(),
@@ -431,7 +441,14 @@ fun UiPrimitiveScope.row(
     // composite child's *own* grandchildren through this same context. Suppress recording for
     // that window so a weighted sibling's WrapContent content doesn't corrupt this row's own
     // already-computed measured.slots/weights (see UiContext.withMeasuredRecordingSuppressed).
-    context.withMeasuredRecordingSuppressed { scope.content(slot) }
+    context.withMeasuredRecordingSuppressed {
+        if (!hasWeightedChild && remembered == false) context.tolerateUnplannedWeightInternal()
+        scope.content(slot)
+    }
+    // Self-correction: whatever this real pass actually saw is next frame's answer, so a
+    // structural change costs at most the one frame it took to notice.
+    context.recordHasWeightedChildInternal(nodeKey, context.lastChildWeightObservation)
     context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
+    context.exitLayoutNodeInternal()
     return slot
 }

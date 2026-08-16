@@ -427,6 +427,7 @@ fun UiPrimitiveScope.column(
     }
     val sizedModifier = modifier.withSizeFallback(Dimension.FillMax, Dimension.WrapContent)
     val slot = claimModifiedSlot(sizedModifier)
+    val nodeKey = context.enterLayoutNodeInternal()
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: hitTest(slot),
         active = modifier.forceActive ?: false,
@@ -452,11 +453,18 @@ fun UiPrimitiveScope.column(
     // forces the plannedSlots branch below regardless of hasWeightedChild's value, so `||`
     // short-circuits the trial to the right whenever it does, skipping a full throwaway
     // execution of [content] the branch decision below never needed anyway.
+    // See the matching comment in UiPrimitiveScope.row() -- last frame's observed answer for this
+    // structural position, so the throwaway trial below only runs on this node's first frame.
+    val remembered = if (id != null && cacheKey != null) {
+        null
+    } else {
+        context.rememberedHasWeightedChildInternal(nodeKey)
+    }
     val hasWeightedChild = effectiveArrangement.requiresMeasuredDistribution() ||
         if (precomputedMeasured != null) {
             precomputedMeasured.weights.any { it != null }
         } else {
-            context.resolveHasWeightedChild(id, cacheKey) {
+            remembered ?: context.resolveHasWeightedChild(id, cacheKey) {
                 context.measureColumnContent(
                     width = slot.width,
                     gap = effectiveArrangement.baseSpacingPx(),
@@ -520,7 +528,13 @@ fun UiPrimitiveScope.column(
     // See the matching comment in UiPrimitiveScope.row() -- suppress recording while rendering this
     // column's own real children so a composite (e.g. weighted) child's grandchildren don't
     // corrupt an ancestor row/column's own in-progress measured.slots/weights trial.
-    context.withMeasuredRecordingSuppressed { scope.content(slot) }
+    context.withMeasuredRecordingSuppressed {
+        if (!hasWeightedChild && remembered == false) context.tolerateUnplannedWeightInternal()
+        scope.content(slot)
+    }
+    // See UiPrimitiveScope.row() -- this frame's observation is next frame's answer.
+    context.recordHasWeightedChildInternal(nodeKey, context.lastChildWeightObservation)
     context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
+    context.exitLayoutNodeInternal()
     return slot
 }

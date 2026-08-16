@@ -96,6 +96,7 @@ class UiContext internal constructor(
             deltaSeconds = frame.deltaSeconds,
         )
         measurement.beginFrame()
+        beginWeightAnswerFrame()
     }
 
     @Deprecated(
@@ -554,8 +555,18 @@ class UiContext internal constructor(
     }
 
     internal fun recordMeasuredWeight(weight: LayoutWeight?) {
-        if (measuring && wrapContributionSuppressionDepth == 0) {
-            measurement.recordWeight(weight, contributesToChildList = recordingSuppressionDepth == 0)
+        if (measuring) {
+            if (wrapContributionSuppressionDepth == 0) {
+                measurement.recordWeight(weight, contributesToChildList = recordingSuppressionDepth == 0)
+            }
+        } else if (weight != null && weightObservations.isNotEmpty()) {
+            // Real pass: the same claim the trial would have counted, observed live. No depth
+            // gate here -- the observation stack is already per-node, and both suppression
+            // brackets push their own frame (see [withMeasuredRecordingSuppressed]/
+            // [withMeasuredSubtreeIsolated]), so a claim lands on exactly the node the trial
+            // would have credited it to.
+            val top = weightObservations.lastIndex
+            weightObservations[top] = weightObservations[top] or OBSERVED_WEIGHT
         }
     }
 
@@ -574,10 +585,12 @@ class UiContext internal constructor(
      * still want their descendants to dictate an ancestor's WrapContent hugging. */
     internal inline fun <T> withMeasuredSubtreeIsolated(block: () -> T): T {
         wrapContributionSuppressionDepth++
+        pushWeightObservation()
         try {
             return block()
         } finally {
             wrapContributionSuppressionDepth--
+            popWeightObservation()
         }
     }
 
@@ -588,11 +601,106 @@ class UiContext internal constructor(
      * counter, not a flag) for arbitrarily deep composite children. */
     internal inline fun <T> withMeasuredRecordingSuppressed(block: () -> T): T {
         recordingSuppressionDepth++
+        pushWeightObservation()
         try {
             return block()
         } finally {
             recordingSuppressionDepth--
+            popWeightObservation()
         }
+    }
+
+    // --- Live weight observation + cross-frame answer reuse ---------------------------------
+    // "Does this row/column have a weighted direct child" is STRUCTURAL, and the real content
+    // pass at the end of row()/column() already executes the subtree -- so observe it there and
+    // reuse last frame's answer to pick this frame's branch, instead of executing the whole
+    // subtree a second time as a throwaway trial just to learn one boolean. See
+    // docs/tasks/2026-08-02-trial-measure-double-execution.md.
+    //
+    // The observation stack is bracketed by [withMeasuredRecordingSuppressed], i.e. exactly the
+    // same bracket that decides what counts as a DIRECT child for the trial's own
+    // measuredWeights list -- so the observed answer and the trial's answer are the same answer
+    // by construction, not by two rules that can drift apart.
+    private val weightObservations = ArrayList<Int>()
+
+    /** Set from the frame [withMeasuredRecordingSuppressed] just popped -- read it immediately
+     * after that call returns, like row()/column() do. */
+    internal var lastChildWeightObservation: Boolean = false
+        private set
+
+    internal fun pushWeightObservation() {
+        weightObservations.add(0)
+    }
+
+    internal fun popWeightObservation() {
+        val frame = weightObservations.removeAt(weightObservations.lastIndex)
+        lastChildWeightObservation = (frame and OBSERVED_WEIGHT) != 0
+    }
+
+    /** Marks the in-progress child dispatch as one that chose the unweighted fast path from a
+     * remembered answer rather than a fresh trial. A weighted child showing up anyway means the
+     * structure changed since last frame: lay it out unweighted for this one frame (the observed
+     * answer corrects the branch on the next) instead of the hard error that a parent which can
+     * never plan weighted slots still deserves. */
+    internal fun tolerateUnplannedWeightInternal() {
+        if (weightObservations.isEmpty()) return
+        val top = weightObservations.lastIndex
+        weightObservations[top] = weightObservations[top] or TOLERATE_UNPLANNED_WEIGHT
+    }
+
+    internal fun toleratesUnplannedWeightInternal(): Boolean =
+        weightObservations.isNotEmpty() &&
+            (weightObservations[weightObservations.lastIndex] and TOLERATE_UNPLANNED_WEIGHT) != 0
+
+    // Positional identity, since this DSL has no call-site identity: a rolling hash of the child
+    // indices from the root to this node. Stable frame to frame exactly as long as the structure
+    // is -- and when the structure DOES change the key simply misses, which costs one fresh
+    // trial (the correct answer), not a wrong branch.
+    private val pathCounters = ArrayList<Int>()
+    private val pathHashStack = ArrayList<Long>()
+    private var pathHash = 1L
+
+    // Two maps swapped per frame rather than one that grows forever: an entry no frame touches
+    // (a page that navigated away) falls out after one swap.
+    private var weightAnswers = HashMap<Long, Boolean>()
+    private var previousWeightAnswers = HashMap<Long, Boolean>()
+
+    private fun beginWeightAnswerFrame() {
+        pathCounters.clear()
+        pathHashStack.clear()
+        pathHash = 1L
+        weightObservations.clear()
+        val recycled = previousWeightAnswers
+        previousWeightAnswers = weightAnswers
+        recycled.clear()
+        weightAnswers = recycled
+    }
+
+    /** Enters this row/column's positional node, returning its path key. Must be paired with
+     * [exitLayoutNodeInternal]. */
+    internal fun enterLayoutNodeInternal(): Long {
+        val depth = pathHashStack.size
+        while (pathCounters.size <= depth) pathCounters.add(0)
+        val index = pathCounters[depth]
+        pathCounters[depth] = index + 1
+        pathHashStack.add(pathHash)
+        pathHash = pathHash * 1_000_003L + (index + 1)
+        return pathHash
+    }
+
+    internal fun exitLayoutNodeInternal() {
+        val childDepth = pathHashStack.size
+        if (pathCounters.size > childDepth) pathCounters[childDepth] = 0
+        pathHash = pathHashStack.removeAt(pathHashStack.lastIndex)
+    }
+
+    /** Last frame's observed answer for this node, or null on the first frame / after a
+     * structural change (both of which fall back to the trial, i.e. today's behavior). */
+    internal fun rememberedHasWeightedChildInternal(nodeKey: Long): Boolean? =
+        if (measuring) null else previousWeightAnswers[nodeKey]
+
+    internal fun recordHasWeightedChildInternal(nodeKey: Long, hasWeightedChild: Boolean) {
+        if (!measuring) weightAnswers[nodeKey] = hasWeightedChild
     }
 
     internal fun measuredContentSnapshot(): UiMeasuredContent = measurement.snapshot()
@@ -686,6 +794,11 @@ class UiContext internal constructor(
         width = width,
         content = content,
     )
+
+    private companion object {
+        const val OBSERVED_WEIGHT = 1
+        const val TOLERATE_UNPLANNED_WEIGHT = 2
+    }
 
     internal fun pointerXInternal(): Float = runtime.inputState.pointerX
     internal fun pointerYInternal(): Float = runtime.inputState.pointerY
