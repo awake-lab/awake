@@ -11,17 +11,14 @@ import io.github.ronjunevaldoz.awake.ui.context.uiLocalOf
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.widthIn
 import io.github.ronjunevaldoz.awake.ui.headless.wrapContentWidthOrDefault
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 
 enum class ShadcnButtonGroupOrientation {
     Horizontal,
@@ -75,6 +72,7 @@ fun UiScope.shadcnButtonGroup(
                     verticalAlignment = UiAlignment.Vertical.Center,
                     modifier = Modifier.wrapContentWidthOrDefault(),
                 ) { content() }
+
                 ShadcnButtonGroupOrientation.Vertical -> column(
                     verticalArrangement = Arrangement.spacedBy(0f.dp),
                     modifier = Modifier.wrapContentWidthOrDefault(),

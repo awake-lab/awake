@@ -42,17 +42,24 @@ actual fun saveAwakeUiDiff(id: String, pixels: ByteArray, width: Int, height: In
 }
 
 private fun saveImage(file: File, pixels: ByteArray, width: Int, height: Int) {
+    ImageIO.write(pixels.toBufferedImage(width, height), "png", file)
+}
+
+/** Decodes a rasterize()-shaped RGBA8888 byte buffer into a [BufferedImage] -- shared by every
+ * desktop test/tool that writes a rasterized [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive]
+ * frame to a PNG, so the pixel-unpack loop lives in exactly one place. */
+fun ByteArray.toBufferedImage(width: Int, height: Int): BufferedImage {
     val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
     var offset = 0
     for (y in 0 until height) {
         for (x in 0 until width) {
-            val r = pixels[offset].toInt() and 0xFF
-            val g = pixels[offset + 1].toInt() and 0xFF
-            val b = pixels[offset + 2].toInt() and 0xFF
-            val a = pixels[offset + 3].toInt() and 0xFF
+            val r = this[offset].toInt() and 0xFF
+            val g = this[offset + 1].toInt() and 0xFF
+            val b = this[offset + 2].toInt() and 0xFF
+            val a = this[offset + 3].toInt() and 0xFF
             image.setRGB(x, y, (a shl 24) or (r shl 16) or (g shl 8) or b)
             offset += 4
         }
     }
-    ImageIO.write(image, "png", file)
+    return image
 }
