@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
+import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
@@ -42,6 +43,7 @@ class RenderSystemTest {
             texture: TextureAsset?,
             renderTarget: RenderTarget?,
             uniformFloatCount: Int,
+        pbrTextures: PbrTextureSet?,
         ): Material =
             error("not needed for this test")
 
