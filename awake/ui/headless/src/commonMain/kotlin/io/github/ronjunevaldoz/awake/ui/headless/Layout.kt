@@ -162,12 +162,16 @@ fun UiScope.column(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement = Arrangement.Start,
     horizontalAlignment: UiAlignment.Horizontal = UiAlignment.Horizontal.Start,
+    // Opt-in cross-frame trial cache -- see UiPrimitiveScope.column()'s doc comment. Supply a
+    // key that changes whenever this content's structure/size inputs change.
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = primitive.primitiveColumn(
     id = id,
     modifier = modifier.asPrimitiveModifier(),
     verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
     horizontalAlignment = horizontalAlignment,
+    cacheKey = cacheKey,
 ) { slot -> content(asHeadlessScope(), slot) }
 
 fun UiScope.row(
