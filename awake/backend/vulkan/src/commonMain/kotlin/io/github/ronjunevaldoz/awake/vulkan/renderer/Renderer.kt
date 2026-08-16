@@ -29,6 +29,7 @@ import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanImages
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.material.PbrImageViews
+import io.github.ronjunevaldoz.awake.vulkan.mesh.InstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
@@ -127,6 +128,15 @@ class Renderer(
      * opt in. */
     internal val shadowMap: ShadowMap? = null,
     internal val shadowRenderPipeline: ShadowRenderPipeline? = null,
+    /** Instanced companions of [pipelinesByFormat], keyed the same way -- built with
+     * `RenderPipeline(instanced = true)` and a shader whose uniform block holds `viewProjection`
+     * (not a baked per-draw `mvp`), because one instanced draw covers many model matrices. A
+     * [DrawCall] with a non-null [DrawCall.instanceModels] whose format has an entry here draws
+     * every transform in one GPU call; a format with NO entry here is skipped entirely, same
+     * "unknown format, skip" behavior [pipelinesByFormat] already has. Empty (default) for every
+     * game that never instances -- appended last so existing positional call sites are
+     * unaffected. */
+    internal val instancedPipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
 ) : RenderRenderer {
     override val clipSpace: ClipSpace = ClipSpace.Vulkan
 
@@ -308,6 +318,25 @@ class Renderer(
             )
         }
         return uiTextureMeshPool[index]
+    }
+
+    // One InstanceBuffer per instanced draw call in a frame (not one shared buffer), same
+    // grow-on-demand/reuse-every-frame pool shape as the UI mesh pools above -- two instanced
+    // draw calls in one frame would otherwise overwrite each other's transforms before either
+    // command buffer executes.
+    private val instanceBufferPool = mutableListOf<InstanceBuffer>()
+
+    // maxFramesInFlight + 1: renderToTexture() prepares draw calls with frameIndex ==
+    // commandBuffers.size (a slot past the swapchain's own), matching how Material grows an
+    // extra uniform slot for that same offscreen path.
+    internal fun instanceBufferForRun(index: Int): InstanceBuffer {
+        while (instanceBufferPool.size <= index) {
+            instanceBufferPool += InstanceBuffer(
+                graphicsDevice,
+                framesInFlight = maxFramesInFlight + 1,
+            )
+        }
+        return instanceBufferPool[index]
     }
 
     // Rewritten every frame by drawDebugLines() (staged before draw(), same pattern as
@@ -569,6 +598,7 @@ class Renderer(
         uiGlyphMeshPool.forEach { it.destroy() }
         uiRoundedQuadMeshPool.forEach { it.destroy() }
         uiTextureMeshPool.forEach { it.destroy() }
+        instanceBufferPool.forEach { it.destroy() }
         lineMesh.destroy()
         destroyDepthResources()
     }

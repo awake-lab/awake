@@ -91,6 +91,14 @@ class RenderPipeline(
      * so this is already on whenever the GPU supports it -- confirmed by reading that
      * function, not assumed. */
     polygonMode: VkPolygonMode = VkPolygonMode.VK_POLYGON_MODE_FILL,
+    /** Adds a SECOND vertex binding (binding 1, `VK_VERTEX_INPUT_RATE_INSTANCE`, stride 64)
+     * carrying one `mat4` model matrix per instance as 4 consecutive `R32G32B32A32_SFLOAT`
+     * attributes -- see `instanced.wgsl`, which declares exactly those. Purely additive:
+     * binding 0 and [vertexFormat]'s own attributes are untouched, so a `false` (default)
+     * pipeline is byte-for-byte the one this class always built. The 4 attribute locations
+     * continue past [vertexFormat]'s own highest one, so no format needs its locations
+     * renumbered to make room. */
+    instanced: Boolean = false,
 ) {
     private val graphicsDevice = graphicsDevice
     private val swapchainManager = swapchainManager
@@ -111,6 +119,7 @@ class RenderPipeline(
             vertexEntryPoint = vertexEntryPoint,
             fragmentEntryPoint = fragmentEntryPoint,
             polygonMode = polygonMode,
+            instanced = instanced,
         )
     }
 
@@ -188,6 +197,7 @@ class RenderPipeline(
         vertexEntryPoint: String,
         fragmentEntryPoint: String,
         polygonMode: VkPolygonMode,
+        instanced: Boolean,
     ) {
         // WARNING: make sure the .spv vulkan version match, this might cause out of memory
         val fragShaderModule = createShaderModule(fragShaderCode.toIntArray())
@@ -206,23 +216,41 @@ class RenderPipeline(
         )
         val shaderStages = arrayOf(fragShaderStageInfo, vertShaderStageInfo)
 
+        val vertexBindings = mutableListOf(
+            VkVertexInputBindingDescription(
+                binding = 0,
+                stride = vertexFormat.strideBytes,
+                inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX,
+            ),
+        )
+        val vertexAttributes = vertexFormat.entries.mapTo(mutableListOf()) { entry ->
+            VkVertexInputAttributeDescription(
+                location = entry.attribute.location,
+                binding = 0,
+                format = entry.attribute.format.toVkFormat(),
+                offset = entry.offsetBytes,
+            )
+        }
+        if (instanced) {
+            vertexBindings += VkVertexInputBindingDescription(
+                binding = INSTANCE_BINDING,
+                stride = INSTANCE_MATRIX_BYTES,
+                inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_INSTANCE,
+            )
+            val firstLocation = vertexFormat.attributes.maxOf { it.location } + 1
+            repeat(MATRIX_ROWS) { row ->
+                vertexAttributes += VkVertexInputAttributeDescription(
+                    location = firstLocation + row,
+                    binding = INSTANCE_BINDING,
+                    format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
+                    offset = row * VEC4_BYTES,
+                )
+            }
+        }
         val vertexInputInfo = arrayOf(
             VkPipelineVertexInputStateCreateInfo(
-                pVertexBindingDescriptions = arrayOf(
-                    VkVertexInputBindingDescription(
-                        binding = 0,
-                        stride = vertexFormat.strideBytes,
-                        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX,
-                    ),
-                ),
-                pVertexAttributeDescriptions = vertexFormat.entries.map { entry ->
-                    VkVertexInputAttributeDescription(
-                        location = entry.attribute.location,
-                        binding = 0,
-                        format = entry.attribute.format.toVkFormat(),
-                        offset = entry.offsetBytes,
-                    )
-                }.toTypedArray(),
+                pVertexBindingDescriptions = vertexBindings.toTypedArray(),
+                pVertexAttributeDescriptions = vertexAttributes.toTypedArray(),
             ),
         )
 
@@ -345,6 +373,13 @@ class RenderPipeline(
 
     private companion object {
         const val DEFAULT_SHADER_ENTRY_POINT = "main"
+
+        /** See the `instanced` constructor parameter. Binding 1 (binding 0 is the mesh's own
+         * per-vertex buffer); one `mat4` = 4 `vec4` rows = 64 bytes per instance. */
+        const val INSTANCE_BINDING = 1
+        const val MATRIX_ROWS = 4
+        const val VEC4_BYTES = 16
+        const val INSTANCE_MATRIX_BYTES = MATRIX_ROWS * VEC4_BYTES
     }
 }
 
