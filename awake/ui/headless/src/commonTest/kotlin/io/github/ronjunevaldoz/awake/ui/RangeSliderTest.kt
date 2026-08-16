@@ -30,19 +30,14 @@ class RangeSliderTest {
         var start = 20f
         var end = 80f
         uiTestSession(width = 200f, height = 100f) {
-            fun step(pointerDown: Boolean, x: Float) {
-                frame(x = x, y = 30f, down = pointerDown) {
-                    val (s, e) = primitive.context.createAbsolute(x = 20f, y = 20f).rangeSlider(
-                        "rs", min = 0f, max = 100f, valueStart = start, valueEnd = end,
-                        modifier = Modifier.width(160f.px).height(20f.px), enabled = enabled,
-                    )
-                    start = s
-                    end = e
-                }
+            drag(pressX, 30f, dragToX, 30f) {
+                val (s, e) = primitive.context.createAbsolute(x = 20f, y = 20f).rangeSlider(
+                    "rs", min = 0f, max = 100f, valueStart = start, valueEnd = end,
+                    modifier = Modifier.width(160f.px).height(20f.px), enabled = enabled,
+                )
+                start = s
+                end = e
             }
-            step(pointerDown = true, x = pressX)
-            step(pointerDown = true, x = dragToX)
-            step(pointerDown = false, x = dragToX)
         }
         return start to end
     }
