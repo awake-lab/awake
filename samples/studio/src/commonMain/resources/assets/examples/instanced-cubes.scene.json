@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "name": "instanced-cubes",
+  "nodes": [
+    {
+      "name": "camera",
+      "components": [
+        {
+          "component": "camera",
+          "eye": { "x": 0.0, "y": 16.0, "z": 20.0 },
+          "center": { "x": 0.0, "y": 0.0, "z": 0.0 },
+          "fovYDegrees": 45.0,
+          "near": 0.1,
+          "far": 100.0,
+          "primary": true
+        }
+      ]
+    },
+    {
+      "name": "light",
+      "components": [
+        { "component": "light", "type": "Directional" }
+      ]
+    },
+    {
+      "name": "instanced-cubes",
+      "components": []
+    }
+  ]
+}

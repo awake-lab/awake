@@ -74,7 +74,7 @@ internal class ExampleLoader {
             authoredRenderables[request.entity] = request.meshRenderer
             StudioMeshBounds[request.meshRenderer.mesh]?.let { boundsByEntity[request.entity.id] = it }
         }
-        example.onActivated?.invoke(instance, runtime.world)
+        example.onActivated?.invoke(instance, runtime)
         activeRoots = instance.roots.map { it.entity }
     }
 
