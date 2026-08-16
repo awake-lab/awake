@@ -16,11 +16,26 @@ import io.github.ronjunevaldoz.awake.ui.headless.offset
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.width
+import kotlin.test.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class UiTypographyTest {
+
+    @Test
+    fun recipesReadTheCurrentCoreThemeWhenNoShadcnThemeIsScoped() {
+        val values = shadcnThemeValues(dark = false)
+        val ui = UiContext()
+        ui.pushFont(UiFonts.bitmap())
+        ui.pushTheme(values)
+        ui.beginFrame(240f, 80f, testSnapshot())
+
+        ui.headlessRoot().shadcnText("Legacy Core theme")
+
+        val glyph = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().first()
+        assertEquals(values.colors.foreground, glyph.color)
+    }
 
     @Test
     fun supportingTextWrapsInsideWrapContentPanels() {

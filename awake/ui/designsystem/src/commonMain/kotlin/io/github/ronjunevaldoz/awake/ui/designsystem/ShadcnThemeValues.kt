@@ -13,6 +13,5 @@ data class ShadcnThemeValues(
     val metrics: ShadcnMetrics,
 ) : UiThemeValues by core
 
-internal val LocalShadcnTheme: UiLocal<ShadcnThemeValues> = uiLocalOf(
-    ShadcnThemeValues(core = ShadcnTheme, metrics = ShadcnTheme.metrics),
-)
+/** Null outside [shadcnTheme], so legacy Core theme installation remains observable during migration. */
+internal val LocalShadcnTheme: UiLocal<ShadcnThemeValues?> = uiLocalOf(null)
