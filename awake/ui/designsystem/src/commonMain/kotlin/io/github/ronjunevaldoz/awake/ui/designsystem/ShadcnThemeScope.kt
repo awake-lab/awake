@@ -38,7 +38,7 @@ fun UiScope.shadcnTheme(
     dark: Boolean = true,
     content: UiScope.() -> Unit,
 ) = shadcnTheme(
-    values = shadcnThemeValues(preset = preset, baseColor = baseColor, accent = accent, dark = dark),
+    theme = shadcnThemeValues(preset = preset, baseColor = baseColor, accent = accent, dark = dark),
     content = content,
 )
 

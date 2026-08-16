@@ -60,7 +60,7 @@ include(":awake:ui:tailwind-generator")
       `UiScope.shadcnTheme(...)` composition entry point.
       `ShadcnThemeValues` provides a complete root-scoped theme, including named-role
       customization; public recipes expose semantic options instead of a generic `Style` override.
-      Use `shadcnThemeValues(...)` for an unscoped immutable Core theme value.
+      Use `shadcnThemeValues(...)` for an unscoped immutable `ShadcnThemeValues` value.
 
 - `awake:ui:heroicons`:
     - Integration and vector path definitions for the Heroicons icon set.
