@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -112,11 +113,17 @@ interface Renderer {
      * pass (`prepareDrawCalls` always writes MVP + either light or [DrawCall
      * .extraUniformFloats], unconditionally -- a smaller buffer here would be a real
      * out-of-bounds write, not just wasted space); a skinned material passes `16 + 16 *
-     * jointCount` instead (MVP + joint palette via [DrawCall.extraUniformFloats], no light). */
+     * jointCount` instead (MVP + joint palette via [DrawCall.extraUniformFloats], no light).
+     * [pbrTextures] is the rest of a glTF metallic-roughness material's channels alongside
+     * [texture] (base color) -- `null` (default) keeps every existing caller building a
+     * base-color-only (or untextured) material exactly as it always did; a backend with no
+     * PBR sampling support is free to ignore it, same as [texture] itself on a backend with
+     * no texture support at all. */
     fun createMaterial(
         texture: TextureAsset? = null,
         renderTarget: RenderTarget? = null,
         uniformFloatCount: Int = 24,
+        pbrTextures: PbrTextureSet? = null,
     ): Material
 
     /** Creates an offscreen [width]x[height] color+depth render destination, on demand -- see

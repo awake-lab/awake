@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
+import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -236,7 +237,12 @@ class Renderer(
      * is uploaded into a real [Texture] the material then binds through `textured.wgsl` (see
      * [additionalPipelines]); a material with neither `texture` nor `renderTarget` carries no
      * GPU resources at all, since the primary pipeline's uniforms live on this class. */
-    override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): RenderMaterial {
+    override fun createMaterial(
+        texture: TextureAsset?,
+        renderTarget: RenderTarget?,
+        uniformFloatCount: Int,
+        pbrTextures: PbrTextureSet?,
+    ): RenderMaterial {
         require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
         val material = Material(graphicsDevice, uniformFloatCount)
         if (renderTarget != null) {
