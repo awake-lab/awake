@@ -37,6 +37,7 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
         private set
 
     private var texture: Texture? = null
+    private var pbrTextures: List<Texture> = emptyList()
     private var uniformBuffer: GPUBuffer? = null
     private var bindGroup: GPUBindGroup? = null
 
@@ -46,13 +47,14 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
         previewSampler = sampler
     }
 
-    /** The 3D `DrawCall.material` case: keeps [texture] and allocates this material's own
-     * uniform buffer. `textured.wgsl`'s `Uniforms` is `mvp` alone, so [uniformFloatCount]
-     * (16 by default) is the whole struct -- deliberately NOT the light-carrying layout
-     * `triangle.wgsl` uses. The bind group itself waits for [bindGroupFor]: its layout comes
-     * from the pipeline, which this class never sees. */
-    fun createResources(texture: Texture) {
+    /** The 3D `DrawCall.material` case: keeps [texture] plus [pbr] (metallicRoughness,
+     * normal, occlusion, emissive -- in `textured.wgsl`'s binding 5-8 order, each a neutral
+     * 1x1 stand-in when the material has no such map) and allocates this material's own
+     * uniform buffer sized by [uniformFloatCount]. The bind group itself waits for
+     * [bindGroupFor]: its layout comes from the pipeline, which this class never sees. */
+    fun createResources(texture: Texture, pbr: List<Texture>) {
         this.texture = texture
+        pbrTextures = pbr
         uniformBuffer = device.createBuffer(
             BufferDescriptor(
                 size = (uniformFloatCount * Float.SIZE_BYTES).toULong(),
@@ -66,7 +68,8 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
     val hasTexture: Boolean get() = texture != null
 
     /** Builds (once) this material's `textured.wgsl` bind group -- uniform, base-color view,
-     * sampler -- against [pipeline]'s group-0 layout, then reuses it every frame.
+     * sampler, then the four PBR views at 5-8 (all sampled through the base-color sampler,
+     * matching that shader) -- against [pipeline]'s group-0 layout, then reuses it every frame.
      * ponytail: cached for the first pipeline only; make it a per-pipeline map if one material
      * ever gets drawn through two pipelines (e.g. a wireframe variant of the textured one). */
     fun bindGroupFor(pipeline: GPURenderPipeline): GPUBindGroup = bindGroup ?: device.createBindGroup(
@@ -76,7 +79,9 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
                 BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = requireUniformBuffer())),
                 BindGroupEntry(binding = 1u, resource = requireTexture().view),
                 BindGroupEntry(binding = 2u, resource = requireTexture().sampler),
-            ),
+            ) + pbrTextures.mapIndexed { index, pbrTexture ->
+                BindGroupEntry(binding = (PBR_FIRST_BINDING + index).toUInt(), resource = pbrTexture.view)
+            },
         ),
     ).also { bindGroup = it }
 
@@ -103,6 +108,12 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
         uniformBuffer = null
         bindGroup = null
         texture = null
+        pbrTextures = emptyList()
+    }
+
+    private companion object {
+        /** `textured.wgsl`'s metallicRoughness binding; normal/occlusion/emissive follow it. */
+        const val PBR_FIRST_BINDING = 5
     }
 
     private fun requireTexture(): Texture = requireNotNull(texture) {

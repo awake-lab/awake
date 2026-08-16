@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
+import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.Modifier
@@ -47,6 +48,7 @@ internal object GltfViewerDemo {
     private var modelRadius = 1f
     private var modelCenter: Vec3 = Vec3(0f, 0f, 0f)
     private var textureAsset: TextureAsset? = null
+    private var pbrTextures: PbrTextureSet? = null
 
     private var spawned = false
     private var mesh: Mesh? = null
@@ -66,9 +68,18 @@ internal object GltfViewerDemo {
         val center = boundingCenter(gltfMesh.positions)
         modelCenter = Vec3(center.x / modelRadius, center.y / modelRadius, center.z / modelRadius)
 
-        val imageBytes = requireNotNull(gltfMesh.baseColorImageBytes)
+        textureAsset = decodeTexture(requireNotNull(gltfMesh.baseColorImageBytes))
+        pbrTextures = PbrTextureSet(
+            metallicRoughness = gltfMesh.metallicRoughnessImageBytes?.let { decodeTexture(it) },
+            normal = gltfMesh.normalImageBytes?.let { decodeTexture(it) },
+            occlusion = gltfMesh.occlusionImageBytes?.let { decodeTexture(it) },
+            emissive = gltfMesh.emissiveImageBytes?.let { decodeTexture(it) },
+        )
+    }
+
+    private suspend fun decodeTexture(imageBytes: ByteArray): TextureAsset {
         val bitmap = createBitmap(imageBytes)
-        textureAsset = TextureAsset(bitmap.toRgba8Bytes(), bitmap.width, bitmap.height)
+        return TextureAsset(bitmap.toRgba8Bytes(), bitmap.width, bitmap.height)
     }
 
     internal fun scalePositions(source: FloatArray, factor: Float): FloatArray {
@@ -175,7 +186,11 @@ internal object GltfViewerDemo {
         if (spawned) return
         if (loadedMesh == null) return
         mesh = createNormalizedMesh(runtime)
-        material = runtime.renderer.createMaterial(texture = textureAsset)
+        material = runtime.renderer.createMaterial(
+            texture = textureAsset,
+            uniformFloatCount = TEXTURED_UNIFORM_FLOAT_COUNT,
+            pbrTextures = pbrTextures,
+        )
 
         runtime.world.scene {
             cameraEntity = entity(
@@ -216,3 +231,7 @@ internal object GltfViewerDemo {
      * viewport without clipping at the default 45-degree FOV. */
     private const val FRAMING_DISTANCE_RADII = 3f
 }
+
+/** mvp(16) + lightDirection(4) + lightColor(4) + model(16) + cameraPosition(4). Must match
+ * `textured.wgsl`'s Uniforms field order. */
+internal const val TEXTURED_UNIFORM_FLOAT_COUNT = 44

@@ -250,13 +250,30 @@ class Renderer(
             val sampler = graphicsDevice.wgpuContext.device.createSampler(SamplerDescriptor())
             material.createResourcesFromRenderTarget(offscreen.colorView, sampler)
         } else if (texture != null) {
-            // runOneTimeCommands is unused by this backend's Texture (see its doc comment).
-            val textureInstance = Texture(graphicsDevice, {}, texture.data, texture.width, texture.height)
-            createdTextures += textureInstance
-            material.createResources(textureInstance)
+            material.createResources(
+                uploadTexture(texture),
+                listOf(
+                    pbrTextures?.metallicRoughness to NEUTRAL_METALLIC_ROUGHNESS,
+                    pbrTextures?.normal to NEUTRAL_NORMAL,
+                    pbrTextures?.occlusion to NEUTRAL_OCCLUSION,
+                    pbrTextures?.emissive to NEUTRAL_EMISSIVE,
+                ).map { (asset, neutral) ->
+                    // `textured.wgsl` samples bindings 5-8 unconditionally, so a channel this
+                    // material doesn't have still needs a real (neutral) view bound. The
+                    // neutral 1x1s are uploaded once and shared, still tracked in
+                    // createdTextures for teardown.
+                    asset?.let(::uploadTexture) ?: neutralPbrTextures.getOrPut(neutral) { uploadTexture(neutral) }
+                },
+            )
         }
         return material
     }
+
+    // runOneTimeCommands is unused by this backend's Texture (see its doc comment).
+    private fun uploadTexture(asset: TextureAsset): Texture =
+        Texture(graphicsDevice, {}, asset.data, asset.width, asset.height).also { createdTextures += it }
+
+    private val neutralPbrTextures = mutableMapOf<TextureAsset, Texture>()
 
     // Textures created on demand by createMaterial() -- Renderer (not Material) owns their
     // teardown, mirroring Vulkan's Renderer.createdTextures.
@@ -422,5 +439,14 @@ class Renderer(
         internal const val MAX_UI_QUADS = 256
         internal const val MAX_DEBUG_LINES = 64
         internal val WHITE_RGBA = AwakeColor.White
+
+        /** 1x1 "this channel is absent" stand-ins for `textured.wgsl`'s bindings 5-8, each
+         * chosen so sampling it is a no-op: G=0.5 roughness/B=0 metalness, a flat (0,0,1)
+         * tangent-space normal, full ambient visibility, no emission. Same values as Vulkan's
+         * Renderer -- bytes are signed, -1 is 255 and -128 is 128. */
+        private val NEUTRAL_METALLIC_ROUGHNESS = TextureAsset(byteArrayOf(0, -128, 0, -1), 1, 1)
+        private val NEUTRAL_NORMAL = TextureAsset(byteArrayOf(-128, -128, -1, -1), 1, 1)
+        private val NEUTRAL_OCCLUSION = TextureAsset(byteArrayOf(-1, -1, -1, -1), 1, 1)
+        private val NEUTRAL_EMISSIVE = TextureAsset(byteArrayOf(0, 0, 0, -1), 1, 1)
     }
 }

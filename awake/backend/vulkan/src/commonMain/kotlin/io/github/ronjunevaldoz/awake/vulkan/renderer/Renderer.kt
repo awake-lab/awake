@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanImages
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
+import io.github.ronjunevaldoz.awake.vulkan.material.PbrImageViews
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
@@ -164,7 +165,8 @@ class Renderer(
      * data through the wrong pipeline would be worse than not drawing it at all. */
     internal val pipelinesByFormat: Map<VertexFormat, RenderPipeline> =
         mapOf(renderPipeline.vertexFormat to renderPipeline) + additionalPipelinesByFormat
-    internal val wireframePipelinesByFormat: Map<VertexFormat, RenderPipeline> = wireframePipelinesByFormat
+    internal val wireframePipelinesByFormat: Map<VertexFormat, RenderPipeline> =
+        wireframePipelinesByFormat
 
     /** Resolves [format] to the pipeline that should actually draw it this frame -- the
      * [wireframePipelinesByFormat] entry when [wireframe] is on and one was built for
@@ -172,7 +174,8 @@ class Renderer(
      * is on but this format has no wireframe variant": falls back to filled rather than being
      * dropped). */
     internal fun pipelineFor(format: VertexFormat): RenderPipeline? =
-        if (wireframe) wireframePipelinesByFormat[format] ?: pipelinesByFormat[format] else pipelinesByFormat[format]
+        if (wireframe) wireframePipelinesByFormat[format]
+            ?: pipelinesByFormat[format] else pipelinesByFormat[format]
 
     internal val device get() = graphicsDevice.device
     internal val physicalDevice get() = graphicsDevice.physicalDevice
@@ -262,7 +265,11 @@ class Renderer(
 
     internal fun quadMeshForRun(index: Int): DynamicMesh {
         while (uiQuadMeshPool.size <= index) {
-            uiQuadMeshPool += DynamicMesh(graphicsDevice, MAX_UI_QUADS, framesInFlight = maxFramesInFlight)
+            uiQuadMeshPool += DynamicMesh(
+                graphicsDevice,
+                MAX_UI_QUADS,
+                framesInFlight = maxFramesInFlight
+            )
         }
         return uiQuadMeshPool[index]
     }
@@ -320,7 +327,13 @@ class Renderer(
     /** Uploads [geometry] as a GPU mesh, on demand -- see [RenderRenderer.createMesh]'s doc
      * comment. */
     override fun createMesh(geometry: MeshGeometry): RenderMesh =
-        Mesh(graphicsDevice, transferContext::runOneTimeCommands, geometry.vertices, geometry.indices, geometry.format)
+        Mesh(
+            graphicsDevice,
+            transferContext::runOneTimeCommands,
+            geometry.vertices,
+            geometry.indices,
+            geometry.format
+        )
 
     /** Builds a [Material] bound to this [renderPipeline] with [uniformFloatCount] uniform
      * floats, uploading [texture] (or a 1x1 white placeholder when both [texture]/[renderTarget]
@@ -335,23 +348,49 @@ class Renderer(
     ): RenderMaterial {
         require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
         val material = Material(graphicsDevice, uniformFloatCount, shadowMap)
+        val pbr = PbrImageViews(
+            metallicRoughness = pbrImageView(
+                pbrTextures?.metallicRoughness,
+                NEUTRAL_METALLIC_ROUGHNESS
+            ),
+            normal = pbrImageView(pbrTextures?.normal, NEUTRAL_NORMAL),
+            occlusion = pbrImageView(pbrTextures?.occlusion, NEUTRAL_OCCLUSION),
+            emissive = pbrImageView(pbrTextures?.emissive, NEUTRAL_EMISSIVE),
+        )
         if (renderTarget != null) {
             val offscreen = renderTarget as OffscreenRenderTarget
-            material.createResourcesFromRenderTarget(offscreen.sampler, offscreen.colorImageView)
-        } else {
-            val effectiveTexture = texture ?: PLACEHOLDER_TEXTURE
-            val textureInstance = Texture(
-                graphicsDevice,
-                transferContext::runOneTimeCommands,
-                effectiveTexture.data,
-                effectiveTexture.width,
-                effectiveTexture.height,
+            material.createResourcesFromRenderTarget(
+                offscreen.sampler,
+                offscreen.colorImageView,
+                pbr
             )
-            createdTextures += textureInstance
-            material.createResources(textureInstance)
+        } else {
+            material.createResources(uploadTexture(texture ?: PLACEHOLDER_TEXTURE), pbr)
         }
         return material
     }
+
+    private fun uploadTexture(asset: TextureAsset): Texture = Texture(
+        graphicsDevice,
+        transferContext::runOneTimeCommands,
+        asset.data,
+        asset.width,
+        asset.height,
+    ).also { createdTextures += it }
+
+    /** [asset]'s image view, or [neutral]'s -- bindings 5-8 are declared by every material's
+     * descriptor set layout and sampled unconditionally by `textured.wgsl`, so a channel the
+     * material doesn't have still needs a written descriptor. The neutral 1x1s are uploaded
+     * once and shared by every material (still tracked in [createdTextures], so teardown is
+     * unchanged). */
+    private fun pbrImageView(asset: TextureAsset?, neutral: TextureAsset): Long =
+        if (asset != null) {
+            uploadTexture(asset).imageView.handle
+        } else {
+            neutralPbrTextures.getOrPut(neutral) { uploadTexture(neutral) }.imageView.handle
+        }
+
+    private val neutralPbrTextures = mutableMapOf<TextureAsset, Texture>()
 
     /** Creates an offscreen [width]x[height] color+depth render destination -- see
      * [RenderRenderer.createRenderTarget]'s doc comment. Reuses this [renderPipeline]'s own
@@ -379,7 +418,8 @@ class Renderer(
         val offscreen = target as OffscreenRenderTarget
         // Clamped to the TARGET, not the swapchain: the rect means "this sub-rect of whatever
         // this pass draws into", and an offscreen target has its own size.
-        val sceneRect = sceneViewport?.clampedTo(offscreen.width.toFloat(), offscreen.height.toFloat())
+        val sceneRect =
+            sceneViewport?.clampedTo(offscreen.width.toFloat(), offscreen.height.toFloat())
         val aspect = sceneRect?.aspect ?: (offscreen.width.toFloat() / offscreen.height.toFloat())
         val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
         // Same shadow wiring performDraw uses: without it a shadow-enabled Renderer would write
@@ -402,12 +442,24 @@ class Renderer(
                 renderArea = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height)),
                 pClearValues = arrayOf(clearColorValue, clearDepthValue),
             )
-            Vulkan.vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
+            Vulkan.vkCmdBeginRenderPass(
+                commandBuffer,
+                renderPassInfo,
+                VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE
+            )
             renderPipeline.bind(commandBuffer)
             val viewport = sceneRect?.toVkViewport()
-                ?: VkViewport(width = offscreen.width.toFloat(), height = offscreen.height.toFloat())
+                ?: VkViewport(
+                    width = offscreen.width.toFloat(),
+                    height = offscreen.height.toFloat()
+                )
             Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
-            val scissor = sceneRect?.toVkScissor() ?: VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height))
+            val scissor = sceneRect?.toVkScissor() ?: VkRect2D(
+                extent = VkExtent2D(
+                    offscreen.width,
+                    offscreen.height
+                )
+            )
             Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
             recordDrawCalls(commandBuffer, preparedDrawCalls)
             Vulkan.vkCmdEndRenderPass(commandBuffer)
@@ -425,18 +477,24 @@ class Renderer(
         val byteSize = (offscreen.width * offscreen.height * 4).toLong()
         val stagingBuffer = VulkanBuffers.vkCreateBuffer(
             device,
-            VkBufferCreateInfo(size = byteSize, usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT),
+            VkBufferCreateInfo(
+                size = byteSize,
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT
+            ),
         )
         val stagingRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, stagingBuffer)
         val stagingMemoryTypeIndex = VulkanBuffers.findMemoryType(
             physicalDevice,
             stagingRequirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         )
         val stagingMemory = VulkanBuffers.vkAllocateMemory(
             device,
-            VkMemoryAllocateInfo(allocationSize = stagingRequirements.size, memoryTypeIndex = stagingMemoryTypeIndex),
+            VkMemoryAllocateInfo(
+                allocationSize = stagingRequirements.size,
+                memoryTypeIndex = stagingMemoryTypeIndex
+            ),
         )
         VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)
 
@@ -477,7 +535,8 @@ class Renderer(
 
     /** Delegates to [performDrawUi] ([RendererDrawUi.kt]) -- see [performDraw]'s doc comment
      * for why. */
-    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) = performDrawUi(primitives, font)
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) =
+        performDrawUi(primitives, font)
 
     /** Delegates to [performDrawDebugLines] ([RendererDraw3D.kt]) -- see [performDraw]'s doc
      * comment for why. */
@@ -525,5 +584,14 @@ class Renderer(
         /** [createMaterial]'s fallback when called with a null texture -- same 1x1 white
          * pixel `VulkanGameApplication` used to bind unconditionally. */
         private val PLACEHOLDER_TEXTURE = TextureAsset(byteArrayOf(-1, -1, -1, -1), 1, 1)
+
+        /** 1x1 "this channel is absent" stand-ins for `textured.wgsl`'s bindings 5-8, each
+         * chosen so sampling it is a no-op: G=0.5 roughness/B=0 metalness (what the pre-PBR
+         * Lambert shading approximated), a flat (0,0,1) tangent-space normal, full ambient
+         * visibility, no emission. Bytes are signed -- -1 is 255, -128 is 128. */
+        private val NEUTRAL_METALLIC_ROUGHNESS = TextureAsset(byteArrayOf(0, -128, 0, -1), 1, 1)
+        private val NEUTRAL_NORMAL = TextureAsset(byteArrayOf(-128, -128, -1, -1), 1, 1)
+        private val NEUTRAL_OCCLUSION = TextureAsset(byteArrayOf(-1, -1, -1, -1), 1, 1)
+        private val NEUTRAL_EMISSIVE = TextureAsset(byteArrayOf(0, 0, 0, -1), 1, 1)
     }
 }

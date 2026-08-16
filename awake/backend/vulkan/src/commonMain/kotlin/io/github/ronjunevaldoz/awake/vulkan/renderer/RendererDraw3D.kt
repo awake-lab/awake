@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
@@ -358,10 +359,11 @@ internal data class PreparedDrawCall(
  * silently misinterpret the vertex buffer (wrong attribute count/offsets), which is worse
  * than not drawing it.
  *
- * [light] only reaches [drawCall]s resolved to [Renderer.renderPipeline] itself (the primary/
- * lit format) -- every other resolved pipeline gets [DrawCall.extraUniformFloats] instead
- * (e.g. a skinned mesh's joint palette), exactly matching what each format's own shader
- * expects (`triangle.wgsl` reads light; `textured.wgsl`/`skinned.wgsl` don't).
+ * [light] reaches [drawCall]s resolved to [Renderer.renderPipeline] itself (the primary/lit
+ * format) and to the `PositionNormalColorUv` (textured/PBR) format; every other resolved
+ * pipeline gets [DrawCall.extraUniformFloats] instead (e.g. a skinned mesh's joint palette),
+ * exactly matching what each format's own shader expects (`triangle.wgsl`/`textured.wgsl`
+ * read light, `skinned.wgsl` doesn't).
  *
  * [lightViewProjection] is `null` for every [Renderer] not built with shadow support (see
  * [Renderer.shadowMap]'s doc comment) -- in that case the written uniform buffer is byte-for-
@@ -421,6 +423,13 @@ internal fun Renderer.prepareDrawCalls(
                     } else {
                         lightFloats
                     }
+                } else if (drawCall.mesh.format == VertexFormat.PositionNormalColorUv) {
+                    // textured.wgsl's Uniforms: light, then model + cameraPosition (its PBR
+                    // specular needs a world-space position and view vector). Keyed by format
+                    // rather than by pipeline identity for the same reason the branch above is.
+                    lightFloats +
+                        drawCall.model.data +
+                        floatArrayOf(cameraPosition.x, cameraPosition.y, cameraPosition.z, 0f)
                 } else {
                     drawCall.extraUniformFloats
                 }
