@@ -30,11 +30,13 @@ fun UiScope.shadcnSurface(
     id: String,
     modifier: Modifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
     style = shadcnSurfaceStyle(themeValues, shadcnMetrics, variant),
+    cacheKey = cacheKey,
     content = content,
 )
 

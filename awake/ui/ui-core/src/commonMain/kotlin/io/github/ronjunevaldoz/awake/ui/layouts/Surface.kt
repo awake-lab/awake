@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childColumn
+import io.github.ronjunevaldoz.awake.ui.context.resolveMeasuredContentCached
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
@@ -37,6 +38,7 @@ fun UiPrimitiveScope.surface(
     style: Style = Style.Empty,
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = smartColumn(
     id = id,
@@ -48,6 +50,7 @@ fun UiPrimitiveScope.surface(
     } then style,
     modifier = modifier,
     clipContent = clipContent,
+    cacheKey = cacheKey,
     role = UiSemanticRole.Panel,
     content = content,
 )
@@ -109,6 +112,9 @@ fun UiPrimitiveScope.surface(
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
     clipContent: Boolean = false,
+    // Opt-in cross-frame cache for the WrapContent sizing trial below -- same contract as
+    // UiPrimitiveScope.column()'s cacheKey (see resolveMeasuredContentCached).
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val width = modifier.widthDimension ?: Dimension.WrapContent
@@ -167,11 +173,18 @@ fun UiPrimitiveScope.surface(
         }
         context.pushLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle, contentTextStyle)
         try {
-            context.measureColumnContent(
-                width = maxContentWidth,
+            context.resolveMeasuredContentCached(
+                id = id,
+                cacheKey = cacheKey,
+                availableWidth = maxContentWidth,
                 gap = gap,
-                content = content,
-            )
+            ) {
+                context.measureColumnContent(
+                    width = maxContentWidth,
+                    gap = gap,
+                    content = content,
+                )
+            }
         } finally {
             context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
         }
