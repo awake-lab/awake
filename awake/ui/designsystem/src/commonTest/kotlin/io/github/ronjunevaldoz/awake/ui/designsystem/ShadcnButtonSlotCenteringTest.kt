@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -24,7 +23,7 @@ class ShadcnButtonSlotCenteringTest {
 
     @Test
     fun slotContentCentersInsideAnIconButton() {
-        val frame = renderUiComponent(width = 200f, height = 100f, theme = ShadcnTheme) {
+        val frame = renderShadcnComponent(width = 200f, height = 100f) {
             column {
                 shadcnButton(
                     id = "icon-btn",

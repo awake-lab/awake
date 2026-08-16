@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInputOTP
@@ -21,7 +20,7 @@ class ShadcnInputOTPTest {
     @Test
     fun shadcnInputOTPRendersCorrectSlotCount() {
         var value = "12"
-        val output = renderUiComponent(width = 300f, height = 160f, font = BitmapFont()) {
+        val output = renderShadcnComponent(width = 300f, height = 160f, font = BitmapFont()) {
             value = shadcnInputOTP(id = "otp-1", value = value, length = 6)
         }
 
@@ -45,7 +44,7 @@ class ShadcnInputOTPTest {
     @Test
     fun shadcnInputOTPDigitIsCenteredInSlot() {
         // Use a wide viewport so slots are not constrained, and a pre-filled digit
-        val output = renderUiComponent(width = 400f, height = 80f, font = BitmapFont()) {
+        val output = renderShadcnComponent(width = 400f, height = 80f, font = BitmapFont()) {
             shadcnInputOTP(id = "otp", value = "4", length = 6)
         }
 
@@ -92,7 +91,7 @@ class ShadcnInputOTPTest {
     fun shadcnInputOTPAllFilledDigitsAreCenteredInTheirSlots() {
         val digits = "482019"
 
-        val output = renderUiComponent(width = 400f, height = 80f, font = BitmapFont()) {
+        val output = renderShadcnComponent(width = 400f, height = 80f, font = BitmapFont()) {
             shadcnInputOTP(id = "otp", value = digits, length = 6)
         }
 
@@ -135,8 +134,7 @@ class ShadcnInputOTPTest {
     fun shadcnInputOTPFocusesInputOnSlotClick() = uiTestSession(
         width = 400f,
         height = 80f,
-        theme = ShadcnTheme,
-        font = BitmapFont(),
+                font = BitmapFont(),
     ) {
         val output = frame {
             shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)

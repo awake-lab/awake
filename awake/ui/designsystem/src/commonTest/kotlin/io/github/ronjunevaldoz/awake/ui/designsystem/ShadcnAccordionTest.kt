@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAccordion
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -20,7 +19,7 @@ class ShadcnAccordionTest {
         val items = listOf("item-1", "item-2")
         var selectedId: String? = "item-1"
 
-        renderUiComponent(width = 240f, height = 300f, theme = ShadcnTheme, font = BitmapFont()) {
+        renderShadcnComponent(width = 240f, height = 300f, font = BitmapFont()) {
             column(modifier = Modifier.fillMaxSize()) {
                 shadcnAccordion(
                     items = items,

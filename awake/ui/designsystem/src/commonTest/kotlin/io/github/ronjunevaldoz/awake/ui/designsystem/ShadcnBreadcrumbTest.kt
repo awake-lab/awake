@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumb
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumbEllipsis
@@ -25,7 +24,7 @@ class ShadcnBreadcrumbTest {
 
     @Test
     fun breadcrumbChildrenRenderInOrderWithoutOverlap() {
-        val semantics = renderUiComponent(width = 300f, height = 60f, theme = ShadcnTheme, font = BitmapFont()) {
+        val semantics = renderShadcnComponent(width = 300f, height = 60f, font = BitmapFont()) {
             column(modifier = Modifier.fillMaxSize()) {
                 row {
                     shadcnBreadcrumbLink(id = "breadcrumb.home", label = "Home", onClick = {})
@@ -45,8 +44,7 @@ class ShadcnBreadcrumbTest {
     fun breadcrumbLinkFiresOnClickWhenPressedAndReleasedInside() = uiTestSession(
         width = 300f,
         height = 60f,
-        theme = ShadcnTheme,
-        font = BitmapFont(),
+                font = BitmapFont(),
     ) {
         var clicked = false
 

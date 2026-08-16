@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
@@ -37,7 +36,7 @@ class ShadcnSidebarFooterVisibilityTest {
     /** footerBottom, sidebarBottom, footerHeight -- the last so tolerances scale with density. */
     private fun footerBottomAndSidebarBottom(contentHeightDp: Float): Triple<Float, Float, Float> {
         var sidebar: UiBounds? = null
-        val output = renderUiComponent(width = 400f, height = 600f, theme = ShadcnTheme, font = BitmapFont()) {
+        val output = renderShadcnComponent(width = 400f, height = 600f, font = BitmapFont()) {
             sidebar = shadcnSidebar(
                 id = "sidebar",
                 modifier = Modifier.width(SIDEBAR_WIDTH.dp).height(SIDEBAR_HEIGHT.dp),
@@ -126,11 +125,10 @@ class ShadcnSidebarFooterVisibilityTest {
         // the weighted content slot has to divide THAT. This is the shadcn-sidebar-example
         // preview's exact shape.
         var sidebar: UiBounds? = null
-        val output = renderUiComponent(
+        val output = renderShadcnComponent(
             width = 600f,
             height = SIDEBAR_HEIGHT,
-            theme = ShadcnTheme,
-            font = BitmapFont(),
+                        font = BitmapFont(),
             density = density,
         ) {
             row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
@@ -172,7 +170,7 @@ class ShadcnSidebarFooterVisibilityTest {
         // shadcnSidebarHeaderButton above the weighted content slot. Every other case here uses a
         // spacer or a plain surface as the header and passes.
         var sidebar: UiBounds? = null
-        val frame = renderUiComponent(width = 600f, height = 1040f, theme = ShadcnTheme, density = 2f) {
+        val frame = renderShadcnComponent(width = 600f, height = 1040f, density = 2f) {
             sidebar = shadcnSidebar(
                 id = "sidebar",
                 modifier = Modifier.width(264f.dp).height(360f.dp),
@@ -209,7 +207,7 @@ class ShadcnSidebarFooterVisibilityTest {
         // and all of them pass while the preview renders the footer collapsed under the header --
         // so the wrapping parent is the remaining difference.
         var sidebar: UiBounds? = null
-        val output = renderUiComponent(width = 600f, height = 900f, theme = ShadcnTheme, font = BitmapFont()) {
+        val output = renderShadcnComponent(width = 600f, height = 900f, font = BitmapFont()) {
             surface(id = "wrapper", modifier = Modifier.fillMaxWidth()) {
                 sidebar = shadcnSidebar(
                     id = "sidebar",

@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -27,7 +26,7 @@ class DropdownMenuIntrinsicWidthTest {
      */
     @Test
     fun wrapContentMenuDoesNotTruncateItsWidestItem() {
-        val semantics = renderUiComponent(width = 640f, height = 400f, theme = ShadcnTheme, font = BitmapFont()) {
+        val semantics = renderShadcnComponent(width = 640f, height = 400f, font = BitmapFont()) {
             shadcnDropdownMenu(
                 id = "camera-menu",
                 anchorSlot = UiBounds(120f, 80f, 0f, 0f),
@@ -45,7 +44,7 @@ class DropdownMenuIntrinsicWidthTest {
 
     @Test
     fun menuItemsUseMenuRowGeometryAndSemantics() {
-        val frame = renderUiComponent(width = 640f, height = 400f, theme = ShadcnTheme, font = BitmapFont()) {
+        val frame = renderShadcnComponent(width = 640f, height = 400f, font = BitmapFont()) {
             shadcnDropdownMenu(
                 id = "actions-menu",
                 anchorSlot = UiBounds(120f, 80f, 0f, 0f),

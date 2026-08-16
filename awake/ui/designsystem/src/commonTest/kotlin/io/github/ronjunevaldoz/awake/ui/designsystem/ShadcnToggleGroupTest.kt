@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggleGroup
@@ -28,8 +27,7 @@ class ShadcnToggleGroupTest {
     fun uncheckedSegmentLabelsUseTheGroupForegroundNotMutedForeground() = uiTestSession(
         width = 300f,
         height = 120f,
-        theme = ShadcnTheme,
-        font = BitmapFont(),
+                font = BitmapFont(),
     ) {
         val rendered = frame {
             column(modifier = Modifier.fillMaxSize()) {
@@ -56,7 +54,7 @@ class ShadcnToggleGroupTest {
 
     @Test
     fun containerWrapsEverySegmentWithoutCollapsingTheirWidths() {
-        val frame = renderUiComponent(width = 300f, height = 120f, theme = ShadcnTheme, font = BitmapFont()) {
+        val frame = renderShadcnComponent(width = 300f, height = 120f, font = BitmapFont()) {
             column(modifier = Modifier.fillMaxSize()) {
                 shadcnToggleGroup(
                     id = "group",
@@ -77,7 +75,7 @@ class ShadcnToggleGroupTest {
 
     @Test
     fun wrapHeightDoesNotExpandSegmentsToTheMeasurementSentinel() {
-        val frame = renderUiComponent(width = 300f, height = 120f, theme = ShadcnTheme, font = BitmapFont()) {
+        val frame = renderShadcnComponent(width = 300f, height = 120f, font = BitmapFont()) {
             column(modifier = Modifier.fillMaxSize()) {
                 shadcnToggleGroup(
                     id = "wrap-height-group",
