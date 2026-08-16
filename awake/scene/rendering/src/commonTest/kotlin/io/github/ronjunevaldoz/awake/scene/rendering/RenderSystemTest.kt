@@ -5,10 +5,12 @@ package io.github.ronjunevaldoz.awake.scene.rendering
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
@@ -17,6 +19,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -24,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 
 /** [io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem] doesn't shade anything itself -- it just resolves the scene's [io.github.ronjunevaldoz.awake.scene.rendering.components.Light] entity
  * (or [io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT] when there isn't one) into the backend-neutral [io.github.ronjunevaldoz.awake.render.renderer.SceneLight]
@@ -34,6 +38,7 @@ import kotlin.test.assertNull
 class RenderSystemTest {
     private class RecordingRenderer : Renderer {
         var lastLight: SceneLight? = null
+        var lastDrawCalls: List<DrawCall> = emptyList()
         override val clipSpace: ClipSpace = ClipSpace.WebGpu
         override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
         override var wireframe: Boolean = false
@@ -52,6 +57,7 @@ class RenderSystemTest {
 
         override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) {
             lastLight = light
+            lastDrawCalls = drawCalls
         }
 
         override fun renderToTexture(
@@ -125,5 +131,36 @@ class RenderSystemTest {
         RenderSystem(renderer).update(world, 1f / 60f)
 
         assertNull(renderer.lastLight)
+    }
+
+    @Test
+    fun instancedMeshRendererProducesOneDrawCallCarryingEveryTransform() {
+        val world = worldWithPrimaryCamera()
+        val mesh = fakeMesh()
+        val material = fakeMaterial()
+        val transforms = listOf(Mat4(), Mat4().apply { m03 = 5f })
+        val entity = world.create()
+        world.add(entity, InstancedMeshRenderer(mesh, material, transforms))
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        val drawCall = renderer.lastDrawCalls.single()
+        assertSame(mesh, drawCall.mesh)
+        assertSame(material, drawCall.material)
+        assertEquals(transforms, drawCall.instanceModels)
+    }
+
+    private fun fakeMesh(): Mesh = object : Mesh {
+        override val format = VertexFormat.PositionNormalColor
+        override fun bind(commandBuffer: Long) = Unit
+        override fun draw(commandBuffer: Long) = Unit
+        override fun destroy() = Unit
+    }
+
+    private fun fakeMaterial(): Material = object : Material {
+        override fun updateUniformBuffer(mvp: FloatArray) = Unit
+        override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
+        override fun destroy() = Unit
     }
 }

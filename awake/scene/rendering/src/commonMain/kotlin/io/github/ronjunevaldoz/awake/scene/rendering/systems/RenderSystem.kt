@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
+import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
@@ -41,6 +42,20 @@ class RenderSystem(
                     material = meshRenderer.material,
                     model = transform.worldMatrix,
                     extraUniformFloats = extras,
+                ),
+            )
+        }
+        // One DrawCall per entity here too, but instanceModels (not model) carries every
+        // copy's transform -- a backend with an instanced pipeline for this mesh's format
+        // draws all of them in one GPU call. See InstancedMeshRenderer's own doc comment for
+        // why this is a separate opt-in component/query rather than folding into the
+        // MeshRenderer loop above.
+        world.family<InstancedMeshRenderer>().forEach { _, instanced ->
+            drawCalls.add(
+                DrawCall(
+                    mesh = instanced.mesh,
+                    material = instanced.material,
+                    instanceModels = instanced.transforms,
                 ),
             )
         }
