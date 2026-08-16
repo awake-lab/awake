@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
+import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -78,6 +79,7 @@ private class RecordingScene3DRenderer : Renderer {
         texture: TextureAsset?,
         renderTarget: RenderTarget?,
         uniformFloatCount: Int,
+        pbrTextures: PbrTextureSet?,
     ): Material =
         object : Material {
             override fun updateUniformBuffer(mvp: FloatArray) = Unit
