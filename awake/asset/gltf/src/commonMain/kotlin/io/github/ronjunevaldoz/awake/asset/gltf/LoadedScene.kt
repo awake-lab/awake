@@ -11,13 +11,19 @@ import io.github.ronjunevaldoz.awake.core.math.Mat4
  * is this primitive's own material's base color texture, still encoded -- `null` unless this
  * primitive has a material with one -- same "per-primitive, not per-mesh" scoping [GltfMesh]
  * already uses, since sibling primitives of one mesh (e.g. skin vs. clothing) commonly use
- * different materials.
+ * different materials. [metallicRoughnessImageBytes]/[normalImageBytes]/[occlusionImageBytes]/
+ * [emissiveImageBytes] are the same per-primitive scoping for the rest of [GltfMesh]'s PBR
+ * texture channels.
  */
 data class LoadedPrimitive(
     val vertices: FloatArray,
     val indices: IntArray,
     val localTransform: Mat4,
     val baseColorImageBytes: ByteArray? = null,
+    val metallicRoughnessImageBytes: ByteArray? = null,
+    val normalImageBytes: ByteArray? = null,
+    val occlusionImageBytes: ByteArray? = null,
+    val emissiveImageBytes: ByteArray? = null,
 )
 
 data class LoadedMesh(

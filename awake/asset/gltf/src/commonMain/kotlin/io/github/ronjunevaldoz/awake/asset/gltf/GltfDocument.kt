@@ -8,11 +8,10 @@ import kotlinx.serialization.Serializable
 /**
  * The subset of the glTF 2.0 JSON schema (https://registry.khronos.org/glTF/specs/2.0/
  * glTF-2.0.html) this parser actually reads: enough to pull mesh vertex attributes/indices,
- * a node hierarchy, skeletal skinning/animation, and a base color texture out of a `.gltf`
- * file with embedded (base64 data-URI) buffers -- see [GltfParser]'s doc comment for exactly
- * which parts of [materials]/[textures]/[images] are read (base color only, no other PBR
- * channels) and which are deliberately still out of scope (external buffer/image files,
- * multi-primitive meshes).
+ * a node hierarchy, skeletal skinning/animation, and base color/metallic-roughness/normal/
+ * occlusion/emissive textures out of a `.gltf` file -- see [GltfParser]'s doc comment for
+ * exactly which parts of [materials]/[textures]/[images] are read (still-encoded image bytes
+ * per channel, no other material fields like `emissiveFactor` or normal `scale`).
  */
 @Serializable
 data class GltfDocument(
@@ -36,11 +35,18 @@ data class GltfDocument(
 data class GltfMaterial(
     val name: String? = null,
     val pbrMetallicRoughness: GltfPbrMetallicRoughness? = null,
+    val normalTexture: GltfTextureRef? = null,
+    val occlusionTexture: GltfTextureRef? = null,
+    val emissiveTexture: GltfTextureRef? = null,
 )
 
 @Serializable
 data class GltfPbrMetallicRoughness(
     val baseColorTexture: GltfTextureRef? = null,
+    /** Green channel = roughness, blue channel = metalness (glTF 2.0 spec) -- read as one
+     * still-encoded image, same "backend decides how to sample its channels" scope
+     * [readBaseColorImageBytes]'s sibling readers already have. */
+    val metallicRoughnessTexture: GltfTextureRef? = null,
 )
 
 @Serializable

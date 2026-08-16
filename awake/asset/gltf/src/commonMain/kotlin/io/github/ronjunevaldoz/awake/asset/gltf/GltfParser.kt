@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.decodeBuffer
 import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.parse
 import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.parseScene
 import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.parseSkinned
-import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.readBaseColorImageBytes
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.readMaterialImageBytes
 import kotlinx.serialization.json.Json
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -39,13 +39,13 @@ private val GltfJson = Json { ignoreUnknownKeys = true }
  *   a `uri -> bytes` map the caller pre-fetches (e.g. with `readResourceBytes`, which is
  *   `suspend`, so this parser stays synchronous). Use [externalUris] to find out which URIs
  *   a document references before parsing it.
- * - **No materials or textures beyond a base color texture** -- [parse] reads only the first
- *   mesh's first primitive's `POSITION`/`NORMAL`/`COLOR_0`/`TEXCOORD_0`/`JOINTS_0`/`WEIGHTS_0`
- *   attributes, its index accessor, and (if present) its material's embedded `baseColorTexture`
- *   image bytes -- see [readBaseColorImageBytes]. No other PBR channels (metallic/roughness,
- *   normal, emissive, occlusion maps) are read. [parseScene] walks the full node hierarchy for
- *   static meshes; [parseSkinned] walks it for skeletal skinning/animation (skins + animation
- *   clips too).
+ * - **[parse] reads only the first mesh's first primitive** -- its `POSITION`/`NORMAL`/
+ *   `COLOR_0`/`TEXCOORD_0`/`JOINTS_0`/`WEIGHTS_0` attributes, its index accessor, and (if
+ *   present) its material's base color/metallic-roughness/normal/occlusion/emissive texture
+ *   image bytes -- see [readMaterialImageBytes]. Reading stops at the still-encoded image
+ *   bytes per channel; no other material fields (`emissiveFactor`, normal `scale`, occlusion
+ *   `strength`) are read. [parseScene] walks the full node hierarchy for static meshes;
+ *   [parseSkinned] walks it for skeletal skinning/animation (skins + animation clips too).
  * - **Only `FLOAT` vertex attributes and `UNSIGNED_BYTE`/`UNSIGNED_SHORT`/`UNSIGNED_INT`
  *   indices** are decoded -- glTF also allows signed `BYTE`/`SHORT` and normalized integer
  *   attributes, neither of which real exporters emit for `POSITION`/`NORMAL`/`COLOR_0` in
@@ -100,7 +100,16 @@ object GltfParser {
                 }
                 val primitives = meshDef.primitives.map { primitive ->
                     val raw = readPrimitive(document, buffers, primitive, externalResources)
-                    LoadedPrimitive(raw.toInterleavedPositionColorUv(), raw.indices, world, raw.baseColorImageBytes)
+                    LoadedPrimitive(
+                        raw.toInterleavedPositionColorUv(),
+                        raw.indices,
+                        world,
+                        raw.baseColorImageBytes,
+                        raw.metallicRoughnessImageBytes,
+                        raw.normalImageBytes,
+                        raw.occlusionImageBytes,
+                        raw.emissiveImageBytes,
+                    )
                 }
                 loadedMeshes += LoadedMesh(meshDef.name ?: "", primitives)
             }
@@ -140,7 +149,17 @@ object GltfParser {
         val jointWeights = primitive.attributes.weights0?.let {
             readFloatAccessor(document, buffers, it, componentsPerElement = 4)
         }
-        val baseColorImageBytes = readBaseColorImageBytes(document, primitive, externalResources)
+        val material = primitive.material?.let { document.materials.getOrNull(it) }
+        val baseColorImageBytes =
+            readMaterialImageBytes(document, material?.pbrMetallicRoughness?.baseColorTexture, externalResources)
+        val metallicRoughnessImageBytes = readMaterialImageBytes(
+            document,
+            material?.pbrMetallicRoughness?.metallicRoughnessTexture,
+            externalResources,
+        )
+        val normalImageBytes = readMaterialImageBytes(document, material?.normalTexture, externalResources)
+        val occlusionImageBytes = readMaterialImageBytes(document, material?.occlusionTexture, externalResources)
+        val emissiveImageBytes = readMaterialImageBytes(document, material?.emissiveTexture, externalResources)
 
         return GltfMesh(
             positions,
@@ -151,23 +170,26 @@ object GltfParser {
             jointIndices,
             jointWeights,
             baseColorImageBytes,
+            metallicRoughnessImageBytes,
+            normalImageBytes,
+            occlusionImageBytes,
+            emissiveImageBytes,
         )
     }
 
-    /** Resolves [primitive]'s material -> `pbrMetallicRoughness.baseColorTexture` -> texture ->
-     * image, returning that image's still-encoded bytes -- decoded from its base64 data URI,
-     * or looked up in [externalResources] for an external image `uri` -- `null` at any missing
-     * link in that chain (no material, no base color texture, or an external image whose bytes
-     * the caller didn't provide). */
-    private fun readBaseColorImageBytes(
+    /** Resolves a material texture reference (e.g. [GltfPbrMetallicRoughness.baseColorTexture],
+     * [GltfMaterial.normalTexture]) -> texture -> image, returning that image's still-encoded
+     * bytes -- decoded from its base64 data URI, or looked up in [externalResources] for an
+     * external image `uri` -- `null` at any missing link in that chain ([textureRef] itself
+     * `null`, no such texture/image, or an external image whose bytes the caller didn't
+     * provide). Shared by every PBR channel reader in [readPrimitive] -- see [GltfParser]'s own
+     * doc comment for which channels those cover. */
+    private fun readMaterialImageBytes(
         document: GltfDocument,
-        primitive: GltfPrimitive,
+        textureRef: GltfTextureRef?,
         externalResources: Map<String, ByteArray>,
     ): ByteArray? {
-        val uri = primitive.material
-            ?.let { document.materials.getOrNull(it) }
-            ?.pbrMetallicRoughness
-            ?.baseColorTexture
+        val uri = textureRef
             ?.let { document.textures.getOrNull(it.index) }
             ?.source
             ?.let { document.images.getOrNull(it) }
