@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.gizmo
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
+import io.github.ronjunevaldoz.awake.core.math.Vec2
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import kotlin.math.abs
 import kotlin.test.Test
@@ -60,7 +62,7 @@ class GizmoMathTest {
     fun pointingAtTheXHandlePicksTheXAxis() {
         val origin = Vec3(0f, 0f, 0f)
         val tip = assertNotNull(projection.toScreen(Vec3(HANDLE, 0f, 0f)))
-        val midway = ScreenPoint((WIDTH / 2f + tip.x) / 2f, (HEIGHT / 2f + tip.y) / 2f)
+        val midway = Vec2((WIDTH / 2f + tip.x) / 2f, (HEIGHT / 2f + tip.y) / 2f)
         assertEquals(
             GizmoAxis.X,
             projection.hitTestHandle(origin, HANDLE, midway),
@@ -70,7 +72,7 @@ class GizmoMathTest {
     @Test
     fun pointingAwayFromEveryHandleHitsNothing() {
         assertNull(
-            projection.hitTestHandle(Vec3(0f, 0f, 0f), HANDLE, ScreenPoint(20f, 20f)),
+            projection.hitTestHandle(Vec3(0f, 0f, 0f), HANDLE, Vec2(20f, 20f)),
         )
     }
 
@@ -99,15 +101,28 @@ class GizmoMathTest {
     }
 
     @Test
-    fun clickingNearerOneEntityPicksThatOne() {
-        val candidates = listOf(1 to Vec3(-1f, 0f, 0f), 2 to Vec3(1f, 0f, 0f))
-        val rightOfCentre = assertNotNull(projection.toScreen(Vec3(1f, 0f, 0f)))
-        assertEquals(2, projection.pickEntityAt(rightOfCentre, candidates))
+    fun clickingAnObjectPicksTheOneTheRayActuallyEnters() {
+        val left = GizmoCandidate(1, Aabb(Vec3(-1.5f, -0.5f, -0.5f), Vec3(-0.5f, 0.5f, 0.5f)))
+        val right = GizmoCandidate(2, Aabb(Vec3(0.5f, -0.5f, -0.5f), Vec3(1.5f, 0.5f, 0.5f)))
+        val overRight = assertNotNull(projection.toScreen(Vec3(1f, 0f, 0f)))
+
+        assertEquals(2, projection.pickEntityAt(overRight, listOf(left, right)))
+    }
+
+    /** The nearer object wins even though both are under the pointer -- what screen-distance
+     * picking could not do, because it compared origins rather than depth along the ray. */
+    @Test
+    fun theNearerObjectWinsWhenTwoOverlapOnScreen() {
+        val near = GizmoCandidate(1, Aabb(Vec3(-0.5f, -0.5f, 1f), Vec3(0.5f, 0.5f, 2f)))
+        val far = GizmoCandidate(2, Aabb(Vec3(-0.5f, -0.5f, -3f), Vec3(0.5f, 0.5f, -2f)))
+        val centre = Vec2(WIDTH / 2f, HEIGHT / 2f)
+
+        assertEquals(1, projection.pickEntityAt(centre, listOf(far, near)))
     }
 
     @Test
     fun clickingEmptySpacePicksNothing() {
-        val candidates = listOf(1 to Vec3(0f, 0f, 0f))
-        assertNull(projection.pickEntityAt(ScreenPoint(5f, 5f), candidates))
+        val box = GizmoCandidate(1, Aabb(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.5f, 0.5f, 0.5f)))
+        assertNull(projection.pickEntityAt(Vec2(5f, 5f), listOf(box)))
     }
 }

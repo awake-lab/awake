@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
+import io.github.ronjunevaldoz.awake.studio.gizmo.StudioViewportRect
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.ui.api.dp
@@ -50,11 +51,12 @@ internal fun SceneGameRuntime.drawStudioShell(
     backend: String,
     viewportWidth: Float,
     viewportHeight: Float,
+    viewportRect: StudioViewportRect = StudioViewportRect(),
 ) {
     renderer.clearColor = ViewportClearColor
     headlessFrame(viewportWidth, viewportHeight) {
         shadcnTheme(theme = StudioTheme) {
-            drawStudioShellBody(store, world, renderer, backend)
+            drawStudioShellBody(store, world, renderer, backend, viewportRect)
         }
     }
 }
@@ -98,6 +100,7 @@ internal fun UiScope.drawStudioShellBody(
     world: World,
     renderer: Renderer,
     backend: String,
+    viewportRect: StudioViewportRect = StudioViewportRect(),
 ) {
     column(
         verticalArrangement = Arrangement.spacedBy(0f.dp),
@@ -125,6 +128,7 @@ internal fun UiScope.drawStudioShellBody(
             world = world,
             renderer = renderer,
             heightPx = workspaceHeightPx,
+            viewportRect = viewportRect,
         )
         shadcnSeparator(thickness = SEPARATOR_THICKNESS)
         drawStudioStatusBar(
@@ -170,6 +174,7 @@ private fun UiScope.drawStudioWorkspace(
     world: World,
     renderer: Renderer,
     heightPx: Float,
+    viewportRect: StudioViewportRect,
 ) {
     shadcnResizablePanelGroup(
         id = "studio-workspace-group",
@@ -203,7 +208,7 @@ private fun UiScope.drawStudioWorkspace(
                 }
                 shadcnResizableHandle(id = "studio-panel-handle-left", withHandle = true)
                 shadcnResizablePanel(id = "studio-panel-viewport", defaultSize = VIEWPORT_FRACTION, minSize = 0.3f) {
-                    drawStudioViewportPanel(store, renderer)
+                    drawStudioViewportPanel(store, renderer, viewportRect)
                 }
                 shadcnResizableHandle(id = "studio-panel-handle-right", withHandle = true)
                 shadcnResizablePanel(
@@ -231,7 +236,11 @@ private fun UiScope.drawStudioWorkspace(
 /** The viewport panel's own content: the floating icon rail hugging its left edge, the 3D
  * viewport region (the toolbar used to float here too -- it lives in the top bar now), and the
  * right-click camera menu hooked to that same region's bounds. */
-private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Renderer) {
+private fun UiScope.drawStudioViewportPanel(
+    store: StudioStore,
+    renderer: Renderer,
+    viewportRect: StudioViewportRect,
+) {
     column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
         drawStudioViewportHeader(store)
         row(
@@ -246,6 +255,7 @@ private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Render
                 modifier = Modifier.weight(1f).fillMaxHeight().padding(8f.dp),
             ) { }
             renderer.confineSceneTo(viewportBounds)
+            viewportRect.bounds = viewportBounds
             drawDisplayRail(
                 wireframe = renderer.wireframe,
                 shadows = renderer.shadowsEnabled,
