@@ -14,7 +14,10 @@ package io.github.ronjunevaldoz.awake.asset.gltf
  * is the primitive's material's `baseColorTexture` image, still encoded (PNG/JPEG, whatever
  * bytes the glTF file embedded) -- `null` unless the primitive has a material with one.
  * Decoding is deliberately not this parser's job (a platform concern, not a glTF-parsing one)
- * -- see `io.github.ronjunevaldoz.awake.core.graphics.createBitmap`.
+ * -- see `io.github.ronjunevaldoz.awake.core.graphics.createBitmap`. [metallicRoughnessImageBytes]/
+ * [normalImageBytes]/[occlusionImageBytes]/[emissiveImageBytes] are the same kind of
+ * still-encoded, per-material image bytes, one per glTF PBR texture channel -- `null` unless
+ * the primitive's material has that channel.
  */
 data class GltfMesh(
     val positions: FloatArray,
@@ -25,6 +28,10 @@ data class GltfMesh(
     val jointIndices: IntArray? = null,
     val jointWeights: FloatArray? = null,
     val baseColorImageBytes: ByteArray? = null,
+    val metallicRoughnessImageBytes: ByteArray? = null,
+    val normalImageBytes: ByteArray? = null,
+    val occlusionImageBytes: ByteArray? = null,
+    val emissiveImageBytes: ByteArray? = null,
 ) {
     val vertexCount: Int get() = positions.size / POSITION_COMPONENTS
 

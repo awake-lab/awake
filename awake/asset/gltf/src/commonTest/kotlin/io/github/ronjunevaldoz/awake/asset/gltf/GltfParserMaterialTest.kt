@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 /**
  * Covers [GltfParser]'s material/texture/image chain -- `primitive.material` ->
  * `pbrMetallicRoughness.baseColorTexture` -> `textures[].source` -> `images[].uri` -> decoded
- * bytes (see [GltfParser.readBaseColorImageBytes]'s own doc comment) -- mirroring
+ * bytes (see [GltfParser.readMaterialImageBytes]'s own doc comment) -- mirroring
  * [GltfParserTest]'s synthetic-JSON-with-base64-buffer pattern rather than depending on a real
  * downloaded asset.
  */
@@ -102,6 +102,76 @@ class GltfParserMaterialTest {
         val mesh = GltfParser.parse(json)
 
         assertNull(mesh.baseColorImageBytes)
+    }
+
+    @Test
+    fun resolvesEveryPbrChannelThroughItsOwnTextureImageChain() {
+        val baseColor = byteArrayOf(1)
+        val metallicRoughness = byteArrayOf(2)
+        val normal = byteArrayOf(3)
+        val occlusion = byteArrayOf(4)
+        val emissive = byteArrayOf(5)
+        fun dataUri(bytes: ByteArray) = "data:image/png;base64,${Base64.encode(bytes)}"
+        val json = """
+            {
+              $triangleAccessorsAndBuffer,
+              "materials": [
+                {
+                  "pbrMetallicRoughness": {
+                    "baseColorTexture": { "index": 0 },
+                    "metallicRoughnessTexture": { "index": 1 }
+                  },
+                  "normalTexture": { "index": 2 },
+                  "occlusionTexture": { "index": 3 },
+                  "emissiveTexture": { "index": 4 }
+                }
+              ],
+              "textures": [
+                { "source": 0 }, { "source": 1 }, { "source": 2 }, { "source": 3 }, { "source": 4 }
+              ],
+              "images": [
+                { "uri": "${dataUri(baseColor)}" },
+                { "uri": "${dataUri(metallicRoughness)}" },
+                { "uri": "${dataUri(normal)}" },
+                { "uri": "${dataUri(occlusion)}" },
+                { "uri": "${dataUri(emissive)}" }
+              ],
+              "meshes": [
+                {
+                  "primitives": [
+                    { "attributes": { "POSITION": 0 }, "material": 0 }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val mesh = GltfParser.parse(json)
+
+        assertTrue(baseColor.contentEquals(mesh.baseColorImageBytes))
+        assertTrue(metallicRoughness.contentEquals(mesh.metallicRoughnessImageBytes))
+        assertTrue(normal.contentEquals(mesh.normalImageBytes))
+        assertTrue(occlusion.contentEquals(mesh.occlusionImageBytes))
+        assertTrue(emissive.contentEquals(mesh.emissiveImageBytes))
+    }
+
+    @Test
+    fun pbrChannelsAreNullWhenPrimitiveHasNoMaterial() {
+        val json = """
+            {
+              $triangleAccessorsAndBuffer,
+              "meshes": [
+                { "primitives": [ { "attributes": { "POSITION": 0 } } ] }
+              ]
+            }
+        """.trimIndent()
+
+        val mesh = GltfParser.parse(json)
+
+        assertNull(mesh.metallicRoughnessImageBytes)
+        assertNull(mesh.normalImageBytes)
+        assertNull(mesh.occlusionImageBytes)
+        assertNull(mesh.emissiveImageBytes)
     }
 
     @Test
