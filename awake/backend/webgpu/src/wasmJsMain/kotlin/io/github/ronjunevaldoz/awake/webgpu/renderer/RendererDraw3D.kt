@@ -100,30 +100,47 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
             setViewport(rect.x, rect.y, rect.width, rect.height, 0f, 1f)
             setScissorRect(rect.x.toUInt(), rect.y.toUInt(), rect.width.toUInt(), rect.height.toUInt())
         }
-        setPipeline(pipeline)
         var drawIndex = 0
         while (drawIndex < drawCalls.size) {
             val drawCall = drawCalls[drawIndex]
-            // This backend only ever has the one pipeline (primaryVertexFormat) -- a mesh
-            // built with any other format is skipped rather than drawn through a pipeline
-            // that expects a different vertex layout, matching Vulkan's Renderer
-            // .pipelinesByFormat skip-on-mismatch guard (see that class's doc comment).
-            if (drawCall.mesh.format != primaryVertexFormat) {
+            // A mesh whose format has neither the primary pipeline nor an additionalPipelines
+            // entry is skipped rather than drawn through a pipeline that expects a different
+            // vertex layout, matching Vulkan's Renderer.pipelinesByFormat skip-on-mismatch
+            // guard (see that class's doc comment).
+            val isPrimaryFormat = drawCall.mesh.format == primaryVertexFormat
+            val extraPipeline = if (isPrimaryFormat) null else additionalPipelines[drawCall.mesh.format]
+            val extraMaterial = (drawCall.material as? Material)?.takeIf { it.hasTexture }
+            if (!isPrimaryFormat && (extraPipeline == null || extraMaterial == null)) {
                 drawIndex += 1
                 continue
             }
             // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
             // Camera.viewProjectionMatrix's docs), matching vulkanMain's Renderer.
             val mvp = drawCall.model * viewProjection
-            device.queue.writeBuffer(activeUniformBuffer, 0uL, fastArrayBufferOf(mvp.data + lightFloats))
-            setBindGroup(0u, activeUniformBindGroup)
+            if (extraPipeline != null && extraMaterial != null) {
+                // Textured path: the material owns its uniform buffer + bind group, and
+                // textured.wgsl's Uniforms is mvp alone -- no light floats appended, unlike
+                // the primary pipeline's triangle.wgsl. Wireframe has no companion pipeline
+                // per additional format, so these stay filled (same fallback as Vulkan's
+                // pipelineFor).
+                val texturedPipeline = WebGpuHandles.resolve<GPURenderPipeline>(extraPipeline.graphicsPipeline[0])
+                setPipeline(texturedPipeline)
+                extraMaterial.updateUniformBuffer(mvp.data)
+                setBindGroup(0u, extraMaterial.bindGroupFor(texturedPipeline))
+            } else {
+                setPipeline(pipeline)
+                device.queue.writeBuffer(activeUniformBuffer, 0uL, fastArrayBufferOf(mvp.data + lightFloats))
+                setBindGroup(0u, activeUniformBindGroup)
+            }
             // drawCall.mesh is the render-api interface (only bind()/draw()/destroy()) --
             // cast to this backend's own concrete Mesh for vertexBuffer/indexBuffer/
             // indexCount, safe since this Renderer only ever runs against this module's
             // own Mesh instances (never a different backend's).
             val mesh = drawCall.mesh as Mesh
             setVertexBuffer(0u, WebGpuHandles.resolve(mesh.vertexBuffer.handle))
-            if (useWireframe) {
+            // `extraPipeline == null`: an additional pipeline has no LineList companion, so a
+            // line index buffer would be fed to a TriangleList pipeline.
+            if (useWireframe && extraPipeline == null) {
                 // Same vertex buffer, a different (LineList-shaped) index buffer derived
                 // from this mesh's own triangle indices -- see Mesh's lineIndexBuffer doc
                 // comment.

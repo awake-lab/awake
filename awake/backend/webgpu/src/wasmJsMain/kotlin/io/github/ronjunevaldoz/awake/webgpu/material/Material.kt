@@ -3,63 +3,113 @@
 package io.github.ronjunevaldoz.awake.webgpu.material
 
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
-import io.github.ronjunevaldoz.awake.webgpu.handles.BufferHandle
-import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorPoolHandle
-import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetHandle
-import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
-import io.github.ronjunevaldoz.awake.webgpu.handles.DeviceMemoryHandle
+import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.texture.Texture
+import io.ygdrasil.webgpu.BindGroupDescriptor
+import io.ygdrasil.webgpu.BindGroupEntry
+import io.ygdrasil.webgpu.BufferBinding
+import io.ygdrasil.webgpu.BufferDescriptor
+import io.ygdrasil.webgpu.GPUBindGroup
+import io.ygdrasil.webgpu.GPUBuffer
+import io.ygdrasil.webgpu.GPUBufferUsage
+import io.ygdrasil.webgpu.GPURenderPipeline
 import io.ygdrasil.webgpu.GPUSampler
 import io.ygdrasil.webgpu.GPUTextureView
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 
-// Phase 2.5 (Web/WebGPU, decision D7) milestone 1: compile-only stub. Only the UI-compositing
-// path (previewTextureView/previewSampler) is real; the general 3D DrawCall.material path stays
-// unimplemented -- see docs/MVP_PLAN.md.
+/**
+ * Two unrelated cases share this type, matching the shared `Renderer.createMaterial` contract:
+ * a UI-compositing material ([createResourcesFromRenderTarget], sampled by
+ * [io.github.ronjunevaldoz.awake.webgpu.ui.UiTextureRenderPipeline], which owns its own bind
+ * groups) and a 3D `DrawCall.material` with a real base-color texture ([createResources]),
+ * which owns the uniform buffer + bind group `textured.wgsl` declares.
+ *
+ * Unlike Vulkan's descriptor set (host-side writable, so one set can be rewritten per draw),
+ * a `GPUBindGroup` is immutable once created -- so [bindGroup] is built once, lazily, against
+ * the pipeline this material is first drawn through.
+ */
 class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: Int = 16) : RenderMaterial {
-    val descriptorSetLayout: DescriptorSetLayoutHandle = DescriptorSetLayoutHandle(0)
-    var descriptorPool: DescriptorPoolHandle = DescriptorPoolHandle(0)
-    var descriptorSet: DescriptorSetHandle = DescriptorSetHandle(0)
-    var uniformBuffer: BufferHandle = BufferHandle(0)
-    var uniformBufferMemory: DeviceMemoryHandle = DeviceMemoryHandle(0)
+    private val device = graphicsDevice.wgpuContext.device
 
     var previewTextureView: GPUTextureView? = null
         private set
     var previewSampler: GPUSampler? = null
         private set
 
-    /** Scoped to the UI-compositing case -- see this class's own doc comment. Not `createResources`'s
-     * general-purpose sibling: this backend's `DrawCall.material` texture binding
-     * (world-space quads sampling a render target) is explicitly deferred, since it'd also
-     * require the shared 3D shader to declare a second bind group -- real scope creep beyond
-     * offscreen rendering itself. */
+    private var texture: Texture? = null
+    private var uniformBuffer: GPUBuffer? = null
+    private var bindGroup: GPUBindGroup? = null
+
+    /** Scoped to the UI-compositing case -- see this class's own doc comment. */
     fun createResourcesFromRenderTarget(textureView: GPUTextureView, sampler: GPUSampler) {
         previewTextureView = textureView
         previewSampler = sampler
     }
 
-    /** Only ever called for the 3D `DrawCall.material` path -- see this class's own doc
-     * comment for why that's still out of scope on this backend. */
+    /** The 3D `DrawCall.material` case: keeps [texture] and allocates this material's own
+     * uniform buffer. `textured.wgsl`'s `Uniforms` is `mvp` alone, so [uniformFloatCount]
+     * (16 by default) is the whole struct -- deliberately NOT the light-carrying layout
+     * `triangle.wgsl` uses. The bind group itself waits for [bindGroupFor]: its layout comes
+     * from the pipeline, which this class never sees. */
     fun createResources(texture: Texture) {
-        TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
+        this.texture = texture
+        uniformBuffer = device.createBuffer(
+            BufferDescriptor(
+                size = (uniformFloatCount * Float.SIZE_BYTES).toULong(),
+                usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst,
+            ),
+        )
     }
 
+    /** True once [createResources] has run -- a `PositionNormalColorUv` draw call whose
+     * material has no texture can't be drawn through `textured.wgsl` at all. */
+    val hasTexture: Boolean get() = texture != null
+
+    /** Builds (once) this material's `textured.wgsl` bind group -- uniform, base-color view,
+     * sampler -- against [pipeline]'s group-0 layout, then reuses it every frame.
+     * ponytail: cached for the first pipeline only; make it a per-pipeline map if one material
+     * ever gets drawn through two pipelines (e.g. a wireframe variant of the textured one). */
+    fun bindGroupFor(pipeline: GPURenderPipeline): GPUBindGroup = bindGroup ?: device.createBindGroup(
+        BindGroupDescriptor(
+            layout = pipeline.getBindGroupLayout(0u),
+            entries = listOf(
+                BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = requireUniformBuffer())),
+                BindGroupEntry(binding = 1u, resource = requireTexture().view),
+                BindGroupEntry(binding = 2u, resource = requireTexture().sampler),
+            ),
+        ),
+    ).also { bindGroup = it }
+
+    /** Writes `textured.wgsl`'s `Uniforms.mvp`. Like every other `queue.writeBuffer` on this
+     * backend this is queue-scheduled, not interleaved into the encoder -- so two draw calls
+     * sharing ONE material within a frame would both see the last write (see `Renderer`'s own
+     * class doc comment for the same ceiling on the shared uniform buffer). */
     override fun updateUniformBuffer(mvp: FloatArray) {
-        TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
+        device.queue.writeBuffer(requireUniformBuffer(), 0uL, fastArrayBufferOf(mvp))
     }
 
     override fun bind(commandBuffer: Long, pipelineLayout: Long) {
-        TODO("WebGPU not yet implemented -- see Phase 2.5, docs/MVP_PLAN.md")
+        TODO("WebGPU bind group binding happens in Renderer.draw() directly, see docs/MVP_PLAN.md")
     }
 
-    /** Unlike Vulkan, WebGPU objects (`GPUSampler`/`GPUTextureView`) are garbage-collected by
-     * the JS runtime -- there's no native handle to explicitly release here. This must be
-     * safe to call unconditionally (every [io.github.ronjunevaldoz.awake.engine.game.Game.dispose]
-     * calls its own `Material.destroy()` regardless of whether the general 3D texture-binding
-     * path above was ever used), so it just drops the references rather than throwing the
-     * same `TODO()` as the genuinely-unimplemented methods above. */
+    /** Must be safe to call unconditionally (every `Game.dispose` calls it regardless of which
+     * of the two cases above the material was built for). WebGPU's views/samplers/bind groups
+     * are garbage-collected by the JS runtime; only the buffer has an explicit release. The
+     * [texture] itself is owned by `Renderer` (which created it), same as Vulkan. */
     override fun destroy() {
         previewTextureView = null
         previewSampler = null
+        uniformBuffer?.close()
+        uniformBuffer = null
+        bindGroup = null
+        texture = null
+    }
+
+    private fun requireTexture(): Texture = requireNotNull(texture) {
+        "Material has no texture -- was it built via createMaterial(texture = ...)?"
+    }
+
+    private fun requireUniformBuffer(): GPUBuffer = requireNotNull(uniformBuffer) {
+        "Material has no uniform buffer -- was it built via createMaterial(texture = ...)?"
     }
 }

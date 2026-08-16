@@ -39,6 +39,11 @@ open class WebGpuGameApplication(
      * `Renderer.wireframe`. `false` by default so a game that never uses it doesn't pay for
      * the extra pipeline object, mirroring `VulkanGameApplication`'s `wireframeSupport`. */
     private val wireframeSupport: Boolean = false,
+    /** Extra 3D pipelines keyed by the vertex format each one draws -- registered into
+     * `Renderer.additionalPipelines`, so a `MeshRenderer` entity using that format draws
+     * through its own pipeline instead of the primary one. Mirrors
+     * `VulkanGameApplication.additionalPipelines` (see its doc comment); empty by default. */
+    private val additionalPipelines: Map<VertexFormat, GameShaderSet> = emptyMap(),
 ) : GameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -50,6 +55,7 @@ open class WebGpuGameApplication(
         vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
         game: Game,
         wireframeSupport: Boolean = false,
+        additionalPipelines: Map<VertexFormat, GameShaderSet> = emptyMap(),
     ) : this(
         vertexShaderResourcePath = shaderSet.webGpu.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.webGpu.fragmentResourcePath,
@@ -58,12 +64,14 @@ open class WebGpuGameApplication(
         vertexShaderEntryPoint = shaderSet.webGpu.vertexEntryPoint,
         fragmentShaderEntryPoint = shaderSet.webGpu.fragmentEntryPoint,
         wireframeSupport = wireframeSupport,
+        additionalPipelines = additionalPipelines,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
     private lateinit var swapchainManager: SwapchainManager
     private lateinit var renderPipeline: RenderPipeline
     private var wireframeRenderPipeline: RenderPipeline? = null
+    private val additionalRenderPipelines = mutableMapOf<VertexFormat, RenderPipeline>()
     private lateinit var lineRenderPipeline: LineRenderPipeline
 
     override suspend fun createBackendResources(window: Any): BackendResources {
@@ -78,7 +86,7 @@ open class WebGpuGameApplication(
             DescriptorSetLayoutHandle(0),
             vertShaderCode,
             ByteArray(0),
-            vertexFormat.strideBytes,
+            vertexFormat,
             vertexShaderEntryPoint,
             fragmentShaderEntryPoint,
         )
@@ -89,13 +97,27 @@ open class WebGpuGameApplication(
                 DescriptorSetLayoutHandle(0),
                 vertShaderCode,
                 ByteArray(0),
-                vertexFormat.strideBytes,
+                vertexFormat,
                 vertexShaderEntryPoint,
                 fragmentShaderEntryPoint,
                 topology = GPUPrimitiveTopology.LineList,
             )
         } else {
             null
+        }
+        // No LineList companion per additional format -- those keep drawing filled while
+        // Renderer.wireframe is on (see RendererDraw3D's own comment).
+        additionalPipelines.forEach { (format, shaderSet) ->
+            additionalRenderPipelines[format] = RenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                DescriptorSetLayoutHandle(0),
+                readResourceBytes(shaderSet.webGpu.vertexResourcePath),
+                ByteArray(0),
+                format,
+                shaderSet.webGpu.vertexEntryPoint,
+                shaderSet.webGpu.fragmentEntryPoint,
+            )
         }
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
@@ -115,6 +137,7 @@ open class WebGpuGameApplication(
             0L,
             MAX_FRAMES_IN_FLIGHT,
             wireframeRenderPipeline,
+            additionalRenderPipelines.toMap(),
         )
 
         return BackendResources(
@@ -131,6 +154,7 @@ open class WebGpuGameApplication(
         swapchainManager.destroy()
         renderPipeline.destroy()
         wireframeRenderPipeline?.destroy()
+        additionalRenderPipelines.values.forEach { it.destroy() }
         lineRenderPipeline.destroy()
         graphicsDevice.destroy()
     }

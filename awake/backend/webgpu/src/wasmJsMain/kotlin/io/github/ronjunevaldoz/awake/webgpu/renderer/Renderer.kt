@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.webgpu.texture.OffscreenRenderTarget
+import io.github.ronjunevaldoz.awake.webgpu.texture.Texture
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
@@ -59,15 +60,15 @@ import io.ygdrasil.webgpu.Color as GpuColor
  * single triangle/cube draw. No fences/semaphores/frame-in-flight bookkeeping -- the
  * browser's own frame pacing replaces what `SwapchainManager`'s Vulkan sync fields are for.
  *
- * [DrawCall.material] is deliberately **not** touched here -- `Material`'s wasmJs actual is
- * still `TODO()` (out of scope for this slice, see docs/MVP_PLAN.md). Instead this class
- * owns one small uniform buffer + bind group directly per [RenderPipeline] (matching how
- * wgpu4k's own example scenes manage their uniform buffer, with no separate "Material"
- * abstraction), rewritten via `queue.writeBuffer` before each draw call. This only actually
- * works correctly for a single draw call per frame today -- multiple draw calls sharing one
- * uniform buffer within one render pass would clobber each other's MVP matrix, since
- * `queue.writeBuffer` is a queue-scheduled op, not something that interleaves mid-encoder.
- * Real per-draw-call (or per-Material) uniform buffers are Material's job once it's real.
+ * For the primary pipeline, [DrawCall.material] is not consulted at all: this class owns one
+ * small uniform buffer + bind group directly per [RenderPipeline] (matching how wgpu4k's own
+ * example scenes manage their uniform buffer), rewritten via `queue.writeBuffer` before each
+ * draw call. This only actually works correctly for a single draw call per frame -- multiple
+ * draw calls sharing one uniform buffer within one render pass clobber each other's MVP
+ * matrix, since `queue.writeBuffer` is a queue-scheduled op, not something that interleaves
+ * mid-encoder. A draw call resolved to [additionalPipelines] instead uses its own
+ * [Material]'s uniform buffer + texture bind group, so it only hits that ceiling when two
+ * draw calls share ONE material.
  *
  * This class is deliberately just the class body (fields, constructor, the 3D resource API,
  * and [destroy]) -- the rest of its behavior lives in sibling files as `internal` extension
@@ -82,12 +83,11 @@ class Renderer(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     renderPipeline: RenderPipeline,
-    /** The one [io.github.ronjunevaldoz.awake.render.mesh.VertexFormat] [renderPipeline] was
-     * built for -- this backend only ever has the one 3D pipeline (see this class's own doc
-     * comment), so a [DrawCall] whose mesh uses any other format is skipped rather than drawn
-     * through a pipeline that expects a different vertex layout (see [performDraw]'s doc
-     * comment). Mirrors Vulkan's `Renderer.pipelinesByFormat`, minus the "more than one
-     * pipeline" part -- no format table needed when there's only ever one entry. */
+    /** The [io.github.ronjunevaldoz.awake.render.mesh.VertexFormat] [renderPipeline] was built
+     * for. A [DrawCall] whose mesh uses any other format draws through [additionalPipelines]'
+     * entry for it, or is skipped when there is none -- rendering one format's vertex data
+     * through another's pipeline would silently misread the vertex buffer. Together the two
+     * are this backend's equivalent of Vulkan's `Renderer.pipelinesByFormat`. */
     internal val primaryVertexFormat: VertexFormat = VertexFormat.PositionColorUv,
     internal val lineRenderPipeline: LineRenderPipeline,
     internal val uiShaderCode: ByteArray,
@@ -102,6 +102,12 @@ class Renderer(
      * comment for the "why LineList, not a barycentric shader" rationale. `null` (default)
      * for every game that doesn't opt into `WebGpuGameApplication`'s `wireframeSupport`. */
     internal val wireframeRenderPipeline: RenderPipeline? = null,
+    /** Extra 3D pipelines keyed by the vertex format each one draws (today: `textured.wgsl`
+     * for `PositionNormalColorUv`), mirroring Vulkan's `Renderer.pipelinesByFormat`. A
+     * [DrawCall] whose mesh format has an entry here draws through it, binding its own
+     * [Material]'s texture bind group instead of this class's shared uniform bind group --
+     * see [performDraw]. Empty (default) for a game with only the primary pipeline. */
+    internal val additionalPipelines: Map<VertexFormat, RenderPipeline> = emptyMap(),
 ) : RenderRenderer {
     // WebGPU's NDC has +Y up -- confirmed by this module's own ui_quad.wgsl comment
     // ("pixel-space is Y-down, NDC is Y-up") -- so unlike Vulkan (+Y down NDC) no flip is
@@ -226,8 +232,10 @@ class Renderer(
     override fun createMesh(geometry: MeshGeometry): RenderMesh =
         Mesh(graphicsDevice, {}, geometry.vertices, geometry.indices, geometry.format)
 
-    /** Builds a [Material]; `texture` is accepted for interface parity with the Vulkan backend
-     * but is otherwise unused since this backend's `Material` is still a compile-only stub. */
+    /** Builds a [Material] -- see [RenderRenderer.createMaterial]'s doc comment. A `texture`
+     * is uploaded into a real [Texture] the material then binds through `textured.wgsl` (see
+     * [additionalPipelines]); a material with neither `texture` nor `renderTarget` carries no
+     * GPU resources at all, since the primary pipeline's uniforms live on this class. */
     override fun createMaterial(texture: TextureAsset?, renderTarget: RenderTarget?, uniformFloatCount: Int): RenderMaterial {
         require(texture == null || renderTarget == null) { "Pass at most one of texture/renderTarget." }
         val material = Material(graphicsDevice, uniformFloatCount)
@@ -235,9 +243,18 @@ class Renderer(
             val offscreen = renderTarget as OffscreenRenderTarget
             val sampler = graphicsDevice.wgpuContext.device.createSampler(SamplerDescriptor())
             material.createResourcesFromRenderTarget(offscreen.colorView, sampler)
+        } else if (texture != null) {
+            // runOneTimeCommands is unused by this backend's Texture (see its doc comment).
+            val textureInstance = Texture(graphicsDevice, {}, texture.data, texture.width, texture.height)
+            createdTextures += textureInstance
+            material.createResources(textureInstance)
         }
         return material
     }
+
+    // Textures created on demand by createMaterial() -- Renderer (not Material) owns their
+    // teardown, mirroring Vulkan's Renderer.createdTextures.
+    private val createdTextures = mutableListOf<Texture>()
 
     // RenderTargets created on demand by createRenderTarget() -- same ownership pattern as
     // Vulkan's Renderer.createdRenderTargets.
@@ -386,6 +403,7 @@ class Renderer(
         uiGlyphRenderPipeline?.destroy()
         uiTextureRenderPipeline?.destroy()
         uiRoundedQuadRenderPipeline?.destroy()
+        createdTextures.forEach { it.destroy() }
         createdRenderTargets.forEach { it.destroy() }
         uiQuadMeshPool.forEach { it.destroy() }
         uiGlyphMeshPool.forEach { it.destroy() }
