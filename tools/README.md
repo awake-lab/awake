@@ -25,6 +25,9 @@ Live preview serving is optional convenience tooling. It is never a verification
 Read `docs/reference/ui-validation.md` for the required proof for a UI change, and
 `docs/reference/ui-testing-dictionary.md` for plain-English test terms.
 
+The staged cleanup and retirement criteria live in
+[`docs/tasks/2026-08-16-ui-tooling-simplification.md`](../docs/tasks/2026-08-16-ui-tooling-simplification.md).
+
 ## Normal component workflow
 
 For a component that already has registered fixtures:
