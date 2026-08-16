@@ -178,11 +178,16 @@ fun UiScope.row(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement = Arrangement.Start,
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
+    // Opt-in cross-frame trial cache -- see UiScope.column.
+    id: String? = null,
+    cacheKey: Any? = null,
     content: RowScope.(slot: UiBounds) -> Unit,
 ): UiBounds = primitive.primitiveRow(
     modifier = modifier.asPrimitiveModifier(),
     horizontalArrangement = horizontalArrangement.asPrimitiveArrangement(),
     verticalAlignment = verticalAlignment,
+    id = id,
+    cacheKey = cacheKey,
 ) { slot -> content(asHeadlessScope(), slot) }
 
 fun ColumnScope.column(

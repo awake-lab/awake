@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childRow
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
+import io.github.ronjunevaldoz.awake.ui.context.resolveMeasuredContentCached
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -44,11 +45,18 @@ fun ColumnScope.row(
                 is Dimension.Fixed -> requestedHeight.dp.toPx()
                 Dimension.FillMax, Dimension.WrapContent -> 4096f
             }
-            context.measureRowContent(
-                availableHeight,
-                effectiveArrangement.baseSpacingPx(),
-                content = content,
-            )
+            context.resolveMeasuredContentCached(
+                id = id,
+                cacheKey = cacheKey,
+                availableWidth = availableHeight,
+                gap = effectiveArrangement.baseSpacingPx(),
+            ) {
+                context.measureRowContent(
+                    availableHeight,
+                    effectiveArrangement.baseSpacingPx(),
+                    content = content,
+                )
+            }
         } else {
             null
         }
@@ -95,11 +103,18 @@ fun RowScope.row(
                 is Dimension.Fixed -> requestedHeight.dp.toPx()
                 Dimension.FillMax, Dimension.WrapContent -> fillHeightOrNull() ?: 4096f
             }
-            context.measureRowContent(
-                availableHeight,
-                effectiveArrangement.baseSpacingPx(),
-                content = content,
-            )
+            context.resolveMeasuredContentCached(
+                id = id,
+                cacheKey = cacheKey,
+                availableWidth = availableHeight,
+                gap = effectiveArrangement.baseSpacingPx(),
+            ) {
+                context.measureRowContent(
+                    availableHeight,
+                    effectiveArrangement.baseSpacingPx(),
+                    content = content,
+                )
+            }
         } else {
             null
         }
@@ -146,11 +161,18 @@ fun AbsoluteScope.row(
                 is Dimension.Fixed -> requestedHeight.dp.toPx()
                 Dimension.FillMax, Dimension.WrapContent -> 4096f
             }
-            context.measureRowContent(
-                availableHeight,
-                effectiveArrangement.baseSpacingPx(),
-                content = content,
-            )
+            context.resolveMeasuredContentCached(
+                id = id,
+                cacheKey = cacheKey,
+                availableWidth = availableHeight,
+                gap = effectiveArrangement.baseSpacingPx(),
+            ) {
+                context.measureRowContent(
+                    availableHeight,
+                    effectiveArrangement.baseSpacingPx(),
+                    content = content,
+                )
+            }
         } else {
             null
         }
@@ -197,11 +219,18 @@ fun BoxScope.row(
                 is Dimension.Fixed -> requestedHeight.dp.toPx()
                 Dimension.FillMax, Dimension.WrapContent -> fillHeightOrNull() ?: 4096f
             }
-            context.measureRowContent(
-                availableHeight,
-                effectiveArrangement.baseSpacingPx(),
-                content = content,
-            )
+            context.resolveMeasuredContentCached(
+                id = id,
+                cacheKey = cacheKey,
+                availableWidth = availableHeight,
+                gap = effectiveArrangement.baseSpacingPx(),
+            ) {
+                context.measureRowContent(
+                    availableHeight,
+                    effectiveArrangement.baseSpacingPx(),
+                    content = content,
+                )
+            }
         } else {
             null
         }
@@ -265,11 +294,18 @@ fun UiPrimitiveScope.row(
                 is Dimension.Fixed -> requestedHeight.dp.toPx()
                 Dimension.FillMax, Dimension.WrapContent -> 4096f
             }
-            context.measureRowContent(
-                availableHeight,
-                horizontalArrangement.baseSpacingPx(),
-                content = content,
-            )
+            context.resolveMeasuredContentCached(
+                id = id,
+                cacheKey = cacheKey,
+                availableWidth = availableHeight,
+                gap = horizontalArrangement.baseSpacingPx(),
+            ) {
+                context.measureRowContent(
+                    availableHeight,
+                    horizontalArrangement.baseSpacingPx(),
+                    content = content,
+                )
+            }
         } else {
             null
         }
