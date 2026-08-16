@@ -122,20 +122,20 @@ class Mat4Test {
     }
 
     @Test
-    fun rotateXByNinetyDegreesMapsPlusYToMinusZ() {
+    fun rotateXByNinetyDegreesMapsPlusYToPlusZ() {
         val r = Mat4().rotateX(HALF_PI)
 
-        assertVec4(Vec4(0f, 0f, -1f, 1f), r.applyToColumnVector(0f, 1f, 0f))
-        assertVec4(Vec4(0f, 1f, 0f, 1f), r.applyToColumnVector(0f, 0f, 1f))
+        assertVec4(Vec4(0f, 0f, 1f, 1f), r.applyToColumnVector(0f, 1f, 0f))
+        assertVec4(Vec4(0f, -1f, 0f, 1f), r.applyToColumnVector(0f, 0f, 1f))
         assertVec4(Vec4(1f, 0f, 0f, 1f), r.applyToColumnVector(1f, 0f, 0f))
     }
 
     @Test
-    fun rotateYByNinetyDegreesMapsPlusXToPlusZ() {
+    fun rotateYByNinetyDegreesMapsPlusXToMinusZ() {
         val r = Mat4().rotateY(HALF_PI)
 
-        assertVec4(Vec4(0f, 0f, 1f, 1f), r.applyToColumnVector(1f, 0f, 0f))
-        assertVec4(Vec4(-1f, 0f, 0f, 1f), r.applyToColumnVector(0f, 0f, 1f))
+        assertVec4(Vec4(0f, 0f, -1f, 1f), r.applyToColumnVector(1f, 0f, 0f))
+        assertVec4(Vec4(1f, 0f, 0f, 1f), r.applyToColumnVector(0f, 0f, 1f))
         assertVec4(Vec4(0f, 1f, 0f, 1f), r.applyToColumnVector(0f, 1f, 0f))
     }
 
@@ -239,50 +239,18 @@ class Mat4Test {
         assertMat4(fromQuat, Mat4().rotateZ(angle))
     }
 
-    /**
-     * Characterises a real defect, it is not an endorsement: [Mat4.rotateX], [Mat4.rotateY] and
-     * the general [Mat4.rotate] all build the *transpose* of the rotation every other matrix
-     * producer in this package uses -- i.e. they rotate by `-angle`. [Mat4.rotateZ] and
-     * [Quat.toMat4] (and `setLookAt`, `translate`, `perspective`) use the standard,
-     * non-transposed form. See `rotateXAndRotateYShouldMatchTheEquivalentQuaternion` for the
-     * behaviour this *should* have.
-     */
+    /** Every rotation producer in this package builds the same, right-handed rotation. rotateX,
+     * rotateY and the general rotate used to build the transpose (they rotated by `-angle`)
+     * while rotateZ and Quat.toMat4 did not. */
     @Test
-    fun rotateXAndRotateYAreCurrentlyTheTransposeOfTheEquivalentQuaternion() {
-        val angle = 0.7f
-        val quatX = Quat(sin(angle / 2f), 0f, 0f, cos(angle / 2f)).toMat4()
-        val quatY = Quat(0f, sin(angle / 2f), 0f, cos(angle / 2f)).toMat4()
-
-        // Rotating by the *negated* angle is what these two actually produce.
-        assertMat4(quatX, Mat4().rotateX(-angle))
-        assertMat4(quatY, Mat4().rotateY(-angle))
-    }
-
-    // DEFECT: Mat4.rotateX/rotateY/rotate build the transpose of the standard rotation (they
-    // rotate by -angle), while Mat4.rotateZ and Quat.toMat4 build the standard one. Un-@Ignore
-    // once matrix.kt is made self-consistent.
-    @Ignore
-    @Test
-    fun rotateXAndRotateYShouldMatchTheEquivalentQuaternion() {
+    fun rotateXAndRotateYMatchTheEquivalentQuaternion() {
         val angle = 0.7f
 
         assertMat4(Quat(sin(angle / 2f), 0f, 0f, cos(angle / 2f)).toMat4(), Mat4().rotateX(angle))
         assertMat4(Quat(0f, sin(angle / 2f), 0f, cos(angle / 2f)).toMat4(), Mat4().rotateY(angle))
     }
 
-    /** Same defect seen from inside the library: two public APIs for "rotate about +Z" disagree. */
-    @Test
-    fun rotateAboutZAndRotateZCurrentlySpinInOppositeDirections() {
-        val viaAxis = Mat4().rotate(HALF_PI, Vec3(0f, 0f, 1f)).applyToColumnVector(1f, 0f, 0f)
-        val viaRotateZ = Mat4().rotateZ(HALF_PI).applyToColumnVector(1f, 0f, 0f)
-
-        assertVec4(Vec4(0f, -1f, 0f, 1f), viaAxis)
-        assertVec4(Vec4(0f, 1f, 0f, 1f), viaRotateZ)
-    }
-
-    // DEFECT: rotate(angle, Vec3(0, 0, 1)) and rotateZ(angle) rotate in opposite directions --
-    // rotate() is transposed. Un-@Ignore once matrix.kt is made self-consistent.
-    @Ignore
+    /** Two public APIs for "rotate about +Z" must agree. */
     @Test
     fun rotateAboutAnAxisShouldMatchTheDedicatedPerAxisHelper() {
         assertMat4(Mat4().rotateX(0.7f), Mat4().rotate(0.7f, Vec3(1f, 0f, 0f)))

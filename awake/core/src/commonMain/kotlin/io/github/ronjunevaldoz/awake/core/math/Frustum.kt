@@ -48,3 +48,50 @@ object Frustum {
         0 to 4, 1 to 5, 2 to 6, 3 to 7,
     )
 }
+
+/**
+ * Whether [box] is at least partly inside the frustum [camera]/[aspect] describe -- the culling
+ * test the corner list alone could not answer.
+ *
+ * Conservative: a box that is outside every plane individually is rejected, but a large box
+ * straddling a corner can be reported as visible when it is not. That direction is the safe one
+ * (drawing something invisible costs a frame's work; skipping something visible is a bug), and
+ * it is what every "cheap AABB vs frustum" test does.
+ */
+fun Frustum.intersects(camera: Camera, aspect: Float, box: Aabb): Boolean {
+    val corners = corners(camera, aspect)
+    val near = corners.take(NEAR_CORNER_COUNT)
+    val far = corners.drop(NEAR_CORNER_COUNT)
+    // Each plane is spanned by three corners, wound so its normal points INTO the frustum.
+    val planes = listOf(
+        planeThrough(near[TOP_LEFT], near[TOP_RIGHT], far[TOP_RIGHT]),
+        planeThrough(near[BOTTOM_RIGHT], far[BOTTOM_RIGHT], near[BOTTOM_LEFT]),
+        planeThrough(near[TOP_LEFT], far[TOP_LEFT], near[BOTTOM_LEFT]),
+        planeThrough(near[TOP_RIGHT], near[BOTTOM_RIGHT], far[BOTTOM_RIGHT]),
+        planeThrough(near[TOP_LEFT], near[BOTTOM_LEFT], near[BOTTOM_RIGHT]),
+        planeThrough(far[TOP_LEFT], far[BOTTOM_RIGHT], far[BOTTOM_LEFT]),
+    )
+    return planes.filterNotNull().none { plane -> box.isFullyBehind(plane) }
+}
+
+/** The box is outside when its most-positive corner along the plane normal still sits behind it. */
+private fun Aabb.isFullyBehind(plane: Plane): Boolean {
+    val positiveX = if (plane.normal.x >= 0f) max.x else min.x
+    val positiveY = if (plane.normal.y >= 0f) max.y else min.y
+    val positiveZ = if (plane.normal.z >= 0f) max.z else min.z
+    return plane.signedDistanceTo(Vec3(positiveX, positiveY, positiveZ)) < 0f
+}
+
+/** `null` for three collinear points, which describe no plane. */
+private fun planeThrough(a: Vec3, b: Vec3, c: Vec3): Plane? {
+    val normal = (b - a).cross(c - a)
+    if (normal.length3() < DEGENERATE_NORMAL) return null
+    return Plane.through(a, normal)
+}
+
+private const val NEAR_CORNER_COUNT = 4
+private const val TOP_LEFT = 0
+private const val TOP_RIGHT = 1
+private const val BOTTOM_RIGHT = 2
+private const val BOTTOM_LEFT = 3
+private const val DEGENERATE_NORMAL = 1e-6f
