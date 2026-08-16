@@ -100,13 +100,11 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                         title = "Acme Inc",
                         subtitle = "Enterprise",
                     )
-                    // The category/page menu is the part that overflows a short viewport --
-                    // scroll just this weighted slice instead of the whole body, so the switcher
-                    // above and the footer slot below stay pinned instead of the tail of the
-                    // menu (e.g. the Combobox entry) painting through the footer.
-                    column(
-                        modifier = Modifier.fillMaxWidth().weight(1f).verticalScroll(sidebarScroll),
-                    ) {
+                    // The category/page menu is the part that overflows a short viewport -- scroll
+                    // just this weighted slice instead of the whole body, so the switcher above and
+                    // the footer slot below stay pinned instead of the tail of the menu (e.g. the
+                    // Combobox entry) painting through the footer.
+                    column(modifier = Modifier.fillMaxWidth().weight(1f).verticalScroll(sidebarScroll)) {
                         drawUiShowcaseSidebar(compact = false)
                     }
                 }

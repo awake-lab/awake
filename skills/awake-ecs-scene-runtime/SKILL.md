@@ -230,7 +230,7 @@ for a sample-level example built on it):
 3. Freeze animation for a reproducible frame: `ManualTimeController(autoPlay = false, hours =
    <fixed value>)` instead of real elapsed time.
 4. `renderer.renderToTexture(target, camera, drawCalls)` + `renderer.readPixels(target)`, then
-   `awake:engine:testing`'s `comparePixels(actual, baseline)` against a committed `.rgba` golden
+   `awake:ui:testing`'s `comparePixels(actual, baseline)` against a committed `.rgba` golden
    resource (raw bytes matching `readPixels()`'s own output format, not a PNG).
 5. On mismatch, dump both actual/baseline as PNGs under `build/test-failures/...` (see
    `writeRgbaPng` in either test file) so a developer can look at what actually rendered instead of
@@ -238,7 +238,7 @@ for a sample-level example built on it):
 
 **Traps hit building the sample-level version:**
 - A sample with no prior `desktopTest` source set needs one added explicitly, with a dependency on
-  `awake:backend:vulkan` (for the headless device/renderer classes) and `awake:engine:testing`
+  `awake:backend:vulkan` (for the headless device/renderer classes) and `awake:ui:testing`
   (for `comparePixels`), plus the same native-lib env wiring (`-Djava.library.path`,
   `VK_ICD_FILENAMES`, `DYLD_FALLBACK_LIBRARY_PATH`) `awake:backend:vulkan`'s own `desktopTest` task
   already sets -- copy that wiring, don't rediscover it.

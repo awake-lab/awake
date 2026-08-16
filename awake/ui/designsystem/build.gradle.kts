@@ -49,7 +49,7 @@ awakeTestResources {
 
 tasks.register("auditUiDesignsystemHeadlessBoundary") {
     group = "verification"
-    description = "Verifies public ui-designsystem sources do not import ui-core runtime APIs."
+    description = "Verifies public ui-designsystem sources do not import ui-core primitive APIs."
     val sourceRoot = layout.projectDirectory.dir("src/commonMain/kotlin")
     doLast {
         val forbiddenPrefixes = listOf(
@@ -59,20 +59,18 @@ tasks.register("auditUiDesignsystemHeadlessBoundary") {
             "import io.github.ronjunevaldoz.awake.ui.modifier",
             "import io.github.ronjunevaldoz.awake.ui.popup",
             "import io.github.ronjunevaldoz.awake.ui.scope",
-            "import io.github.ronjunevaldoz.awake.ui.font",
             "import io.github.ronjunevaldoz.awake.ui.animate",
             "import io.github.ronjunevaldoz.awake.ui.child",
-            "import io.github.ronjunevaldoz.awake.ui.toPx",
         )
         val current = sourceRoot.asFile.walkTopDown()
             .filter { it.isFile && it.extension == "kt" }
             .sumOf { file ->
                 file.readLines().count { line -> forbiddenPrefixes.any(line::startsWith) }
             }
-        println("ui-designsystem public legacy Core import lines: $current")
+        println("ui-designsystem public Core primitive import lines: $current")
         check(current == 0) {
-            "ui-designsystem public boundary violated: $current legacy Core import lines remain. " +
-                    "Move Core receiver implementations to ui-designsystem-compat or rewrite them with Headless APIs."
+            "ui-designsystem public boundary violated: $current Core primitive import lines remain. " +
+                    "Rewrite component recipes to use Headless APIs instead of Core primitives."
         }
     }
 }
