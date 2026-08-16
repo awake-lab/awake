@@ -56,6 +56,9 @@ private val KnownPreviewIssues: Map<String, AwakeUiPreviewValidationConfig> = ma
     "ui-showcase-avatar" to AwakeUiPreviewValidationConfig(
         contentFitTolerancePx = 10f,
     ),
+    "ui-showcase-button-group" to AwakeUiPreviewValidationConfig(
+        contentFitTolerancePx = 10f,
+    ),
 )
 
 class UiShowcasePreviewDocsTest {

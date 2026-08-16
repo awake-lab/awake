@@ -5,7 +5,8 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcaseCategory
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcasePage
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnButtonGroupOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroupColumn
@@ -20,7 +21,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.size
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.width
@@ -42,13 +42,14 @@ shadcnButtonGroup(id = "group-demo") {
 """.trimIndent(),
     referenceExample = "registry/new-york-v4/examples/button-group-demo.tsx",
     notes = listOf(
-        "Provides horizontal (shadcnButtonGroup) and vertical (shadcnButtonGroupColumn) layouts.",
-        "Use shadcnButtonGroupSeparator() to render hairline dividers between buttons.",
+        "Supports unified orientation control via ShadcnButtonGroupOrientation (Horizontal / Vertical).",
+        "Uses LocalShadcnButtonGroup context to automatically strip inner button corner radii and handle vertical width expansion.",
+        "Use shadcnButtonGroupSeparator() to render context-aware hairline dividers between buttons.",
     ),
     hero = {
         var selectedAction by rememberStateValue("btn-group-hero", "action") { "Save" }
         column(verticalArrangement = Arrangement.spacedBy(8f.dp)) {
-            shadcnButtonGroup(id = "button-group-hero", modifier = Modifier.height(32f.dp)) {
+            shadcnButtonGroup(id = "button-group-hero") {
                 shadcnButton(
                     id = "group-btn-save",
                     label = "Save",
@@ -56,7 +57,9 @@ shadcnButtonGroup(id = "group-demo") {
                     size = ShadcnButtonSize.Sm,
                     onClick = { selectedAction = "Save" },
                 )
+
                 shadcnButtonGroupSeparator("sep-hero-1")
+
                 shadcnButton(
                     id = "group-btn-play",
                     label = "Play",
@@ -64,7 +67,9 @@ shadcnButtonGroup(id = "group-demo") {
                     size = ShadcnButtonSize.Sm,
                     onClick = { selectedAction = "Play" },
                 )
+
                 shadcnButtonGroupSeparator("sep-hero-2")
+
                 shadcnButton(
                     id = "group-btn-console",
                     label = "Console",
@@ -79,49 +84,62 @@ shadcnButtonGroup(id = "group-demo") {
     variants = {
         column(verticalArrangement = Arrangement.spacedBy(16f.dp)) {
             shadcnText("Horizontal Group (Toolbar / Segmented Control)")
-            shadcnButtonGroup(id = "button-group-horizontal", modifier = Modifier.height(32f.dp)) {
+            shadcnButtonGroup(id = "button-group-horizontal") {
                 shadcnButton(
                     id = "btn-horiz-select",
-                    modifier = Modifier.width(30f.dp),
                     variant = ShadcnButtonVariant.Primary,
-                    size = ShadcnButtonSize.Sm,
+                    size = ShadcnButtonSize.Icon,
                 ) {
-                    icon(outline.cursorArrowRays, modifier = Modifier.size(16f.dp))
+                    icon(
+                        outline.cursorArrowRays,
+                        modifier = Modifier.size(16f.dp),
+                        tint = ShadcnTheme.colors.primaryForeground,
+                    )
                 }
                 shadcnButtonGroupSeparator("sep-horiz-1")
                 shadcnButton(
                     id = "btn-horiz-move",
-                    modifier = Modifier.width(30f.dp),
                     variant = ShadcnButtonVariant.Ghost,
-                    size = ShadcnButtonSize.Sm,
+                    size = ShadcnButtonSize.Icon,
                 ) {
-                    icon(outline.arrowsPointingOut, modifier = Modifier.size(16f.dp))
+                    icon(
+                        outline.arrowsPointingOut,
+                        modifier = Modifier.size(16f.dp),
+                        tint = ShadcnTheme.colors.foreground,
+                    )
                 }
                 shadcnButtonGroupSeparator("sep-horiz-2")
                 shadcnButton(
                     id = "btn-horiz-rotate",
-                    modifier = Modifier.width(30f.dp),
                     variant = ShadcnButtonVariant.Ghost,
-                    size = ShadcnButtonSize.Sm,
+                    size = ShadcnButtonSize.Icon,
                 ) {
-                    icon(outline.arrowPath, modifier = Modifier.size(16f.dp))
+                    icon(
+                        outline.arrowPath,
+                        modifier = Modifier.size(16f.dp),
+                        tint = ShadcnTheme.colors.foreground,
+                    )
                 }
                 shadcnButtonGroupSeparator("sep-horiz-3")
                 shadcnButton(
                     id = "btn-horiz-scale",
-                    modifier = Modifier.width(30f.dp),
                     variant = ShadcnButtonVariant.Ghost,
-                    size = ShadcnButtonSize.Sm,
+                    size = ShadcnButtonSize.Icon,
                 ) {
-                    icon(outline.arrowsPointingIn, modifier = Modifier.size(16f.dp))
+                    icon(
+                        outline.arrowsPointingIn,
+                        modifier = Modifier.size(16f.dp),
+                        tint = ShadcnTheme.colors.foreground,
+                    )
                 }
             }
 
             spacer(Modifier.height(8f.dp))
 
-            shadcnText("Vertical Group (Stacked Control)")
-            shadcnButtonGroupColumn(
+            shadcnText("Vertical Group (Unified Orientation Parameter)")
+            shadcnButtonGroup(
                 id = "button-group-vertical",
+                orientation = ShadcnButtonGroupOrientation.Vertical,
                 modifier = Modifier.width(120f.dp),
             ) {
                 shadcnButton(
@@ -150,7 +168,7 @@ shadcnButtonGroup(id = "group-demo") {
     states = {
         column(verticalArrangement = Arrangement.spacedBy(8f.dp)) {
             shadcnText("Subtle / Secondary Variant Group")
-            shadcnButtonGroup(id = "button-group-secondary", modifier = Modifier.height(32f.dp)) {
+            shadcnButtonGroup(id = "button-group-secondary") {
                 shadcnButton(
                     id = "btn-sec-1",
                     label = "Option A",

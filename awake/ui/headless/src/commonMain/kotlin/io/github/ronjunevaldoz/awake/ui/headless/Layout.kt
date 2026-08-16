@@ -25,6 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.padding as primitivePadding
 import io.github.ronjunevaldoz.awake.ui.modifier.testTag as primitiveTestTag
 import io.github.ronjunevaldoz.awake.ui.modifier.weight as primitiveWeight
 import io.github.ronjunevaldoz.awake.ui.modifier.width as primitiveWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.widthIn as primitiveWidthIn
 
 /** Compose-style structural modifier for generic Headless layout behavior. */
 interface Modifier {
@@ -40,9 +41,17 @@ fun PrimitiveModifier.toHeadless(): Modifier = HeadlessModifier(this)
 
 fun Modifier.width(width: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveWidth(width))
 
+/** Minimum/maximum width constraint that preserves an explicit caller width when present. */
+fun Modifier.widthIn(min: Dp? = null, max: Dp? = null): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveWidthIn(min = min, max = max))
+
 /** Sizes a node to its measured content instead of the parent cross-axis extent. */
 fun Modifier.wrapContentWidth(): Modifier =
     HeadlessModifier(asPrimitiveModifier().primitiveWidth(io.github.ronjunevaldoz.awake.ui.api.layout.Dimension.WrapContent))
+
+/** Sizes a node to its measured content only when the caller did not provide an explicit width. */
+fun Modifier.wrapContentWidthOrDefault(): Modifier =
+    if ((this as? HeadlessModifier)?.primitive?.widthDimension == null) wrapContentWidth() else this
 
 fun Modifier.height(height: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveHeight(height))
 
