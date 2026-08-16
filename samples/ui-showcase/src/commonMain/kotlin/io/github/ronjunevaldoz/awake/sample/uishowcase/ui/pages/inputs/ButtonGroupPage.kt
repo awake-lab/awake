@@ -9,7 +9,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnButtonGroupOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroup
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroupColumn
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroupSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
@@ -93,7 +92,6 @@ shadcnButtonGroup(id = "group-demo") {
                     icon(
                         outline.cursorArrowRays,
                         modifier = Modifier.size(16f.dp),
-                        tint = ShadcnTheme.colors.primaryForeground,
                     )
                 }
                 shadcnButtonGroupSeparator("sep-horiz-1")
@@ -105,7 +103,6 @@ shadcnButtonGroup(id = "group-demo") {
                     icon(
                         outline.arrowsPointingOut,
                         modifier = Modifier.size(16f.dp),
-                        tint = ShadcnTheme.colors.foreground,
                     )
                 }
                 shadcnButtonGroupSeparator("sep-horiz-2")
@@ -117,7 +114,6 @@ shadcnButtonGroup(id = "group-demo") {
                     icon(
                         outline.arrowPath,
                         modifier = Modifier.size(16f.dp),
-                        tint = ShadcnTheme.colors.foreground,
                     )
                 }
                 shadcnButtonGroupSeparator("sep-horiz-3")
@@ -129,7 +125,6 @@ shadcnButtonGroup(id = "group-demo") {
                     icon(
                         outline.arrowsPointingIn,
                         modifier = Modifier.size(16f.dp),
-                        tint = ShadcnTheme.colors.foreground,
                     )
                 }
             }

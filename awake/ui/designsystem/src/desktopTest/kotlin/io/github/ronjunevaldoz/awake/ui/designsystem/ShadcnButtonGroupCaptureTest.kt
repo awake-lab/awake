@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
+import io.github.ronjunevaldoz.awake.testing.ui.toBufferedImage
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnButtonGroupOrientation
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
@@ -15,7 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
 import io.github.ronjunevaldoz.awake.ui.headless.height
-import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 import kotlin.test.Test
@@ -59,18 +59,7 @@ class ShadcnButtonGroupCaptureTest {
         }
 
         val pixels = frame.primitives.rasterize(width, height, Color(0.08f, 0.08f, 0.1f, 1f), font)
-        val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
-        var offset = 0
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                val r = pixels[offset].toInt() and 0xFF
-                val g = pixels[offset + 1].toInt() and 0xFF
-                val b = pixels[offset + 2].toInt() and 0xFF
-                val a = pixels[offset + 3].toInt() and 0xFF
-                image.setRGB(x, y, (a shl 24) or (r shl 16) or (g shl 8) or b)
-                offset += 4
-            }
-        }
+        val image = pixels.toBufferedImage(width, height)
         val out = File("build/ui-snapshots/button-group.png")
         out.parentFile.mkdirs()
         ImageIO.write(image, "png", out)

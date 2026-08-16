@@ -11,9 +11,9 @@ import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.button
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.heightOrDefault
+import io.github.ronjunevaldoz.awake.ui.headless.size
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 fun UiScope.shadcnButton(
@@ -29,10 +29,17 @@ fun UiScope.shadcnButton(
 ): Boolean {
     val groupCtx = currentLocal(LocalShadcnButtonGroup)
     val groupStyle = if (groupCtx != null) Style { shape(0f.dp) } else Style.Empty
-    val groupModifier = when (groupCtx?.orientation) {
-        ShadcnButtonGroupOrientation.Vertical -> modifier.fillMaxWidth()
-        ShadcnButtonGroupOrientation.Horizontal -> modifier.fillMaxHeight()
-        null -> modifier
+    // Only vertical groups stretch members -- the group's resolved width isn't a real bound
+    // until every member's intrinsic width is known, so an explicit fillMaxWidth() is needed to
+    // make them share it. Horizontal groups don't need the height equivalent: every member
+    // already carries its own heightOrDefault(size.heightDp) below, so uniform-size groups (the
+    // common case, matching shadcn's own reference) size correctly without it -- and forcing
+    // fillMaxHeight() on every member left the row with no non-FillMax child to hug, so its own
+    // WrapContent-height sizing trial fell back to the trial's placeholder bound instead.
+    val groupModifier = if (groupCtx?.orientation == ShadcnButtonGroupOrientation.Vertical) {
+        modifier.fillMaxWidth()
+    } else {
+        modifier
     }
     return button(
         id = id,
@@ -46,7 +53,6 @@ fun UiScope.shadcnButton(
 
 fun UiScope.shadcnButton(
     id: String,
-    label: String = "",
     modifier: Modifier = Modifier,
     variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
     size: ShadcnButtonSize = ShadcnButtonSize.Md,
@@ -57,14 +63,17 @@ fun UiScope.shadcnButton(
 ): Boolean {
     val groupCtx = currentLocal(LocalShadcnButtonGroup)
     val groupStyle = if (groupCtx != null) Style { shape(0f.dp) } else Style.Empty
-    val groupModifier = when (groupCtx?.orientation) {
-        ShadcnButtonGroupOrientation.Vertical -> modifier.fillMaxWidth()
-        ShadcnButtonGroupOrientation.Horizontal -> modifier.fillMaxHeight()
-        null -> modifier
-    }
+    // Content-lambda buttons (icons, in practice) have no label to derive an intrinsic width
+    // from, so buttonSlotInternal's own fallback resolves straight to FillMax -- an icon button
+    // dropped into a row without an explicit width stretched to fill it. shadcn's `size="icon"`
+    // is always exactly `size-9`, no caller override point either -- square unconditionally.
+    val sizedModifier =
+        if (size == ShadcnButtonSize.Icon) modifier.size(size.heightDp) else modifier.heightOrDefault(
+            size.heightDp
+        )
     return button(
         id = id,
-        modifier = groupModifier.heightOrDefault(size.heightDp),
+        modifier = sizedModifier,
         style = variant.visuals(themeValues, size) then groupStyle then style,
         enabled = enabled,
         content = content,
