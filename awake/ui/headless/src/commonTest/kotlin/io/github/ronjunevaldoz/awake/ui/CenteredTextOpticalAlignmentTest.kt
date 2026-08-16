@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.sp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
@@ -32,16 +32,16 @@ class CenteredTextOpticalAlignmentTest {
     /** 'T' is flat-topped and flat-bottomed with no overshoot, so its quad IS the cap box. */
     private fun capBoxOf(label: String, slot: UiBounds): ClosedFloatingPointRange<Float> {
         val font = UiFonts.default(cellSize = CELL_SIZE)
-        val ui = UiContext()
-        ui.pushFont(font)
-        ui.createAbsolute(x = slot.x, y = slot.y).text(
-            label = label,
-            slot = slot,
-            font = font,
-            textStyle = TextStyle(size = TEXT_SIZE_SP.sp),
-            verticallyCentered = true,
-        )
-        val capital = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>().first()
+        val frame = renderUiComponent(width = slot.width, height = slot.height, font = font) {
+            primitive.context.createAbsolute(x = slot.x, y = slot.y).text(
+                label = label,
+                slot = slot,
+                font = font,
+                textStyle = TextStyle(size = TEXT_SIZE_SP.sp),
+                verticallyCentered = true,
+            )
+        }
+        val capital = frame.primitives.filterIsInstance<UiDrawPrimitive.Glyph>().first()
         return capital.y..(capital.y + capital.h)
     }
 

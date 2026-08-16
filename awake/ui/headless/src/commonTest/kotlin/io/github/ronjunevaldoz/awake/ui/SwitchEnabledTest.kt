@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.switch
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -18,13 +18,18 @@ class SwitchEnabledTest {
 
     @Test
     fun toggleFlipsWhenEnabled() {
-        val ui = UiContext()
         var checked = false
         // The switch's own slot is offset(20dp,20dp) sized width(40px) x height(22px) --
         // click inside that box (not CheckboxTest's whole-row target), so (30, 30).
-        ui.simulateClick(x = 30f, y = 30f, screenHeight = 100f) {
-            checked = ui.createAbsolute(x = 20f, y = 20f)
-                .switch("sw", checked, modifier = Modifier.width(40f.px).height(22f.px))
+        uiTestSession(width = 200f, height = 100f) {
+            frame(x = 30f, y = 30f, down = true) {
+                checked = primitive.context.createAbsolute(x = 20f, y = 20f)
+                    .switch("sw", checked, modifier = Modifier.width(40f.px).height(22f.px))
+            }
+            frame(x = 30f, y = 30f, down = false) {
+                checked = primitive.context.createAbsolute(x = 20f, y = 20f)
+                    .switch("sw", checked, modifier = Modifier.width(40f.px).height(22f.px))
+            }
         }
         assertTrue(
             checked,
@@ -34,16 +39,26 @@ class SwitchEnabledTest {
 
     @Test
     fun toggleDoesNotFlipWhenDisabled() {
-        val ui = UiContext()
         var checked = false
-        ui.simulateClick(x = 30f, y = 30f, screenHeight = 100f) {
-            checked = ui.createAbsolute(x = 20f, y = 20f)
-                .switch(
-                    "sw",
-                    checked,
-                    modifier = Modifier.width(40f.px).height(22f.px),
-                    enabled = false,
-                )
+        uiTestSession(width = 200f, height = 100f) {
+            frame(x = 30f, y = 30f, down = true) {
+                checked = primitive.context.createAbsolute(x = 20f, y = 20f)
+                    .switch(
+                        "sw",
+                        checked,
+                        modifier = Modifier.width(40f.px).height(22f.px),
+                        enabled = false,
+                    )
+            }
+            frame(x = 30f, y = 30f, down = false) {
+                checked = primitive.context.createAbsolute(x = 20f, y = 20f)
+                    .switch(
+                        "sw",
+                        checked,
+                        modifier = Modifier.width(40f.px).height(22f.px),
+                        enabled = false,
+                    )
+            }
         }
         assertFalse(
             checked,

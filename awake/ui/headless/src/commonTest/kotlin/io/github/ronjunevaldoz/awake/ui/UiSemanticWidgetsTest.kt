@@ -5,9 +5,9 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticContentFit
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
 import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow
@@ -24,16 +24,15 @@ class UiSemanticWidgetsTest {
     @Test
     fun buttonEmitsSemanticButtonAndLabelNodes() {
         val font = UiFonts.default()
-        val context = UiContext()
-        context.beginFrame(240f, 96f, testSnapshot())
-        context.pushFont(font)
-        context.createAbsolute(x = 20f, y = 20f).button(
-            id = "primary-action",
-            modifier = Modifier.width(180f.px).height(44f.px),
-            label = "Awake Button",
-        )
+        val frame = renderUiComponent(width = 240f, height = 96f, font = font) {
+            primitive.context.createAbsolute(x = 20f, y = 20f).button(
+                id = "primary-action",
+                modifier = Modifier.width(180f.px).height(44f.px),
+                label = "Awake Button",
+            )
+        }
 
-        val semantics = context.semanticNodes()
+        val semantics = frame.semantics
 
         inspectSemanticNodes(semantics).requireClean()
         inspectSemanticContentFit(semantics, tolerancePx = 1f).requireClean()
@@ -50,17 +49,16 @@ class UiSemanticWidgetsTest {
     @Test
     fun ellipsizedTextIsMarkedAsTruncated() {
         val font = UiFonts.default()
-        val context = UiContext()
-        context.beginFrame(180f, 64f, testSnapshot())
-        context.pushFont(font)
-        context.createAbsolute(x = 12f, y = 12f).text(
-            label = "This label is intentionally too wide for the slot",
-            slot = UiBounds(12f, 12f, 80f, 16f),
-            overflow = UiTextOverflow.Ellipsis,
-            semanticId = "truncated.copy",
-        )
+        val frame = renderUiComponent(width = 180f, height = 64f, font = font) {
+            primitive.context.createAbsolute(x = 12f, y = 12f).text(
+                label = "This label is intentionally too wide for the slot",
+                slot = UiBounds(12f, 12f, 80f, 16f),
+                overflow = UiTextOverflow.Ellipsis,
+                semanticId = "truncated.copy",
+            )
+        }
 
-        val semantics = context.semanticNodes()
+        val semantics = frame.semantics
 
         inspectSemanticNodes(semantics).requireClean()
         assertTrue(inspectTextTruncation(semantics).issues.any { it.nodeId == "truncated.copy" })

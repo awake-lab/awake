@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.row
@@ -18,27 +18,26 @@ import kotlin.test.assertEquals
 class RowCrossAxisCenterProbeTest {
     @Test
     fun rowCentersChildrenOfDifferentHeightsAtSameMidpoint() {
-        val ui = UiContext()
-        ui.beginFrame(300f, 100f, testSnapshot())
         var shortBounds: UiBounds? = null
         var tallBounds: UiBounds? = null
-        ui.createColumn(x = 0f, y = 0f, width = 300f).row(
-            horizontalArrangement = Arrangement.spacedBy(8f.dp),
-            verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(32f.dp)),
-        ) {
-            shortBounds = text(
-                "+",
-                modifier = Modifier.width(12f.dp).height(6f.dp),
-                verticallyCentered = true,
-            )
-            tallBounds = text(
-                "Header",
-                modifier = Modifier.width(60f.dp).height(13f.dp),
-                verticallyCentered = true,
-            )
+        renderUiComponent(width = 300f, height = 100f) {
+            primitive.context.createColumn(x = 0f, y = 0f, width = 300f).row(
+                horizontalArrangement = Arrangement.spacedBy(8f.dp),
+                verticalAlignment = UiAlignment.Vertical.Center,
+                modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(32f.dp)),
+            ) {
+                shortBounds = text(
+                    "+",
+                    modifier = Modifier.width(12f.dp).height(6f.dp),
+                    verticallyCentered = true,
+                )
+                tallBounds = text(
+                    "Header",
+                    modifier = Modifier.width(60f.dp).height(13f.dp),
+                    verticallyCentered = true,
+                )
+            }
         }
-        ui.endFrame()
         val short = shortBounds!!
         val tall = tallBounds!!
         val shortMid = short.y + short.height / 2f

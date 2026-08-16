@@ -3,9 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
@@ -79,10 +77,7 @@ class ShadcnDesignSystemTest {
 
     @Test
     fun recipesComposeThroughPublicHeadlessScope() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.beginFrame(320f, 200f, UiInputState())
-        ui.headlessRoot().shadcnTheme {
+        val frame = renderShadcnComponent(width = 320f, height = 200f, font = BitmapFont()) {
             column(Modifier.fillMaxSize()) {
                 shadcnSurface(id = "surface", modifier = Modifier.width(280f.dp)) {
                     shadcnBadge(id = "status", label = "READY", variant = ShadcnBadgeVariant.Primary)
@@ -91,7 +86,6 @@ class ShadcnDesignSystemTest {
                 shadcnCard(id = "card") { text("Card body") }
             }
         }
-        val frame = ui.finishFrame()
         assertTrue(frame.primitives.isNotEmpty())
         assertTrue(frame.semantics.any { it.id == "surface" })
         assertTrue(frame.semantics.any { it.id == "launch" })

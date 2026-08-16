@@ -4,9 +4,11 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.checkbox
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -21,17 +23,17 @@ class CheckboxTest {
 
     @Test
     fun checkboxFlipsOnPressReleaseInsideBounds() {
-        val ui = UiContext()
         var checked = false
         // Whole row is the hit target, not just the small box -- click somewhere in the
         // middle of the row (x=100), not at the box's own tiny x=0..16 range.
-        ui.simulateClick(x = 100f, y = 20f, screenHeight = 100f) {
-            checked = ui.createAbsolute(x = 20f, y = 20f).checkbox(
-                "cb",
-                checked,
-                label = "ENABLED",
-                modifier = Modifier.width(160f.px).height(40f.px),
-            )
+        uiTestSession(width = 200f, height = 100f) {
+            fun UiScope.draw() {
+                checked = primitive.context.createAbsolute(x = 20f, y = 20f).checkbox(
+                    "cb", checked, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px),
+                )
+            }
+            frame(x = 100f, y = 20f, down = true) { draw() }
+            frame(x = 100f, y = 20f, down = false) { draw() }
         }
         assertTrue(
             checked,
@@ -41,16 +43,12 @@ class CheckboxTest {
 
     @Test
     fun checkboxEmitsASeparateBoxAndLabelNotOneBigFill() {
-        val ui = UiContext()
-        ui.beginFrame(200f, 100f, testSnapshot())
-        ui.pushFont(BitmapFont())
-        ui.createAbsolute(x = 20f, y = 20f).checkbox(
-            "cb",
-            checked = false,
-            label = "ENABLED",
-            modifier = Modifier.width(160f.px).height(40f.px),
-        )
-        val primitives = ui.endFrame()
+        val frame = renderUiComponent(width = 200f, height = 100f, font = BitmapFont()) {
+            primitive.context.createAbsolute(x = 20f, y = 20f).checkbox(
+                "cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px),
+            )
+        }
+        val primitives = frame.primitives
 
         val quads = primitives.filterIsInstance<UiDrawPrimitive.Quad>()
         assertEquals(
@@ -69,17 +67,12 @@ class CheckboxTest {
 
     @Test
     fun checkboxCanUseModifierSizingAsPrimaryApi() {
-        val ui = UiContext()
-        ui.beginFrame(220f, 100f, testSnapshot())
-        ui.pushFont(BitmapFont())
-        ui.createAbsolute(x = 20f, y = 20f).checkbox(
-            id = "cb",
-            checked = false,
-            label = "ENABLED",
-            modifier = Modifier.width(160f.px).height(40f.px),
-        )
-
-        val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
+        val frame = renderUiComponent(width = 220f, height = 100f, font = BitmapFont()) {
+            primitive.context.createAbsolute(x = 20f, y = 20f).checkbox(
+                "cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px),
+            )
+        }
+        val glyphs = frame.primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
         assertTrue(glyphs.isNotEmpty(), "modifier-sized checkbox should still render its label")
         assertTrue(
             glyphs.first().x >= 44f,
@@ -89,39 +82,32 @@ class CheckboxTest {
 
     @Test
     fun checkedBoxAddsAStrokedCheckmark() {
-        val ui = UiContext()
-        ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(x = 20f, y = 20f)
-            .checkbox("cb", checked = true, modifier = Modifier.width(160f.px).height(40f.px))
-        val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
+        val frame = renderUiComponent(width = 200f, height = 100f) {
+            primitive.context.createAbsolute(x = 20f, y = 20f)
+                .checkbox("cb", checked = true, modifier = Modifier.width(160f.px).height(40f.px))
+        }
+        val quads = frame.primitives.filterIsInstance<UiDrawPrimitive.Quad>()
         assertEquals(
             1,
             quads.size,
             "checked state paints one primary box quad; the checkmark is emitted separately",
         )
-        // The shadcn indicator is a check path, not a second filled inset square.
-        // Rebuild the frame because endFrame() consumes the current primitive list.
-        ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(x = 20f, y = 20f)
-            .checkbox("cb", checked = true, modifier = Modifier.width(160f.px).height(40f.px))
         assertEquals(
             1,
-            ui.endFrame().filterIsInstance<UiDrawPrimitive.StrokedPath>().size,
+            frame.primitives.filterIsInstance<UiDrawPrimitive.StrokedPath>().size,
             "checked state emits one stroked checkmark",
         )
     }
 
     @Test
     fun styleShapeMakesTheBoxARoundedQuad() {
-        val ui = UiContext()
-        ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createAbsolute(x = 20f, y = 20f).checkbox(
-            "cb",
-            checked = false,
-            modifier = Modifier.width(160f.px).height(40f.px),
-            style = Style { shape(UiShape.sm) },
-        )
-        val primitive = ui.endFrame().first()
+        val frame = renderUiComponent(width = 200f, height = 100f) {
+            primitive.context.createAbsolute(x = 20f, y = 20f).checkbox(
+                "cb", checked = false, modifier = Modifier.width(160f.px).height(40f.px),
+                style = Style { shape(UiShape.sm) },
+            )
+        }
+        val primitive = frame.primitives.first()
         assertIs<UiDrawPrimitive.RoundedQuad>(
             primitive,
             "style.shape() must round the checkbox's own box, not just buttons/panels",
@@ -133,22 +119,18 @@ class CheckboxTest {
     @Suppress("NestedBlockDepth")
     fun trueFontCheckboxLabelStaysVerticallyCenteredInTheRow() {
         val font = UiFonts.trueSans()
-        val ui = UiContext()
-        ui.beginFrame(220f, 100f, testSnapshot())
-        ui.pushFont(font)
-        ui.createAbsolute(x = 20f, y = 20f).checkbox(
-            "cb",
-            checked = false,
-            label = "ENABLED",
-            modifier = Modifier.width(160f.px).height(40f.px),
-        )
+        val frame = renderUiComponent(width = 220f, height = 100f, font = font) {
+            primitive.context.createAbsolute(x = 20f, y = 20f).checkbox(
+                "cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px),
+            )
+        }
 
         // Measure the RENDERED ink, not glyph quad bounds: the quad deliberately extends past
         // the ink by the atlas crop bleed plus a texel snap (see PackedUiFontData.quadMetricsEm),
         // so quad centers carry sub-pixel slack that says nothing about where the label sits.
         val width = 220
         val height = 100
-        val pixels = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>().rasterize(
+        val pixels = frame.primitives.filterIsInstance<UiDrawPrimitive.Glyph>().rasterize(
             width,
             height,
             background = Color(0f, 0f, 0f, 0f),

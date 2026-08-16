@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.button
@@ -26,9 +26,6 @@ class TextWidgetsTest {
     @Test
     fun ellipsisClampsGlyphsInsideTheSlotWidth() {
         val font = BitmapFont()
-        val ui = UiContext()
-        ui.pushFont(font)
-        val scope = ui.createAbsolute(x = 10f, y = 20f)
         // BitmapFont is true monospace (every glyph advances a full glyphPx, see
         // GlyphAtlasSource.advanceFor) -- the slot must be wide enough to fit the 3-dot
         // ellipsis itself (3 * glyphPx) plus at least one real character, or there's no
@@ -44,15 +41,15 @@ class TextWidgetsTest {
             advanceOf = { char -> font.advanceFor(char, 12f) },
         )
 
-        scope.text(
-            label = "TOOLONG",
-            slot = UiBounds(10f, 20f, slotWidthPx, 12f),
-            font = font,
-            overflow = UiTextOverflow.Ellipsis,
-        )
-
-        val frame = ui.endFrame()
-        val clipPushes = frame.filterIsInstance<UiDrawPrimitive.ClipPush>()
+        val frame = renderUiComponent(width = 100f, height = 100f, font = font) {
+            primitive.context.createAbsolute(x = 10f, y = 20f).text(
+                label = "TOOLONG",
+                slot = UiBounds(10f, 20f, slotWidthPx, 12f),
+                font = font,
+                overflow = UiTextOverflow.Ellipsis,
+            )
+        }
+        val clipPushes = frame.primitives.filterIsInstance<UiDrawPrimitive.ClipPush>()
         assertTrue(
             layout.lines.single().endsWith("..."),
             "ellipsis overflow should append a visible ellipsis when text is truncated",
@@ -130,17 +127,12 @@ class TextWidgetsTest {
     @Test
     fun trueFontCentersVisibleGlyphBoundsInsideTheRequestedSlot() {
         val font = UiFonts.trueSans()
-        val ui = UiContext()
-        ui.beginFrame(200f, 80f, testSnapshot())
-        ui.pushFont(font)
-        ui.createAbsolute(x = 0f, y = 0f).text(
-            label = "BUTTON",
-            slot = UiBounds(20f, 20f, 160f, 40f),
-            font = font,
-            centered = true,
-        )
-
-        val glyphBounds = ui.endFrame().glyphBounds()
+        val frame = renderUiComponent(width = 200f, height = 80f, font = font) {
+            primitive.context.createAbsolute(x = 0f, y = 0f).text(
+                label = "BUTTON", slot = UiBounds(20f, 20f, 160f, 40f), font = font, centered = true,
+            )
+        }
+        val glyphBounds = frame.primitives.glyphBounds()
         val slotCenterY = 40f
         val glyphCenterY = glyphBounds.centerY()
 
@@ -153,19 +145,14 @@ class TextWidgetsTest {
     @Test
     fun trueFontTopAlignmentTrimsAtlasPaddingFromVisibleGlyphs() {
         val font = UiFonts.trueSans()
-        val ui = UiContext()
-        ui.beginFrame(180f, 80f, testSnapshot())
-        ui.pushFont(font)
         // text(slot=...) now defaults verticallyCentered=true (several shadcn-parity goldens
         // depend on it) -- request top alignment explicitly since that's what this test covers.
-        ui.createAbsolute(x = 0f, y = 0f).text(
-            label = "Title",
-            slot = UiBounds(16f, 24f, 120f, 20f),
-            font = font,
-            verticallyCentered = false,
-        )
-
-        val glyphBounds = ui.endFrame().glyphBounds()
+        val frame = renderUiComponent(width = 180f, height = 80f, font = font) {
+            primitive.context.createAbsolute(x = 0f, y = 0f).text(
+                label = "Title", slot = UiBounds(16f, 24f, 120f, 20f), font = font, verticallyCentered = false,
+            )
+        }
+        val glyphBounds = frame.primitives.glyphBounds()
 
         assertTrue(
             kotlin.math.abs(glyphBounds.y - 24f) <= 1f,
@@ -176,20 +163,13 @@ class TextWidgetsTest {
     @Test
     fun buttonCanLeftAlignTextInsideItsContentPadding() {
         val font = UiFonts.trueSans()
-        val ui = UiContext()
-        ui.beginFrame(220f, 100f, testSnapshot())
-        ui.pushFont(font)
-        ui.createAbsolute(x = 0f, y = 0f).button(
-            id = "nav",
-            modifier = Modifier.width(180f.px).height(36f.px),
-            label = "Overview",
-            style = Style {
-                contentPadding(start = 14f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp)
-            },
-            centered = false,
-        )
-
-        val glyphBounds = ui.endFrame().glyphBounds()
+        val frame = renderUiComponent(width = 220f, height = 100f, font = font) {
+            primitive.context.createAbsolute(x = 0f, y = 0f).button(
+                id = "nav", modifier = Modifier.width(180f.px).height(36f.px), label = "Overview",
+                style = Style { contentPadding(start = 14f.dp, top = 0f.dp, end = 14f.dp, bottom = 0f.dp) }, centered = false,
+            )
+        }
+        val glyphBounds = frame.primitives.glyphBounds()
 
         assertTrue(
             kotlin.math.abs(glyphBounds.x - 14f) <= 1f,
@@ -199,18 +179,17 @@ class TextWidgetsTest {
 
     @Test
     fun hoveredTextKeepsItsOriginalColumnSlot() {
-        val ui = UiContext()
-        ui.beginFrame(240f, 120f, testSnapshot(x = 20f, y = 12f))
-
         var firstSlot: UiBounds? = null
         var secondSlot: UiBounds? = null
 
-        ui.column(
-            modifier = Modifier.width(200f.dp),
-            verticalArrangement = Arrangement.spacedBy(8f.dp),
-        ) {
-            firstSlot = text("Hover target", modifier = Modifier.width(120f.px))
-            secondSlot = text("Sibling", modifier = Modifier.width(120f.px))
+        renderUiComponent(width = 240f, height = 120f, input = testSnapshot(x = 20f, y = 12f)) {
+            primitive.context.column(
+                modifier = Modifier.width(200f.dp),
+                verticalArrangement = Arrangement.spacedBy(8f.dp),
+            ) {
+                firstSlot = text("Hover target", modifier = Modifier.width(120f.px))
+                secondSlot = text("Sibling", modifier = Modifier.width(120f.px))
+            }
         }
 
         assertEquals(
