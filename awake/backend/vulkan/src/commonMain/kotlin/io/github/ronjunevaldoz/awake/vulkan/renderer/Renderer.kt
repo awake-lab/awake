@@ -375,7 +375,10 @@ class Renderer(
      * afterward. */
     override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) {
         val offscreen = target as OffscreenRenderTarget
-        val aspect = offscreen.width.toFloat() / offscreen.height.toFloat()
+        // Clamped to the TARGET, not the swapchain: the rect means "this sub-rect of whatever
+        // this pass draws into", and an offscreen target has its own size.
+        val sceneRect = sceneViewport?.clampedTo(offscreen.width.toFloat(), offscreen.height.toFloat())
+        val aspect = sceneRect?.aspect ?: (offscreen.width.toFloat() / offscreen.height.toFloat())
         val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
         // Same shadow wiring performDraw uses: without it a shadow-enabled Renderer would write
         // only the first 24 of lit_shadow.wgsl's 64 uniform floats here, leaving model/
@@ -399,9 +402,10 @@ class Renderer(
             )
             Vulkan.vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE)
             renderPipeline.bind(commandBuffer)
-            val viewport = VkViewport(width = offscreen.width.toFloat(), height = offscreen.height.toFloat())
+            val viewport = sceneRect?.toVkViewport()
+                ?: VkViewport(width = offscreen.width.toFloat(), height = offscreen.height.toFloat())
             Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
-            val scissor = VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height))
+            val scissor = sceneRect?.toVkScissor() ?: VkRect2D(extent = VkExtent2D(offscreen.width, offscreen.height))
             Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
             recordDrawCalls(commandBuffer, preparedDrawCalls)
             Vulkan.vkCmdEndRenderPass(commandBuffer)
