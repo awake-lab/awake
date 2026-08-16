@@ -20,12 +20,23 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
  * buffer -- empty by default (a plain-colored mesh needs nothing extra), a joint-palette
  * `FloatArray` for a GPU-skinned [mesh]. Which extra data (if any) a given [mesh.format]
  * expects is a backend concern, not something `DrawCall` itself interprets.
+ *
+ * [instanceModels] is `null` by default (every existing caller draws exactly one copy of
+ * [mesh] at [model], unchanged). When non-null, a backend with an instanced pipeline for
+ * [mesh.format] draws `instanceModels.size` copies of [mesh] in one GPU call -- one call per
+ * instance's own transform in [instanceModels] instead of [model] -- via
+ * [io.github.ronjunevaldoz.awake.render.mesh.Mesh.drawInstanced]. [model]/[extraUniformFloats]
+ * are ignored in that case (a joint palette doesn't fit an instance buffer -- animated/skinned
+ * meshes aren't instanceable this way). A backend with no instanced pipeline for [mesh.format]
+ * skips the draw call entirely, same "unknown format, skip" behavior an unmatched [mesh.format]
+ * already has.
  */
 data class DrawCall(
     val mesh: Mesh,
     val material: Material,
     val model: Mat4 = Mat4(),
     val extraUniformFloats: FloatArray = EMPTY_UNIFORM_FLOATS,
+    val instanceModels: List<Mat4>? = null,
 )
 
 private val EMPTY_UNIFORM_FLOATS = FloatArray(0)

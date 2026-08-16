@@ -23,5 +23,18 @@ interface Mesh {
     val format: VertexFormat
     fun bind(commandBuffer: Long)
     fun draw(commandBuffer: Long)
+
+    /** Draws [instanceCount] copies of this mesh in one GPU call, each reading its own model
+     * matrix from an instance-rate vertex buffer a [Renderer] implementation bound alongside
+     * this mesh's own vertex buffer -- see [io.github.ronjunevaldoz.awake.render.renderer
+     * .DrawCall.instanceModels]'s doc comment for the caller-facing contract. Default throws:
+     * only a backend that actually built an instanced pipeline for this mesh's [format]
+     * overrides it; every test-only/Noop `Mesh` (this interface has several anonymous
+     * implementations across test sources) never calls this, so they're free to inherit the
+     * default rather than each restating a body they'd never exercise. */
+    fun drawInstanced(commandBuffer: Long, instanceCount: Int) {
+        error("drawInstanced is not supported by this Mesh implementation (format=$format).")
+    }
+
     fun destroy()
 }
