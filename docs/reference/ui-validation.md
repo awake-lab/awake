@@ -88,6 +88,14 @@ must capture more than the final state.
 
 Use these first:
 
+- `renderUiComponent(...)` (`awake:ui:testing`) for every single-frame Headless or
+  design-system component test and snapshot fixture. It owns the frame lifecycle, default input,
+  font/density restoration, semantics, and emitted primitives. Install branded locals through
+  `rootProvider`; do not duplicate `UiContext.beginFrame`/font/theme/`finishFrame` setup in such
+  tests.
+- `uiTestSession(...)` (`awake:ui:testing`) for multi-frame pointer, keyboard, focus, and
+  animation interaction tests. It keeps the context/input state persistent while retaining the
+  same restoration guarantees.
 - `AwakeUiPreview` for preview-backed docs and reusable gallery entries
 - `validateAwakeUiPreview(...)` for shared preview validation
 - `inspectUiFrame(...)` for primitive-level rendering checks
@@ -113,8 +121,9 @@ Use these first:
   available — the go-to for "does this actually render right" questions on 3D/backend work
 - `UiShowcaseLayoutCostTest` (`samples/ui-showcase:desktopTest`) for frame-cost/perf
   regressions — measures real trial-measure pass counts and wall-clock time, not estimates
-- the throwaway-probe-test idiom: build the real widget/scene through the real `UiContext`/
-  renderer and read its actual `UiBounds`/pixels, instead of reasoning about spacing,
+- the throwaway-probe-test idiom: build the real widget/scene through `renderUiComponent` (or a
+  raw `UiContext` only when exercising the Core/runtime or renderer layer itself) and read its
+  actual `UiBounds`/pixels, instead of reasoning about spacing,
   centering, or collapse behavior from source alone. This is the highest-leverage tool in this
   list — used to settle real "is X actually centered/tighter/regressed" questions with numbers
   instead of guesses (see `RowCrossAxisCenterProbeTest`, `UiShowcaseSidebarGapProbeTest`,

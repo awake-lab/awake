@@ -3,9 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
@@ -17,17 +15,14 @@ import kotlin.test.assertTrue
 class ShadcnHeadlessButtonTest {
     @Test
     fun headlessFacadeButtonResolvesTheInstalledShadcnTheme() {
-        val context = UiContext()
-        context.beginFrame(200f, 120f, UiInputState())
-
         var clicked = false
-        context.createUiScope(UiBounds(0f, 0f, 200f, 120f)).shadcnTheme {
+        val frame = renderShadcnComponent(width = 200f, height = 120f) {
             clicked = shadcnButton(id = "confirm", label = "Confirm")
         }
 
         assertFalse(clicked)
         assertTrue(
-            context.endFrame()
+            frame.primitives
                 .filterIsInstance<UiDrawPrimitive.RoundedQuad>()
                 .any { it.color == ShadcnTheme.colors.primary },
             "the design-system variant must resolve through UiScope.themeValues",
@@ -36,17 +31,16 @@ class ShadcnHeadlessButtonTest {
 
     @Test
     fun bareButtonUsesNaturalWidthUntilFillMaxWidthIsRequested() {
-        val context = UiContext()
-        context.beginFrame(200f, 120f, UiInputState())
-
-        context.createUiScope(UiBounds(0f, 0f, 200f, 120f)).shadcnTheme {
+        val frame = renderShadcnComponent(width = 200f, height = 120f) {
             shadcnButton(id = "natural", label = "Confirm")
-        }
-        context.createUiScope(UiBounds(0f, 50f, 200f, 120f)).shadcnTheme {
-            shadcnButton(id = "full", label = "Confirm", modifier = Modifier.fillMaxWidth())
+            primitive.context.createUiScope(UiBounds(0f, 50f, 200f, 120f)).shadcnButton(
+                id = "full",
+                label = "Confirm",
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
 
-        val semantics = context.finishFrame().semantics
+        val semantics = frame.semantics
         val button = semantics.first { it.id == "natural" }
         val fullButton = semantics.first { it.id == "full" }
         assertTrue(button.bounds.width < 200f, "bare buttons should not claim the entire parent width")

@@ -57,6 +57,14 @@ interaction model, let the design system own the visual contract.
 - Application-level layout (sidebars, page chrome, split views) → those belong in the
   consuming app or `samples`
 
+### Testing Headless components
+
+Use `renderUiComponent(...)` from `awake:ui:testing` for single-frame behavior, semantic, and
+snapshot fixtures. Use `uiTestSession(...)` for persistent input across frames. A test installs
+`shadcnTheme { ... }` through the helper's `rootProvider` when it exercises a Shadcn recipe.
+Do not repeat the `UiContext`/frame/font/theme setup in ordinary component tests; direct context
+construction is reserved for Core layout, rasterizer, and real-backend probes.
+
 ---
 
 ### Dependency rule
