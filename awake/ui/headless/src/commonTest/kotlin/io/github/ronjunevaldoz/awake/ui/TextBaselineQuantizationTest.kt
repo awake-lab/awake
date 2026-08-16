@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.GlyphRect
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFontSamplingMode
@@ -66,14 +66,11 @@ class TextBaselineQuantizationTest {
 
     private fun glyphsOf(label: String, slotY: Float): List<UiDrawPrimitive.Glyph> {
         val font = VaryingMetricsFont()
-        val ui = UiContext()
-        ui.pushFont(font)
-        ui.createAbsolute(x = 0f, y = slotY).text(
-            label = label,
-            slot = UiBounds(0f, slotY, 400f, GLYPH_PX),
-            font = font,
-        )
-        return ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
+        return renderUiComponent(width = 400f, height = 100f, font = font) {
+            primitive.context.createAbsolute(x = 0f, y = slotY).text(
+                label = label, slot = UiBounds(0f, slotY, 400f, GLYPH_PX), font = font,
+            )
+        }.primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
     }
 
     @Test

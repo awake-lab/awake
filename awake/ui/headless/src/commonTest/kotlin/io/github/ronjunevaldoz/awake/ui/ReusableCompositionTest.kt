@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -29,13 +30,10 @@ class ReusableCompositionTest {
 
     @Test
     fun customWidgetCanResolveStyleFromPublicApi() {
-        val ui = UiContext()
-        ui.beginFrame(200f, 80f, testSnapshot())
-
-        ui.pushFont(BitmapFont())
-        ui.createAbsolute(x = 20f, y = 20f).badge("status", "READY", emphasized = true)
-
-        val primitives = ui.endFrame()
+        val frame = renderUiComponent(width = 200f, height = 80f, font = BitmapFont()) {
+            primitive.context.createAbsolute(x = 20f, y = 20f).badge("status", "READY", emphasized = true)
+        }
+        val primitives = frame.primitives
         assertIs<UiDrawPrimitive.RoundedQuad>(
             primitives.first(),
             "custom widget should be able to emit a styled rounded border",
