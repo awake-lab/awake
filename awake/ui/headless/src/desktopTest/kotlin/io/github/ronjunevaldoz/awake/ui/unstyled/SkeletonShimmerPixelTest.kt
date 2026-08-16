@@ -25,6 +25,7 @@ import kotlin.test.assertTrue
  * this CPU test still passes -- `UiRasterizer.kt`'s `fillGradientRect` already threads
  * `activePathClips` through `GradientQuad` correctly, independent of that GPU-side fix.
  */
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Measures shimmer pixels and clipping directly")
 class SkeletonShimmerPixelTest {
 
     private val width = 120

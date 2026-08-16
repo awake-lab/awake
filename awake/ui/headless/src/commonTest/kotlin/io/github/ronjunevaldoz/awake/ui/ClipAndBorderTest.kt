@@ -23,6 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks clip-stack and primitive emission mechanics directly")
 class ClipAndBorderTest {
 
     @Test

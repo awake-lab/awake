@@ -17,6 +17,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks scroll-state consumption and emitted viewport primitives")
 class ScrollContainersTest {
 
     @Test

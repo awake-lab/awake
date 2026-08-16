@@ -18,6 +18,7 @@ import kotlin.test.assertTrue
  * `layoutBitmapText` memoization -- verifies the *skip*, not just the value, since the value was
  * never in doubt for a pure function (see that doc's "Verification of correctness" section).
  */
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks text-layout cache behavior across direct frames")
 class TextLayoutCacheTest {
 
     @BeforeTest

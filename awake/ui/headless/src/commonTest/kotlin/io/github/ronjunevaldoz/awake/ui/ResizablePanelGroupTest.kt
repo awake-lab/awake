@@ -18,6 +18,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks resize-handle input and panel-fraction mechanics")
 class ResizablePanelGroupTest {
 
     // Group is 600px wide, one handle -- see RESIZABLE_HANDLE_THICKNESS (4dp/4px at the default

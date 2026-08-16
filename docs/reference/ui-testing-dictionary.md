@@ -20,6 +20,7 @@ prefer clear technical English; it is not a language test.
 | **matrix test** | One data-driven test that covers combinations systematically. | A layout sizing table covering parent and child sizing modes. |
 | **lifecycle** | The setup, render, and finish sequence of a UI frame. | `UiContext.beginFrame` → render → `finishFrame`. Shared helpers own this for normal component tests. |
 | **boilerplate** | Repeated setup that does not explain what the test proves. | Repeating context, font, theme, and frame setup in every test. |
+| **low-level test** | A test that checks the UI engine mechanism itself, not only a component result. | A cache, clip-stack, renderer, or direct frame-lifecycle test. It needs `@UiLowLevelTest("reason")`. |
 
 ## Simple rule for choosing a test helper
 

@@ -19,7 +19,9 @@ normal pointer press/release sequence in every fixture.
 - Several frames: `uiTestSession(...)`.
 - Normal pointer actions: `hover`, `click`, `doubleClick`, `longPress`, `rightClick`, `drag`.
 - Exact wheel/keyboard/custom input: `frame(UiInputState, ...)`.
-- Raw `UiContext`: only when that low-level lifecycle is the thing being tested.
+- Raw `UiContext`: only when that low-level lifecycle is the thing being tested. Mark the test
+  class or low-level helper file `@UiLowLevelTest("reason")`; `verifyUiTestLifecycle` rejects
+  unmarked manual frames.
 
 Before adding a test file, find the existing matrix or component fixture that owns the behavior.
 Add a case there unless this is a distinct regression invariant.

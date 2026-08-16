@@ -17,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks UiContext widget state and overlay mechanics directly")
 class UiContextTest {
 
     @Test

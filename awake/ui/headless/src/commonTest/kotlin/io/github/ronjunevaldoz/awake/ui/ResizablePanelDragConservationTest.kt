@@ -30,6 +30,7 @@ import kotlin.test.assertTrue
  * threshold passed while drags moved 2x the pointer and the group stretched (2026-08-15
  * audit, reported on desktop).
  */
+@io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks exact resize-drag conservation across Core frames")
 class ResizablePanelDragConservationTest {
 
     private class Panels {
