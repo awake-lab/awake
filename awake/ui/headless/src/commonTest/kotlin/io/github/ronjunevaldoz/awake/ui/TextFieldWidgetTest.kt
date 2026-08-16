@@ -25,8 +25,7 @@ class TextFieldWidgetTest {
                 value = primitive.context.createAbsolute(x = 20f, y = 20f)
                     .textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
             }
-            frame(x = 100f, y = 20f, down = true) { draw() }
-            frame(x = 100f, y = 20f, down = false) { draw() }
+            click(100f, 20f) { draw() }
             assertTrue(ui.isFocused("field"), "clicking a text field must grant it focus")
             input.pushTypedText("abc")
             frame(x = 100f, y = 20f, down = false) { draw() }
@@ -42,8 +41,7 @@ class TextFieldWidgetTest {
                 value = primitive.context.createAbsolute(x = 20f, y = 20f)
                     .textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
             }
-            frame(x = 100f, y = 20f, down = true) { draw() }
-            frame(x = 100f, y = 20f, down = false) { draw() }
+            click(100f, 20f) { draw() }
             input.pushEditAction(TextEditAction.Backspace)
             frame(x = 100f, y = 20f, down = false) { draw() }
         }
@@ -62,11 +60,9 @@ class TextFieldWidgetTest {
                 value = primitive.context.createAbsolute(x = 20f, y = 20f)
                     .textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
             }
-            frame(x = 100f, y = 20f, down = true) { draw() }
-            frame(x = 100f, y = 20f, down = false) { draw() }
+            click(100f, 20f) { draw() }
             assertTrue(ui.isFocused("field"))
-            frame(x = 100f, y = 150f, down = true) { draw() }
-            frame(x = 100f, y = 150f, down = false) { draw() }
+            click(100f, 150f) { draw() }
             assertFalse(ui.isFocused("field"), "a fresh click outside every focusable widget must clear focus")
             input.pushTypedText("ignored")
             frame(x = 100f, y = 150f, down = false) { draw() }
@@ -87,8 +83,7 @@ class TextFieldWidgetTest {
                 value = primitive.context.createAbsolute(x = 20f, y = 20f)
                     .textField("field", value, modifier = Modifier.width(80f.px).height(36f.px))
             }
-            frame(x = 100f, y = 20f, down = true) { draw() }
-            frame(x = 100f, y = 20f, down = false) { draw() }
+            click(100f, 20f) { draw() }
             input.pushTypedText(longValue)
             frame(x = 100f, y = 20f, down = false) { draw() }
             // Render one more frame (nothing typed this time) and prove every character of the
@@ -117,8 +112,7 @@ class TextFieldWidgetTest {
                 value = primitive.context.createAbsolute(x = 20f, y = 20f)
                     .textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
             }
-            frame(x = 176f, y = 20f, down = true) { draw() }
-            frame(x = 176f, y = 20f, down = false) { draw() }
+            click(176f, 20f) { draw() }
             input.pushEditAction(TextEditAction.ArrowLeft)
             input.pushTypedText("b")
             frame(x = 176f, y = 20f, down = false) { draw() }
