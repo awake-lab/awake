@@ -29,8 +29,7 @@ class TextareaWidgetTest {
                     "notes", value, modifier = Modifier.width(160f.px).height(60f.px), minLines = 3,
                 )
             }
-            frame(x = 100f, y = 20f, down = true) { draw() }
-            frame(x = 100f, y = 20f, down = false) { draw() }
+            click(100f, 20f) { draw() }
             repeat(6) { input.pushEditAction(TextEditAction.Enter) }
             input.pushTypedText("last line")
             frame(x = 100f, y = 20f, down = false) { draw() }
@@ -63,8 +62,7 @@ class TextareaWidgetTest {
                     "notes", value, modifier = Modifier.width(96f.px).height(80f.px), minLines = 3,
                 )
             }
-            frame(x = 42f, y = 28f, down = true) { draw() }
-            frame(x = 42f, y = 28f, down = false) { draw() }
+            click(42f, 28f) { draw() }
             input.pushTypedText("ANTIDISESTABLISHMENTARIANISM_ANTIDISESTABLISHMENTARIANISM")
             frame(x = 42f, y = 28f, down = false) { draw() }
         }
@@ -88,8 +86,7 @@ class TextareaWidgetTest {
                     "notes", value, modifier = Modifier.width(160f.px).height(80f.px), minLines = 3,
                 )
             }
-            frame(x = 25f, y = 40f, down = true) { draw() }
-            frame(x = 25f, y = 40f, down = false) { draw() }
+            click(25f, 40f) { draw() }
         }
         val node = requireNotNull(
             frame.semantics.firstOrNull { it.id == "notes" && it.role == UiSemanticRole.Text },

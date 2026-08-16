@@ -32,8 +32,7 @@ class CheckboxTest {
                     "cb", checked, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px),
                 )
             }
-            frame(x = 100f, y = 20f, down = true) { draw() }
-            frame(x = 100f, y = 20f, down = false) { draw() }
+            click(100f, 20f) { draw() }
         }
         assertTrue(
             checked,
