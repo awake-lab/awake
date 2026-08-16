@@ -6,8 +6,9 @@ import io.github.ronjunevaldoz.awake.testing.ui.inspectBoundsFit
 import io.github.ronjunevaldoz.awake.testing.ui.inspectDensityParity
 import io.github.ronjunevaldoz.awake.testing.ui.inspectThemeParity
 import io.github.ronjunevaldoz.awake.testing.ui.measureUiFrame
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
@@ -15,8 +16,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 import kotlin.test.Test
 
 class UiCrossPlatformQualityTest {
@@ -24,8 +23,8 @@ class UiCrossPlatformQualityTest {
     @Test
     fun buttonStructureStaysStableAcrossShadcnThemes() {
         val font = UiFonts.default()
-        val dark = measureButtonMetrics(shadcnThemeValues(dark = true).asRuntimeTheme(), font)
-        val light = measureButtonMetrics(shadcnThemeValues(dark = false).asRuntimeTheme(), font)
+        val dark = measureButtonMetrics(shadcnThemeValues(dark = true), font)
+        val light = measureButtonMetrics(shadcnThemeValues(dark = false), font)
 
         inspectThemeParity(dark, light).requireClean()
     }
@@ -42,15 +41,17 @@ class UiCrossPlatformQualityTest {
     @Test
     fun buttonContentFitsRequestedBounds() {
         val font = UiFonts.default()
-        val frame = UiBounds(0f, 0f, 220f, 96f)
-        val context = UiContext()
-        context.beginFrame(frame.width, frame.height, testSnapshot())
-        context.pushFont(font)
-        context.pushTheme(shadcnThemeValues(dark = false).asRuntimeTheme())
-        context.createAbsolute(x = 20f, y = 20f)
-            .button("fit", label = "Awake Button", modifier = Modifier.width(180f.px).height(44f.px))
+        val frame = renderUiComponent(
+            width = 220f,
+            height = 96f,
+            theme = shadcnThemeValues(dark = false),
+            font = font,
+        ) {
+            primitive.context.createAbsolute(x = 20f, y = 20f)
+                .button("fit", label = "Awake Button", modifier = Modifier.width(180f.px).height(44f.px))
+        }
 
-        val metrics = measureUiFrame(context.endFrame(), frame)
+        val metrics = measureUiFrame(frame.primitives, frame.root)
         inspectBoundsFit(
             label = "button",
             metrics = metrics,
@@ -59,7 +60,7 @@ class UiCrossPlatformQualityTest {
         ).requireClean()
     }
 
-    private fun measureButtonMetrics(theme: UiTheme, font: UiFont) =
+    private fun measureButtonMetrics(theme: UiThemeValues, font: UiFont) =
         measureScaledButtonMetrics(font, 220f, 96f, 180f, 44f, theme)
 
     private fun measureScaledButtonMetrics(
@@ -68,13 +69,16 @@ class UiCrossPlatformQualityTest {
         frameHeight: Float,
         buttonWidth: Float,
         buttonHeight: Float,
-        theme: UiTheme = shadcnThemeValues(dark = true).asRuntimeTheme(),
-    ) = UiContext().let { context ->
-        context.beginFrame(frameWidth, frameHeight, testSnapshot())
-        context.pushFont(font)
-        context.pushTheme(theme)
-        context.createAbsolute(x = (frameWidth - buttonWidth) / 2f, y = (frameHeight - buttonHeight) / 2f)
+        theme: UiThemeValues = shadcnThemeValues(dark = true),
+    ) = renderUiComponent(
+        width = frameWidth,
+        height = frameHeight,
+        theme = theme,
+        font = font,
+    ) {
+        primitive.context.createAbsolute(x = (frameWidth - buttonWidth) / 2f, y = (frameHeight - buttonHeight) / 2f)
             .button("quality", label = "Awake Button", modifier = Modifier.width(buttonWidth.px).height(buttonHeight.px))
-        measureUiFrame(context.endFrame(), UiBounds(0f, 0f, frameWidth, frameHeight))
+    }.let { frame ->
+        measureUiFrame(frame.primitives, frame.root)
     }
 }
