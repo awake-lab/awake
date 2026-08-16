@@ -45,6 +45,7 @@ fun UiScope.shadcnCard(
     modifier: Modifier = Modifier,
     variant: ShadcnCardVariant = ShadcnCardVariant.Default,
     size: ShadcnCardSize = ShadcnCardSize.Default,
+    cacheKey: Any? = null,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
     body: ColumnScope.(slot: UiBounds) -> Unit,
@@ -53,6 +54,7 @@ fun UiScope.shadcnCard(
     modifier = modifier,
     style = themeValues.shadcnCardStyle(variant, shadcnMetrics),
     verticalArrangement = Arrangement.spacedBy(0f.dp),
+    cacheKey = cacheKey,
 ) {
     if (header != null) {
         header()

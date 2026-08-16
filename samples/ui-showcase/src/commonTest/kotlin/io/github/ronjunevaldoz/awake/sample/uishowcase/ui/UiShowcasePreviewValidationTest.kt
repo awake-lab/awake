@@ -52,6 +52,11 @@ private fun configFor(pageId: String): AwakeUiPreviewValidationConfig =
                 ),
             ),
         )
+        "avatar" -> AwakeUiPreviewValidationConfig(
+            minContentPaddingPx = 4f,
+            paddingAllowIds = setOf("ui-showcase-preview-avatar"),
+            contentFitTolerancePx = 10f,
+        )
         else -> AwakeUiPreviewValidationConfig(
             minContentPaddingPx = 4f,
             paddingAllowIds = setOf("ui-showcase-preview-$pageId"),

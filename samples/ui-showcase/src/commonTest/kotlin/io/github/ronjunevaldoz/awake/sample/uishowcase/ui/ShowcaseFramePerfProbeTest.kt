@@ -57,6 +57,11 @@ class ShowcaseFramePerfProbeTest {
         UiMeasureTrialStats.enabled = false
 
         val ms = elapsed.inWholeMicroseconds / 1000.0 / frames
-        println("PERF showcase-shell msPerFrame=$ms trialsPerFrame=${trials / frames}")
+        val trialsPerFrame = trials / frames
+        println("PERF showcase-shell msPerFrame=$ms trialsPerFrame=$trialsPerFrame")
+        kotlin.test.assertTrue(
+            trialsPerFrame < 1500,
+            "trialsPerFrame must stay below 1,500 -- got $trialsPerFrame",
+        )
     }
 }
