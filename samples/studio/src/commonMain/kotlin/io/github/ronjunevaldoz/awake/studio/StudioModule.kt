@@ -33,6 +33,7 @@ import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import io.github.ronjunevaldoz.awake.studio.examples.StudioMeshBounds
 import io.github.ronjunevaldoz.awake.studio.examples.studioCubeGeometry
 import io.github.ronjunevaldoz.awake.studio.examples.studioGroundGeometry
+import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoPick
 import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoPointer
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioGizmo
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioViewportRect
@@ -187,9 +188,11 @@ private class StudioGizmoSystem(
         // Edit mode only: dragging while gameplay systems own the transform would fight them, and
         // the result is discarded on stop anyway.
         if (store.state.value.mode == StudioContract.Mode.Edit) {
-            val clicked = gizmo.update(world, projection, selected, GizmoPointer(local, input.pointerDown), boundsOf)
-            if (local != null && input.pointerDown && clicked != selected) {
-                store.dispatch(StudioContract.Intent.SelectEntity(clicked))
+            val pick = gizmo.update(world, projection, selected, GizmoPointer(local, input.pointerDown), boundsOf)
+            // Only a frame that actually resolved a press changes the selection. Dispatching on
+            // every frame the button is held cleared it one frame after making it.
+            if (pick is GizmoPick.Selected && pick.entityId != selected) {
+                store.dispatch(StudioContract.Intent.SelectEntity(pick.entityId))
             }
         }
         runtime.renderer.drawDebugLines(gizmo.handleLines(world, selected))

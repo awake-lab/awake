@@ -69,6 +69,49 @@ class StudioGizmoWiringTest {
         game.render(1f / 60f, FRAME_WIDTH, FRAME_HEIGHT)
     }
 
+    /**
+     * Holding the button after a pick must keep the selection.
+     *
+     * The press frame selects and every later frame of the same hold reports "no press" -- which
+     * the caller used to read as "clicked empty space" and dispatch as a deselect, so a pick
+     * visibly reset itself one frame after landing.
+     */
+    @Test
+    fun holdingTheButtonAfterPickingKeepsTheSelection() = runTest {
+        val store = StudioStore()
+        val game = game { module(studioModule(store)) }
+        game.ready(RecordingCameraRenderer())
+        val runtime = game.requireService<SceneGameRuntime>()
+        val input = game.requireService<Input>()
+        game.render(1f / 60f, FRAME_WIDTH, FRAME_HEIGHT)
+
+        val viewport = assertNotNull(
+            runtime.uiContext.semanticNodes().firstOrNull { it.id == "studio-panel-viewport" },
+        )
+        val x = viewport.bounds.x + viewport.bounds.width / 2f
+        val y = viewport.bounds.y + viewport.bounds.height / 2f
+
+        input.setPointer(down = true, x = x, y = y)
+        input.updateSnapshot()
+        game.render(1f / 60f, FRAME_WIDTH, FRAME_HEIGHT)
+        val afterPress = assertNotNull(
+            store.state.value.inspector.selectedEntityId,
+            "the press must select something",
+        )
+
+        // Still held, pointer unmoved and then nudged -- neither may clear the selection.
+        repeat(3) { game.render(1f / 60f, FRAME_WIDTH, FRAME_HEIGHT) }
+        input.setPointer(down = true, x = x + 4f, y = y + 2f)
+        input.updateSnapshot()
+        game.render(1f / 60f, FRAME_WIDTH, FRAME_HEIGHT)
+
+        assertEquals(
+            afterPress,
+            store.state.value.inspector.selectedEntityId,
+            "holding the button must not reset the selection",
+        )
+    }
+
     /** Handles are staged into the 3D pass, not the UI overlay, so they depth-test against the
      * scene -- the renderer is what proves they were emitted at all. */
     @Test

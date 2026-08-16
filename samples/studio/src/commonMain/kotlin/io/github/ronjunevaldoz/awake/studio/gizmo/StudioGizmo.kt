@@ -11,6 +11,22 @@ import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 
 /**
+ * What a frame's pointer did to the selection.
+ *
+ * A type rather than a nullable entity id because "no click happened this frame" and "the click
+ * landed on empty space" are different answers that both want to be `null` somewhere: conflating
+ * them meant every frame of a held drag reported "nothing picked" and cleared the selection one
+ * frame after making it.
+ */
+sealed interface GizmoPick {
+    /** A press resolved to [entityId] -- `null` when it landed on empty space. */
+    data class Selected(val entityId: Int?) : GizmoPick
+
+    /** No press this frame: a held drag, a release, or the pointer outside the viewport. */
+    data object None : GizmoPick
+}
+
+/**
  * Viewport pointer state for one frame, in the viewport's own pixels.
  *
  * `null` [position] means the pointer is outside the viewport -- not the same as "at 0,0", which
@@ -31,8 +47,7 @@ class StudioGizmo {
     private var wasDown = false
 
     /**
-     * Advances one frame and returns the entity the user just clicked, or `null` when the click
-     * selected nothing (or was not a click at all).
+     * Advances one frame and reports what the pointer did to the selection.
      *
      * Handles win over picking: a click that lands on a handle starts a drag instead of selecting
      * whatever is behind it, which is what makes a gizmo usable over a crowded scene.
@@ -44,7 +59,7 @@ class StudioGizmo {
         selectedEntityId: Int?,
         pointer: GizmoPointer,
         boundsOf: (entityId: Int) -> Aabb?,
-    ): Int? {
+    ): GizmoPick {
         val position = pointer.position
         val pressedThisFrame = pointer.down && !wasDown
         val released = !pointer.down
@@ -53,7 +68,7 @@ class StudioGizmo {
         if (released || position == null) {
             draggingAxis = null
             lastPointer = position
-            return null
+            return GizmoPick.None
         }
 
         val selectedTransform = selectedEntityId?.let { world.transformOf(it) }
@@ -63,14 +78,18 @@ class StudioGizmo {
             val origin = selectedTransform?.position
             draggingAxis = origin?.let { projection.hitTestHandle(it, handleLength, position) }
             lastPointer = position
-            // Only a click on empty space or another object counts as a selection change.
-            return if (draggingAxis == null) projection.pickEntityAt(position, world.candidates(boundsOf)) else null
+            // Grabbing a handle is not a selection change: the thing being dragged stays selected.
+            return if (draggingAxis == null) {
+                GizmoPick.Selected(projection.pickEntityAt(position, world.candidates(boundsOf)))
+            } else {
+                GizmoPick.None
+            }
         }
 
         val axis = draggingAxis
         val previous = lastPointer
         lastPointer = position
-        if (axis == null || previous == null || selectedTransform == null) return null
+        if (axis == null || previous == null || selectedTransform == null) return GizmoPick.None
 
         val moved = projection.dragAlongAxis(
             origin = selectedTransform.position,
@@ -85,7 +104,7 @@ class StudioGizmo {
         selectedTransform.position.x += axis.direction.x * moved
         selectedTransform.position.y += axis.direction.y * moved
         selectedTransform.position.z += axis.direction.z * moved
-        return null
+        return GizmoPick.None
     }
 
     /**
