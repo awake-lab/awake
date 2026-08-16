@@ -44,8 +44,10 @@ private val EXAMPLE_PICKER_HEIGHT = 32f.dp
  * without this control the running app could never leave the example it booted into. */
 internal fun UiScope.drawStudioTopBar(
     activeExampleId: String,
+    playing: Boolean,
     onSelectExample: (String) -> Unit,
-    onPlay: () -> Unit,
+    onSave: () -> Unit,
+    onTogglePlay: () -> Unit,
 ) {
     barBand(id = "studio-top-bar", height = TOP_BAR_HEIGHT) {
         row(
@@ -67,14 +69,27 @@ internal fun UiScope.drawStudioTopBar(
                     StudioExamples.getOrNull(index)?.let { onSelectExample(it.id) }
                 }
             }
-            shadcnButton(
-                id = "studio-top-bar-play",
-                label = "Play",
-                modifier = Modifier.height(ShadcnButtonSize.Icon.heightDp),
-                variant = ShadcnButtonVariant.Ghost,
-                size = ShadcnButtonSize.Icon,
-                onClick = onPlay,
-            )
+            row(
+                horizontalArrangement = Arrangement.spacedBy(8f.dp),
+                verticalAlignment = UiAlignment.Vertical.Center,
+            ) {
+                shadcnButton(
+                    id = "studio-top-bar-save",
+                    label = "Save",
+                    modifier = Modifier.height(ShadcnButtonSize.Sm.heightDp),
+                    variant = ShadcnButtonVariant.Secondary,
+                    size = ShadcnButtonSize.Sm,
+                    onClick = onSave,
+                )
+                shadcnButton(
+                    id = "studio-top-bar-play",
+                    label = if (playing) "Stop" else "Play",
+                    modifier = Modifier.height(ShadcnButtonSize.Sm.heightDp),
+                    variant = if (playing) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
+                    size = ShadcnButtonSize.Sm,
+                    onClick = onTogglePlay,
+                )
+            }
         }
     }
 }
@@ -82,20 +97,23 @@ internal fun UiScope.drawStudioTopBar(
 /** Full-width status bar: the loaded scene's entity count at the left, the render backend at the
  * right -- muted caption typography, matching a docked IDE's bottom strip.
  *
+ * [mode] is the edit/play mode -- the label was a hard-coded "Edit mode" before the split
+ * existed, which is exactly the concept it was standing in for.
+ *
  * [entityCount] counts NAMED entities, i.e. exactly the rows the hierarchy panel lists, so the
  * two never disagree; runtime-only entities without a [Name] are not scene content.
  *
  * [backend] is the backend this game was configured with (see `studioModule`), not one probed
  * from the live window -- `Renderer` exposes no identity, and it was previously a hard-coded
  * "Vulkan" literal that read as fact on every platform including web. */
-internal fun UiScope.drawStudioStatusBar(backend: String, entityCount: Int) {
+internal fun UiScope.drawStudioStatusBar(mode: String, backend: String, entityCount: Int) {
     barBand(id = "studio-status-bar", height = STATUS_BAR_HEIGHT) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = UiAlignment.Vertical.Center,
             modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         ) {
-            shadcnText("$entityCount entities", tone = ShadcnTextTone.Muted)
+            shadcnText("$mode  -  $entityCount entities", tone = ShadcnTextTone.Muted)
             shadcnBadge(id = "studio-status-backend", label = backend, variant = ShadcnBadgeVariant.Outline)
         }
     }

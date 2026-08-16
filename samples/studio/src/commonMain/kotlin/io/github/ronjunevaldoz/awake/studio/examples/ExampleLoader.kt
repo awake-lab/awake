@@ -7,6 +7,8 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneDocument
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneMeshRenderer
+import io.github.ronjunevaldoz.awake.scene.runtime.fromWorld
 
 /**
  * Replaces three demos' hand-rolled onActivate/onDeactivate with one generic routine. Split
@@ -18,6 +20,28 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 internal class ExampleLoader {
     private val documents = mutableMapOf<String, SceneDocument>()
     private var activeRoots: List<Entity> = emptyList()
+
+    /**
+     * The authored mesh/material asset IDs of every renderable in the active scene.
+     *
+     * A live [io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer] holds GPU
+     * handles, which cannot be serialized, so [SceneLoader.fromWorld] refuses to export one
+     * without a resolver. This is the resolver's data: recorded at instantiate time, when the
+     * authored IDs are still in hand.
+     */
+    private val authoredRenderables = mutableMapOf<Entity, SceneMeshRenderer>()
+
+    /** Rebuilds a document from the live world, so an edit made in the inspector is what gets
+     * saved -- not the document that was loaded. */
+    fun exportActive(world: World, name: String): SceneDocument = SceneLoader.fromWorld(
+        world = world,
+        name = name,
+        meshRenderer = { entity, _ ->
+            requireNotNull(authoredRenderables[entity]) {
+                "Entity $entity has a MeshRenderer this loader never instantiated."
+            }
+        },
+    )
 
     suspend fun preload() {
         StudioExamples.forEach { example ->
@@ -31,8 +55,10 @@ internal class ExampleLoader {
         val document = requireNotNull(documents[exampleId]) { "Example '$exampleId' was not preloaded." }
         val instance = SceneLoader.instantiate(document, runtime.world)
         val library = runtime.requireAssetLibrary()
+        authoredRenderables.clear()
         instance.renderableRequests.forEach { request ->
             runtime.world.add(request.entity, library.resolve(runtime, request))
+            authoredRenderables[request.entity] = request.meshRenderer
         }
         example.onActivated?.invoke(instance, runtime.world)
         activeRoots = instance.roots.map { it.entity }
@@ -41,5 +67,6 @@ internal class ExampleLoader {
     fun teardown(world: World) {
         activeRoots.forEach { world.destroy(it) }
         activeRoots = emptyList()
+        authoredRenderables.clear()
     }
 }

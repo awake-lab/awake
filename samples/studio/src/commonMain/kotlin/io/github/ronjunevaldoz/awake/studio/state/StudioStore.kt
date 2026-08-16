@@ -33,6 +33,20 @@ internal class StudioStore {
                 _state.update { it.copy(camera = it.camera.copy(projection = intent.projection)) }
             }
 
+            is StudioContract.Intent.SetMode -> {
+                val previous = _state.value.mode
+                _state.update { it.copy(mode = intent.mode) }
+                // Leaving Play reloads the scene, which is what discards a play session's edits
+                // -- Unity's rule, and the reason play mode is safe to experiment in.
+                if (previous == StudioContract.Mode.Play && intent.mode == StudioContract.Mode.Edit) {
+                    effects.trySend(StudioContract.Effect.LoadExample(_state.value.examples.activeExampleId))
+                }
+            }
+
+            StudioContract.Intent.SaveScene -> {
+                effects.trySend(StudioContract.Effect.SaveScene)
+            }
+
             is StudioContract.Intent.AppendConsole -> {
                 _state.update {
                     val entry = StudioContract.ConsoleEntry(intent.level, intent.message)
