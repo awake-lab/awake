@@ -67,6 +67,7 @@ See also:
 - [docs/reference/agent-starter-pack.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-starter-pack.md)
 - [docs/reference/agent-routing.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-routing.md)
 - [docs/reference/engineering-change-summaries.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/engineering-change-summaries.md)
+- [docs/reference/ui-testing-dictionary.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-testing-dictionary.md) — plain-English UI testing vocabulary
 
 ## Duplication Policy
 

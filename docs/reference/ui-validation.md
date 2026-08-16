@@ -38,6 +38,26 @@ must ship with automated validation.
 
 Manual browser review is useful, but it is not enough on its own.
 
+## Keep UI Tests Easy to Change
+
+Tests must describe the behavior they prove, not repeat renderer setup. This prevents a small UI
+change from becoming a large maintenance task.
+
+- Use `renderUiComponent(...)` for a normal one-frame component test.
+- Use `uiTestSession(...)` for interaction or animation across frames.
+- Use the named gestures (`hover`, `click`, `doubleClick`, `longPress`, `rightClick`, `drag`)
+  instead of repeating normal pointer down/up frames.
+- Use exact `UiInputState` only for a wheel, keyboard, or another input the named gesture cannot
+  represent.
+- Do not create a new test file if an existing matrix or component fixture owns the behavior.
+  Add a row or case there.
+- Use raw `UiContext` only when the lifecycle itself is what the test proves: Core/runtime,
+  layout/cache, renderer/backend, or pixel-fidelity mechanics.
+
+Read [UI Testing Dictionary](ui-testing-dictionary.md) when a term is unfamiliar. Prefer clear,
+specific names such as `popupDismissesOnOutsideClick`; avoid incident-only names such as
+`PopupBugProbe`. A permanent probe must be renamed for the invariant it protects.
+
 ## Required Proof By UI Type
 
 ### Static Shared Widgets
