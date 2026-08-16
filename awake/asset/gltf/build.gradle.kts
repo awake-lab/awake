@@ -36,6 +36,8 @@ kotlin {
             // Mat4/Quat/Vec3 (node transforms), createBitmap/readResourceBytes (base color
             // texture decode, external buffer/image resource loading).
             implementation(project(":awake:core"))
+            // NormalizedInt -- decoding normalized BYTE/SHORT accessors (quantized exports).
+            implementation(project(":awake:core:geometry"))
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {

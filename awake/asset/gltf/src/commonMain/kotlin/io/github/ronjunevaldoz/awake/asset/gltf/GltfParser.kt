@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.asset.gltf
 
+import io.github.ronjunevaldoz.awake.core.geometry.NormalizedInt
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Quat
 import io.github.ronjunevaldoz.awake.core.math.Vec3
@@ -14,7 +15,9 @@ import kotlinx.serialization.json.Json
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
+private const val COMPONENT_TYPE_BYTE = 5120
 private const val COMPONENT_TYPE_UNSIGNED_BYTE = 5121
+private const val COMPONENT_TYPE_SHORT = 5122
 private const val COMPONENT_TYPE_UNSIGNED_SHORT = 5123
 private const val COMPONENT_TYPE_UNSIGNED_INT = 5125
 private const val COMPONENT_TYPE_FLOAT = 5126
@@ -426,8 +429,8 @@ object GltfParser {
     }
 
     private fun componentSize(componentType: Int): Int = when (componentType) {
-        COMPONENT_TYPE_UNSIGNED_BYTE -> 1
-        COMPONENT_TYPE_UNSIGNED_SHORT -> 2
+        COMPONENT_TYPE_BYTE, COMPONENT_TYPE_UNSIGNED_BYTE -> 1
+        COMPONENT_TYPE_SHORT, COMPONENT_TYPE_UNSIGNED_SHORT -> 2
         COMPONENT_TYPE_UNSIGNED_INT, COMPONENT_TYPE_FLOAT -> BYTES_PER_FLOAT
         else -> error("Unsupported glTF accessor componentType: $componentType")
     }
@@ -441,6 +444,10 @@ object GltfParser {
         else -> error("Unsupported glTF accessor type: $type")
     }
 
+    /** Reads a `FLOAT` vertex-attribute accessor as-is, or a normalized `BYTE`/`UNSIGNED_BYTE`/
+     * `SHORT`/`UNSIGNED_SHORT` one (a quantized export's vertex data) decoded through
+     * [NormalizedInt] -- any other componentType/`normalized` combination errors, same
+     * "unsupported, not silently wrong" stance the rest of this parser already takes. */
     private fun readFloatAccessor(
         document: GltfDocument,
         buffers: List<ByteArray>,
@@ -448,16 +455,14 @@ object GltfParser {
         componentsPerElement: Int,
     ): FloatArray {
         val accessor = accessorAt(document, accessorIndex)
-        require(accessor.componentType == COMPONENT_TYPE_FLOAT) {
-            "glTF accessor $accessorIndex has componentType ${accessor.componentType}, expected FLOAT (5126)."
-        }
         require(typeComponentCount(accessor.type) == componentsPerElement) {
             "glTF accessor $accessorIndex has type ${accessor.type}, expected " +
                 "$componentsPerElement-component elements."
         }
         val bufferView = bufferViewFor(document, accessor, accessorIndex)
         val bytes = buffers[bufferView.buffer]
-        val elementByteSize = componentsPerElement * BYTES_PER_FLOAT
+        val componentSize = componentSize(accessor.componentType)
+        val elementByteSize = componentsPerElement * componentSize
         val stride = bufferView.byteStride ?: elementByteSize
         val base = bufferView.byteOffset + accessor.byteOffset
 
@@ -465,12 +470,54 @@ object GltfParser {
         for (elementIndex in 0 until accessor.count) {
             val elementBase = base + elementIndex * stride
             for (component in 0 until componentsPerElement) {
+                val componentOffset = elementBase + component * componentSize
                 result[elementIndex * componentsPerElement + component] =
-                    readFloatLe(bytes, elementBase + component * BYTES_PER_FLOAT)
+                    readNormalizableComponent(bytes, componentOffset, accessor, accessorIndex)
             }
         }
         return result
     }
+
+    private fun readNormalizableComponent(
+        bytes: ByteArray,
+        offset: Int,
+        accessor: GltfAccessor,
+        accessorIndex: Int,
+    ): Float = when (accessor.componentType) {
+        COMPONENT_TYPE_FLOAT -> readFloatLe(bytes, offset)
+        COMPONENT_TYPE_BYTE -> {
+            requireNormalized(accessor, accessorIndex)
+            NormalizedInt.signedByte(bytes[offset].toInt())
+        }
+        COMPONENT_TYPE_UNSIGNED_BYTE -> {
+            requireNormalized(accessor, accessorIndex)
+            NormalizedInt.unsignedByte(bytes[offset].toInt() and 0xFF)
+        }
+        COMPONENT_TYPE_SHORT -> {
+            requireNormalized(accessor, accessorIndex)
+            NormalizedInt.signedShort(readShortLe(bytes, offset))
+        }
+        COMPONENT_TYPE_UNSIGNED_SHORT -> {
+            requireNormalized(accessor, accessorIndex)
+            NormalizedInt.unsignedShort(readUShortLe(bytes, offset))
+        }
+        else -> error(
+            "glTF accessor $accessorIndex has componentType ${accessor.componentType}, expected FLOAT " +
+                "or a normalized BYTE/UNSIGNED_BYTE/SHORT/UNSIGNED_SHORT.",
+        )
+    }
+
+    private fun requireNormalized(accessor: GltfAccessor, accessorIndex: Int) {
+        require(accessor.normalized) {
+            "glTF accessor $accessorIndex has an integer componentType (${accessor.componentType}) " +
+                "but normalized=false -- only normalized integer vertex attributes are decoded as floats."
+        }
+    }
+
+    /** Signed 16-bit little-endian -- unlike [readUShortLe], the high byte's own sign extends
+     * through [Byte.toInt] before the shift, so this correctly reads negative values. */
+    private fun readShortLe(bytes: ByteArray, offset: Int): Int =
+        (bytes[offset].toInt() and 0xFF) or (bytes[offset + 1].toInt() shl 8)
 
     private fun readIndexAccessor(
         document: GltfDocument,

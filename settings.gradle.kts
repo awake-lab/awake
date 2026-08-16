@@ -20,7 +20,9 @@
 rootProject.name = "Awake"
 
 include(":awake:core")
+include(":awake:core:geometry")
 include(":awake:asset:gltf")
+include(":awake:asset:mesh-optimizer")
 include(":awake:ecs")
 include(":awake:ecs:benchmark")
 include(":awake:ui:benchmark")
