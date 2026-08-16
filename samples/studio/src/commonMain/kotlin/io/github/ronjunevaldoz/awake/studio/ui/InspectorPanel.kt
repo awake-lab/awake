@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
@@ -34,6 +35,9 @@ import kotlin.math.round
 
 // Wide enough for "Entity" without wrapping -- the only row still laid out label-beside-value.
 private val InspectorFieldLabelWidth = 96f.dp
+
+/** Tall enough to clear the field row above it -- see [vec3Field]. */
+private val FIELD_LABEL_HEIGHT = 26f.dp
 
 /**
  * Docked "Inspector" panel -- flush to the window edge, no card border/radius of its own; the
@@ -118,10 +122,16 @@ internal fun UiScope.drawInspectorPanel(world: World, selectedEntityId: Int?) {
  * make the same edit prettier. Drag-to-scrub is the upgrade, not a prerequisite.
  */
 private fun ColumnScope.vec3Field(id: String, label: String, value: Vec3) {
-    shadcnText(label, tone = ShadcnTextTone.Muted, modifier = Modifier.padding(top = 6f.dp))
+    // The label needs its own vertical room: a bare text row and the field row below it were
+    // laid out tight enough that descenders sat on the boxes.
+    shadcnText(
+        label,
+        tone = ShadcnTextTone.Muted,
+        modifier = Modifier.height(FIELD_LABEL_HEIGHT).padding(top = 8f.dp),
+    )
     row(
         horizontalArrangement = Arrangement.spacedBy(4f.dp),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(bottom = 4f.dp),
     ) {
         axisInput("$id-x", value.x) { value.x = it }
         axisInput("$id-y", value.y) { value.y = it }

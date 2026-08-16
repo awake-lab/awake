@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.studio.ui
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
+import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
 import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
@@ -130,13 +131,23 @@ class StudioShellLayoutTest {
         assertTrue(StudioExamples.size > 1, "a picker over one example would be pointless")
     }
 
+    /** The two floating pills, and the split between them: tools are modal, view state is not. */
     @Test
-    fun viewportHeaderExposesCameraModeAndProjectionControls() {
+    fun theViewportCarriesAToolPillAndAViewPill() {
         val semantics = renderShell()
 
-        assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-camera-mode" })
-        assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-projection.0" })
-        assertNotNull(semantics.firstOrNull { it.id == "studio-viewport-projection.1" })
+        assertNotNull(semantics.firstOrNull { it.id == "studio-tool-pill" }, "tool pill")
+        StudioContract.Tool.entries.forEach { tool ->
+            assertNotNull(
+                semantics.firstOrNull { it.id == "studio-tool-${tool.name.lowercase()}" },
+                "no control for $tool",
+            )
+        }
+        assertNotNull(semantics.firstOrNull { it.id == "studio-view-pill" }, "view pill")
+        assertNotNull(semantics.firstOrNull { it.id == "studio-view-mode" }, "camera mode")
+        assertNotNull(semantics.firstOrNull { it.id == "studio-view-projection" }, "projection")
+        assertNotNull(semantics.firstOrNull { it.id == "studio-view-wireframe" }, "wireframe")
+        assertNotNull(semantics.firstOrNull { it.id == "studio-view-shadows" }, "shadows")
     }
 
     /**

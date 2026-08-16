@@ -38,6 +38,9 @@ kotlin {
             implementation(project(":awake:scene:authoring"))
             implementation(project(":awake:ui:ui-core"))
             implementation(project(":awake:ui:designsystem"))
+            // Outline glyphs directly, not through ShadcnIcons: that registry is pinned to the
+            // 20px "mini" solid tier, and studio's chrome is outline at 24.
+            implementation(project(":awake:ui:heroicons"))
             implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
