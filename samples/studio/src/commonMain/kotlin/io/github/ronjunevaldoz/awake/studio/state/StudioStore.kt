@@ -33,6 +33,10 @@ internal class StudioStore {
                 _state.update { it.copy(camera = it.camera.copy(projection = intent.projection)) }
             }
 
+            is StudioContract.Intent.SelectTool -> {
+                _state.update { it.copy(tools = it.tools.copy(active = intent.tool)) }
+            }
+
             is StudioContract.Intent.SetMode -> {
                 val previous = _state.value.mode
                 _state.update { it.copy(mode = intent.mode) }

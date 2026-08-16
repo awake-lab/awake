@@ -9,6 +9,14 @@ internal object StudioContract {
     enum class Projection { Perspective, Orthographic }
 
     /**
+     * What a drag in the viewport does.
+     *
+     * Real modes, not decoration: the gizmo reads this to decide which handles to draw and what a
+     * drag means. The rail this replaced held five tools that only ever looked pressed.
+     */
+    enum class Tool { Select, Move, Rotate, Scale }
+
+    /**
      * Edit authors the scene; Play runs it.
      *
      * The split is what makes gameplay systems (spin, the skinned-mesh driver) safe to have at
@@ -20,6 +28,8 @@ internal object StudioContract {
     data class ExampleState(val activeExampleId: String = StudioExamples.first().id)
 
     data class InspectorState(val selectedEntityId: Int? = null)
+
+    data class ToolState(val active: Tool = Tool.Move)
 
     enum class ConsoleLevel { Info, Warning, Error }
 
@@ -39,6 +49,7 @@ internal object StudioContract {
         val mode: Mode = Mode.Edit,
         val examples: ExampleState = ExampleState(),
         val inspector: InspectorState = InspectorState(),
+        val tools: ToolState = ToolState(),
         val camera: CameraState = CameraState(),
         val console: ConsoleState = ConsoleState(),
     )
@@ -48,6 +59,7 @@ internal object StudioContract {
         data class SelectEntity(val id: Int?) : Intent
         data class SetCameraMode(val mode: CameraMode) : Intent
         data class SetProjection(val projection: Projection) : Intent
+        data class SelectTool(val tool: Tool) : Intent
         data class SetMode(val mode: Mode) : Intent
         data object SaveScene : Intent
         data class AppendConsole(val level: ConsoleLevel, val message: String) : Intent

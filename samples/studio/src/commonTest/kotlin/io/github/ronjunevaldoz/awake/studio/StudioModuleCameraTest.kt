@@ -17,10 +17,7 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
-import io.github.ronjunevaldoz.awake.studio.ui.drawStudioShell
 import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
-import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import kotlinx.coroutines.test.runTest
 import kotlin.math.PI
 import kotlin.math.sin
@@ -97,72 +94,6 @@ class StudioModuleCameraTest {
         assertEquals(topEye.z, worldEye.z, TOLERANCE)
     }
 
-    /**
-     * The same reproduction, but driving the real click path -- the icon rail's camera
-     * button and dropdown, exactly as [drawStudioShell] composes them -- instead of
-     * dispatching straight to the store. Rules out cause #3 (menu wired to the wrong
-     * callback / index) against the actual `StudioShell`/`IconRail` composition, not just
-     * `dispatchCameraMenuPick`'s own index mapping.
-     */
-    @Test
-    fun clickingTopInTheIconRailCameraMenuMovesTheRenderedCamera() = runTest {
-        val renderer = RecordingCameraRenderer()
-        val store = StudioStore()
-        val game = game { module(studioModule(store)) }
-
-        game.ready(renderer)
-        val runtime = game.requireService<SceneGameRuntime>()
-
-        fun drive(input: UiInputState) = runtime.uiContext.let { ui ->
-            ui.beginFrame(UiFrameInput(viewportWidth = 800f, viewportHeight = 600f, input = input))
-            with(runtime) { drawStudioShell(store, backend = "Vulkan", viewportWidth = 800f, viewportHeight = 600f) }
-            ui.finishFrame()
-        }
-
-        // Frame 1: no input, just to learn where the icon rail laid the camera button out.
-        val discovered = drive(UiInputState(pointerX = -1f, pointerY = -1f)).semantics
-        val buttonBounds =
-            assertNotNull(
-                discovered.firstOrNull { it.id == "studio-tool-camera" },
-                "Camera rail button not found.",
-            ).bounds
-        val buttonX = buttonBounds.x + buttonBounds.width / 2f
-        val buttonY = buttonBounds.y + buttonBounds.height / 2f
-
-        // Frames 2-3: press + release the button (buttonSlot registers a click on release).
-        drive(UiInputState(pointerX = buttonX, pointerY = buttonY, pointerDown = true))
-        drive(UiInputState(pointerX = buttonX, pointerY = buttonY, pointerDown = false))
-
-        // Frame 4: menu now open -- find Top Down (action index 3).
-        val opened = drive(UiInputState(pointerX = -1f, pointerY = -1f)).semantics
-        val itemBounds = assertNotNull(
-            opened.firstOrNull { it.id == "studio-tool-camera-menu.dropdown.item.3" },
-            "Top Down menu item not found -- menu never opened.",
-        ).bounds
-        val itemX = itemBounds.x + itemBounds.width / 2f
-        val itemY = itemBounds.y + itemBounds.height / 2f
-
-        // Frames 5-6: press + release the "Top" item.
-        drive(UiInputState(pointerX = itemX, pointerY = itemY, pointerDown = true))
-        drive(UiInputState(pointerX = itemX, pointerY = itemY, pointerDown = false))
-
-        assertEquals(CameraMode.TopDown, store.state.value.camera.mode)
-
-        // And the next real frame moves the camera the renderer actually consumes.
-        game.render(1f / 60f, 800f, 600f)
-        val topEye = assertNotNull(renderer.lastEye)
-        val cubeCameraCenterY = 0.5f
-        assertEquals(0f, topEye.x, TOLERANCE)
-        assertEquals(cubeCameraCenterY + TOP_DOWN_DISTANCE * sin(TOP_DOWN_ANGLE), topEye.y, TOLERANCE)
-        assertEquals(TOP_DOWN_DISTANCE * 0.5f, topEye.z, TOLERANCE)
-    }
-
-    /**
-     * The projection half of the same report: the Perspective/Orthographic menu set store
-     * state that no camera ever read, because `Camera.viewProjectionMatrix` always built
-     * `Mat4.perspective`. Asserted on the projection the *renderer* was handed, same reason
-     * the eye assertions above are.
-     */
     @Test
     fun setProjectionSwitchesTheProjectionTheRendererActuallyDraws() = runTest {
         val renderer = RecordingCameraRenderer()
