@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.blocks.BlockPlac
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.gettingstarted.IntroductionPage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.gettingstarted.ThemingPage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.BadgePage
+import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.ButtonGroupPage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.ButtonPage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.CheckboxPage
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.inputs.ComboboxPage
@@ -62,6 +63,7 @@ internal val ShowcasePages: List<ShowcasePage> = listOf(
     ThemingPage,
 
     ButtonPage,
+    ButtonGroupPage,
     BadgePage,
     TextFieldPage,
     TextareaPage,
