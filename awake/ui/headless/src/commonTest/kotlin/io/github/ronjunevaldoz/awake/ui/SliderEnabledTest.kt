@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.slider
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -19,49 +18,25 @@ import kotlin.test.assertEquals
 class SliderEnabledTest {
 
     // Slider's own slot is offset(20dp,20dp) sized width(160px) x height(32px): x in [20,180].
-    private fun UiContext.dragToRightEdge(enabled: Boolean): Float {
-        val input = Input()
+    private fun dragToRightEdge(enabled: Boolean): Float {
         var value = 0f
-        simulateFrame(pointerDown = true, x = 20f, y = 36f, input = input) {
-            value = createAbsolute(x = 20f, y = 20f)
-                .slider(
-                    "sl",
-                    min = 0f,
-                    max = 100f,
-                    value = value,
-                    modifier = Modifier.width(160f.px).height(32f.px),
-                    enabled = enabled,
+        uiTestSession(width = 200f, height = 100f) {
+            fun step(down: Boolean, x: Float) = frame(x = x, y = 36f, down = down) {
+                value = primitive.context.createAbsolute(x = 20f, y = 20f).slider(
+                    "sl", min = 0f, max = 100f, value = value,
+                    modifier = Modifier.width(160f.px).height(32f.px), enabled = enabled,
                 )
-        }
-        simulateFrame(pointerDown = true, x = 180f, y = 36f, input = input) {
-            value = createAbsolute(x = 20f, y = 20f)
-                .slider(
-                    "sl",
-                    min = 0f,
-                    max = 100f,
-                    value = value,
-                    modifier = Modifier.width(160f.px).height(32f.px),
-                    enabled = enabled,
-                )
-        }
-        simulateFrame(pointerDown = false, x = 180f, y = 36f, input = input) {
-            value = createAbsolute(x = 20f, y = 20f)
-                .slider(
-                    "sl",
-                    min = 0f,
-                    max = 100f,
-                    value = value,
-                    modifier = Modifier.width(160f.px).height(32f.px),
-                    enabled = enabled,
-                )
+            }
+            step(true, 20f)
+            step(true, 180f)
+            step(false, 180f)
         }
         return value
     }
 
     @Test
     fun dragMovesValueWhenEnabled() {
-        val ui = UiContext()
-        val value = ui.dragToRightEdge(enabled = true)
+        val value = dragToRightEdge(enabled = true)
         assertEquals(
             100f,
             value,
@@ -71,8 +46,7 @@ class SliderEnabledTest {
 
     @Test
     fun dragDoesNotMoveValueWhenDisabled() {
-        val ui = UiContext()
-        val value = ui.dragToRightEdge(enabled = false)
+        val value = dragToRightEdge(enabled = false)
         assertEquals(
             0f,
             value,
