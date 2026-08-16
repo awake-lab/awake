@@ -84,9 +84,24 @@ class BitmapFont(
         return GlyphRect(u0 = u0, v0 = v0, u1 = u1, v1 = v1)
     }
 
+    /**
+     * The hand-authored lowercase cells occupy rows 1..6 while capitals and digits reach row 7.
+     * Move dedicated lowercase glyphs down one source row to the shared baseline; descenders
+     * get one additional row below it. Fallback lowercase characters use their uppercase cell.
+     */
+    override fun glyphFor(char: Char, weight: FontWeight): GlyphRect? = uvFor(char)?.let { glyph ->
+        if (char.isLowerCase() && GlyphAtlasSource.rowsFor(char) != null && GlyphAtlasSource.atlasCharFor(char) == char) {
+            val row = 1f / GlyphAtlasSource.SOURCE_CELL_SIZE
+            glyph.copy(offsetYEm = if (char in DESCENDERS) row * 2f else row)
+        } else {
+            glyph
+        }
+    }
+
     override fun advanceFor(char: Char, glyphPx: Float): Float = GlyphAtlasSource.advanceFor(char, glyphPx)
 
     private companion object {
         private const val SUPERSAMPLE_GRID = 4
+        private const val DESCENDERS = "gjpqy"
     }
 }

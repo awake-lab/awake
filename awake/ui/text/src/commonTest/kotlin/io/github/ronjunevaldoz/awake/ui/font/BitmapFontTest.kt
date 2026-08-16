@@ -52,4 +52,13 @@ class BitmapFontTest {
             )
         }
     }
+
+    @Test
+    fun dedicatedLowercaseGlyphsAreOffsetToTheBitmapBaseline() {
+        val font = BitmapFont()
+
+        assertEquals(0f, font.glyphFor('A', FontWeight.Normal)?.offsetYEm)
+        assertEquals(1f / 8f, font.glyphFor('a', FontWeight.Normal)?.offsetYEm)
+        assertEquals(2f / 8f, font.glyphFor('g', FontWeight.Normal)?.offsetYEm)
+    }
 }
