@@ -10,8 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnTextFieldVaria
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnInputGroupAffixStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnInputGroupAffixTextStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnInputGroupStyle
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSelectedOptionStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSelectOptionStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSelectedOptionStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSliderStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextFieldStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextareaStyle

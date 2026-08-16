@@ -16,9 +16,9 @@ class ShadcnRemainingRecipeTest {
         renderShadcnComponent(width = 320f, height = 240f) {
             assertNull(
                 combobox(
-                id = "settings.theme",
-                options = listOf("Light", "Dark"),
-                selectedIndex = null,
+                    id = "settings.theme",
+                    options = listOf("Light", "Dark"),
+                    selectedIndex = null,
                 ),
             )
             shadcnSheet(
@@ -29,6 +29,5 @@ class ShadcnRemainingRecipeTest {
             ) { _ -> text("Settings") }
             shadcnToast(id = "settings.saved", message = "Saved")
         }
-
     }
 }

@@ -26,7 +26,7 @@ class ShadcnToggleGroupTest {
     fun uncheckedSegmentLabelsUseTheGroupForegroundNotMutedForeground() = shadcnTestSession(
         width = 300f,
         height = 120f,
-                font = BitmapFont(),
+        font = BitmapFont(),
     ) {
         val rendered = frame {
             column(modifier = Modifier.fillMaxSize()) {

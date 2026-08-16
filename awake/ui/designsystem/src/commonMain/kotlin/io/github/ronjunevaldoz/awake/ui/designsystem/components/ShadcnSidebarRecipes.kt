@@ -6,7 +6,6 @@ import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarActionStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarAvatarStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarGroupLabelStyle

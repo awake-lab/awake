@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.testing.ui.UiComponentFrame
 import io.github.ronjunevaldoz.awake.testing.ui.UiTestSession
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
+import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -121,22 +121,22 @@ class ShadcnRadioGroupClickProbeTest {
             rootProvider = { content -> shadcnTheme { content() } },
         ) {
             fun frame(x: Float, y: Float, down: Boolean): Pair<Int, UiComponentFrame> {
-            var result = -1
+                var result = -1
                 val output = frame(x = x, y = y, down = down) {
                     val scroll = rememberScrollState("radio-state-scroll")
-                column(
-                    modifier = Modifier.verticalScroll(scroll).width(360f.dp).height(280f.dp),
-                ) {
-                    var selected by rememberStateValue("radio-state-probe", "selected") { 0 }
-                    selected = uiScope().shadcnRadioGroup(
-                        id = "radio-state-probe",
-                        options = listOf("System", "Light", "Dark"),
-                        selectedIndex = selected,
-                        onIndexChange = { selected = it },
-                    )
-                    result = selected
+                    column(
+                        modifier = Modifier.verticalScroll(scroll).width(360f.dp).height(280f.dp),
+                    ) {
+                        var selected by rememberStateValue("radio-state-probe", "selected") { 0 }
+                        selected = uiScope().shadcnRadioGroup(
+                            id = "radio-state-probe",
+                            options = listOf("System", "Light", "Dark"),
+                            selectedIndex = selected,
+                            onIndexChange = { selected = it },
+                        )
+                        result = selected
+                    }
                 }
-            }
                 return result to output
             }
             val initial = frame(-100f, -100f, down = false).second

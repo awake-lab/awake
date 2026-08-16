@@ -133,7 +133,7 @@ class ShadcnInputOTPTest {
     fun shadcnInputOTPFocusesInputOnSlotClick() = shadcnTestSession(
         width = 400f,
         height = 80f,
-                font = BitmapFont(),
+        font = BitmapFont(),
     ) {
         val output = frame {
             shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)

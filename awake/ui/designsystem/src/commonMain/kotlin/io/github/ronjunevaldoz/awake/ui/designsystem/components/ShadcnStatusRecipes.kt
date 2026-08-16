@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBadgeStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAlertStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnBadgeStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnKbdStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnProgressStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSkeletonStyle

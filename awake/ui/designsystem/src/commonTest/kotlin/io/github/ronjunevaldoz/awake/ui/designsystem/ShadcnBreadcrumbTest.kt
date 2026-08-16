@@ -43,7 +43,7 @@ class ShadcnBreadcrumbTest {
     fun breadcrumbLinkFiresOnClickWhenPressedAndReleasedInside() = shadcnTestSession(
         width = 300f,
         height = 60f,
-                font = BitmapFont(),
+        font = BitmapFont(),
     ) {
         var clicked = false
 

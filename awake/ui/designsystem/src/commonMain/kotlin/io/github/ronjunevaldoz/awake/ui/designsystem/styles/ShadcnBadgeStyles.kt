@@ -18,14 +18,34 @@ import io.github.ronjunevaldoz.awake.ui.tailwind.grid
 fun UiThemeValues.shadcnBadgeStyle(variant: ShadcnBadgeVariant): Style {
     val padding = UiInsets.grid(horizontal = 2.0, vertical = 0.5)
     return Style {
-    when (variant) {
-        ShadcnBadgeVariant.Primary -> { background(colors.primary); foreground(colors.primaryForeground); border(1f.dp, Color.Transparent) }
-        ShadcnBadgeVariant.Secondary -> { background(colors.secondary); foreground(colors.secondaryForeground); border(1f.dp, Color.Transparent) }
-        ShadcnBadgeVariant.Outline -> { background(Color.Transparent); foreground(colors.foreground); border(1f.dp, colors.border) }
-        ShadcnBadgeVariant.Danger -> { background(colors.destructive); foreground(Color.White); border(1f.dp, Color.Transparent) }
-        ShadcnBadgeVariant.Ghost -> { background(Color.Transparent); foreground(colors.foreground); border(1f.dp, Color.Transparent) }
-    }
-    shape(shapes.full)
+        when (variant) {
+            ShadcnBadgeVariant.Primary -> {
+                background(colors.primary)
+                foreground(colors.primaryForeground)
+                border(1f.dp, Color.Transparent)
+            }
+            ShadcnBadgeVariant.Secondary -> {
+                background(colors.secondary)
+                foreground(colors.secondaryForeground)
+                border(1f.dp, Color.Transparent)
+            }
+            ShadcnBadgeVariant.Outline -> {
+                background(Color.Transparent)
+                foreground(colors.foreground)
+                border(1f.dp, colors.border)
+            }
+            ShadcnBadgeVariant.Danger -> {
+                background(colors.destructive)
+                foreground(Color.White)
+                border(1f.dp, Color.Transparent)
+            }
+            ShadcnBadgeVariant.Ghost -> {
+                background(Color.Transparent)
+                foreground(colors.foreground)
+                border(1f.dp, Color.Transparent)
+            }
+        }
+        shape(shapes.full)
         // Upstream badge is `px-2 py-0.5 text-xs font-medium`, and this now says the same thing.
         //
         // An older note here claimed the wider padding was compensating for glyph fidelity and
@@ -40,9 +60,9 @@ fun UiThemeValues.shadcnBadgeStyle(variant: ShadcnBadgeVariant): Style {
         // (see UiFont.kt) -- Medium, SemiBold and Bold all produce a byte-identical raster, checked
         // by hashing all three. Upstream draws this at 500 and Awake draws 400, which is most of
         // the pixel gap that remains. Closing it needs a second packed face, not a value here.
-    contentPadding(padding.start, padding.top, padding.end, padding.bottom)
-    textSize(Tw.Text.xs)
-    lineHeight(16f.sp)
-    fontWeight(FontWeight.Medium)
+        contentPadding(padding.start, padding.top, padding.end, padding.bottom)
+        textSize(Tw.Text.xs)
+        lineHeight(16f.sp)
+        fontWeight(FontWeight.Medium)
     }
 }

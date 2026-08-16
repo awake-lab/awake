@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogTitleSty
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDropdownItemStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDropdownSurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTooltipStyle
+import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.DialogProperties
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -27,20 +28,18 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.headless.button
-import io.github.ronjunevaldoz.awake.ui.headless.dialog
 import io.github.ronjunevaldoz.awake.ui.headless.currentFont
+import io.github.ronjunevaldoz.awake.ui.headless.dialog
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
-import io.github.ronjunevaldoz.awake.ui.headless.menu
 import io.github.ronjunevaldoz.awake.ui.headless.menuItem
 import io.github.ronjunevaldoz.awake.ui.headless.popup
+import io.github.ronjunevaldoz.awake.ui.headless.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.width
-import io.github.ronjunevaldoz.awake.ui.headless.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
 
