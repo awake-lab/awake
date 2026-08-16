@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
@@ -15,7 +16,7 @@ fun UiThemeValues.shadcnTextFieldStyle(variant: ShadcnTextFieldVariant, metrics:
 fun UiThemeValues.shadcnTextareaStyle(variant: ShadcnTextFieldVariant, metrics: ShadcnMetrics): Style =
     shadcnInputStyle(variant, UiInsets(metrics.fieldPaddingX, metrics.fieldPaddingY))
 
-internal fun shadcnSelectOptionStyle(values: UiThemeValues): Style = Style {
+internal fun shadcnSelectOptionStyle(values: ShadcnThemeValues): Style = Style {
     background(values.colors.popover)
     foreground(values.colors.popoverForeground)
     contentPadding(horizontal = 8f.dp, vertical = 6f.dp)
@@ -25,33 +26,33 @@ internal fun shadcnSelectOptionStyle(values: UiThemeValues): Style = Style {
     disabled { foreground(values.colors.mutedForeground) }
 }
 
-internal fun shadcnSelectedOptionStyle(values: UiThemeValues): Style = Style {
+internal fun shadcnSelectedOptionStyle(values: ShadcnThemeValues): Style = Style {
     background(values.colors.accent)
     foreground(values.colors.accentForeground)
     shape(values.shapes.md)
 }
 
-internal fun shadcnSliderStyle(values: UiThemeValues): Style = Style {
+internal fun shadcnSliderStyle(values: ShadcnThemeValues): Style = Style {
     background(values.colors.muted)
     foreground(values.colors.primary)
     shape(values.shapes.full)
 }
 
-internal fun shadcnInputGroupStyle(values: UiThemeValues): Style = Style {
+internal fun shadcnInputGroupStyle(values: ShadcnThemeValues): Style = Style {
     background(values.colors.background)
     border(1f.dp, values.colors.input)
     shape(values.shapes.md)
 }
 
-internal fun shadcnInputGroupAffixStyle(values: UiThemeValues): Style = Style {
+internal fun shadcnInputGroupAffixStyle(values: ShadcnThemeValues): Style = Style {
     foreground(values.colors.mutedForeground)
 }
 
-internal fun shadcnInputGroupAffixTextStyle(values: UiThemeValues): Style = Style {
+internal fun shadcnInputGroupAffixTextStyle(values: ShadcnThemeValues): Style = Style {
     textSize(values.typography.label)
 }
 
-internal fun shadcnInputOtpSlotStyle(values: UiThemeValues, enabled: Boolean, isError: Boolean): Style = Style {
+internal fun shadcnInputOtpSlotStyle(values: ShadcnThemeValues, enabled: Boolean, isError: Boolean): Style = Style {
     background(values.colors.card)
     foreground(if (enabled) values.colors.foreground else values.colors.mutedForeground)
     border(1f.dp, if (isError) values.colors.destructive else values.colors.input)

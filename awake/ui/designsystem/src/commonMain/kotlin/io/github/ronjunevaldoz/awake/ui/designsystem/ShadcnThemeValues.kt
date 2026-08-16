@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
 data class ShadcnThemeValues(
     val core: UiThemeValues,
     val metrics: ShadcnMetrics,
-)
+) : UiThemeValues by core
 
 internal val LocalShadcnTheme: UiLocal<ShadcnThemeValues> = uiLocalOf(
     ShadcnThemeValues(core = ShadcnTheme, metrics = ShadcnTheme.metrics),

@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.styles
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Shared Shadcn visual treatment for toggle-group items. */
@@ -22,7 +23,7 @@ fun shadcnRadioStyle(values: UiThemeValues): Style = Style {
     shape(values.shapes.full)
 }
 
-internal fun shadcnCheckboxStyle(values: UiThemeValues, checked: Boolean): Style = Style {
+internal fun shadcnCheckboxStyle(values: ShadcnThemeValues, checked: Boolean): Style = Style {
     background(if (checked) values.colors.primary else values.colors.background)
     foreground(if (checked) values.colors.primaryForeground else values.colors.foreground)
     border(1f.dp, if (checked) values.colors.primary else values.colors.input)
@@ -30,14 +31,14 @@ internal fun shadcnCheckboxStyle(values: UiThemeValues, checked: Boolean): Style
     disabled { foreground(values.colors.mutedForeground) }
 }
 
-internal fun shadcnSwitchStyle(values: UiThemeValues, checked: Boolean): Style = Style {
+internal fun shadcnSwitchStyle(values: ShadcnThemeValues, checked: Boolean): Style = Style {
     background(if (checked) values.colors.primary else values.colors.input)
     foreground(if (checked) values.colors.primaryForeground else values.colors.foreground)
     shape(values.shapes.full)
     disabled { foreground(values.colors.mutedForeground) }
 }
 
-internal fun shadcnToggleStyle(values: UiThemeValues, checked: Boolean): Style = Style {
+internal fun shadcnToggleStyle(values: ShadcnThemeValues, checked: Boolean): Style = Style {
     background(if (checked) values.colors.accent else values.colors.background)
     foreground(values.colors.foreground)
     shape(values.shapes.md)
@@ -50,4 +51,4 @@ internal fun shadcnToggleStyle(values: UiThemeValues, checked: Boolean): Style =
 
 internal fun shadcnRadioGroupStyle(): Style = Style { contentPadding(12f.dp) }
 
-internal fun shadcnRadioLabelStyle(values: UiThemeValues): Style = Style { textSize(values.typography.label) }
+internal fun shadcnRadioLabelStyle(values: ShadcnThemeValues): Style = Style { textSize(values.typography.label) }
