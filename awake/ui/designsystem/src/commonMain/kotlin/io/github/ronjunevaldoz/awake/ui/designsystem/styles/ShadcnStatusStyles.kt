@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 fun shadcnProgressStyle(values: UiThemeValues): Style = Style {
@@ -24,7 +25,7 @@ fun shadcnSpinnerStyle(values: UiThemeValues): Style = Style {
     foreground(values.colors.primary)
 }
 
-internal fun shadcnKbdStyle(values: UiThemeValues): Style = Style {
+internal fun shadcnKbdStyle(values: ShadcnThemeValues): Style = Style {
     background(values.colors.muted)
     foreground(values.colors.mutedForeground)
     border(1f.dp, values.colors.border)
@@ -33,7 +34,7 @@ internal fun shadcnKbdStyle(values: UiThemeValues): Style = Style {
     textSize(10f.sp)
 }
 
-internal fun shadcnAlertStyle(values: UiThemeValues, variant: ShadcnAlertVariant): Style = Style {
+internal fun shadcnAlertStyle(values: ShadcnThemeValues, variant: ShadcnAlertVariant): Style = Style {
     background(if (variant == ShadcnAlertVariant.Destructive) values.colors.destructive.withAlpha(0.1f) else values.colors.muted)
     foreground(if (variant == ShadcnAlertVariant.Destructive) values.colors.destructive else values.colors.foreground)
     border(1f.dp, if (variant == ShadcnAlertVariant.Destructive) values.colors.destructive else values.colors.border)
