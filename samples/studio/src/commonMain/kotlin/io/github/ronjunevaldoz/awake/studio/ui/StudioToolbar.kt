@@ -21,10 +21,12 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
 // internal, not private -- StudioShell.kt reads both to size the panels group's own height
 // explicitly (see its doc comment for why that's computed rather than a weight(1f) fill).
@@ -75,20 +77,34 @@ internal fun UiScope.drawStudioTopBar(
             ) {
                 shadcnButton(
                     id = "studio-top-bar-save",
-                    label = "Save",
                     modifier = Modifier.height(ShadcnButtonSize.Sm.heightDp),
                     variant = ShadcnButtonVariant.Secondary,
                     size = ShadcnButtonSize.Sm,
                     onClick = onSave,
-                )
+                ) {
+                    row(
+                        horizontalArrangement = Arrangement.spacedBy(4f.dp),
+                        verticalAlignment = UiAlignment.Vertical.Center,
+                    ) {
+                        icon(HeroIcons.Solid20Mini.arrowDownTray)
+                        shadcnText("Save")
+                    }
+                }
                 shadcnButton(
                     id = "studio-top-bar-play",
-                    label = if (playing) "Stop" else "Play",
                     modifier = Modifier.height(ShadcnButtonSize.Sm.heightDp),
                     variant = if (playing) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
                     size = ShadcnButtonSize.Sm,
                     onClick = onTogglePlay,
-                )
+                ) {
+                    row(
+                        horizontalArrangement = Arrangement.spacedBy(4f.dp),
+                        verticalAlignment = UiAlignment.Vertical.Center,
+                    ) {
+                        icon(if (playing) HeroIcons.Solid20Mini.stop else HeroIcons.Solid20Mini.play)
+                        shadcnText(if (playing) "Stop" else "Play")
+                    }
+                }
             }
         }
     }
