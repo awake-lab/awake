@@ -35,5 +35,14 @@ fun UiScope.avatar(
     modifier = modifier.width(size).height(size),
     style = style then Style { textSize(textSize) },
 ) {
-    text(label = initials, modifier = Modifier.fillMaxSize(), style = style then Style { textSize(textSize) }, centered = true)
+    // Typography only. Passing the container [style] down re-applied its background and full
+    // corner radius to the label, painting a second filled circle behind the initials inside
+    // the avatar's own circle. The colour still arrives: surface() propagates its resolved
+    // foreground to children as the ambient text style.
+    text(
+        label = initials,
+        modifier = Modifier.fillMaxSize(),
+        style = Style { textSize(textSize) },
+        centered = true,
+    )
 }
