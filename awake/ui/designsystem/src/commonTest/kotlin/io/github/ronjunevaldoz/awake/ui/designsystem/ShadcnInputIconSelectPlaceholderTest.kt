@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -23,19 +23,14 @@ class ShadcnInputIconSelectPlaceholderTest {
 
     @Test
     fun leadingIconDoesNotOverlapTypedText() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(300f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
-
-        ui.headlessRoot().shadcnInput(
-            id = "search",
-            value = "hello",
-            modifier = Modifier.width(240f.dp).height(40f.dp),
-            leadingIcon = { text("S", modifier = Modifier.width(12f.dp)) },
-        )
-
-        val semantics = ui.finishFrame().semantics
+        val semantics = renderUiComponent(width = 300f, height = 80f, theme = ShadcnTheme, font = BitmapFont()) {
+            shadcnInput(
+                id = "search",
+                value = "hello",
+                modifier = Modifier.width(240f.dp).height(40f.dp),
+                leadingIcon = { text("S", modifier = Modifier.width(12f.dp)) },
+            )
+        }.semantics
         val icon = semantics.first { it.label == "S" }
         val value = semantics.first { it.id == "search.value" }
         val iconBounds = icon.contentBounds!!
@@ -48,23 +43,19 @@ class ShadcnInputIconSelectPlaceholderTest {
 
     @Test
     fun visualTransformationMasksDisplayButNotStoredValue() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(300f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
-
         val real = "secret"
-        val returned = ui.headlessRoot().shadcnInput(
-            id = "password",
-            value = real,
-            modifier = Modifier.width(240f.dp).height(40f.dp),
-            visualTransformation = { "*".repeat(it.length) },
-        )
+        var returned = ""
+        val semantics = renderUiComponent(width = 300f, height = 80f, theme = ShadcnTheme, font = BitmapFont()) {
+            returned = shadcnInput(
+                id = "password",
+                value = real,
+                modifier = Modifier.width(240f.dp).height(40f.dp),
+                visualTransformation = { "*".repeat(it.length) },
+            )
+        }.semantics
 
         // `value`/return value carry the real typed text untouched.
         assertEquals(real, returned)
-
-        val semantics = ui.finishFrame().semantics
         // What's actually drawn (the "$id.value" text node) is masked.
         assertEquals("*".repeat(real.length), semantics.first { it.id == "password.value" }.label)
         // The field's own top-level semantic node still reports the real value.
@@ -73,20 +64,15 @@ class ShadcnInputIconSelectPlaceholderTest {
 
     @Test
     fun selectWithNullIndexShowsPlaceholder() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-
-        ui.headlessRoot().shadcnSelect(
-            id = "fruit",
-            options = listOf("Apple", "Banana"),
-            selectedIndex = null,
-            modifier = Modifier.width(200f.dp),
-            placeholder = "Choose a fruit",
-        )
-
-        val semantics = ui.finishFrame().semantics
+        val semantics = renderUiComponent(width = 300f, height = 200f, theme = ShadcnTheme, font = BitmapFont()) {
+            shadcnSelect(
+                id = "fruit",
+                options = listOf("Apple", "Banana"),
+                selectedIndex = null,
+                modifier = Modifier.width(200f.dp),
+                placeholder = "Choose a fruit",
+            )
+        }.semantics
         assertEquals("Choose a fruit", semantics.first { it.id == "fruit.label" }.label)
     }
 }

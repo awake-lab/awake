@@ -2,15 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,20 +18,15 @@ class ShadcnBadgeIntrinsicWidthTest {
 
     @Test
     fun columnBadgeUsesNaturalWidthInsteadOfSurfaceWidth() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
-
-        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
-            shadcnBadge(
-                id = "column-badge",
-                label = "INPUTS",
-                variant = ShadcnBadgeVariant.Outline,
-            )
+        val frame = renderUiComponent(width = 200f, height = 80f, theme = ShadcnTheme, font = BitmapFont()) {
+            column(modifier = Modifier.fillMaxSize()) {
+                shadcnBadge(
+                    id = "column-badge",
+                    label = "INPUTS",
+                    variant = ShadcnBadgeVariant.Outline,
+                )
+            }
         }
-
-        val frame = ui.finishFrame()
         val badge = frame.semantics.first { it.id == "column-badge" }
         val label = frame.semantics.first { it.role == UiSemanticRole.Text && it.label == "INPUTS" }
         assertTrue(badge.bounds.width < 200f, "column badges should remain compact inside a Column")
@@ -46,18 +39,13 @@ class ShadcnBadgeIntrinsicWidthTest {
 
     @Test
     fun rootBadgeKeepsItsCaptionInsideTheSurface() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
-
-        ui.createUiScope(UiBounds(0f, 0f, 200f, 80f)).shadcnBadge(
-            id = "root-badge",
-            label = "INPUTS",
-            variant = ShadcnBadgeVariant.Outline,
-        )
-
-        val frame = ui.finishFrame()
+        val frame = renderUiComponent(width = 200f, height = 80f, theme = ShadcnTheme, font = BitmapFont()) {
+            shadcnBadge(
+                id = "root-badge",
+                label = "INPUTS",
+                variant = ShadcnBadgeVariant.Outline,
+            )
+        }
         val badge = frame.semantics.first { it.id == "root-badge" }
         val label = frame.semantics.first { it.role == UiSemanticRole.Text && it.label == "INPUTS" }
         assertEquals(22f, badge.bounds.height, 0.01f, "shadcn text-xs badge uses a 16px line box")

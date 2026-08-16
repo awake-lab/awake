@@ -42,6 +42,7 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
+            implementation(project(":awake:ui:testing"))
         }
 
         val appMain = create("appMain") {

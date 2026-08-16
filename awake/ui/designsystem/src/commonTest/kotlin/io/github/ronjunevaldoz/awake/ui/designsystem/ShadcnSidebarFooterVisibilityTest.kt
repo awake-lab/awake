@@ -3,10 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
-import io.github.ronjunevaldoz.awake.ui.UiDensity
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarFooterButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
@@ -38,38 +36,37 @@ class ShadcnSidebarFooterVisibilityTest {
 
     /** footerBottom, sidebarBottom, footerHeight -- the last so tolerances scale with density. */
     private fun footerBottomAndSidebarBottom(contentHeightDp: Float): Triple<Float, Float, Float> {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(400f, 600f, testSnapshot())
-        val sidebar = ui.headlessRoot().shadcnSidebar(
-            id = "sidebar",
-            modifier = Modifier.width(SIDEBAR_WIDTH.dp).height(SIDEBAR_HEIGHT.dp),
-            header = { spacer(Modifier.width(SIDEBAR_WIDTH.dp).height(32f.dp)) },
-            footer = {
-                shadcnSidebarFooterButton(id = FOOTER_ID, name = "shadcn", email = "m@example.com")
-            },
-        ) {
-            // The real recipes, not a bare spacer. A spacer claims its height directly; a group of
-            // menu rows is nested columns whose own sizing is what the weighted parent has to
-            // resolve against, and only that shape reproduces the collapse.
-            shadcnSidebarGroup(label = "Platform") {
-                shadcnSidebarMenu {
-                    repeat((contentHeightDp / MENU_ROW_HEIGHT).toInt().coerceAtLeast(1)) { index ->
-                        shadcnSidebarMenuItem(id = "item-$index", label = "Item $index")
+        var sidebar: UiBounds? = null
+        val output = renderUiComponent(width = 400f, height = 600f, theme = ShadcnTheme, font = BitmapFont()) {
+            sidebar = shadcnSidebar(
+                id = "sidebar",
+                modifier = Modifier.width(SIDEBAR_WIDTH.dp).height(SIDEBAR_HEIGHT.dp),
+                header = { spacer(Modifier.width(SIDEBAR_WIDTH.dp).height(32f.dp)) },
+                footer = {
+                    shadcnSidebarFooterButton(id = FOOTER_ID, name = "shadcn", email = "m@example.com")
+                },
+            ) {
+                // The real recipes, not a bare spacer. A spacer claims its height directly; a group of
+                // menu rows is nested columns whose own sizing is what the weighted parent has to
+                // resolve against, and only that shape reproduces the collapse.
+                shadcnSidebarGroup(label = "Platform") {
+                    shadcnSidebarMenu {
+                        repeat((contentHeightDp / MENU_ROW_HEIGHT).toInt().coerceAtLeast(1)) { index ->
+                            shadcnSidebarMenuItem(id = "item-$index", label = "Item $index")
+                        }
                     }
                 }
             }
         }
-        val output = ui.finishFrame()
         // By id, not "whatever sits lowest" -- the sidebar surface itself is the lowest node, so
         // a positional lookup passes no matter where the footer actually landed.
         val footer = requireNotNull(output.semantics.firstOrNull { it.id == FOOTER_ID }) {
             "no semantic node for '$FOOTER_ID'; ids present: ${output.semantics.mapNotNull { it.id }}"
         }
+        val sidebarBounds = requireNotNull(sidebar)
         return Triple(
             footer.bounds.y + footer.bounds.height,
-            sidebar.y + sidebar.height,
+            sidebarBounds.y + sidebarBounds.height,
             footer.bounds.height,
         )
     }
@@ -115,45 +112,46 @@ class ShadcnSidebarFooterVisibilityTest {
         // Previews render at UiDensity.scale = 2, and that is the only structural difference left
         // between this suite (all green) and the shadcn-sidebar-example raster (footer collapsed
         // over the menu). If weight distribution is density-sensitive, it shows up here.
-        val previous = UiDensity.scale
-        UiDensity.scale = 2f
-        try {
-            aFillMaxHeightSidebarStillPinsTheFooterToTheBottom()
-        } finally {
-            UiDensity.scale = previous
-        }
+        aFillMaxHeightSidebarStillPinsTheFooter(density = 2f)
     }
 
     @Test
     fun aFillMaxHeightSidebarStillPinsTheFooterToTheBottom() {
+        aFillMaxHeightSidebarStillPinsTheFooter(density = 1f)
+    }
+
+    private fun aFillMaxHeightSidebarStillPinsTheFooter(density: Float) {
         // How every real caller sizes it -- fillMaxHeight() inside a row, not a fixed height. The
         // sidebar's own height then resolves from its parent rather than from its modifier, and
         // the weighted content slot has to divide THAT. This is the shadcn-sidebar-example
         // preview's exact shape.
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(600f, SIDEBAR_HEIGHT, testSnapshot())
-        var sidebar: io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds? = null
-        ui.headlessRoot().row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
-            sidebar = shadcnSidebar(
-                id = "sidebar",
-                modifier = Modifier.width(SIDEBAR_WIDTH.dp).fillMaxHeight(),
-                header = { spacer(Modifier.width(SIDEBAR_WIDTH.dp).height(32f.dp)) },
-                footer = {
-                    shadcnSidebarFooterButton(id = FOOTER_ID, name = "shadcn", email = "m@example.com")
-                },
-            ) {
-                shadcnSidebarGroup(label = "Platform") {
-                    shadcnSidebarMenu {
-                        repeat(4) { index ->
-                            shadcnSidebarMenuItem(id = "item-$index", label = "Item $index")
+        var sidebar: UiBounds? = null
+        val output = renderUiComponent(
+            width = 600f,
+            height = SIDEBAR_HEIGHT,
+            theme = ShadcnTheme,
+            font = BitmapFont(),
+            density = density,
+        ) {
+            row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                sidebar = shadcnSidebar(
+                    id = "sidebar",
+                    modifier = Modifier.width(SIDEBAR_WIDTH.dp).fillMaxHeight(),
+                    header = { spacer(Modifier.width(SIDEBAR_WIDTH.dp).height(32f.dp)) },
+                    footer = {
+                        shadcnSidebarFooterButton(id = FOOTER_ID, name = "shadcn", email = "m@example.com")
+                    },
+                ) {
+                    shadcnSidebarGroup(label = "Platform") {
+                        shadcnSidebarMenu {
+                            repeat(4) { index ->
+                                shadcnSidebarMenuItem(id = "item-$index", label = "Item $index")
+                            }
                         }
                     }
                 }
             }
         }
-        val output = ui.finishFrame()
         val footer = requireNotNull(output.semantics.firstOrNull { it.id == FOOTER_ID }) {
             "no semantic node for '$FOOTER_ID'"
         }
@@ -173,9 +171,6 @@ class ShadcnSidebarFooterVisibilityTest {
         // The preview's exact shape, and the one that isolated the bug: a real
         // shadcnSidebarHeaderButton above the weighted content slot. Every other case here uses a
         // spacer or a plain surface as the header and passes.
-        //
-        // Written on renderUiComponent rather than by hand -- this is the same six lines of
-        // context/font/theme/beginFrame/finishFrame the other cases above still spell out.
         var sidebar: UiBounds? = null
         val frame = renderUiComponent(width = 600f, height = 1040f, theme = ShadcnTheme, density = 2f) {
             sidebar = shadcnSidebar(
@@ -213,30 +208,27 @@ class ShadcnSidebarFooterVisibilityTest {
         // inside a wrap-height surface inside a column. Every other case here puts it at the root,
         // and all of them pass while the preview renders the footer collapsed under the header --
         // so the wrapping parent is the remaining difference.
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(600f, 900f, testSnapshot())
-        var sidebar: io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds? = null
-        ui.headlessRoot().surface(id = "wrapper", modifier = Modifier.fillMaxWidth()) {
-            sidebar = shadcnSidebar(
-                id = "sidebar",
-                modifier = Modifier.width(SIDEBAR_WIDTH.dp).height(SIDEBAR_HEIGHT.dp),
-                header = { spacer(Modifier.width(SIDEBAR_WIDTH.dp).height(32f.dp)) },
-                footer = {
-                    shadcnSidebarFooterButton(id = FOOTER_ID, name = "shadcn", email = "m@example.com")
-                },
-            ) {
-                shadcnSidebarGroup(label = "Platform") {
-                    shadcnSidebarMenu {
-                        repeat(4) { index ->
-                            shadcnSidebarMenuItem(id = "item-$index", label = "Item $index")
+        var sidebar: UiBounds? = null
+        val output = renderUiComponent(width = 600f, height = 900f, theme = ShadcnTheme, font = BitmapFont()) {
+            surface(id = "wrapper", modifier = Modifier.fillMaxWidth()) {
+                sidebar = shadcnSidebar(
+                    id = "sidebar",
+                    modifier = Modifier.width(SIDEBAR_WIDTH.dp).height(SIDEBAR_HEIGHT.dp),
+                    header = { spacer(Modifier.width(SIDEBAR_WIDTH.dp).height(32f.dp)) },
+                    footer = {
+                        shadcnSidebarFooterButton(id = FOOTER_ID, name = "shadcn", email = "m@example.com")
+                    },
+                ) {
+                    shadcnSidebarGroup(label = "Platform") {
+                        shadcnSidebarMenu {
+                            repeat(4) { index ->
+                                shadcnSidebarMenuItem(id = "item-$index", label = "Item $index")
+                            }
                         }
                     }
                 }
             }
         }
-        val output = ui.finishFrame()
         val footer = requireNotNull(output.semantics.firstOrNull { it.id == FOOTER_ID }) {
             "no semantic node for '$FOOTER_ID'"
         }

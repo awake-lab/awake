@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.combobox
@@ -17,15 +17,16 @@ import kotlin.test.assertNotNull
 class ShadcnSelectGenericTest {
 
     @Test
-    fun genericSelectRoundTripsTypedValueNotIndex() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
+    fun genericSelectRoundTripsTypedValueNotIndex() = uiTestSession(
+        width = 300f,
+        height = 200f,
+        theme = ShadcnTheme,
+        font = BitmapFont(),
+    ) {
         var picked: Int? = null
 
-        fun frame(x: Float, y: Float, down: Boolean) {
-            ui.beginFrame(300f, 200f, testSnapshot(x = x, y = y, down = down))
-            val result = ui.headlessRoot().combobox(
+        fun render(x: Float, y: Float, down: Boolean) = frame(x = x, y = y, down = down) {
+            val result = combobox(
                 id = "fruit",
                 options = listOf("Apple", "Banana", "Cherry"),
                 selectedIndex = picked,
@@ -35,16 +36,13 @@ class ShadcnSelectGenericTest {
         }
 
         // Closed trigger: find its bounds to click it open.
-        frame(-1f, -1f, false)
-        val triggerBounds = assertNotNull(ui.finishFrame().semantics.firstOrNull { it.id == "fruit" }).bounds
+        val triggerBounds = assertNotNull(render(-1f, -1f, false).semantics.firstOrNull { it.id == "fruit" }).bounds
         val triggerX = triggerBounds.x + triggerBounds.width / 2f
         val triggerY = triggerBounds.y + triggerBounds.height / 2f
 
         // Press + release the trigger to open the popup.
-        frame(triggerX, triggerY, true)
-        ui.finishFrame()
-        frame(triggerX, triggerY, false)
-        val opened = ui.finishFrame().semantics
+        render(triggerX, triggerY, true)
+        val opened = render(triggerX, triggerY, false).semantics
 
         // Popup open: locate the "Cherry" item (index 2) to prove a non-first, non-string-coerced
         // value round-trips correctly.
@@ -52,10 +50,8 @@ class ShadcnSelectGenericTest {
         val itemX = itemBounds.x + itemBounds.width / 2f
         val itemY = itemBounds.y + itemBounds.height / 2f
 
-        frame(itemX, itemY, true)
-        ui.finishFrame()
-        frame(itemX, itemY, false)
-        ui.finishFrame()
+        render(itemX, itemY, true)
+        render(itemX, itemY, false)
 
         assertEquals(2, picked)
     }

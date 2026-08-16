@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSet
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldTextField
@@ -27,25 +27,20 @@ class ShadcnFieldContainerWidthTest {
 
     @Test
     fun aFieldInsideAGroupSpansTheAvailableWidth() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(frameWidth, 300f, testSnapshot(x = -100f, y = -100f, down = false))
-
-        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
-            shadcnFieldSet(id = "set") {
-                shadcnFieldGroup(id = "group") {
-                    shadcnFieldTextField(
-                        id = "email",
-                        label = "Billing email",
-                        value = "",
-                        placeholder = "jane@example.com",
-                    )
+        val frame = renderUiComponent(width = frameWidth, height = 300f, theme = ShadcnTheme, font = BitmapFont()) {
+            column(modifier = Modifier.fillMaxSize()) {
+                shadcnFieldSet(id = "set") {
+                    shadcnFieldGroup(id = "group") {
+                        shadcnFieldTextField(
+                            id = "email",
+                            label = "Billing email",
+                            value = "",
+                            placeholder = "jane@example.com",
+                        )
+                    }
                 }
             }
         }
-
-        val frame = ui.finishFrame()
         val field = frame.semantics.first { it.id == "email" }
         assertTrue(
             field.bounds.width > frameWidth / 2f,
@@ -56,18 +51,13 @@ class ShadcnFieldContainerWidthTest {
 
     @Test
     fun anExplicitCallerWidthStillWins() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(frameWidth, 300f, testSnapshot(x = -100f, y = -100f, down = false))
-
-        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
-            shadcnFieldGroup(id = "narrow-group", modifier = Modifier.width(120f.dp)) {
-                shadcnFieldTextField(id = "name", label = "Name", value = "")
+        val frame = renderUiComponent(width = frameWidth, height = 300f, theme = ShadcnTheme, font = BitmapFont()) {
+            column(modifier = Modifier.fillMaxSize()) {
+                shadcnFieldGroup(id = "narrow-group", modifier = Modifier.width(120f.dp)) {
+                    shadcnFieldTextField(id = "name", label = "Name", value = "")
+                }
             }
         }
-
-        val frame = ui.finishFrame()
         val field = frame.semantics.first { it.id == "name" }
         assertTrue(
             field.bounds.width <= 120f,

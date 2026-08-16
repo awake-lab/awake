@@ -36,6 +36,8 @@ kotlin {
             implementation(project(":awake:core"))
             implementation(project(":awake:ui:ui-core"))
             implementation(project(":awake:ui:headless"))
+            // api: NoopRenderer's supertype must be visible to tests that subclass it.
+            api(project(":awake:engine:render:contract"))
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
