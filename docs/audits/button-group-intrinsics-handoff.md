@@ -11,6 +11,21 @@ per-child `fillMaxWidth()`/`fillMaxHeight()`) to stand in for two primitives the
 does not have. In Compose the same component needs neither: a row/column plus
 `IntrinsicSize.Min` on the cross axis, and `RoundedCornerShape` per member.
 
+## Look at it first
+
+```bash
+./gradlew :awake:ui:designsystem:desktopTest --tests "*ShadcnButtonGroupCaptureTest*" --rerun-tasks
+```
+
+Writes `awake/ui/designsystem/build/ui-snapshots/button-group.png`. Three defects are visible
+there, and only the second was known when this doc was first written:
+
+1. The HORIZONTAL group renders no labels at all. This is the variant used as the studio toolbar
+   pill. Most likely the same root as (2) — `withIntrinsicLabelWidth` returns early because the
+   group put `fillMaxWidth()`/`fillMaxHeight()` on the member — so fixing it may fix both.
+2. The vertical group fills its frame instead of wrapping.
+3. Members do not fill the group's height; the card shows through as a band underneath.
+
 ## Done
 
 `UiShapeSpec.RoundedCorners(topLeft, topRight, bottomRight, bottomLeft)` — commit `fe90a848`.
