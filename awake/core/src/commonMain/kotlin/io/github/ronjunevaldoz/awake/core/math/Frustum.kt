@@ -62,14 +62,17 @@ fun Frustum.intersects(camera: Camera, aspect: Float, box: Aabb): Boolean {
     val corners = corners(camera, aspect)
     val near = corners.take(NEAR_CORNER_COUNT)
     val far = corners.drop(NEAR_CORNER_COUNT)
-    // Each plane is spanned by three corners, wound so its normal points INTO the frustum.
+    // Each plane is spanned by three corners, wound so its normal points INTO the frustum --
+    // verified by hand against Camera's identity-view test setup (eye at origin, forward -Z):
+    // every plane below passes through the eye (as a symmetric frustum's side/top/bottom
+    // planes must) and gives a positive signedDistanceTo a point on the forward axis.
     val planes = listOf(
-        planeThrough(near[TOP_LEFT], near[TOP_RIGHT], far[TOP_RIGHT]),
-        planeThrough(near[BOTTOM_RIGHT], far[BOTTOM_RIGHT], near[BOTTOM_LEFT]),
-        planeThrough(near[TOP_LEFT], far[TOP_LEFT], near[BOTTOM_LEFT]),
-        planeThrough(near[TOP_RIGHT], near[BOTTOM_RIGHT], far[BOTTOM_RIGHT]),
-        planeThrough(near[TOP_LEFT], near[BOTTOM_LEFT], near[BOTTOM_RIGHT]),
-        planeThrough(far[TOP_LEFT], far[BOTTOM_RIGHT], far[BOTTOM_LEFT]),
+        planeThrough(near[BOTTOM_LEFT], near[BOTTOM_RIGHT], far[BOTTOM_RIGHT]), // bottom
+        planeThrough(near[TOP_RIGHT], near[TOP_LEFT], far[TOP_RIGHT]), // top
+        planeThrough(near[BOTTOM_LEFT], far[BOTTOM_LEFT], near[TOP_LEFT]), // left
+        planeThrough(near[BOTTOM_RIGHT], near[TOP_RIGHT], far[TOP_RIGHT]), // right
+        planeThrough(near[BOTTOM_LEFT], near[TOP_LEFT], near[TOP_RIGHT]), // near
+        planeThrough(far[BOTTOM_LEFT], far[TOP_RIGHT], far[TOP_LEFT]), // far
     )
     return planes.filterNotNull().none { plane -> box.isFullyBehind(plane) }
 }
@@ -90,8 +93,9 @@ private fun planeThrough(a: Vec3, b: Vec3, c: Vec3): Plane? {
 }
 
 private const val NEAR_CORNER_COUNT = 4
-private const val TOP_LEFT = 0
-private const val TOP_RIGHT = 1
-private const val BOTTOM_RIGHT = 2
-private const val BOTTOM_LEFT = 3
+// Matches Frustum.corners()'s own documented order: [nearBL, nearBR, nearTR, nearTL, ...].
+private const val BOTTOM_LEFT = 0
+private const val BOTTOM_RIGHT = 1
+private const val TOP_RIGHT = 2
+private const val TOP_LEFT = 3
 private const val DEGENERATE_NORMAL = 1e-6f

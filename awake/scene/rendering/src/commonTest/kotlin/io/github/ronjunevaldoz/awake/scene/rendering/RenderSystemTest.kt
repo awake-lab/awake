@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.rendering
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -21,6 +23,8 @@ import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -149,6 +153,51 @@ class RenderSystemTest {
         assertSame(mesh, drawCall.mesh)
         assertSame(material, drawCall.material)
         assertEquals(transforms, drawCall.instanceModels)
+    }
+
+    @Test
+    fun meshRendererWithoutBoundsAlwaysDraws() {
+        val world = worldWithPrimaryCamera()
+        val entity = world.create()
+        world.add(entity, Transform())
+        world.add(entity, MeshRenderer(fakeMesh(), fakeMaterial()))
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        assertEquals(1, renderer.lastDrawCalls.size)
+    }
+
+    @Test
+    fun meshRendererInsideTheFrustumDraws() {
+        val world = worldWithPrimaryCamera()
+        val entity = world.create()
+        // Camera eye=(0,0,5) looks at the origin -- a unit box sitting at the origin is
+        // squarely in front of it.
+        world.add(entity, Transform())
+        world.add(entity, MeshRenderer(fakeMesh(), fakeMaterial()))
+        world.add(entity, MeshBounds(Aabb(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.5f, 0.5f, 0.5f))))
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        assertEquals(1, renderer.lastDrawCalls.size)
+    }
+
+    @Test
+    fun meshRendererBehindTheCameraIsCulled() {
+        val world = worldWithPrimaryCamera()
+        val entity = world.create()
+        // Camera eye=(0,0,5) looks toward -z (at the origin) -- z=20 is behind the eye,
+        // outside the frustum entirely.
+        world.add(entity, Transform(worldMatrix = Mat4().translate(0f, 0f, 20f)))
+        world.add(entity, MeshRenderer(fakeMesh(), fakeMaterial()))
+        world.add(entity, MeshBounds(Aabb(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.5f, 0.5f, 0.5f))))
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        assertEquals(0, renderer.lastDrawCalls.size)
     }
 
     private fun fakeMesh(): Mesh = object : Mesh {

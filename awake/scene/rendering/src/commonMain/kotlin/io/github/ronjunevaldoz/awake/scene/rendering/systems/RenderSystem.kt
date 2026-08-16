@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.rendering.systems
 
+import io.github.ronjunevaldoz.awake.core.math.Frustum
+import io.github.ronjunevaldoz.awake.core.math.intersects
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
@@ -12,6 +14,7 @@ import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.rendering.components.SkinnedPose
@@ -35,6 +38,11 @@ class RenderSystem(
                 pose != null -> pose.jointPalette
                 pbr != null -> floatArrayOf(pbr.metallic, pbr.roughness, 0f, 0f)
                 else -> EMPTY_EXTRAS
+            }
+            val bounds = world.get<MeshBounds>(entity)
+            if (bounds != null) {
+                val worldBounds = bounds.localBounds.transformed(transform.worldMatrix)
+                if (!Frustum.intersects(camera.camera, CONSERVATIVE_ASPECT, worldBounds)) return@forEach
             }
             drawCalls.add(
                 DrawCall(
@@ -89,3 +97,11 @@ class RenderSystem(
 }
 
 private val EMPTY_EXTRAS = FloatArray(0)
+
+/** ponytail: `RenderSystem` doesn't know the renderer's actual viewport aspect ratio (`System
+ * .update(world, delta)` takes no viewport size, and `Renderer` doesn't expose one) -- widening
+ * the frustum's horizontal extent past any real device's aspect ratio (ultra-wide monitors
+ * included) keeps this a false-negative-only approximation: it may under-cull on a narrow
+ * screen, never cull something actually visible. Upgrade path: expose the renderer's real
+ * aspect ratio and pass it through here once that's a free contract change to make. */
+private const val CONSERVATIVE_ASPECT = 3f
