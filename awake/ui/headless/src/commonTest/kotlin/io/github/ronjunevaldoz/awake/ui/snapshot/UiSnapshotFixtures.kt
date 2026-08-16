@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.provideTextStyle
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.UiShape
@@ -76,6 +80,23 @@ data class UiSnapshotScene(
     val title: String? = null,
     val summary: String? = null,
 )
+
+/**
+ * One scoped entry point for every Shadcn snapshot scene: font, the required `shadcnTheme { }`
+ * scope, and the scene's own text scale. Replaces the pushFont/pushTheme/pushTextStyle preamble
+ * each scene used to repeat -- those imperative pushes cannot express the theme scope the design
+ * system now requires.
+ */
+private fun UiContext.shadcnSnapshotRoot(
+    font: UiFont,
+    textScale: Float? = null,
+    content: UiScope.() -> Unit,
+) {
+    pushFont(font)
+    createUiScope(frameBounds()).shadcnTheme {
+        if (textScale == null) content() else provideTextStyle(TextStyle(scale = textScale), content)
+    }
+}
 
 internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
     val font = UiFonts.default()
@@ -173,15 +194,15 @@ internal fun reviewSnapshotScenes(): List<UiSnapshotScene> {
     // rather than punt to a follow-up.
     val fieldErrorUi = UiContext()
     fieldErrorUi.beginFrame(240f, 40f, testSnapshot())
-    fieldErrorUi.pushFont(font)
-    fieldErrorUi.pushTheme(ShadcnTheme)
-    fieldErrorUi.createUiScope(fieldErrorUi.frameBounds()).headlessColumn(
+    fieldErrorUi.shadcnSnapshotRoot(font) {
+        headlessColumn(
         modifier = Modifier.fillMaxSize(),
     ) {
         shadcnFieldError(
             "This field is required.",
             modifier = Modifier.width(240f.dp).height(24f.dp),
         )
+    }
     }
 
     return buildList {
@@ -283,10 +304,8 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             title = "Button Variants",
             summary = "The Awake shadcn layer keeps the same shared widget runtime while giving buttons a sharper, darker design language.",
         ) { snapshotFont ->
-            pushFont(snapshotFont)
-            pushTheme(ShadcnTheme)
-            pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
-            createUiScope(frameBounds()).headlessColumn(
+            shadcnSnapshotRoot(snapshotFont, textScale = 2f) {
+                headlessColumn(
                 modifier = Modifier.offset(16f.dp, 18f.dp).width(588f.dp).fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(10f.dp),
             ) {
@@ -339,6 +358,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     }
                 }
             }
+            }
         },
         scene(
             name = "ui-shaped-panel",
@@ -381,10 +401,8 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             title = "Panel Controls",
             summary = "The same property-form scaffolds can be skinned by the shared shadcn layer, so tool surfaces look authored without moving logic into the sample.",
         ) { snapshotFont ->
-            pushFont(snapshotFont)
-            pushTheme(ShadcnTheme)
-            pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
-            createUiScope(frameBounds()).headlessColumn(
+            shadcnSnapshotRoot(snapshotFont, textScale = 2f) {
+                headlessColumn(
                 modifier = Modifier.offset(20f.dp, 20f.dp).width(390f.dp).fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(10f.dp),
             ) {
@@ -418,6 +436,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     )
                 }
             }
+            }
         },
         scene(
             name = "ui-alert-dialog",
@@ -427,15 +446,14 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             title = "Alert Dialog",
             summary = "A long title must wrap and stay clipped inside the dialog panel instead of overflowing past its bounds.",
         ) { snapshotFont ->
-            pushFont(snapshotFont)
-            pushTheme(ShadcnTheme)
-            pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
-            createUiScope(frameBounds()).shadcnAlertDialog(
+            shadcnSnapshotRoot(snapshotFont, textScale = 2f) {
+                shadcnAlertDialog(
                 id = "snapshot-alert",
                 expanded = true,
                 title = "Delete this very long showcase card title that must wrap?",
                 message = "This sample does not really delete anything.",
             )
+            }
         },
         scene(
             name = "ui-component-state-matrix",
@@ -446,10 +464,8 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             summary = "Every state a component can be in, side by side under the shadcn theme -- not just its default rest look. This is the gallery page that would have shown the toggle/slider/checkbox color-inversion bug and the dropdown-row styling bug at a glance instead of requiring a live click-through.",
         ) { snapshotFont ->
             requestFocus("state-matrix-focused-field")
-            pushFont(snapshotFont)
-            pushTheme(ShadcnTheme)
-            pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
-            createUiScope(frameBounds()).headlessColumn(
+            shadcnSnapshotRoot(snapshotFont, textScale = 2f) {
+                headlessColumn(
                 modifier = Modifier.offset(20f.dp, 20f.dp).width(420f.dp).fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(14f.dp),
             ) {
@@ -528,6 +544,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                     )
                 }
             }
+            }
         },
         scene(
             name = "ui-rounded-clip-vector",
@@ -599,10 +616,8 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             title = "Awake Shadcn Showcase",
             summary = "The starter design-system layer can already express a recognizable shadcn-style component set while staying fully inside Awake's owned widget stack.",
         ) { snapshotFont ->
-            pushFont(snapshotFont)
-            pushTheme(ShadcnTheme)
-            pushTextStyle(io.github.ronjunevaldoz.awake.ui.theme.TextStyle(scale = 2f))
-            createUiScope(frameBounds()).headlessColumn(
+            shadcnSnapshotRoot(snapshotFont, textScale = 2f) {
+                headlessColumn(
                 modifier = Modifier.offset(20f.dp, 20f.dp).width(520f.dp).fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(12f.dp),
             ) {
@@ -680,6 +695,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
                         ),
                     )
                 }
+            }
             }
         },
     )
