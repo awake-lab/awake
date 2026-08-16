@@ -20,14 +20,19 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.size
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
 private val PillButtonSize = 30f.dp
 
+/** shadcn's Button sizes its icons `size-4` (16px) regardless of the glyph's own viewport --
+ * Heroicons' 24/outline tier declares 24dp, so an unconstrained icon renders half again too big
+ * inside a 30dp button. */
+private val PillIconSize = 16f.dp
+
 /** The group's own height: one button plus the hairline border it now owns. */
 private val PillHeight = 32f.dp
-
 
 private val outline = HeroIcons.Outline24
 
@@ -172,5 +177,5 @@ private fun RowScope.rowIconButton(
         variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
         size = ShadcnButtonSize.Icon,
         onClick = onClick,
-    ) { icon(glyph) }
+    ) { icon(glyph, modifier = Modifier.size(PillIconSize)) }
 }
