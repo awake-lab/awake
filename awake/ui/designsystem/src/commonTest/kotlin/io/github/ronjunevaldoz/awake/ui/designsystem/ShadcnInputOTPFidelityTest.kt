@@ -26,15 +26,16 @@ class ShadcnInputOTPFidelityTest {
     fun shadcnInputOTPSlotsFidelity() = runTest {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(400f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.headlessRoot().shadcnInputOTP(
-            id = "otp",
-            value = "123",
-            length = 4,
-            modifier = Modifier.width(300f.dp),
-        )
+        ui.headlessRoot().shadcnTheme {
+            shadcnInputOTP(
+                id = "otp",
+                value = "123",
+                length = 4,
+                modifier = Modifier.width(300f.dp),
+            )
+        }
         val frameOutput = ui.finishFrame()
 
         // shadcn's InputOTPSlot is h-9 w-9 (36x36, square).
@@ -69,7 +70,7 @@ class ShadcnInputOTPFidelityTest {
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
-                background = ui.currentTheme.colors.background,
+                background = ShadcnTheme.colors.background,
                 font = ui.currentFont,
                 semantics = frameOutput.semantics,
             ),

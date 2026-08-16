@@ -29,15 +29,16 @@ class ShadcnToggleSlotAndGroupTest {
     fun shadcnToggleSlotRendersIconOnlyContentWithNoTextLabel() {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
         ui.beginFrame(200f, 80f, testSnapshot())
 
-        ui.createUiScope(UiBounds(0f, 0f, 200f, 80f)).shadcnToggle(
-            id = "bold",
-            checked = true,
-            modifier = Modifier.width(40f.dp).height(40f.dp),
-            label = null,
-        )
+        ui.createUiScope(UiBounds(0f, 0f, 200f, 80f)).shadcnTheme {
+            shadcnToggle(
+                id = "bold",
+                checked = true,
+                modifier = Modifier.width(40f.dp).height(40f.dp),
+                label = null,
+            )
+        }
 
         val primitives = ui.finishFrame().primitives
         assertTrue(primitives.isNotEmpty(), "icon-only toggle should still paint its surface")
@@ -51,30 +52,33 @@ class ShadcnToggleSlotAndGroupTest {
     fun shadcnToggleGroupMultiSelectKeepsBoldAndItalicBothActive() {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
 
         var selected = setOf(0)
 
         // Click index 1 ("Italic") while index 0 ("Bold") is already selected -- the exact case
         // the audit found impossible with the old selectedIndex: Int single-select API.
         ui.beginFrame(200f, 80f, testSnapshot(x = 90f, y = 20f, down = true))
-        ui.createUiScope(UiBounds(0f, 0f, 200f, 80f)).shadcnToggleGroup(
-            id = "format",
-            options = listOf("Bold", "Italic"),
-            selectedIndices = selected,
-            modifier = Modifier.width(160f.dp).height(40f.dp),
-            onSelectedIndicesChange = { selected = it },
-        )
+        ui.createUiScope(UiBounds(0f, 0f, 200f, 80f)).shadcnTheme {
+            shadcnToggleGroup(
+                id = "format",
+                options = listOf("Bold", "Italic"),
+                selectedIndices = selected,
+                modifier = Modifier.width(160f.dp).height(40f.dp),
+                onSelectedIndicesChange = { selected = it },
+            )
+        }
         ui.finishFrame()
 
         ui.beginFrame(200f, 80f, testSnapshot(x = 90f, y = 20f, down = false))
-        ui.createUiScope(UiBounds(0f, 0f, 200f, 80f)).shadcnToggleGroup(
-            id = "format",
-            options = listOf("Bold", "Italic"),
-            selectedIndices = selected,
-            modifier = Modifier.width(160f.dp).height(40f.dp),
-            onSelectedIndicesChange = { selected = it },
-        )
+        ui.createUiScope(UiBounds(0f, 0f, 200f, 80f)).shadcnTheme {
+            shadcnToggleGroup(
+                id = "format",
+                options = listOf("Bold", "Italic"),
+                selectedIndices = selected,
+                modifier = Modifier.width(160f.dp).height(40f.dp),
+                onSelectedIndicesChange = { selected = it },
+            )
+        }
         val semantics = ui.finishFrame().semantics.filter { it.role == UiSemanticRole.Toggle }
 
         assertEquals(setOf(0, 1), selected, "bold and italic must both end up selected, not just one index")

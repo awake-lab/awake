@@ -46,21 +46,22 @@ class ShadcnAccordionBodyOverlapProbeTest {
         ensureShadcnTestIconsInitialized()
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
         val items = listOf("item-1", "item-2")
         var selectedId: String? = "item-1"
 
         fun frame(): List<UiDrawPrimitive> {
             ui.beginFrame(320f, 600f, UiInputState())
-            ui.headlessRoot().column(modifier = Modifier.width(columnWidth.dp)) {
-                shadcnAccordion(
-                    items = items,
-                    selectedId = selectedId,
-                    onSelectId = { selectedId = it },
-                    idProvider = { it },
-                    titleProvider = { it },
-                ) { item ->
-                    shadcnText(longBodies.getValue(item))
+            ui.headlessRoot().shadcnTheme {
+                column(modifier = Modifier.width(columnWidth.dp)) {
+                    shadcnAccordion(
+                        items = items,
+                        selectedId = selectedId,
+                        onSelectId = { selectedId = it },
+                        idProvider = { it },
+                        titleProvider = { it },
+                    ) { item ->
+                        shadcnText(longBodies.getValue(item))
+                    }
                 }
             }
             return ui.endFrame()

@@ -6,10 +6,8 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -20,17 +18,13 @@ class ShadcnBadgeFidelityTest {
 
     @Test
     fun shadcnBadgePrimaryFidelity() = runTest {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-
-        ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.headlessRoot().shadcnBadge(
-            id = "badge-fidelity",
-            label = "BETA",
-            variant = ShadcnBadgeVariant.Primary,
-        )
-        val frameOutput = ui.finishFrame()
+        val frameOutput = renderShadcnComponent(width = 200f, height = 80f) { _ ->
+            shadcnBadge(
+                id = "badge-fidelity",
+                label = "BETA",
+                variant = ShadcnBadgeVariant.Primary,
+            )
+        }
 
         val config = AwakeUiPreviewValidationConfig()
 
@@ -45,8 +39,8 @@ class ShadcnBadgeFidelityTest {
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
-                background = ui.currentTheme.colors.background,
-                font = ui.currentFont,
+                background = ShadcnTheme.colors.background,
+                font = io.github.ronjunevaldoz.awake.ui.font.UiFonts.default(),
                 semantics = frameOutput.semantics,
             ),
             config = config,

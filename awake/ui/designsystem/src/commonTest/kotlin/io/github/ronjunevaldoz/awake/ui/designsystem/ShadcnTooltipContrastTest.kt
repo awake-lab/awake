@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
@@ -22,20 +21,21 @@ class ShadcnTooltipContrastTest {
     @Test
     fun tooltipTextUsesTheInvertedContentColour() {
         val theme = shadcnThemeValues(dark = false)
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(theme)
-
-        ui.beginFrame(300f, 150f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.headlessRoot().shadcnTooltipText(
-            anchorSlot = UiBounds(x = 100f, y = 60f, width = 100f, height = 30f),
-            visible = true,
-            text = "Tooltip Info",
-            id = "tooltip-contrast",
-        )
-        val primitives = ui.endFrame()
-
-        val glyphs = primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
+        val frame = renderShadcnComponent(
+            width = 300f,
+            height = 150f,
+            theme = theme,
+            font = BitmapFont(),
+            input = testSnapshot(x = -100f, y = -100f, down = false),
+        ) {
+            shadcnTooltipText(
+                anchorSlot = UiBounds(x = 100f, y = 60f, width = 100f, height = 30f),
+                visible = true,
+                text = "Tooltip Info",
+                id = "tooltip-contrast",
+            )
+        }
+        val glyphs = frame.primitivesOf<UiDrawPrimitive.Glyph>()
         assertTrue(glyphs.isNotEmpty(), "expected the tooltip label to be drawn")
         glyphs.forEach { glyph ->
             assertEquals(

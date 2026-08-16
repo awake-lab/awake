@@ -3,13 +3,12 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
@@ -42,9 +41,9 @@ class ShadcnCollapsibleToggleTest {
 
     private fun UiBounds.center(): Pair<Float, Float> = (x + width / 2f) to (y + height / 2f)
 
-    private fun drawSidebar(ui: UiContext) {
+    private fun UiScope.drawSidebar(ui: UiContext) {
         val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side")
-        ui.createUiScope(UiBounds(0f, 0f, 1440f, 900f)).shadcnSidebar(
+        shadcnSidebar(
             id = "ui-showcase-sidebar",
             modifier = Modifier.verticalScroll(sidebarScroll)
                 .width(264f.dp)
@@ -57,7 +56,7 @@ class ShadcnCollapsibleToggleTest {
     @Test
     fun clickingOneCategoryHeaderTogglesOnlyThatCategory() {
         val state = UiShowcaseRuntimeState()
-        uiTestSession(width = 1440f, height = 900f, theme = state.showcaseTheme()) {
+        showcaseTestSession(width = 1440f, height = 900f, theme = state.showcaseTheme()) {
             fun sidebarFrame(x: Float = -100f, y: Float = -100f, down: Boolean = false) =
                 frame(x = x, y = y, down = down) { drawSidebar(ui) }
             fun click(at: Pair<Float, Float>) {
@@ -97,7 +96,7 @@ class ShadcnCollapsibleToggleTest {
     @Test
     fun rapidRepeatedClicksToggleOncePerClickWithoutDoubleFiringOrSticking() {
         val state = UiShowcaseRuntimeState()
-        uiTestSession(width = 1440f, height = 900f, theme = state.showcaseTheme()) {
+        showcaseTestSession(width = 1440f, height = 900f, theme = state.showcaseTheme()) {
             fun sidebarFrame(x: Float = -100f, y: Float = -100f, down: Boolean = false) =
                 frame(x = x, y = y, down = down) { drawSidebar(ui) }
             fun click(at: Pair<Float, Float>) {

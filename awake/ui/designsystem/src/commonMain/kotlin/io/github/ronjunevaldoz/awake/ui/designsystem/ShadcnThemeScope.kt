@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.Provide
 import io.github.ronjunevaldoz.awake.ui.ProvideTextStyle
 import io.github.ronjunevaldoz.awake.ui.ProvideTheme
@@ -39,23 +38,6 @@ fun UiScope.shadcnTheme(
     content: UiScope.() -> Unit,
 ) = shadcnTheme(
     theme = shadcnThemeValues(preset = preset, baseColor = baseColor, accent = accent, dark = dark),
-    content = content,
-)
-
-/**
- * Compatibility bridge for callers that still own only Core theme values.
- *
- * New code should construct [ShadcnThemeValues] with [shadcnThemeValues] and pass it through
- * the `theme` parameter so metrics and branded values remain together.
- */
-@Deprecated(
-    message = "Pass complete ShadcnThemeValues through theme =. Use shadcnThemeValues(...) to construct one.",
-)
-fun UiScope.shadcnTheme(
-    values: UiThemeValues,
-    content: UiScope.() -> Unit,
-) = shadcnTheme(
-    theme = ShadcnThemeValues(core = values, metrics = values.asShadcnTheme().metrics),
     content = content,
 )
 

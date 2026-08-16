@@ -8,9 +8,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -22,20 +20,20 @@ class ShadcnTooltipFidelityTest {
     @Test
     fun shadcnTooltipMatrixFidelity() = runTest {
         val aggregatedReport = FigmaModeMatrix.runValidationMatrix { config ->
-            val ui = UiContext()
-            ui.pushFont(BitmapFont())
             val theme = shadcnThemeValues(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
-            ui.pushTheme(theme)
-
-            ui.beginFrame(300f * config.scale.scale, 150f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
             val anchor = UiBounds(x = 100f, y = 50f, width = 100f, height = 30f)
-            ui.headlessRoot().shadcnTooltipText(
-                anchorSlot = anchor,
-                visible = true,
-                text = "Tooltip Info",
-                id = "tooltip-fidelity",
-            )
-            val frameOutput = ui.finishFrame()
+            val frameOutput = renderShadcnComponent(
+                width = 300f * config.scale.scale,
+                height = 150f * config.scale.scale,
+                theme = theme,
+            ) { _ ->
+                shadcnTooltipText(
+                    anchorSlot = anchor,
+                    visible = true,
+                    text = "Tooltip Info",
+                    id = "tooltip-fidelity",
+                )
+            }
 
             // Real shadcn's TooltipContent is a solid inverted-color pill (`bg-foreground
             // text-background`), not a card -- no border either.
@@ -55,8 +53,8 @@ class ShadcnTooltipFidelityTest {
                 ),
                 frame = AwakeUiPreviewFrame(
                     primitives = frameOutput.primitives,
-                    background = ui.currentTheme.colors.background,
-                    font = ui.currentFont,
+                    background = theme.colors.background,
+                    font = io.github.ronjunevaldoz.awake.ui.font.UiFonts.default(),
                     semantics = frameOutput.semantics,
                 ),
                 config = validationConfig,

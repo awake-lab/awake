@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
@@ -21,10 +20,7 @@ class ShadcnCardVariantTest {
     @Test
     fun elevatedCardEmitsExtraShadowQuadsDefaultDoesNot() {
         fun quadCount(variant: ShadcnCardVariant): Int {
-            val ui = UiContext()
-            ui.pushFont(BitmapFont())
-            ui.beginFrame(200f, 200f, testSnapshot())
-            ui.headlessRoot().shadcnTheme {
+            return renderShadcnComponent(width = 200f, height = 200f, font = BitmapFont()) {
                 shadcnCard(
                     id = "card",
                     variant = variant,
@@ -32,8 +28,7 @@ class ShadcnCardVariantTest {
                 ) {
                     // no body content needed
                 }
-            }
-            return ui.finishFrame().primitives.count { it is UiDrawPrimitive.Quad || it is UiDrawPrimitive.ShadowQuad }
+            }.primitives.count { it is UiDrawPrimitive.Quad || it is UiDrawPrimitive.ShadowQuad }
         }
 
         assertTrue(
@@ -45,10 +40,7 @@ class ShadcnCardVariantTest {
     @Test
     fun compactCardSizeUsesASmallerHeaderFooterGapThanDefault() {
         fun cardHeight(size: ShadcnCardSize): Float {
-            val ui = UiContext()
-            ui.pushFont(BitmapFont())
-            ui.beginFrame(280f, 260f, testSnapshot())
-            ui.headlessRoot().shadcnTheme {
+            return renderShadcnComponent(width = 280f, height = 260f, font = BitmapFont()) {
                 shadcnCard(
                     id = "card",
                     size = size,
@@ -58,8 +50,7 @@ class ShadcnCardVariantTest {
                 ) {
                     text("Body")
                 }
-            }
-            return assertNotNull(ui.finishFrame().semantics.firstOrNull { it.id == "card" }).bounds.height
+            }.bounds("card").height
         }
 
         assertTrue(

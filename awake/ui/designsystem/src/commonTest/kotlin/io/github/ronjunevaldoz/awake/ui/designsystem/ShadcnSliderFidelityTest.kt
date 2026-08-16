@@ -30,18 +30,19 @@ class ShadcnSliderFidelityTest {
     fun shadcnSliderHeightAndNoOverlayTextFidelity() = runTest {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
 
         val sliderWidth = 240f
 
         ui.beginFrame(400f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.headlessRoot().shadcnSlider(
-            id = "test-slider",
-            min = 0f,
-            max = 100f,
-            value = 50f,
-            modifier = Modifier.width(sliderWidth.dp),
-        )
+        ui.headlessRoot().shadcnTheme {
+            shadcnSlider(
+                id = "test-slider",
+                min = 0f,
+                max = 100f,
+                value = 50f,
+                modifier = Modifier.width(sliderWidth.dp),
+            )
+        }
         val frameOutput = ui.finishFrame()
 
         val sliderNode = frameOutput.semantics.firstOrNull { it.id == "test-slider" }
@@ -75,7 +76,7 @@ class ShadcnSliderFidelityTest {
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
-                background = ui.currentTheme.colors.background,
+                background = ShadcnTheme.colors.background,
                 font = ui.currentFont,
                 semantics = frameOutput.semantics,
             ),
@@ -87,17 +88,18 @@ class ShadcnSliderFidelityTest {
     fun shadcnFieldSliderWithValueProximitySpacingFidelity() = runTest {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
 
         ui.beginFrame(400f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
-            shadcnFieldSliderWithValue(
-                id = "field-slider-test",
-                label = "Exposure",
-                min = 0f,
-                max = 100f,
-                value = 52f,
-            )
+        ui.headlessRoot().shadcnTheme {
+            column(modifier = Modifier.fillMaxSize()) {
+                shadcnFieldSliderWithValue(
+                    id = "field-slider-test",
+                    label = "Exposure",
+                    min = 0f,
+                    max = 100f,
+                    value = 52f,
+                )
+            }
         }
         val frameOutput = ui.finishFrame()
 
@@ -127,7 +129,7 @@ class ShadcnSliderFidelityTest {
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
-                background = ui.currentTheme.colors.background,
+                background = ShadcnTheme.colors.background,
                 font = ui.currentFont,
                 semantics = frameOutput.semantics,
             ),

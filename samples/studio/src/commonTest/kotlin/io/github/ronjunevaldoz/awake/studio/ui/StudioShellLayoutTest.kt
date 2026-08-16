@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -38,11 +39,12 @@ class StudioShellLayoutTest {
     private fun renderShell(density: Float = 1f): List<UiSemanticNode> = renderUiComponent(
         width = FRAME_WIDTH,
         height = FRAME_HEIGHT,
-        theme = shadcnThemeValues(dark = true),
         font = BitmapFont(),
         density = density,
     ) {
-        drawStudioShellBody(StudioStore(), World(), NoopRenderer())
+        shadcnTheme(theme = shadcnThemeValues(dark = true)) {
+            drawStudioShellBody(StudioStore(), World(), NoopRenderer())
+        }
     }.semantics
 
     // The live app runs at Retina density; the shell computes its workspace height in pixels,
@@ -102,8 +104,10 @@ class StudioShellLayoutTest {
     @Test
     fun activeExampleItemPaintsAVisibleHighlightNotATransparentFill() {
         val activeId = StudioExamples.first().id
-        val frame = renderUiComponent(width = 400f, height = 600f, theme = shadcnThemeValues(dark = true), font = BitmapFont()) {
-            drawExampleRail(activeExampleId = activeId, onSelectExample = {})
+        val frame = renderUiComponent(width = 400f, height = 600f, font = BitmapFont()) {
+            shadcnTheme(theme = shadcnThemeValues(dark = true)) {
+                drawExampleRail(activeExampleId = activeId, onSelectExample = {})
+            }
         }
         val item = assertNotNull(frame.semantics.firstOrNull { it.id == "studio-example-$activeId" })
         // Regression: shadcnButton's Ghost variant hardcodes an idle (non-hover) fill of fully
@@ -170,7 +174,6 @@ class StudioShellLayoutTest {
         uiTestSession(
             width = FRAME_WIDTH,
             height = FRAME_HEIGHT,
-            theme = shadcnThemeValues(dark = true),
             font = BitmapFont(),
         ) {
             val store = StudioStore()
@@ -178,7 +181,9 @@ class StudioShellLayoutTest {
 
             fun shellFrame(x: Float = -100f, y: Float = -100f, down: Boolean = false): List<UiSemanticNode> =
                 frame(x = x, y = y, down = down) {
-                    drawStudioShellBody(store, world, NoopRenderer())
+                    shadcnTheme(theme = shadcnThemeValues(dark = true)) {
+                        drawStudioShellBody(store, world, NoopRenderer())
+                    }
                 }.semantics
 
             fun click(tabId: String) {

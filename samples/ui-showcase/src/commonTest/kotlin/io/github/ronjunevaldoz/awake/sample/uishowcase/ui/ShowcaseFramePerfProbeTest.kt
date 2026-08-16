@@ -12,7 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.padding
@@ -30,18 +29,19 @@ class ShowcaseFramePerfProbeTest {
         val ui = UiContext()
         val state = UiShowcaseRuntimeState()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnThemeValues(dark = false))
 
         fun frame() {
             ui.beginFrame(1280f, 900f, UiInputState(pointerX = 400f, pointerY = 300f))
-            ui.createUiScope(UiBounds(0f, 0f, 1280f, 900f)).row(
-                modifier = Modifier.padding(24f.dp).fillMaxWidth().fillMaxHeight(),
-            ) {
-                column(modifier = Modifier.fillMaxHeight()) {
-                    drawUiShowcaseSidebar(compact = false)
-                }
-                column(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                    drawUiShowcasePageContent(state, showInlineMenu = false)
+            ui.showcaseRoot(theme = shadcnThemeValues(dark = false), bounds = UiBounds(0f, 0f, 1280f, 900f)) {
+                row(
+                    modifier = Modifier.padding(24f.dp).fillMaxWidth().fillMaxHeight(),
+                ) {
+                    column(modifier = Modifier.fillMaxHeight()) {
+                        drawUiShowcaseSidebar(compact = false)
+                    }
+                    column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                        drawUiShowcasePageContent(state, showInlineMenu = false)
+                    }
                 }
             }
             ui.endFrame()

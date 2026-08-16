@@ -6,6 +6,9 @@ import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
+import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -18,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.forceActive
 import io.github.ronjunevaldoz.awake.ui.modifier.forceFocus
 import io.github.ronjunevaldoz.awake.ui.modifier.forceHover
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
+import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope as HeadlessColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier as HeadlessModifier
 
@@ -39,9 +43,9 @@ fun AwakeUiPreviewMetadata.componentStateMatrix(
     return states.map { (idSuffix, forcedModifier) ->
         val ui = UiContext()
         val resolvedTheme = theme ?: UiDefaultTheme
-        ui.beginFrame(width.toFloat(), height.toFloat(), UiInputState())
-        ui.pushFont(font)
-        ui.pushTheme(resolvedTheme)
+        ui.beginFrame(UiFrameInput(width.toFloat(), height.toFloat(), UiInputState()))
+        ui.pushLocal(LocalFont, font)
+        ui.pushLocal(LocalTheme, resolvedTheme.asRuntimeTheme())
         ui.createColumn(
             x = 0f,
             y = 0f,
@@ -68,6 +72,11 @@ fun AwakeUiPreviewMetadata.componentStateMatrix(
 fun AwakeUiPreviewMetadata.headlessComponentStateMatrix(
     font: UiFont = UiFonts.default(),
     theme: UiThemeValues? = null,
+    /**
+     * Installs app-specific locals around each sample root. `ui:testing` deliberately does not
+     * know design systems; a caller can provide its own composition boundary here.
+     */
+    rootProvider: UiTestRootProvider = { content -> content() },
     block: HeadlessColumnScope.(HeadlessModifier) -> Unit,
 ): List<AwakeUiPreviewSample> {
     val states = listOf(
@@ -80,11 +89,13 @@ fun AwakeUiPreviewMetadata.headlessComponentStateMatrix(
     return states.map { (idSuffix, forcedModifier) ->
         val ui = UiContext()
         val resolvedTheme = theme ?: UiDefaultTheme
-        ui.beginFrame(width.toFloat(), height.toFloat(), UiInputState())
-        ui.pushFont(font)
-        ui.pushTheme(resolvedTheme)
-        ui.createUiScope(UiBounds(0f, 0f, width.toFloat(), height.toFloat())).column {
-            block(forcedModifier.toHeadless())
+        ui.beginFrame(UiFrameInput(width.toFloat(), height.toFloat(), UiInputState()))
+        ui.pushLocal(LocalFont, font)
+        ui.pushLocal(LocalTheme, resolvedTheme.asRuntimeTheme())
+        ui.createUiScope(UiBounds(0f, 0f, width.toFloat(), height.toFloat())).rootProvider {
+            column {
+                block(forcedModifier.toHeadless())
+            }
         }
         val frameOutput = ui.finishFrame()
         sample(

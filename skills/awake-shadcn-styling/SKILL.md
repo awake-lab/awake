@@ -173,8 +173,10 @@ Within a recipe, read the design-system-local `shadcnTheme` value for branded me
 `themeValues` only for the neutral Core color, shape, and typography
 contracts. `UiScope.shadcnTheme { }` provides one complete `ShadcnThemeValues` object to the
 subtree, analogous to a Compose theme local. `shadcnThemeValues(...)` builds that complete,
-unscoped design-system value before a `UiScope` exists; it implements Core's neutral contract
-only for compatibility.
+unscoped design-system value before a `UiScope` exists. It is the only value accepted by
+`shadcnTheme(theme = ...)`; generic Core values cannot be adapted into a Shadcn scope. A recipe
+invoked without that scope fails immediately rather than silently acquiring fallback metrics or
+palette roles.
 
 ---
 

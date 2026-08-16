@@ -4,13 +4,13 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.surface
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.math.pow
 import kotlin.test.Test
@@ -47,7 +47,7 @@ class ShadcnTextContrastMatrixTest {
         return (lighter + 0.05f) / (darker + 0.05f)
     }
 
-    private data class Case(val label: String, val render: (UiContext) -> Unit)
+    private data class Case(val label: String, val render: UiScope.(ShadcnThemeValues) -> Unit)
 
     /**
      * Renders [body] inside a surface that has already pushed a text colour.
@@ -57,12 +57,12 @@ class ShadcnTextContrastMatrixTest {
      * badge nested in any coloured surface keeps the ANCESTOR's text colour and ignores its own.
      * Standalone it measures 17:1; inside the showcase's preview card it renders dark-on-dark.
      */
-    private fun UiContext.insideColouredSurface(body: () -> Unit) {
-        headlessRoot().surface(
+    private fun UiScope.insideColouredSurface(theme: ShadcnThemeValues, body: UiScope.() -> Unit) {
+        surface(
             id = "contrast-host",
             style = Style {
-                background(currentTheme.colors.card)
-                foreground(currentTheme.colors.foreground)
+                background(theme.colors.card)
+                foreground(theme.colors.foreground)
             },
         ) { body() }
     }
@@ -70,8 +70,8 @@ class ShadcnTextContrastMatrixTest {
     private fun cases(): List<Case> = buildList {
         ShadcnBadgeVariant.entries.forEach { variant ->
             add(
-                Case("badge/${variant.name}") { ui ->
-                    ui.headlessRoot().shadcnBadge(
+                Case("badge/${variant.name}") { _ ->
+                    shadcnBadge(
                         id = "contrast-badge",
                         label = "Label",
                         variant = variant,
@@ -79,9 +79,9 @@ class ShadcnTextContrastMatrixTest {
                 },
             )
             add(
-                Case("badge/${variant.name}@nested") { ui ->
-                    ui.insideColouredSurface {
-                        ui.headlessRoot().shadcnBadge(
+                Case("badge/${variant.name}@nested") { theme ->
+                    insideColouredSurface(theme) {
+                        shadcnBadge(
                             id = "contrast-badge-nested",
                             label = "Label",
                             variant = variant,
@@ -92,8 +92,8 @@ class ShadcnTextContrastMatrixTest {
         }
         ShadcnButtonVariant.entries.forEach { variant ->
             add(
-                Case("button/${variant.name}") { ui ->
-                    ui.headlessRoot().shadcnButton(
+                Case("button/${variant.name}") { _ ->
+                    shadcnButton(
                         id = "contrast-button",
                         label = "Label",
                         variant = variant,
@@ -106,12 +106,13 @@ class ShadcnTextContrastMatrixTest {
     /** Ratio between each glyph and the nearest fill drawn under it, or null when nothing is drawn. */
     private fun worstRatio(dark: Boolean, case: Case): Pair<Float, String>? {
         val theme = shadcnThemeValues(dark = dark)
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(theme)
-        ui.beginFrame(300f, 150f, testSnapshot(x = -100f, y = -100f, down = false))
-        case.render(ui)
-        val primitives = ui.endFrame()
+        val primitives = renderShadcnComponent(
+            width = 300f,
+            height = 150f,
+            theme = theme,
+            font = BitmapFont(),
+            input = testSnapshot(x = -100f, y = -100f, down = false),
+        ) { case.render(this, theme) }.primitives
 
         val glyphs = primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
         if (glyphs.isEmpty()) return null

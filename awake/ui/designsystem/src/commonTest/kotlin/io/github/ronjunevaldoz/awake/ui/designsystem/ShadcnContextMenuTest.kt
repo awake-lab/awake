@@ -5,12 +5,9 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMenu
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.width
@@ -22,24 +19,21 @@ class ShadcnContextMenuTest {
 
     @Test
     fun shadcnContextMenuTriggersOnSecondaryPointer() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-
         // Right click at (50, 20) inside target bounds (0, 0, 100, 40)
-        ui.beginFrame(
-            240f,
-            160f,
-            UiInputState(pointerX = 50f, pointerY = 20f, secondaryPointerDown = true),
-        )
-
         var open = false
-        ui.createUiScope(io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, 240f, 160f)).shadcnContextMenu(
-            id = "ctx-1",
-            expanded = open,
-            onExpandedChange = { open = it },
-            items = listOf(ShadcnMenuItem(label = "Copy")),
-            target = { text("Right click me", modifier = Modifier.width(100f.dp).height(40f.dp)) },
-        )
+        renderShadcnComponent(
+            width = 240f,
+            height = 160f,
+            input = UiInputState(pointerX = 50f, pointerY = 20f, secondaryPointerDown = true),
+        ) {
+            shadcnContextMenu(
+                id = "ctx-1",
+                expanded = open,
+                onExpandedChange = { open = it },
+                items = listOf(ShadcnMenuItem(label = "Copy")),
+                target = { text("Right click me", modifier = Modifier.width(100f.dp).height(40f.dp)) },
+            )
+        }
 
         assertTrue(open)
     }
@@ -52,26 +46,22 @@ class ShadcnContextMenuTest {
      */
     @Test
     fun shadcnContextMenuSizesTheMenuToItsContentNotTheWindow() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-
         val frameWidth = 640f
-        ui.beginFrame(
-            frameWidth,
-            400f,
-            UiInputState(pointerX = 50f, pointerY = 20f, secondaryPointerDown = false),
-        )
+        val frame = renderShadcnComponent(
+            width = frameWidth,
+            height = 400f,
+            input = UiInputState(pointerX = 50f, pointerY = 20f, secondaryPointerDown = false),
+        ) {
+            shadcnContextMenu(
+                id = "ctx-width",
+                expanded = true,
+                onExpandedChange = {},
+                items = listOf(ShadcnMenuItem(label = "Copy"), ShadcnMenuItem(label = "Paste")),
+                target = { text("Right click me", modifier = Modifier.width(100f.dp).height(40f.dp)) },
+            )
+        }
 
-        ui.createUiScope(io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, frameWidth, 400f)).shadcnContextMenu(
-            id = "ctx-width",
-            expanded = true,
-            onExpandedChange = {},
-            items = listOf(ShadcnMenuItem(label = "Copy"), ShadcnMenuItem(label = "Paste")),
-            target = { text("Right click me", modifier = Modifier.width(100f.dp).height(40f.dp)) },
-        )
-
-        val menu = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>()
+        val menu = frame.primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
             .maxByOrNull { it.w * it.h }
         assertNotNull(menu, "expected the menu surface to be drawn")
         assertTrue(

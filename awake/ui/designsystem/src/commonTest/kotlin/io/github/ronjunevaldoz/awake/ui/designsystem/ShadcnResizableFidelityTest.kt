@@ -25,16 +25,17 @@ import kotlin.test.assertTrue
 class ShadcnResizableFidelityTest {
 
     private fun UiContext.drawGroup(withHandle: Boolean) {
-        pushTheme(ShadcnTheme)
         beginFrame(400f, 200f, testSnapshot())
-        createUiScope(UiBounds(0f, 0f, 400f, 200f)).shadcnResizablePanelGroup(
-            id = "fidelity-group",
-            direction = UiResizableDirection.Horizontal,
-            modifier = Modifier.width(300f.dp).height(100f.dp),
-        ) {
-            shadcnResizablePanel(id = "left", defaultSize = 0.5f) { }
-            shadcnResizableHandle(id = "handle", withHandle = withHandle)
-            shadcnResizablePanel(id = "right", defaultSize = 0.5f) { }
+        createUiScope(UiBounds(0f, 0f, 400f, 200f)).shadcnTheme {
+            shadcnResizablePanelGroup(
+                id = "fidelity-group",
+                direction = UiResizableDirection.Horizontal,
+                modifier = Modifier.width(300f.dp).height(100f.dp),
+            ) {
+                shadcnResizablePanel(id = "left", defaultSize = 0.5f) { }
+                shadcnResizableHandle(id = "handle", withHandle = withHandle)
+                shadcnResizablePanel(id = "right", defaultSize = 0.5f) { }
+            }
         }
     }
 

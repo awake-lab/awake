@@ -62,7 +62,7 @@ class ShadcnDesignSystemTest {
             baseColor = ShadcnBaseColor.Neutral,
             accent = ShadcnAccent.Base,
             dark = true,
-        ).asShadcnTheme()
+        ).resolved
         assertEquals(ShadcnStylePreset.Vega, theme.config.preset)
         assertEquals(ShadcnBaseColor.Neutral, theme.config.baseColor)
         assertEquals(ShadcnAccent.Base, theme.config.accent)

@@ -10,12 +10,24 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
+import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
+import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
+
+/**
+ * Optional composition boundary around a test-rendered Headless root.
+ *
+ * `ui:testing` remains neutral: a design system supplies its own implementation to install
+ * locals, while ordinary Headless tests keep the default pass-through provider.
+ */
+typealias UiTestRootProvider = UiScope.(content: UiScope.() -> Unit) -> Unit
 
 /**
  * One rendered frame, with lookups that say what went wrong.
@@ -65,15 +77,19 @@ class UiTestSession(
     theme: UiThemeValues? = null,
     font: UiFont = UiFonts.default(),
     density: Float = 1f,
+    fontScale: Float = 1f,
+    private val rootProvider: UiTestRootProvider = { content -> content() },
 ) : AutoCloseable {
     private val previousDensity = UiDensity.scale
+    private val previousFontScale = UiDensity.fontScale
     val ui = UiContext()
     val input = Input()
 
     init {
         UiDensity.scale = density
-        ui.pushFont(font)
-        if (theme != null) ui.pushTheme(theme)
+        UiDensity.fontScale = fontScale
+        ui.pushLocal(LocalFont, font)
+        if (theme != null) ui.pushLocal(LocalTheme, theme.asRuntimeTheme())
     }
 
     /** Renders one frame with the pointer at ([x], [y]) and returns its [UiComponentFrame]. */
@@ -81,12 +97,22 @@ class UiTestSession(
         x: Float = -100f,
         y: Float = -100f,
         down: Boolean = false,
+        deltaSeconds: Float = 1f / 60f,
         content: UiScope.(root: UiBounds) -> Unit,
     ): UiComponentFrame {
         input.setPointer(down = down, x = x, y = y)
-        ui.beginFrame(width, height, input.updateSnapshot().toUiInputState())
+        return frame(input.updateSnapshot().toUiInputState(), deltaSeconds, content)
+    }
+
+    /** Renders a frame from an exact input snapshot (wheel, keyboard, or secondary pointer). */
+    fun frame(
+        input: UiInputState,
+        deltaSeconds: Float = 1f / 60f,
+        content: UiScope.(root: UiBounds) -> Unit,
+    ): UiComponentFrame {
+        ui.beginFrame(UiFrameInput(width, height, input, deltaSeconds))
         val root = UiBounds(0f, 0f, width, height)
-        ui.createUiScope(root).content(root)
+        ui.createUiScope(root).rootProvider { content(root) }
         val frame = ui.finishFrame()
         return UiComponentFrame(
             semantics = frame.semantics,
@@ -97,6 +123,7 @@ class UiTestSession(
 
     override fun close() {
         UiDensity.scale = previousDensity
+        UiDensity.fontScale = previousFontScale
     }
 }
 
@@ -107,8 +134,10 @@ fun <T> uiTestSession(
     theme: UiThemeValues? = null,
     font: UiFont = UiFonts.default(),
     density: Float = 1f,
+    fontScale: Float = 1f,
+    rootProvider: UiTestRootProvider = { content -> content() },
     block: UiTestSession.() -> T,
-): T = UiTestSession(width, height, theme, font, density).use(block)
+): T = UiTestSession(width, height, theme, font, density, fontScale, rootProvider).use(block)
 
 /**
  * Renders [content] in a frame and returns it, replacing the six lines every component test opens
@@ -133,18 +162,23 @@ fun renderUiComponent(
     theme: UiThemeValues? = null,
     font: UiFont = UiFonts.default(),
     density: Float = 1f,
+    fontScale: Float = 1f,
     input: UiInputState = testSnapshot(),
+    deltaSeconds: Float = 1f / 60f,
+    rootProvider: UiTestRootProvider = { content -> content() },
     content: UiScope.(root: UiBounds) -> Unit,
 ): UiComponentFrame {
     val previousDensity = UiDensity.scale
+    val previousFontScale = UiDensity.fontScale
     UiDensity.scale = density
+    UiDensity.fontScale = fontScale
     try {
         val ui = UiContext()
-        ui.pushFont(font)
-        if (theme != null) ui.pushTheme(theme)
-        ui.beginFrame(width, height, input)
+        ui.pushLocal(LocalFont, font)
+        if (theme != null) ui.pushLocal(LocalTheme, theme.asRuntimeTheme())
+        ui.beginFrame(UiFrameInput(width, height, input, deltaSeconds))
         val root = UiBounds(0f, 0f, width, height)
-        ui.createUiScope(root).content(root)
+        ui.createUiScope(root).rootProvider { content(root) }
         val frame = ui.finishFrame()
         return UiComponentFrame(
             semantics = frame.semantics,
@@ -153,5 +187,6 @@ fun renderUiComponent(
         )
     } finally {
         UiDensity.scale = previousDensity
+        UiDensity.fontScale = previousFontScale
     }
 }

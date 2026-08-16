@@ -5,10 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
-import io.github.ronjunevaldoz.awake.ui.context.UiFrameOutput
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnScrollArea
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
@@ -22,18 +19,13 @@ import kotlin.test.assertTrue
  * these prove the thumb only appears (and is sized/positioned right) when content overflows. */
 class ShadcnScrollAreaTest {
 
-    private fun buildFrame(contentHeightDp: Float): UiFrameOutput {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(300f, 220f, testSnapshot())
-        ui.headlessRoot().shadcnScrollArea(
-            id = "scroll-area",
-            modifier = Modifier.width(200f.dp).height(100f.dp),
-        ) {
-            spacer(Modifier.height(contentHeightDp.dp))
-        }
-        return ui.finishFrame()
+    private fun buildFrame(contentHeightDp: Float) = renderShadcnComponent(width = 300f, height = 220f) {
+            shadcnScrollArea(
+                id = "scroll-area",
+                modifier = Modifier.width(200f.dp).height(100f.dp),
+            ) {
+                spacer(Modifier.height(contentHeightDp.dp))
+            }
     }
 
     @Test

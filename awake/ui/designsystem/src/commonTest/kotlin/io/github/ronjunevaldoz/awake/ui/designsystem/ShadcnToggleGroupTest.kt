@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -24,7 +23,7 @@ class ShadcnToggleGroupTest {
      * picked for a transparent background.
      */
     @Test
-    fun uncheckedSegmentLabelsUseTheGroupForegroundNotMutedForeground() = uiTestSession(
+    fun uncheckedSegmentLabelsUseTheGroupForegroundNotMutedForeground() = shadcnTestSession(
         width = 300f,
         height = 120f,
                 font = BitmapFont(),
@@ -40,7 +39,7 @@ class ShadcnToggleGroupTest {
             }
         }
 
-        val colors = ui.currentTheme.asShadcnTheme().colors
+        val colors = ShadcnTheme.colors
         val labelColors = rendered.semantics
             .filter { it.id?.endsWith(".label") == true }
             .mapNotNull { it.foregroundColor }

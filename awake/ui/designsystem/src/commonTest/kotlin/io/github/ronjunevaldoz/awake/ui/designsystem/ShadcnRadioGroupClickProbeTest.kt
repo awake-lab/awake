@@ -36,33 +36,34 @@ class ShadcnRadioGroupClickProbeTest {
     private fun buildFrame(ui: UiContext, x: Float, y: Float, down: Boolean, scrolled: Boolean) {
         ui.beginFrame(400f, 300f, testSnapshot(x = x, y = y, down = down))
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
         val root = ui.headlessRoot()
-        if (scrolled) {
-            val scroll = root.rememberScrollState("radio-probe-scroll")
-            root.column(
-                modifier = Modifier.verticalScroll(scroll).width(360f.dp).height(280f.dp),
-            ) {
-                lastSelection = uiScope().shadcnRadioGroup(
+        root.shadcnTheme {
+            if (scrolled) {
+                val scroll = root.rememberScrollState("radio-probe-scroll")
+                column(
+                    modifier = Modifier.verticalScroll(scroll).width(360f.dp).height(280f.dp),
+                ) {
+                    lastSelection = uiScope().shadcnRadioGroup(
+                        id = "radio-probe",
+                        options = listOf("System", "Light", "Dark"),
+                        selectedIndex = lastSelection.coerceAtLeast(0),
+                        onIndexChange = { lastSelection = it },
+                    )
+                }
+            } else {
+                val fed = lastSelection.coerceAtLeast(0)
+                val returned = shadcnRadioGroup(
                     id = "radio-probe",
                     options = listOf("System", "Light", "Dark"),
-                    selectedIndex = lastSelection.coerceAtLeast(0),
-                    onIndexChange = { lastSelection = it },
+                    selectedIndex = fed,
+                    onIndexChange = {
+                        trace += "onIndexChange($it) [down=$down]"
+                        lastSelection = it
+                    },
                 )
+                trace += "frame(down=$down): fed=$fed returned=$returned lastSelection=$lastSelection"
+                lastSelection = returned
             }
-        } else {
-            val fed = lastSelection.coerceAtLeast(0)
-            val returned = root.shadcnRadioGroup(
-                id = "radio-probe",
-                options = listOf("System", "Light", "Dark"),
-                selectedIndex = fed,
-                onIndexChange = {
-                    trace += "onIndexChange($it) [down=$down]"
-                    lastSelection = it
-                },
-            )
-            trace += "frame(down=$down): fed=$fed returned=$returned lastSelection=$lastSelection"
-            lastSelection = returned
         }
         val radio2 = ui.semanticNodes().firstOrNull { it.id == "radio-probe.2" }?.bounds
         trace += "  post: radio2=$radio2 pointer=($x,$y)"
@@ -102,21 +103,22 @@ class ShadcnRadioGroupClickProbeTest {
         fun frame(x: Float, y: Float, down: Boolean): Int {
             ui.beginFrame(400f, 300f, testSnapshot(x = x, y = y, down = down))
             ui.pushFont(BitmapFont())
-            ui.pushTheme(ShadcnTheme)
             val root = ui.headlessRoot()
             var result = -1
-            val scroll = root.rememberScrollState("radio-state-scroll")
-            root.column(
-                modifier = Modifier.verticalScroll(scroll).width(360f.dp).height(280f.dp),
-            ) {
-                var selected by rememberStateValue("radio-state-probe", "selected") { 0 }
-                selected = uiScope().shadcnRadioGroup(
-                    id = "radio-state-probe",
-                    options = listOf("System", "Light", "Dark"),
-                    selectedIndex = selected,
-                    onIndexChange = { selected = it },
-                )
-                result = selected
+            root.shadcnTheme {
+                val scroll = root.rememberScrollState("radio-state-scroll")
+                column(
+                    modifier = Modifier.verticalScroll(scroll).width(360f.dp).height(280f.dp),
+                ) {
+                    var selected by rememberStateValue("radio-state-probe", "selected") { 0 }
+                    selected = uiScope().shadcnRadioGroup(
+                        id = "radio-state-probe",
+                        options = listOf("System", "Light", "Dark"),
+                        selectedIndex = selected,
+                        onIndexChange = { selected = it },
+                    )
+                    result = selected
+                }
             }
             ui.endFrame()
             return result

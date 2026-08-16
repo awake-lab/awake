@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnProgress
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.width
@@ -18,17 +17,20 @@ class ShadcnProgressRecipeTest {
     @Test
     fun progressUsesBorderlessPrimaryTwentyPercentTrack() {
         val theme = shadcnThemeValues(dark = false)
-        val ui = UiContext()
-        ui.pushTheme(theme)
-        ui.beginFrame(240f, 32f, testSnapshot(x = -100f, y = -100f, down = false))
+        val frame = renderShadcnComponent(
+            width = 240f,
+            height = 32f,
+            theme = theme,
+            input = testSnapshot(x = -100f, y = -100f, down = false),
+        ) {
+            shadcnProgress(
+                id = "progress",
+                value = 0f,
+                modifier = Modifier.width(212f.dp),
+            )
+        }
 
-        ui.headlessRoot().shadcnProgress(
-            id = "progress",
-            value = 0f,
-            modifier = Modifier.width(212f.dp),
-        )
-
-        val primitives = ui.finishFrame().primitives
+        val primitives = frame.primitives
         val track = primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().single()
         assertEquals(theme.colors.primary.withAlpha(0.2f), track.color)
         assertEquals(8f, track.h)

@@ -3,12 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
-import io.github.ronjunevaldoz.awake.ui.UiInputState
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -19,12 +14,8 @@ class ShadcnDrawerTest {
     @Test
     fun shadcnDrawerRendersWhenExpanded() {
         ensureShadcnTestIconsInitialized()
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.beginFrame(400f, 600f, UiInputState())
-
         var dismissed = false
-        ui.createUiScope(UiBounds(0f, 0f, 400f, 600f)).shadcnTheme {
+        renderShadcnComponent(width = 400f, height = 600f) {
             shadcnDrawer(
                 id = "drawer-1",
                 expanded = true,
@@ -41,11 +32,7 @@ class ShadcnDrawerTest {
     @Test
     fun shadcnDrawerCloseButtonDrawsIconPathNotGlyph() {
         ensureShadcnTestIconsInitialized()
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.beginFrame(400f, 600f, UiInputState())
-
-        ui.createUiScope(UiBounds(0f, 0f, 400f, 600f)).shadcnTheme {
+        val frame = renderShadcnComponent(width = 400f, height = 600f) {
             shadcnDrawer(
                 id = "drawer-close",
                 expanded = true,
@@ -53,7 +40,7 @@ class ShadcnDrawerTest {
             ) { text("Drawer Content") }
         }
 
-        val primitives = ui.finishFrame().primitives
+        val primitives = frame.primitives
         assertTrue(
             primitives.any { it is UiDrawPrimitive.FilledPath },
             "expected the close button to draw a vector icon path, found: $primitives",

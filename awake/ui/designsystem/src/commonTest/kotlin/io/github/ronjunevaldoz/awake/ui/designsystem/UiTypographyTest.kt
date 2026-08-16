@@ -16,47 +16,38 @@ import io.github.ronjunevaldoz.awake.ui.headless.offset
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.width
-import kotlin.test.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.test.assertFailsWith
 
 class UiTypographyTest {
 
     @Test
-    fun recipesReadTheCurrentCoreThemeWhenNoShadcnThemeIsScoped() {
-        val values = shadcnThemeValues(dark = false)
+    fun recipesRequireAShadcnThemeScope() {
         val ui = UiContext()
-        ui.pushFont(UiFonts.bitmap())
-        ui.pushTheme(values)
-        ui.beginFrame(240f, 80f, testSnapshot())
-
-        ui.headlessRoot().shadcnText("Legacy Core theme")
-
-        val glyph = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>().first()
-        assertEquals(values.colors.foreground, glyph.color)
+        assertFailsWith<IllegalArgumentException> {
+            ui.headlessRoot().shadcnText("Unscoped")
+        }
     }
 
     @Test
     fun supportingTextWrapsInsideWrapContentPanels() {
-        val ui = UiContext()
-        ui.pushFont(UiFonts.bitmap())
-        ui.beginFrame(280f, 220f, testSnapshot())
-
         var panelSlot: UiBounds? = null
-
-        ui.headlessRoot().column(modifier = Modifier.fillMaxSize()) {
-            surface(id = "copy", modifier = Modifier.offset(20f.dp, 20f.dp).width(180f.dp)) { slot ->
-                panelSlot = slot
-                text("Copy")
-                shadcnMuted(
-                    "Shared supporting copy should wrap cleanly and grow the panel instead of spilling outside its bounds.",
-                    maxLines = 4,
-                )
+        val frame = renderShadcnComponent(width = 280f, height = 220f, font = UiFonts.bitmap()) {
+            column(modifier = Modifier.fillMaxSize()) {
+                surface(id = "copy", modifier = Modifier.offset(20f.dp, 20f.dp).width(180f.dp)) { slot ->
+                    panelSlot = slot
+                    text("Copy")
+                    shadcnMuted(
+                        "Shared supporting copy should wrap cleanly and grow the panel instead of spilling outside its bounds.",
+                        maxLines = 4,
+                    )
+                }
             }
         }
 
-        val primitives = ui.finishFrame().primitives
+        val primitives = frame.primitives
         val glyphs = primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
         val resolvedPanel = assertNotNull(panelSlot)
         assertTrue(
