@@ -165,6 +165,7 @@ fun UiPrimitiveScope.surface(
     }
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
+    val effectiveCacheKey = cacheKey ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey)
     val measured = if (hasWrapContent) {
         val maxContentWidth = when (width) {
             is Dimension.Fixed -> (width.dp.toPx() - paddingWidth).coerceAtLeast(0f)
@@ -175,7 +176,7 @@ fun UiPrimitiveScope.surface(
         try {
             context.resolveMeasuredContentCached(
                 id = id,
-                cacheKey = cacheKey,
+                cacheKey = effectiveCacheKey,
                 availableWidth = maxContentWidth,
                 gap = gap,
             ) {
@@ -286,12 +287,17 @@ fun UiPrimitiveScope.surface(
     // the surface (e.g. a `text()` call) adds an extra, spurious entry to those parallel lists,
     // desyncing resolveWeightedMainAxis()'s index pairing and -- worse -- the ancestor's
     // plannedSlots consumption order, silently handing later siblings the wrong slot.
-    context.withMeasuredRecordingSuppressed {
-        if (clipContent || resolved.shape.toPx() > 0f || resolved.shapeSpec != null) {
-            clip(effectiveShape, slot) { contentScope.content(slot) }
-        } else {
-            contentScope.content(slot)
+    context.pushLocal(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey, effectiveCacheKey)
+    try {
+        context.withMeasuredRecordingSuppressed {
+            if (clipContent || resolved.shape.toPx() > 0f || resolved.shapeSpec != null) {
+                clip(effectiveShape, slot) { contentScope.content(slot) }
+            } else {
+                contentScope.content(slot)
+            }
         }
+    } finally {
+        context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey)
     }
     context.popShapeSpec()
     context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)

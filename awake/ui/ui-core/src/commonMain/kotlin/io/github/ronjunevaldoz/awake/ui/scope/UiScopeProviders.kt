@@ -49,3 +49,7 @@ fun UiPrimitiveScope.ProvideFont(font: UiFont, content: UiPrimitiveScope.() -> U
 fun UiPrimitiveScope.ProvideShapeSpec(spec: UiShapeSpec?, content: UiPrimitiveScope.() -> Unit) {
     Provide(LocalShapeSpec, spec, content)
 }
+
+fun UiPrimitiveScope.ProvideCacheKey(key: Any?, content: UiPrimitiveScope.() -> Unit) {
+    Provide(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey, key, content)
+}

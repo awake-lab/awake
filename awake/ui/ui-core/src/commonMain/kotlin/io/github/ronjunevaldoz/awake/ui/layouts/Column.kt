@@ -193,11 +193,12 @@ private fun UiPrimitiveScope.resolveMeasuredColumn(
         }
         val trialWidth = (availableWidth - insets.horizontalPx()).coerceAtLeast(0f)
         val trialGap = verticalArrangement.baseSpacingPx()
+        val effectiveCacheKey = cacheKey ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey)
         // Opt-in cross-frame reuse of this sizing trial (see resolveMeasuredContentCached) --
         // with id/cacheKey null this is byte-for-byte the unconditional trial.
         context.resolveMeasuredContentCached(
             id = id,
-            cacheKey = cacheKey,
+            cacheKey = effectiveCacheKey,
             availableWidth = trialWidth,
             gap = trialGap,
         ) {

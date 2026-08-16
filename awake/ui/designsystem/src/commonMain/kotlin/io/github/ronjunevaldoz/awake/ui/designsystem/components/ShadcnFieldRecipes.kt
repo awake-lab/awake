@@ -79,11 +79,13 @@ fun UiScope.shadcnFieldError(text: String, modifier: Modifier = Modifier): UiBou
 fun UiScope.shadcnFieldSet(
     id: String? = null,
     modifier: Modifier = Modifier,
+    cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
 ): UiBounds = column(
     id = id,
     modifier = modifier.fillMaxWidthOrDefault(),
     verticalArrangement = Arrangement.spacedBy(24f.dp),
+    cacheKey = cacheKey,
 ) { content() }
 
 fun UiScope.shadcnFieldLegend(text: String, modifier: Modifier = Modifier): UiBounds =
@@ -92,11 +94,13 @@ fun UiScope.shadcnFieldLegend(text: String, modifier: Modifier = Modifier): UiBo
 fun UiScope.shadcnFieldGroup(
     id: String? = null,
     modifier: Modifier = Modifier,
+    cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
 ): UiBounds = column(
     id = id,
     modifier = modifier.fillMaxWidthOrDefault(),
     verticalArrangement = Arrangement.spacedBy(28f.dp),
+    cacheKey = cacheKey,
 ) { content() }
 
 fun UiScope.shadcnFieldSeparator(

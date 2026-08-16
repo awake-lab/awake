@@ -161,9 +161,10 @@ fun AbsoluteScope.row(
                 is Dimension.Fixed -> requestedHeight.dp.toPx()
                 Dimension.FillMax, Dimension.WrapContent -> 4096f
             }
+            val effectiveCacheKey = cacheKey ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey)
             context.resolveMeasuredContentCached(
                 id = id,
-                cacheKey = cacheKey,
+                cacheKey = effectiveCacheKey,
                 availableWidth = availableHeight,
                 gap = effectiveArrangement.baseSpacingPx(),
             ) {

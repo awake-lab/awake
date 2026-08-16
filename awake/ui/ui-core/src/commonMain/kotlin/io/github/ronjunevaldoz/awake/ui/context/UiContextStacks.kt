@@ -36,6 +36,11 @@ val LocalAlpha: UiLocal<Float> = uiLocalOf(1f) { parent, incoming -> (parent * i
 val LocalTransform: UiLocal<UiPrimitiveTransform?> = uiLocalOf(null)
 
 /**
+ * Ambient cache key scoped to subtrees. Inherited by child layout containers unless overridden.
+ */
+val LocalCacheKey: UiLocal<Any?> = uiLocalOf(null)
+
+/**
  * The engine's own locals, held per context.
  *
  * These seven are declared here rather than being special: they go through the same [UiLocalValues]
