@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.examples
 
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedAnimation
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.LoadedSkin
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.SkinnedAnimationPlayer
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser
+import io.github.ronjunevaldoz.awake.asset.gltf.LoadedAnimation
+import io.github.ronjunevaldoz.awake.asset.gltf.LoadedSkin
+import io.github.ronjunevaldoz.awake.asset.gltf.SkinnedAnimationPlayer
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.material.Material

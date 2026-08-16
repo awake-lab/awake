@@ -32,6 +32,7 @@ kotlin {
             implementation(project(":awake:engine:game-authoring"))
             implementation(project(":awake:engine:render:contract"))
             implementation(project(":awake:core"))
+            implementation(project(":awake:asset:gltf"))
             implementation(project(":awake:ecs"))
             implementation(project(":awake:scene"))
             implementation(project(":awake:scene:authoring"))

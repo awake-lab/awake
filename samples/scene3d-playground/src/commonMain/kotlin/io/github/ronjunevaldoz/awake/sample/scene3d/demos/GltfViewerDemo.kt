@@ -7,8 +7,8 @@ import io.github.ronjunevaldoz.awake.core.graphics.toRgba8Bytes
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.boundingCenter
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfMesh
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfMesh
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.render.material.Material

@@ -1,15 +1,15 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.core.mesh.gltf
+package io.github.ronjunevaldoz.awake.asset.gltf
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Quat
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.decodeBuffer
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.parse
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.parseScene
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.parseSkinned
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser.readBaseColorImageBytes
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.decodeBuffer
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.parse
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.parseScene
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.parseSkinned
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser.readBaseColorImageBytes
 import kotlinx.serialization.json.Json
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi

@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
-import io.github.ronjunevaldoz.awake.core.mesh.gltf.GltfParser
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
