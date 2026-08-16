@@ -6,11 +6,11 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
-import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
@@ -36,8 +36,11 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh as RenderMesh
  */
 class RendererSceneViewportTest {
 
+    // One test, not several: each device session creates a Vulkan instance, and a second
+    // vkCreateInstance in the same JVM fails. Every headless class in this module is shaped the
+    // same way for that reason.
     @Test
-    fun theSceneIsConfinedToItsViewportRect() {
+    fun theSceneIsConfinedToItsViewportRectAndAnOversizedRectIsClamped() {
         withHeadlessRenderer { renderer ->
             val target = renderer.createRenderTarget(TARGET_SIZE, TARGET_SIZE)
             var mesh: RenderMesh? = null
@@ -83,40 +86,20 @@ class RendererSceneViewportTest {
                     paintedPixels(confined, RIGHT_HALF) > MIN_PAINTED,
                     "the cube must still render inside the scene viewport",
                 )
-            } finally {
-                renderer.sceneViewport = null
-                mesh?.destroy()
-                material?.destroy()
-            }
-        }
-    }
 
-    /** A rect the surface cannot contain is clamped, not passed to the driver: Vulkan rejects an
-     * out-of-bounds scissor, and a caller's panel bounds can outlive the surface they were
-     * measured against (a resize lands between the two). */
-    @Test
-    fun anOversizedRectIsClampedInsteadOfCrashingTheDevice() {
-        withHeadlessRenderer { renderer ->
-            val target = renderer.createRenderTarget(TARGET_SIZE, TARGET_SIZE)
-            var mesh: RenderMesh? = null
-            var material: RenderMaterial? = null
-            try {
-                val createdMesh = renderer.createMesh(MeshGeometry(cubeVertices, cubeIndices)).also { mesh = it }
-                val createdMaterial = renderer.createMaterial().also { material = it }
+                // A rect the surface cannot contain is clamped, not passed to the driver: Vulkan
+                // rejects an out-of-bounds scissor, and a caller's panel bounds can outlive the
+                // surface they were measured against (a resize lands between the two).
                 renderer.sceneViewport = RenderViewport(
                     x = -100f,
                     y = -100f,
                     width = TARGET_SIZE * 4f,
                     height = TARGET_SIZE * 4f,
                 )
-                renderer.renderToTexture(
-                    target,
-                    Camera(eye = Vec3(2.5f, 2f, 4f), center = Vec3(0f, 0f, 0f), fovYRadians = 1f, near = 0.1f, far = 10f),
-                    listOf(DrawCall(createdMesh, createdMaterial)),
-                )
-                val pixels = runBlocking { renderer.readPixels(target) }.data
+                renderer.renderToTexture(target, camera, draw)
+                val clamped = runBlocking { renderer.readPixels(target) }.data
                 assertTrue(
-                    paintedPixels(pixels, 0 until TARGET_SIZE) > MIN_PAINTED,
+                    paintedPixels(clamped, 0 until TARGET_SIZE) > MIN_PAINTED,
                     "a clamped rect must still render the scene",
                 )
             } finally {
