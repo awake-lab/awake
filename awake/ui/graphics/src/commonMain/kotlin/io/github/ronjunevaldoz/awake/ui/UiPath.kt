@@ -988,7 +988,7 @@ fun UiPath.tessellateStroke(stroke: UiStroke): UiTriangleMesh {
  * closed stroke (e.g. a circle) becomes a correct annulus for free.
  */
 fun UiPath.strokeToFillPath(stroke: UiStroke): UiPath {
-    val contours = flattenContours()
+    val contours = flattenContours(curveSteps = 16, arcStepDegrees = 15f)
     // [UiStroke.width] is in the PATH's own coordinate space, not dp: an icon reaches here
     // through [UiImageVector.fitTo], which scales the path into device pixels and scales the
     // stroke width by the same factor. Converting again with `toPx()` applied density twice, so
@@ -1040,7 +1040,7 @@ private fun arcBetween(center: UiPoint, radius: Float, from: UiPoint, to: UiPoin
     var delta = toAngle - fromAngle
     while (delta > piF) delta -= twoPi
     while (delta < -piF) delta += twoPi
-    val steps = adaptiveArcSteps(delta * 180f / piF, radius, 90f)
+    val steps = adaptiveArcSteps(delta * 180f / piF, radius, 15f)
     return (0..steps).map { step ->
         val t = step / steps.toFloat()
         val angle = fromAngle + delta * t
@@ -1066,7 +1066,7 @@ private fun capSweep(round: Boolean, center: UiPoint, halfWidth: Float, dir: UiP
     }
     val piF = PI.toFloat()
     val fromAngle = atan2(dir.y, dir.x) + piF / 2f
-    val steps = adaptiveArcSteps(180f, halfWidth, 90f)
+    val steps = adaptiveArcSteps(180f, halfWidth, 15f)
     return (0..steps).map { step ->
         val angle = fromAngle - piF * (step / steps.toFloat())
         UiPoint(center.x + cos(angle) * halfWidth, center.y + sin(angle) * halfWidth)
