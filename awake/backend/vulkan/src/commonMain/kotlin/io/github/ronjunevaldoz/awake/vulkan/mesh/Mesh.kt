@@ -178,6 +178,12 @@ class Mesh(
         VulkanBuffers.vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0)
     }
 
+    /** Same call as [draw], only the instance count differs -- each instance reads its own
+     * model matrix from the [InstanceBuffer] the caller bound at binding 1. */
+    override fun drawInstanced(commandBuffer: Long, instanceCount: Int) {
+        VulkanBuffers.vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, 0, 0, 0)
+    }
+
     override fun destroy() {
         VulkanBuffers.vkDestroyBuffer(device, vertexBuffer.handle)
         VulkanBuffers.vkFreeMemory(device, vertexBufferMemory.handle)

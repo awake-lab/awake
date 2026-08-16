@@ -61,6 +61,12 @@ open class VulkanGameApplication(
      * as [vertexShaderResourcePath] itself (see `shadow_depth.wgsl`), since both draw the
      * exact same meshes. */
     private val shadowShaderSet: GameShaderSet? = null,
+    /** Opts into GPU instancing for [vertexFormat] (see `Renderer.instancedPipelinesByFormat`):
+     * builds ONE extra pipeline from this shader set with a second, instance-rate vertex binding.
+     * The shader's uniform block must hold `viewProjection` (not `mvp`) and it must declare the
+     * 4 instance-matrix attributes -- see `instanced.wgsl`. `null` (default) means no instanced
+     * pipeline is built at all and an `InstancedMeshRenderer` entity simply doesn't draw. */
+    private val instancedShaderSet: GameShaderSet? = null,
 ) : GameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -74,6 +80,7 @@ open class VulkanGameApplication(
         additionalPipelines: Map<VertexFormat, GameShaderSet> = emptyMap(),
         wireframeSupport: Boolean = false,
         shadowShaderSet: GameShaderSet? = null,
+        instancedShaderSet: GameShaderSet? = null,
     ) : this(
         vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
@@ -84,6 +91,7 @@ open class VulkanGameApplication(
         additionalPipelines = additionalPipelines,
         wireframeSupport = wireframeSupport,
         shadowShaderSet = shadowShaderSet,
+        instancedShaderSet = instancedShaderSet,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -96,6 +104,7 @@ open class VulkanGameApplication(
     private lateinit var transferContext: TransferContext
     private var shadowMap: ShadowMap? = null
     private var shadowRenderPipeline: ShadowRenderPipeline? = null
+    private var instancedRenderPipeline: RenderPipeline? = null
 
     /** Needed to build [renderPipeline]'s pipeline layout before any real [Material] exists. */
     private var pipelineDescriptorSetLayout: DescriptorSetLayoutHandle =
@@ -177,6 +186,23 @@ open class VulkanGameApplication(
             additionalRenderPipelines[format] = additionalFill
             additionalWireframe?.let { wireframeAdditionalRenderPipelines[format] = it }
         }
+        instancedRenderPipeline = instancedShaderSet?.let { shaderSet ->
+            RenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                pipelineDescriptorSetLayout,
+                loadShaderPair(
+                    shaderSet.vulkan.vertexResourcePath,
+                    shaderSet.vulkan.fragmentResourcePath,
+                ),
+                // Same vertex layout as the primary pipeline -- it draws the same meshes, just
+                // many copies of them; `instanced` only ADDS binding 1 on top of it.
+                vertexFormat,
+                shaderSet.vulkan.vertexEntryPoint,
+                shaderSet.vulkan.fragmentEntryPoint,
+                instanced = true,
+            )
+        }
         shadowRenderPipeline = shadowMap?.let { map ->
             val shaderSet = requireNotNull(shadowShaderSet)
             ShadowRenderPipeline(
@@ -234,6 +260,7 @@ open class VulkanGameApplication(
             wireframePipelinesByFormat,
             shadowMap,
             shadowRenderPipeline,
+            instancedRenderPipeline?.let { mapOf(vertexFormat to it) } ?: emptyMap(),
         )
         swapchainManager.createSyncObjects()
 
@@ -264,6 +291,7 @@ open class VulkanGameApplication(
         additionalRenderPipelines.values.forEach { it.destroy() }
         wireframeRenderPipeline?.destroy()
         wireframeAdditionalRenderPipelines.values.forEach { it.destroy() }
+        instancedRenderPipeline?.destroy()
         shadowRenderPipeline?.destroy()
         shadowMap?.destroy()
         lineRenderPipeline.destroy()

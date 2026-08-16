@@ -44,6 +44,10 @@ open class WebGpuGameApplication(
      * through its own pipeline instead of the primary one. Mirrors
      * `VulkanGameApplication.additionalPipelines` (see its doc comment); empty by default. */
     private val additionalPipelines: Map<VertexFormat, GameShaderSet> = emptyMap(),
+    /** Opts into GPU instancing for [vertexFormat] -- mirrors
+     * `VulkanGameApplication.instancedShaderSet` (see its doc comment). `null` (default) builds
+     * no instanced pipeline, so an `InstancedMeshRenderer` entity simply doesn't draw. */
+    private val instancedShaderSet: GameShaderSet? = null,
 ) : GameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -56,6 +60,7 @@ open class WebGpuGameApplication(
         game: Game,
         wireframeSupport: Boolean = false,
         additionalPipelines: Map<VertexFormat, GameShaderSet> = emptyMap(),
+        instancedShaderSet: GameShaderSet? = null,
     ) : this(
         vertexShaderResourcePath = shaderSet.webGpu.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.webGpu.fragmentResourcePath,
@@ -65,6 +70,7 @@ open class WebGpuGameApplication(
         fragmentShaderEntryPoint = shaderSet.webGpu.fragmentEntryPoint,
         wireframeSupport = wireframeSupport,
         additionalPipelines = additionalPipelines,
+        instancedShaderSet = instancedShaderSet,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -72,6 +78,7 @@ open class WebGpuGameApplication(
     private lateinit var renderPipeline: RenderPipeline
     private var wireframeRenderPipeline: RenderPipeline? = null
     private val additionalRenderPipelines = mutableMapOf<VertexFormat, RenderPipeline>()
+    private var instancedRenderPipeline: RenderPipeline? = null
     private lateinit var lineRenderPipeline: LineRenderPipeline
 
     override suspend fun createBackendResources(window: Any): BackendResources {
@@ -119,6 +126,21 @@ open class WebGpuGameApplication(
                 shaderSet.webGpu.fragmentEntryPoint,
             )
         }
+        instancedRenderPipeline = instancedShaderSet?.let { shaderSet ->
+            RenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                DescriptorSetLayoutHandle(0),
+                readResourceBytes(shaderSet.webGpu.vertexResourcePath),
+                ByteArray(0),
+                // Same vertex layout as the primary pipeline -- it draws the same meshes, just
+                // many copies of them; `instanced` only ADDS a second, instance-rate buffer.
+                vertexFormat,
+                shaderSet.webGpu.vertexEntryPoint,
+                shaderSet.webGpu.fragmentEntryPoint,
+                instanced = true,
+            )
+        }
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
@@ -138,6 +160,7 @@ open class WebGpuGameApplication(
             MAX_FRAMES_IN_FLIGHT,
             wireframeRenderPipeline,
             additionalRenderPipelines.toMap(),
+            instancedRenderPipeline?.let { mapOf(vertexFormat to it) } ?: emptyMap(),
         )
 
         return BackendResources(
@@ -155,6 +178,7 @@ open class WebGpuGameApplication(
         renderPipeline.destroy()
         wireframeRenderPipeline?.destroy()
         additionalRenderPipelines.values.forEach { it.destroy() }
+        instancedRenderPipeline?.destroy()
         lineRenderPipeline.destroy()
         graphicsDevice.destroy()
     }

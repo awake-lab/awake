@@ -17,6 +17,7 @@ import io.ygdrasil.webgpu.GPUFrontFace
 import io.ygdrasil.webgpu.GPUPrimitiveTopology
 import io.ygdrasil.webgpu.GPUTextureFormat
 import io.ygdrasil.webgpu.GPUVertexFormat
+import io.ygdrasil.webgpu.GPUVertexStepMode
 import io.ygdrasil.webgpu.PrimitiveState
 import io.ygdrasil.webgpu.RenderPipelineDescriptor
 import io.ygdrasil.webgpu.ShaderModuleDescriptor
@@ -54,6 +55,13 @@ class RenderPipeline(
     vertexEntryPoint: String = DEFAULT_VERTEX_ENTRY_POINT,
     fragmentEntryPoint: String = DEFAULT_FRAGMENT_ENTRY_POINT,
     topology: GPUPrimitiveTopology = GPUPrimitiveTopology.TriangleList,
+    /** Adds a SECOND, `GPUVertexStepMode.Instance` vertex buffer layout (stride 64) carrying one
+     * `mat4` model matrix per instance as 4 `Float32x4` attributes -- see `instanced.wgsl`, which
+     * declares exactly those. Purely additive: buffer 0 and [vertexFormat]'s own attributes are
+     * untouched, so a `false` (default) pipeline is identical to the one this class always built.
+     * The 4 locations continue past [vertexFormat]'s own highest one, so no format needs
+     * renumbering. Mirrors Vulkan's `RenderPipeline.instanced`. */
+    instanced: Boolean = false,
 ) {
     var renderPass: Long = 0
     var pipelineLayout: Long = 0
@@ -65,23 +73,39 @@ class RenderPipeline(
         val wgslSource = vertShaderCode.decodeToString()
         val shaderModule = device.createShaderModule(ShaderModuleDescriptor(code = wgslSource))
 
+        val vertexBuffers = mutableListOf(
+            VertexBufferLayout(
+                arrayStride = vertexFormat.strideBytes.toULong(),
+                attributes = vertexFormat.entries.map { (attribute, offsetBytes) ->
+                    VertexAttribute(
+                        shaderLocation = attribute.location.toUInt(),
+                        offset = offsetBytes.toULong(),
+                        format = attribute.format.toGpuVertexFormat(),
+                    )
+                },
+            ),
+        )
+        if (instanced) {
+            val firstLocation = vertexFormat.attributes.maxOf { it.location } + 1
+            vertexBuffers += VertexBufferLayout(
+                arrayStride = INSTANCE_MATRIX_BYTES.toULong(),
+                stepMode = GPUVertexStepMode.Instance,
+                attributes = (0 until MATRIX_ROWS).map { row ->
+                    VertexAttribute(
+                        shaderLocation = (firstLocation + row).toUInt(),
+                        offset = (row * VEC4_BYTES).toULong(),
+                        format = GPUVertexFormat.Float32x4,
+                    )
+                },
+            )
+        }
+
         val pipeline = device.createRenderPipeline(
             RenderPipelineDescriptor(
                 vertex = VertexState(
                     module = shaderModule,
                     entryPoint = vertexEntryPoint,
-                    buffers = listOf(
-                        VertexBufferLayout(
-                            arrayStride = vertexFormat.strideBytes.toULong(),
-                            attributes = vertexFormat.entries.map { (attribute, offsetBytes) ->
-                                VertexAttribute(
-                                    shaderLocation = attribute.location.toUInt(),
-                                    offset = offsetBytes.toULong(),
-                                    format = attribute.format.toGpuVertexFormat(),
-                                )
-                            },
-                        ),
-                    ),
+                    buffers = vertexBuffers,
                 ),
                 fragment = FragmentState(
                     module = shaderModule,
@@ -118,6 +142,11 @@ class RenderPipeline(
     private companion object {
         const val DEFAULT_VERTEX_ENTRY_POINT = "vertexMain"
         const val DEFAULT_FRAGMENT_ENTRY_POINT = "fragmentMain"
+
+        /** See the `instanced` constructor parameter -- one `mat4` = 4 `vec4` rows = 64 bytes. */
+        const val MATRIX_ROWS = 4
+        const val VEC4_BYTES = 16
+        const val INSTANCE_MATRIX_BYTES = MATRIX_ROWS * VEC4_BYTES
     }
 }
 

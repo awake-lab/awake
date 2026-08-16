@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
+import io.github.ronjunevaldoz.awake.vulkan.mesh.InstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
@@ -153,7 +154,14 @@ internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<Prepa
             prepared.frameIndex,
             prepared.uniformSlotIndex,
         )
-        prepared.drawCall.mesh.draw(commandBuffer)
+        val instanceBuffer = prepared.instanceBuffer
+        if (instanceBuffer != null) {
+            // Binding 1, alongside the mesh's own binding-0 vertex buffer bound just above.
+            instanceBuffer.bind(prepared.frameIndex, commandBuffer)
+            prepared.drawCall.mesh.drawInstanced(commandBuffer, prepared.instanceCount)
+        } else {
+            prepared.drawCall.mesh.draw(commandBuffer)
+        }
         drawIndex += 1
     }
 }
@@ -347,6 +355,10 @@ internal data class PreparedDrawCall(
     val material: Material,
     val frameIndex: Int,
     val uniformSlotIndex: Int,
+    /** Non-null only for a [DrawCall.instanceModels] draw resolved to an instanced pipeline --
+     * [recordDrawCalls] then binds it and issues one `drawInstanced` instead of `draw`. */
+    val instanceBuffer: InstanceBuffer? = null,
+    val instanceCount: Int = 0,
 )
 
 /** Resolves each [drawCalls] entry against [Renderer.pipelinesByFormat] by its
@@ -395,8 +407,25 @@ internal fun Renderer.prepareDrawCalls(
         0f,
     )
     var drawIndex = 0
+    var instancedIndex = 0
     while (drawIndex < drawCalls.size) {
         val drawCall = drawCalls[drawIndex]
+        val instanceModels = drawCall.instanceModels
+        if (instanceModels != null) {
+            // A separate path entirely: one uniform write and one GPU call for every transform,
+            // instead of this loop's per-draw-call MVP. Null (no instanced pipeline for this
+            // format, or nothing to draw) skips the call, same as an unresolved format below.
+            val instanced = prepareInstancedDrawCall(
+                drawCall, frameIndex, instancedIndex,
+                viewProjection.data + lightFloats, materialUsage,
+            )
+            if (instanced != null) {
+                prepared += instanced
+                instancedIndex += 1
+            }
+            drawIndex += 1
+            continue
+        }
         // pipelineFor, not a direct pipelinesByFormat lookup: swaps in this format's
         // VK_POLYGON_MODE_LINE variant when Renderer.wireframe is on and one was built for
         // it (see that function's doc comment) -- an unregistered format still resolves to
@@ -439,6 +468,44 @@ internal fun Renderer.prepareDrawCalls(
         drawIndex += 1
     }
     return prepared
+}
+
+/** One [DrawCall] carrying [instanceModels] resolved against
+ * [Renderer.instancedPipelinesByFormat], or `null` when this format has no instanced pipeline
+ * (or there is nothing to draw) -- see that field's own doc comment for why an unresolved
+ * format is skipped rather than force-drawn.
+ *
+ * The uniform write is what genuinely differs from the non-instanced path: `instanced.wgsl`'s
+ * `Uniforms` holds `viewProjection` + light, NOT a per-draw `mvp`, since one call covers many
+ * model matrices and none of them can be folded in on the CPU. It's still written into
+ * [DrawCall.material]'s own frame/draw slot (not a pipeline-owned buffer): the block is the same
+ * 24 floats the non-shadow lit path already writes there, so no second uniform/descriptor scheme
+ * is needed for it. */
+private fun Renderer.prepareInstancedDrawCall(
+    drawCall: DrawCall,
+    frameIndex: Int,
+    instancedIndex: Int,
+    /** Already `viewProjection.data + lightFloats` -- assembled by the caller, which has both. */
+    uniformFloats: FloatArray,
+    materialUsage: MutableMap<RenderMaterial, Int>,
+): PreparedDrawCall? {
+    val pipeline = instancedPipelinesByFormat[drawCall.mesh.format]
+    val instanceModels = drawCall.instanceModels.orEmpty()
+    if (pipeline == null || instanceModels.isEmpty()) return null
+    val material = drawCall.material as Material
+    val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)
+    val instanceBuffer = instanceBufferForRun(instancedIndex)
+    instanceBuffer.update(frameIndex, instanceModels)
+    material.updateUniformBuffer(frameIndex, uniformSlotIndex, uniformFloats)
+    return PreparedDrawCall(
+        drawCall = drawCall,
+        pipeline = pipeline,
+        material = material,
+        frameIndex = frameIndex,
+        uniformSlotIndex = uniformSlotIndex,
+        instanceBuffer = instanceBuffer,
+        instanceCount = instanceModels.size,
+    )
 }
 
 /** The NDC depth one shadow-map texel of lateral travel spans on a 45-degree surface --

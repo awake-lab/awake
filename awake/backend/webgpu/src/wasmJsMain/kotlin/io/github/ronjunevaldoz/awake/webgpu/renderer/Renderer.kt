@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
+import io.github.ronjunevaldoz.awake.webgpu.mesh.InstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
 import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.RenderPipeline
@@ -109,6 +110,13 @@ class Renderer(
      * [Material]'s texture bind group instead of this class's shared uniform bind group --
      * see [performDraw]. Empty (default) for a game with only the primary pipeline. */
     internal val additionalPipelines: Map<VertexFormat, RenderPipeline> = emptyMap(),
+    /** Instanced companions keyed by vertex format, mirroring Vulkan's
+     * `Renderer.instancedPipelinesByFormat` -- built with `RenderPipeline(instanced = true)` and
+     * a shader whose uniform block holds `viewProjection` rather than a per-draw `mvp` (see
+     * `instanced.wgsl`). A [DrawCall] with non-null `instanceModels` whose format has an entry
+     * here draws every transform in one call; a format with no entry is skipped, same as any
+     * other unmatched format. Empty (default) for a game that never instances. */
+    internal val instancedPipelines: Map<VertexFormat, RenderPipeline> = emptyMap(),
 ) : RenderRenderer {
     // WebGPU's NDC has +Y up -- confirmed by this module's own ui_quad.wgsl comment
     // ("pixel-space is Y-down, NDC is Y-up") -- so unlike Vulkan (+Y down NDC) no flip is
@@ -154,6 +162,25 @@ class Renderer(
      * comment ([RendererUiPipelines.kt]). */
     internal var wireframeUniformBuffer: GPUBuffer? = null
     internal var wireframeUniformBindGroup: GPUBindGroup? = null
+
+    /** [instancedPipelines]' own uniform buffer/bind group -- separate from
+     * [uniformBuffer]/[uniformBindGroup] for the same "auto" pipeline-layout reason the
+     * wireframe pair above is (see [ensureInstancedUniformResources]). Unlike those two, ONE
+     * pair is genuinely enough for any number of instanced draw calls per frame: their uniform
+     * content (`viewProjection` + light) is identical across all of them, since the per-copy
+     * model matrices live in the instance buffer instead. */
+    internal var instancedUniformBuffer: GPUBuffer? = null
+    internal var instancedUniformBindGroup: GPUBindGroup? = null
+
+    // One InstanceBuffer per instanced draw call in a frame, grown on demand and reused every
+    // frame -- same pool shape as the UI mesh pools below. The uniform buffer above can be
+    // shared across instanced calls, but their transform lists can't be.
+    private val instanceBufferPool = mutableListOf<InstanceBuffer>()
+
+    internal fun instanceBufferForRun(index: Int): InstanceBuffer {
+        while (instanceBufferPool.size <= index) instanceBufferPool += InstanceBuffer(graphicsDevice)
+        return instanceBufferPool[index]
+    }
 
     // Lazily built on the first drawUi() call of any kind (uiRenderPipeline) and on the
     // first call that passes a non-null font (uiGlyphRenderPipeline) -- see
@@ -422,6 +449,10 @@ class Renderer(
         wireframeUniformBuffer?.close()
         wireframeUniformBuffer = null
         wireframeUniformBindGroup = null
+        instancedUniformBuffer?.close()
+        instancedUniformBuffer = null
+        instancedUniformBindGroup = null
+        instanceBufferPool.forEach { it.destroy() }
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
         uiTextureRenderPipeline?.destroy()
