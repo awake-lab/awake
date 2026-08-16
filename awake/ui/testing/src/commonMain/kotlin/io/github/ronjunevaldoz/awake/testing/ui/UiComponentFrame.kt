@@ -121,6 +121,69 @@ class UiTestSession(
         )
     }
 
+    /** Renders one hover frame at ([x], [y]). */
+    fun hover(x: Float, y: Float, content: UiScope.(root: UiBounds) -> Unit): UiComponentFrame =
+        frame(x = x, y = y, down = false, content = content)
+
+    /** Presses then releases the primary pointer at one position; returns the release frame. */
+    fun click(x: Float, y: Float, content: UiScope.(root: UiBounds) -> Unit): UiComponentFrame {
+        frame(x = x, y = y, down = true, content = content)
+        return frame(x = x, y = y, down = false, content = content)
+    }
+
+    /** Performs two complete primary clicks; returns the second release frame. */
+    fun doubleClick(x: Float, y: Float, content: UiScope.(root: UiBounds) -> Unit): UiComponentFrame {
+        click(x, y, content)
+        return click(x, y, content)
+    }
+
+    /** Holds the primary pointer for [durationSeconds], then releases it. */
+    fun longPress(
+        x: Float,
+        y: Float,
+        durationSeconds: Float,
+        content: UiScope.(root: UiBounds) -> Unit,
+    ): UiComponentFrame {
+        require(durationSeconds >= 0f) { "durationSeconds must be non-negative" }
+        frame(x = x, y = y, down = true, content = content)
+        frame(x = x, y = y, down = true, deltaSeconds = durationSeconds, content = content)
+        return frame(x = x, y = y, down = false, content = content)
+    }
+
+    /** Presses then releases the secondary pointer at one position; returns the release frame. */
+    fun rightClick(x: Float, y: Float, content: UiScope.(root: UiBounds) -> Unit): UiComponentFrame {
+        fun secondaryFrame(down: Boolean): UiComponentFrame {
+            input.setPointer(down = false, x = x, y = y)
+            input.setSecondaryPointer(down)
+            return frame(input.updateSnapshot().toUiInputState(), content = content)
+        }
+        secondaryFrame(down = true)
+        return secondaryFrame(down = false)
+    }
+
+    /** Drags the primary pointer from start to end over [steps] move frames, then releases. */
+    fun drag(
+        startX: Float,
+        startY: Float,
+        endX: Float,
+        endY: Float,
+        steps: Int = 1,
+        content: UiScope.(root: UiBounds) -> Unit,
+    ): UiComponentFrame {
+        require(steps > 0) { "steps must be positive" }
+        frame(x = startX, y = startY, down = true, content = content)
+        repeat(steps) { index ->
+            val fraction = (index + 1).toFloat() / steps
+            frame(
+                x = startX + (endX - startX) * fraction,
+                y = startY + (endY - startY) * fraction,
+                down = true,
+                content = content,
+            )
+        }
+        return frame(x = endX, y = endY, down = false, content = content)
+    }
+
     override fun close() {
         UiDensity.scale = previousDensity
         UiDensity.fontScale = previousFontScale

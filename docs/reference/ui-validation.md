@@ -95,7 +95,10 @@ Use these first:
   tests.
 - `uiTestSession(...)` (`awake:ui:testing`) for multi-frame pointer, keyboard, focus, and
   animation interaction tests. It keeps the context/input state persistent while retaining the
-  same restoration guarantees.
+  same restoration guarantees. Use its built-in `hover`, `click`, `doubleClick`, `longPress`,
+  `rightClick`, and `drag` gestures instead of hand-writing press/release frame sequences; use
+  `frame(UiInputState, ...)` only when a test needs an exact wheel, keyboard, or secondary-input
+  snapshot.
 - `AwakeUiPreview` for preview-backed docs and reusable gallery entries
 - `validateAwakeUiPreview(...)` for shared preview validation
 - `inspectUiFrame(...)` for primitive-level rendering checks
