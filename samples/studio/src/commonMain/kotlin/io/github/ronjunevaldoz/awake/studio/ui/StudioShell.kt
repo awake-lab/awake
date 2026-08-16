@@ -45,7 +45,7 @@ private val ViewportClearColor = floatArrayOf(0.14f, 0.14f, 0.16f, 1f)
 internal fun SceneGameRuntime.drawStudioShell(store: StudioStore, viewportWidth: Float, viewportHeight: Float) {
     renderer.clearColor = ViewportClearColor
     headlessFrame(viewportWidth, viewportHeight) {
-        shadcnTheme(values = StudioTheme) {
+        shadcnTheme(theme = StudioTheme) {
             drawStudioShellBody(store, world, renderer)
         }
     }

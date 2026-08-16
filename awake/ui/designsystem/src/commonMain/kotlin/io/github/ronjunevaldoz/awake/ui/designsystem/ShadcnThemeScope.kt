@@ -42,7 +42,15 @@ fun UiScope.shadcnTheme(
     content = content,
 )
 
-/** Overload for a theme already built -- app state usually holds one rather than four enum knobs. */
+/**
+ * Compatibility bridge for callers that still own only Core theme values.
+ *
+ * New code should construct [ShadcnThemeValues] with [shadcnThemeValues] and pass it through
+ * the `theme` parameter so metrics and branded values remain together.
+ */
+@Deprecated(
+    message = "Pass complete ShadcnThemeValues through theme =. Use shadcnThemeValues(...) to construct one.",
+)
 fun UiScope.shadcnTheme(
     values: UiThemeValues,
     content: UiScope.() -> Unit,

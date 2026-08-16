@@ -21,7 +21,7 @@ Install a named design-system theme at the application root. Do not rely on Core
 fallback theme in a sample or game.
 
 ```kotlin
-uiScope.shadcnTheme(values = ShadcnDefaultTheme) {
+uiScope.shadcnTheme(theme = ShadcnDefaultTheme) {
     shadcnButton(id = "save") { text("Save") }
 }
 ```
