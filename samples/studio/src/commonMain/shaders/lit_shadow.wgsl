@@ -57,6 +57,7 @@ const PI : f32 = 3.14159265359;
 const EPSILON : f32 = 0.0001;
 const DIELECTRIC_F0 : f32 = 0.04;
 const MIN_ROUGHNESS : f32 = 0.05;
+const INV_GAMMA : f32 = 1.0 / 2.2;
 // Slope-scaled: the depth gradient per shadow texel grows as a surface tilts away from the
 // light, so one constant either leaves grazing-angle acne or detaches face-on contact shadows.
 // Front-face culling would fix this structurally, but the cube's winding isn't reliable.
@@ -119,6 +120,14 @@ fn fresnelSchlick(cosTheta : f32, f0 : vec3f) -> vec3f {
   return f0 + (vec3f(1.0) - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+/** Gamma 2.2, not the exact piecewise sRGB curve: the difference is confined to the darkest few
+ * percent, and this is the whole of colour management in this renderer -- an exact transfer
+ * function here would imply a correctness the rest of the pipeline (UI colours written raw,
+ * textures uploaded unconverted) does not have. */
+fn linearToSrgb(linear : vec3f) -> vec3f {
+  return pow(max(linear, vec3f(0.0)), vec3f(INV_GAMMA));
+}
+
 @fragment
 fn fragmentMain(
   @location(0) color : vec3f,
@@ -154,5 +163,11 @@ fn fragmentMain(
   // Reinhard tone map: the specular lobe blows past 1.0 at low roughness, and clamping it
   // instead flattens the highlight into a solid white disc.
   let mapped = (ambient + direct) / (ambient + direct + vec3f(1.0));
-  return vec4f(mapped, 1.0);
+  // Encode before writing. The swapchain format is deliberately _UNORM, not _SRGB (see
+  // SwapchainManager's own doc comment: the UI pass writes colours that are ALREADY sRGB-encoded
+  // and must pass through untouched), so nothing downstream applies a transfer function. This is
+  // the only pass producing linear radiance, so it is the one that has to encode -- a lit
+  // 0.5-albedo ground otherwise reached the display at roughly half its intended brightness,
+  // which reads as "the scene is too dark" rather than "the scene is unencoded".
+  return vec4f(linearToSrgb(mapped), 1.0);
 }
