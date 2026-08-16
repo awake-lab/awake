@@ -45,6 +45,8 @@ class UiComponentFrame(
      * 1px line, an avatar's badge circle) needs, and the reason those tests used to hand-roll
      * the whole UiContext preamble instead of using this helper. */
     val primitives: List<UiDrawPrimitive> = emptyList(),
+    /** Font installed for this frame, for preview validation and text-geometry assertions. */
+    val font: UiFont = UiFonts.default(),
 ) {
     /** Draw primitives of one kind, in emission order. */
     inline fun <reified T : UiDrawPrimitive> primitivesOf(): List<T> = primitives.filterIsInstance<T>()
@@ -118,6 +120,7 @@ class UiTestSession(
             semantics = frame.semantics,
             root = root,
             primitives = frame.primitives,
+            font = ui.current(LocalFont),
         )
     }
 
@@ -247,6 +250,7 @@ fun renderUiComponent(
             semantics = frame.semantics,
             root = root,
             primitives = frame.primitives,
+            font = ui.current(LocalFont),
         )
     } finally {
         UiDensity.scale = previousDensity

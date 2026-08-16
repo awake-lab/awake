@@ -5,11 +5,10 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.width
@@ -23,13 +22,13 @@ class ShadcnSidebarFidelityTest {
 
     @Test
     fun shadcnSidebarFidelity() = runTest {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-
         val sidebarWidth = 240f
 
-        ui.beginFrame(400f, 600f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.headlessRoot().shadcnTheme {
+        val frameOutput = renderUiComponent(
+            width = 400f,
+            height = 600f,
+            rootProvider = { content -> shadcnTheme { content() } },
+        ) {
             shadcnSidebar(
                 id = "sidebar",
                 modifier = Modifier.width(sidebarWidth.dp),
@@ -37,7 +36,6 @@ class ShadcnSidebarFidelityTest {
                 text("Sidebar content")
             }
         }
-        val frameOutput = ui.finishFrame()
 
         val config = AwakeUiPreviewValidationConfig(
             dimensionRules = listOf(
@@ -62,7 +60,7 @@ class ShadcnSidebarFidelityTest {
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ShadcnTheme.colors.background,
-                font = ui.currentFont,
+                font = frameOutput.font,
                 semantics = frameOutput.semantics,
             ),
             config = config,
