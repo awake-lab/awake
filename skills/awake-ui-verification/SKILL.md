@@ -8,6 +8,22 @@ description: How to prove a UI change is correct in Awake - which tool answers w
 Policy for *what* must be proven lives in `docs/reference/ui-validation.md`. This skill is the
 *how*: choosing the right tool, and the judgment calls that tooling cannot make for you.
 
+For plain-English meanings of UI test terms, read `docs/reference/ui-testing-dictionary.md`.
+
+## Keep tests out of debt hell
+
+The test must make its behavior obvious. Do not repeat context, font, theme, frame setup, or a
+normal pointer press/release sequence in every fixture.
+
+- One normal frame: `renderUiComponent(...)`.
+- Several frames: `uiTestSession(...)`.
+- Normal pointer actions: `hover`, `click`, `doubleClick`, `longPress`, `rightClick`, `drag`.
+- Exact wheel/keyboard/custom input: `frame(UiInputState, ...)`.
+- Raw `UiContext`: only when that low-level lifecycle is the thing being tested.
+
+Before adding a test file, find the existing matrix or component fixture that owns the behavior.
+Add a case there unless this is a distinct regression invariant.
+
 ## The one distinction everything depends on
 
 **"Did this change?" and "Is this right?" are different questions, answered by different
