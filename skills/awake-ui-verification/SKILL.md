@@ -93,8 +93,25 @@ change helped until its row reads `good`.
 Reasoning from source about spacing, centering or smoothness is unreliable. Build the real
 thing and read real output:
 
-- **Numbers** — drive a real `UiContext`, call the real widget, assert on the actual `UiBounds`
-  or mesh it produces. See `RowCrossAxisCenterProbeTest`, `UiPathFillTessellationTest`.
+- **Numbers and ordinary component frames** — use
+  `renderUiComponent(...)` from `awake:ui:testing`. It owns the frame lifecycle, density/font
+  restoration, input snapshot, semantics, and emitted primitives. Install a design-system scope
+  through its `rootProvider`; do not hand-roll `UiContext.beginFrame`, font/theme pushes, and
+  `finishFrame` in a component or snapshot fixture.
+
+  ```kotlin
+  val frame = renderUiComponent(
+      width = 240f,
+      height = 80f,
+      rootProvider = { content -> shadcnTheme { content() } },
+  ) {
+      shadcnButton("save", "Save")
+  }
+  assertEquals(36f, frame.bounds("save").height)
+  ```
+
+  `UiTestSession` is the multi-frame equivalent for pointer/key interaction. Use raw
+  `UiContext` only for a renderer/backend probe that the testing helper cannot express.
 - **Pixels** — rasterize and write a PNG you open and look at:
 
 ```kotlin

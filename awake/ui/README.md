@@ -66,7 +66,11 @@ include(":awake:ui:tailwind-generator")
     - Integration and vector path definitions for the Heroicons icon set.
 
 - `awake:ui:testing`:
-    - Utilities, snapshot test runners, and test harnesses for UI components.
+    - Utilities, snapshot test runners, and test harnesses for UI components. Use
+      `renderUiComponent(...)` for a one-frame Headless/design-system test and
+      `uiTestSession(...)` for persistent multi-frame interaction tests. Both own the
+      `UiContext` lifecycle; direct context setup is reserved for Core, renderer, and backend
+      probes.
 
 - `awake:ui:font-atlas-generator`:
     - Tooling for generating signed distance field (MSDF/SDF) font atlases.

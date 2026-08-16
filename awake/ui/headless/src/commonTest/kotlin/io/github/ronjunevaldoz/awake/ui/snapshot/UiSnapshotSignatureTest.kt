@@ -96,15 +96,18 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 // 2026-08-10: re-recorded after BasicText switched from rounding each glyph's origin and size
 // independently to rounding its right/bottom edges from one unrounded origin -- the "wavy text"
 // fix. Every text-bearing scene moved by up to a pixel per glyph.
+// 2026-08-16: review fixtures now render through renderUiComponent and install Shadcn through
+// rootProvider. The changed scenes previously depended on Core defaults; existing Shadcn scenes
+// remain byte-identical.
 private val expectedReviewSnapshotSignatures = mapOf(
-    "toggle-unchecked" to 0xff2d583c73f52cc2uL,
-    "toggle-checked" to 0x1532b23a23d66bebuL,
-    "button-filled" to 0xe487546441c66a5fuL,
-    "button-outline" to 0x8ed0f90cc411500cuL,
-    "button-ghost" to 0x5a38693e9da7e990uL,
-    "theme-dark" to 0x5a38693e9da7e990uL,
-    "theme-light" to 0xe513b73183d4cee2uL,
-    "panel-with-children" to 0x1ddc07346704c643uL,
+    "toggle-unchecked" to 0xd372d09ea0d623dfuL,
+    "toggle-checked" to 0xd69b36d70713ad4euL,
+    "button-filled" to 0xa2c89dbf50faff07uL,
+    "button-outline" to 0x771ccee1b7965f8fuL,
+    "button-ghost" to 0xbb50c6778fdae137uL,
+    "theme-dark" to 0x98f3944a8394b547uL,
+    "theme-light" to 0x7a2523dbdc3b0e40uL,
+    "panel-with-children" to 0x237f8add096afe79uL,
     "shadcn-field-error" to 0x105ac00923155246uL,
 )
 
@@ -140,11 +143,11 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // unskinned Headless controls, so it no longer inherits the old Core component visual fallback.
 private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x6a983a490866bb5buL,
-    "ui-shaped-panel" to 0xe7d4595f9dce9c9fuL,
+    "ui-shaped-panel" to 0xdd73c120438fed8fuL,
     "ui-panel-controls" to 0x48857545493d9b37uL,
     "ui-alert-dialog" to 0xd86c496ca1a25736uL,
-    "ui-component-state-matrix" to 0x1db499fead8b89c9uL,
-    "ui-rounded-clip-vector" to 0xf2cd41c5da7ae2cduL,
+    "ui-component-state-matrix" to 0x47194c3f2ead1fc2uL,
+    "ui-rounded-clip-vector" to 0x0627d9a01bb6098buL,
     "ui-awake-shadcn-showcase" to 0x9900cb4fb67ecb53uL,
 )
 
