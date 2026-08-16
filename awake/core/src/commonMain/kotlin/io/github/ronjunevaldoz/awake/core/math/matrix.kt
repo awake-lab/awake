@@ -486,28 +486,122 @@ operator fun Mat4.times(other: Mat4): Mat4 {
     return result
 }
 
+/**
+ * In-place [transformPosition] -- see it for the convention this follows and why it changed.
+ */
 fun Mat4.transformToPosition(posDest: Vec4) {
     val x = posDest.x
     val y = posDest.y
     val z = posDest.z
     val w = posDest.w
     val mat = this
-    val resultX = mat.m00 * x + mat.m10 * y + mat.m20 * z + mat.m30 * w
-    val resultY = mat.m01 * x + mat.m11 * y + mat.m21 * z + mat.m31 * w
-    val resultZ = mat.m02 * x + mat.m12 * y + mat.m22 * z + mat.m32 * w
-    val resultW = mat.m03 * x + mat.m13 * y + mat.m23 * z + mat.m33 * w
+    val resultX = mat.m00 * x + mat.m01 * y + mat.m02 * z + mat.m03 * w
+    val resultY = mat.m10 * x + mat.m11 * y + mat.m12 * z + mat.m13 * w
+    val resultZ = mat.m20 * x + mat.m21 * y + mat.m22 * z + mat.m23 * w
+    val resultW = mat.m30 * x + mat.m31 * y + mat.m32 * z + mat.m33 * w
     posDest[resultX, resultY, resultZ] = resultW
 }
 
+/**
+ * `matrix * position`, the same order every shader in this repo uses
+ * (`uniforms.mvp * vec4f(inPosition, 1.0)`) and the one [Mat4.translate]/[Mat4.fromTrs] store
+ * for: translation lives in `m03/m13/m23`, and it has to be read across a row.
+ *
+ * This used to read down the columns instead, i.e. it transformed by the TRANSPOSE. Nothing in
+ * the engine noticed, because the CPU never transforms a point on the render path -- matrices go
+ * to the GPU as raw column-major floats and the multiply happens there. It surfaced the moment
+ * something needed a point transformed on the CPU (a bounding box, a gizmo handle): a translated
+ * box did not move.
+ */
 fun Mat4.transformPosition(position: Vec4): Vec4 {
     val x = position.x
     val y = position.y
     val z = position.z
     val w = position.w
 
-    val resultX = m00 * x + m10 * y + m20 * z + m30 * w
-    val resultY = m01 * x + m11 * y + m21 * z + m31 * w
-    val resultZ = m02 * x + m12 * y + m22 * z + m32 * w
-    val resultW = m03 * x + m13 * y + m23 * z + m33 * w
+    val resultX = m00 * x + m01 * y + m02 * z + m03 * w
+    val resultY = m10 * x + m11 * y + m12 * z + m13 * w
+    val resultZ = m20 * x + m21 * y + m22 * z + m23 * w
+    val resultW = m30 * x + m31 * y + m32 * z + m33 * w
     return Vec4(resultX, resultY, resultZ, resultW)
+}
+
+/**
+ * The determinant, via cofactor expansion on the first row.
+ *
+ * Shares its 2x2 sub-determinants with [inverse] -- the same numbers appear there, so a caller
+ * that needs both pays for them twice. Fine at the rate a matrix is actually inverted (a picking
+ * ray per click, not per draw call); if that changes, fuse them.
+ */
+fun Mat4.determinant(): Float {
+    val s0 = m00 * m11 - m01 * m10
+    val s1 = m00 * m12 - m02 * m10
+    val s2 = m00 * m13 - m03 * m10
+    val s3 = m01 * m12 - m02 * m11
+    val s4 = m01 * m13 - m03 * m11
+    val s5 = m02 * m13 - m03 * m12
+
+    val c5 = m22 * m33 - m23 * m32
+    val c4 = m21 * m33 - m23 * m31
+    val c3 = m21 * m32 - m22 * m31
+    val c2 = m20 * m33 - m23 * m30
+    val c1 = m20 * m32 - m22 * m30
+    val c0 = m20 * m31 - m21 * m30
+
+    return s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0
+}
+
+/**
+ * The inverse, or `null` when this matrix is singular (a zero scale collapses an axis, and no
+ * inverse exists -- returning identity or garbage there would silently produce wrong positions
+ * far from the call that caused it).
+ *
+ * Unprojection is what this exists for: turning a screen pixel back into a world-space ray needs
+ * the inverse view-projection, and without it a picking implementation has to approximate by
+ * projecting every candidate forward instead (see the studio gizmo's own doc comment).
+ *
+ * Convention-free by construction: it inverts the matrix, so it composes with whichever
+ * multiplication order the caller already uses. [Mat4Test] pins that down by round-tripping
+ * through this codebase's own [transformPosition] rather than asserting a layout.
+ */
+fun Mat4.inverse(): Mat4? {
+    val s0 = m00 * m11 - m01 * m10
+    val s1 = m00 * m12 - m02 * m10
+    val s2 = m00 * m13 - m03 * m10
+    val s3 = m01 * m12 - m02 * m11
+    val s4 = m01 * m13 - m03 * m11
+    val s5 = m02 * m13 - m03 * m12
+
+    val c5 = m22 * m33 - m23 * m32
+    val c4 = m21 * m33 - m23 * m31
+    val c3 = m21 * m32 - m22 * m31
+    val c2 = m20 * m33 - m23 * m30
+    val c1 = m20 * m32 - m22 * m30
+    val c0 = m20 * m31 - m21 * m30
+
+    val determinant = s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0
+    if (determinant == 0f || !determinant.isFinite()) return null
+    val invDet = 1f / determinant
+
+    return Mat4().also { out ->
+        out.m00 = (m11 * c5 - m12 * c4 + m13 * c3) * invDet
+        out.m01 = (-m01 * c5 + m02 * c4 - m03 * c3) * invDet
+        out.m02 = (m31 * s5 - m32 * s4 + m33 * s3) * invDet
+        out.m03 = (-m21 * s5 + m22 * s4 - m23 * s3) * invDet
+
+        out.m10 = (-m10 * c5 + m12 * c2 - m13 * c1) * invDet
+        out.m11 = (m00 * c5 - m02 * c2 + m03 * c1) * invDet
+        out.m12 = (-m30 * s5 + m32 * s2 - m33 * s1) * invDet
+        out.m13 = (m20 * s5 - m22 * s2 + m23 * s1) * invDet
+
+        out.m20 = (m10 * c4 - m11 * c2 + m13 * c0) * invDet
+        out.m21 = (-m00 * c4 + m01 * c2 - m03 * c0) * invDet
+        out.m22 = (m30 * s4 - m31 * s2 + m33 * s0) * invDet
+        out.m23 = (-m20 * s4 + m21 * s2 - m23 * s0) * invDet
+
+        out.m30 = (-m10 * c3 + m11 * c1 - m12 * c0) * invDet
+        out.m31 = (m00 * c3 - m01 * c1 + m02 * c0) * invDet
+        out.m32 = (-m30 * s3 + m31 * s1 - m32 * s0) * invDet
+        out.m33 = (m20 * s3 - m21 * s1 + m22 * s0) * invDet
+    }
 }

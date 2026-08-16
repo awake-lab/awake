@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.math
 
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /** `[x, y, z, w]` rotation quaternion -- glTF's own component order. Same
@@ -42,6 +44,29 @@ data class Quat(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w: 
 
     companion object {
         val IDENTITY = Quat(0f, 0f, 0f, 1f)
+
+        /** A quaternion encodes half the rotation angle. */
+        private const val HALF_TURN_SCALE = 0.5f
+
+        /** Below this an axis carries no direction to rotate about. */
+        private const val DEGENERATE_AXIS_LENGTH = 1e-6f
+
+        /**
+         * A rotation of [radians] about [axis], right-handed (counter-clockwise looking down the
+         * axis toward the origin).
+         *
+         * [axis] is normalized here rather than required to be: a caller composing an axis from
+         * a difference of two points has an unnormalized one, and silently producing a rotation
+         * that also scales is the kind of bug that surfaces three transforms away. Returns
+         * [IDENTITY] for a degenerate axis, which is the only rotation a zero axis can mean.
+         */
+        fun fromAxisAngle(axis: Vec3, radians: Float): Quat {
+            val length = sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z)
+            if (length < DEGENERATE_AXIS_LENGTH) return Quat(IDENTITY.x, IDENTITY.y, IDENTITY.z, IDENTITY.w)
+            val half = radians * HALF_TURN_SCALE
+            val sinHalf = sin(half) / length
+            return Quat(axis.x * sinHalf, axis.y * sinHalf, axis.z * sinHalf, cos(half))
+        }
 
         /** Normalized-lerp between [a] and [b] -- the standard approximation for glTF's `LINEAR`
          * rotation-sampler interpolation (true `slerp` isn't worth its extra trig cost for the
