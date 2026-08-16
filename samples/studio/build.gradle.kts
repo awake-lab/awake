@@ -58,6 +58,12 @@ kotlin {
             dependsOn(appMain)
         }
 
+        named("desktopTest") {
+            dependencies {
+                implementation(project(":awake:backend:vulkan"))
+            }
+        }
+
         named("wasmJsMain") {
             dependencies {
                 implementation(project(":awake:core"))
@@ -78,6 +84,20 @@ val moltenVkIcdPath =
         .plus(fileTree("/usr/local/Cellar/molten-vk") { include("*/etc/vulkan/icd.d/MoltenVK_icd.json") })
         .files.firstOrNull()?.absolutePath
 val dyldFallbackLibraryPath = "/opt/homebrew/opt/vulkan-loader/lib:/opt/homebrew/lib:/usr/local/lib"
+
+// The desktop test JVM needs the same native wiring the `run` task above sets up: these tests
+// construct a real Vulkan device to render a frame and look at it, which is the only way to catch
+// something the unit tests cannot see (a mirrored viewport, an unlit surface).
+tasks.named<Test>("desktopTest") {
+    jvmArgs("-Djava.library.path=${desktopNativeLibDir.get().asFile.absolutePath}")
+    if (moltenVkIcdPath != null) {
+        environment("VK_ICD_FILENAMES", moltenVkIcdPath)
+    }
+    environment("DYLD_FALLBACK_LIBRARY_PATH", dyldFallbackLibraryPath)
+    // Each device session creates a Vulkan instance, and a second vkCreateInstance in the same
+    // JVM fails -- same reason :awake:backend:vulkan forks per class.
+    forkEvery = 1
+}
 
 tasks.register<JavaExec>("run") {
     group = "application"
