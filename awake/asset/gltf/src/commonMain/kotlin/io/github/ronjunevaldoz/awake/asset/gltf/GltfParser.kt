@@ -100,7 +100,7 @@ object GltfParser {
                 }
                 val primitives = meshDef.primitives.map { primitive ->
                     val raw = readPrimitive(document, buffers, primitive, externalResources)
-                    LoadedPrimitive(raw.toInterleavedPositionColorUv(), raw.indices, world)
+                    LoadedPrimitive(raw.toInterleavedPositionColorUv(), raw.indices, world, raw.baseColorImageBytes)
                 }
                 loadedMeshes += LoadedMesh(meshDef.name ?: "", primitives)
             }

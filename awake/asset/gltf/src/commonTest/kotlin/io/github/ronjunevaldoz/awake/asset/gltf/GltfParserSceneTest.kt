@@ -2,14 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.asset.gltf
 
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 /**
  * [GltfParser.parseScene] (GLB container + `scenes`/`nodes` traversal) tests -- builds real
  * GLB bytes programmatically (header + JSON chunk + BIN chunk), same spirit as
  * [GltfParserTest]'s `triangleBufferBase64()` helper.
  */
+@OptIn(ExperimentalEncodingApi::class)
 class GltfParserSceneTest {
     /** A single flat triangle: v0=(0,0,0), v1=(1,0,0), v2=(0,1,0), indices=[0,1,2] -- 9 floats
      * (positions) followed by 3 unsigned shorts (indices), matching the bufferView/accessor
@@ -188,6 +192,70 @@ class GltfParserSceneTest {
         assertEquals(10f, world.m03)
         assertEquals(5f, world.m13)
         assertEquals(1f, world.m23)
+    }
+
+    @Test
+    fun eachPrimitiveKeepsItsOwnMaterialBaseColorTexture() {
+        val skinImage = byteArrayOf(1, 2, 3)
+        val clothingImage = byteArrayOf(4, 5, 6, 7)
+        val meshesWithMaterials = """
+            {
+              "bufferViews": [
+                { "buffer": 0, "byteOffset": 0, "byteLength": 36 },
+                { "buffer": 0, "byteOffset": 36, "byteLength": 6 }
+              ],
+              "accessors": [
+                { "bufferView": 0, "componentType": 5126, "count": 3, "type": "VEC3" },
+                { "bufferView": 1, "componentType": 5123, "count": 3, "type": "SCALAR" }
+              ],
+              "meshes": [
+                {
+                  "name": "character",
+                  "primitives": [
+                    { "attributes": { "POSITION": 0 }, "indices": 1, "material": 0 },
+                    { "attributes": { "POSITION": 0 }, "indices": 1, "material": 1 }
+                  ]
+                }
+              ],
+              "buffers": [ { "byteLength": 42 } ],
+              "materials": [
+                { "pbrMetallicRoughness": { "baseColorTexture": { "index": 0 } } },
+                { "pbrMetallicRoughness": { "baseColorTexture": { "index": 1 } } }
+              ],
+              "textures": [ { "source": 0 }, { "source": 1 } ],
+              "images": [
+                { "uri": "data:image/png;base64,${Base64.encode(skinImage)}" },
+                { "uri": "data:image/png;base64,${Base64.encode(clothingImage)}" }
+              ],
+              "nodes": [ { "mesh": 0 } ],
+              "scenes": [ { "nodes": [0] } ],
+              "scene": 0
+            }
+        """.trimIndent()
+        val glb = encodeGlb(meshesWithMaterials, triangleBinBytes())
+
+        val scene = GltfParser.parseScene(glb)
+
+        val primitives = scene.meshes.single().primitives
+        assertEquals(2, primitives.size)
+        assertEquals(skinImage.toList(), primitives[0].baseColorImageBytes?.toList())
+        assertEquals(clothingImage.toList(), primitives[1].baseColorImageBytes?.toList())
+    }
+
+    @Test
+    fun primitiveWithoutMaterialHasNoBaseColorImage() {
+        val glb = buildGlb(
+            """
+            "nodes": [ { "mesh": 0 } ],
+            "scenes": [ { "nodes": [0] } ],
+            "scene": 0
+            """.trimIndent(),
+            triangleBinBytes(),
+        )
+
+        val scene = GltfParser.parseScene(glb)
+
+        assertNull(scene.meshes.single().primitives.single().baseColorImageBytes)
     }
 
     private fun identityData(): List<Float> = listOf(
