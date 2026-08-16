@@ -148,11 +148,21 @@ data class Vec4(var x: Float = 1f, var y: Float = 1f, var z: Float = 1f, var w: 
 
     operator fun minus(other: Vec4): Vec4 = Vec4(x - other.x, y - other.y, z - other.z, w - other.w)
 
+    /**
+     * `other * this` -- the matrix applied to this point, the same order the shaders use
+     * (`uniforms.mvp * vec4f(inPosition, 1.0)`) and the one [Mat4.times] already composes for.
+     *
+     * Spelled `v * m` because that is the spelling this codebase had; the operand order in the
+     * name is not the convention. It used to compute the TRANSPOSE, which made `(p * A) * B`
+     * disagree with `p * (A * B)` -- the defect Vec4Test characterised, and the reason any
+     * CPU-side projection through a composed MVP was wrong. Nothing on the render path noticed,
+     * because matrices reach the GPU as raw floats and the multiply happens there.
+     */
     operator fun times(other: Mat4): Vec4 = Vec4(
-        x * other.m00 + y * other.m10 + z * other.m20 + w * other.m30,
-        x * other.m01 + y * other.m11 + z * other.m21 + w * other.m31,
-        x * other.m02 + y * other.m12 + z * other.m22 + w * other.m32,
-        x * other.m03 + y * other.m13 + z * other.m23 + w * other.m33,
+        other.m00 * x + other.m01 * y + other.m02 * z + other.m03 * w,
+        other.m10 * x + other.m11 * y + other.m12 * z + other.m13 * w,
+        other.m20 * x + other.m21 * y + other.m22 * z + other.m23 * w,
+        other.m30 * x + other.m31 * y + other.m32 * z + other.m33 * w,
     )
 
     operator fun times(scalar: Float): Vec4 = Vec4(x * scalar, y * scalar, z * scalar, w * scalar)

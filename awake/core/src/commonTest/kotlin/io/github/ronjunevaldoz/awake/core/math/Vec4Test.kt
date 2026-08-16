@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.math
 
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -57,22 +56,21 @@ class Vec4Test {
     }
 
     /**
-     * Characterises a real defect, it is not an endorsement. [Vec4.times] (and its twin
-     * [Mat4.transformPosition]) contract `m[row][col]` against the *row* index of the vector,
-     * i.e. they compute `M^T * v`, not the `M * v` the shaders perform on the very same
-     * [Mat4.data] bytes (see [applyToColumnVector]'s doc comment). The visible consequence: a
-     * translation matrix does not translate -- its translation column leaks into `w` instead.
+     * [Vec4.times] must do to these 16 floats exactly what the GPU does with them.
+     *
+     * This once characterised the opposite: the operator contracted `m[row][col]` against the
+     * vector's ROW index, i.e. computed `M^T * v`, so a translation matrix did not translate --
+     * its translation column leaked into `w`. Nothing on the render path noticed, because the
+     * CPU never transforms a point there; it surfaced when a bounding box and a gizmo handle
+     * needed transforming on the CPU.
      */
     @Test
-    fun timesMat4ComputesTheTransposeNotWhatTheShaderDoes() {
+    fun timesMat4MatchesWhatTheShaderDoesWithTheSameBytes() {
         val translate = Mat4().translate(5f, 0f, 0f)
 
-        // What the GPU does with these exact 16 floats:
-        assertVec4(Vec4(5f, 0f, 0f, 1f), translate.applyToColumnVector(0f, 0f, 0f))
-        // What Vec4.times does with them: the origin never moves...
-        assertVec4(Vec4(0f, 0f, 0f, 1f), Vec4(0f, 0f, 0f, 1f) * translate)
-        // ...and the translation turns up in w instead.
-        assertVec4(Vec4(1f, 0f, 0f, 5f), Vec4(1f, 0f, 0f, 0f) * translate)
+        assertVec4(translate.applyToColumnVector(0f, 0f, 0f), Vec4(0f, 0f, 0f, 1f) * translate)
+        assertVec4(Vec4(5f, 0f, 0f, 1f), Vec4(0f, 0f, 0f, 1f) * translate)
+        assertVec4(Vec4(6f, 0f, 0f, 1f), Vec4(1f, 0f, 0f, 1f) * translate)
     }
 
     @Test
@@ -94,29 +92,11 @@ class Vec4Test {
         assertVec4(expected, v)
     }
 
-    /**
-     * Characterises a real defect, it is not an endorsement -- see the @Ignore'd test below.
-     * Because [Mat4.times] is the reversed/transposed product while [Vec4.times] applies the
-     * transpose too, the two do not compose: transforming through a pre-multiplied matrix gives
-     * a different answer than transforming through its factors one at a time.
-     */
+    /** The defect this once characterised is fixed: vector.kt and matrix.kt now agree on the
+     * `M * v` convention the shaders use, so transforming through a composed matrix and through
+     * its factors give the same answer. */
     @Test
-    fun timesMat4IsCurrentlyNotAssociativeWithMat4Times() {
-        val translate = Mat4().translate(5f, 0f, 0f)
-        val scale = Mat4().scale(2f)
-        val p = Vec4(1f, 0f, 0f, 1f)
-
-        assertVec4(Vec4(2f, 0f, 0f, 6f), (p * translate) * scale)
-        assertVec4(Vec4(2f, 0f, 0f, 11f), p * (translate * scale))
-    }
-
-    // DEFECT: Vec4.times(Mat4)/Mat4.transformPosition compute M^T * v while Mat4.times composes
-    // matrices for the M * v convention the shaders use, so (p * A) * B != p * (A * B). Any
-    // CPU-side projection through a composed MVP is wrong today. Un-@Ignore once
-    // vector.kt/matrix.kt agree on one convention.
-    @Ignore
-    @Test
-    fun timesMat4ShouldAssociateWithMat4Times() {
+    fun timesMat4AssociatesWithMat4Times() {
         val translate = Mat4().translate(5f, 0f, 0f)
         val scale = Mat4().scale(2f)
         val p = Vec4(1f, 0f, 0f, 1f)
