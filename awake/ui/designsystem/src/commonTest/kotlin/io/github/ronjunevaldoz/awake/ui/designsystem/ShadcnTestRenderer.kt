@@ -59,6 +59,34 @@ internal class ShadcnTestSession(
         content: UiScope.(root: UiBounds) -> Unit,
     ): UiComponentFrame = session.frame(input = input, deltaSeconds = deltaSeconds, content = content)
 
+    fun hover(x: Float, y: Float, content: UiScope.(root: UiBounds) -> Unit): UiComponentFrame =
+        session.hover(x, y, content)
+
+    fun click(x: Float, y: Float, content: UiScope.(root: UiBounds) -> Unit): UiComponentFrame =
+        session.click(x, y, content)
+
+    fun doubleClick(x: Float, y: Float, content: UiScope.(root: UiBounds) -> Unit): UiComponentFrame =
+        session.doubleClick(x, y, content)
+
+    fun longPress(
+        x: Float,
+        y: Float,
+        durationSeconds: Float,
+        content: UiScope.(root: UiBounds) -> Unit,
+    ): UiComponentFrame = session.longPress(x, y, durationSeconds, content)
+
+    fun rightClick(x: Float, y: Float, content: UiScope.(root: UiBounds) -> Unit): UiComponentFrame =
+        session.rightClick(x, y, content)
+
+    fun drag(
+        startX: Float,
+        startY: Float,
+        endX: Float,
+        endY: Float,
+        steps: Int = 1,
+        content: UiScope.(root: UiBounds) -> Unit,
+    ): UiComponentFrame = session.drag(startX, startY, endX, endY, steps, content)
+
     override fun close() = session.close()
 }
 
