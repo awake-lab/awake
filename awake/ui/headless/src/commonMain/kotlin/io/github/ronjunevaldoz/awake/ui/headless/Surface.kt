@@ -18,11 +18,14 @@ fun UiScope.surface(
     style: Style = Style.Empty,
     verticalArrangement: Arrangement = Arrangement.Start,
     clipContent: Boolean = false,
+    // Opt-in cross-frame cache for the WrapContent sizing trial -- see UiScope.column.
+    cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = primitive.primitiveSurface(
     id = id,
     modifier = modifier.asPrimitiveModifier(),
     style = style,
+    cacheKey = cacheKey,
     verticalArrangement = verticalArrangement.asPrimitiveArrangement(),
     clipContent = clipContent,
 ) { slot -> content(asHeadlessScope(), slot) }

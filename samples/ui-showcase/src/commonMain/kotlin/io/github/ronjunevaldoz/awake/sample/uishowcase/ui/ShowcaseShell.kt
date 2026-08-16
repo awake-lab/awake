@@ -76,6 +76,9 @@ internal fun ColumnScope.drawUiShowcasePageContent(
         shadcnSurface(
             id = "ui-showcase-notes-${page.id}",
             modifier = Modifier,
+            // Static text per page -- the id already varies with the page, so a constant key
+            // makes every frame after the first a sizing-cache hit.
+            cacheKey = page.id,
         ) {
             shadcnSectionTitle("Notes")
             shadcnTextLines(page.notes)
