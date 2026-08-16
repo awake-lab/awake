@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.examples
 
+import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.graphics.createBitmap
 import io.github.ronjunevaldoz.awake.core.graphics.toRgba8Bytes
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
-import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh

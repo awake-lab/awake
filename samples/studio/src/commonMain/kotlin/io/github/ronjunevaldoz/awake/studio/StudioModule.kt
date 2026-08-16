@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
+import io.github.ronjunevaldoz.awake.core.math.Vec2
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
@@ -9,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ecs.ensure
 import io.github.ronjunevaldoz.awake.engine.game.GameModule
 import io.github.ronjunevaldoz.awake.engine.game.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
+import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraInputSystem
 import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraSystem
 import io.github.ronjunevaldoz.awake.scene.authoring.scene
@@ -27,8 +30,13 @@ import io.github.ronjunevaldoz.awake.studio.examples.ExampleLoader
 import io.github.ronjunevaldoz.awake.studio.examples.GltfViewerAssets
 import io.github.ronjunevaldoz.awake.studio.examples.SkinnedExampleDriver
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
+import io.github.ronjunevaldoz.awake.studio.examples.StudioMeshBounds
 import io.github.ronjunevaldoz.awake.studio.examples.studioCubeGeometry
 import io.github.ronjunevaldoz.awake.studio.examples.studioGroundGeometry
+import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoPointer
+import io.github.ronjunevaldoz.awake.studio.gizmo.StudioGizmo
+import io.github.ronjunevaldoz.awake.studio.gizmo.StudioViewportRect
+import io.github.ronjunevaldoz.awake.studio.gizmo.ViewportProjection
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.studio.ui.drawStudioShell
@@ -50,11 +58,15 @@ internal fun studioModule(
 ): GameModule {
     val loader = ExampleLoader()
     val backendLabel = backend.label()
+    val gizmo = StudioGizmo()
+    val viewportRect = StudioViewportRect()
     return gameModule {
         scene("studio") {
             assets {
-                mesh("cube") { renderer.createMesh(studioCubeGeometry) }
-                mesh("ground") { renderer.createMesh(studioGroundGeometry) }
+                // Bounds are recorded here because this is the last point where the geometry is
+                // still on the CPU -- createMesh uploads it and the vertices are gone.
+                mesh("cube") { renderer.createMesh(studioCubeGeometry.alsoRecordBounds("cube")) }
+                mesh("ground") { renderer.createMesh(studioGroundGeometry.alsoRecordBounds("ground")) }
                 material("lit-shadow") { renderer.createMaterial(uniformFloatCount = LIT_SHADOW_UNIFORM_FLOAT_COUNT) }
                 mesh("duck") { GltfViewerAssets.createMesh(this) }
                 material("duck-material") { GltfViewerAssets.createMaterial(this) }
@@ -75,6 +87,9 @@ internal fun studioModule(
             frameSystem("example-driver") {
                 StudioExampleDriverSystem(this, store, loader, writeScene)
             }
+            // After the driver (so a freshly loaded scene is pickable this frame) and before the
+            // infrastructure systems, whose RenderSystem consumes the staged handle lines.
+            frameSystem("gizmo") { StudioGizmoSystem(this, store, gizmo, viewportRect, loader::boundsOf) }
             cameraSystem()
             onReady {
                 GltfViewerAssets.preload()
@@ -92,10 +107,16 @@ internal fun studioModule(
                     backendLabel,
                     viewportWidth,
                     viewportHeight,
+                    viewportRect,
                 )
             }
         }
     }
+}
+
+/** Records [meshId]'s local bounds for picking, and returns the geometry unchanged. */
+private fun MeshGeometry.alsoRecordBounds(meshId: String): MeshGeometry = also {
+    StudioMeshBounds.register(meshId, vertices, format.strideBytes / Float.SIZE_BYTES)
 }
 
 // Spelled out rather than derived from `name`: enum-case text ("WEBGPU") is not how any of these
@@ -120,6 +141,64 @@ private class SpinClockSystem : System {
 private class PlayModeSystem(private val delegate: System, private val store: StudioStore) : System {
     override fun update(world: World, delta: Float) {
         if (store.state.value.mode == StudioContract.Mode.Play) delegate.update(world, delta)
+    }
+}
+
+/**
+ * Drives the translate gizmo once per frame.
+ *
+ * A system rather than something hooked into the overlay: the UI layout callback it used to run
+ * from fires several times per frame (the resizable group measures before it places), which
+ * advanced a drag's state machine multiple times per frame and against intermediate rects.
+ *
+ * The viewport rect comes from [StudioViewportRect], written by the shell during layout -- the
+ * same rect the scene is rendered into, so a pick can never disagree with what the user sees.
+ */
+private class StudioGizmoSystem(
+    private val runtime: SceneGameRuntime,
+    private val store: StudioStore,
+    private val gizmo: StudioGizmo,
+    private val viewportRect: StudioViewportRect,
+    private val boundsOf: (Int) -> Aabb?,
+) : System {
+    override fun update(world: World, delta: Float) {
+        val viewport = viewportRect.bounds ?: return
+        val camera = primaryCamera(world) ?: return
+        val projection = ViewportProjection(
+            camera = camera.camera,
+            viewProjection = camera.camera.viewProjectionMatrix(
+                viewport.width / viewport.height,
+                runtime.renderer.clipSpace,
+            ),
+            width = viewport.width,
+            height = viewport.height,
+        )
+
+        val input = runtime.uiContext.inputState
+        val insideViewport = input.pointerX >= viewport.x &&
+            input.pointerX <= viewport.x + viewport.width &&
+            input.pointerY >= viewport.y &&
+            input.pointerY <= viewport.y + viewport.height
+        // null rather than a clamped edge position: a drag must not keep running against the
+        // panel border after the cursor leaves it.
+        val local = if (insideViewport) Vec2(input.pointerX - viewport.x, input.pointerY - viewport.y) else null
+
+        val selected = store.state.value.inspector.selectedEntityId
+        // Edit mode only: dragging while gameplay systems own the transform would fight them, and
+        // the result is discarded on stop anyway.
+        if (store.state.value.mode == StudioContract.Mode.Edit) {
+            val clicked = gizmo.update(world, projection, selected, GizmoPointer(local, input.pointerDown), boundsOf)
+            if (local != null && input.pointerDown && clicked != selected) {
+                store.dispatch(StudioContract.Intent.SelectEntity(clicked))
+            }
+        }
+        runtime.renderer.drawDebugLines(gizmo.handleLines(world, selected))
+    }
+
+    private fun primaryCamera(world: World): Camera? {
+        var found: Camera? = null
+        world.family<Camera>().forEach { _, camera -> if (found == null && camera.isPrimary) found = camera }
+        return found
     }
 }
 

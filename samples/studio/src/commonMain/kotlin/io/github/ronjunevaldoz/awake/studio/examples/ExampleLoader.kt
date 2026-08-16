@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.examples
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneDocument
@@ -30,6 +31,17 @@ internal class ExampleLoader {
      * authored IDs are still in hand.
      */
     private val authoredRenderables = mutableMapOf<Entity, SceneMeshRenderer>()
+    private val boundsByEntity = mutableMapOf<Int, Aabb>()
+
+    /**
+     * Local-space bounds per entity, for picking.
+     *
+     * A live `MeshRenderer` holds GPU handles, so the geometry it was built from is gone by the
+     * time anything wants to hit-test it. The asset library knows that geometry at creation
+     * time, which is the only place these can come from without reading vertices back off the
+     * GPU.
+     */
+    fun boundsOf(entityId: Int): Aabb? = boundsByEntity[entityId]
 
     /** Rebuilds a document from the live world, so an edit made in the inspector is what gets
      * saved -- not the document that was loaded. */
@@ -56,9 +68,11 @@ internal class ExampleLoader {
         val instance = SceneLoader.instantiate(document, runtime.world)
         val library = runtime.requireAssetLibrary()
         authoredRenderables.clear()
+        boundsByEntity.clear()
         instance.renderableRequests.forEach { request ->
             runtime.world.add(request.entity, library.resolve(runtime, request))
             authoredRenderables[request.entity] = request.meshRenderer
+            StudioMeshBounds[request.meshRenderer.mesh]?.let { boundsByEntity[request.entity.id] = it }
         }
         example.onActivated?.invoke(instance, runtime.world)
         activeRoots = instance.roots.map { it.entity }
@@ -68,5 +82,6 @@ internal class ExampleLoader {
         activeRoots.forEach { world.destroy(it) }
         activeRoots = emptyList()
         authoredRenderables.clear()
+        boundsByEntity.clear()
     }
 }

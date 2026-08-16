@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.engine.game.requireService
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
@@ -201,6 +202,11 @@ class StudioModuleCameraTest {
 
 internal class RecordingCameraRenderer : NoopRenderer() {
     var lastEye: Vec3? = null
+
+    /** Staged debug lines from the most recent frame -- the gizmo's handles land here, since
+     * they are world-space 3D geometry rather than UI primitives. */
+    var debugLines: List<LineSegment> = emptyList()
+        private set
     var lastProjection: Camera.Projection? = null
     var lastOrthoHalfHeight: Float = 0f
 
@@ -210,5 +216,9 @@ internal class RecordingCameraRenderer : NoopRenderer() {
         lastEye = Vec3(camera.eye.x, camera.eye.y, camera.eye.z)
         lastProjection = camera.projection
         lastOrthoHalfHeight = camera.orthoHalfHeight
+    }
+
+    override fun drawDebugLines(lines: List<LineSegment>) {
+        debugLines = lines.toList()
     }
 }
