@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.UiDensity
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -28,7 +29,14 @@ import io.github.ronjunevaldoz.awake.ui.toUiInputState
 class UiComponentFrame(
     val semantics: List<UiSemanticNode>,
     val root: UiBounds,
+    /** This frame's draw output -- what a test asserting on painted geometry (a separator's
+     * 1px line, an avatar's badge circle) needs, and the reason those tests used to hand-roll
+     * the whole UiContext preamble instead of using this helper. */
+    val primitives: List<UiDrawPrimitive> = emptyList(),
 ) {
+    /** Draw primitives of one kind, in emission order. */
+    inline fun <reified T : UiDrawPrimitive> primitivesOf(): List<T> = primitives.filterIsInstance<T>()
+
     fun nodeOrNull(id: String): UiSemanticNode? = semantics.firstOrNull { it.id == id }
 
     fun node(id: String): UiSemanticNode = requireNotNull(nodeOrNull(id)) {
@@ -80,7 +88,11 @@ class UiTestSession(
         val root = UiBounds(0f, 0f, width, height)
         ui.createUiScope(root).content(root)
         val frame = ui.finishFrame()
-        return UiComponentFrame(semantics = frame.semantics, root = root)
+        return UiComponentFrame(
+            semantics = frame.semantics,
+            root = root,
+            primitives = frame.primitives,
+        )
     }
 
     override fun close() {
@@ -134,7 +146,11 @@ fun renderUiComponent(
         val root = UiBounds(0f, 0f, width, height)
         ui.createUiScope(root).content(root)
         val frame = ui.finishFrame()
-        return UiComponentFrame(semantics = frame.semantics, root = root)
+        return UiComponentFrame(
+            semantics = frame.semantics,
+            root = root,
+            primitives = frame.primitives,
+        )
     } finally {
         UiDensity.scale = previousDensity
     }
