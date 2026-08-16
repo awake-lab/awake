@@ -57,7 +57,15 @@ class ColumnScope internal constructor(
         // top of a menu, not as "weight is unimplemented here".
         // Not during measurement: the trial pass that DETECTS weights necessarily runs with no
         // planned slots yet, so every weighted child legitimately lands here first.
-        if (weight != null && !context.isMeasuringInternal() && !UiLayoutDiagnostics.allowUnplannedWeight) {
+        // Not when the parent took the unweighted branch from a remembered answer either: the
+        // weight appeared *since last frame*, so this frame lays it out unweighted and the
+        // parent's live observation fixes the branch on the next one (see
+        // UiContext.tolerateUnplannedWeightInternal).
+        if (weight != null &&
+            !context.isMeasuringInternal() &&
+            !UiLayoutDiagnostics.allowUnplannedWeight &&
+            !context.toleratesUnplannedWeightInternal()
+        ) {
             error(
                 "column() child claimed weight(${weight.weight}) but its parent never planned " +
                     "weighted slots, so the weight is being dropped and the child will wrap its " +
