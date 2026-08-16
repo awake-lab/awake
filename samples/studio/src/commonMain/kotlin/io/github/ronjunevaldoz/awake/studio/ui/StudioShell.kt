@@ -18,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableP
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggleGroup
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -43,9 +44,10 @@ private val ViewportClearColor = floatArrayOf(0.14f, 0.14f, 0.16f, 1f)
 
 internal fun SceneGameRuntime.drawStudioShell(store: StudioStore, viewportWidth: Float, viewportHeight: Float) {
     renderer.clearColor = ViewportClearColor
-    uiContext.pushTheme(StudioTheme)
     headlessFrame(viewportWidth, viewportHeight) {
-        drawStudioShellBody(store, world, renderer)
+        shadcnTheme(values = StudioTheme) {
+            drawStudioShellBody(store, world, renderer)
+        }
     }
 }
 
