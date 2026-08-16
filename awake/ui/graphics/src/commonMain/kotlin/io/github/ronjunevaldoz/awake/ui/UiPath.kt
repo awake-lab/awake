@@ -989,7 +989,12 @@ fun UiPath.tessellateStroke(stroke: UiStroke): UiTriangleMesh {
  */
 fun UiPath.strokeToFillPath(stroke: UiStroke): UiPath {
     val contours = flattenContours()
-    val halfWidth = stroke.width.toPx() / 2f
+    // [UiStroke.width] is in the PATH's own coordinate space, not dp: an icon reaches here
+    // through [UiImageVector.fitTo], which scales the path into device pixels and scales the
+    // stroke width by the same factor. Converting again with `toPx()` applied density twice, so
+    // every outline glyph came out proportionally heavier the higher the display scale -- at 2x
+    // roughly double the weight Heroicons draws, at 3x the shapes closed into blobs.
+    val halfWidth = stroke.width.value / 2f
     if (contours.isEmpty() || halfWidth <= 0f) return UiPath(fillRule = UiFillRule.NonZero, commands = emptyList())
 
     val commands = ArrayList<UiPathCommand>()
