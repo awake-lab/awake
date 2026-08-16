@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableHandle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
@@ -23,10 +24,13 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggleGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiResizableDirection
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -246,11 +250,6 @@ private fun UiScope.drawStudioViewportPanel(
         row(
             modifier = Modifier.fillMaxWidth().weight(1f),
         ) {
-            drawIconRail(
-                onResetExample = { store.dispatch(StudioContract.Intent.SelectExample(store.state.value.examples.activeExampleId)) },
-                onSelectCameraMode = { store.dispatch(StudioContract.Intent.SetCameraMode(it)) },
-                onSelectCameraProjection = { store.dispatch(StudioContract.Intent.SetProjection(it)) },
-            )
             val viewportBounds = column(
                 modifier = Modifier.weight(1f).fillMaxHeight().padding(8f.dp),
             ) { }
@@ -262,44 +261,78 @@ private fun UiScope.drawStudioViewportPanel(
                 onWireframeChange = { renderer.wireframe = it },
                 onShadowsChange = { renderer.shadowsEnabled = it },
             )
-            viewportCameraMenu(
-                id = "studio-viewport-camera-menu",
-                bounds = viewportBounds,
-                onPick = { index ->
-                    dispatchCameraMenuPick(
-                        index,
-                        onSelectMode = { store.dispatch(StudioContract.Intent.SetCameraMode(it)) },
-                        onSelectProjection = { store.dispatch(StudioContract.Intent.SetProjection(it)) },
-                    )
-                },
-            )
         }
     }
 }
 
+/**
+ * The viewport's own controls, left to right: what a drag does, then what the camera does, then
+ * reload.
+ *
+ * One home for each concern. Camera modes used to be reachable from three places at once -- here,
+ * a button on the floating rail, and the viewport's right-click menu -- all dispatching the same
+ * intent. This is the one that shows the current mode without a click, so it is the one that
+ * stayed; right-click is now free for an object context menu, which is what a viewport's
+ * right-click is for once picking exists.
+ */
 private fun UiScope.drawStudioViewportHeader(store: StudioStore) {
-    val camera = store.state.value.camera
+    val state = store.state.value
+    val tools = StudioContract.Tool.entries
     val modes = CameraMode.entries
     val projections = StudioContract.Projection.entries
     row(
+        horizontalArrangement = Arrangement.spacedBy(8f.dp),
         verticalAlignment = UiAlignment.Vertical.Center,
         modifier = Modifier.fillMaxWidth().height(40f.dp),
     ) {
+        // Labelled rather than iconised: this repo's icon set has no cursor/move/rotate/scale
+        // glyphs, and icon vectors are generated from SVG sources rather than hand-written (see
+        // the icon-authoring skill). Four unlabelled approximations would be worse than words.
+        shadcnToggleGroup(
+            id = "studio-viewport-tool",
+            options = tools.map { it.name },
+            selectedIndex = tools.indexOf(state.tools.active),
+            modifier = Modifier.width(TOOL_GROUP_WIDTH).height(TOOL_GROUP_HEIGHT),
+        ) { index ->
+            tools.getOrNull(index)?.let { store.dispatch(StudioContract.Intent.SelectTool(it)) }
+        }
+        shadcnSeparator(
+            modifier = Modifier.height(TOOL_GROUP_HEIGHT),
+            orientation = UiSeparatorOrientation.Vertical,
+        )
         shadcnSelect(
             id = "studio-viewport-camera-mode",
             options = modes.map { it.name },
-            selectedIndex = modes.indexOf(camera.mode),
-            modifier = Modifier.width(156f.dp),
+            selectedIndex = modes.indexOf(state.camera.mode),
+            // Wide enough for "ThirdPerson" plus the chevron -- it truncated at both 156dp and
+            // 190dp.
+            modifier = Modifier.width(215f.dp),
         )?.let { index ->
             modes.getOrNull(index)?.let { store.dispatch(StudioContract.Intent.SetCameraMode(it)) }
         }
         shadcnToggleGroup(
             id = "studio-viewport-projection",
-            options = listOf("Perspective", "Ortho"),
-            selectedIndex = projections.indexOf(camera.projection),
-            modifier = Modifier.width(176f.dp).height(36f.dp),
+            // "Persp", not "Perspective": the full word needs 260dp, which the header cannot
+            // spare next to four tool segments and the mode select without truncating something
+            // else instead.
+            options = listOf("Persp", "Ortho"),
+            selectedIndex = projections.indexOf(state.camera.projection),
+            modifier = Modifier.width(PROJECTION_GROUP_WIDTH).height(TOOL_GROUP_HEIGHT),
         ) { index ->
             projections.getOrNull(index)?.let { store.dispatch(StudioContract.Intent.SetProjection(it)) }
         }
+        shadcnButton(
+            id = "studio-viewport-reset",
+            label = "Reset",
+            size = ShadcnButtonSize.Sm,
+            variant = ShadcnButtonVariant.Ghost,
+            onClick = { store.dispatch(StudioContract.Intent.SelectExample(state.examples.activeExampleId)) },
+        )
     }
 }
+
+// Sized so every label fits: at 260dp the four segments truncated to "Se...", "Ro...".
+private val TOOL_GROUP_WIDTH = 330f.dp
+private val TOOL_GROUP_HEIGHT = 36f.dp
+
+private val PROJECTION_GROUP_WIDTH = 180f.dp

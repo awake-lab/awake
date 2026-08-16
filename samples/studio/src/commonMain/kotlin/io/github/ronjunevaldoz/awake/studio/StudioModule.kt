@@ -33,8 +33,10 @@ import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import io.github.ronjunevaldoz.awake.studio.examples.StudioMeshBounds
 import io.github.ronjunevaldoz.awake.studio.examples.studioCubeGeometry
 import io.github.ronjunevaldoz.awake.studio.examples.studioGroundGeometry
+import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoFrame
 import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoPick
 import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoPointer
+import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoTool
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioGizmo
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioViewportRect
 import io.github.ronjunevaldoz.awake.studio.gizmo.ViewportProjection
@@ -185,17 +187,31 @@ private class StudioGizmoSystem(
         val local = if (insideViewport) Vec2(input.pointerX - viewport.x, input.pointerY - viewport.y) else null
 
         val selected = store.state.value.inspector.selectedEntityId
+        val tool = store.state.value.tools.active.toGizmoTool()
         // Edit mode only: dragging while gameplay systems own the transform would fight them, and
         // the result is discarded on stop anyway.
         if (store.state.value.mode == StudioContract.Mode.Edit) {
-            val pick = gizmo.update(world, projection, selected, GizmoPointer(local, input.pointerDown), boundsOf)
+            val pick = gizmo.update(
+                world,
+                GizmoFrame(projection, selected, GizmoPointer(local, input.pointerDown), tool),
+                boundsOf,
+            )
             // Only a frame that actually resolved a press changes the selection. Dispatching on
             // every frame the button is held cleared it one frame after making it.
             if (pick is GizmoPick.Selected && pick.entityId != selected) {
                 store.dispatch(StudioContract.Intent.SelectEntity(pick.entityId))
             }
         }
-        runtime.renderer.drawDebugLines(gizmo.handleLines(world, selected))
+        runtime.renderer.drawDebugLines(gizmo.handleLines(world, selected, tool))
+    }
+
+    /** Mapped rather than shared: the gizmo does not depend on studio's store, and a UI enum
+     * gaining a case that has no drag behaviour should fail to compile here. */
+    private fun StudioContract.Tool.toGizmoTool(): GizmoTool = when (this) {
+        StudioContract.Tool.Select -> GizmoTool.Select
+        StudioContract.Tool.Move -> GizmoTool.Move
+        StudioContract.Tool.Rotate -> GizmoTool.Rotate
+        StudioContract.Tool.Scale -> GizmoTool.Scale
     }
 
     private fun primaryCamera(world: World): Camera? {

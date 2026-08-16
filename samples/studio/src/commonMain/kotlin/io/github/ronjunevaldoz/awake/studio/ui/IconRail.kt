@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.ui
 
-import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
-import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -51,86 +49,15 @@ private fun UiScope.railCard(id: String, content: ColumnScope.() -> Unit): UiBou
 ) { content() }
 
 /**
- * Floating action rail (Modly-style): a rounded card hugging its icon stack, vertically
- * centered with a margin from the window edge rather than a full-height docked strip.
- * Reset reloads the active example, camera opens the mode/projection menu.
+ * Display toggles, floating at the viewport's right edge.
  *
- * It used to carry five tool buttons above these (Layers/Grid/Environment/History/Panels) whose
- * only effect was to look pressed -- nothing read the selected tool. Real transform tools belong
- * here once a viewport gizmo exists to drive; until then this rail holds only actions that do
- * something.
- */
-internal fun RowScope.drawIconRail(
-    onResetExample: () -> Unit,
-    onSelectCameraMode: (CameraMode) -> Unit,
-    onSelectCameraProjection: (StudioContract.Projection) -> Unit,
-) {
-    column(
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxHeight(),
-    ) {
-        railCard(id = "studio-tool-rail") {
-            railButton(
-                id = "studio-tool-reset",
-                glyph = ShadcnIcons.arrowPath,
-                active = false,
-                onClick = onResetExample,
-            )
-            cameraRailButton(
-                onSelectMode = onSelectCameraMode,
-                onSelectProjection = onSelectCameraProjection,
-            )
-        }
-    }
-}
-
-/** Opens the camera-mode/projection menu anchored to this button -- the same list the
- * viewport's right-click menu shows (see CameraMenu.kt). */
-private fun ColumnScope.cameraRailButton(
-    onSelectMode: (CameraMode) -> Unit,
-    onSelectProjection: (StudioContract.Projection) -> Unit,
-) {
-    var requestOpen = false
-    // Wrapped so the menu has a slot to anchor to -- shadcnButton reports whether it was clicked,
-    // not where it landed.
-    val bounds = column(modifier = Modifier.width(RailButtonSize)) {
-        shadcnButton(
-            id = "studio-tool-camera",
-            modifier = Modifier.width(RailButtonSize),
-            variant = ShadcnButtonVariant.Ghost,
-            size = ShadcnButtonSize.Icon,
-            onClick = { requestOpen = true },
-        ) { icon(ShadcnIcons.camera) }
-    }
-    // The button carried an empty onClick, so the rail's camera menu never existed -- the id the
-    // test looks for was produced by no code at all. Anchored to the button's own bounds so the
-    // menu opens beside the rail rather than at the pointer.
-    railCameraMenu(
-        id = "studio-tool-camera-menu",
-        anchor = bounds,
-        requestOpen = requestOpen,
-        onPick = { index ->
-            dispatchCameraMenuPick(
-                index,
-                onSelectMode = onSelectMode,
-                onSelectProjection = onSelectProjection,
-            )
-        },
-    )
-}
-
-/** Primary filled square when [active], ghost (transparent, accent on hover) otherwise. */
-/**
- * Display toggles, floating at the viewport's RIGHT edge opposite the tool rail.
- *
- * Separate from the tool rail on purpose: that rail is modal (one tool at a time), these are
- * independent booleans, and mixing the two interaction models in one strip serves neither.
- * Blender splits the same way -- tools in the `T` toolbar, shading and overlay toggles floating
- * at the viewport's top right.
+ * The only floating rail left. Transform tools are modal (one at a time) and now live in the
+ * viewport header as a labelled toggle group; these are independent booleans, and mixing the two
+ * interaction models in one strip served neither. Blender splits them the same way.
  *
  * They lived in the top bar before, which was a scoping error: wireframe and shadows govern how
  * THIS VIEWPORT draws, not the document. Grid and gizmo visibility belong here too when they
- * exist, which is the other reason they are not crammed into the header.
+ * exist.
  */
 internal fun RowScope.drawDisplayRail(
     wireframe: Boolean,

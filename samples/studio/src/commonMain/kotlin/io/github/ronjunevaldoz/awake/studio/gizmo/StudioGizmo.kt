@@ -10,6 +10,10 @@ import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 
+/** Which transform a drag edits -- studio's `Tool`, kept out of this file's imports so the gizmo
+ * stays independent of the store. */
+enum class GizmoTool { Select, Move, Rotate, Scale }
+
 /**
  * What a frame's pointer did to the selection.
  *
@@ -34,6 +38,16 @@ sealed interface GizmoPick {
  */
 data class GizmoPointer(val position: Vec2?, val down: Boolean)
 
+/** Everything about one frame the gizmo needs: where the viewport is looking, what is selected,
+ * where the pointer is, and what a drag currently means. Bundled because they always arrive
+ * together and are always read together. */
+data class GizmoFrame(
+    val projection: ViewportProjection,
+    val selectedEntityId: Int?,
+    val pointer: GizmoPointer,
+    val tool: GizmoTool,
+)
+
 /**
  * The translate gizmo's whole state machine: what is selected, what is being dragged, and where
  * the pointer was last frame.
@@ -53,13 +67,11 @@ class StudioGizmo {
      * whatever is behind it, which is what makes a gizmo usable over a crowded scene.
      */
     @Suppress("ReturnCount") // One exit per state the frame can be in: released, press, drag.
-    fun update(
-        world: World,
-        projection: ViewportProjection,
-        selectedEntityId: Int?,
-        pointer: GizmoPointer,
-        boundsOf: (entityId: Int) -> Aabb?,
-    ): GizmoPick {
+    fun update(world: World, frame: GizmoFrame, boundsOf: (entityId: Int) -> Aabb?): GizmoPick {
+        val projection = frame.projection
+        val selectedEntityId = frame.selectedEntityId
+        val pointer = frame.pointer
+        val tool = frame.tool
         val position = pointer.position
         val pressedThisFrame = pointer.down && !wasDown
         val released = !pointer.down
@@ -75,7 +87,9 @@ class StudioGizmo {
         val handleLength = HANDLE_LENGTH
 
         if (pressedThisFrame) {
-            val origin = selectedTransform?.position
+            // Select has no handles, so every press is a pick -- the tool for getting at an
+            // object that a handle would otherwise cover.
+            val origin = selectedTransform?.position?.takeIf { tool != GizmoTool.Select }
             draggingAxis = origin?.let { projection.hitTestHandle(it, handleLength, position) }
             lastPointer = position
             // Grabbing a handle is not a selection change: the thing being dragged stays selected.
@@ -99,12 +113,43 @@ class StudioGizmo {
             dragY = position.y - previous.y,
         )
         // Written straight into the live component, so the inspector's own fields follow it.
-        // Component-wise rather than `add(axis.direction * moved)`: this runs every drag frame,
-        // and the operator form would allocate a Vec3 per frame (see Vec3's naming contract).
-        selectedTransform.position.x += axis.direction.x * moved
-        selectedTransform.position.y += axis.direction.y * moved
-        selectedTransform.position.z += axis.direction.z * moved
+        // Component-wise rather than `+ axis.direction * moved`: this runs every drag frame, and
+        // the operator form would allocate a Vec3 per frame (see Vec3's naming contract).
+        applyDrag(tool, selectedTransform, axis, moved)
         return GizmoPick.None
+    }
+
+    /** What a drag of [moved] world units along [axis] means for the current [tool]. */
+    private fun applyDrag(tool: GizmoTool, transform: Transform, axis: GizmoAxis, moved: Float) {
+        when (tool) {
+            GizmoTool.Select -> Unit
+
+            // Component-wise rather than `+ axis.direction * moved`: this runs every drag frame,
+            // and the operator form would allocate a Vec3 per frame (see Vec3's naming contract).
+            GizmoTool.Move -> {
+                transform.position.x += axis.direction.x * moved
+                transform.position.y += axis.direction.y * moved
+                transform.position.z += axis.direction.z * moved
+            }
+
+            // Distance along the handle reads as an angle. Transform.rotation is Euler radians and
+            // each axis handle maps to its own component, so a single-axis drag needs no
+            // quaternion round trip.
+            GizmoTool.Rotate -> {
+                val radians = moved * RADIANS_PER_HANDLE_LENGTH
+                transform.rotation.x += axis.direction.x * radians
+                transform.rotation.y += axis.direction.y * radians
+                transform.rotation.z += axis.direction.z * radians
+            }
+
+            // Clamped above zero: a scale through zero flips the object inside out and cannot be
+            // dragged back, because every later delta is multiplied by nothing.
+            GizmoTool.Scale -> {
+                transform.scale.x = (transform.scale.x + axis.direction.x * moved).coerceAtLeast(MIN_SCALE)
+                transform.scale.y = (transform.scale.y + axis.direction.y * moved).coerceAtLeast(MIN_SCALE)
+                transform.scale.z = (transform.scale.z + axis.direction.z * moved).coerceAtLeast(MIN_SCALE)
+            }
+        }
     }
 
     /**
@@ -113,8 +158,11 @@ class StudioGizmo {
      * World-space [LineSegment]s rather than UI primitives: they belong in the 3D pass, where
      * they depth-test against the scene the way a real editor's handles do.
      */
-    fun handleLines(world: World, selectedEntityId: Int?): List<LineSegment> {
-        val transform = selectedEntityId?.let { world.transformOf(it) } ?: return emptyList()
+    fun handleLines(world: World, selectedEntityId: Int?, tool: GizmoTool): List<LineSegment> {
+        val transform = selectedEntityId
+            ?.takeIf { tool != GizmoTool.Select }
+            ?.let { world.transformOf(it) }
+            ?: return emptyList()
         val origin = transform.position
         return GizmoAxis.entries.map { axis ->
             LineSegment(
@@ -148,6 +196,14 @@ class StudioGizmo {
          * A screen-constant size is the usual editor behaviour and wants the camera distance;
          * this is the smaller thing that works. */
         const val HANDLE_LENGTH = 1.5f
+
+        /** A drag the full length of a handle turns the object a quarter turn -- fast enough to
+         * be useful, slow enough to aim. */
+        const val RADIANS_PER_HANDLE_LENGTH = 1.0f
+
+        /** Scale may approach zero but not reach it: at zero every later delta multiplies by
+         * nothing and the object can never be dragged back. */
+        const val MIN_SCALE = 0.01f
         val DRAG_COLOR = floatArrayOf(1f, 0.9f, 0.3f, 1f)
     }
 }
