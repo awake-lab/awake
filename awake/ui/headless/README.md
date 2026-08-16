@@ -64,6 +64,9 @@ snapshot fixtures. Use `uiTestSession(...)` for persistent input across frames. 
 `shadcnTheme { ... }` through the helper's `rootProvider` when it exercises a Shadcn recipe.
 Do not repeat the `UiContext`/frame/font/theme setup in ordinary component tests; direct context
 construction is reserved for Core layout, rasterizer, and real-backend probes.
+For ordinary pointer interactions use the session's `hover`, `click`, `doubleClick`,
+`longPress`, `rightClick`, and `drag` gestures; use exact input frames only for wheel or keyboard
+behavior.
 
 ---
 

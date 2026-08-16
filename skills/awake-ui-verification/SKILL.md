@@ -110,7 +110,9 @@ thing and read real output:
   assertEquals(36f, frame.bounds("save").height)
   ```
 
-  `UiTestSession` is the multi-frame equivalent for pointer/key interaction. Use raw
+  `UiTestSession` is the multi-frame equivalent for pointer/key interaction. Its official
+  gestures are `hover`, `click`, `doubleClick`, `longPress`, `rightClick`, and `drag`; use an
+  exact `UiInputState` frame only for wheel, keyboard, or other input it cannot express. Use raw
   `UiContext` only for a renderer/backend probe that the testing helper cannot express.
 - **Pixels** — rasterize and write a PNG you open and look at:
 

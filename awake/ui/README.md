@@ -70,7 +70,8 @@ include(":awake:ui:tailwind-generator")
       `renderUiComponent(...)` for a one-frame Headless/design-system test and
       `uiTestSession(...)` for persistent multi-frame interaction tests. Both own the
       `UiContext` lifecycle; direct context setup is reserved for Core, renderer, and backend
-      probes.
+      probes. `UiTestSession` provides `hover`, `click`, `doubleClick`, `longPress`,
+      `rightClick`, and `drag`; use exact `UiInputState` frames only for wheel/keyboard probes.
 
 - `awake:ui:font-atlas-generator`:
     - Tooling for generating signed distance field (MSDF/SDF) font atlases.

@@ -25,6 +25,25 @@ class AwakeUiStateMatrixTest {
     }
 
     @Test
+    fun sessionGesturesRenderTheirExpectedFrameSequences() {
+        var frames = 0
+        uiTestSession {
+            fun io.github.ronjunevaldoz.awake.ui.headless.UiScope.draw() {
+                frames += 1
+                text("gesture")
+            }
+            hover(10f, 10f) { draw() }
+            click(10f, 10f) { draw() }
+            doubleClick(10f, 10f) { draw() }
+            longPress(10f, 10f, durationSeconds = 0.5f) { draw() }
+            rightClick(10f, 10f) { draw() }
+            drag(0f, 0f, 20f, 20f, steps = 2) { draw() }
+        }
+        // hover=1, click=2, double click=4, long press=3, right click=2, drag=4.
+        assertEquals(16, frames)
+    }
+
+    @Test
     fun headlessMatrixRunsTheCallerProvidedRootProviderForEveryState() {
         var providerCalls = 0
         val samples = AwakeUiPreviewMetadata(
