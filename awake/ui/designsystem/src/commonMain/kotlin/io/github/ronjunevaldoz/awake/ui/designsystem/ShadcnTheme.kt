@@ -120,8 +120,14 @@ data class ShadcnThemeConfig(
     val dark: Boolean = true,
 )
 
-fun shadcnThemeValues(preset: ShadcnStylePreset = ShadcnStylePreset.Vega, baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral, accent: ShadcnAccent = ShadcnAccent.Base, dark: Boolean = true): UiThemeValues =
-    shadcnThemeData(
+/** Builds a complete, runtime-free Shadcn theme value for [shadcnTheme]. */
+fun shadcnThemeValues(
+    preset: ShadcnStylePreset = ShadcnStylePreset.Vega,
+    baseColor: ShadcnBaseColor = ShadcnBaseColor.Neutral,
+    accent: ShadcnAccent = ShadcnAccent.Base,
+    dark: Boolean = true,
+): ShadcnThemeValues {
+    val core = shadcnThemeData(
         ShadcnThemeConfig(
             preset = preset,
             baseColor = baseColor,
@@ -129,6 +135,8 @@ fun shadcnThemeValues(preset: ShadcnStylePreset = ShadcnStylePreset.Vega, baseCo
             dark = dark,
         ),
     )
+    return ShadcnThemeValues(core = core, metrics = core.metrics)
+}
 
 interface ShadcnResolvedTheme : UiThemeValues {
     val config: ShadcnThemeConfig
@@ -153,7 +161,11 @@ interface ShadcnResolvedTheme : UiThemeValues {
     val ring: Color get() = palette.ring
 }
 
-fun UiThemeValues.asShadcnTheme(): ShadcnResolvedTheme = this as? ShadcnResolvedTheme ?: RuntimeShadcnTheme(this)
+fun UiThemeValues.asShadcnTheme(): ShadcnResolvedTheme = when (this) {
+    is ShadcnResolvedTheme -> this
+    is ShadcnThemeValues -> core.asShadcnTheme()
+    else -> RuntimeShadcnTheme(this)
+}
 
 /**
  * Runtime-free values can be wrapped by Core when they are pushed onto a [UiContext]. That

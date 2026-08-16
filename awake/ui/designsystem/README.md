@@ -71,8 +71,8 @@ It establishes the theme and default text style for recipes without passing them
 through component parameters. Recipes may read the design-system-local `themeValues` accessor;
 Headless primitives must not.
 
-Use `shadcnThemeValues(...)` when constructing a plain Core theme value outside a composition
-scope.
+Use `shadcnThemeValues(...)` when constructing a complete, immutable `ShadcnThemeValues` value
+outside a composition scope. It also implements Core's neutral value contract for compatibility.
 
 Use `ShadcnThemeValues` at the `shadcnTheme(...)` boundary when a subtree needs custom Shadcn
 metrics. Public recipes use semantic parameters such as `variant`, `size`, `tone`, and

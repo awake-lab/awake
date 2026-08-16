@@ -26,15 +26,15 @@ uiScope.shadcnTheme(values = ShadcnDefaultTheme) {
 }
 ```
 
-Use `shadcnThemeValues(...)` only when a pure `UiThemeValues` value is required before a
-`UiScope` exists, such as application state or a host configuration. It is not the scoped
-provider:
+Use `shadcnThemeValues(...)` when a complete immutable `ShadcnThemeValues` value is required
+before a `UiScope` exists, such as application state or a host configuration. It implements
+`UiThemeValues` for Core compatibility, but it is not the scoped provider:
 
 ```kotlin
 val appTheme = shadcnThemeValues(dark = isDark)
 ```
 
-Use a complete [ShadcnThemeValues] value at that same scoped boundary when the product needs
+Pass that complete [ShadcnThemeValues] value at the same scoped boundary when the product needs
 custom Shadcn metrics. It never changes one component ad hoc:
 
 ```kotlin
@@ -73,8 +73,8 @@ needed, but should not import Core primitives or style its own component surface
 ## Before finishing
 
 - Use a named design-system theme at the app or sample root.
-- Use `UiScope.shadcnTheme(...)` for scoped provision and `shadcnThemeValues(...)` only for a
-  pure value.
+- Use `UiScope.shadcnTheme(...)` for scoped provision and `shadcnThemeValues(...)` to create an
+  immutable complete theme value.
 - Use named `shadcn*` variants instead of app-authored component `Style` blocks.
 - Use `ShadcnThemeValues` at the root for Shadcn metric customization, never as a
   per-component visual escape hatch.

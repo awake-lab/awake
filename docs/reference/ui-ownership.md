@@ -136,8 +136,9 @@ Theme *values* and component visual policy are deliberately separate:
   `Outline`, Material, or shadcn, invent token names, or hardcode `Color(...)` values.
 - `ui-designsystem` owns named themes, token instances, component recipes, and branded variants.
   Its lower-case `UiScope.shadcnTheme(...)` wrapper delegates to Core's neutral providers, while
-  `shadcnThemeValues(...)` is the pure, unscoped Core-value factory. `ShadcnThemeValues` is the
-  design-system-owned, root-scoped value that adds metrics; public recipes expose
+  `shadcnThemeValues(...)` builds the complete, unscoped `ShadcnThemeValues` value.
+  `ShadcnThemeValues` is design-system-owned and includes its Core-compatible values and metrics;
+  public recipes expose
   semantic options rather than generic `Style` overrides.
   component-local style files map brand-specific variants and interaction states to `Style`. It
   may depend internally on Core for style and local infrastructure, but a component recipe must
