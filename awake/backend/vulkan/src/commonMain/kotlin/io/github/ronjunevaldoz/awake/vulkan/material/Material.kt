@@ -80,15 +80,17 @@ class Material(
     var imageViewHandle: Long = 0
         private set
 
+    private var pbrImageViews: PbrImageViews? = null
+
     init {
         descriptorSetLayout = createDescriptorSetLayout(graphicsDevice, shadowMap)
     }
 
     /** Creates the uniform buffer, descriptor pool, and descriptor set (written to bind
      * both [uniformBuffer] and [texture]'s sampler/view). Must be called once, after a real
-     * [Texture] exists. */
-    fun createResources(texture: Texture) {
-        createResources(texture.sampler.handle, texture.imageView.handle)
+     * [Texture] exists. [pbr] fills bindings 5-8 -- see [PbrImageViews]. */
+    fun createResources(texture: Texture, pbr: PbrImageViews) {
+        createResources(texture.sampler.handle, texture.imageView.handle, pbr)
     }
 
     /** Same as [createResources] but binds an
@@ -98,13 +100,14 @@ class Material(
      * either way: a `VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER` binding doesn't care whether
      * the sampler/image view it's given came from a CPU-uploaded texture or a GPU-only
      * render target. */
-    fun createResourcesFromRenderTarget(sampler: Long, imageView: Long) {
-        createResources(sampler, imageView)
+    fun createResourcesFromRenderTarget(sampler: Long, imageView: Long, pbr: PbrImageViews) {
+        createResources(sampler, imageView, pbr)
     }
 
-    private fun createResources(sampler: Long, imageView: Long) {
+    private fun createResources(sampler: Long, imageView: Long, pbr: PbrImageViews) {
         samplerHandle = sampler
         imageViewHandle = imageView
+        pbrImageViews = pbr
     }
 
     private fun createUniformSlot(): UniformSlot {
@@ -127,6 +130,7 @@ class Material(
                 imageView = imageViewHandle,
                 shadowSampler = shadowMap?.sampler,
                 shadowImageView = shadowMap?.imageView,
+                pbr = requireNotNull(pbrImageViews),
             ),
         )
         return UniformSlot(
@@ -204,6 +208,10 @@ class Material(
          * `Renderer.createMaterial`'s own `uniformFloatCount` parameter. */
         private const val DEFAULT_UNIFORM_FLOAT_COUNT = 16
 
+        /** metallicRoughness, normal, occlusion, emissive -- textured.wgsl's binding numbers,
+         * in [PbrImageViews.asList]'s order. */
+        internal val PBR_TEXTURE_BINDINGS = listOf(5, 6, 7, 8)
+
         /** Builds just the descriptor set layout a [Material] would build, without allocating
          * a whole Material -- for callers (pipeline-layout construction) that need the layout's
          * shape before any real Material exists. */
@@ -253,6 +261,19 @@ class Material(
                     stageFlags = VkShaderStageFlagBits.FRAGMENT.value,
                 )
             }
+            // Bindings 5-8: the rest of a glTF metallic-roughness material (textured.wgsl).
+            // Numbered above the shadow pair whether or not shadows are on, so 5-8 mean the
+            // same thing in both layout shapes. No extra sampler bindings -- all four are
+            // sampled through binding 2's, see textured.wgsl's own comment. Unconditional for
+            // the same reason 1/2 are: one Material shape beats a per-shader variant, and a
+            // material with no map for a channel binds a 1x1 neutral placeholder there.
+            PBR_TEXTURE_BINDINGS.forEach { binding ->
+                bindings += VkDescriptorSetLayoutBinding(
+                    binding = binding,
+                    descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                    stageFlags = VkShaderStageFlagBits.FRAGMENT.value,
+                )
+            }
             return DescriptorSetLayoutHandle(
                 VulkanDescriptors.vkCreateDescriptorSetLayout(
                     graphicsDevice.device,
@@ -261,6 +282,19 @@ class Material(
             )
         }
     }
+}
+
+/** The four non-base-color glTF PBR image views a material binds at [Material
+ * .PBR_TEXTURE_BINDINGS], in that order. Every field is a REAL image view -- the caller
+ * substitutes a neutral 1x1 placeholder for a channel the material doesn't have, since a
+ * descriptor the layout declares and the shader samples has to be written either way. */
+data class PbrImageViews(
+    val metallicRoughness: Long,
+    val normal: Long,
+    val occlusion: Long,
+    val emissive: Long,
+) {
+    fun asList(): List<Long> = listOf(metallicRoughness, normal, occlusion, emissive)
 }
 
 private fun createMaterialUniformBuffer(graphicsDevice: GraphicsDevice, uniformFloatCount: Int): Pair<Long, Long> {
@@ -301,7 +335,7 @@ private fun createMaterialDescriptorPool(device: Long, hasShadowMap: Boolean): L
             ),
             VkDescriptorPoolSize(
                 type = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
-                descriptorCount = if (hasShadowMap) 2 else 1,
+                descriptorCount = (if (hasShadowMap) 2 else 1) + Material.PBR_TEXTURE_BINDINGS.size,
             ),
             VkDescriptorPoolSize(
                 type = VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER,
@@ -370,6 +404,15 @@ private fun createMaterialDescriptorSet(
             VkDescriptorImageInfo(sampler = bindings.shadowSampler, imageView = 0L),
         )
     }
+    Material.PBR_TEXTURE_BINDINGS.forEachIndexed { index, binding ->
+        VulkanDescriptors.vkUpdateDescriptorSetImage(
+            device,
+            rawDescriptorSet,
+            binding,
+            VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+            VkDescriptorImageInfo(sampler = 0L, imageView = bindings.pbr.asList()[index]),
+        )
+    }
     return rawDescriptorSet
 }
 
@@ -379,6 +422,7 @@ private data class MaterialDescriptorSetBindings(
     val uniformFloatCount: Int,
     val sampler: Long,
     val imageView: Long,
+    val pbr: PbrImageViews,
     val shadowSampler: Long? = null,
     val shadowImageView: Long? = null,
 )

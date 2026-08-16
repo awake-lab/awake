@@ -118,14 +118,18 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
             // Camera.viewProjectionMatrix's docs), matching vulkanMain's Renderer.
             val mvp = drawCall.model * viewProjection
             if (extraPipeline != null && extraMaterial != null) {
-                // Textured path: the material owns its uniform buffer + bind group, and
-                // textured.wgsl's Uniforms is mvp alone -- no light floats appended, unlike
-                // the primary pipeline's triangle.wgsl. Wireframe has no companion pipeline
-                // per additional format, so these stay filled (same fallback as Vulkan's
-                // pipelineFor).
+                // Textured path: the material owns its uniform buffer + bind group. Its
+                // Uniforms is mvp + light + model + cameraPosition (textured.wgsl's PBR
+                // specular needs a world-space position and view vector) -- the same 44 floats
+                // vulkanMain's prepareDrawCalls writes for this format. Wireframe has no
+                // companion pipeline per additional format, so these stay filled (same
+                // fallback as Vulkan's pipelineFor).
                 val texturedPipeline = WebGpuHandles.resolve<GPURenderPipeline>(extraPipeline.graphicsPipeline[0])
                 setPipeline(texturedPipeline)
-                extraMaterial.updateUniformBuffer(mvp.data)
+                extraMaterial.updateUniformBuffer(
+                    mvp.data + lightFloats + drawCall.model.data +
+                        floatArrayOf(camera.eye.x, camera.eye.y, camera.eye.z, 0f),
+                )
                 setBindGroup(0u, extraMaterial.bindGroupFor(texturedPipeline))
             } else {
                 setPipeline(pipeline)

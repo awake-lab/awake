@@ -11,10 +11,15 @@ import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 
 private const val TEXTURED_VERTEX_STRIDE_COMPONENTS = 11
+
+/** mvp(16) + lightDirection(4) + lightColor(4) + model(16) + cameraPosition(4). Must match
+ * `textured.wgsl`'s Uniforms field order. */
+private const val TEXTURED_UNIFORM_FLOAT_COUNT = 44
 
 /** Duck.gltf, parsed once and exposed to the `assets { }` DSL as named mesh/material
  * factories -- the same real parsing `GltfViewerDemo.preload()` does, repackaged so the scene
