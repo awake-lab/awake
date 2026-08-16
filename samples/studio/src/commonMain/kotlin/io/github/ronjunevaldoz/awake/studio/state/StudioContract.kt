@@ -6,15 +6,11 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 
 internal object StudioContract {
-    enum class Tool { Layers, Grid, Environment, History, Panels }
-
     enum class Projection { Perspective, Orthographic }
 
     data class ExampleState(val activeExampleId: String = StudioExamples.first().id)
 
     data class InspectorState(val selectedEntityId: Int? = null)
-
-    data class ToolRailState(val activeTool: Tool = Tool.Layers)
 
     enum class ConsoleLevel { Info, Warning, Error }
 
@@ -33,7 +29,6 @@ internal object StudioContract {
     data class State(
         val examples: ExampleState = ExampleState(),
         val inspector: InspectorState = InspectorState(),
-        val toolRail: ToolRailState = ToolRailState(),
         val camera: CameraState = CameraState(),
         val console: ConsoleState = ConsoleState(),
     )
@@ -41,7 +36,6 @@ internal object StudioContract {
     sealed interface Intent {
         data class SelectExample(val id: String) : Intent
         data class SelectEntity(val id: Int?) : Intent
-        data class SelectTool(val tool: Tool) : Intent
         data class SetCameraMode(val mode: CameraMode) : Intent
         data class SetProjection(val projection: Projection) : Intent
         data class AppendConsole(val level: ConsoleLevel, val message: String) : Intent

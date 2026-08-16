@@ -3,14 +3,15 @@
 package io.github.ronjunevaldoz.awake.studio.ui
 
 import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
 import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -43,7 +44,7 @@ class StudioShellLayoutTest {
         density = density,
     ) {
         shadcnTheme(theme = shadcnThemeValues(dark = true)) {
-            drawStudioShellBody(StudioStore(), World(), NoopRenderer())
+            drawStudioShellBody(StudioStore(), World(), NoopRenderer(), backend = "Vulkan")
         }
     }.semantics
 
@@ -102,19 +103,31 @@ class StudioShellLayoutTest {
     }
 
     @Test
-    fun activeExampleItemPaintsAVisibleHighlightNotATransparentFill() {
-        val activeId = StudioExamples.first().id
+    fun selectedHierarchyRowPaintsAVisibleHighlightNotATransparentFill() {
+        val world = World()
+        val entity = world.create()
+        world.add(entity, Name("Camera"))
         val frame = renderUiComponent(width = 400f, height = 600f, font = BitmapFont()) {
             shadcnTheme(theme = shadcnThemeValues(dark = true)) {
-                drawExampleRail(activeExampleId = activeId, onSelectExample = {})
+                drawHierarchyPanel(world, selectedEntityId = entity.id, onSelectEntity = {})
             }
         }
-        val item = assertNotNull(frame.semantics.firstOrNull { it.id == "studio-example-$activeId" })
+        val item = assertNotNull(frame.semantics.firstOrNull { it.id == "studio-hierarchy-entity-${entity.id}" })
         // Regression: shadcnButton's Ghost variant hardcodes an idle (non-hover) fill of fully
-        // transparent regardless of what a caller's own Style sets, so the "active" item's real
-        // highlight never painted while staying Ghost -- exampleMenuItem switches to Primary
-        // (which always honors the resolved background) for the active item instead.
-        assertTrue((item.backgroundColor?.a ?: 0f) > 0f, "active item background: ${item.backgroundColor}")
+        // transparent regardless of what a caller's own Style sets, so an "active" menu item's
+        // real highlight never painted while staying Ghost -- shadcnSidebarMenuItem switches to
+        // Primary (which always honors the resolved background) for the active item instead.
+        assertTrue((item.backgroundColor?.a ?: 0f) > 0f, "selected row background: ${item.backgroundColor}")
+    }
+
+    /** The example picker is the only way to change scene at runtime. It lived in the left dock
+     * until the hierarchy took that slot, and was left orphaned -- rendered by no shell code at
+     * all, so the running app was stuck on whichever example it booted into. */
+    @Test
+    fun topBarExposesTheExamplePicker() {
+        val picker = assertNotNull(renderShell().firstOrNull { it.id == "studio-top-bar-example" })
+        assertTrue(picker.bounds.height > 0f, "picker must be laid out, was ${picker.bounds}")
+        assertTrue(StudioExamples.size > 1, "a picker over one example would be pointless")
     }
 
     @Test
@@ -182,7 +195,7 @@ class StudioShellLayoutTest {
             fun shellFrame(x: Float = -100f, y: Float = -100f, down: Boolean = false): List<UiSemanticNode> =
                 frame(x = x, y = y, down = down) {
                     shadcnTheme(theme = shadcnThemeValues(dark = true)) {
-                        drawStudioShellBody(store, world, NoopRenderer())
+                        drawStudioShellBody(store, world, NoopRenderer(), backend = "Vulkan")
                     }
                 }.semantics
 

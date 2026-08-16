@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
+import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
@@ -30,6 +31,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
 import kotlin.math.abs
+import kotlin.math.ceil
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 
 /** The 3D frame path -- [Renderer.draw]'s whole-frame orchestration (wait/acquire -> update
@@ -57,7 +59,8 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     val currentFrame = swapchainManager.currentFrame
     val imageIndex = acquireSwapchainImage(currentFrame) ?: return
 
-    val aspect = swapchainManager.extent.width.toFloat() / swapchainManager.extent.height.toFloat()
+    val aspect = resolvedSceneViewport()?.aspect
+        ?: (swapchainManager.extent.width.toFloat() / swapchainManager.extent.height.toFloat())
     val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
     // Debug lines are already in world space (no per-line model matrix), so their MVP
     // is exactly this frame's viewProjection.
@@ -120,6 +123,23 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
  * and binds each group's pipeline before calling this) and [Renderer.renderToTexture] (an
  * offscreen frame, which only ever resolves the primary pipeline, already bound before this
  * is called there), so neither duplicates this loop. */
+/** [Renderer.sceneViewport] trimmed to this frame's swapchain extent -- see
+ * [RenderViewport.clampedTo] for why a caller's rect can outlive the surface it was measured
+ * against. */
+internal fun Renderer.resolvedSceneViewport(): RenderViewport? = sceneViewport?.clampedTo(
+    swapchainManager.extent.width.toFloat(),
+    swapchainManager.extent.height.toFloat(),
+)
+
+private fun RenderViewport.toVkViewport(): VkViewport =
+    VkViewport(x = x, y = y, width = width, height = height)
+
+private fun RenderViewport.toVkScissor(): VkRect2D = VkRect2D(
+    offset = VkOffset2D(x.toInt(), y.toInt()),
+    // Rounded up so a fractional edge does not scissor away the viewport's last column/row.
+    extent = VkExtent2D(ceil(width).toInt(), ceil(height).toInt()),
+)
+
 internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<PreparedDrawCall>) {
     var drawIndex = 0
     val drawCount = drawCalls.size
@@ -169,15 +189,20 @@ internal fun Renderer.recordCommandBuffer(
     val groupedDrawCalls = drawCalls.groupBy { it.pipeline }
     val primaryPipeline = pipelineFor(renderPipeline.vertexFormat) ?: renderPipeline
     primaryPipeline.bind(commandBuffer)
+    // Full-surface pair: what the UI pass below restores, and what the 3D pass uses when no
+    // scene viewport is set.
     val viewport = VkViewport(
         width = swapchainManager.extent.width.toFloat(),
         height = swapchainManager.extent.height.toFloat(),
     )
-    Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
     val scissor = VkRect2D(
         extent = swapchainManager.extent,
     )
-    Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
+    // Set once for the whole 3D pass -- debug lines and the non-primary format groups recorded
+    // further down share it, since they are scene content too.
+    val sceneRect = resolvedSceneViewport()
+    Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(sceneRect?.toVkViewport() ?: viewport))
+    Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(sceneRect?.toVkScissor() ?: scissor))
     recordDrawCalls(commandBuffer, groupedDrawCalls[primaryPipeline] ?: emptyList())
 
     // Debug lines (e.g. a frustum wireframe), same render pass/depth attachment as

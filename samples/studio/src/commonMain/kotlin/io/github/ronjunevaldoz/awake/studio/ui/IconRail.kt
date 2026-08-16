@@ -6,44 +6,61 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnIcons
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
+import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.icon
+import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 private val RailButtonSize = ShadcnButtonSize.Icon.heightDp
 private val RailPadding = 4f.dp
 private val RailWidth = RailButtonSize + RailPadding * 2f
 
-private val RailTools = StudioContract.Tool.entries
+/**
+ * A rail card: [shadcnSurface]'s look, but padded by [RailPadding] instead of the theme's panel
+ * padding.
+ *
+ * `shadcnSurface` is a PANEL -- 16dp of content padding on every side. A rail is [RailWidth]
+ * (= one 32dp icon button plus 4dp either side) wide, so that padding left an 8dp interior for a
+ * 32dp button: every icon overflowed to the right, half-clipped by the card, and the card stood
+ * ~60dp taller than its two buttons. Same class of bug as `barBand` in StudioToolbar.kt, whose
+ * doc comment spells out the panel-vs-band distinction -- a card's declared width must fit its
+ * content.
+ */
+private fun UiScope.railCard(id: String, content: ColumnScope.() -> Unit): UiBounds = surface(
+    id = id,
+    modifier = Modifier.width(RailWidth),
+    style = Style {
+        background(StudioTheme.colors.card)
+        foreground(StudioTheme.colors.cardForeground)
+        border(1f.dp, StudioTheme.colors.border)
+        shape(StudioTheme.shapes.lg)
+        contentPadding(RailPadding)
+    },
+) { content() }
 
-/** No literal icon exists yet for every [StudioContract.Tool] -- these are the closest semantic
- * match in the registered [ShadcnIcons] set, not a 1:1 upstream glyph. */
-private fun StudioContract.Tool.icon(): UiImageVector = when (this) {
-    StudioContract.Tool.Layers -> ShadcnIcons.square3Stack3d
-    StudioContract.Tool.Grid -> ShadcnIcons.squares2x2
-    StudioContract.Tool.Environment -> ShadcnIcons.sun
-    StudioContract.Tool.History -> ShadcnIcons.clock
-    StudioContract.Tool.Panels -> ShadcnIcons.puzzlePiece
-}
-
-/** Floating tool rail (Modly-style): a rounded card hugging its icon stack, vertically
+/**
+ * Floating action rail (Modly-style): a rounded card hugging its icon stack, vertically
  * centered with a margin from the window edge rather than a full-height docked strip.
- * Top group selects a tool (state in [StudioContract.ToolRailState]); bottom group holds
- * actions -- reset reloads the active example, camera opens the mode/projection menu. */
+ * Reset reloads the active example, camera opens the mode/projection menu.
+ *
+ * It used to carry five tool buttons above these (Layers/Grid/Environment/History/Panels) whose
+ * only effect was to look pressed -- nothing read the selected tool. Real transform tools belong
+ * here once a viewport gizmo exists to drive; until then this rail holds only actions that do
+ * something.
+ */
 internal fun RowScope.drawIconRail(
-    activeTool: StudioContract.Tool,
-    onSelectTool: (StudioContract.Tool) -> Unit,
     onResetExample: () -> Unit,
     onSelectCameraMode: (CameraMode) -> Unit,
     onSelectCameraProjection: (StudioContract.Projection) -> Unit,
@@ -52,19 +69,7 @@ internal fun RowScope.drawIconRail(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxHeight(),
     ) {
-        shadcnSurface(
-            id = "studio-tool-rail",
-            modifier = Modifier.width(RailWidth),
-        ) {
-            RailTools.forEach { tool ->
-                railButton(
-                    id = "studio-tool-${tool.name.lowercase()}",
-                    glyph = tool.icon(),
-                    active = tool == activeTool,
-                    onClick = { onSelectTool(tool) },
-                )
-            }
-            shadcnSeparator()
+        railCard(id = "studio-tool-rail") {
             railButton(
                 id = "studio-tool-reset",
                 glyph = ShadcnIcons.arrowPath,
@@ -137,10 +142,7 @@ internal fun RowScope.drawDisplayRail(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxHeight(),
     ) {
-        shadcnSurface(
-            id = "studio-display-rail-card",
-            modifier = Modifier.width(RailWidth),
-        ) {
+        railCard(id = "studio-display-rail-card") {
             railButton(
                 id = "studio-display-wireframe",
                 glyph = ShadcnIcons.squares2x2,

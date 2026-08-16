@@ -25,10 +25,6 @@ internal class StudioStore {
                 _state.update { it.copy(inspector = it.inspector.copy(selectedEntityId = intent.id)) }
             }
 
-            is StudioContract.Intent.SelectTool -> {
-                _state.update { it.copy(toolRail = it.toolRail.copy(activeTool = intent.tool)) }
-            }
-
             is StudioContract.Intent.SetCameraMode -> {
                 _state.update { it.copy(camera = it.camera.copy(mode = intent.mode)) }
             }

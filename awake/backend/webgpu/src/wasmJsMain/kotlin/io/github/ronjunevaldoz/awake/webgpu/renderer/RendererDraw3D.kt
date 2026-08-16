@@ -50,7 +50,14 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     val activeUniformBuffer = if (useWireframe) wireframeUniformBuffer!! else uniformBuffer!!
     val activeUniformBindGroup = if (useWireframe) wireframeUniformBindGroup!! else uniformBindGroup!!
 
-    val aspect = renderingContext.width.toFloat() / renderingContext.height.toFloat()
+    // Trimmed to the canvas: WebGPU rejects an out-of-bounds viewport/scissor outright,
+    // invalidating the whole command buffer (same reason this file's UI ClipRun clamps).
+    val sceneRect = sceneViewport?.clampedTo(
+        renderingContext.width.toFloat(),
+        renderingContext.height.toFloat(),
+    )
+    val aspect = sceneRect?.aspect
+        ?: (renderingContext.width.toFloat() / renderingContext.height.toFloat())
     val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
     // Debug lines are already in world space, so their MVP is exactly viewProjection.
     lineRenderPipeline.writeMvp(viewProjection.data)
@@ -88,6 +95,11 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
             ),
         ),
     ) {
+        // Confines the scene to an editor's viewport panel; the UI pass keeps the full canvas.
+        sceneRect?.let { rect ->
+            setViewport(rect.x, rect.y, rect.width, rect.height, 0f, 1f)
+            setScissorRect(rect.x.toUInt(), rect.y.toUInt(), rect.width.toUInt(), rect.height.toUInt())
+        }
         setPipeline(pipeline)
         var drawIndex = 0
         while (drawIndex < drawCalls.size) {

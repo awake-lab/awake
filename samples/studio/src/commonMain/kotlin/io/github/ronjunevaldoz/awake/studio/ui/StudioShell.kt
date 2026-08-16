@@ -3,15 +3,17 @@
 package io.github.ronjunevaldoz.awake.studio.ui
 
 import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
+import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableHandle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
@@ -32,6 +34,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 internal val StudioTheme = shadcnThemeValues(dark = true)
@@ -42,11 +45,16 @@ internal val StudioTheme = shadcnThemeValues(dark = true)
 @Suppress("MagicNumber") // The literals define the constant; naming each channel adds nothing.
 private val ViewportClearColor = floatArrayOf(0.14f, 0.14f, 0.16f, 1f)
 
-internal fun SceneGameRuntime.drawStudioShell(store: StudioStore, viewportWidth: Float, viewportHeight: Float) {
+internal fun SceneGameRuntime.drawStudioShell(
+    store: StudioStore,
+    backend: String,
+    viewportWidth: Float,
+    viewportHeight: Float,
+) {
     renderer.clearColor = ViewportClearColor
     headlessFrame(viewportWidth, viewportHeight) {
         shadcnTheme(theme = StudioTheme) {
-            drawStudioShellBody(store, world, renderer)
+            drawStudioShellBody(store, world, renderer, backend)
         }
     }
 }
@@ -85,12 +93,19 @@ private val SEPARATOR_THICKNESS = 1f.dp
  * main three-panel workspace and the bottom dock; the horizontal group remains nested inside
  * the main panel, matching the ui-showcase nested-resizable example.
  */
-internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, renderer: Renderer) {
+internal fun UiScope.drawStudioShellBody(
+    store: StudioStore,
+    world: World,
+    renderer: Renderer,
+    backend: String,
+) {
     column(
         verticalArrangement = Arrangement.spacedBy(0f.dp),
         modifier = Modifier.fillMaxWidth().fillMaxHeight(),
     ) { shellSlot ->
         drawStudioTopBar(
+            activeExampleId = store.state.value.examples.activeExampleId,
+            onSelectExample = { store.dispatch(StudioContract.Intent.SelectExample(it)) },
             // "Play" replays the active example -- re-selecting it queues LoadExample, which
             // tears the scene down and re-instantiates it, same reset semantics the icon rail's
             // own reset button already uses.
@@ -108,8 +123,38 @@ internal fun UiScope.drawStudioShellBody(store: StudioStore, world: World, rende
             heightPx = workspaceHeightPx,
         )
         shadcnSeparator(thickness = SEPARATOR_THICKNESS)
-        drawStudioStatusBar()
+        drawStudioStatusBar(backend = backend, entityCount = world.namedEntityCount())
     }
+}
+
+/**
+ * Points the renderer's 3D pass at the viewport panel instead of the whole window.
+ *
+ * Without this the scene fills the surface and every panel is a hole punched over it, and the
+ * projection uses the window's aspect rather than the panel's. The overlay runs after the frame's
+ * scene draw, so a resize lands one frame later -- invisible, and cheaper than measuring the
+ * shell twice.
+ *
+ * Only assigns on change: this is called every frame, and a per-frame [RenderViewport] would be
+ * an allocation per frame for a value that changes only on resize or panel drag.
+ */
+private fun Renderer.confineSceneTo(bounds: UiBounds) {
+    val current = sceneViewport
+    val unchanged = current != null &&
+        current.x == bounds.x &&
+        current.y == bounds.y &&
+        current.width == bounds.width &&
+        current.height == bounds.height
+    if (unchanged) return
+    sceneViewport = RenderViewport(bounds.x, bounds.y, bounds.width, bounds.height)
+}
+
+/** Counts without allocating -- `queryEach` is the non-allocating iteration path, and this runs
+ * once per frame from the overlay. */
+private fun World.namedEntityCount(): Int {
+    var count = 0
+    queryEach<Name> { _, _ -> count++ }
+    return count
 }
 
 private fun UiScope.drawStudioWorkspace(
@@ -185,8 +230,6 @@ private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Render
             modifier = Modifier.fillMaxWidth().weight(1f),
         ) {
             drawIconRail(
-                activeTool = store.state.value.toolRail.activeTool,
-                onSelectTool = { store.dispatch(StudioContract.Intent.SelectTool(it)) },
                 onResetExample = { store.dispatch(StudioContract.Intent.SelectExample(store.state.value.examples.activeExampleId)) },
                 onSelectCameraMode = { store.dispatch(StudioContract.Intent.SetCameraMode(it)) },
                 onSelectCameraProjection = { store.dispatch(StudioContract.Intent.SetProjection(it)) },
@@ -194,6 +237,7 @@ private fun UiScope.drawStudioViewportPanel(store: StudioStore, renderer: Render
             val viewportBounds = column(
                 modifier = Modifier.weight(1f).fillMaxHeight().padding(8f.dp),
             ) { }
+            renderer.confineSceneTo(viewportBounds)
             drawDisplayRail(
                 wireframe = renderer.wireframe,
                 shadows = renderer.shadowsEnabled,
