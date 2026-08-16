@@ -27,18 +27,19 @@ class ShadcnComboboxHeadlessTest {
     fun controlledComboboxFiltersOptionsAndReportsSelection() {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
         val options = listOf("Apple", "Banana", "Cherry", "Cranberry")
         var selected: String? = null
 
         fun render() {
             val scope: UiScope = ui.createUiScope(UiBounds(0f, 0f, 400f, 400f))
-            scope.combobox(
-                id = "fruit",
-                options = options,
-                selectedIndex = options.indexOf(selected).takeIf { it >= 0 },
-                modifier = Modifier.width(200f.dp),
-            )?.let { selected = options[it] }
+            scope.shadcnTheme {
+                combobox(
+                    id = "fruit",
+                    options = options,
+                    selectedIndex = options.indexOf(selected).takeIf { it >= 0 },
+                    modifier = Modifier.width(200f.dp),
+                )?.let { selected = options[it] }
+            }
         }
 
         fun frame(input: Input) {

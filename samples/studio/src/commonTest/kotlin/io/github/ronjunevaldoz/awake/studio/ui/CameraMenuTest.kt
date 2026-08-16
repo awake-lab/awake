@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,17 +20,19 @@ class CameraMenuTest {
 
     @Test
     fun rightClickOverTheViewportOpensTheMenuAndPickingAnItemReportsItsIndex() =
-        uiTestSession(width = 800f, height = 600f, theme = shadcnThemeValues(dark = false), font = BitmapFont()) {
+        uiTestSession(width = 800f, height = 600f, font = BitmapFont()) {
             var picked: Int? = null
 
             fun menuFrame(x: Float, y: Float, primaryDown: Boolean = false, secondaryDown: Boolean = false): UiComponentFrame {
                 input.setSecondaryPointer(secondaryDown)
                 return frame(x = x, y = y, down = primaryDown) {
-                    viewportCameraMenu(
-                        id = "test-viewport-menu",
-                        bounds = viewportBounds,
-                        onPick = { picked = it },
-                    )
+                    shadcnTheme(theme = shadcnThemeValues(dark = false)) {
+                        viewportCameraMenu(
+                            id = "test-viewport-menu",
+                            bounds = viewportBounds,
+                            onPick = { picked = it },
+                        )
+                    }
                 }
             }
 
@@ -55,15 +58,16 @@ class CameraMenuTest {
         val opened = renderUiComponent(
             width = 800f,
             height = 600f,
-            theme = shadcnThemeValues(dark = false),
             font = BitmapFont(),
             input = UiInputState(pointerX = 900f, pointerY = 900f, secondaryPointerDown = true),
         ) {
-            viewportCameraMenu(
-                id = "test-viewport-menu-outside",
-                bounds = viewportBounds,
-                onPick = { picked = it },
-            )
+            shadcnTheme(theme = shadcnThemeValues(dark = false)) {
+                viewportCameraMenu(
+                    id = "test-viewport-menu-outside",
+                    bounds = viewportBounds,
+                    onPick = { picked = it },
+                )
+            }
         }.semantics
 
         assertEquals(null, picked)

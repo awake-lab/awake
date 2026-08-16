@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
@@ -31,7 +30,7 @@ class ResizablePageDragProbeTest {
     @Test
     fun draggingTheShowcaseHandleStaysExactAtRetinaDensity() = dragProbe(density = 2f)
 
-    private fun dragProbe(density: Float) = uiTestSession(
+    private fun dragProbe(density: Float) = showcaseTestSession(
         width = 640f * density,
         height = 450f * density,
         theme = shadcnThemeValues(dark = false),

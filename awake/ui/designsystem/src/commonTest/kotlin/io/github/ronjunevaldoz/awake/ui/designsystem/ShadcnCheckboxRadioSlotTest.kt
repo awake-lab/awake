@@ -5,11 +5,9 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioGroup
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -31,19 +29,16 @@ class ShadcnCheckboxRadioSlotTest {
 
     @Test
     fun shadcnCheckboxIndeterminateDrawsDashInsteadOfCheckAccent() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(200f, 80f, testSnapshot(x = -100f, y = -100f, down = false))
+        val frame = renderShadcnComponent(width = 200f, height = 80f) {
+            shadcnCheckbox(
+                id = "select-all",
+                checked = false,
+                indeterminate = true,
+                modifier = Modifier.width(20f.dp).height(20f.dp),
+            )
+        }
 
-        ui.headlessRoot().shadcnCheckbox(
-            id = "select-all",
-            checked = false,
-            indeterminate = true,
-            modifier = Modifier.width(20f.dp).height(20f.dp),
-        )
-
-        val quads = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
+        val quads = frame.primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
         assertTrue(
             quads.any { it.w > it.h * 2f },
             "indeterminate checkbox should draw a wide dash mark, not a checkmark-shaped accent",
@@ -52,29 +47,26 @@ class ShadcnCheckboxRadioSlotTest {
 
     @Test
     fun shadcnRadioGroupContentSlotComposesIconAndDescriptionAroundBareRadioButton() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(320f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
-
         var selected = "a"
-        ui.headlessRoot().column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
-            shadcnRadioGroup(id = "plan") {
-                row {
-                    shadcnRadioButton(
-                        id = "plan.a",
-                        selected = selected == "a",
-                        onClick = { selected = "a" },
-                    )
-                    column {
-                        text("Pro plan")
-                        text("Billed monthly, cancel anytime")
+        val frame = renderShadcnComponent(width = 320f, height = 160f) {
+            column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
+                shadcnRadioGroup(id = "plan") {
+                    row {
+                        shadcnRadioButton(
+                            id = "plan.a",
+                            selected = selected == "a",
+                            onClick = { selected = "a" },
+                        )
+                        column {
+                            text("Pro plan")
+                            text("Billed monthly, cancel anytime")
+                        }
                     }
                 }
             }
         }
 
-        val semantics = ui.finishFrame().semantics
+        val semantics = frame.semantics
         assertNotNull(
             semantics.firstOrNull { it.label == "Pro plan" },
             "content slot's title row should render",
@@ -91,20 +83,17 @@ class ShadcnCheckboxRadioSlotTest {
 
     @Test
     fun shadcnRadioGroupOptionsKeepEachLabelInlineAndVerticallyCenteredWithItsRadio() {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
-        ui.beginFrame(320f, 160f, testSnapshot(x = -100f, y = -100f, down = false))
-
-        ui.headlessRoot().column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
-            shadcnRadioGroup(
-                id = "appearance",
-                options = listOf("System", "Light"),
-                selectedIndex = 0,
-            )
+        val frame = renderShadcnComponent(width = 320f, height = 160f) {
+            column(modifier = Modifier.offset(20f.dp, 20f.dp).width(280f.dp)) {
+                shadcnRadioGroup(
+                    id = "appearance",
+                    options = listOf("System", "Light"),
+                    selectedIndex = 0,
+                )
+            }
         }
 
-        val semantics = ui.finishFrame().semantics
+        val semantics = frame.semantics
         val radio = semantics.first { it.id == "appearance.0" }
         val label = semantics.first { it.label == "System" }
         assertEquals(UiSemanticRole.Radio, radio.role)

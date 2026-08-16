@@ -25,16 +25,17 @@ class ShadcnSidebarFidelityTest {
     fun shadcnSidebarFidelity() = runTest {
         val ui = UiContext()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
 
         val sidebarWidth = 240f
 
         ui.beginFrame(400f, 600f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.headlessRoot().shadcnSidebar(
-            id = "sidebar",
-            modifier = Modifier.width(sidebarWidth.dp),
-        ) {
-            text("Sidebar content")
+        ui.headlessRoot().shadcnTheme {
+            shadcnSidebar(
+                id = "sidebar",
+                modifier = Modifier.width(sidebarWidth.dp),
+            ) {
+                text("Sidebar content")
+            }
         }
         val frameOutput = ui.finishFrame()
 
@@ -60,7 +61,7 @@ class ShadcnSidebarFidelityTest {
             ),
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
-                background = ui.currentTheme.colors.background,
+                background = ShadcnTheme.colors.background,
                 font = ui.currentFont,
                 semantics = frameOutput.semantics,
             ),

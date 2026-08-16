@@ -224,7 +224,7 @@ class ShadcnReferenceTokenExpandedTest {
                     "tools/extract_shadcn_tokens.py's THEME_NAMES and ShadcnBaseColor have drifted apart",
             )
         val reference = if (dark) referenceTokens.dark else referenceTokens.light
-        val theme = shadcnThemeValues(baseColor = baseColor, dark = dark).asShadcnTheme()
+        val theme = shadcnThemeValues(baseColor = baseColor, dark = dark)
         val locked = knownDrifted["$refKey.$mode"] ?: emptyMap()
         val ours: Map<String, Color> = mapOf(
             "background" to theme.colors.background,

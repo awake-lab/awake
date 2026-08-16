@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarFooterButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHeaderButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -24,7 +25,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
-import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 
 private val ShowcaseChromeTheme = shadcnThemeValues(dark = false)
 
@@ -41,16 +41,16 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
     state: UiShowcaseRuntimeState,
 ) {
     val showcaseTheme = state.showcaseTheme()
-    uiContext.pushTheme(showcaseTheme.asRuntimeTheme())
     headlessFrame {
-        val sidebarScroll = rememberScrollState("ui-showcase-scroll-side")
-        val contentScroll = rememberScrollState("ui-showcase-scroll-content")
-        val compact = viewportWidth < 720f
-        val outerPadding = if (compact) 16f.dp else 24f.dp
-        val sidebarWidth = 264f.dp
-        val railGap = 20f.dp
+        shadcnTheme(theme = showcaseTheme) {
+            val sidebarScroll = rememberScrollState("ui-showcase-scroll-side")
+            val contentScroll = rememberScrollState("ui-showcase-scroll-content")
+            val compact = viewportWidth < 720f
+            val outerPadding = if (compact) 16f.dp else 24f.dp
+            val sidebarWidth = 264f.dp
+            val railGap = 20f.dp
 
-        if (compact) {
+            if (compact) {
             column(
                 verticalArrangement = Arrangement.spacedBy(12f.dp),
                 modifier = Modifier.padding(outerPadding).fillMaxWidth().fillMaxHeight(),
@@ -74,7 +74,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                     }
                 }
             }
-        } else {
+            } else {
             row(
                 horizontalArrangement = Arrangement.spacedBy(railGap),
                 modifier = Modifier.padding(outerPadding).fillMaxWidth().fillMaxHeight(),
@@ -123,7 +123,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                     }
                 }
             }
+            }
         }
     }
-    uiContext.popTheme()
 }

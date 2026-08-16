@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumb
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumbEllipsis
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBreadcrumbLink
@@ -41,7 +40,7 @@ class ShadcnBreadcrumbTest {
     }
 
     @Test
-    fun breadcrumbLinkFiresOnClickWhenPressedAndReleasedInside() = uiTestSession(
+    fun breadcrumbLinkFiresOnClickWhenPressedAndReleasedInside() = shadcnTestSession(
         width = 300f,
         height = 60f,
                 font = BitmapFont(),

@@ -8,9 +8,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.FigmaModeMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.width
@@ -25,19 +23,19 @@ class ShadcnSelectFidelityTest {
     @Test
     fun shadcnSelectMatrixFidelity() = runTest {
         val aggregatedReport = FigmaModeMatrix.runValidationMatrix { config ->
-            val ui = UiContext()
-            ui.pushFont(BitmapFont())
             val theme = shadcnThemeValues(dark = config.mode == io.github.ronjunevaldoz.awake.testing.ui.FigmaMode.Dark)
-            ui.pushTheme(theme)
-
-            ui.beginFrame(300f * config.scale.scale, 100f * config.scale.scale, testSnapshot(x = -100f, y = -100f, down = false))
-            ui.headlessRoot().shadcnSelect(
-                id = "select-fidelity",
-                options = listOf("Option 1", "Option 2"),
-                selectedIndex = 0,
-                modifier = Modifier.width(200f.dp).height(40f.dp),
-            )
-            val frameOutput = ui.finishFrame()
+            val frameOutput = renderShadcnComponent(
+                width = 300f * config.scale.scale,
+                height = 100f * config.scale.scale,
+                theme = theme,
+            ) { _ ->
+                shadcnSelect(
+                    id = "select-fidelity",
+                    options = listOf("Option 1", "Option 2"),
+                    selectedIndex = 0,
+                    modifier = Modifier.width(200f.dp).height(40f.dp),
+                )
+            }
 
             val validationConfig = AwakeUiPreviewValidationConfig()
 
@@ -52,8 +50,8 @@ class ShadcnSelectFidelityTest {
                 ),
                 frame = AwakeUiPreviewFrame(
                     primitives = frameOutput.primitives,
-                    background = ui.currentTheme.colors.background,
-                    font = ui.currentFont,
+                    background = theme.colors.background,
+                    font = io.github.ronjunevaldoz.awake.ui.font.UiFonts.default(),
                     semantics = frameOutput.semantics,
                 ),
                 config = validationConfig,

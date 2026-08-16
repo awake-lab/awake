@@ -15,7 +15,6 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.padding
@@ -128,13 +127,13 @@ class ShowcaseShellSidebarTest {
 
         ui.beginFrame(1440f, 500f, input.updateSnapshot().toUiInputState())
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnThemeValues(dark = false))
 
         val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side-test")
-        ui.createUiScope(UiBounds(0f, 0f, 1440f, 500f)).row(
+        ui.showcaseRoot(theme = shadcnThemeValues(dark = false), bounds = UiBounds(0f, 0f, 1440f, 500f)) {
+            row(
             modifier = Modifier.padding(24f.dp).fillMaxWidth().fillMaxHeight(),
             horizontalArrangement = Arrangement.spacedBy(20f.dp),
-        ) {
+            ) {
             shadcnSidebar(
                 id = "ui-showcase-sidebar",
                 modifier = Modifier.width(264f.dp).fillMaxHeight(),
@@ -154,6 +153,7 @@ class ShowcaseShellSidebarTest {
                 column(modifier = Modifier.fillMaxWidth().weight(1f).verticalScroll(sidebarScroll)) {
                     drawUiShowcaseSidebar(compact = false)
                 }
+            }
             }
         }
         ui.endFrame()
@@ -188,12 +188,11 @@ class ShowcaseShellSidebarTest {
 
         ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnThemeValues(dark = false))
-
-        ui.createUiScope(UiBounds(0f, 0f, 1440f, 900f)).row(
+        ui.showcaseRoot(theme = shadcnThemeValues(dark = false), bounds = UiBounds(0f, 0f, 1440f, 900f)) {
+            row(
             modifier = Modifier.padding(24f.dp).fillMaxWidth().fillMaxHeight(),
             horizontalArrangement = Arrangement.spacedBy(20f.dp),
-        ) {
+            ) {
             shadcnSidebar(
                 id = "ui-showcase-sidebar",
                 modifier = Modifier.width(264f.dp).fillMaxHeight(),
@@ -224,6 +223,7 @@ class ShowcaseShellSidebarTest {
                     )
                 }
                 drawUiShowcaseSidebar(compact = false)
+            }
             }
         }
 

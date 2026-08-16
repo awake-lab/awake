@@ -47,14 +47,15 @@ class UiShowcaseTextInputIntegrationTest {
             input.setPointer(down = pointerDown, x = x, y = y)
             ui.beginFrame(width, height, input.updateSnapshot().toUiInputState())
             ui.pushFont(font)
-            ui.pushTheme(theme)
-            ui.headlessRoot().column(
-                modifier = Modifier.offset(24f.dp, 24f.dp)
-                    .width((width - 48f).dp)
-                    .height((height - 48f).dp),
-                verticalArrangement = Arrangement.spacedBy(10f.dp),
-            ) {
-                renderUiShowcasePagePreview(page, state)
+            ui.showcaseRoot(theme = theme) {
+                column(
+                    modifier = Modifier.offset(24f.dp, 24f.dp)
+                        .width((width - 48f).dp)
+                        .height((height - 48f).dp),
+                    verticalArrangement = Arrangement.spacedBy(10f.dp),
+                ) {
+                    renderUiShowcasePagePreview(page, state)
+                }
             }
             return ui.endFrame()
         }
@@ -107,12 +108,13 @@ class UiShowcaseTextInputIntegrationTest {
         input.setPointer(down = false, x = -100f, y = -100f)
         ui.beginFrame(900f, 460f, input.updateSnapshot().toUiInputState())
         ui.pushFont(font)
-        ui.pushTheme(theme)
-        ui.headlessRoot().column(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp),
-        ) {
-            renderUiShowcasePagePreview(page, state)
+        ui.showcaseRoot(theme = theme) {
+            column(
+                modifier = Modifier.offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
+                verticalArrangement = Arrangement.spacedBy(10f.dp),
+            ) {
+                renderUiShowcasePagePreview(page, state)
+            }
         }
         ui.endFrame()
 
@@ -120,12 +122,13 @@ class UiShowcaseTextInputIntegrationTest {
         input.setPointer(down = false, x = -100f, y = -100f)
         ui.beginFrame(900f, 460f, input.updateSnapshot().toUiInputState())
         ui.pushFont(font)
-        ui.pushTheme(theme)
-        ui.headlessRoot().column(
-            modifier = Modifier.offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
-            verticalArrangement = Arrangement.spacedBy(10f.dp),
-        ) {
-            renderUiShowcasePagePreview(page, state)
+        ui.showcaseRoot(theme = theme) {
+            column(
+                modifier = Modifier.offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
+                verticalArrangement = Arrangement.spacedBy(10f.dp),
+            ) {
+                renderUiShowcasePagePreview(page, state)
+            }
         }
         ui.endFrame()
 

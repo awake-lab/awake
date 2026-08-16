@@ -82,8 +82,8 @@ class ShadcnReferenceTokenTest {
         // bounded tolerance still catches a regression on.
         val darkReference = oklch(0.552f, 0.016f, 285.938f)
         val lightReference = oklch(0.705f, 0.015f, 286.067f)
-        assertColorClose("dark ring", darkReference, shadcnThemeValues(dark = true).asShadcnTheme().ring, tolerance = 0.08f)
-        assertColorClose("light ring", lightReference, shadcnThemeValues(dark = false).asShadcnTheme().ring, tolerance = 0.08f)
+        assertColorClose("dark ring", darkReference, shadcnThemeValues(dark = true).ring, tolerance = 0.08f)
+        assertColorClose("light ring", lightReference, shadcnThemeValues(dark = false).ring, tolerance = 0.08f)
     }
 
     private fun assertColorClose(label: String, reference: Color, actual: Color, tolerance: Float = colorTolerance) {

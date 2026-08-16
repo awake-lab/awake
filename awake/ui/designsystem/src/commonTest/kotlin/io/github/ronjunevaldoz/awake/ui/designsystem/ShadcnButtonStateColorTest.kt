@@ -2,12 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,28 +18,22 @@ import kotlin.test.assertEquals
  */
 class ShadcnButtonStateColorTest {
 
-    private fun hoveredButtonBackground(variant: ShadcnButtonVariant): Pair<UiContext, String> {
-        val ui = UiContext()
+    private fun hoveredButtonBackground(variant: ShadcnButtonVariant) = shadcnTestSession(width = 300f, height = 120f) {
         val id = "state-btn"
-        fun frame(x: Float, y: Float) {
-            ui.beginFrame(300f, 120f, testSnapshot(x = x, y = y, down = false))
-            ui.pushFont(BitmapFont())
-            ui.pushTheme(ShadcnTheme)
-            ui.headlessRoot().column {
-                shadcnButton(id = id, label = "STATE", variant = variant)
+        fun renderFrame(x: Float, y: Float) = frame(x = x, y = y) {
+                column {
+                    shadcnButton(id = id, label = "STATE", variant = variant)
+                }
             }
-            ui.endFrame()
-        }
-        frame(x = -100f, y = -100f) // settle mount
-        val bounds = ui.semanticNodes().first { it.id == id }.bounds
-        frame(x = bounds.x + bounds.width / 2f, y = bounds.y + bounds.height / 2f)
-        return ui to id
+        val settled = renderFrame(x = -100f, y = -100f) // settle mount
+        val bounds = settled.bounds(id)
+        renderFrame(x = bounds.x + bounds.width / 2f, y = bounds.y + bounds.height / 2f)
     }
 
     @Test
     fun primaryHoverStaysInPrimaryFamily() {
-        val (ui, id) = hoveredButtonBackground(ShadcnButtonVariant.Primary)
-        val node = requireSemanticNode(ui.semanticNodes(), id = id, role = UiSemanticRole.Button)
+        val node = hoveredButtonBackground(ShadcnButtonVariant.Primary).node("state-btn")
+        assertEquals(UiSemanticRole.Button, node.role)
         assertEquals(
             ShadcnTheme.colors.primary.withAlpha(0.9f),
             node.backgroundColor,
@@ -53,8 +44,8 @@ class ShadcnButtonStateColorTest {
 
     @Test
     fun dangerHoverStaysDestructive() {
-        val (ui, id) = hoveredButtonBackground(ShadcnButtonVariant.Danger)
-        val node = requireSemanticNode(ui.semanticNodes(), id = id, role = UiSemanticRole.Button)
+        val node = hoveredButtonBackground(ShadcnButtonVariant.Danger).node("state-btn")
+        assertEquals(UiSemanticRole.Button, node.role)
         assertEquals(
             ShadcnTheme.colors.destructive.withAlpha(0.9f),
             node.backgroundColor,

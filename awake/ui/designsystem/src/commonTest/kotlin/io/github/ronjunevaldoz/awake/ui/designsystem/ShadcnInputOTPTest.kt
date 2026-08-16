@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInputOTP
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
@@ -131,7 +130,7 @@ class ShadcnInputOTPTest {
     }
 
     @Test
-    fun shadcnInputOTPFocusesInputOnSlotClick() = uiTestSession(
+    fun shadcnInputOTPFocusesInputOnSlotClick() = shadcnTestSession(
         width = 400f,
         height = 80f,
                 font = BitmapFont(),

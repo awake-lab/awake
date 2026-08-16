@@ -18,13 +18,12 @@ class ShadcnHeadlessButtonTest {
     @Test
     fun headlessFacadeButtonResolvesTheInstalledShadcnTheme() {
         val context = UiContext()
-        context.pushTheme(ShadcnTheme)
         context.beginFrame(200f, 120f, UiInputState())
 
-        val clicked = context.createUiScope(UiBounds(0f, 0f, 200f, 120f)).shadcnButton(
-            id = "confirm",
-            label = "Confirm",
-        )
+        var clicked = false
+        context.createUiScope(UiBounds(0f, 0f, 200f, 120f)).shadcnTheme {
+            clicked = shadcnButton(id = "confirm", label = "Confirm")
+        }
 
         assertFalse(clicked)
         assertTrue(
@@ -38,18 +37,14 @@ class ShadcnHeadlessButtonTest {
     @Test
     fun bareButtonUsesNaturalWidthUntilFillMaxWidthIsRequested() {
         val context = UiContext()
-        context.pushTheme(ShadcnTheme)
         context.beginFrame(200f, 120f, UiInputState())
 
-        context.createUiScope(UiBounds(0f, 0f, 200f, 120f)).shadcnButton(
-            id = "natural",
-            label = "Confirm",
-        )
-        context.createUiScope(UiBounds(0f, 50f, 200f, 120f)).shadcnButton(
-            id = "full",
-            label = "Confirm",
-            modifier = Modifier.fillMaxWidth(),
-        )
+        context.createUiScope(UiBounds(0f, 0f, 200f, 120f)).shadcnTheme {
+            shadcnButton(id = "natural", label = "Confirm")
+        }
+        context.createUiScope(UiBounds(0f, 50f, 200f, 120f)).shadcnTheme {
+            shadcnButton(id = "full", label = "Confirm", modifier = Modifier.fillMaxWidth())
+        }
 
         val semantics = context.finishFrame().semantics
         val button = semantics.first { it.id == "natural" }

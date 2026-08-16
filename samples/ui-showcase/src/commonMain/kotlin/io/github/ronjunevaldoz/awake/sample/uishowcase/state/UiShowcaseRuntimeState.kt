@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.state
 
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnAccent
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnBaseColor
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnStylePreset
+import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -104,7 +104,7 @@ internal class UiShowcaseRuntimeState {
             _uiState.update { it.copy(showcaseNotifyChecked = value) }
         }
 
-    fun showcaseTheme(): UiThemeValues = shadcnThemeValues(
+    fun showcaseTheme(): ShadcnThemeValues = shadcnThemeValues(
         preset = showcaseStylePreset(),
         baseColor = showcaseBaseColor(),
         accent = showcaseAccent(),

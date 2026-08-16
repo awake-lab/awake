@@ -161,7 +161,9 @@ ambient values that shadcn recipes read. Do not add `ShadcnTheme` or other brand
 or Headless.
 
 Use `shadcnThemeValues(...)` when only immutable theme values are needed; it does not install a
-composition scope.
+composition scope. Every `shadcn*` recipe must execute inside `UiScope.shadcnTheme { ... }`.
+There is no Core-theme fallback: a missing scope is an error, so metrics and branded roles can
+never be silently reconstructed from a generic Core theme.
 
 ## Design System may use Core infrastructure, never Core widget primitives
 

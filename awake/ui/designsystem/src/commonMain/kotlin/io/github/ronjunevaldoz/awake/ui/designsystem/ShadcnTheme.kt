@@ -135,7 +135,7 @@ fun shadcnThemeValues(
             dark = dark,
         ),
     )
-    return ShadcnThemeValues(core = core, metrics = core.metrics)
+    return ShadcnThemeValues(resolved = core)
 }
 
 interface ShadcnResolvedTheme : UiThemeValues {
@@ -159,75 +159,6 @@ interface ShadcnResolvedTheme : UiThemeValues {
     val sidebarRing: Color get() = palette.sidebarRing
     val input: Color get() = palette.input
     val ring: Color get() = palette.ring
-}
-
-fun UiThemeValues.asShadcnTheme(): ShadcnResolvedTheme = when (this) {
-    is ShadcnResolvedTheme -> this
-    is ShadcnThemeValues -> core.asShadcnTheme()
-    else -> RuntimeShadcnTheme(this)
-}
-
-/**
- * Runtime-free values can be wrapped by Core when they are pushed onto a [UiContext]. That
- * wrapper intentionally exposes only the API contracts, so it is not a [ShadcnResolvedTheme]
- * anymore. The deprecated Core receiver bridge still needs the richer recipe view; this adapter
- * reconstructs it from the stable values without falling back to the unrelated default palette.
- */
-private class RuntimeShadcnTheme(
-    private val values: UiThemeValues,
-) : ShadcnResolvedTheme, UiComponentStylesProvider {
-    private val tokens = values.colors
-
-    override val config: ShadcnThemeConfig = ShadcnThemeConfig()
-    override val typography: UiTypography = values.typography
-    override val radii: ShadcnRadiusScale = ShadcnRadiusScale(
-        xs = values.shapes.xs,
-        sm = values.shapes.sm,
-        md = values.shapes.md,
-        lg = values.shapes.lg,
-        xl = values.shapes.xl,
-        full = values.shapes.full,
-    )
-    override val metrics: ShadcnMetrics = ShadcnStylePreset.Vega.metrics
-    override val colors: UiColorTokens = tokens
-    override val componentStyles = ShadcnComponentStyles(this)
-    override val palette: ShadcnPalette = ShadcnPalette(
-        background = tokens.background,
-        foreground = tokens.foreground,
-        primary = tokens.primary,
-        primaryForeground = tokens.primaryForeground,
-        primaryHover = tokens.primary,
-        primaryPressed = tokens.primary,
-        secondary = tokens.secondary,
-        secondaryForeground = tokens.secondaryForeground,
-        secondaryHover = tokens.secondary,
-        secondaryPressed = tokens.secondary,
-        muted = tokens.muted,
-        mutedForeground = tokens.mutedForeground,
-        accent = tokens.accent,
-        accentForeground = tokens.accentForeground,
-        accentHover = tokens.accent,
-        accentPressed = tokens.accent,
-        destructive = tokens.destructive,
-        destructiveForeground = tokens.destructiveForeground,
-        destructiveHover = tokens.destructive,
-        destructivePressed = tokens.destructive,
-        border = tokens.border,
-        ring = tokens.accent,
-        input = tokens.input,
-        card = tokens.card,
-        cardForeground = tokens.cardForeground,
-        popover = tokens.popover,
-        popoverForeground = tokens.popoverForeground,
-        sidebar = tokens.background,
-        sidebarForeground = tokens.foreground,
-        sidebarPrimary = tokens.primary,
-        sidebarPrimaryForeground = tokens.primaryForeground,
-        sidebarAccent = tokens.accent,
-        sidebarAccentForeground = tokens.accentForeground,
-        sidebarBorder = tokens.border,
-        sidebarRing = tokens.accent,
-    )
 }
 
 private fun shadcnThemeData(config: ShadcnThemeConfig = ShadcnThemeConfig()): ShadcnResolvedTheme = ConfiguredShadcnTheme(config)

@@ -47,17 +47,18 @@ class ShadcnButtonScrollClickInteractionTest {
         val clicked = mutableSetOf<String>()
         ui.beginFrame(300f, 220f, testSnapshot(x = x, y = y, down = down, scrollDeltaY = scrollDeltaY))
         ui.pushFont(BitmapFont())
-        ui.pushTheme(ShadcnTheme)
         val root = ui.headlessRoot()
-        val scroll = root.rememberScrollState("interleave-sidebar-scroll")
-        root.shadcnSidebar(
-            id = "interleave-sidebar",
-            modifier = Modifier.verticalScroll(scroll).width(260f.dp).height(220f.dp),
-        ) {
-            shadcnSidebarGroup {
-                shadcnSidebarMenu {
-                    pages.forEach { id ->
-                        shadcnSidebarMenuItem(id = id, label = id, active = false, onClick = { clicked += id })
+        root.shadcnTheme {
+            val scroll = root.rememberScrollState("interleave-sidebar-scroll")
+            shadcnSidebar(
+                id = "interleave-sidebar",
+                modifier = Modifier.verticalScroll(scroll).width(260f.dp).height(220f.dp),
+            ) {
+                shadcnSidebarGroup {
+                    shadcnSidebarMenu {
+                        pages.forEach { id ->
+                            shadcnSidebarMenuItem(id = id, label = id, active = false, onClick = { clicked += id })
+                        }
                     }
                 }
             }

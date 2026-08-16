@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,9 +20,11 @@ class HierarchyPanelTest {
         world.add(camera, Name("Camera"))
         var selected: Int? = null
 
-        uiTestSession(width = 280f, height = 400f, theme = shadcnThemeValues(dark = true), font = BitmapFont()) {
+        uiTestSession(width = 280f, height = 400f, font = BitmapFont()) {
             fun draw(x: Float, y: Float, down: Boolean = false) = frame(x = x, y = y, down = down) {
-                drawHierarchyPanel(world, selectedEntityId = selected) { selected = it }
+                shadcnTheme(theme = shadcnThemeValues(dark = true)) {
+                    drawHierarchyPanel(world, selectedEntityId = selected) { selected = it }
+                }
             }
 
             val first = draw(-1f, -1f)

@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasureTrialStats
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
@@ -26,12 +27,14 @@ class StudioFramePerfProbeTest {
         val world = World()
         val renderer = NoopRenderer()
         ui.pushFont(BitmapFont())
-        ui.pushTheme(shadcnThemeValues(dark = true))
 
         fun frame() {
             ui.beginFrame(1440f, 900f, UiInputState(pointerX = 400f, pointerY = 300f))
-            ui.createUiScope(slot = UiBounds(0f, 0f, 1440f, 900f))
-                .drawStudioShellBody(store, world, renderer)
+            ui.createUiScope(slot = UiBounds(0f, 0f, 1440f, 900f)).shadcnTheme(
+                theme = shadcnThemeValues(dark = true),
+            ) {
+                drawStudioShellBody(store, world, renderer)
+            }
             ui.finishFrame()
         }
 

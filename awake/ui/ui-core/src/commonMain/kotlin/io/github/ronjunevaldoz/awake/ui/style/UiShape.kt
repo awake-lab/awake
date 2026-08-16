@@ -14,10 +14,9 @@ package io.github.ronjunevaldoz.awake.ui
  * `CoreUiComponentStyles`, and multiple `ui-headless` generic-widget defaults/tests). It is NOT
  * shadcn's radius system and must never be read from `ui-designsystem` component code -- a
  * `shadcn*` component always has a real theme in scope and should read
- * `theme.asShadcnTheme().radii.*` (or, generically, `theme.shapes.*`) instead, so switching
- * `ShadcnStylePreset` actually changes its corners. Four `ui-designsystem` call sites
- * (`DropdownMenu.kt`, `Dialog.kt`, `ShadcnToast.kt`, `ShadcnToggleGroup.kt`) used to read this
- * global directly, silently ignoring preset switches -- rewired to theme radii in that same pass.
+ * their own scoped shape contract rather than this global fallback. Four design-system call sites
+ * used to read this global directly, silently ignoring their selected shape scale -- rewired to
+ * their scoped theme values in that same pass.
  * `UiShape.none` (the zero-`Dp` sentinel) is unaffected by any of this and stays the shared
  * "no radius/no border/no offset" default used everywhere, including inside `ui-designsystem`.
  */

@@ -21,7 +21,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewEntry
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewFrame
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewSample
-import io.github.ronjunevaldoz.awake.testing.ui.headlessComponentStateMatrix
 import io.github.ronjunevaldoz.awake.testing.ui.renderAnnotatedUiPreviews
 import io.github.ronjunevaldoz.awake.testing.ui.saveAwakeUiPreview
 import io.github.ronjunevaldoz.awake.testing.ui.verifyAwakeUiPreview
@@ -57,6 +56,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextarea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnToggle
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
@@ -168,8 +168,9 @@ private fun parityFrame(
     val ui = UiContext()
     ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
     ui.pushFont(font)
-    ui.pushTheme(theme)
-    ui.createUiScope(UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())).body()
+    ui.showcaseRoot(theme = theme, bounds = UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())) {
+        body()
+    }
     val output = ui.finishFrame()
     return AwakeUiPreviewFrame(
         primitives = output.primitives,
@@ -421,12 +422,12 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
         val ui = UiContext()
         fun composeFrame() {
             ui.pushFont(font)
-            ui.pushTheme(theme)
-            ui.createUiScope(UiBounds(0f, 0f, 212f, metadata.height.toFloat())).column(
+            ui.showcaseRoot(theme = theme, bounds = UiBounds(0f, 0f, 212f, metadata.height.toFloat())) {
+                column(
                 modifier = Modifier.width(212f.dp)
                     .height(metadata.height.toFloat().dp),
                 verticalArrangement = Arrangement.spacedBy(16f.dp),
-            ) {
+                ) {
                 shadcnProgress(
                     "parity-progress-1",
                     value = 0.25f,
@@ -437,6 +438,7 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
                     value = 0.65f,
                     modifier = Modifier.width(212f.dp),
                 )
+                }
             }
         }
 
@@ -773,7 +775,7 @@ internal object AwakeToggleButtonVariantsLightPreview : AwakeUiPreviewEntry {
 internal object AwakeSliderMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = shadcnThemeValues(dark = false)
-        return metadata.headlessComponentStateMatrix(theme = theme) { forcedModifier ->
+        return metadata.shadcnComponentStateMatrix(theme = theme) { forcedModifier ->
             shadcnSlider("slider", 0f, 100f, 50f, label = "Slider", modifier = forcedModifier)
         }
     }
@@ -816,7 +818,7 @@ internal object AwakeSliderLightPreview : AwakeUiPreviewEntry {
 internal object AwakeTextareaMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = shadcnThemeValues(dark = false)
-        return metadata.headlessComponentStateMatrix(theme = theme) { forcedModifier ->
+        return metadata.shadcnComponentStateMatrix(theme = theme) { forcedModifier ->
             shadcnTextarea(
                 "textarea",
                 value = "Line 1\nLine 2",
@@ -841,7 +843,7 @@ internal object AwakeTextareaMatrixLightPreview : AwakeUiPreviewEntry {
 internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = shadcnThemeValues(dark = false)
-        return metadata.headlessComponentStateMatrix(theme = theme) { forcedModifier ->
+        return metadata.shadcnComponentStateMatrix(theme = theme) { forcedModifier ->
             row(
                 horizontalArrangement = Arrangement.spacedBy(10f.dp),
                 modifier = Modifier.height(40f.dp),
@@ -877,7 +879,7 @@ internal object AwakeToggleMatrixLightPreview : AwakeUiPreviewEntry {
 internal object AwakeTextFieldMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = shadcnThemeValues(dark = false)
-        return metadata.headlessComponentStateMatrix(theme = theme) { forcedModifier ->
+        return metadata.shadcnComponentStateMatrix(theme = theme) { forcedModifier ->
             shadcnInput("textfield", value = "", placeholder = "Default", modifier = forcedModifier)
         }
     }
@@ -897,7 +899,7 @@ internal object AwakeTextFieldMatrixLightPreview : AwakeUiPreviewEntry {
 internal object AwakeSwitchMatrixLightPreview : AwakeUiPreviewEntry {
     override fun renderSamples(metadata: AwakeUiPreviewMetadata): List<AwakeUiPreviewSample> {
         val theme = shadcnThemeValues(dark = false)
-        return metadata.headlessComponentStateMatrix(theme = theme) { forcedModifier ->
+        return metadata.shadcnComponentStateMatrix(theme = theme) { forcedModifier ->
             row(
                 horizontalArrangement = Arrangement.spacedBy(10f.dp),
                 modifier = Modifier.height(40f.dp),

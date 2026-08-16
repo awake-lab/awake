@@ -3,11 +3,10 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Key
-import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuItem
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
@@ -26,10 +25,10 @@ import kotlin.test.assertTrue
 class ShadcnBehaviorParityTest {
 
     @Test
-    fun buttonClickTriggersActivation() = uiTestSession(
+    fun buttonClickTriggersActivation() = showcaseTestSession(
         width = 200f,
         height = 100f,
-        theme = ShadcnTheme,
+        theme = shadcnThemeValues(),
     ) {
         var clicked = false
 
@@ -55,10 +54,10 @@ class ShadcnBehaviorParityTest {
     }
 
     @Test
-    fun buttonSpaceKeyTriggersActivation() = uiTestSession(
+    fun buttonSpaceKeyTriggersActivation() = showcaseTestSession(
         width = 200f,
         height = 100f,
-        theme = ShadcnTheme,
+        theme = shadcnThemeValues(),
     ) {
         var clicked = false
 
@@ -79,10 +78,10 @@ class ShadcnBehaviorParityTest {
     }
 
     @Test
-    fun switchTogglesStateOnClick() = uiTestSession(
+    fun switchTogglesStateOnClick() = showcaseTestSession(
         width = 200f,
         height = 100f,
-        theme = ShadcnTheme,
+        theme = shadcnThemeValues(),
     ) {
         var state = false
 
@@ -108,10 +107,10 @@ class ShadcnBehaviorParityTest {
     }
 
     @Test
-    fun checkboxTogglesStateOnClick() = uiTestSession(
+    fun checkboxTogglesStateOnClick() = showcaseTestSession(
         width = 200f,
         height = 100f,
-        theme = ShadcnTheme,
+        theme = shadcnThemeValues(),
     ) {
         var state = false
 
@@ -137,10 +136,10 @@ class ShadcnBehaviorParityTest {
     }
 
     @Test
-    fun dropdownMenuSelectsItemOnClick() = uiTestSession(
+    fun dropdownMenuSelectsItemOnClick() = showcaseTestSession(
         width = 300f,
         height = 300f,
-        theme = ShadcnTheme,
+        theme = shadcnThemeValues(),
     ) {
         val triggerSlot = UiBounds(10f, 10f, 100f, 36f)
         var selectedIndex: Int? = null
@@ -193,10 +192,10 @@ class ShadcnBehaviorParityTest {
     }
 
     @Test
-    fun dialogDismissesOnClickOutside() = uiTestSession(
+    fun dialogDismissesOnClickOutside() = showcaseTestSession(
         width = 400f,
         height = 400f,
-        theme = ShadcnTheme,
+        theme = shadcnThemeValues(),
     ) {
         var dismissed = false
 

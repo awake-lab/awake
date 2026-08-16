@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.context.UiWeightCacheConsistencyCheck
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -24,7 +23,7 @@ class ShowcaseMeasureCacheConsistencyTest {
     fun sidebarCacheKeysStayConsistentThroughCollapseAndExpand() {
         UiWeightCacheConsistencyCheck.enabled = true
         try {
-            uiTestSession(width = 400f, height = 1600f, theme = shadcnThemeValues(dark = false)) {
+            showcaseTestSession(width = 400f, height = 1600f, theme = shadcnThemeValues(dark = false)) {
                 fun shellFrame(x: Float = -100f, y: Float = -100f, down: Boolean = false) =
                     frame(x = x, y = y, down = down) {
                         column(modifier = Modifier.fillMaxHeight()) {

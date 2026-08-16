@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
-import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -17,10 +16,9 @@ import kotlin.test.assertNotNull
 class ShadcnSelectGenericTest {
 
     @Test
-    fun genericSelectRoundTripsTypedValueNotIndex() = uiTestSession(
+    fun genericSelectRoundTripsTypedValueNotIndex() = shadcnTestSession(
         width = 300f,
         height = 200f,
-        theme = ShadcnTheme,
         font = BitmapFont(),
     ) {
         var picked: Int? = null

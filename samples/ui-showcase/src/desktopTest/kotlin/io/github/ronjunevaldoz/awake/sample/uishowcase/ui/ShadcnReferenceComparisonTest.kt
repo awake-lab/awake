@@ -48,6 +48,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTextStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTooltipText
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -100,11 +101,11 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), comparisonTestSnapshot())
         ui.pushFont(font)
-        ui.pushTheme(theme)
-        ui.createUiScope(UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())).column(
+        ui.showcaseRoot(theme = theme, bounds = UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())) {
+            column(
             modifier = Modifier.offset(8f.dp, 8f.dp).width(272f.dp)
                 .height((metadata.height.toFloat() - 16f).dp),
-        ) {
+            ) {
             shadcnCard(
                 id = "parity-card",
                 modifier = Modifier.width(272f.px),
@@ -132,6 +133,7 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
                     "Login",
                     modifier = Modifier.width(240f.px).height(36f.px),
                 )
+            }
             }
         }
         val output = ui.finishFrame()
@@ -170,18 +172,21 @@ internal object AwakeTooltipContentLightPreview : AwakeUiPreviewEntry {
         val ui = UiContext()
         ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), comparisonTestSnapshot())
         ui.pushFont(font)
-        ui.pushTheme(theme)
         // Anchor is a 1px sliver, not drawn -- just enough for BottomCenter/TopCenter +
         // spacing.xs to place the bubble, so the canvas doesn't waste rows on a full-size
         // trigger the reference (bubble-only capture) never shows either.
         val anchor = UiBounds(x = 0f, y = 0f, width = metadata.width.toFloat(), height = 1f)
-        ui.createUiScope(UiBounds(x = 0f, y = 0f, width = metadata.width.toFloat(), height = metadata.height.toFloat()))
-            .shadcnTooltipText(
+        ui.showcaseRoot(
+            theme = theme,
+            bounds = UiBounds(x = 0f, y = 0f, width = metadata.width.toFloat(), height = metadata.height.toFloat()),
+        ) {
+            shadcnTooltipText(
                 anchorSlot = anchor,
                 visible = true,
                 text = "Add to library",
                 id = "parity-tooltip",
             )
+        }
         val output = ui.finishFrame()
         return AwakeUiPreviewFrame(
             primitives = output.primitives,
