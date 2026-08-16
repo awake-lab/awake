@@ -166,14 +166,21 @@ data class GltfAccessor(
     val bufferView: Int? = null,
     val byteOffset: Int = 0,
     /** glTF's numeric component type constants -- `5120` BYTE, `5121` UNSIGNED_BYTE,
-     * `5122` SHORT, `5123` UNSIGNED_SHORT, `5125` UNSIGNED_INT, `5126` FLOAT. Only
-     * FLOAT (vertex attributes) and the three unsigned integer types (indices) are
-     * actually handled -- see [GltfComponentType]. */
+     * `5122` SHORT, `5123` UNSIGNED_SHORT, `5125` UNSIGNED_INT, `5126` FLOAT. FLOAT and the
+     * three unsigned integer types are used as-is; `BYTE`/`SHORT`/`UNSIGNED_BYTE`/
+     * `UNSIGNED_SHORT` vertex attributes with [normalized] set are decoded through
+     * [io.github.ronjunevaldoz.awake.core.geometry.NormalizedInt] (a quantized export's
+     * vertex data). */
     val componentType: Int,
     val count: Int,
     /** `"SCALAR"`, `"VEC2"`, `"VEC3"`, or `"VEC4"` -- determines how many [componentType]
      * values make up one element. */
     val type: String,
+    /** glTF 2.0 spec: whether an integer [componentType] vertex attribute packs a normalized
+     * float (`[-1, 1]` signed, `[0, 1]` unsigned) rather than a raw integer value -- ignored
+     * (and meaningless per spec) for index accessors and `FLOAT`. Default `false` matches
+     * every accessor this parser read before this field existed. */
+    val normalized: Boolean = false,
 )
 
 @Serializable
