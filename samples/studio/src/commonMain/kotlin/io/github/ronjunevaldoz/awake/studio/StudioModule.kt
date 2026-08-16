@@ -15,10 +15,14 @@ import io.github.ronjunevaldoz.awake.scene.authoring.scene
 import io.github.ronjunevaldoz.awake.scene.controls.components.ActiveCamera
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
+import io.github.ronjunevaldoz.awake.scene.core.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.core.systems.SpinSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.studio.app.platformBackendPreference
+import io.github.ronjunevaldoz.awake.studio.app.writeSceneDocument
 import io.github.ronjunevaldoz.awake.studio.examples.ExampleLoader
 import io.github.ronjunevaldoz.awake.studio.examples.GltfViewerAssets
 import io.github.ronjunevaldoz.awake.studio.examples.SkinnedExampleDriver
@@ -40,6 +44,9 @@ internal const val LIT_SHADOW_UNIFORM_FLOAT_COUNT = 64
 internal fun studioModule(
     store: StudioStore = StudioStore(),
     backend: GameWindowBackend = platformBackendPreference(),
+    // Injectable so a test can assert what a save produced without writing to the real home
+    // directory. Defaulted, so production wiring stays a one-liner.
+    writeScene: (fileName: String, json: String) -> String = ::writeSceneDocument,
 ): GameModule {
     val loader = ExampleLoader()
     val backendLabel = backend.label()
@@ -58,8 +65,15 @@ internal fun studioModule(
             // them into UI state; CameraSystem then applies the pose after that bridge has
             // handled a header/menu selection for this frame.
             cameraInputSystem()
+            // Registered here rather than left out: the rotating-cube scene authors a
+            // SpinControl that nothing was ticking, so studio's "rotating cube" never rotated.
+            // Two systems because SpinControl is a "control carries state, system only composes"
+            // component (see SpinSystem): something has to advance the angle, and the engine
+            // leaves that to whoever owns the spin rate. In an editor, that owner is play mode.
+            frameSystem("spin-clock") { PlayModeSystem(SpinClockSystem(), store) }
+            frameSystem("spin") { PlayModeSystem(SpinSystem(), store) }
             frameSystem("example-driver") {
-                StudioExampleDriverSystem(this, store, loader)
+                StudioExampleDriverSystem(this, store, loader, writeScene)
             }
             cameraSystem()
             onReady {
@@ -93,10 +107,27 @@ private fun GameWindowBackend.label(): String = when (this) {
     GameWindowBackend.OPENGL -> "OpenGL"
 }
 
+/** Advances every [SpinControl] by its own rate, which is the half [SpinSystem] deliberately
+ * does not do. Runs before it, so the composed transform is this frame's angle. */
+private class SpinClockSystem : System {
+    override fun update(world: World, delta: Float) {
+        world.queryEach(SpinControl::class) { _, spin -> spin.radians += spin.speed * delta }
+    }
+}
+
+/** Ticks [delegate] only in [StudioContract.Mode.Play]. A wrapper rather than a mode check
+ * inside each system: the systems are engine-owned, and an editor's mode is not their concern. */
+private class PlayModeSystem(private val delegate: System, private val store: StudioStore) : System {
+    override fun update(world: World, delta: Float) {
+        if (store.state.value.mode == StudioContract.Mode.Play) delegate.update(world, delta)
+    }
+}
+
 private class StudioExampleDriverSystem(
     private val runtime: SceneGameRuntime,
     private val store: StudioStore,
     private val loader: ExampleLoader,
+    private val writeScene: (fileName: String, json: String) -> String,
 ) : System {
     private var syncedCameraEntity: Entity? = null
     private var syncedStoreMode: CameraMode? = null
@@ -105,6 +136,8 @@ private class StudioExampleDriverSystem(
     override fun update(world: World, delta: Float) {
         store.drainEffects().forEach { effect ->
             when (effect) {
+                StudioContract.Effect.SaveScene -> saveActiveScene(world)
+
                 is StudioContract.Effect.LoadExample -> {
                     loader.activate(effect.exampleId, runtime)
                     store.dispatch(
@@ -116,9 +149,30 @@ private class StudioExampleDriverSystem(
                 }
             }
         }
-        val activeId = store.state.value.examples.activeExampleId
-        StudioExamples.first { it.id == activeId }.driver?.invoke(runtime, delta)
+        // Drivers are gameplay: an animation that keeps running in Edit would fight every
+        // inspector edit, and its result would be saved as if it had been authored.
+        if (store.state.value.mode == StudioContract.Mode.Play) {
+            val activeId = store.state.value.examples.activeExampleId
+            StudioExamples.first { it.id == activeId }.driver?.invoke(runtime, delta)
+        }
         syncCameraComponent(world)
+    }
+
+    /**
+     * Exports the LIVE world, so inspector edits are what land on disk -- not the document that
+     * was loaded. Failures are reported to the studio console rather than thrown: a save that
+     * cannot resolve an asset ID must not take the frame loop down with it.
+     */
+    private fun saveActiveScene(world: World) {
+        val exampleId = store.state.value.examples.activeExampleId
+        val message = runCatching {
+            val document = loader.exportActive(world, name = exampleId)
+            val target = writeScene("$exampleId.scene.json", SceneLoader.encode(document))
+            StudioContract.ConsoleLevel.Info to "Saved to $target"
+        }.getOrElse { failure ->
+            StudioContract.ConsoleLevel.Error to "Save failed: ${failure.message}"
+        }
+        store.dispatch(StudioContract.Intent.AppendConsole(message.first, message.second))
     }
 
     /**

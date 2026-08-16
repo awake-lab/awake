@@ -103,13 +103,17 @@ internal fun UiScope.drawStudioShellBody(
         verticalArrangement = Arrangement.spacedBy(0f.dp),
         modifier = Modifier.fillMaxWidth().fillMaxHeight(),
     ) { shellSlot ->
+        val playing = store.state.value.mode == StudioContract.Mode.Play
         drawStudioTopBar(
             activeExampleId = store.state.value.examples.activeExampleId,
+            playing = playing,
             onSelectExample = { store.dispatch(StudioContract.Intent.SelectExample(it)) },
-            // "Play" replays the active example -- re-selecting it queues LoadExample, which
-            // tears the scene down and re-instantiates it, same reset semantics the icon rail's
-            // own reset button already uses.
-            onPlay = { store.dispatch(StudioContract.Intent.SelectExample(store.state.value.examples.activeExampleId)) },
+            onSave = { store.dispatch(StudioContract.Intent.SaveScene) },
+            // Stop reloads the scene (see StudioStore), which is what discards play-mode edits.
+            onTogglePlay = {
+                val next = if (playing) StudioContract.Mode.Edit else StudioContract.Mode.Play
+                store.dispatch(StudioContract.Intent.SetMode(next))
+            },
         )
         shadcnSeparator(thickness = SEPARATOR_THICKNESS)
         val workspaceHeightPx = (
@@ -123,7 +127,11 @@ internal fun UiScope.drawStudioShellBody(
             heightPx = workspaceHeightPx,
         )
         shadcnSeparator(thickness = SEPARATOR_THICKNESS)
-        drawStudioStatusBar(backend = backend, entityCount = world.namedEntityCount())
+        drawStudioStatusBar(
+            mode = if (playing) "Play mode" else "Edit mode",
+            backend = backend,
+            entityCount = world.namedEntityCount(),
+        )
     }
 }
 

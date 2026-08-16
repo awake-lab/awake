@@ -8,6 +8,15 @@ import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 internal object StudioContract {
     enum class Projection { Perspective, Orthographic }
 
+    /**
+     * Edit authors the scene; Play runs it.
+     *
+     * The split is what makes gameplay systems (spin, the skinned-mesh driver) safe to have at
+     * all in an editor: in Edit they do not tick, so a transform typed into the inspector stays
+     * where it was put instead of being overwritten by an animation the next frame.
+     */
+    enum class Mode { Edit, Play }
+
     data class ExampleState(val activeExampleId: String = StudioExamples.first().id)
 
     data class InspectorState(val selectedEntityId: Int? = null)
@@ -27,6 +36,7 @@ internal object StudioContract {
     )
 
     data class State(
+        val mode: Mode = Mode.Edit,
         val examples: ExampleState = ExampleState(),
         val inspector: InspectorState = InspectorState(),
         val camera: CameraState = CameraState(),
@@ -38,6 +48,8 @@ internal object StudioContract {
         data class SelectEntity(val id: Int?) : Intent
         data class SetCameraMode(val mode: CameraMode) : Intent
         data class SetProjection(val projection: Projection) : Intent
+        data class SetMode(val mode: Mode) : Intent
+        data object SaveScene : Intent
         data class AppendConsole(val level: ConsoleLevel, val message: String) : Intent
         data object ClearConsole : Intent
     }
@@ -45,5 +57,8 @@ internal object StudioContract {
     sealed interface Effect {
         // World mutation is a side effect; a reducer shouldn't perform it directly.
         data class LoadExample(val exampleId: String) : Effect
+
+        // Reading the live world and writing a file are both side effects, for the same reason.
+        data object SaveScene : Effect
     }
 }
