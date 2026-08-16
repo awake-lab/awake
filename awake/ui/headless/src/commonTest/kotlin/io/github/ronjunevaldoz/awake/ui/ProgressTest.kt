@@ -3,8 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
+import io.github.ronjunevaldoz.awake.testing.ui.UiComponentFrame
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.progress
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -20,36 +22,33 @@ import kotlin.test.assertTrue
  */
 class ProgressTest {
 
-    private fun UiContext.progressFillWidth(): Float {
+    private fun UiComponentFrame.progressFillWidth(): Float {
         // The track paints as a plain Quad (+ separate border edges); progress() hardcodes
         // Pill for the fill regardless of theme, so it's the only RoundedQuad this emits, and
         // only once its animated fraction has moved off zero.
-        return endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>().firstOrNull()?.w ?: 0f
+        return primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().firstOrNull()?.w ?: 0f
     }
 
     @Test
     fun fillWidensAcrossFramesUntilItSettlesAtTarget() {
-        val ui = UiContext()
         val modifier = Modifier.width(200f.px).height(8f.px)
 
-        // Rest: the very first frame, one animation step in from `initial = 0f`.
-        ui.beginFrame(220f, 40f, testSnapshot(), deltaSeconds = 1f / 60f)
-        ui.createAbsolute(x = 10f, y = 10f).progress("p", value = 1f, modifier = modifier)
-        val restWidth = ui.progressFillWidth()
+        val (restWidth, inFlightWidth, settledWidth) = uiTestSession(width = 220f, height = 40f) {
+            fun frameWidth(deltaSeconds: Float) = frame(deltaSeconds = deltaSeconds) {
+                primitive.context.createAbsolute(x = 10f, y = 10f)
+                    .progress("p", value = 1f, modifier = modifier)
+            }.progressFillWidth()
 
-        // In-flight: a few more frames in, clearly past rest but not yet converged.
-        repeat(3) {
-            ui.beginFrame(220f, 40f, testSnapshot(), deltaSeconds = 1f / 60f)
-            ui.createAbsolute(x = 10f, y = 10f).progress("p", value = 1f, modifier = modifier)
+            // Rest: the very first frame, one animation step in from `initial = 0f`.
+            val rest = frameWidth(1f / 60f)
+            // In-flight: a few more frames in, clearly past rest but not yet converged.
+            var inFlight = 0f
+            repeat(3) { inFlight = frameWidth(1f / 60f) }
+            // Settled: enough elapsed time for the spring to snap exactly onto its target.
+            var settled = 0f
+            repeat(30) { settled = frameWidth(1f / 20f) }
+            Triple(rest, inFlight, settled)
         }
-        val inFlightWidth = ui.progressFillWidth()
-
-        // Settled: enough elapsed time for the spring to snap exactly onto its target.
-        repeat(30) {
-            ui.beginFrame(220f, 40f, testSnapshot(), deltaSeconds = 1f / 20f)
-            ui.createAbsolute(x = 10f, y = 10f).progress("p", value = 1f, modifier = modifier)
-        }
-        val settledWidth = ui.progressFillWidth()
 
         assertTrue(
             restWidth < inFlightWidth,
@@ -69,12 +68,12 @@ class ProgressTest {
 
     @Test
     fun recordsProgressSemanticRoleAndPercentLabel() {
-        val ui = UiContext()
-        ui.beginFrame(220f, 40f, testSnapshot())
-        ui.createAbsolute(x = 10f, y = 10f)
-            .progress("p", value = 0.5f, modifier = Modifier.width(200f.px).height(8f.px))
+        val frame = renderUiComponent(width = 220f, height = 40f) {
+            primitive.context.createAbsolute(x = 10f, y = 10f)
+                .progress("p", value = 0.5f, modifier = Modifier.width(200f.px).height(8f.px))
+        }
 
-        val semantics = ui.semanticNodes()
+        val semantics = frame.semantics
         inspectSemanticNodes(semantics).requireClean()
         val node = requireSemanticNode(semantics, id = "p", role = UiSemanticRole.Progress)
         assertEquals("50%", node.label)

@@ -3,12 +3,10 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
-import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.test.Test
@@ -17,10 +15,9 @@ import kotlin.test.assertEquals
 class SeparatorWidgetsTest {
     @Test
     fun horizontalSeparatorSpansFullWidth() {
-        val ui = UiContext()
-        ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createUiScope(UiBounds(0f, 0f, 200f, 100f)).separator(thickness = 1f.dp)
-        val frame = ui.finishFrame()
+        val frame = renderUiComponent(width = 200f, height = 100f) {
+            separator(thickness = 1f.dp)
+        }
 
         val quad = frame.primitives.filterIsInstance<UiDrawPrimitive.Quad>().first()
         assertEquals(0f, quad.x)
@@ -31,14 +28,13 @@ class SeparatorWidgetsTest {
 
     @Test
     fun verticalSeparatorSpansFullHeightWithCustomColor() {
-        val ui = UiContext()
-        ui.beginFrame(200f, 100f, testSnapshot())
-        ui.createUiScope(UiBounds(0f, 0f, 200f, 100f)).separator(
-            thickness = 2f.dp,
-            orientation = UiSeparatorOrientation.Vertical,
-            style = Style { background(Color(1f, 0f, 0f, 1f)); shape(UiShape.none) },
-        )
-        val frame = ui.finishFrame()
+        val frame = renderUiComponent(width = 200f, height = 100f) {
+            separator(
+                thickness = 2f.dp,
+                orientation = UiSeparatorOrientation.Vertical,
+                style = Style { background(Color(1f, 0f, 0f, 1f)); shape(UiShape.none) },
+            )
+        }
 
         val quad = frame.primitives.filterIsInstance<UiDrawPrimitive.Quad>().first()
         assertEquals(0f, quad.x)

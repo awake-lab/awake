@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.testing.ui.inspectSemanticNodes
 import io.github.ronjunevaldoz.awake.testing.ui.inspectTextTruncation
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.requireSemanticNode
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.switch
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.test.Test
@@ -26,16 +26,16 @@ class SwitchLabelWidthTest {
 
     @Test
     fun shortLabelAtRegressionTextSizeIsNotTruncated() {
-        val ui = UiContext()
-        ui.beginFrame(240f, 60f, testSnapshot())
-        ui.createAbsolute(x = 0f, y = 0f).switch(
-            "switch-on",
-            checked = true,
-            label = "On",
-            style = Style { textSize(13f.sp) },
-        )
+        val frame = renderUiComponent(width = 240f, height = 60f) {
+            primitive.context.createAbsolute(x = 0f, y = 0f).switch(
+                "switch-on",
+                checked = true,
+                label = "On",
+                style = Style { textSize(13f.sp) },
+            )
+        }
 
-        val semantics = ui.semanticNodes()
+        val semantics = frame.semantics
         inspectSemanticNodes(semantics).requireClean()
         inspectTextTruncation(semantics).requireClean()
 
@@ -49,15 +49,15 @@ class SwitchLabelWidthTest {
 
     @Test
     fun longLabelIsNotTruncated() {
-        val ui = UiContext()
-        ui.beginFrame(400f, 60f, testSnapshot())
-        ui.createAbsolute(x = 0f, y = 0f).switch(
-            "switch-long",
-            checked = false,
-            label = "A genuinely long switch label for width testing",
-        )
+        val frame = renderUiComponent(width = 400f, height = 60f) {
+            primitive.context.createAbsolute(x = 0f, y = 0f).switch(
+                "switch-long",
+                checked = false,
+                label = "A genuinely long switch label for width testing",
+            )
+        }
 
-        val semantics = ui.semanticNodes()
+        val semantics = frame.semantics
         inspectSemanticNodes(semantics).requireClean()
         inspectTextTruncation(semantics).requireClean()
 

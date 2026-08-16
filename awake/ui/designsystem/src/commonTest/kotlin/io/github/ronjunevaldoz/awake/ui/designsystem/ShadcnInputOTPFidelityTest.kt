@@ -9,7 +9,6 @@ import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewMetadata
 import io.github.ronjunevaldoz.awake.testing.ui.AwakeUiPreviewValidationConfig
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnInputOTP
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
@@ -24,11 +23,8 @@ class ShadcnInputOTPFidelityTest {
 
     @Test
     fun shadcnInputOTPSlotsFidelity() = runTest {
-        val ui = UiContext()
-        ui.pushFont(BitmapFont())
-
-        ui.beginFrame(400f, 100f, testSnapshot(x = -100f, y = -100f, down = false))
-        ui.headlessRoot().shadcnTheme {
+        val font = BitmapFont()
+        val frameOutput = renderShadcnComponent(width = 400f, height = 100f, font = font) {
             shadcnInputOTP(
                 id = "otp",
                 value = "123",
@@ -36,7 +32,6 @@ class ShadcnInputOTPFidelityTest {
                 modifier = Modifier.width(300f.dp),
             )
         }
-        val frameOutput = ui.finishFrame()
 
         // shadcn's InputOTPSlot is h-9 w-9 (36x36, square).
         val slotWidth = 36f
@@ -71,7 +66,7 @@ class ShadcnInputOTPFidelityTest {
             frame = AwakeUiPreviewFrame(
                 primitives = frameOutput.primitives,
                 background = ShadcnTheme.colors.background,
-                font = ui.currentFont,
+                font = font,
                 semantics = frameOutput.semantics,
             ),
             config = config,

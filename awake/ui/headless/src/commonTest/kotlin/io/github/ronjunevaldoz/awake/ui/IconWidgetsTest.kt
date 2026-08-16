@@ -3,8 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.icon
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
@@ -17,16 +17,15 @@ class IconWidgetsTest {
 
     @Test
     fun iconEmitsFilledPathsFromImageVector() {
-        val ui = UiContext()
-        ui.beginFrame(100f, 100f, testSnapshot())
+        val frame = renderUiComponent(width = 100f, height = 100f) {
+            primitive.context.createAbsolute(x = 10f, y = 12f).icon(
+                imageVector = squareVector,
+                modifier = Modifier.width(Dimension.Fixed(16f.px)).height(Dimension.Fixed(16f.px)),
+                tint = Color(0.8f, 0.2f, 0.1f, 1f),
+            )
+        }
 
-        ui.createAbsolute(x = 10f, y = 12f).icon(
-            imageVector = squareVector,
-            modifier = Modifier.width(Dimension.Fixed(16f.px)).height(Dimension.Fixed(16f.px)),
-            tint = Color(0.8f, 0.2f, 0.1f, 1f),
-        )
-
-        val primitive = ui.endFrame().single()
+        val primitive = frame.primitives.single()
         val path = assertIs<UiDrawPrimitive.FilledPath>(primitive)
         assertEquals(Color(0.8f, 0.2f, 0.1f, 1f), path.color)
         assertEquals(
@@ -43,12 +42,12 @@ class IconWidgetsTest {
 
     @Test
     fun iconUsesExplicitPathFillWithoutTintOverride() {
-        val ui = UiContext()
-        ui.beginFrame(100f, 100f, testSnapshot())
+        val frame = renderUiComponent(width = 100f, height = 100f) {
+            primitive.context.createAbsolute(x = 0f, y = 0f)
+                .icon(multicolorVector, tint = Color(1f, 0f, 0f, 1f))
+        }
 
-        ui.createAbsolute(x = 0f, y = 0f).icon(multicolorVector, tint = Color(1f, 0f, 0f, 1f))
-
-        val fill = assertIs<UiDrawPrimitive.FilledPath>(ui.endFrame().single())
+        val fill = assertIs<UiDrawPrimitive.FilledPath>(frame.primitives.single())
         assertEquals(Color(0.2f, 0.7f, 0.3f, 1f), fill.color)
     }
 
