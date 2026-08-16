@@ -47,12 +47,8 @@ data class Aabb(val min: Vec3, val max: Vec3) {
         var maxX = -Float.MAX_VALUE
         var maxY = -Float.MAX_VALUE
         var maxZ = -Float.MAX_VALUE
-        // One bit per axis: the eight corners are every min/max combination.
-        for (corner in 0 until CORNER_COUNT) {
-            val x = if (corner and X_BIT == 0) min.x else max.x
-            val y = if (corner and Y_BIT == 0) min.y else max.y
-            val z = if (corner and Z_BIT == 0) min.z else max.z
-            val transformed = matrix.transformPosition(Vec4(x, y, z, 1f))
+        for (corner in corners()) {
+            val transformed = matrix.transformPosition(Vec4(corner.x, corner.y, corner.z, 1f))
             minX = min(minX, transformed.x)
             minY = min(minY, transformed.y)
             minZ = min(minZ, transformed.z)
@@ -63,6 +59,17 @@ data class Aabb(val min: Vec3, val max: Vec3) {
         return Aabb(Vec3(minX, minY, minZ), Vec3(maxX, maxY, maxZ))
     }
 
+    /** This box's 8 corners, one bit per axis (every min/max combination) -- same order
+     * [EDGES] indexes into, for a debug-line renderer turning a box into a wireframe the same
+     * way [Frustum.EDGES] already does for a frustum. */
+    fun corners(): List<Vec3> = List(CORNER_COUNT) { corner ->
+        Vec3(
+            if (corner and X_BIT == 0) min.x else max.x,
+            if (corner and Y_BIT == 0) min.y else max.y,
+            if (corner and Z_BIT == 0) min.z else max.z,
+        )
+    }
+
     companion object {
         private const val HALF = 0.5f
         private const val CORNER_COUNT = 8
@@ -70,6 +77,17 @@ data class Aabb(val min: Vec3, val max: Vec3) {
         private const val Y_BIT = 2
         private const val Z_BIT = 4
         private const val COMPONENTS_PER_POSITION = 3
+
+        /** The 12 edges of a box, each a (start, end) index pair into [corners]'s 8-element
+         * result -- same "index pairs, not duplicated points" shape [Frustum.EDGES] uses. */
+        val EDGES: List<Pair<Int, Int>> = listOf(
+            // bottom face (z bit 0): x varies at y=0, then y varies at x=1, etc.
+            0 to 1, 1 to 3, 3 to 2, 2 to 0,
+            // top face (z bit 1)
+            4 to 5, 5 to 7, 7 to 6, 6 to 4,
+            // vertical edges connecting bottom to top
+            0 to 4, 1 to 5, 2 to 6, 3 to 7,
+        )
 
         /**
          * The tight box around packed `x, y, z` triples, or `null` for empty/degenerate input --

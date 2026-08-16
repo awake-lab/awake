@@ -88,21 +88,6 @@ class RenderSystem(
         renderer.draw(camera.camera, drawCalls, sceneLight(world))
     }
 
-    private fun primaryCamera(world: World): Camera? {
-        val family = world.family<Camera>()
-        val cameras = family.components()
-        var index = 0
-        val count = family.size
-        while (index < count) {
-            val camera = cameras[index]
-            if (camera.isPrimary) {
-                return camera
-            }
-            index += 1
-        }
-        return null
-    }
-
     /** The first [Light] entity in the world, converted to render-api's backend-neutral
      * [SceneLight] -- [DEFAULT_SCENE_LIGHT] (the same direction/color every lit shader
      * hardcoded before this existed) when a scene has no `Light` entity at all, so an
@@ -115,11 +100,3 @@ class RenderSystem(
 }
 
 private val EMPTY_EXTRAS = FloatArray(0)
-
-/** ponytail: `RenderSystem` doesn't know the renderer's actual viewport aspect ratio (`System
- * .update(world, delta)` takes no viewport size, and `Renderer` doesn't expose one) -- widening
- * the frustum's horizontal extent past any real device's aspect ratio (ultra-wide monitors
- * included) keeps this a false-negative-only approximation: it may under-cull on a narrow
- * screen, never cull something actually visible. Upgrade path: expose the renderer's real
- * aspect ratio and pass it through here once that's a free contract change to make. */
-private const val CONSERVATIVE_ASPECT = 3f
