@@ -82,7 +82,7 @@ private fun StudioContract.Tool.glyph(): UiImageVector? = when (this) {
     StudioContract.Tool.Select -> outline.cursorArrowRays
     StudioContract.Tool.Move -> outline.arrowsPointingOut
     StudioContract.Tool.Rotate -> outline.arrowPath
-    StudioContract.Tool.Scale -> null
+    StudioContract.Tool.Scale -> outline.arrowsPointingIn
 }
 
 /**
@@ -156,11 +156,18 @@ internal fun UiScope.drawStatusStrip(
     ) {
         shadcnButton(
             id = "studio-console-toggle",
-            label = if (expanded) "Console" else "Console",
             variant = ShadcnButtonVariant.Ghost,
             size = ShadcnButtonSize.Xs,
             onClick = onToggle,
-        )
+        ) {
+            row(
+                horizontalArrangement = Arrangement.spacedBy(4f.dp),
+                verticalAlignment = UiAlignment.Vertical.Center,
+            ) {
+                icon(outline.commandLine)
+                shadcnText("Console")
+            }
+        }
         shadcnText("$mode  -  $entityCount entities  -  $backend")
     }
 }
@@ -175,7 +182,7 @@ private fun RowScope.rowIconButton(
         id = id,
         modifier = Modifier.width(PillButtonSize),
         variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
-        size = ShadcnButtonSize.Icon,
+        size = ShadcnButtonSize.Sm,
         onClick = onClick,
     ) { icon(glyph, modifier = Modifier.size(PillIconSize)) }
 }
