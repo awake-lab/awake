@@ -131,10 +131,10 @@ internal fun Renderer.resolvedSceneViewport(): RenderViewport? = sceneViewport?.
     swapchainManager.extent.height.toFloat(),
 )
 
-private fun RenderViewport.toVkViewport(): VkViewport =
+internal fun RenderViewport.toVkViewport(): VkViewport =
     VkViewport(x = x, y = y, width = width, height = height)
 
-private fun RenderViewport.toVkScissor(): VkRect2D = VkRect2D(
+internal fun RenderViewport.toVkScissor(): VkRect2D = VkRect2D(
     offset = VkOffset2D(x.toInt(), y.toInt()),
     // Rounded up so a fractional edge does not scissor away the viewport's last column/row.
     extent = VkExtent2D(ceil(width).toInt(), ceil(height).toInt()),
