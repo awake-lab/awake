@@ -6,10 +6,10 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.theme
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import io.github.ronjunevaldoz.awake.ui.headless.button as primitiveButton
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot as primitiveButtonSlot
 
 /**
  * Style-native button API. State rules belong in [style], not in a parallel visual DTO.
@@ -67,20 +67,43 @@ fun UiScope.button(
     ) onClick()
 }
 
-/** Slot variant of the Style-native button API. */
+/**
+ * Slot variant of the Style-native button API.
+ *
+ * Built on [interactiveSurface] wrapping a [row] -- gesture ([Modifier.clickable]) and the
+ * visual container are composed, not baked into a button-specific primitive (see the
+ * `awake-ui-authoring` skill's "4 independent pieces" note). This is deliberately the same
+ * `Surface { Row { content } }` shape Jetpack Compose's own `Button` is built from -- centered
+ * content is `Arrangement.Center` + `Vertical.Center` on that row, not a `Box`.
+ */
 fun UiScope.button(
     id: String,
     modifier: Modifier = Modifier,
     style: Style = Style.Empty,
     enabled: Boolean = true,
     semanticRole: UiSemanticRole = UiSemanticRole.Button,
-    content: BoxScope.(slot: UiBounds) -> Unit,
-): Boolean = primitive.primitiveButtonSlot(
-    id = id,
-    modifier = modifier.asPrimitiveModifier(),
-    style = style,
-    enabled = enabled,
-    semanticRole = semanticRole,
-) { slot ->
-    BoxScope(primitive.childBox(slot, contentAlignment = UiAlignment.Center)).content(slot)
-}.clicked
+    content: RowScope.(slot: UiBounds) -> Unit,
+): Boolean {
+    var clicked = false
+    val defaults = Style { shape(0f.dp) }
+    primitive.withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+        interactiveSurface(
+            id = id,
+            modifier = modifier
+                .fillMaxWidthOrDefault()
+                .heightOrDefault(40f.dp)
+                .clickable(enabled) { clicked = true },
+            style = (primitive.theme.components.button then defaults) then style,
+            semanticRole = semanticRole,
+        ) { slot ->
+            row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = UiAlignment.Vertical.Center,
+            ) {
+                content(slot)
+            }
+        }
+    }
+    return clicked
+}
