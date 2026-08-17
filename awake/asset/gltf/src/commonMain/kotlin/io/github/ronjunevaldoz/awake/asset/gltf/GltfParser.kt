@@ -2,6 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.asset.gltf
 
+import io.github.ronjunevaldoz.awake.core.animation.AnimationChannel
+import io.github.ronjunevaldoz.awake.core.animation.AnimationClip
+import io.github.ronjunevaldoz.awake.core.animation.AnimationProperty
+import io.github.ronjunevaldoz.awake.core.animation.AnimationSampler
+import io.github.ronjunevaldoz.awake.core.animation.Bone
+import io.github.ronjunevaldoz.awake.core.animation.Skeleton
+import io.github.ronjunevaldoz.awake.core.animation.Skin
 import io.github.ronjunevaldoz.awake.core.geometry.NormalizedInt
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Quat
@@ -225,7 +232,7 @@ object GltfParser {
         val document = GltfJson.decodeFromString(GltfDocument.serializer(), json)
         val buffers = document.buffers.map { decodeBuffer(it, externalResources) }
 
-        val nodes = document.nodes.map { node ->
+        val bones = document.nodes.map { node ->
             val explicitMatrix = node.matrix?.let { m ->
                 require(m.size == 16) { "glTF node matrix must have 16 elements, got ${m.size}." }
                 Mat4().apply { for (i in 0 until 16) data[i] = m[i] }
@@ -233,14 +240,12 @@ object GltfParser {
             val t = node.translation ?: listOf(0f, 0f, 0f)
             val r = node.rotation ?: listOf(0f, 0f, 0f, 1f)
             val s = node.scale ?: listOf(1f, 1f, 1f)
-            LoadedNode(
+            Bone(
                 translation = Vec3(t[0], t[1], t[2]),
                 rotation = Quat(r[0], r[1], r[2], r[3]),
                 scale = Vec3(s[0], s[1], s[2]),
                 matrix = explicitMatrix,
                 children = node.children,
-                mesh = node.mesh,
-                skin = node.skin,
             )
         }
         val meshes = document.meshes.map { meshDef ->
@@ -249,18 +254,23 @@ object GltfParser {
             readPrimitive(document, buffers, primitive, externalResources)
         }
         val skins = document.skins.indices.map { parseSkin(document, buffers, it) }
-        val animations = document.animations.indices.map { parseAnimation(document, buffers, it) }
+        val clips = document.animations.indices.map { parseAnimation(document, buffers, it) }
         val sceneIndex = document.scene ?: 0
         val rootNodes = document.scenes.getOrNull(sceneIndex)?.nodes ?: emptyList()
+        val skinnedNodes = document.nodes.mapIndexedNotNull { index, node ->
+            val meshIndex = node.mesh
+            val skinIndex = node.skin
+            if (meshIndex != null && skinIndex != null) SkinnedNodeRef(index, meshIndex, skinIndex) else null
+        }
 
-        return LoadedSkinnedScene(nodes, meshes, skins, animations, rootNodes)
+        return LoadedSkinnedScene(Skeleton(bones, rootNodes), meshes, skins, clips, skinnedNodes)
     }
 
     private fun parseSkin(
         document: GltfDocument,
         buffers: List<ByteArray>,
         skinIndex: Int,
-    ): LoadedSkin {
+    ): Skin {
         val skin = document.skins[skinIndex]
         val inverseBindFloats = skin.inverseBindMatrices?.let {
             readFloatAccessor(document, buffers, it, componentsPerElement = 16)
@@ -276,25 +286,27 @@ object GltfParser {
                 // else: no inverseBindMatrices accessor -- glTF spec default is identity per joint.
             }
         }
-        return LoadedSkin(skin.joints, inverseBindMatrices)
+        return Skin(skin.joints, inverseBindMatrices)
     }
 
     private fun parseAnimation(
         document: GltfDocument,
         buffers: List<ByteArray>,
         animationIndex: Int,
-    ): LoadedAnimation {
+    ): AnimationClip {
         val animation = document.animations[animationIndex]
         val channels = animation.channels.mapNotNull { channel ->
             val targetNode = channel.target.node ?: return@mapNotNull null
             val sampler = animation.samplers.getOrElse(channel.sampler) {
                 error("glTF animation $animationIndex channel references sampler ${channel.sampler}, out of range.")
             }
-            val componentsPerKeyframe = when (channel.target.path) {
-                "translation", "scale" -> 3
-                "rotation" -> 4
+            val property = when (channel.target.path) {
+                "translation" -> AnimationProperty.Translation
+                "scale" -> AnimationProperty.Scale
+                "rotation" -> AnimationProperty.Rotation
                 else -> return@mapNotNull null // "weights" (morph targets) -- not supported.
             }
+            val componentsPerKeyframe = if (property == AnimationProperty.Rotation) 4 else 3
             val times =
                 readFloatAccessor(document, buffers, sampler.input, componentsPerElement = 1)
             val values = readFloatAccessor(
@@ -303,13 +315,13 @@ object GltfParser {
                 sampler.output,
                 componentsPerElement = componentsPerKeyframe,
             )
-            LoadedAnimationChannel(
-                targetNode = targetNode,
-                targetPath = channel.target.path,
-                sampler = LoadedAnimationSampler(times, values, componentsPerKeyframe),
+            AnimationChannel(
+                targetBone = targetNode,
+                property = property,
+                sampler = AnimationSampler(times, values, componentsPerKeyframe),
             )
         }
-        return LoadedAnimation(channels)
+        return AnimationClip(name = animation.name, channels = channels)
     }
 
     /** Parses the 12-byte GLB header and its chunks, returning the JSON chunk's text and the

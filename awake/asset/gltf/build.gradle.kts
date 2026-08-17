@@ -38,6 +38,9 @@ kotlin {
             implementation(project(":awake:core"))
             // NormalizedInt -- decoding normalized BYTE/SHORT accessors (quantized exports).
             implementation(project(":awake:core:geometry"))
+            // Skeleton/Skin/AnimationClip/AnimationPose -- engine-neutral skinning/animation
+            // types this module imports glTF's own skins/animations INTO.
+            implementation(project(":awake:core:animation"))
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {

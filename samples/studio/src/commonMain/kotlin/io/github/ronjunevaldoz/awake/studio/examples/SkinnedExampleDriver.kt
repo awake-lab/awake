@@ -3,9 +3,10 @@
 package io.github.ronjunevaldoz.awake.studio.examples
 
 import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser
-import io.github.ronjunevaldoz.awake.asset.gltf.LoadedAnimation
-import io.github.ronjunevaldoz.awake.asset.gltf.LoadedSkin
-import io.github.ronjunevaldoz.awake.asset.gltf.SkinnedAnimationPlayer
+import io.github.ronjunevaldoz.awake.asset.gltf.firstSkinnedAsset
+import io.github.ronjunevaldoz.awake.core.animation.AnimationClip
+import io.github.ronjunevaldoz.awake.core.animation.AnimationPose
+import io.github.ronjunevaldoz.awake.core.animation.Skin
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
@@ -23,24 +24,21 @@ private const val SKINNED_UNIFORM_FLOAT_COUNT = 16 + 64 * 16
 internal object SkinnedExampleDriver {
     private var vertices: FloatArray? = null
     private var indices: IntArray? = null
-    private var skin: LoadedSkin? = null
-    private var animation: LoadedAnimation? = null
-    private var player: SkinnedAnimationPlayer? = null
+    private var skin: Skin? = null
+    private var clip: AnimationClip? = null
+    private var pose: AnimationPose? = null
     private var elapsedSeconds = 0f
 
     suspend fun preload() {
         if (skin != null) return
         val bytes = readResourceBytes("assets/models/CesiumMan.gltf")
         val loaded = GltfParser.parseSkinned(bytes.decodeToString())
-        val skinnedNodeIndex = loaded.nodes.indexOfFirst { it.mesh != null && it.skin != null }
-        require(skinnedNodeIndex >= 0) { "CesiumMan.gltf has no skinned node." }
-        val node = loaded.nodes[skinnedNodeIndex]
-        val gltfMesh = loaded.meshes[node.mesh!!]
-        vertices = gltfMesh.toInterleavedSkinned()
-        indices = gltfMesh.indices
-        skin = loaded.skins[node.skin!!]
-        animation = loaded.animations.firstOrNull()
-        player = SkinnedAnimationPlayer(loaded)
+        val asset = requireNotNull(loaded.firstSkinnedAsset()) { "CesiumMan.gltf has no skinned node." }
+        vertices = asset.mesh.toInterleavedSkinned()
+        indices = asset.mesh.indices
+        skin = asset.skin
+        clip = asset.clip
+        pose = AnimationPose(asset.skeleton)
     }
 
     fun createMesh(runtime: SceneGameRuntime): Mesh = runtime.renderer.createMesh(
@@ -56,29 +54,29 @@ internal object SkinnedExampleDriver {
 
     /** The joint palette's initial value is sized/valued from the parsed skin, which no static
      * scene document can author -- called once right after instantiate, same shape the
-     * original demo used (`world.add(skinnedEntity, SkinnedPose(currentPlayer.jointPalette(...)))`. */
+     * original demo used (`world.add(skinnedEntity, SkinnedPose(currentPose.jointPalette(...)))`. */
     fun attachPose(instance: SceneInstance, runtime: SceneGameRuntime) {
-        val currentPlayer = requireNotNull(player)
+        val currentPose = requireNotNull(pose)
         val currentSkin = requireNotNull(skin)
         val node = instance.roots.find { it.name == "skinned-mesh" } ?: return
-        runtime.world.add(node.entity, SkinnedPose(currentPlayer.jointPalette(currentSkin)))
+        runtime.world.add(node.entity, SkinnedPose(currentPose.jointPalette(currentSkin)))
     }
 
     fun advance(runtime: SceneGameRuntime, delta: Float) {
-        val currentPlayer = player ?: return
+        val currentPose = pose ?: return
         val currentSkin = skin ?: return
-        val currentAnimation = animation
-        if (currentAnimation != null) {
+        val currentClip = clip
+        if (currentClip != null) {
             elapsedSeconds += delta
-            val duration = currentPlayer.duration(currentAnimation)
+            val duration = currentClip.duration
             val timeSeconds = if (duration > 0f) elapsedSeconds % duration else 0f
-            currentPlayer.sample(currentAnimation, timeSeconds)
+            currentPose.sample(currentClip, timeSeconds)
         }
         // Family query, not a cached Entity handle -- exactly one entity carries SkinnedPose
         // while this example is active, and this is the sanctioned zero-allocation pattern
         // every other System in this codebase uses, not a per-frame world.get(entity) lookup.
-        runtime.world.queryEach<SkinnedPose> { _, pose ->
-            pose.jointPalette = currentPlayer.jointPalette(currentSkin)
+        runtime.world.queryEach<SkinnedPose> { _, skinnedPose ->
+            skinnedPose.jointPalette = currentPose.jointPalette(currentSkin)
         }
     }
 }
