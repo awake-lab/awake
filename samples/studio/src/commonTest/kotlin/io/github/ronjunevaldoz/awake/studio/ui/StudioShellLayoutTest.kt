@@ -131,6 +131,33 @@ class StudioShellLayoutTest {
         assertTrue(StudioExamples.size > 1, "a picker over one example would be pointless")
     }
 
+    /**
+     * Regression: a content-lambda `shadcnButton` (icon + label, no plain string label) with no
+     * caller-supplied width -- exactly Save/Play here -- used to resolve `FillMax` against
+     * whatever ambient trial bound happened to be live. Inside this row (a `WrapContent`-sizing
+     * right-side group), that bound is the measurement sentinel (100000px, see
+     * `UNBOUNDED_MAIN_AXIS`), so both buttons baked in a ~100000px-wide slot and rendered every
+     * pixel of their actual label off past the right edge -- passing `nothingLaysOutBeyondTheFrame`
+     * `(its x2 headroom)` only by accident. Pin the buttons to a real, on-screen size directly so
+     * this can't regress back to merely "not one hundred thousand pixels wide".
+     */
+    @Test
+    fun saveAndPlayButtonsRenderAtARealOnScreenSize() {
+        val semantics = renderShell()
+        val save = assertNotNull(semantics.firstOrNull { it.id == "studio-top-bar-save" })
+        val play = assertNotNull(semantics.firstOrNull { it.id == "studio-top-bar-play" })
+        listOf("save" to save, "play" to play).forEach { (name, button) ->
+            assertTrue(
+                button.bounds.width in 1f..200f,
+                "$name button width should hug its icon+label content, was ${button.bounds.width}",
+            )
+            assertTrue(
+                button.bounds.x + button.bounds.width <= FRAME_WIDTH,
+                "$name button must stay inside the frame, was ${button.bounds}",
+            )
+        }
+    }
+
     /** The two floating pills, and the split between them: tools are modal, view state is not. */
     @Test
     fun theViewportCarriesAToolPillAndAViewPill() {
