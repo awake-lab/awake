@@ -30,6 +30,7 @@ internal val StudioExamples: List<StudioExample> = listOf(
         id = "gltf-viewer",
         title = "glTF viewer",
         scenePath = "assets/examples/gltf-viewer.scene.json",
+        onActivated = { instance, runtime -> GltfViewerAssets.attach(instance, runtime) },
     ),
     StudioExample(
         id = "skinned-mesh",

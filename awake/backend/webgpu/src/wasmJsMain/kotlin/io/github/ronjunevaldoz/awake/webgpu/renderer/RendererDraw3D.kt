@@ -181,7 +181,8 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                     setPipeline(texturedPipeline)
                     extraMaterial.updateUniformBuffer(
                         mvp.data + lightFloats + drawCall.model.data +
-                            floatArrayOf(camera.eye.x, camera.eye.y, camera.eye.z, 0f),
+                            floatArrayOf(camera.eye.x, camera.eye.y, camera.eye.z, 0f) +
+                            pbrTexturedMaterialFloats(drawCall),
                     )
                     setBindGroup(0u, extraMaterial.bindGroupFor(texturedPipeline))
                 } else {
@@ -335,3 +336,22 @@ internal fun Renderer.performDrawDebugLines(lines: List<LineSegment>) {
     }
     lineMesh.update(vertices)
 }
+
+/** `[metallic, roughness, pad, pad, baseColorFactor.rgba, emissiveFactor.rgb, pad]` -- the
+ * textured/glTF pipeline's factor multipliers (see `textured.wgsl`'s Uniforms), same packing
+ * and defaults as Vulkan's own `RendererDraw3D.pbrTexturedMaterialFloats`. Defaults to
+ * factor = 1 / emissive = 0 (a no-op multiply), matching this pipeline's behavior before these
+ * fields existed. */
+private fun pbrTexturedMaterialFloats(drawCall: DrawCall): FloatArray {
+    val supplied = drawCall.extraUniformFloats
+    if (supplied.size >= PBR_TEXTURED_MATERIAL_FLOATS) return supplied.copyOf(PBR_TEXTURED_MATERIAL_FLOATS)
+    return floatArrayOf(
+        DEFAULT_METALLIC_FACTOR, DEFAULT_ROUGHNESS_FACTOR, 0f, 0f,
+        1f, 1f, 1f, 1f,
+        0f, 0f, 0f, 0f,
+    )
+}
+
+private const val PBR_TEXTURED_MATERIAL_FLOATS = 12
+private const val DEFAULT_METALLIC_FACTOR = 1f
+private const val DEFAULT_ROUGHNESS_FACTOR = 1f

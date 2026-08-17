@@ -26,6 +26,7 @@ import io.github.ronjunevaldoz.awake.scene.authoring.dsl.scene
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.transform
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
@@ -212,6 +213,16 @@ internal object GltfViewerDemo {
 
             duckEntity = entity("Duck", Modifier().transform().meshRenderer(mesh!!, material!!))
         }
+        val gltfMesh = requireNotNull(loadedMesh)
+        runtime.world.add(
+            duckEntity!!,
+            PbrMaterial(
+                metallic = gltfMesh.metallicFactor,
+                roughness = gltfMesh.roughnessFactor,
+                baseColorFactor = gltfMesh.baseColorFactor,
+                emissiveFactor = gltfMesh.emissiveFactor,
+            ),
+        )
 
         spawned = true
     }
@@ -232,6 +243,6 @@ internal object GltfViewerDemo {
     private const val FRAMING_DISTANCE_RADII = 3f
 }
 
-/** mvp(16) + lightDirection(4) + lightColor(4) + model(16) + cameraPosition(4). Must match
- * `textured.wgsl`'s Uniforms field order. */
-internal const val TEXTURED_UNIFORM_FLOAT_COUNT = 44
+/** mvp(16) + lightDirection(4) + lightColor(4) + model(16) + cameraPosition(4) + material(4) +
+ * baseColorFactor(4) + emissiveFactor(4). Must match `textured.wgsl`'s Uniforms field order. */
+internal const val TEXTURED_UNIFORM_FLOAT_COUNT = 56

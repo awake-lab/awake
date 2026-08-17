@@ -39,7 +39,17 @@ class RenderSystem(
             val pbr = world.get<PbrMaterial>(entity)
             val extras = when {
                 pose != null -> pose.jointPalette
-                pbr != null -> floatArrayOf(pbr.metallic, pbr.roughness, 0f, 0f)
+                // [metallic, roughness, pad, pad, baseColorFactor.rgba, emissiveFactor.rgb,
+                // pad] -- the primary lit pipeline only reads the first 4 (see
+                // RendererDraw3D.pbrMaterialFloats), the textured/glTF pipeline reads all 12
+                // (see that backend's own pbr-factor helper). One packing serves both since
+                // which pipeline a given mesh format resolves to is a backend concern, not
+                // this system's.
+                pbr != null -> floatArrayOf(
+                    pbr.metallic, pbr.roughness, 0f, 0f,
+                    pbr.baseColorFactor[0], pbr.baseColorFactor[1], pbr.baseColorFactor[2], pbr.baseColorFactor[3],
+                    pbr.emissiveFactor[0], pbr.emissiveFactor[1], pbr.emissiveFactor[2], 0f,
+                )
                 else -> EMPTY_EXTRAS
             }
             val bounds = world.get<MeshBounds>(entity)

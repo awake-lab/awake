@@ -16,6 +16,13 @@ struct Uniforms {
   lightColor : vec4f,
   model : mat4x4<f32>,
   cameraPosition : vec4f,
+  // glTF material factors -- x=metallicFactor, y=roughnessFactor (zw unused); multiplied into
+  // the corresponding texture sample below, same convention glTF itself uses (factor * texture
+  // channel, texture defaults to a neutral 1.0 sample when the material has no map for it).
+  material : vec4f,
+  baseColorFactor : vec4f,
+  // xyz used, w unused -- glTF emissiveFactor has no alpha component.
+  emissiveFactor : vec4f,
 }
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
 @binding(1) @group(0) var baseColorTexture : texture_2d<f32>;
@@ -117,14 +124,14 @@ fn fragmentMain(
   @location(3) worldPos : vec3f,
 ) -> @location(0) vec4f {
   let baseColorSample = textureSample(baseColorTexture, baseColorSampler, uv);
-  let albedo = baseColorSample.rgb * color;
+  let albedo = baseColorSample.rgb * color * uniforms.baseColorFactor.rgb;
   // glTF metallic-roughness convention: G = roughness, B = metalness. Floored roughness --
   // see lit_shadow.wgsl for why a perfectly smooth surface aliases.
   let metallicRoughness = textureSample(metallicRoughnessTexture, baseColorSampler, uv);
-  let metallic = clamp(metallicRoughness.b, 0.0, 1.0);
-  let roughness = clamp(metallicRoughness.g, MIN_ROUGHNESS, 1.0);
+  let metallic = clamp(metallicRoughness.b * uniforms.material.x, 0.0, 1.0);
+  let roughness = clamp(metallicRoughness.g * uniforms.material.y, MIN_ROUGHNESS, 1.0);
   let occlusion = textureSample(occlusionTexture, baseColorSampler, uv).r;
-  let emissive = textureSample(emissiveTexture, baseColorSampler, uv).rgb;
+  let emissive = textureSample(emissiveTexture, baseColorSampler, uv).rgb * uniforms.emissiveFactor.rgb;
   let tangentNormal = textureSample(normalTexture, baseColorSampler, uv).xyz * 2.0 - vec3f(1.0);
 
   let n = perturbNormal(normalize(normal), worldPos, uv, tangentNormal);
@@ -149,6 +156,6 @@ fn fragmentMain(
   let ambient = albedo * AMBIENT_STRENGTH * occlusion;
   return vec4f(
     ambient + diffuse * radiance + specularOut / (specularOut + vec3f(1.0)) + emissive,
-    baseColorSample.a,
+    baseColorSample.a * uniforms.baseColorFactor.a,
   );
 }
