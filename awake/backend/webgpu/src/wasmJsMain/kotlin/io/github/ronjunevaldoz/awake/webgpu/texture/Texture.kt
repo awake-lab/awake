@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.texture
 
+import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.render.texture.mipChain
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.ygdrasil.webgpu.Extent3D
@@ -27,8 +29,10 @@ import io.ygdrasil.webgpu.TextureViewDescriptor
  * buffer/layout-transition machinery: `queue.writeTexture` does the whole upload in one call,
  * so [runOneTimeCommands] (kept for constructor parity with the Vulkan class) is unused.
  *
- * No mip chain is generated -- [sampler] filters linearly within the base level only. Upgrade
- * path if minified models alias: a blit-per-level mip generation pass at construction.
+ * Uploads a full mip chain (see [io.github.ronjunevaldoz.awake.render.texture.mipChain] --
+ * backend-neutral CPU box-filter downsampling, the same generator
+ * [io.github.ronjunevaldoz.awake.vulkan.texture.Texture] uses) rather than just the base level,
+ * so [sampler]'s `mipmapFilter` has more than one level to filter between.
  */
 class Texture(
     graphicsDevice: GraphicsDevice,
@@ -43,6 +47,7 @@ class Texture(
 
     init {
         val device = graphicsDevice.wgpuContext.device
+        val mipLevels = TextureAsset(data, width, height).mipChain()
         val size = Extent3D(width = width.toUInt(), height = height.toUInt())
         texture = device.createTexture(
             TextureDescriptor(
@@ -50,14 +55,17 @@ class Texture(
                 format = GPUTextureFormat.RGBA8Unorm,
                 usage = GPUTextureUsage.TextureBinding or GPUTextureUsage.CopyDst,
                 dimension = GPUTextureDimension.TwoD,
+                mipLevelCount = mipLevels.size.toUInt(),
             ),
         )
-        device.queue.writeTexture(
-            destination = TexelCopyTextureInfo(texture = texture),
-            data = fastArrayBufferOf(data),
-            dataLayout = TexelCopyBufferLayout(bytesPerRow = (width * 4).toUInt()),
-            size = size,
-        )
+        mipLevels.forEachIndexed { index, level ->
+            device.queue.writeTexture(
+                destination = TexelCopyTextureInfo(texture = texture, mipLevel = index.toUInt()),
+                data = fastArrayBufferOf(level.data),
+                dataLayout = TexelCopyBufferLayout(bytesPerRow = (level.width * 4).toUInt()),
+                size = Extent3D(width = level.width.toUInt(), height = level.height.toUInt()),
+            )
+        }
         view = texture.createView(TextureViewDescriptor())
         sampler = device.createSampler(
             SamplerDescriptor(
