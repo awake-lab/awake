@@ -44,4 +44,11 @@ internal val StudioExamples: List<StudioExample> = listOf(
         scenePath = "assets/examples/instanced-cubes.scene.json",
         onActivated = { instance, runtime -> InstancedCubesExampleDriver.attach(instance, runtime) },
     ),
+    StudioExample(
+        id = "instanced-skinned",
+        title = "Instanced skinned",
+        scenePath = "assets/examples/instanced-skinned.scene.json",
+        driver = { delta -> InstancedSkinnedExampleDriver.advance(this, delta) },
+        onActivated = { instance, runtime -> InstancedSkinnedExampleDriver.attach(instance, runtime) },
+    ),
 )

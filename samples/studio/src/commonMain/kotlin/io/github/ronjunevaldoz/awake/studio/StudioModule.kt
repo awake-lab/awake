@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.studio.app.platformBackendPreference
 import io.github.ronjunevaldoz.awake.studio.app.writeSceneDocument
 import io.github.ronjunevaldoz.awake.studio.examples.ExampleLoader
 import io.github.ronjunevaldoz.awake.studio.examples.GltfViewerAssets
+import io.github.ronjunevaldoz.awake.studio.examples.InstancedSkinnedExampleDriver
 import io.github.ronjunevaldoz.awake.studio.examples.SkinnedExampleDriver
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import io.github.ronjunevaldoz.awake.studio.examples.StudioMeshBounds
@@ -78,6 +79,8 @@ internal fun studioModule(
                 material("duck-material") { GltfViewerAssets.createMaterial(this) }
                 mesh("skinned-mesh") { SkinnedExampleDriver.createMesh(this) }
                 material("skinned-material") { SkinnedExampleDriver.createMaterial(this) }
+                mesh("instanced-skinned-mesh") { InstancedSkinnedExampleDriver.createMesh(this) }
+                material("instanced-skinned-material") { InstancedSkinnedExampleDriver.createMaterial(this) }
             }
             // The input system writes engine CameraMode hotkeys before the studio bridge syncs
             // them into UI state; CameraSystem then applies the pose after that bridge has
@@ -100,6 +103,7 @@ internal fun studioModule(
             onReady {
                 GltfViewerAssets.preload()
                 SkinnedExampleDriver.preload()
+                InstancedSkinnedExampleDriver.preload()
                 loader.preload()
                 // dispatch, not activate() directly: only Intent.SelectExample queues the
                 // LoadExample effect the driver system acts on. Without this, the store's
