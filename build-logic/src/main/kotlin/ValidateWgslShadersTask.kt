@@ -1,10 +1,12 @@
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -15,29 +17,25 @@ abstract class ValidateWgslShadersTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sourceDirectory: DirectoryProperty
 
+    /** See [SyncWgslShaderPipelineTask]'s own doc comment on its identically-named property --
+     * same extra-roots/duplicate-filename-throws behavior, shared via [collectWgslFiles]. */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val additionalSourceDirectories: ConfigurableFileCollection
+
     @get:Input
     abstract val nagaExecutable: Property<String>
 
     @TaskAction
     fun validate() {
         val sourceRoot = sourceDirectory.asFile.get()
-        if (!sourceRoot.exists()) {
-            logger.lifecycle("No WGSL shader sources found at ${sourceRoot.invariantSeparatorsPath}; skipping.")
-            return
-        }
-
-        val wgslFiles = sourceRoot
-            .walkTopDown()
-            .filter { it.isFile && it.extension == "wgsl" }
-            .sortedBy { it.invariantSeparatorsPath }
-            .toList()
-
+        val wgslFiles = collectWgslFiles(sourceRoot, additionalSourceDirectories.files)
         if (wgslFiles.isEmpty()) {
             logger.lifecycle("No WGSL shader sources found at ${sourceRoot.invariantSeparatorsPath}; skipping.")
             return
         }
 
-        wgslFiles.forEach(::runNagaValidation)
+        wgslFiles.forEach { (file, _) -> runNagaValidation(file) }
     }
 
     private fun runNagaValidation(input: File) {

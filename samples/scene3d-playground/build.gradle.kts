@@ -13,6 +13,18 @@ plugins {
     id("awake.ui-preview-report-convention")
 }
 
+// Shared shaders (skinned/instanced/shadow_depth/skinned_instanced/textured) live in
+// awake:asset:shaders, not duplicated here -- see that module's own build.gradle.kts doc
+// comment. A static directory reference, not a project dependency: that module produces no
+// artifact this one consumes.
+val sharedShaderDirectory = project(":awake:asset:shaders").layout.projectDirectory.dir("src/commonMain/resources/shaders")
+tasks.named<SyncWgslShaderPipelineTask>("syncAwakeShaders") {
+    additionalSourceDirectories.from(sharedShaderDirectory)
+}
+tasks.named<ValidateWgslShadersTask>("validateAwakeShaders") {
+    additionalSourceDirectories.from(sharedShaderDirectory)
+}
+
 kotlin {
     jvmToolchain(17)
     applyDefaultHierarchyTemplate()
