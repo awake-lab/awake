@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
+import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioViewportRect
@@ -205,7 +206,7 @@ private fun UiScope.drawStudioWorkspace(
                 }
                 shadcnResizableHandle(id = "studio-panel-handle-left", withHandle = true)
                 shadcnResizablePanel(id = "studio-panel-viewport", defaultSize = VIEWPORT_FRACTION, minSize = 0.3f) {
-                    drawStudioViewportPanel(store, renderer, viewportRect)
+                    drawStudioViewportPanel(store, world, renderer, viewportRect)
                 }
                 shadcnResizableHandle(id = "studio-panel-handle-right", withHandle = true)
                 shadcnResizablePanel(
@@ -235,10 +236,12 @@ private fun UiScope.drawStudioWorkspace(
  * right-click camera menu hooked to that same region's bounds. */
 private fun UiScope.drawStudioViewportPanel(
     store: StudioStore,
+    world: World,
     renderer: Renderer,
     viewportRect: StudioViewportRect,
 ) {
     val state = store.state.value
+    val debugSettings = world.family<WorldDebugSettings>().components().firstOrNull()
     column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
         row(
             horizontalArrangement = Arrangement.spacedBy(PILL_INSET),
@@ -254,6 +257,8 @@ private fun UiScope.drawStudioViewportPanel(
                     projection = state.camera.projection,
                     wireframe = renderer.wireframe,
                     shadows = renderer.shadowsEnabled,
+                    debugFrustum = debugSettings?.showFrustum ?: false,
+                    debugBounds = debugSettings?.showBounds ?: false,
                 ),
                 actions = ViewPillActions(
                     onCycleMode = {
@@ -271,6 +276,8 @@ private fun UiScope.drawStudioViewportPanel(
                     },
                     onWireframeChange = { renderer.wireframe = it },
                     onShadowsChange = { renderer.shadowsEnabled = it },
+                    onDebugFrustumChange = { debugSettings?.showFrustum = it },
+                    onDebugBoundsChange = { debugSettings?.showBounds = it },
                 ),
             )
         }

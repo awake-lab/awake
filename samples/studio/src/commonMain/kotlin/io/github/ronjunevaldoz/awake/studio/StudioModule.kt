@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.scene.core.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.core.systems.SpinSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
+import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.studio.app.platformBackendPreference
@@ -105,6 +106,10 @@ internal fun studioModule(
                 SkinnedExampleDriver.preload()
                 InstancedSkinnedExampleDriver.preload()
                 loader.preload()
+                // One entity, created once (not per-example -- ExampleLoader.teardown only
+                // destroys instantiated scene roots), so the frustum/bounds toggle survives
+                // switching examples instead of resetting to off each time.
+                world.create().also { world.add(it, WorldDebugSettings()) }
                 // dispatch, not activate() directly: only Intent.SelectExample queues the
                 // LoadExample effect the driver system acts on. Without this, the store's
                 // default activeExampleId sits "active" in the rail but nothing ever loads,
