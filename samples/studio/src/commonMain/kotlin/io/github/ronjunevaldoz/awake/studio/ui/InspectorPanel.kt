@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnTextTone
@@ -22,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -29,6 +31,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.rememberBooleanState
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.textureQuad
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import kotlin.math.round
@@ -38,6 +41,9 @@ private val InspectorFieldLabelWidth = 96f.dp
 
 /** Tall enough to clear the field row above it -- see [vec3Field]. */
 private val FIELD_LABEL_HEIGHT = 26f.dp
+
+/** Roughly 16:9 at the inspector's own width -- see [cameraPreviewSection]. */
+private val PREVIEW_HEIGHT = 140f.dp
 
 /**
  * Docked "Inspector" panel -- flush to the window edge, no card border/radius of its own; the
@@ -56,7 +62,11 @@ private val FIELD_LABEL_HEIGHT = 26f.dp
  * add one once that state is actually queryable, rather than fabricate a section with nothing
  * real to show.
  */
-internal fun UiScope.drawInspectorPanel(world: World, selectedEntityId: Int?) {
+internal fun UiScope.drawInspectorPanel(
+    world: World,
+    selectedEntityId: Int?,
+    cameraPreview: StudioCameraPreview = StudioCameraPreview(),
+) {
     val expanded = rememberBooleanState(id = "studio-inspector-expanded", initial = true)
     shadcnSidebar(
         id = "studio-inspector",
@@ -99,6 +109,9 @@ internal fun UiScope.drawInspectorPanel(world: World, selectedEntityId: Int?) {
                     modifier = Modifier.fillMaxWidth().padding(4f.dp),
                 ) {
                     inspectorField("Entity", "#${entity.id}")
+                    // Alongside Transform, not instead of it: a camera entity carries both (the
+                    // studio ensures a Transform on it so CameraSystem has an aim target).
+                    if (world.has(entity, Camera::class)) cameraPreviewSection(cameraPreview)
                     world.get<Transform>(entity)?.let { transform ->
                         vec3Field("studio-inspector-${entity.id}-position", "Position", transform.position)
                         vec3Field("studio-inspector-${entity.id}-rotation", "Rotation", transform.rotation)
@@ -107,6 +120,32 @@ internal fun UiScope.drawInspectorPanel(world: World, selectedEntityId: Int?) {
                 }
             }
         }
+    }
+}
+
+/**
+ * Live thumbnail of what the selected camera sees, the same idea as Unity's Camera Preview.
+ *
+ * Only draws the quad: the offscreen pass that fills it runs once per frame from the shell (see
+ * [StudioCameraPreview]), because this function is re-entered on every measure pass. `material`
+ * is null only on the first frame a camera is ever selected, when nothing has been rendered yet.
+ *
+ * ponytail: the target is a fixed 16:9, so a panel dragged to another aspect stretches the
+ * thumbnail. Letterbox it (or size the target from the measured slot) if that ever reads wrong.
+ */
+private fun ColumnScope.cameraPreviewSection(preview: StudioCameraPreview) {
+    shadcnText(
+        "Preview",
+        tone = ShadcnTextTone.Muted,
+        modifier = Modifier.height(FIELD_LABEL_HEIGHT).padding(top = 8f.dp),
+    )
+    // The slot is claimed by a sized column whether or not a texture exists yet, and the quad
+    // fills it. Both halves matter: a texture primitive alone reports no height to the measure
+    // pass, and the collapsible measures its content once and caches that height -- a section
+    // that only appeared on the second frame (the offscreen pass runs after the selection lands)
+    // left the cache one preview short and clipped the Transform rows below it.
+    column(modifier = Modifier.fillMaxWidth().height(PREVIEW_HEIGHT).padding(bottom = 4f.dp)) {
+        preview.material?.let { textureQuad(it, Modifier.fillMaxWidth().fillMaxHeight()) }
     }
 }
 

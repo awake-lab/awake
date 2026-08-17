@@ -143,6 +143,20 @@ class UiScopeFacadeTest {
     }
 
     @Test
+    fun textureQuadForwardsTheMaterialIntoTheSlotItClaims() {
+        val context = UiContext()
+        context.beginFrame(200f, 120f, UiInputState())
+        val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
+        val material = Any()
+
+        scope.textureQuad(material, modifier = Modifier.width(80f.px).height(45f.px))
+
+        val texture = context.endFrame().filterIsInstance<UiDrawPrimitive.Texture>().single()
+        assertEquals(UiBounds(0f, 0f, 80f, 45f), UiBounds(texture.x, texture.y, texture.w, texture.h))
+        assertTrue(texture.material === material)
+    }
+
+    @Test
     fun styleMapsInteractionStatesWithoutNamingARecipe() {
         val style = Style {
             background(Color.Black)
