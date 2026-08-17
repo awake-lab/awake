@@ -27,13 +27,7 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(project(":awake:ui:testing"))
-            implementation(project(":awake:ui:designsystem"))
             implementation(project(":awake:ui:ui-core"))
-        }
-        named("desktopTest") {
-            dependencies {
-                implementation(project(":awake:ui:designsystem"))
-            }
         }
     }
 }

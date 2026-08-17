@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.headless.button
+import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
@@ -69,5 +70,32 @@ class ButtonEnabledTest {
             clicks,
             "Space must re-activate the already-focused button even with the pointer away from it",
         )
+    }
+
+    // Every other test in this file drives button() through `primitive.context.createAbsolute(...)`,
+    // which resolves to the UiPrimitiveScope overload despite the `headless.button` import (see
+    // package-2 audit note on the facade/primitive package collision). This one calls button()
+    // directly on the UiScope receiver instead, so it actually exercises the slot-form facade
+    // overload -- covering "button (label + slot forms)" alongside the label-form clicks above.
+    @Test
+    fun slotFormRendersContentAndReportsClick() {
+        var slotWidth = 0f
+        var clicked = false
+        uiTestSession(width = 200f, height = 100f) {
+            val initial = frame {
+                button(id = "btn.slot") { slot ->
+                    slotWidth = slot.width
+                    text("Go")
+                }
+            }
+            val bounds = initial.bounds("btn.slot")
+
+            click(bounds.x + bounds.width / 2f, bounds.y + bounds.height / 2f) {
+                if (button(id = "btn.slot") { text("Go") }) clicked = true
+            }
+        }
+
+        assertTrue(slotWidth > 0f, "slot form must hand the content lambda real bounds")
+        assertTrue(clicked, "slot form must report a click the same way the label form does")
     }
 }

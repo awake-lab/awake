@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.font.GlyphRect
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
-import io.github.ronjunevaldoz.awake.ui.snapshot.saveUiSnapshot
+import io.github.ronjunevaldoz.awake.testing.ui.saveUiSnapshot
 import kotlin.test.Test
 
 /** Visual aid for the bitmap baseline repair; outputs `build/ui-snapshots/bitmap-baseline-*.png`. */

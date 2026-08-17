@@ -1,9 +1,8 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.snapshot
+package io.github.ronjunevaldoz.awake.testing.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import java.awt.image.BufferedImage
@@ -15,8 +14,10 @@ private val tutorialManifestLock = Any()
 /**
  * Rasterizes [primitives] ([rasterize]) and writes it as a real, viewable PNG under
  * `build/ui-snapshots/[name].png` -- desktop JVM only (`javax.imageio`, same as
- * `awake:backend:vulkan`'s `RendererHeadlessPixelBaselineTest`), so this lives in
- * `desktopTest` while [rasterize] stays shared in `awake:engine:testing`.
+ * `awake:backend:vulkan`'s `RendererHeadlessPixelBaselineTest`). Lives here (not in a single
+ * module's `desktopTest`) so any module's desktop test source can write a review snapshot without
+ * a same-purpose copy per module -- headless's own bare-widget snapshots and designsystem's
+ * shadcn-flavored review/tutorial scenes both call this.
  * Called unconditionally by a snapshot test regardless of pass/fail -- unlike the
  * pixel-baseline report (which only dumps on a mismatch, since its assertion already proves
  * correctness), these are a *design review* aid: is this theme/variant/state combination

@@ -121,22 +121,42 @@ calls has near-zero coverage, and nothing pins style-merge precedence — the ex
 mechanism of the 2026-08-15 P0. Without this, every later sweep stays green even when
 wrong.
 
-- [ ] `StyleResolutionOrderTest`: unconditional-vs-state-rule precedence, `defaults then style` ordering
-- [ ] Facade-level smoke test per widget (`UiScope`, not `UiPrimitiveScope`)
-- [ ] Break the headless↔designsystem test-scope cycle (headless `commonTest` depends on designsystem) — shared fixtures move to `:awake:ui:testing`
+- [x] `StyleResolutionOrderTest` — 5 tests pinning the REAL semantics (see correction below)
+- [x] Facade-level smoke tests — 17 new test methods: 11 new `*FacadeTest.kt` files +
+      extensions to `ButtonEnabledTest`/`AvatarFallbackTest`; all drive public
+      `headless.*` imports only; `separator` already had facade coverage
+- [x] Cycle broken — headless test source sets no longer depend on designsystem: branded
+      snapshot fixtures/tests moved to designsystem's test sources (all 16 pinned signature
+      hashes matched byte-for-byte, zero re-record), neutral `UiSnapshotWriter` moved to
+      `:awake:ui:testing` desktopMain, `UiCrossPlatformQualityTest` given a local neutral
+      theme (inert — `button()` reads no ambient theme)
+- [x] Fallout fix: `ShadcnAdoptionRecipeTest` missed by package 1's `shadcnEmpty` caller
+      sweep (test sources weren't compiled then) — `id` added
+
+**Semantics correction (matters for package 4):** the original sketch here asserted the
+variant's unconditional `background(red)` wins at hovered. Reality (pinned by the test,
+per `537d13c5`'s own doc + regression test): `resolve()` runs two passes over the whole
+`then`-chain — all unconditional rules first, then all matching state rules — so **a state
+rule outranks any unconditional, regardless of chain order**. `(defaults{hovered{gray}}
+then variant{background(red)})` at hovered = **gray**. The 2026-08-15 P0 was fixed by
+making defaults state-neutral, not by flipping precedence. Consequence: package 4's
+defaults MUST stay state-neutral (state rules in a base style will always bleed through
+variants' unconditional fills); `UiThemeTest`'s inverted invariants enforce this.
 
 ```kotlin
-// new — StyleResolutionOrderTest.kt (sketch)
-@Test fun variantUnconditionalFillOutranksDefaultsStateRule() {
-    val defaults = Style { hovered { background(gray) } }   // the old bug shape
+// pinned — StyleResolutionOrderTest.kt (actual shipping semantics)
+@Test fun stateRuleOutranksLaterUnconditionalOverrideRegardlessOfThenOrder() {
+    val defaults = Style { hovered { background(gray) } }
     val variant  = Style { background(red) }
-    val resolved = (defaults then variant).resolve(state(hovered = true))
-    assertEquals(red, resolved.background)   // fails on pre-2026-08-15 precedence
+    val composed = defaults then variant
+    assertEquals(red, composed.resolve(state(hovered = false)).background)
+    assertEquals(gray, composed.resolve(state(hovered = true)).background)  // state pass runs last
 }
 ```
 
-**Done when:** precedence test exists and fails if the 2026-08-15 fix is reverted;
-every public facade widget has at least one direct test.
+**Done when (met):** precedence pinned (5/5), 165/165 headless suite green without the
+designsystem dependency, designsystem 131/132 (the 1 failure is the intentionally-red
+package-5 wrap+fill spec), wasmJs test compiles green.
 
 ---
 
