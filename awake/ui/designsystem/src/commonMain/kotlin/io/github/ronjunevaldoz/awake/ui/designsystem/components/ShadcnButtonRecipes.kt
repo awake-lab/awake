@@ -7,8 +7,8 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.visuals
-import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -74,7 +74,7 @@ fun UiScope.shadcnButton(
     size: ShadcnButtonSize = ShadcnButtonSize.Md,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
-    content: BoxScope.(slot: UiBounds) -> Unit,
+    content: RowScope.(slot: UiBounds) -> Unit,
 ): Boolean {
     val groupCtx = currentLocal(LocalShadcnButtonGroup)
     val groupStyle = if (groupCtx != null) Style { shape(0f.dp) } else Style.Empty

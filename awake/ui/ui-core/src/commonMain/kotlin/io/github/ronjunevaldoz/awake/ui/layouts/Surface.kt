@@ -116,21 +116,91 @@ fun UiPrimitiveScope.surface(
     // UiPrimitiveScope.column()'s cacheKey (see resolveMeasuredContentCached).
     cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
+): UiBounds = surfaceCore(
+    id = id,
+    verticalArrangement = verticalArrangement,
+    modifier = modifier,
+    clipContent = clipContent,
+    cacheKey = cacheKey,
+    semanticRole = UiSemanticRole.Panel,
+    resolvedSlot = null,
+    content = content,
+)
+
+/**
+ * [surface] plus the two extra knobs an interactive widget composed on top of it needs -- kept
+ * as a SEPARATE function, not new parameters on [surface] itself, because [surface] already has
+ * two other same-named overloads whose optional-param sets partially overlap a common call
+ * shape (`Column.kt`'s `resolveVisualSurface`). Adding params there once already produced a
+ * silent, wrong overload pick (not a compile error) that manifested as an infinite WrapContent
+ * trial / OOM, caught only by the full test suite, not by inspection. A new name carries zero of
+ * that risk.
+ *
+ * @param semanticRole a composed-clickable surface (`Modifier.clickable(...)`) is semantically a
+ * Button, a Checkbox, etc, not a generic Panel.
+ * @param resolvedSlot the visual-container half of the Compose-style clickable+Surface split
+ * (see the `awake-ui-authoring` skill's "4 independent pieces" note): a caller that already
+ * claimed its own slot -- typically via `interact()`, the gesture/interaction-state piece --
+ * hands it in here so this never claims a second one for the same widget. Necessary, not just
+ * tidy: `row()`/`column()` `claimSlot()` mutates the cursor as a side effect, so `interact()`
+ * then a slot-claiming call back to back without this would silently eat two cursor slots for
+ * one widget.
+ */
+fun UiPrimitiveScope.interactiveSurface(
+    id: String,
+    verticalArrangement: Arrangement = defaultArrangement(),
+    modifier: UiModifier = Modifier,
+    clipContent: Boolean = false,
+    cacheKey: Any? = null,
+    semanticRole: UiSemanticRole = UiSemanticRole.Panel,
+    resolvedSlot: UiBounds? = null,
+    // surface()'s own baseline is theme.components.surface (card-shaped: background, a 1dp
+    // border, comfortable content padding) -- correct for a panel, wrong for most interactive
+    // widgets built on top of this (a plain surface's border/padding silently bled through a
+    // button that never asked for either). Pass Style.Empty (or a widget-appropriate baseline)
+    // when the caller's own `modifier.styleable(...)` already supplies a complete style.
+    defaults: Style = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).components.surface,
+    content: ColumnScope.(slot: UiBounds) -> Unit,
+): UiBounds = surfaceCore(
+    id = id,
+    verticalArrangement = verticalArrangement,
+    modifier = modifier,
+    clipContent = clipContent,
+    cacheKey = cacheKey,
+    semanticRole = semanticRole,
+    resolvedSlot = resolvedSlot,
+    defaults = defaults,
+    content = content,
+)
+
+private fun UiPrimitiveScope.surfaceCore(
+    id: String,
+    verticalArrangement: Arrangement,
+    modifier: UiModifier,
+    clipContent: Boolean,
+    cacheKey: Any?,
+    semanticRole: UiSemanticRole,
+    resolvedSlot: UiBounds?,
+    defaults: Style = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).components.surface,
+    content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val width = modifier.widthDimension ?: Dimension.WrapContent
     val height = modifier.heightDimension ?: Dimension.WrapContent
     val gap = verticalArrangement.baseSpacingPx()
     val effectiveStyle = modifier.styleable ?: Style.Empty
     val containerTag = modifier.testTag ?: id
-    val hasWrapContent = width == Dimension.WrapContent || height == Dimension.WrapContent
+    val hasWrapContent = resolvedSlot == null && (width == Dimension.WrapContent || height == Dimension.WrapContent)
 
-    // Only perform early slot claim and hit test if we don't have WrapContent dimensions.
-    // WrapContent dimensions must be measured first before claiming any slot.
-    val (initialSlot, initialHovered) = if (!hasWrapContent) {
-        val slot = claimModifiedSlot(modifier.withSizeFallback(width, height))
-        slot to hitTest(slot)
-    } else {
-        null to false
+    // Only perform early slot claim and hit test if we don't have WrapContent dimensions and the
+    // caller didn't already claim one itself (resolvedSlot). WrapContent dimensions must be
+    // measured first before claiming any slot.
+    val (initialSlot, initialHovered) = when {
+        resolvedSlot != null -> resolvedSlot to hitTest(resolvedSlot)
+        !hasWrapContent -> {
+            val slot = claimModifiedSlot(modifier.withSizeFallback(width, height))
+            slot to hitTest(slot)
+        }
+        else -> null to false
     }
 
     val styleState = MutableStyleState(
@@ -140,7 +210,7 @@ fun UiPrimitiveScope.surface(
     )
     val resolved = resolveStyle(
         style = effectiveStyle,
-        defaults = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).components.surface,
+        defaults = defaults,
         state = styleState,
     )
     // The surface text style participates in measurement as well as painting. Without this,
@@ -233,7 +303,7 @@ fun UiPrimitiveScope.surface(
         borderTokenId = resolved.borderColorToken,
     )
     recordSemantic(
-        role = UiSemanticRole.Panel,
+        role = semanticRole,
         id = id,
         bounds = slot,
         backgroundColor = resolved.background,
