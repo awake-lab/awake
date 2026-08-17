@@ -14,19 +14,10 @@ kotlin {
     }
 
     sourceSets {
-        commonMain {
-            kotlin {
-                // Keep the public design-system artifact limited to Headless and ui-api sources.
-                include("**/Shadcn*.kt")
-                include("**/OklchColor.kt")
-                include("**/PresetUiThemes.kt")
-                include("**/ShadcnTheme.kt")
-                include("**/styles/ShadcnVariants.kt")
-                include("**/theme/ShadcnTokens.kt")
-            }
-        }
         commonMain.dependencies {
-            // Design-system themes override Core's neutral component Styles.
+            // Core is exposed for its Style/UiLocal contract types, which appear in
+            // public design-system signatures. Runtime-package imports are rejected by
+            // verifyUiOwnership (awake.ui-ownership-convention).
             api(project(":awake:ui:ui-core"))
             api(project(":awake:ui:tailwind"))
             api(project(":awake:ui:headless"))
@@ -47,48 +38,11 @@ awakeTestResources {
     roots.from(layout.projectDirectory.dir("src/commonMain/resources"))
 }
 
-tasks.register("auditUiDesignsystemHeadlessBoundary") {
-    group = "verification"
-    description = "Verifies public ui-designsystem sources do not import ui-core primitive APIs."
-    val sourceRoot = layout.projectDirectory.dir("src/commonMain/kotlin")
-    doLast {
-        val forbiddenPrefixes = listOf(
-            "import io.github.ronjunevaldoz.awake.ui.UiScope",
-            "import io.github.ronjunevaldoz.awake.ui.layouts",
-            "import io.github.ronjunevaldoz.awake.ui.unstyled",
-            "import io.github.ronjunevaldoz.awake.ui.modifier",
-            "import io.github.ronjunevaldoz.awake.ui.popup",
-            "import io.github.ronjunevaldoz.awake.ui.scope",
-            "import io.github.ronjunevaldoz.awake.ui.animate",
-            "import io.github.ronjunevaldoz.awake.ui.child",
-        )
-        val current = sourceRoot.asFile.walkTopDown()
-            .filter { it.isFile && it.extension == "kt" }
-            .sumOf { file ->
-                file.readLines().count { line -> forbiddenPrefixes.any(line::startsWith) }
-            }
-        println("ui-designsystem public Core primitive import lines: $current")
-        check(current == 0) {
-            "ui-designsystem public boundary violated: $current Core primitive import lines remain. " +
-                    "Rewrite component recipes to use Headless APIs instead of Core primitives."
-        }
-    }
-}
-
-tasks.register("verifyUiDesignsystemClasspath") {
-    group = "verification"
-    description =
-        "Verifies the public design-system compile classpath contains no ui-core artifact."
-    val compileClasspath = configurations.named("desktopCompileClasspath")
-    doLast {
-        val leaked = compileClasspath.get().files
-            .filter { it.name.contains("ui-core", ignoreCase = true) }
-        check(leaked.isNotEmpty()) {
-            "ui-designsystem themes must have ui-core's Style contracts available"
-        }
-        println("ui-designsystem public compile classpath: ui-core Style contracts available")
-    }
-}
+// The Core-import boundary is enforced by verifyUiOwnership (awake.ui-ownership-convention);
+// the former auditUiDesignsystemHeadlessBoundary/verifyUiDesignsystemClasspath/
+// reportUiDesignsystemMigrationProgress tasks were deleted 2026-08-17 — the first duplicated
+// the convention's rules without being wired into `check`, the second asserted the opposite
+// of its own description, and the third read a module path deleted with designsystem-compat.
 
 tasks.register("auditUiDesignsystemComponentNaming") {
     group = "verification"
@@ -137,38 +91,34 @@ tasks.register("auditUiDesignsystemComponentNaming") {
 tasks.register("auditUiDesignsystemRecipeDuplicates") {
     group = "verification"
     description =
-        "Rejects duplicate Shadcn recipes with the same receiver across component packages."
+        "Rejects the same-receiver Shadcn recipe declared in more than one file."
     val componentsRoot = layout.projectDirectory.dir(
         "src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/components",
     )
     val declaration = Regex("""fun\s+(?:<[^>]+>\s*)?((?:[\w.]+)\.)?(shadcn[A-Z]\w*)\s*\(""")
     doLast {
+        // Keyed by file, not package: components live flat in one package by design, so a
+        // package key can never fire (two shadcnEmpty implementations shipped behind it).
+        // Same-file overloads (string convenience beside the slot form) stay legal.
         val declarations = componentsRoot.asFile.walkTopDown()
             .filter { it.isFile && it.extension == "kt" }
             .flatMap { file ->
-                val packageName = file.useLines { lines ->
-                    lines.firstOrNull { it.startsWith("package ") }
-                        ?.removePrefix("package ")
-                        .orEmpty()
-                }
                 declaration.findAll(file.readText()).map { match ->
                     val receiver = match.groupValues[1].removeSuffix(".").ifEmpty { "<top-level>" }
                     val name = match.groupValues[2]
-                    Triple("$receiver.$name", packageName, file.relativeTo(rootProject.projectDir))
+                    "$receiver.$name" to file.relativeTo(rootProject.projectDir)
                 }.asSequence()
             }
-            .groupBy { it.first }
-        val violations = declarations.values
-            .filter { entries -> entries.map { it.second }.distinct().size > 1 }
-            .flatMap { entries ->
-                entries.map { (signature, packageName, file) ->
-                    "$signature declared in $packageName at $file"
-                }
+            .groupBy({ it.first }, { it.second })
+        val violations = declarations
+            .filterValues { files -> files.distinct().size > 1 }
+            .flatMap { (signature, files) ->
+                files.distinct().map { file -> "$signature declared in $file" }
             }
         check(violations.isEmpty()) {
-            "Duplicate ui-designsystem Shadcn recipes across packages:\n${violations.joinToString("\n")}"
+            "Same ui-designsystem Shadcn recipe declared in multiple files:\n${violations.joinToString("\n")}"
         }
-        println("ui-designsystem recipe duplicates: none for identical receiver/package keys")
+        println("ui-designsystem recipe duplicates: none across files")
     }
 }
 
@@ -206,51 +156,10 @@ tasks.register("auditUiDesignsystemComponentCoverage") {
     }
 }
 
-tasks.register("reportUiDesignsystemMigrationProgress") {
-    group = "verification"
-    description =
-        "Reports the verified public-component and overall boundary migration percentages."
-    val componentsRoot = layout.projectDirectory.dir(
-        "src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/designsystem/components",
-    )
-    val compatibilityRoot = rootProject.layout.projectDirectory.dir(
-        "awake/engine/ui/designsystem-compat/src/commonMain/kotlin",
-    )
-    doLast {
-        val componentFiles = componentsRoot.asFile.walkTopDown()
-            .filter { it.isFile && it.extension == "kt" && !it.name.endsWith("Contracts.kt") }
-            .toList()
-        val headlessBacked = componentFiles.count {
-            it.readText().contains("io.github.ronjunevaldoz.awake.ui.headless")
-        }
-        val publicPercent =
-            if (componentFiles.isEmpty()) 100 else headlessBacked * 100 / componentFiles.size
-        val compatibilityRemaining = compatibilityRoot.asFile.walkTopDown()
-            .any { it.isFile && it.extension == "kt" }
-        val overallPercent = if (compatibilityRemaining) 99 else publicPercent
-        println("ui-designsystem public component migration: $publicPercent% ($headlessBacked/${componentFiles.size})")
-        println(
-            "ui-designsystem overall boundary migration: $overallPercent% " +
-                    if (compatibilityRemaining) "(test-only compatibility bridge remains)" else "(compatibility bridge removed)",
-        )
-    }
-}
-
-tasks.named("auditUiDesignsystemHeadlessBoundary") {
-    finalizedBy(
-        "verifyUiDesignsystemClasspath",
-        "auditUiDesignsystemComponentNaming",
-        "auditUiDesignsystemRecipeDuplicates",
-        "auditUiDesignsystemComponentCoverage",
-        "reportUiDesignsystemMigrationProgress",
-    )
-}
-
 tasks.named("check") {
     dependsOn(
         "auditUiDesignsystemComponentNaming",
         "auditUiDesignsystemRecipeDuplicates",
         "auditUiDesignsystemComponentCoverage",
-        "reportUiDesignsystemMigrationProgress",
     )
 }

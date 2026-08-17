@@ -18,7 +18,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
-import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
@@ -34,11 +33,8 @@ private val outline = HeroIcons.Outline24
  * pill because they are independent toggles; mixing the two interaction models in one strip is
  * what made the old rail unreadable.
  *
- * Horizontal, not the vertical rail the design called for, because Scale is a word rather than a
- * glyph: heroicons has no resize icon (its `scale` is a justice balance), and a label does not
- * render in a pill sized for icons -- it truncated to "S..." at every width tried. Vectors come
- * from real SVG sources and are never invented here, so the layout gives way instead. See the
- * icon-authoring skill.
+ * Horizontal, not the vertical rail the design called for -- a label does not render in a pill
+ * sized for icons, it truncated to "S..." at every width tried when this was still text.
  */
 internal fun UiScope.drawToolPill(
     activeTool: StudioContract.Tool,
@@ -77,6 +73,13 @@ private fun StudioContract.Tool.glyph(): UiImageVector? = when (this) {
     StudioContract.Tool.Scale -> outline.arrowsPointingIn
 }
 
+private fun CameraMode.glyph(): UiImageVector = when (this) {
+    CameraMode.FirstPerson -> outline.eye
+    CameraMode.ThirdPerson -> outline.userCircle
+    CameraMode.Cinematic -> outline.film
+    CameraMode.TopDown -> outline.map
+}
+
 /**
  * View state, floating along the viewport's top edge: which camera, which projection, and the
  * display toggles.
@@ -106,13 +109,10 @@ internal data class ViewPillActions(
 
 internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions) {
     shadcnButtonGroup(id = "studio-view-pill") {
-        // The mode's own name, not an icon: four modes cannot be told apart by one camera
-        // glyph, and the current one has to be readable without opening anything.
-        shadcnButton(
+        rowIconButton(
             id = "studio-view-mode",
-            label = state.mode.name,
-            variant = ShadcnButtonVariant.Ghost,
-            size = ShadcnButtonSize.Xs,
+            glyph = state.mode.glyph(),
+            active = false,
             onClick = actions.onCycleMode,
         )
 
@@ -150,14 +150,10 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
             active = state.debugBounds,
             onClick = { actions.onDebugBoundsChange(!state.debugBounds) },
         )
-        // No "hidden/occluded" glyph exists in Outline24 (see the awake-icon-authoring skill --
-        // icons come from real SVG sources, not a mismatched glyph reused for its shape), so
-        // this toggle is a short label, same as the mode/projection buttons above.
-        shadcnButton(
+        rowIconButton(
             id = "studio-view-debug-occlusion",
-            label = "Occl",
-            variant = if (state.debugOcclusion) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
-            size = ShadcnButtonSize.Xs,
+            glyph = outline.eyeSlash,
+            active = state.debugOcclusion,
             onClick = { actions.onDebugOcclusionChange(!state.debugOcclusion) },
         )
     }
@@ -176,20 +172,12 @@ internal fun UiScope.drawStatusStrip(
         verticalAlignment = UiAlignment.Vertical.Center,
         modifier = Modifier.height(STATUS_BAR_HEIGHT),
     ) {
-        shadcnButton(
+        rowIconButton(
             id = "studio-console-toggle",
-            variant = ShadcnButtonVariant.Ghost,
-            size = ShadcnButtonSize.Xs,
+            glyph = outline.commandLine,
+            active = false,
             onClick = onToggle,
-        ) {
-            row(
-                horizontalArrangement = Arrangement.spacedBy(4f.dp),
-                verticalAlignment = UiAlignment.Vertical.Center,
-            ) {
-                icon(outline.commandLine)
-                shadcnText("Console")
-            }
-        }
+        )
         shadcnText("$mode  -  $entityCount entities  -  $backend")
     }
 }

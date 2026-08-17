@@ -83,7 +83,7 @@ internal fun UiScope.drawInspectorPanel(world: World, selectedEntityId: Int?) {
             if (selectedEntityId == null) {
                 // Short strings on purpose: shadcnEmpty does not wrap, and the inspector panel
                 // is ~280px wide, so a sentence runs off the panel edge.
-                shadcnEmpty(title = "No selection", description = "Pick an entity")
+                shadcnEmpty(id = "inspector-empty", title = "No selection", description = "Pick an entity")
             }
             world.queryEach<Name> { entity, name ->
                 if (entity.id != selectedEntityId) return@queryEach

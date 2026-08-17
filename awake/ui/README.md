@@ -41,15 +41,18 @@ include(":awake:ui:tailwind-generator")
 - `awake:ui:ui-core`:
     - Core frame loop, `UiContext` runtime state, layout engine (`Column`, `Row`, `Box`, `Spacer`,
       `LazyList`), layout sizing/padding (`Dimension`, `Alignment`, `Insets`), `UiModifier`, state
-      hooks (`WidgetState`, `UiScrollState`), neutral theme/text local mechanics and fallback
-      values (`UiThemeValues`, `CoreUiTheme`, `CoreUiComponentStyles`), and `UiPrimitiveScope`.
-      Branded theme entry points belong in `designsystem`. (Retains `ui-core` to disambiguate
-      from engine root `:awake:core`).
+      hooks (`WidgetState`, `UiScrollState`), and neutral theme/text local mechanics
+      (`UiThemeValues`, `CoreUiTheme`) plus `UiPrimitiveScope`. There are no ambient per-component
+      style defaults (`CoreUiComponentStyles` was retired 2026-08-17); recipes pass explicit
+      `Style`. Branded theme entry points belong in `designsystem`. (Retains `ui-core` to
+      disambiguate from engine root `:awake:core`).
 
 - `awake:ui:headless`:
-    - Unstyled, accessible UI components (buttons, input fields, popups, accordions, tabs,
-      `TabItem`, `TabScope`) for building custom design systems. Public leaf APIs receive generic
-      `Style`; they do not expose branded or theme-provider APIs.
+    - Unstyled, accessible leaf widgets (buttons, selection controls, input fields, popups,
+      `TabItem` contracts) for building custom design systems. Public leaf APIs receive generic
+      `Style`; they do not expose branded or theme-provider APIs. (Composite widgets such as
+      accordion/tabs are being retired here — the design system owns those compositions; see
+      `docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md` rows E1/C10.)
 
 - `awake:ui:tailwind`:
     - Standalone Tailwind CSS design tokens (spacing, radius, color, typography scales).
