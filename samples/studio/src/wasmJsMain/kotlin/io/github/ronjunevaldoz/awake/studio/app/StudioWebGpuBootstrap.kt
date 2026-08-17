@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
 
 private val StudioShaders = gameShaderSet("triangle")
 private val StudioTexturedShaders = gameShaderSet("textured")
+private val StudioInstancedShaders = gameShaderSet("instanced")
 
 fun createStudioWebGpuApplication(): WebGpuGameApplication = WebGpuGameApplication(
     shaderSet = StudioShaders,
@@ -17,4 +18,7 @@ fun createStudioWebGpuApplication(): WebGpuGameApplication = WebGpuGameApplicati
     // Textured only, unlike the Vulkan bootstrap: skinned.wgsl also needs the joint-palette
     // uniform path (DrawCall.extraUniformFloats), which this backend doesn't write yet.
     additionalPipelines = mapOf(VertexFormat.PositionNormalColorUv to StudioTexturedShaders),
+    // Powers the "Instanced cubes" example; without it that example's single DrawCall is
+    // skipped entirely (no instanced pipeline registered for its format).
+    instancedShaderSet = StudioInstancedShaders,
 )

@@ -11,6 +11,7 @@ private val StudioShaders = gameShaderSet("lit_shadow")
 private val StudioSkinnedShaders = gameShaderSet("skinned")
 private val StudioTexturedShaders = gameShaderSet("textured")
 private val StudioShadowShaders = gameShaderSet("shadow_depth")
+private val StudioInstancedShaders = gameShaderSet("instanced")
 
 fun createStudioVulkanApplication(
     game: AwakeGame = studioGame(),
@@ -24,4 +25,7 @@ fun createStudioVulkanApplication(
     ),
     wireframeSupport = true,
     shadowShaderSet = StudioShadowShaders,
+    // Powers the "Instanced cubes" example; without it that example's single DrawCall is
+    // skipped entirely (no instanced pipeline registered for its format).
+    instancedShaderSet = StudioInstancedShaders,
 )
