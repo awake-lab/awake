@@ -2,13 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.rendering.systems
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
+import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.inverse
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.render.renderer.SHADOW_FAR
+import io.github.ronjunevaldoz.awake.render.renderer.SHADOW_NEAR
+import io.github.ronjunevaldoz.awake.render.renderer.SHADOW_ORTHO_HALF_SIZE
 import io.github.ronjunevaldoz.awake.render.renderer.boundsDebugLines
+import io.github.ronjunevaldoz.awake.render.renderer.directionalShadowBox
 import io.github.ronjunevaldoz.awake.render.renderer.frustumDebugLines
+import io.github.ronjunevaldoz.awake.render.renderer.lightGizmoLines
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Occluder
 import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
@@ -30,7 +39,11 @@ class DebugVisualizationSystem(
 
     override fun update(world: World, delta: Float) {
         val settings = world.family<WorldDebugSettings>().components().firstOrNull() ?: return
-        if (!settings.showFrustum && !settings.showBounds && !settings.showOcclusion) return
+        if (!settings.showFrustum && !settings.showBounds && !settings.showOcclusion &&
+            !settings.showLights && !settings.showShadowFrustum
+        ) {
+            return
+        }
         val camera = primaryCamera(world) ?: return
 
         lines.clear()
@@ -50,6 +63,22 @@ class DebugVisualizationSystem(
                 lines += boundsDebugLines(occluder.localBounds, transform.worldMatrix, OCCLUDER_COLOR)
             }
         }
+        if (settings.showLights || settings.showShadowFrustum) {
+            val light = world.family<Light>().components().firstOrNull()
+            if (light != null) {
+                val box = directionalShadowBox(light.direction, renderer.clipSpace)
+                if (settings.showLights) {
+                    lines += lightGizmoLines(box.eye, light.direction, LIGHT_COLOR)
+                }
+                if (settings.showShadowFrustum) {
+                    val localBox = Aabb(
+                        Vec3(-SHADOW_ORTHO_HALF_SIZE, -SHADOW_ORTHO_HALF_SIZE, -SHADOW_FAR),
+                        Vec3(SHADOW_ORTHO_HALF_SIZE, SHADOW_ORTHO_HALF_SIZE, -SHADOW_NEAR),
+                    )
+                    box.view.inverse()?.let { lines += boundsDebugLines(localBox, it, SHADOW_COLOR) }
+                }
+            }
+        }
         renderer.drawDebugLines(lines)
     }
 }
@@ -57,3 +86,5 @@ class DebugVisualizationSystem(
 private val FRUSTUM_COLOR = floatArrayOf(1f, 1f, 0f, 1f)
 private val BOUNDS_COLOR = floatArrayOf(0f, 1f, 0f, 1f)
 private val OCCLUDER_COLOR = floatArrayOf(1f, 0.5f, 0f, 1f)
+private val LIGHT_COLOR = floatArrayOf(1f, 0.75f, 0f, 1f)
+private val SHADOW_COLOR = floatArrayOf(1f, 0f, 0.75f, 1f)
