@@ -89,6 +89,8 @@ internal data class ViewPillState(
     val projection: StudioContract.Projection,
     val wireframe: Boolean,
     val shadows: Boolean,
+    val debugFrustum: Boolean,
+    val debugBounds: Boolean,
 )
 
 internal data class ViewPillActions(
@@ -96,6 +98,8 @@ internal data class ViewPillActions(
     val onToggleProjection: () -> Unit,
     val onWireframeChange: (Boolean) -> Unit,
     val onShadowsChange: (Boolean) -> Unit,
+    val onDebugFrustumChange: (Boolean) -> Unit,
+    val onDebugBoundsChange: (Boolean) -> Unit,
 )
 
 internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions) {
@@ -130,6 +134,19 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
             glyph = outline.sun,
             active = state.shadows,
             onClick = { actions.onShadowsChange(!state.shadows) },
+        )
+        shadcnButtonGroupSeparator()
+        rowIconButton(
+            id = "studio-view-debug-frustum",
+            glyph = outline.videoCamera,
+            active = state.debugFrustum,
+            onClick = { actions.onDebugFrustumChange(!state.debugFrustum) },
+        )
+        rowIconButton(
+            id = "studio-view-debug-bounds",
+            glyph = outline.cube,
+            active = state.debugBounds,
+            onClick = { actions.onDebugBoundsChange(!state.debugBounds) },
         )
     }
 }
