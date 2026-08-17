@@ -27,6 +27,7 @@ class ShadcnAdoptionRecipeTest {
         var emptyBounds: UiBounds? = null
         renderShadcnComponent(width = 400f, height = 300f) { _ ->
             emptyBounds = shadcnEmpty(
+                id = "empty",
                 title = "No items found",
                 description = "Try adjusting your search criteria.",
             )

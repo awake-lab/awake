@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.snapshot
 
+import io.github.ronjunevaldoz.awake.testing.ui.saveUiTutorialSnapshot
 import kotlin.test.Test
 
 /**
