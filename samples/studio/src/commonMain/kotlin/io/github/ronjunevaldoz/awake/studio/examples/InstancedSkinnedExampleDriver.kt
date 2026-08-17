@@ -3,9 +3,10 @@
 package io.github.ronjunevaldoz.awake.studio.examples
 
 import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser
-import io.github.ronjunevaldoz.awake.asset.gltf.LoadedAnimation
-import io.github.ronjunevaldoz.awake.asset.gltf.LoadedSkin
-import io.github.ronjunevaldoz.awake.asset.gltf.SkinnedAnimationPlayer
+import io.github.ronjunevaldoz.awake.asset.gltf.firstSkinnedAsset
+import io.github.ronjunevaldoz.awake.core.animation.AnimationClip
+import io.github.ronjunevaldoz.awake.core.animation.AnimationPose
+import io.github.ronjunevaldoz.awake.core.animation.Skin
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.render.material.Material
@@ -31,24 +32,21 @@ private const val INSTANCED_UNIFORM_FLOAT_COUNT = 24
 internal object InstancedSkinnedExampleDriver {
     private var vertices: FloatArray? = null
     private var indices: IntArray? = null
-    private var skin: LoadedSkin? = null
-    private var animation: LoadedAnimation? = null
-    private var player: SkinnedAnimationPlayer? = null
+    private var skin: Skin? = null
+    private var clip: AnimationClip? = null
+    private var pose: AnimationPose? = null
     private var elapsedSeconds = 0f
 
     suspend fun preload() {
         if (skin != null) return
         val bytes = readResourceBytes("assets/models/CesiumMan.gltf")
         val loaded = GltfParser.parseSkinned(bytes.decodeToString())
-        val skinnedNodeIndex = loaded.nodes.indexOfFirst { it.mesh != null && it.skin != null }
-        require(skinnedNodeIndex >= 0) { "CesiumMan.gltf has no skinned node." }
-        val node = loaded.nodes[skinnedNodeIndex]
-        val gltfMesh = loaded.meshes[node.mesh!!]
-        vertices = gltfMesh.toInterleavedSkinned()
-        indices = gltfMesh.indices
-        skin = loaded.skins[node.skin!!]
-        animation = loaded.animations.firstOrNull()
-        player = SkinnedAnimationPlayer(loaded)
+        val asset = requireNotNull(loaded.firstSkinnedAsset()) { "CesiumMan.gltf has no skinned node." }
+        vertices = asset.mesh.toInterleavedSkinned()
+        indices = asset.mesh.indices
+        skin = asset.skin
+        clip = asset.clip
+        pose = AnimationPose(asset.skeleton)
     }
 
     fun createMesh(runtime: SceneGameRuntime): Mesh = runtime.renderer.createMesh(
@@ -73,21 +71,21 @@ internal object InstancedSkinnedExampleDriver {
     }
 
     private fun sampleInstances(): List<SkinnedInstance> {
-        val currentPlayer = player
+        val currentPose = pose
         val currentSkin = skin
-        if (currentPlayer == null || currentSkin == null) return emptyList()
-        val currentAnimation = animation
-        val duration = currentAnimation?.let { currentPlayer.duration(it) } ?: 0f
+        if (currentPose == null || currentSkin == null) return emptyList()
+        val currentClip = clip
+        val duration = currentClip?.duration ?: 0f
         val total = GRID_SIDE * GRID_SIDE
         val instances = ArrayList<SkinnedInstance>(total)
         for (index in 0 until total) {
-            if (currentAnimation != null && duration > 0f) {
+            if (currentClip != null && duration > 0f) {
                 val phase = (elapsedSeconds + index * duration / total) % duration
-                currentPlayer.sample(currentAnimation, phase)
+                currentPose.sample(currentClip, phase)
             }
             instances += SkinnedInstance(
                 transform = gridTransforms[index],
-                jointPalette = currentPlayer.jointPalette(currentSkin),
+                jointPalette = currentPose.jointPalette(currentSkin),
             )
         }
         return instances

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.asset.gltf
 
+import io.github.ronjunevaldoz.awake.core.animation.AnimationProperty
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.test.Test
@@ -89,7 +90,7 @@ class GltfParserSkinnedTest {
     fun parsesSkinAndAnimationFromEmbeddedBuffers() {
         val scene = GltfParser.parseSkinned(skinnedGltfJson())
 
-        assertEquals(2, scene.nodes.size)
+        assertEquals(2, scene.skeleton.bones.size)
         assertEquals(1, scene.skins.size)
         val skin = scene.skins.single()
         assertEquals(listOf(0, 1), skin.joints)
@@ -97,10 +98,10 @@ class GltfParserSkinnedTest {
         assertEquals(identityMat4().toList(), skin.inverseBindMatrices[0].data.toList())
         assertEquals(identityMat4().toList(), skin.inverseBindMatrices[1].data.toList())
 
-        assertEquals(1, scene.animations.size)
-        val channel = scene.animations.single().channels.single()
-        assertEquals(1, channel.targetNode)
-        assertEquals("rotation", channel.targetPath)
+        assertEquals(1, scene.clips.size)
+        val channel = scene.clips.single().channels.single()
+        assertEquals(1, channel.targetBone)
+        assertEquals(AnimationProperty.Rotation, channel.property)
         assertEquals(4, channel.sampler.componentsPerKeyframe)
         assertEquals(times.toList(), channel.sampler.times.toList())
         assertEquals(rotations.toList(), channel.sampler.values.toList())

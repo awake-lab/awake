@@ -6,10 +6,12 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.boundingCenter
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser
-import io.github.ronjunevaldoz.awake.asset.gltf.LoadedAnimation
-import io.github.ronjunevaldoz.awake.asset.gltf.LoadedSkin
 import io.github.ronjunevaldoz.awake.asset.gltf.LoadedSkinnedScene
-import io.github.ronjunevaldoz.awake.asset.gltf.SkinnedAnimationPlayer
+import io.github.ronjunevaldoz.awake.asset.gltf.firstSkinnedAsset
+import io.github.ronjunevaldoz.awake.core.animation.AnimationClip
+import io.github.ronjunevaldoz.awake.core.animation.AnimationCrossfade
+import io.github.ronjunevaldoz.awake.core.animation.AnimationPose
+import io.github.ronjunevaldoz.awake.core.animation.Skin
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.ecs.Entity
@@ -28,6 +30,7 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.SkinnedPose
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSwitch
@@ -42,9 +45,18 @@ internal object SkinnedMeshDemo {
     private var skinnedEntity: Entity? = null
 
     private var scene: LoadedSkinnedScene? = null
-    private var player: SkinnedAnimationPlayer? = null
-    private var skin: LoadedSkin? = null
-    private var animation: LoadedAnimation? = null
+    private var pose: AnimationPose? = null
+    private var skin: Skin? = null
+    private var clip: AnimationClip? = null
+
+    // Crossfade blending proof-of-concept: CesiumMan.gltf has exactly one real clip, so this
+    // doesn't demo a semantically-real walk/run transition -- it proves the blend MATH by
+    // crossfading the SAME clip's timeline back to its own start (a hard cut a viewer would see
+    // as a pop otherwise), not a second real animated asset (none is vendored in this repo).
+    // `.copy()` on the clip each press gives AnimationCrossfade.play() a distinct reference, so
+    // its `clip === currentClip` same-clip no-op guard doesn't swallow the restart.
+    private var crossfadeEnabled = false
+    private var crossfade: AnimationCrossfade? = null
     private var meshVertices: FloatArray? = null
     private var meshIndices: IntArray? = null
     private var modelRadius = 1f
@@ -56,6 +68,7 @@ internal object SkinnedMeshDemo {
 
     private val timeController = ManualTimeController()
     private var displayGroupExpanded = false
+    private var crossfadeGroupExpanded = false
 
     private var spawned = false
     private var mesh: Mesh? = null
@@ -65,20 +78,19 @@ internal object SkinnedMeshDemo {
         if (scene != null) return
         val bytes = readResourceBytes("assets/models/CesiumMan.gltf")
         val loaded = GltfParser.parseSkinned(bytes.decodeToString())
-        val skinnedNodeIndex = loaded.nodes.indexOfFirst { it.mesh != null && it.skin != null }
-        require(skinnedNodeIndex >= 0)
-        val node = loaded.nodes[skinnedNodeIndex]
-        val gltfMesh = loaded.meshes[node.mesh!!]
+        val asset = requireNotNull(loaded.firstSkinnedAsset())
 
         scene = loaded
-        skin = loaded.skins[node.skin!!]
-        animation = loaded.animations.firstOrNull()
-        player = SkinnedAnimationPlayer(loaded)
-        meshVertices = gltfMesh.toInterleavedSkinned()
-        meshIndices = gltfMesh.indices
-        modelRadius = boundingRadius(gltfMesh.positions)
+        skin = asset.skin
+        clip = asset.clip
+        pose = AnimationPose(asset.skeleton)
+        crossfade = AnimationCrossfade(asset.skeleton)
+        asset.clip?.let { crossfade?.play(it, blendSeconds = 0f) }
+        meshVertices = asset.mesh.toInterleavedSkinned()
+        meshIndices = asset.mesh.indices
+        modelRadius = boundingRadius(asset.mesh.positions)
 
-        modelCenter = boundingCenter(gltfMesh.positions)
+        modelCenter = boundingCenter(asset.mesh.positions)
     }
 
     val entry = Scene3DDemo(
@@ -117,6 +129,31 @@ internal object SkinnedMeshDemo {
                 )
                 shadcnText(label = "Turn off Auto-play to scrub the walk-cycle clip by hand.")
             }
+            scope.shadcnCollapsibleCard(
+                id = "skinned-controls-crossfade",
+                expanded = crossfadeGroupExpanded,
+                onExpandedChange = { crossfadeGroupExpanded = it },
+                header = { _, _ -> shadcnText("Crossfade blending") },
+            ) {
+                crossfadeEnabled = shadcnSwitch(
+                    id = "skinned-crossfade-enabled",
+                    checked = crossfadeEnabled,
+                    label = "Drive playback via AnimationCrossfade",
+                )
+                shadcnButton(
+                    id = "skinned-crossfade-restart",
+                    label = "Crossfade to clip start",
+                    enabled = crossfadeEnabled,
+                    onClick = {
+                        clip?.let { crossfade?.play(it.copy(), blendSeconds = CROSSFADE_BLEND_SECONDS) }
+                    },
+                )
+                shadcnText(
+                    label = "Proves the blend math (this demo has only one real clip to play " +
+                        "with) -- restarting mid-cycle eases back to the start over half a " +
+                        "second instead of popping.",
+                )
+            }
         },
         onActivate = { ensureSpawned(this) },
         onDeactivate = { world ->
@@ -132,20 +169,28 @@ internal object SkinnedMeshDemo {
         },
         onUpdate = { delta ->
             ensureSpawned(this)
-            timeController.advance(delta)
-            val currentAnimation = animation
-            val currentPlayer = player
             val currentSkin = skin
-            if (currentAnimation != null && currentPlayer != null) {
-                val duration = currentPlayer.duration(currentAnimation)
-                val timeSeconds =
-                    if (duration > 0f) (timeController.hours / ManualTimeController.HOURS_PER_CYCLE) * duration else 0f
-                currentPlayer.sample(currentAnimation, timeSeconds)
-            }
-            if (currentSkin != null && currentPlayer != null) {
-                skinnedEntity?.let {
-                    world.get<SkinnedPose>(it)?.jointPalette =
-                        currentPlayer.jointPalette(currentSkin)
+            if (crossfadeEnabled) {
+                val currentCrossfade = crossfade
+                if (currentCrossfade != null && currentSkin != null) {
+                    val palette = currentCrossfade.advance(delta, currentSkin)
+                    skinnedEntity?.let { world.get<SkinnedPose>(it)?.jointPalette = palette }
+                }
+            } else {
+                timeController.advance(delta)
+                val currentClip = clip
+                val currentPose = pose
+                if (currentClip != null && currentPose != null) {
+                    val duration = currentClip.duration
+                    val timeSeconds =
+                        if (duration > 0f) (timeController.hours / ManualTimeController.HOURS_PER_CYCLE) * duration else 0f
+                    currentPose.sample(currentClip, timeSeconds)
+                }
+                if (currentSkin != null && currentPose != null) {
+                    skinnedEntity?.let {
+                        world.get<SkinnedPose>(it)?.jointPalette =
+                            currentPose.jointPalette(currentSkin)
+                    }
                 }
             }
 
@@ -196,7 +241,7 @@ internal object SkinnedMeshDemo {
         val vertices = meshVertices ?: return
         val indices = meshIndices ?: return
         val currentSkin = requireNotNull(skin)
-        val currentPlayer = requireNotNull(player)
+        val currentPose = requireNotNull(pose)
         mesh = runtime.renderer.createMesh(
             MeshGeometry(vertices, indices, format = VertexFormat.PositionNormalColorSkin),
         )
@@ -213,11 +258,12 @@ internal object SkinnedMeshDemo {
 
             skinnedEntity =
                 entity("SkinnedMesh", Modifier().transform().meshRenderer(mesh!!, material!!))
-            runtime.world.add(skinnedEntity!!, SkinnedPose(currentPlayer.jointPalette(currentSkin)))
+            runtime.world.add(skinnedEntity!!, SkinnedPose(currentPose.jointPalette(currentSkin)))
         }
 
         spawned = true
     }
 
     private const val SKINNED_UNIFORM_FLOAT_COUNT = 16 + 64 * 16
+    private const val CROSSFADE_BLEND_SECONDS = 0.5f
 }

@@ -21,6 +21,7 @@ rootProject.name = "Awake"
 
 include(":awake:core")
 include(":awake:core:geometry")
+include(":awake:core:animation")
 include(":awake:asset:gltf")
 include(":awake:asset:mesh-optimizer")
 include(":awake:asset:shaders")
