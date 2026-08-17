@@ -95,6 +95,8 @@ internal data class ViewPillState(
     val debugFrustum: Boolean,
     val debugBounds: Boolean,
     val debugOcclusion: Boolean,
+    val debugLights: Boolean,
+    val debugShadowFrustum: Boolean,
 )
 
 internal data class ViewPillActions(
@@ -105,6 +107,8 @@ internal data class ViewPillActions(
     val onDebugFrustumChange: (Boolean) -> Unit,
     val onDebugBoundsChange: (Boolean) -> Unit,
     val onDebugOcclusionChange: (Boolean) -> Unit,
+    val onDebugLightsChange: (Boolean) -> Unit,
+    val onDebugShadowFrustumChange: (Boolean) -> Unit,
 )
 
 internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions) {
@@ -155,6 +159,21 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
             glyph = outline.eyeSlash,
             active = state.debugOcclusion,
             onClick = { actions.onDebugOcclusionChange(!state.debugOcclusion) },
+        )
+        shadcnButtonGroupSeparator()
+        shadcnButton(
+            id = "studio-view-debug-lights",
+            label = "Light",
+            variant = if (state.debugLights) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+            size = ShadcnButtonSize.Xs,
+            onClick = { actions.onDebugLightsChange(!state.debugLights) },
+        )
+        shadcnButton(
+            id = "studio-view-debug-shadow-frustum",
+            label = "Shadow",
+            variant = if (state.debugShadowFrustum) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+            size = ShadcnButtonSize.Xs,
+            onClick = { actions.onDebugShadowFrustumChange(!state.debugShadowFrustum) },
         )
     }
 }

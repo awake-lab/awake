@@ -11,4 +11,6 @@ data class WorldDebugSettings(
     var showFrustum: Boolean = false,
     var showBounds: Boolean = false,
     var showOcclusion: Boolean = false,
+    var showLights: Boolean = false,
+    var showShadowFrustum: Boolean = false,
 )
