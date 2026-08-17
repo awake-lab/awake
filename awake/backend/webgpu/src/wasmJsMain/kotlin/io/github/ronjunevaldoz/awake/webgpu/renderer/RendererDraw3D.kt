@@ -153,6 +153,12 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                     // is a TODO too. Only Vulkan's Mesh overrides drawInstanced.
                     drawIndexed(mesh.indexCount.toUInt(), instanceModels.size.toUInt())
                     instancedIndex += 1
+                } else if (debugMode) {
+                    println(
+                        "Awake (WebGPU): instanced DrawCall skipped -- no ${if (palettes != null) "skinned-" else ""}" +
+                            "instanced pipeline registered for mesh format ${drawCall.mesh.format}, " +
+                            "or instanceModels was empty.",
+                    )
                 }
                 drawIndex += 1
             } else {
@@ -164,6 +170,12 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                 val extraPipeline = if (isPrimaryFormat) null else additionalPipelines[drawCall.mesh.format]
                 val extraMaterial = (drawCall.material as? Material)?.takeIf { it.hasTexture }
                 if (!isPrimaryFormat && (extraPipeline == null || extraMaterial == null)) {
+                    if (debugMode) {
+                        println(
+                            "Awake (WebGPU): DrawCall skipped -- no pipeline registered for mesh format " +
+                                "${drawCall.mesh.format}.",
+                        )
+                    }
                     drawIndex += 1
                     continue
                 }

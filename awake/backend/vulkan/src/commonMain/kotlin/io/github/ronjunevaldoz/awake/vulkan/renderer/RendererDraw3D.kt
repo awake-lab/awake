@@ -433,6 +433,13 @@ internal fun Renderer.prepareDrawCalls(
             if (instanced != null) {
                 prepared += instanced
                 instancedIndex += 1
+            } else if (debugMode) {
+                val animated = drawCall.instanceJointPalettes != null
+                println(
+                    "Awake (Vulkan): instanced DrawCall skipped -- no ${if (animated) "skinned-" else ""}" +
+                        "instanced pipeline registered for mesh format ${drawCall.mesh.format}, " +
+                        "or instanceModels was empty.",
+                )
             }
             drawIndex += 1
             continue
@@ -477,6 +484,11 @@ internal fun Renderer.prepareDrawCalls(
                 }
             material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + extraFloats)
             prepared += PreparedDrawCall(drawCall, pipeline, material, frameIndex, uniformSlotIndex)
+        } else if (debugMode) {
+            println(
+                "Awake (Vulkan): DrawCall skipped -- no pipeline registered for mesh format " +
+                    "${drawCall.mesh.format}.",
+            )
         }
         drawIndex += 1
     }

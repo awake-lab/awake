@@ -167,6 +167,10 @@ class Renderer(
      * the full swapchain extent. See the interface's own doc comment. */
     override var sceneViewport: RenderViewport? = null
 
+    /** Real storage overriding the interface's no-op default -- see the interface's own doc
+     * comment. */
+    override var debugMode: Boolean = false
+
     /** [clearColor] converted to this backend's clear-value type -- read fresh every render
      * pass (not cached), so a [clearColor] mutation takes effect on the very next frame. */
     internal val clearColorValue: VkClearColorValue

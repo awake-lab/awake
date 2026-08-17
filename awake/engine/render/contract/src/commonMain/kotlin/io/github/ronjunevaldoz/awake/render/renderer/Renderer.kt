@@ -78,6 +78,20 @@ interface Renderer {
     var shadowsEnabled: Boolean
 
     /**
+     * When `true`, a backend prints a warning whenever it silently drops a [DrawCall] because
+     * [DrawCall.mesh]'s format has no matching pipeline registered (the intentional but
+     * previously-silent "unmatched format, skip" behavior every backend already had -- this
+     * only makes it observable, it changes no rendering decision). `false` by default with a
+     * no-op setter here, same "ignore unless a real backend overrides it with actual storage"
+     * pattern [sceneViewport] already uses -- a backend/test double that never opts in keeps
+     * behaving exactly as it always did, and every existing `object : Renderer` test fake needs
+     * no change to keep compiling.
+     */
+    var debugMode: Boolean
+        get() = false
+        set(_) {}
+
+    /**
      * The sub-rect of the surface [draw]'s 3D pass renders into, and the aspect ratio its
      * projection is built for -- `null` (the default) means the whole surface, which is what
      * every game that never sets this always got.
