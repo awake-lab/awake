@@ -13,13 +13,15 @@ import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
 
 private const val TEXTURED_VERTEX_STRIDE_COMPONENTS = 11
 
-/** mvp(16) + lightDirection(4) + lightColor(4) + model(16) + cameraPosition(4). Must match
- * `textured.wgsl`'s Uniforms field order. */
-private const val TEXTURED_UNIFORM_FLOAT_COUNT = 44
+/** mvp(16) + lightDirection(4) + lightColor(4) + model(16) + cameraPosition(4) + material(4) +
+ * baseColorFactor(4) + emissiveFactor(4). Must match `textured.wgsl`'s Uniforms field order. */
+private const val TEXTURED_UNIFORM_FLOAT_COUNT = 56
 
 /** Duck.gltf, parsed once and exposed to the `assets { }` DSL as named mesh/material
  * factories -- the same real parsing `GltfViewerDemo.preload()` does, repackaged so the scene
@@ -34,6 +36,8 @@ internal object GltfViewerAssets {
     private var interleaved: FloatArray? = null
     private var indices: IntArray? = null
     private var texture: TextureAsset? = null
+    private var pbrTextures: PbrTextureSet? = null
+    private var pbrMaterial: PbrMaterial? = null
 
     suspend fun preload() {
         if (interleaved != null) return
@@ -45,6 +49,32 @@ internal object GltfViewerAssets {
         val imageBytes = requireNotNull(gltfMesh.baseColorImageBytes)
         val bitmap = createBitmap(imageBytes)
         texture = TextureAsset(bitmap.toRgba8Bytes(), bitmap.width, bitmap.height)
+        pbrTextures = PbrTextureSet(
+            metallicRoughness = gltfMesh.metallicRoughnessImageBytes?.let { decodeTexture(it) },
+            normal = gltfMesh.normalImageBytes?.let { decodeTexture(it) },
+            occlusion = gltfMesh.occlusionImageBytes?.let { decodeTexture(it) },
+            emissive = gltfMesh.emissiveImageBytes?.let { decodeTexture(it) },
+        )
+        pbrMaterial = PbrMaterial(
+            metallic = gltfMesh.metallicFactor,
+            roughness = gltfMesh.roughnessFactor,
+            baseColorFactor = gltfMesh.baseColorFactor,
+            emissiveFactor = gltfMesh.emissiveFactor,
+        )
+    }
+
+    private suspend fun decodeTexture(imageBytes: ByteArray): TextureAsset {
+        val bitmap = createBitmap(imageBytes)
+        return TextureAsset(bitmap.toRgba8Bytes(), bitmap.width, bitmap.height)
+    }
+
+    /** The joint palette's PbrMaterial equivalent: `GltfViewerAssets.createMesh`/
+     * `.createMaterial` feed the `assets { }` DSL, but a component this specific to one loaded
+     * model isn't authorable in a scene document either, same reasoning
+     * [SkinnedExampleDriver.attachPose] documents. */
+    fun attach(instance: SceneInstance, runtime: SceneGameRuntime) {
+        val node = instance.roots.find { it.name == "duck" } ?: return
+        runtime.world.add(node.entity, requireNotNull(pbrMaterial))
     }
 
     private fun scalePositions(source: FloatArray, factor: Float): FloatArray {

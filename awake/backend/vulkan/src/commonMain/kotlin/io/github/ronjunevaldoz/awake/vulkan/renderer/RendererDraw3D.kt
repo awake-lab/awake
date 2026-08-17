@@ -465,11 +465,13 @@ internal fun Renderer.prepareDrawCalls(
                     }
                 } else if (drawCall.mesh.format == VertexFormat.PositionNormalColorUv) {
                     // textured.wgsl's Uniforms: light, then model + cameraPosition (its PBR
-                    // specular needs a world-space position and view vector). Keyed by format
-                    // rather than by pipeline identity for the same reason the branch above is.
+                    // specular needs a world-space position and view vector), then the glTF
+                    // material factors. Keyed by format rather than by pipeline identity for
+                    // the same reason the branch above is.
                     lightFloats +
                         drawCall.model.data +
-                        floatArrayOf(cameraPosition.x, cameraPosition.y, cameraPosition.z, 0f)
+                        floatArrayOf(cameraPosition.x, cameraPosition.y, cameraPosition.z, 0f) +
+                        pbrTexturedMaterialFloats(drawCall)
                 } else {
                     drawCall.extraUniformFloats
                 }
@@ -562,6 +564,26 @@ private fun pbrMaterialFloats(drawCall: DrawCall): FloatArray {
 private const val PBR_MATERIAL_FLOATS = 4
 private const val DEFAULT_METALLIC = 0f
 private const val DEFAULT_ROUGHNESS = 0.5f
+
+/** `[metallic, roughness, pad, pad, baseColorFactor.rgba, emissiveFactor.rgb, pad]` -- the
+ * textured/glTF pipeline's factor multipliers (see `textured.wgsl`'s Uniforms). Defaults to
+ * factor = 1 / emissive = 0 (a no-op multiply), matching this pipeline's behavior before these
+ * fields existed: metallic/roughness came from the texture alone, base color/emissive were
+ * never scaled. [RenderSystem]'s `PbrMaterial` packing supplies real values at the same offsets
+ * [pbrMaterialFloats] reads its first 4 from -- one packing serves both pipelines. */
+private fun pbrTexturedMaterialFloats(drawCall: DrawCall): FloatArray {
+    val supplied = drawCall.extraUniformFloats
+    if (supplied.size >= PBR_TEXTURED_MATERIAL_FLOATS) return supplied.copyOf(PBR_TEXTURED_MATERIAL_FLOATS)
+    return floatArrayOf(
+        DEFAULT_METALLIC_FACTOR, DEFAULT_ROUGHNESS_FACTOR, 0f, 0f,
+        1f, 1f, 1f, 1f,
+        0f, 0f, 0f, 0f,
+    )
+}
+
+private const val PBR_TEXTURED_MATERIAL_FLOATS = 12
+private const val DEFAULT_METALLIC_FACTOR = 1f
+private const val DEFAULT_ROUGHNESS_FACTOR = 1f
 
 private fun MutableMap<RenderMaterial, Int>.nextSlot(material: RenderMaterial): Int {
     val slot = this[material] ?: 0
