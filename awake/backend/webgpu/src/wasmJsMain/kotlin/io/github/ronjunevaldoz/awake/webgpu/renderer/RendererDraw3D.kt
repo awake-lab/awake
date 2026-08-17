@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
+import io.github.ronjunevaldoz.awake.webgpu.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
 import io.ygdrasil.webgpu.GPULoadOp
@@ -110,17 +111,37 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                 // per-draw mvp -- see instanced.wgsl) and one drawIndexed for every transform.
                 // No instanced pipeline for this format, or nothing to draw, skips the call --
                 // same skip-on-mismatch posture as the format guard below.
-                val instancedPipeline = instancedPipelines[drawCall.mesh.format]
+                // Animated instancing (skinned_instanced.wgsl) resolves against its own
+                // pipeline map and additionally binds a per-instance joint-palette storage
+                // buffer at group 1 -- everything else below is shared with static instancing.
+                val palettes = drawCall.instanceJointPalettes
+                val instancedPipeline = if (palettes != null) {
+                    skinnedInstancedPipelines[drawCall.mesh.format]
+                } else {
+                    instancedPipelines[drawCall.mesh.format]
+                }
                 if (instancedPipeline != null && instanceModels.isNotEmpty()) {
                     val resolved = WebGpuHandles.resolve<GPURenderPipeline>(instancedPipeline.graphicsPipeline[0])
-                    ensureInstancedUniformResources(resolved)
+                    if (palettes != null) {
+                        ensureSkinnedInstancedUniformResources(resolved)
+                    } else {
+                        ensureInstancedUniformResources(resolved)
+                    }
+                    val uniforms = if (palettes != null) skinnedInstancedUniformBuffer!! else instancedUniformBuffer!!
+                    val uniformBindGroup =
+                        if (palettes != null) skinnedInstancedUniformBindGroup!! else instancedUniformBindGroup!!
                     setPipeline(resolved)
                     device.queue.writeBuffer(
-                        instancedUniformBuffer!!,
+                        uniforms,
                         0uL,
                         fastArrayBufferOf(viewProjection.data + lightFloats),
                     )
-                    setBindGroup(0u, instancedUniformBindGroup!!)
+                    setBindGroup(0u, uniformBindGroup)
+                    if (palettes != null) {
+                        val paletteBuffer = skinnedInstanceBufferForRun(instancedIndex)
+                        paletteBuffer.update(palettes)
+                        setBindGroup(SkinnedInstanceBuffer.PALETTE_GROUP, paletteBuffer.bindGroupFor(resolved))
+                    }
                     val instanceBuffer = instanceBufferForRun(instancedIndex)
                     instanceBuffer.update(instanceModels)
                     val mesh = drawCall.mesh as Mesh

@@ -135,3 +135,27 @@ internal fun Renderer.ensureInstancedUniformResources(pipeline: GPURenderPipelin
         ),
     )
 }
+
+/** [Renderer.skinnedInstancedPipelines]' own pair of the same -- a separate one from
+ * [ensureInstancedUniformResources]' despite writing an identical uniform block, because a bind
+ * group is only valid against the pipeline layout it was derived from and this is a different
+ * pipeline object (the same reason wireframe needs its own pair). */
+internal fun Renderer.ensureSkinnedInstancedUniformResources(pipeline: GPURenderPipeline) {
+    if (skinnedInstancedUniformBuffer != null) return
+    val device = graphicsDevice.wgpuContext.device
+    val buffer = device.createBuffer(
+        BufferDescriptor(
+            size = (UNIFORM_FLOAT_COUNT * Float.SIZE_BYTES).toULong(),
+            usage = GPUBufferUsage.Uniform or GPUBufferUsage.CopyDst,
+        ),
+    )
+    skinnedInstancedUniformBuffer = buffer
+    skinnedInstancedUniformBindGroup = device.createBindGroup(
+        BindGroupDescriptor(
+            layout = pipeline.getBindGroupLayout(0u),
+            entries = listOf(
+                BindGroupEntry(binding = 0u, resource = BufferBinding(buffer = buffer)),
+            ),
+        ),
+    )
+}

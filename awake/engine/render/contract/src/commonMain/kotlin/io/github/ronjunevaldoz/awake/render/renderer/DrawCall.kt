@@ -26,10 +26,20 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
  * [mesh.format] draws `instanceModels.size` copies of [mesh] in one GPU call -- one call per
  * instance's own transform in [instanceModels] instead of [model] -- via
  * [io.github.ronjunevaldoz.awake.render.mesh.Mesh.drawInstanced]. [model]/[extraUniformFloats]
- * are ignored in that case (a joint palette doesn't fit an instance buffer -- animated/skinned
- * meshes aren't instanceable this way). A backend with no instanced pipeline for [mesh.format]
- * skips the draw call entirely, same "unknown format, skip" behavior an unmatched [mesh.format]
- * already has.
+ * are ignored in that case. A backend with no instanced pipeline for [mesh.format] skips the
+ * draw call entirely, same "unknown format, skip" behavior an unmatched [mesh.format] already
+ * has.
+ *
+ * [instanceJointPalettes] is the animated-instancing counterpart to [instanceModels] -- `null`
+ * by default, and only meaningful alongside a non-null [instanceModels] of the same size (one
+ * joint palette per instance, index-for-index). A [mesh.format] doesn't fit a whole joint
+ * palette (up to a few KB) into the same per-instance vertex attribute [instanceModels] uses --
+ * a backend with a skinned-instanced pipeline for [mesh.format] instead uploads these into a
+ * storage buffer indexed by instance, alongside [instanceModels]'s own instance-rate vertex
+ * buffer. `extraUniformFloats`'s single-instance joint palette and this list are mutually
+ * exclusive in practice (a `DrawCall` is either one plain draw, one static-instanced batch, or
+ * one animated-instanced batch), but nothing here enforces that -- it's a backend concern, same
+ * as [extraUniformFloats]'s own doc comment already notes for format-specific interpretation.
  */
 data class DrawCall(
     val mesh: Mesh,
@@ -37,6 +47,7 @@ data class DrawCall(
     val model: Mat4 = Mat4(),
     val extraUniformFloats: FloatArray = EMPTY_UNIFORM_FLOATS,
     val instanceModels: List<Mat4>? = null,
+    val instanceJointPalettes: List<FloatArray>? = null,
 )
 
 private val EMPTY_UNIFORM_FLOATS = FloatArray(0)

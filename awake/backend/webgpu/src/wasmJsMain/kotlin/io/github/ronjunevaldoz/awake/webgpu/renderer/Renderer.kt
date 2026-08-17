@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.mesh.InstanceBuffer
+import io.github.ronjunevaldoz.awake.webgpu.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
 import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.RenderPipeline
@@ -117,6 +118,13 @@ class Renderer(
      * here draws every transform in one call; a format with no entry is skipped, same as any
      * other unmatched format. Empty (default) for a game that never instances. */
     internal val instancedPipelines: Map<VertexFormat, RenderPipeline> = emptyMap(),
+    /** Animated companions of [instancedPipelines], mirroring Vulkan's
+     * `Renderer.skinnedInstancedPipelinesByFormat` -- built from `skinned_instanced.wgsl`,
+     * which reads its per-instance joint palettes from a `@group(1)` storage buffer. A
+     * [DrawCall] carrying BOTH `instanceModels` and `instanceJointPalettes` resolves here
+     * instead of [instancedPipelines]; a format with no entry is skipped. Empty (default) for
+     * a game that never animates instances. */
+    internal val skinnedInstancedPipelines: Map<VertexFormat, RenderPipeline> = emptyMap(),
 ) : RenderRenderer {
     // WebGPU's NDC has +Y up -- confirmed by this module's own ui_quad.wgsl comment
     // ("pixel-space is Y-down, NDC is Y-up") -- so unlike Vulkan (+Y down NDC) no flip is
@@ -172,6 +180,11 @@ class Renderer(
     internal var instancedUniformBuffer: GPUBuffer? = null
     internal var instancedUniformBindGroup: GPUBindGroup? = null
 
+    /** [skinnedInstancedPipelines]' own pair of the above -- see
+     * [ensureSkinnedInstancedUniformResources] for why it can't share the instanced one. */
+    internal var skinnedInstancedUniformBuffer: GPUBuffer? = null
+    internal var skinnedInstancedUniformBindGroup: GPUBindGroup? = null
+
     // One InstanceBuffer per instanced draw call in a frame, grown on demand and reused every
     // frame -- same pool shape as the UI mesh pools below. The uniform buffer above can be
     // shared across instanced calls, but their transform lists can't be.
@@ -180,6 +193,17 @@ class Renderer(
     internal fun instanceBufferForRun(index: Int): InstanceBuffer {
         while (instanceBufferPool.size <= index) instanceBufferPool += InstanceBuffer(graphicsDevice)
         return instanceBufferPool[index]
+    }
+
+    // Same pool shape, for the joint palettes an ANIMATED instanced draw call also needs (it
+    // uses both pools: model matrices above, poses here).
+    private val skinnedInstanceBufferPool = mutableListOf<SkinnedInstanceBuffer>()
+
+    internal fun skinnedInstanceBufferForRun(index: Int): SkinnedInstanceBuffer {
+        while (skinnedInstanceBufferPool.size <= index) {
+            skinnedInstanceBufferPool += SkinnedInstanceBuffer(graphicsDevice)
+        }
+        return skinnedInstanceBufferPool[index]
     }
 
     // Lazily built on the first drawUi() call of any kind (uiRenderPipeline) and on the
@@ -452,6 +476,11 @@ class Renderer(
         instancedUniformBuffer?.close()
         instancedUniformBuffer = null
         instancedUniformBindGroup = null
+        skinnedInstancedUniformBuffer?.close()
+        skinnedInstancedUniformBuffer = null
+        skinnedInstancedUniformBindGroup = null
+        skinnedInstanceBufferPool.forEach { it.destroy() }
+        skinnedInstanceBufferPool.clear()
         instanceBufferPool.forEach { it.destroy() }
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()

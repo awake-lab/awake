@@ -20,6 +20,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandBufferUsageFlag
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.InstanceBuffer
+import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
@@ -158,6 +159,13 @@ internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<Prepa
         if (instanceBuffer != null) {
             // Binding 1, alongside the mesh's own binding-0 vertex buffer bound just above.
             instanceBuffer.bind(prepared.frameIndex, commandBuffer)
+            // Descriptor set 1 (the material bound set 0 just above) -- only for the animated
+            // variant; a static instanced draw has no palettes.
+            prepared.jointPaletteBuffer?.bind(
+                prepared.frameIndex,
+                commandBuffer,
+                prepared.pipeline.pipelineLayout,
+            )
             prepared.drawCall.mesh.drawInstanced(commandBuffer, prepared.instanceCount)
         } else {
             prepared.drawCall.mesh.draw(commandBuffer)
@@ -359,6 +367,9 @@ internal data class PreparedDrawCall(
      * [recordDrawCalls] then binds it and issues one `drawInstanced` instead of `draw`. */
     val instanceBuffer: InstanceBuffer? = null,
     val instanceCount: Int = 0,
+    /** Non-null only for an ANIMATED instanced draw ([DrawCall.instanceJointPalettes]), where it
+     * accompanies [instanceBuffer] -- per-instance model matrices still come through that. */
+    val jointPaletteBuffer: SkinnedInstanceBuffer? = null,
 )
 
 /** Resolves each [drawCalls] entry against [Renderer.pipelinesByFormat] by its
@@ -480,7 +491,13 @@ internal fun Renderer.prepareDrawCalls(
  * model matrices and none of them can be folded in on the CPU. It's still written into
  * [DrawCall.material]'s own frame/draw slot (not a pipeline-owned buffer): the block is the same
  * 24 floats the non-shadow lit path already writes there, so no second uniform/descriptor scheme
- * is needed for it. */
+ * is needed for it.
+ *
+ * A call that also carries [DrawCall.instanceJointPalettes] resolves against
+ * [Renderer.skinnedInstancedPipelinesByFormat] instead and also
+ * fills a [SkinnedInstanceBuffer] with this call's per-instance joint palettes -- everything
+ * else (uniform block, model-matrix instance buffer, draw call) is identical, which is why
+ * this stayed one function rather than a near-duplicate second one. */
 private fun Renderer.prepareInstancedDrawCall(
     drawCall: DrawCall,
     frameIndex: Int,
@@ -489,13 +506,25 @@ private fun Renderer.prepareInstancedDrawCall(
     uniformFloats: FloatArray,
     materialUsage: MutableMap<RenderMaterial, Int>,
 ): PreparedDrawCall? {
-    val pipeline = instancedPipelinesByFormat[drawCall.mesh.format]
+    val animated = drawCall.instanceJointPalettes != null
+    val pipeline = if (animated) {
+        skinnedInstancedPipelinesByFormat[drawCall.mesh.format]
+    } else {
+        instancedPipelinesByFormat[drawCall.mesh.format]
+    }
     val instanceModels = drawCall.instanceModels.orEmpty()
     if (pipeline == null || instanceModels.isEmpty()) return null
     val material = drawCall.material as Material
     val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)
     val instanceBuffer = instanceBufferForRun(instancedIndex)
     instanceBuffer.update(frameIndex, instanceModels)
+    val jointPaletteBuffer = if (animated) {
+        skinnedInstanceBufferForRun(instancedIndex).also {
+            it.update(frameIndex, drawCall.instanceJointPalettes.orEmpty())
+        }
+    } else {
+        null
+    }
     material.updateUniformBuffer(frameIndex, uniformSlotIndex, uniformFloats)
     return PreparedDrawCall(
         drawCall = drawCall,
@@ -505,6 +534,7 @@ private fun Renderer.prepareInstancedDrawCall(
         uniformSlotIndex = uniformSlotIndex,
         instanceBuffer = instanceBuffer,
         instanceCount = instanceModels.size,
+        jointPaletteBuffer = jointPaletteBuffer,
     )
 }
 

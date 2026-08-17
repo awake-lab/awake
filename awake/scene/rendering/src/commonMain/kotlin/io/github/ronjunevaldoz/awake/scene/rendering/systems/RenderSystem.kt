@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedMeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedSkinnedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
 import io.github.ronjunevaldoz.awake.scene.rendering.components.LodGroup
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
@@ -66,6 +67,20 @@ class RenderSystem(
                     mesh = instanced.mesh,
                     material = instanced.material,
                     instanceModels = instanced.transforms,
+                ),
+            )
+        }
+        // Animated counterpart to the InstancedMeshRenderer loop above -- instanceModels AND
+        // instanceJointPalettes both carry one entry per instance, index-for-index. See
+        // InstancedSkinnedMeshRenderer's own doc comment for why this is a separate component
+        // rather than folding into InstancedMeshRenderer.
+        world.family<InstancedSkinnedMeshRenderer>().forEach { _, instanced ->
+            drawCalls.add(
+                DrawCall(
+                    mesh = instanced.mesh,
+                    material = instanced.material,
+                    instanceModels = instanced.instances.map { it.transform },
+                    instanceJointPalettes = instanced.instances.map { it.jointPalette },
                 ),
             )
         }
