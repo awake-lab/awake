@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.inverse
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SHADOW_FAR
@@ -64,19 +65,21 @@ class DebugVisualizationSystem(
             }
         }
         if (settings.showLights || settings.showShadowFrustum) {
+            // Falls back to DEFAULT_SCENE_LIGHT, same as RenderSystem.sceneLight() -- a scene
+            // with no Light entity (most of Studio's examples) still shades with that default
+            // direction, so the debugger should show the direction that's actually lighting it.
             val light = world.family<Light>().components().firstOrNull()
-            if (light != null) {
-                val box = directionalShadowBox(light.direction, renderer.clipSpace)
-                if (settings.showLights) {
-                    lines += lightGizmoLines(box.eye, light.direction, LIGHT_COLOR)
-                }
-                if (settings.showShadowFrustum) {
-                    val localBox = Aabb(
-                        Vec3(-SHADOW_ORTHO_HALF_SIZE, -SHADOW_ORTHO_HALF_SIZE, -SHADOW_FAR),
-                        Vec3(SHADOW_ORTHO_HALF_SIZE, SHADOW_ORTHO_HALF_SIZE, -SHADOW_NEAR),
-                    )
-                    box.view.inverse()?.let { lines += boundsDebugLines(localBox, it, SHADOW_COLOR) }
-                }
+            val direction = light?.direction ?: DEFAULT_SCENE_LIGHT.direction
+            val box = directionalShadowBox(direction, renderer.clipSpace)
+            if (settings.showLights) {
+                lines += lightGizmoLines(box.eye, direction, LIGHT_COLOR)
+            }
+            if (settings.showShadowFrustum) {
+                val localBox = Aabb(
+                    Vec3(-SHADOW_ORTHO_HALF_SIZE, -SHADOW_ORTHO_HALF_SIZE, -SHADOW_FAR),
+                    Vec3(SHADOW_ORTHO_HALF_SIZE, SHADOW_ORTHO_HALF_SIZE, -SHADOW_NEAR),
+                )
+                box.view.inverse()?.let { lines += boundsDebugLines(localBox, it, SHADOW_COLOR) }
             }
         }
         renderer.drawDebugLines(lines)
