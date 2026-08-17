@@ -150,6 +150,10 @@ class Renderer(
     // stub" posture as this file's own Material.
     override var shadowsEnabled: Boolean = true
 
+    /** Real storage overriding the interface's no-op default -- see the interface's own doc
+     * comment. */
+    override var debugMode: Boolean = false
+
     /** [clearColor] converted to this backend's clear-value type -- see the Vulkan `Renderer`'s
      * own `clearColorValue` for why this is a fresh-read `get()`, not a cached field. */
     internal val clearColorValue: GpuColor
