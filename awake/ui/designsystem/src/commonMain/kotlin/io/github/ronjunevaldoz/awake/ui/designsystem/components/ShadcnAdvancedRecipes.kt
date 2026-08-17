@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.headless.resizablePanelGroup
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
+import io.github.ronjunevaldoz.awake.ui.style.Style
 
 fun UiScope.shadcnResizablePanelGroup(
     id: String,
@@ -43,6 +44,13 @@ fun UiScope.shadcnScrollArea(
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
+    // A scrolling `surface()` call (one with `.scrollState` on its modifier) routes to
+    // `scrollPanel()` (see `ScrollContainers.kt`), not `resolveVisualSurface()` -- that path
+    // already stopped reading `theme.components.surface` before this session (its own doc there:
+    // "a bare scroll container should stay invisible by default"), so unlike
+    // `shadcnInputOTP`'s wrapper this one's look was never actually theme-dependent. Explicit
+    // Style.Empty here is a no-op vs. before, not a reproduction of anything.
     modifier = modifier.verticalScroll(state),
+    style = Style.Empty,
     content = content,
 )

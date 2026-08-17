@@ -40,7 +40,10 @@ fun UiPrimitiveScope.progress(
             Dimension.Fixed(PROGRESS_TRACK_HEIGHT_DP.dp),
         ),
         style = style,
-        defaults = theme.components.slider,
+        // Reads no ambient theme -- shadcnProgress's shadcnProgressStyle already supplies a
+        // complete Style for everything progress() reads (background/foreground/border/shape);
+        // there is no label text painted here, so no textSize concern either.
+        defaults = Style.Empty,
     )
     paintSurface(slot = surface.slot, resolved = surface.resolved)
     val fraction = value.coerceIn(0f, 1f)

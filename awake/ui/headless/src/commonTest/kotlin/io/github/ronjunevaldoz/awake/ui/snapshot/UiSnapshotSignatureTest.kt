@@ -99,15 +99,26 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 // 2026-08-16: review fixtures now render through renderUiComponent and install Shadcn through
 // rootProvider. The changed scenes previously depended on Core defaults; existing Shadcn scenes
 // remain byte-identical.
+// 2026-08-17: re-recorded after UiComponentStyles/theme.components was retired (the ambient
+// theme-fallback registry ui-headless used to read for its own "default style" -- see
+// docs/audits/ for the full removal). `toggle-unchecked`/`toggle-checked`/`button-filled`/
+// `button-outline`/`button-ghost`/`theme-dark`/`theme-light`/`panel-with-children` all call the
+// bare Headless primitive (`toggle()`/`button()`/`checkbox()`) directly with no `style`, exactly
+// the ambient-fallback-reliant shape this removal targeted -- they now render with no color at
+// all (several button variants are now pixel-identical, having lost their only differentiator),
+// which is the CORRECT, intended consequence: ui-headless no longer supplies one, and these
+// fixtures never asked a design-system layer (shadcnButton/shadcnToggle/shadcnCheckbox) to. Every
+// real branded (shadcn*) scene is unaffected (its recipe's Style was already complete).
+// `shadcn-field-error` is untouched.
 private val expectedReviewSnapshotSignatures = mapOf(
-    "toggle-unchecked" to 0xd372d09ea0d623dfuL,
-    "toggle-checked" to 0xd69b36d70713ad4euL,
-    "button-filled" to 0xa2c89dbf50faff07uL,
-    "button-outline" to 0x771ccee1b7965f8fuL,
-    "button-ghost" to 0xbb50c6778fdae137uL,
-    "theme-dark" to 0x98f3944a8394b547uL,
-    "theme-light" to 0x7a2523dbdc3b0e40uL,
-    "panel-with-children" to 0x237f8add096afe79uL,
+    "toggle-unchecked" to 0x7ce00b0d014d12a3uL,
+    "toggle-checked" to 0x40bd692f48964ffcuL,
+    "button-filled" to 0x7fc33cce03403ef9uL,
+    "button-outline" to 0x43c2d3e7b6428919uL,
+    "button-ghost" to 0x7fc33cce03403ef9uL,
+    "theme-dark" to 0x7fc33cce03403ef9uL,
+    "theme-light" to 0x03d4c72d17b9808fuL,
+    "panel-with-children" to 0xbff05d211a1e91cfuL,
     "shadcn-field-error" to 0x105ac00923155246uL,
 )
 
@@ -141,12 +152,24 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // 2026-08-16: ui-component-state-matrix only -- Headless controls now apply generic Style
 // directly after the legacy visual-data contract removal. The fixture deliberately calls the
 // unskinned Headless controls, so it no longer inherits the old Core component visual fallback.
+// 2026-08-17: re-recorded after UiComponentStyles/theme.components was retired -- see the
+// matching review-map comment above for the full reasoning. `ui-component-state-matrix` calls
+// bare `toggle()`/`checkbox()`/`slider()`/`textField()` with no `style`, so it loses their
+// ambient-fallback coloring the same way the review scenes do. `ui-shaped-panel` calls the raw
+// `surface()` primitive with a style that sets shape/border/contentPadding but not background --
+// it used to inherit Shadcn's own card background/foreground for the unset fields from the
+// ambient default; ui-core's replacement default is deliberately theme-neutral (see
+// `neutralSurfaceDefaults`'s doc in `layouts/Surface.kt` -- ui-core cannot reach into
+// ui-designsystem for a themed color), so this one scene now renders Core's neutral gray instead
+// of Shadcn's card color where it left a field unset. Every scene built from shadcn* recipes
+// (ui-button-variants/ui-panel-controls/ui-alert-dialog/ui-rounded-clip-vector/
+// ui-awake-shadcn-showcase) is unaffected, having always supplied a complete Style.
 private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x6a983a490866bb5buL,
-    "ui-shaped-panel" to 0xdd73c120438fed8fuL,
+    "ui-shaped-panel" to 0xc53d9ba3cc72f320uL,
     "ui-panel-controls" to 0x48857545493d9b37uL,
     "ui-alert-dialog" to 0xd86c496ca1a25736uL,
-    "ui-component-state-matrix" to 0x47194c3f2ead1fc2uL,
+    "ui-component-state-matrix" to 0x9d720517432f7dfeuL,
     "ui-rounded-clip-vector" to 0x0627d9a01bb6098buL,
     "ui-awake-shadcn-showcase" to 0x9900cb4fb67ecb53uL,
 )

@@ -83,7 +83,9 @@ fun UiPrimitiveScope.textField(
         interaction = interaction,
         modifier = modifier,
         style = style,
-        defaults = theme.components.textField,
+        // Reads no ambient theme -- shadcnInput's shadcnTextFieldStyle already supplies a
+        // complete Style (background/foreground/border/shape/contentPadding/textSize).
+        defaults = Style.Empty,
         disabled = !enabled,
         focused = focused,
     )

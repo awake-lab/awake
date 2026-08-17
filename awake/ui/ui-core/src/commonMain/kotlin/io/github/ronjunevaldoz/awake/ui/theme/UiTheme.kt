@@ -12,7 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
  */
 interface UiTheme : UiThemeValues {
     override val colors: UiColorTokens
-    val components: UiComponentStyles
     override val typography: UiTypography get() = UiTypography.Default
 
     /** Third theme pillar alongside [colors] (color) and [typography] -- see [UiShapeTokens].
@@ -22,16 +21,15 @@ interface UiTheme : UiThemeValues {
     override val shapes: UiShapeTokens get() = UiFallbackShapeTokens
 }
 
-/** Optional component-style override supplied by a theme above Core. */
-interface UiComponentStylesProvider {
-    val componentStyles: UiComponentStyles
-}
-
 /**
  * Adapts a runtime-free theme value set for the Core context stack.
  *
- * Design-system modules must publish [UiThemeValues], not Core's [UiTheme]. Core supplies the
- * neutral component-style fallback while Headless consumes the value contracts directly.
+ * Design-system modules must publish [UiThemeValues], not Core's [UiTheme]. Core supplies no
+ * ambient component-style fallback (that mechanism -- [UiTheme.components]/
+ * `UiComponentStylesProvider`/`CoreUiComponentStyles` -- was removed: every Headless widget now
+ * takes a caller-supplied [io.github.ronjunevaldoz.awake.ui.style.Style] and every real
+ * design-system recipe already supplies a complete one, so the fallback was dead weight sitting
+ * between them).
  */
 /**
  * Core runtime adapter for public, runtime-free theme contracts.
@@ -44,7 +42,4 @@ fun UiThemeValues.asRuntimeTheme(): UiTheme = this as? UiTheme ?: object : UiThe
     override val colors = this@asRuntimeTheme.colors
     override val typography = this@asRuntimeTheme.typography
     override val shapes = this@asRuntimeTheme.shapes
-    override val components: UiComponentStyles =
-        (this@asRuntimeTheme as? UiComponentStylesProvider)?.componentStyles
-            ?: CoreUiComponentStyles(colors, typography)
 }

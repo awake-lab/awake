@@ -43,7 +43,13 @@ private inline fun UiPrimitiveScope.toggleInternal(
     crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): Boolean {
     val theme = theme
-    val defaults = theme.components.button then Style.Companion {
+    // Reads no ambient theme -- shadcnToggle's shadcnToggleStyle already supplies a complete
+    // Style (including textSize, added there so this removal wouldn't silently grow the label
+    // to the ambient body text size). This still hardcodes the checked/unchecked background and
+    // Outline's always-on border, same as before -- those are structural to what a toggle
+    // communicates, not something a caller-supplied style should be able to accidentally drop
+    // (same reasoning as Switch.kt's hardcoded track color).
+    val defaults = Style.Companion {
         // Mirrors buttonSlotInternal's Outline treatment: always draw a border, regardless
         // of checked state, so an idle Outline toggle still reads as a bordered control.
         if (variant == UiButtonVariant.Outline) {

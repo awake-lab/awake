@@ -29,5 +29,4 @@ object UiDefaultTheme : UiTheme {
         override val border = Color(0.4f, 0.4f, 0.45f, 0.9f)
     }
     override val typography: UiTypography = UiTypography.Default
-    override val components: UiComponentStyles = CoreUiComponentStyles(colors, typography)
 }

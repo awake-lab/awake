@@ -59,11 +59,12 @@ fun UiPrimitiveScope.switch(
     // claimed slot is narrower than track+gap+label, row()'s layout allocates too little space
     // and the next sibling gets placed on top of this label's tail. A caller-visible bug, not
     // theoretical -- two switches side by side with no explicit .width() on either overlapped.
-    // Measured with the SAME textStyle the label is later painted with (theme.components.toggle
-    // then style) -- measuring against the ambient inherited text style instead caused the
-    // opposite bug: toggle's textSize token differs from ambient body text, so the claimed slot
-    // undershot the real render width and text() silently ellipsized the label.
-    val labelTextStyle = resolveStyle(style = style, defaults = theme.components.toggle).textStyle
+    // Measured with the SAME textStyle the label is later painted with (style, no ambient theme
+    // default -- see the `defaults` doc below) -- measuring against the ambient inherited text
+    // style instead caused the opposite bug: a switch's textSize token differs from ambient body
+    // text, so the claimed slot undershot the real render width and text() silently ellipsized
+    // the label.
+    val labelTextStyle = resolveStyle(style = style, defaults = Style.Empty).textStyle
     val labelWidthPx = label?.let {
         font.measureTextWidth(
             it,
@@ -88,7 +89,10 @@ fun UiPrimitiveScope.switch(
     val surface = resolveInteractiveSurface(
         id = id,
         style = style,
-        defaults = theme.components.toggle,
+        // Reads no ambient theme -- shadcnSwitch's shadcnSwitchStyle already supplies a complete
+        // Style, including textSize (added there so this removal wouldn't silently grow the
+        // label to the ambient body text size and re-trigger the ellipsis bug noted above).
+        defaults = Style.Empty,
         modifier = modifier.withSizeFallback(
             Dimension.Fixed(fallbackWidthPx.px),
             Dimension.Fixed(TOGGLE_HEIGHT),

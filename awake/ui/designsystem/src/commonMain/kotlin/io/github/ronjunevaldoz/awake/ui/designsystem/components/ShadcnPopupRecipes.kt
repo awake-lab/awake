@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAlertDialogSurfaceStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogActionButtonStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogBodyStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogTitleStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDropdownItemStyle
@@ -36,7 +37,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.menuItem
 import io.github.ronjunevaldoz.awake.ui.headless.popup
 import io.github.ronjunevaldoz.awake.ui.headless.resolveGlyphPx
-import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.width
@@ -105,7 +105,7 @@ fun UiScope.shadcnDropdownMenu(
         ) {
             entries.forEach { entry ->
                 when (entry) {
-                    UiMenuSeparator -> separator()
+                    UiMenuSeparator -> shadcnSeparator()
                     is UiMenuItem -> {
                         val source = itemsByActionIndex[entry.index]
                         if (source != null && entry.enabled) {
@@ -216,10 +216,14 @@ fun UiScope.shadcnAlertDialog(
     width = width,
     properties = properties,
     actions = {
+        // Explicit style, not a bare button() -- this used to render correctly only because
+        // ui-headless's button() fell back to the ambient `theme.components.button` (a primary-
+        // colored default) when no style was given. Now that ui-headless reads no ambient theme,
+        // this reproduces that exact same look explicitly instead of leaving the buttons unstyled.
         dismissLabel?.let { label ->
-            button(id = "$id.dismiss", label = label)
+            button(id = "$id.dismiss", label = label, style = shadcnDialogActionButtonStyle(themeValues))
         }
-        button(id = "$id.confirm", label = confirmLabel)
+        button(id = "$id.confirm", label = confirmLabel, style = shadcnDialogActionButtonStyle(themeValues))
     },
     body = { text(label = message, style = shadcnDialogBodyStyle(themeValues), wrap = UiTextWrap.Word) },
 )

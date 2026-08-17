@@ -14,7 +14,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.weight
@@ -40,7 +39,7 @@ class ShadcnTableScope internal constructor(private val owner: ColumnScope) {
                     )
                 }
             }
-            separator(id = "row.$rowNumber.separator")
+            shadcnSeparator(id = "row.$rowNumber.separator")
         }
     }
 }
@@ -80,7 +79,7 @@ fun UiScope.shadcnTable(
             )
         }
     }
-    separator()
+    shadcnSeparator()
     ShadcnTableScope(this).content()
     caption?.let { text(it, style = shadcnTableCaptionStyle(themeValues)) }
 }

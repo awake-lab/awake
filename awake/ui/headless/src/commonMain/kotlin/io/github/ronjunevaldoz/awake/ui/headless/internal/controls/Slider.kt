@@ -82,7 +82,10 @@ fun UiPrimitiveScope.slider(
         interaction = interaction,
         modifier = modifier,
         style = style,
-        defaults = theme.components.slider,
+        // Reads no ambient theme -- shadcnSlider's shadcnSliderStyle already supplies a complete
+        // Style, including the track's border/hover/active feedback (added there so this
+        // removal wouldn't silently drop them).
+        defaults = Style.Empty,
         focused = false,
     )
     val trackSlot = UiBounds(

@@ -53,7 +53,9 @@ fun UiPrimitiveScope.textarea(
     minLines: Int = 3,
 ): String {
     // Determine height based on minLines
-    val resolvedDefaults = theme.components.textField
+    // Reads no ambient theme -- shadcnTextarea's shadcnTextareaStyle already supplies a
+    // complete Style (background/foreground/border/shape/contentPadding/textSize).
+    val resolvedDefaults = Style.Empty
     val resolved = resolveStyle(
         style = style,
         defaults = resolvedDefaults,

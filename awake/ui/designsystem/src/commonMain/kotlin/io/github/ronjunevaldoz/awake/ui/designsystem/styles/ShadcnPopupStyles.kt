@@ -51,3 +51,17 @@ internal fun shadcnAlertDialogSurfaceStyle(values: ShadcnThemeValues, metrics: S
 }
 internal fun shadcnDialogTitleStyle(values: ShadcnThemeValues): Style = Style { textSize(values.typography.title) }
 internal fun shadcnDialogBodyStyle(values: ShadcnThemeValues): Style = Style { textSize(values.typography.body) }
+
+/**
+ * [shadcnAlertDialog]'s default dismiss/confirm actions -- neither is wired through
+ * [io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton], so unlike every other
+ * button in this design system they need their own explicit style rather than
+ * `variant.visuals(...)`. Reproduces exactly what ui-headless's now-deleted ambient
+ * `theme.components.button` default used to resolve to here, not a new/upgraded look.
+ */
+internal fun shadcnDialogActionButtonStyle(values: ShadcnThemeValues): Style = Style {
+    background(values.colors.primary, "primary")
+    foreground(values.colors.primaryForeground, "primary-foreground")
+    shape(values.shapes.md)
+    textSize(values.typography.label)
+}

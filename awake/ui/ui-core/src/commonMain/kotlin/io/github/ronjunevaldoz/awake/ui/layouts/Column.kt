@@ -87,7 +87,7 @@ private fun UiPrimitiveScope.hasResolvedVisuals(
         focused = modifier.forceFocus ?: (id?.let { context.isFocused(it) } ?: false),
     )
     val visualDefaults = if (role == UiSemanticRole.Panel) {
-        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).components.surface
+        neutralSurfaceDefaults
     } else Style.Empty
     return (visualDefaults then effectiveStyle).resolve(
         styleState,
@@ -259,7 +259,7 @@ private fun UiPrimitiveScope.resolveMeasuredColumn(
         val resolved = resolveStyle(
             style = effectiveStyle,
             defaults = if (role == UiSemanticRole.Panel) {
-                context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).components.surface
+                neutralSurfaceDefaults
             } else Style.Empty,
             state = styleState,
         )

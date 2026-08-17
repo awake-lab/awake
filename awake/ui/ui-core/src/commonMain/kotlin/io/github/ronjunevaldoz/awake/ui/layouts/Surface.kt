@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
+import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childColumn
@@ -30,7 +31,26 @@ import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.toPx
+
+/**
+ * Replaces the deleted `UiTheme.components.surface` ambient fallback -- a Panel-role column's
+ * "does this resolve to a real surface" check ([hasResolvedVisuals] in Column.kt) and
+ * [surfaceCore]'s own unset-field fallback both used to read that live off [io.github.ronjunevaldoz.awake.ui.context.LocalTheme],
+ * so a themed app (e.g. shadcn) got its OWN card look here even though this call never asked for
+ * one. Reproducing that per-theme value would mean `ui-core` reaching into a design-system module
+ * it must not depend on, so this is fixed at [UiDefaultTheme]'s own neutral values instead --
+ * exactly what [io.github.ronjunevaldoz.awake.ui.theme.CoreUiComponentStyles.surface] (also now
+ * deleted) computed for the untouched, no-theme-pushed case. A themed app that wants its own
+ * panel default still can -- by supplying an explicit `style`/`defaults`, same as every other
+ * caller already does.
+ */
+internal val neutralSurfaceDefaults: Style = Style {
+    background(UiDefaultTheme.colors.background)
+    foreground(UiDefaultTheme.colors.foreground)
+    contentPadding(UiSpacing.sm)
+}
 
 fun UiPrimitiveScope.surface(
     id: String,
@@ -138,12 +158,15 @@ fun UiPrimitiveScope.interactiveSurface(
     cacheKey: Any? = null,
     semanticRole: UiSemanticRole = UiSemanticRole.Panel,
     resolvedSlot: UiBounds? = null,
-    // surface()'s own baseline is theme.components.surface (card-shaped: background, a 1dp
-    // border, comfortable content padding) -- correct for a panel, wrong for most interactive
-    // widgets built on top of this (a plain surface's border/padding silently bled through a
-    // button that never asked for either). Pass Style.Empty (or a widget-appropriate baseline)
-    // when the caller's own `modifier.styleable(...)` already supplies a complete style.
-    defaults: Style = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).components.surface,
+    // surface()'s own baseline is neutralSurfaceDefaults (background/foreground/comfortable
+    // content padding) -- correct for a panel, wrong for most interactive widgets built on top
+    // of this (a plain surface's padding silently bled through a button that never asked for
+    // it). Pass Style.Empty (or a widget-appropriate baseline) when the caller's own
+    // `modifier.styleable(...)` already supplies a complete style. In practice every real
+    // Headless caller of this function (see `headless.Surface.kt`'s `interactiveSurface`) already
+    // does, so this default is never actually reached -- kept only so a direct `ui-core` caller
+    // that skips supplying one still gets a sane baseline instead of an unstyled invisible panel.
+    defaults: Style = neutralSurfaceDefaults,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surfaceCore(
     id = id,
@@ -165,7 +188,11 @@ internal fun UiPrimitiveScope.surfaceCore(
     cacheKey: Any?,
     semanticRole: UiSemanticRole,
     resolvedSlot: UiBounds?,
-    defaults: Style = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).components.surface,
+    // Load-bearing default, unlike interactiveSurface's own (see its doc) -- Column.kt's
+    // resolveVisualSurface() (a plain `column()`/`surface()` call whose own style already
+    // resolves a background/border/shape) calls this directly without overriding it, so every
+    // such call in the app inherits neutralSurfaceDefaults for whatever it left unset.
+    defaults: Style = neutralSurfaceDefaults,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val width = modifier.widthDimension ?: Dimension.WrapContent

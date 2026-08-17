@@ -28,6 +28,11 @@ internal fun shadcnCheckboxStyle(values: ShadcnThemeValues, checked: Boolean): S
     foreground(if (checked) values.colors.primaryForeground else values.colors.foreground)
     border(1f.dp, if (checked) values.colors.primary else values.colors.input)
     shape(4f.dp)
+    // checkbox()/switch()'s label measures and paints with this resolved textStyle -- without an
+    // explicit size here it fell back to ui-headless's now-deleted `theme.components.checkbox`
+    // ambient default (label-sized), so leaving this unset would silently grow the label to
+    // whatever ambient body text size is active instead.
+    textSize(values.typography.label)
     disabled { foreground(values.colors.mutedForeground) }
 }
 
@@ -35,6 +40,9 @@ internal fun shadcnSwitchStyle(values: ShadcnThemeValues, checked: Boolean): Sty
     background(if (checked) values.colors.primary else values.colors.input)
     foreground(if (checked) values.colors.primaryForeground else values.colors.foreground)
     shape(values.shapes.full)
+    // See shadcnCheckboxStyle's textSize comment -- same reasoning, same now-deleted ambient
+    // default (`theme.components.toggle`) this used to fall back to.
+    textSize(values.typography.label)
     disabled { foreground(values.colors.mutedForeground) }
 }
 
@@ -43,6 +51,9 @@ internal fun shadcnToggleStyle(values: ShadcnThemeValues, checked: Boolean): Sty
     foreground(values.colors.foreground)
     shape(values.shapes.md)
     contentPadding(horizontal = 12f.dp, vertical = 10f.dp)
+    // See shadcnCheckboxStyle's textSize comment -- same reasoning, same now-deleted ambient
+    // default (`theme.components.button`, toggle() borrowed the button bundle) this fell back to.
+    textSize(values.typography.label)
     hovered {
         background(if (checked) values.colors.accent else values.colors.muted)
         foreground(if (checked) values.colors.foreground else values.colors.mutedForeground)

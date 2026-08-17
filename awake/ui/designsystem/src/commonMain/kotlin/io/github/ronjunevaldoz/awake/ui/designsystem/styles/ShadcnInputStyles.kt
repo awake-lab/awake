@@ -42,6 +42,13 @@ internal fun shadcnSliderStyle(values: ShadcnThemeValues): Style = Style {
     background(values.colors.muted)
     foreground(values.colors.primary)
     shape(values.shapes.full)
+    // slider()/rangeSlider() paint the track with this resolved border directly (the knob has
+    // its own hardcoded 1dp fallback, but the track does not) -- without these, the track's
+    // border and hover/active feedback silently disappeared when ui-headless's now-deleted
+    // `theme.components.slider` ambient default (which used to supply them) was removed.
+    border(1f.dp, values.colors.input)
+    hovered { background(values.colors.muted) }
+    active { borderColor(values.colors.accent) }
 }
 
 internal fun shadcnInputGroupStyle(values: ShadcnThemeValues): Style = Style {
