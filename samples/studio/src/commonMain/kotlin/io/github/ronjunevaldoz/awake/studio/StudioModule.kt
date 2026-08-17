@@ -25,6 +25,7 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
+import io.github.ronjunevaldoz.awake.scene.runtime.defaultInfrastructureSystems
 import io.github.ronjunevaldoz.awake.studio.app.platformBackendPreference
 import io.github.ronjunevaldoz.awake.studio.app.writeSceneDocument
 import io.github.ronjunevaldoz.awake.studio.examples.ExampleLoader
@@ -101,10 +102,17 @@ internal fun studioModule(
             frameSystem("example-driver") {
                 StudioExampleDriverSystem(this, store, loader, writeScene)
             }
-            // After the driver (so a freshly loaded scene is pickable this frame) and before the
-            // infrastructure systems, whose RenderSystem consumes the staged handle lines.
-            frameSystem("gizmo") { StudioGizmoSystem(this, store, gizmo, viewportRect, loader::boundsOf) }
             cameraSystem()
+            // Runs after the default infrastructure systems (Transform/Render/Debug), not as a
+            // frameSystem -- Renderer.drawDebugLines replaces the whole line buffer each call
+            // rather than appending, so whichever system calls it last wins. DebugVisualization
+            // System is one of the default infra systems; drawing the gizmo before it (the old
+            // frameSystem ordering) meant its handle lines got wiped out any frame a debug
+            // toggle (frustum/bounds/occlusion/light/shadow) was on.
+            infrastructureSystems {
+                defaultInfrastructureSystems() +
+                    StudioGizmoSystem(this, store, gizmo, viewportRect, loader::boundsOf)
+            }
             onReady {
                 GltfViewerAssets.preload()
                 SkinnedExampleDriver.preload()
