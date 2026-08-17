@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
 private val Scene3DPlaygroundShaders = gameShaderSet("triangle")
 private val Scene3DPlaygroundTexturedShaders = gameShaderSet("textured")
 private val Scene3DPlaygroundInstancedShaders = gameShaderSet("instanced")
+private val Scene3DPlaygroundSkinnedInstancedShaders = gameShaderSet("skinned_instanced")
 
 fun createScene3DPlaygroundWebGpuApplication(): WebGpuGameApplication = WebGpuGameApplication(
     shaderSet = Scene3DPlaygroundShaders,
@@ -20,4 +21,6 @@ fun createScene3DPlaygroundWebGpuApplication(): WebGpuGameApplication = WebGpuGa
     additionalPipelines = mapOf(VertexFormat.PositionNormalColorUv to Scene3DPlaygroundTexturedShaders),
     // Powers InstancedCubesDemo; without it that demo's single DrawCall is skipped entirely.
     instancedShaderSet = Scene3DPlaygroundInstancedShaders,
+    // Powers InstancedSkinnedDemo; without it that demo's single DrawCall is skipped entirely.
+    skinnedInstancedShaderSet = Scene3DPlaygroundSkinnedInstancedShaders,
 )

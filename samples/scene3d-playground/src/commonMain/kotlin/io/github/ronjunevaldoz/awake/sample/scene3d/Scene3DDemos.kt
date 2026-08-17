@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.sample.scene3d
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.GltfViewerDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.InstancedCubesDemo
+import io.github.ronjunevaldoz.awake.sample.scene3d.demos.InstancedSkinnedDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
@@ -40,6 +41,7 @@ internal val Scene3DDemos: List<Scene3DDemo> =
         GltfViewerDemo.entry,
         SkinnedMeshDemo.entry,
         InstancedCubesDemo.entry,
+        InstancedSkinnedDemo.entry,
     )
 
 /** Which demo is active. Plain mutable holder (not a StateFlow) -- this playground has no

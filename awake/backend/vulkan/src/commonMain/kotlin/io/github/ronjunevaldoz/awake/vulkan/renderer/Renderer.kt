@@ -31,6 +31,7 @@ import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.material.PbrImageViews
 import io.github.ronjunevaldoz.awake.vulkan.mesh.InstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
+import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearColorValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkClearDepthStencilValue
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
@@ -137,6 +138,14 @@ class Renderer(
      * game that never instances -- appended last so existing positional call sites are
      * unaffected. */
     internal val instancedPipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
+    /** Animated companions of [instancedPipelinesByFormat] -- built with
+     * `RenderPipeline(instanced = true, extraDescriptorSetLayouts = [the joint-palette set])`
+     * and `skinned_instanced.wgsl`. A [DrawCall] carrying BOTH [DrawCall.instanceModels] and
+     * [DrawCall.instanceJointPalettes] resolves here instead of [instancedPipelinesByFormat];
+     * a format with no entry is skipped, same as any other unresolved format. Empty (default)
+     * for every game that never animates instances -- appended last so existing positional
+     * call sites are unaffected. */
+    internal val skinnedInstancedPipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
 ) : RenderRenderer {
     override val clipSpace: ClipSpace = ClipSpace.Vulkan
 
@@ -337,6 +346,20 @@ class Renderer(
             )
         }
         return instanceBufferPool[index]
+    }
+
+    // Same pool shape as instanceBufferPool above, for the joint palettes an ANIMATED instanced
+    // draw call also needs (that call uses both pools: model matrices here, poses there).
+    private val skinnedInstanceBufferPool = mutableListOf<SkinnedInstanceBuffer>()
+
+    internal fun skinnedInstanceBufferForRun(index: Int): SkinnedInstanceBuffer {
+        while (skinnedInstanceBufferPool.size <= index) {
+            skinnedInstanceBufferPool += SkinnedInstanceBuffer(
+                graphicsDevice,
+                framesInFlight = maxFramesInFlight + 1,
+            )
+        }
+        return skinnedInstanceBufferPool[index]
     }
 
     // Rewritten every frame by drawDebugLines() (staged before draw(), same pattern as
@@ -599,6 +622,7 @@ class Renderer(
         uiRoundedQuadMeshPool.forEach { it.destroy() }
         uiTextureMeshPool.forEach { it.destroy() }
         instanceBufferPool.forEach { it.destroy() }
+        skinnedInstanceBufferPool.forEach { it.destroy() }
         lineMesh.destroy()
         destroyDepthResources()
     }

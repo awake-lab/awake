@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
+import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowRenderPipeline
@@ -67,6 +68,14 @@ open class VulkanGameApplication(
      * 4 instance-matrix attributes -- see `instanced.wgsl`. `null` (default) means no instanced
      * pipeline is built at all and an `InstancedMeshRenderer` entity simply doesn't draw. */
     private val instancedShaderSet: GameShaderSet? = null,
+    /** Opts into ANIMATED GPU instancing (see `Renderer.skinnedInstancedPipelinesByFormat`):
+     * builds ONE extra pipeline from this shader set with both the instance-rate model-matrix
+     * binding and a `@group(1)` joint-palette storage-buffer set -- see
+     * `skinned_instanced.wgsl`. Always built for [VertexFormat.PositionNormalColorSkin] rather
+     * than for the primary [vertexFormat]: skinning needs joint indices/weights per vertex, so
+     * that is the only format this shader can ever read. `null` (default) means no such
+     * pipeline exists and an `InstancedSkinnedMeshRenderer` entity simply doesn't draw. */
+    private val skinnedInstancedShaderSet: GameShaderSet? = null,
 ) : GameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -81,6 +90,7 @@ open class VulkanGameApplication(
         wireframeSupport: Boolean = false,
         shadowShaderSet: GameShaderSet? = null,
         instancedShaderSet: GameShaderSet? = null,
+        skinnedInstancedShaderSet: GameShaderSet? = null,
     ) : this(
         vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
@@ -92,6 +102,7 @@ open class VulkanGameApplication(
         wireframeSupport = wireframeSupport,
         shadowShaderSet = shadowShaderSet,
         instancedShaderSet = instancedShaderSet,
+        skinnedInstancedShaderSet = skinnedInstancedShaderSet,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -105,6 +116,12 @@ open class VulkanGameApplication(
     private var shadowMap: ShadowMap? = null
     private var shadowRenderPipeline: ShadowRenderPipeline? = null
     private var instancedRenderPipeline: RenderPipeline? = null
+    private var skinnedInstancedRenderPipeline: RenderPipeline? = null
+
+    /** The `@group(1)` joint-palette set layout `skinnedInstancedRenderPipeline`'s layout is
+     * built from -- see `SkinnedInstanceBuffer.createDescriptorSetLayout` for why each pooled
+     * buffer creates its own compatible copy instead of sharing this handle. */
+    private var skinnedInstanceDescriptorSetLayout: DescriptorSetLayoutHandle? = null
 
     /** Needed to build [renderPipeline]'s pipeline layout before any real [Material] exists. */
     private var pipelineDescriptorSetLayout: DescriptorSetLayoutHandle =
@@ -203,6 +220,24 @@ open class VulkanGameApplication(
                 instanced = true,
             )
         }
+        skinnedInstancedRenderPipeline = skinnedInstancedShaderSet?.let { shaderSet ->
+            val paletteLayout = SkinnedInstanceBuffer.createDescriptorSetLayout(graphicsDevice)
+            skinnedInstanceDescriptorSetLayout = paletteLayout
+            RenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                pipelineDescriptorSetLayout,
+                loadShaderPair(
+                    shaderSet.vulkan.vertexResourcePath,
+                    shaderSet.vulkan.fragmentResourcePath,
+                ),
+                VertexFormat.PositionNormalColorSkin,
+                shaderSet.vulkan.vertexEntryPoint,
+                shaderSet.vulkan.fragmentEntryPoint,
+                instanced = true,
+                extraDescriptorSetLayouts = listOf(paletteLayout),
+            )
+        }
         shadowRenderPipeline = shadowMap?.let { map ->
             val shaderSet = requireNotNull(shadowShaderSet)
             ShadowRenderPipeline(
@@ -261,6 +296,9 @@ open class VulkanGameApplication(
             shadowMap,
             shadowRenderPipeline,
             instancedRenderPipeline?.let { mapOf(vertexFormat to it) } ?: emptyMap(),
+            skinnedInstancedRenderPipeline
+                ?.let { mapOf(VertexFormat.PositionNormalColorSkin to it) }
+                ?: emptyMap(),
         )
         swapchainManager.createSyncObjects()
 
@@ -292,6 +330,10 @@ open class VulkanGameApplication(
         wireframeRenderPipeline?.destroy()
         wireframeAdditionalRenderPipelines.values.forEach { it.destroy() }
         instancedRenderPipeline?.destroy()
+        skinnedInstancedRenderPipeline?.destroy()
+        skinnedInstanceDescriptorSetLayout?.let {
+            VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, it.handle)
+        }
         shadowRenderPipeline?.destroy()
         shadowMap?.destroy()
         lineRenderPipeline.destroy()

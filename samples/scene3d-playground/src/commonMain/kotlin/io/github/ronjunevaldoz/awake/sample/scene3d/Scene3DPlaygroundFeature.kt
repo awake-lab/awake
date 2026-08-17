@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.GltfViewerDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.LIT_SHADOW_UNIFORM_FLOAT_COUNT
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.RotatingCubeDemo
+import io.github.ronjunevaldoz.awake.sample.scene3d.demos.InstancedSkinnedDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.SkinnedMeshDemo
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.rotatingCubeGeometry
 import io.github.ronjunevaldoz.awake.sample.scene3d.demos.rotatingGroundPlaneGeometry
@@ -96,6 +97,7 @@ internal fun scene3DPlaygroundModule(): GameModule {
                 RotatingCubeDemo.preload()
                 GltfViewerDemo.preload()
                 SkinnedMeshDemo.preload()
+                InstancedSkinnedDemo.preload()
             }
             overlay { width, height ->
                 renderer.clearColor = VIEWPORT_CLEAR_COLOR

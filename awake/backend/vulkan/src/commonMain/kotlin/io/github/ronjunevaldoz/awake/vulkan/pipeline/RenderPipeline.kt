@@ -99,7 +99,16 @@ class RenderPipeline(
      * continue past [vertexFormat]'s own highest one, so no format needs its locations
      * renumbered to make room. */
     instanced: Boolean = false,
+    /** Descriptor set layouts appended AFTER [descriptorSetLayout] (which stays set 0), one per
+     * additional set the shader declares. Today's only user is the skinned-instanced pipeline,
+     * whose `@group(1)` joint-palette storage buffer is owned per draw call rather than per
+     * material -- see `SkinnedInstanceBuffer`'s doc comment. Empty (default) leaves the pipeline
+     * layout exactly the single-set one this class always built. */
+    extraDescriptorSetLayouts: List<DescriptorSetLayoutHandle> = emptyList(),
 ) {
+    // Read by createGraphicsPipeline through the field rather than passed to it: that function
+    // is already at detekt's parameter ceiling.
+    private val extraDescriptorSetLayouts = extraDescriptorSetLayouts
     private val graphicsDevice = graphicsDevice
     private val swapchainManager = swapchainManager
     private val device get() = graphicsDevice.device
@@ -324,7 +333,11 @@ class RenderPipeline(
 
         pipelineLayout = Vulkan.vkCreatePipelineLayout(
             device,
-            VkPipelineLayoutCreateInfo(pSetLayouts = arrayOf(descriptorSetLayout.handle)),
+            VkPipelineLayoutCreateInfo(
+                pSetLayouts = (
+                    listOf(descriptorSetLayout.handle) + extraDescriptorSetLayouts.map { it.handle }
+                    ).toTypedArray(),
+            ),
         )
 
         val createInfos = arrayOf(
