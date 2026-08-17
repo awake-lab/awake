@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
@@ -50,13 +51,28 @@ internal fun SceneGameRuntime.drawStudioShell(
     viewportWidth: Float,
     viewportHeight: Float,
     viewportRect: StudioViewportRect = StudioViewportRect(),
+    cameraPreview: StudioCameraPreview = StudioCameraPreview(),
 ) {
     renderer.clearColor = ViewportClearColor
+    // Before the shell body, not inside the inspector's own draw: the offscreen pass has to run
+    // exactly once per frame (see StudioCameraPreview.render), and the texture it produces has to
+    // exist by the time the inspector stages a quad sampling it.
+    store.state.value.inspector.selectedEntityId
+        ?.let { world.cameraOf(it) }
+        ?.let { cameraPreview.render(renderer, it.camera, collectDrawCalls()) }
     headlessFrame(viewportWidth, viewportHeight) {
         shadcnTheme(theme = StudioTheme) {
-            drawStudioShellBody(store, world, renderer, backend, viewportRect)
+            drawStudioShellBody(store, world, renderer, backend, viewportRect, cameraPreview)
         }
     }
+}
+
+/** The [Camera] component on the entity with [entityId], or `null` when that entity has none.
+ * Looked up fresh rather than cached: examples recreate their camera entity on every load. */
+private fun World.cameraOf(entityId: Int): Camera? {
+    var found: Camera? = null
+    family<Camera>().forEach { entity, camera -> if (entity.id == entityId) found = camera }
+    return found
 }
 
 // Sum to exactly 1f -- shadcnResizablePanelGroup lays each panel out independently at
@@ -99,6 +115,7 @@ internal fun UiScope.drawStudioShellBody(
     renderer: Renderer,
     backend: String,
     viewportRect: StudioViewportRect = StudioViewportRect(),
+    cameraPreview: StudioCameraPreview = StudioCameraPreview(),
 ) {
     column(
         verticalArrangement = Arrangement.spacedBy(0f.dp),
@@ -127,6 +144,7 @@ internal fun UiScope.drawStudioShellBody(
             renderer = renderer,
             heightPx = workspaceHeightPx,
             viewportRect = viewportRect,
+            cameraPreview = cameraPreview,
         )
         shadcnSeparator(thickness = SEPARATOR_THICKNESS)
         drawStudioStatusBar(
@@ -173,6 +191,7 @@ private fun UiScope.drawStudioWorkspace(
     renderer: Renderer,
     heightPx: Float,
     viewportRect: StudioViewportRect,
+    cameraPreview: StudioCameraPreview,
 ) {
     shadcnResizablePanelGroup(
         id = "studio-workspace-group",
@@ -215,7 +234,11 @@ private fun UiScope.drawStudioWorkspace(
                     minSize = 0.14f,
                     maxSize = 0.32f,
                 ) {
-                    drawInspectorPanel(world, selectedEntityId = store.state.value.inspector.selectedEntityId)
+                    drawInspectorPanel(
+                        world = world,
+                        selectedEntityId = store.state.value.inspector.selectedEntityId,
+                        cameraPreview = cameraPreview,
+                    )
                 }
             }
         }
