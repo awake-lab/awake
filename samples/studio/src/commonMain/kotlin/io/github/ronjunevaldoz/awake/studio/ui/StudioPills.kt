@@ -91,6 +91,7 @@ internal data class ViewPillState(
     val shadows: Boolean,
     val debugFrustum: Boolean,
     val debugBounds: Boolean,
+    val debugOcclusion: Boolean,
 )
 
 internal data class ViewPillActions(
@@ -100,6 +101,7 @@ internal data class ViewPillActions(
     val onShadowsChange: (Boolean) -> Unit,
     val onDebugFrustumChange: (Boolean) -> Unit,
     val onDebugBoundsChange: (Boolean) -> Unit,
+    val onDebugOcclusionChange: (Boolean) -> Unit,
 )
 
 internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions) {
@@ -147,6 +149,16 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
             glyph = outline.cube,
             active = state.debugBounds,
             onClick = { actions.onDebugBoundsChange(!state.debugBounds) },
+        )
+        // No "hidden/occluded" glyph exists in Outline24 (see the awake-icon-authoring skill --
+        // icons come from real SVG sources, not a mismatched glyph reused for its shape), so
+        // this toggle is a short label, same as the mode/projection buttons above.
+        shadcnButton(
+            id = "studio-view-debug-occlusion",
+            label = "Occl",
+            variant = if (state.debugOcclusion) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+            size = ShadcnButtonSize.Xs,
+            onClick = { actions.onDebugOcclusionChange(!state.debugOcclusion) },
         )
     }
 }

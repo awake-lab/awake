@@ -259,6 +259,7 @@ private fun UiScope.drawStudioViewportPanel(
                     shadows = renderer.shadowsEnabled,
                     debugFrustum = debugSettings?.showFrustum ?: false,
                     debugBounds = debugSettings?.showBounds ?: false,
+                    debugOcclusion = debugSettings?.showOcclusion ?: false,
                 ),
                 actions = ViewPillActions(
                     onCycleMode = {
@@ -278,6 +279,7 @@ private fun UiScope.drawStudioViewportPanel(
                     onShadowsChange = { renderer.shadowsEnabled = it },
                     onDebugFrustumChange = { debugSettings?.showFrustum = it },
                     onDebugBoundsChange = { debugSettings?.showBounds = it },
+                    onDebugOcclusionChange = { debugSettings?.showOcclusion = it },
                 ),
             )
         }

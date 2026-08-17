@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.scene3d.demos
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
+import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.ecs.Entity
@@ -9,7 +11,12 @@ import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.core.components.SpinControl
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
+import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Occluder
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
+import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneDocument
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibleCard
@@ -39,6 +46,20 @@ internal object RotatingCubeDemo {
     private var lightEntity: Entity? = null
 
     private var groundEntity: Entity? = null
+
+    // Occlusion-culling proof-of-concept: a wall between the camera's default eye and the
+    // spinning cube's rest position, plus a small cube tucked directly behind it along that
+    // same sightline. Both are code-spawned (not authored in rotating-cube.scene.json) since
+    // Occluder/MeshBounds aren't authorable SceneComponents yet, same reason
+    // InstancedCubesExampleDriver/SkinnedExampleDriver attach their own components
+    // post-instantiate instead. showOcclusion toggle draws the wall's actual Occluder box as
+    // an orange wireframe (see DebugVisualizationSystem) -- the wall's own MeshRenderer is a
+    // plain unit cube, not scaled to look wall-shaped, so the wireframe (not the rendered
+    // mesh) is the visual proof of what's actually occluding.
+    private var wallEntity: Entity? = null
+    private var hiddenCubeEntity: Entity? = null
+    private var showOcclusion = false
+    private var debugSettingsEntity: Entity? = null
 
     private const val CUBE_REST_HEIGHT = 0.5f
 
@@ -92,6 +113,15 @@ internal object RotatingCubeDemo {
                     enabled = !timeController.autoPlay,
                 )
                 shadcnText(label = "Turn off Auto-spin to freeze the cube at an exact time (0-24h = one full turn).")
+                showOcclusion = shadcnSwitch(
+                    id = "cube-show-occlusion",
+                    checked = showOcclusion,
+                    label = "Show occlusion",
+                )
+                shadcnText(
+                    label = "A wall occludes a hidden cube from the camera's default angle -- " +
+                        "orange wireframe is the wall's actual occluder box.",
+                )
                 cubeMaterialParams?.let { pbr ->
                     pbr.metallic = shadcnFieldSliderWithValue(
                         id = "cube-metallic",
@@ -128,6 +158,22 @@ internal object RotatingCubeDemo {
             // The sliders drive the component the document produced, so edits and the file
             // stay the same object rather than two copies that can disagree.
             cubeMaterialParams = world.get<PbrMaterial>(cubeEntity!!)
+
+            val cubeMesh = requireMesh("cube")
+            val litShadowMaterial = requireMaterial("lit-shadow")
+            wallEntity = world.create().also { entity ->
+                world.add(entity, Transform(worldMatrix = Mat4().translate(0f, 2.75f, 5f)))
+                world.add(entity, MeshRenderer(cubeMesh, litShadowMaterial))
+                world.add(entity, Occluder(Aabb(Vec3(-10f, -10f, -0.5f), Vec3(10f, 10f, 0.5f))))
+            }
+            hiddenCubeEntity = world.create().also { entity ->
+                world.add(entity, Transform(worldMatrix = Mat4().translate(0f, 1.85f, 3f)))
+                world.add(entity, MeshRenderer(cubeMesh, litShadowMaterial))
+                world.add(entity, MeshBounds(Aabb(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.5f, 0.5f, 0.5f))))
+            }
+            debugSettingsEntity = world.create().also { entity ->
+                world.add(entity, WorldDebugSettings(showOcclusion = showOcclusion))
+            }
         },
         onDeactivate = { world ->
             cubeEntity?.let { world.destroy(it) }
@@ -140,10 +186,18 @@ internal object RotatingCubeDemo {
             panningEntity = null
             cameraEntity?.let { world.destroy(it) }
             cameraEntity = null
+            wallEntity?.let { world.destroy(it) }
+            wallEntity = null
+            hiddenCubeEntity?.let { world.destroy(it) }
+            hiddenCubeEntity = null
+            debugSettingsEntity?.let { world.destroy(it) }
+            debugSettingsEntity = null
         },
         onUpdate = { delta ->
             timeController.advance(delta)
             spinRadians = timeController.hours * HOURS_TO_DEGREES * DEGREES_TO_RADIANS
+
+            debugSettingsEntity?.let { world.get<WorldDebugSettings>(it)?.showOcclusion = showOcclusion }
 
             // Use the real line pipeline. A hand-built edge list would need its own copy of
             // the spin, which is how this demo previously ended up rotating the wrong way.

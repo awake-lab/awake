@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.boundsDebugLines
 import io.github.ronjunevaldoz.awake.render.renderer.frustumDebugLines
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Occluder
 import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
 
 /**
@@ -29,7 +30,7 @@ class DebugVisualizationSystem(
 
     override fun update(world: World, delta: Float) {
         val settings = world.family<WorldDebugSettings>().components().firstOrNull() ?: return
-        if (!settings.showFrustum && !settings.showBounds) return
+        if (!settings.showFrustum && !settings.showBounds && !settings.showOcclusion) return
         val camera = primaryCamera(world) ?: return
 
         lines.clear()
@@ -41,9 +42,18 @@ class DebugVisualizationSystem(
                 lines += boundsDebugLines(bounds.localBounds, transform.worldMatrix, BOUNDS_COLOR)
             }
         }
+        // Visualizes which boxes are occluders, not per-entity occluded/visible state --
+        // RenderSystem.lastOccludedCount already gives a numeric "did this cull anything"
+        // signal, so this stays geometry-only, same scope showBounds already has.
+        if (settings.showOcclusion) {
+            world.family<Transform, Occluder>().forEach { _, transform, occluder ->
+                lines += boundsDebugLines(occluder.localBounds, transform.worldMatrix, OCCLUDER_COLOR)
+            }
+        }
         renderer.drawDebugLines(lines)
     }
 }
 
 private val FRUSTUM_COLOR = floatArrayOf(1f, 1f, 0f, 1f)
 private val BOUNDS_COLOR = floatArrayOf(0f, 1f, 0f, 1f)
+private val OCCLUDER_COLOR = floatArrayOf(1f, 0.5f, 0f, 1f)

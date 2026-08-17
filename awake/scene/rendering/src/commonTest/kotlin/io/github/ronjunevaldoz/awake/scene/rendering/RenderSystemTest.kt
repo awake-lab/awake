@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.LodGroup
 import io.github.ronjunevaldoz.awake.scene.rendering.components.LodLevel
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Occluder
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -249,6 +250,81 @@ class RenderSystemTest {
 
         // LOD selects detail, it never culls -- the coarsest level still draws.
         assertSame(farMesh, renderer.lastDrawCalls.single().mesh)
+    }
+
+    @Test
+    fun entityBehindAnOccluderIsExcludedFromDrawCalls() {
+        val world = worldWithPrimaryCamera()
+        val occluderEntity = world.create()
+        world.add(occluderEntity, Transform())
+        // Huge and centered between the eye (z=5) and the candidate (z=0) -- its screen rect
+        // covers the whole viewport, guaranteeing containment regardless of exact projection.
+        world.add(occluderEntity, Occluder(Aabb(Vec3(-10f, -10f, 1.9f), Vec3(10f, 10f, 2.1f))))
+        val candidateEntity = world.create()
+        world.add(candidateEntity, Transform())
+        world.add(candidateEntity, MeshRenderer(fakeMesh(), fakeMaterial()))
+        world.add(candidateEntity, MeshBounds(Aabb(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.5f, 0.5f, 0.5f))))
+        val renderer = RecordingRenderer()
+        val system = RenderSystem(renderer)
+
+        system.update(world, 1f / 60f)
+
+        assertEquals(0, renderer.lastDrawCalls.size)
+        assertEquals(1, system.lastOccludedCount)
+    }
+
+    @Test
+    fun entityNotCoveredByAnyOccluderStillDraws() {
+        val world = worldWithPrimaryCamera()
+        val occluderEntity = world.create()
+        world.add(occluderEntity, Transform())
+        // Off to the side -- doesn't cover the candidate sitting at the origin.
+        world.add(occluderEntity, Occluder(Aabb(Vec3(19f, -1f, 1.9f), Vec3(21f, 1f, 2.1f))))
+        val candidateEntity = world.create()
+        world.add(candidateEntity, Transform())
+        world.add(candidateEntity, MeshRenderer(fakeMesh(), fakeMaterial()))
+        world.add(candidateEntity, MeshBounds(Aabb(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.5f, 0.5f, 0.5f))))
+        val renderer = RecordingRenderer()
+        val system = RenderSystem(renderer)
+
+        system.update(world, 1f / 60f)
+
+        assertEquals(1, renderer.lastDrawCalls.size)
+        assertEquals(0, system.lastOccludedCount)
+    }
+
+    @Test
+    fun entityWithNoMeshBoundsIsNeverOccluded() {
+        val world = worldWithPrimaryCamera()
+        val occluderEntity = world.create()
+        world.add(occluderEntity, Transform())
+        world.add(occluderEntity, Occluder(Aabb(Vec3(-10f, -10f, 1.9f), Vec3(10f, 10f, 2.1f))))
+        val candidateEntity = world.create()
+        world.add(candidateEntity, Transform())
+        world.add(candidateEntity, MeshRenderer(fakeMesh(), fakeMaterial()))
+        // No MeshBounds -- same "opt-in, no bounds = always drawn" guarantee frustum culling
+        // already has, occlusion must not add an implicit bounds requirement.
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        assertEquals(1, renderer.lastDrawCalls.size)
+    }
+
+    @Test
+    fun noOccludersMeansOcclusionNeverRuns() {
+        val world = worldWithPrimaryCamera()
+        val entity = world.create()
+        world.add(entity, Transform())
+        world.add(entity, MeshRenderer(fakeMesh(), fakeMaterial()))
+        world.add(entity, MeshBounds(Aabb(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.5f, 0.5f, 0.5f))))
+        val renderer = RecordingRenderer()
+        val system = RenderSystem(renderer)
+
+        system.update(world, 1f / 60f)
+
+        assertEquals(1, renderer.lastDrawCalls.size)
+        assertEquals(0, system.lastOccludedCount)
     }
 
     private fun fakeMesh(): Mesh = object : Mesh {
