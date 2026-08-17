@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.core.math
 
-import io.github.ronjunevaldoz.awake.core.memory.FloatBuf
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.tan
@@ -460,12 +459,6 @@ class Mat4 {
         append("| $m10 $m11 $m12 $m13 |\n")
         append("| $m20 $m21 $m22 $m23 |\n")
         append("| $m30 $m31 $m32 $m33 |")
-    }
-}
-
-operator fun Mat4.get(i: Int, buffer: FloatBuf) {
-    for (j in 0 until 16) {
-        buffer[16 * i + j] = data[j]
     }
 }
 
