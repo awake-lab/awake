@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
 private val StudioShaders = gameShaderSet("triangle")
 private val StudioTexturedShaders = gameShaderSet("textured")
 private val StudioInstancedShaders = gameShaderSet("instanced")
+private val StudioSkinnedInstancedShaders = gameShaderSet("skinned_instanced")
 
 fun createStudioWebGpuApplication(): WebGpuGameApplication = WebGpuGameApplication(
     shaderSet = StudioShaders,
@@ -21,4 +22,7 @@ fun createStudioWebGpuApplication(): WebGpuGameApplication = WebGpuGameApplicati
     // Powers the "Instanced cubes" example; without it that example's single DrawCall is
     // skipped entirely (no instanced pipeline registered for its format).
     instancedShaderSet = StudioInstancedShaders,
+    // Powers the "Instanced skinned" example; without it that example's single DrawCall is
+    // skipped entirely (no skinned-instanced pipeline registered for its format).
+    skinnedInstancedShaderSet = StudioSkinnedInstancedShaders,
 )
