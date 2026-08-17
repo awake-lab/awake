@@ -82,18 +82,6 @@ fun UiScope.shadcnButtonGroup(
     }
 }
 
-/** Convenience alias for vertical orientation button group. */
-fun UiScope.shadcnButtonGroupColumn(
-    id: String,
-    modifier: Modifier = Modifier,
-    content: UiScope.() -> Unit,
-): UiBounds = shadcnButtonGroup(
-    id = id,
-    modifier = modifier,
-    orientation = ShadcnButtonGroupOrientation.Vertical,
-    content = content,
-)
-
 private fun UiScope.groupSurface(
     id: String,
     modifier: Modifier,

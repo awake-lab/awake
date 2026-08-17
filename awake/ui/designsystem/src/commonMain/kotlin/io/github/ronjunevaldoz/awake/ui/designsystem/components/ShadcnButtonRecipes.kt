@@ -14,15 +14,31 @@ import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.heightOrDefault
 import io.github.ronjunevaldoz.awake.ui.headless.size
+import io.github.ronjunevaldoz.awake.ui.headless.styleable
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
+/**
+ * TODO this must be converted to
+ *     return shadcnButton(
+ *         id = id,
+ *         modifier = modifier,
+ *         variant = variant,
+ *         size = size,
+ *         enabled = enabled,
+ *         onClick = onClick
+ *     ) {
+ *         shadcnText(
+ *             label = label,
+ *             centered = centered
+ *         )
+ *     }
+ */
 fun UiScope.shadcnButton(
     id: String,
     label: String,
     modifier: Modifier = Modifier,
     variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
     size: ShadcnButtonSize = ShadcnButtonSize.Md,
-    style: Style = Style.Empty,
     centered: Boolean = true,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
@@ -45,7 +61,7 @@ fun UiScope.shadcnButton(
         id = id,
         label = label,
         modifier = groupModifier.heightOrDefault(size.heightDp),
-        style = variant.visuals(themeValues, size) then groupStyle then style,
+        style = variant.visuals(themeValues, size) then groupStyle,
         centered = centered,
         enabled = enabled,
     ).also { if (it) onClick?.invoke() }
@@ -56,7 +72,6 @@ fun UiScope.shadcnButton(
     modifier: Modifier = Modifier,
     variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
     size: ShadcnButtonSize = ShadcnButtonSize.Md,
-    style: Style = Style.Empty,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
     content: BoxScope.(slot: UiBounds) -> Unit,
@@ -73,8 +88,7 @@ fun UiScope.shadcnButton(
         )
     return button(
         id = id,
-        modifier = sizedModifier,
-        style = variant.visuals(themeValues, size) then groupStyle then style,
+        modifier = sizedModifier.styleable(variant.visuals(themeValues, size) then groupStyle),
         enabled = enabled,
         content = content,
     ).also { if (it) onClick?.invoke() }

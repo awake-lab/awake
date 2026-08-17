@@ -10,26 +10,17 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroupSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnIcon
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.size
-import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
-
-private val PillButtonSize = 30f.dp
-
-/** shadcn's Button sizes its icons `size-4` (16px) regardless of the glyph's own viewport --
- * Heroicons' 24/outline tier declares 24dp, so an unconstrained icon renders half again too big
- * inside a 30dp button. */
-private val PillIconSize = 16f.dp
 
 /** The group's own height: one button plus the hairline border it now owns. */
 private val PillHeight = 32f.dp
@@ -62,9 +53,10 @@ internal fun UiScope.drawToolPill(
                     id = "studio-tool-${tool.name.lowercase()}",
                     label = tool.name,
                     variant = if (tool == activeTool) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
-                    size = ShadcnButtonSize.Xs,
+                    size = ShadcnButtonSize.Sm,
                     onClick = { onSelectTool(tool) },
-                )
+
+                    )
             } else {
                 rowIconButton(
                     id = "studio-tool-${tool.name.lowercase()}",
@@ -107,7 +99,7 @@ internal data class ViewPillActions(
 )
 
 internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions) {
-    shadcnButtonGroup(id = "studio-view-pill", modifier = Modifier.height(PillHeight)) {
+    shadcnButtonGroup(id = "studio-view-pill") {
         // The mode's own name, not an icon: four modes cannot be told apart by one camera
         // glyph, and the current one has to be readable without opening anything.
         shadcnButton(
@@ -117,6 +109,7 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
             size = ShadcnButtonSize.Xs,
             onClick = actions.onCycleMode,
         )
+
         shadcnButtonGroupSeparator()
         shadcnButton(
             id = "studio-view-projection",
@@ -172,7 +165,7 @@ internal fun UiScope.drawStatusStrip(
     }
 }
 
-private fun RowScope.rowIconButton(
+private fun UiScope.rowIconButton(
     id: String,
     glyph: UiImageVector,
     active: Boolean,
@@ -180,9 +173,8 @@ private fun RowScope.rowIconButton(
 ) {
     shadcnButton(
         id = id,
-        modifier = Modifier.width(PillButtonSize),
         variant = if (active) ShadcnButtonVariant.Primary else ShadcnButtonVariant.Ghost,
-        size = ShadcnButtonSize.Sm,
+        size = ShadcnButtonSize.Icon,
         onClick = onClick,
-    ) { icon(glyph, modifier = Modifier.size(PillIconSize)) }
+    ) { shadcnIcon(glyph) }
 }

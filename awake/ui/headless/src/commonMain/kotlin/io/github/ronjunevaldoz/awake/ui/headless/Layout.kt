@@ -6,6 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.modifier.styleable
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement as PrimitiveArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.box as primitiveBox
 import io.github.ronjunevaldoz.awake.ui.layouts.column as primitiveColumn
@@ -39,7 +41,11 @@ internal fun Modifier.asPrimitiveModifier(): PrimitiveModifier =
 
 fun PrimitiveModifier.toHeadless(): Modifier = HeadlessModifier(this)
 
-fun Modifier.width(width: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveWidth(width))
+fun Modifier.styleable(style: Style): Modifier =
+    HeadlessModifier(asPrimitiveModifier().styleable(style))
+
+fun Modifier.width(width: Dp): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveWidth(width))
 
 /** Minimum/maximum width constraint that preserves an explicit caller width when present. */
 fun Modifier.widthIn(min: Dp? = null, max: Dp? = null): Modifier =
@@ -53,7 +59,8 @@ fun Modifier.wrapContentWidth(): Modifier =
 fun Modifier.wrapContentWidthOrDefault(): Modifier =
     if ((this as? HeadlessModifier)?.primitive?.widthDimension == null) wrapContentWidth() else this
 
-fun Modifier.height(height: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveHeight(height))
+fun Modifier.height(height: Dp): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveHeight(height))
 
 /** Applies a component's intrinsic height only when the caller did not provide one. */
 fun Modifier.heightOrDefault(height: Dp): Modifier =
@@ -70,7 +77,8 @@ fun Modifier.heightIn(min: Dp? = null, max: Dp? = null): Modifier =
 fun Modifier.clickable(enabled: Boolean = true, onClick: () -> Unit): Modifier =
     HeadlessModifier(asPrimitiveModifier().primitiveClickable(enabled = enabled, onClick = onClick))
 
-fun Modifier.fillMaxWidth(): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveFillMaxWidth())
+fun Modifier.fillMaxWidth(): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveFillMaxWidth())
 
 /**
  * Fills the parent width only when the caller did not size the node itself -- the width
@@ -81,11 +89,14 @@ fun Modifier.fillMaxWidth(): Modifier = HeadlessModifier(asPrimitiveModifier().p
 fun Modifier.fillMaxWidthOrDefault(): Modifier =
     if ((this as? HeadlessModifier)?.primitive?.widthDimension == null) fillMaxWidth() else this
 
-fun Modifier.fillMaxHeight(): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveFillMaxHeight())
+fun Modifier.fillMaxHeight(): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveFillMaxHeight())
 
-fun Modifier.fillMaxSize(): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveFillMaxSize())
+fun Modifier.fillMaxSize(): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveFillMaxSize())
 
-fun Modifier.padding(all: Dp): Modifier = HeadlessModifier(asPrimitiveModifier().primitivePadding(all))
+fun Modifier.padding(all: Dp): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitivePadding(all))
 
 fun Modifier.padding(horizontal: Dp, vertical: Dp): Modifier =
     HeadlessModifier(asPrimitiveModifier().primitivePadding(horizontal, vertical))
@@ -105,7 +116,10 @@ fun Modifier.margin(
     end: Dp = 0f.dp,
     bottom: Dp = 0f.dp,
 ): Modifier = HeadlessModifier(
-    asPrimitiveModifier().primitiveOffset(start, top), // Margin not yet in Core, approximating with offset
+    asPrimitiveModifier().primitiveOffset(
+        start,
+        top
+    ), // Margin not yet in Core, approximating with offset
 )
 
 fun Modifier.offset(x: Dp = Dp(0f), y: Dp = Dp(0f)): Modifier =
@@ -114,7 +128,8 @@ fun Modifier.offset(x: Dp = Dp(0f), y: Dp = Dp(0f)): Modifier =
 fun Modifier.weight(weight: Float, fill: Boolean = true): Modifier =
     HeadlessModifier(asPrimitiveModifier().primitiveWeight(weight, fill))
 
-fun Modifier.align(alignment: UiAlignment): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveAlign(alignment))
+fun Modifier.align(alignment: UiAlignment): Modifier =
+    HeadlessModifier(asPrimitiveModifier().primitiveAlign(alignment))
 
 /** Stable semantic/test identity for a Headless layout node. */
 fun Modifier.testTag(tag: String): Modifier =
@@ -129,6 +144,7 @@ fun RowScope.spacer(modifier: Modifier = Modifier): Unit =
 fun UiScope.spacer(modifier: Modifier = Modifier) {
     column(modifier = modifier) {}
 }
+
 
 /** Main-axis distribution for Headless [row] and [column] containers. */
 sealed interface Arrangement {
