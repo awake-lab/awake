@@ -167,6 +167,19 @@ Verify with a contract test per backend -- project a point on the near plane and
 far plane, and assert where each lands in NDC according to that API's published spec. Assert
 the contract, not the current implementation.
 
+## Rule 7 - angle units are stated by naming, not by a wrapper type
+
+`core.math.Angle` (a `value class` wrapper with `fromDegrees`/`fromRadians`/`angleDeg`/`angleRad`)
+exists in the codebase but is not used by any production call site -- `Camera.fovYRadians` and
+every other angle-carrying field states its unit in the identifier instead (`xRadians`/`xDeg`
+suffix), which every hot-path caller already follows for free, with no wrapper-type migration
+across `Vec3`/`Mat4`/`Camera`/`Transform`. Do not propose adopting `Angle` to "fix" this -- it was
+evaluated (2026-08-17) and rejected: the naming convention already solves the ambiguity this
+wrapper targets, and migrating existing raw-`Float` angle fields to it is a wide, low-value diff
+across every hot per-frame path this skill exists to protect. If a genuine degrees/radians mixup
+bug surfaces that naming alone didn't catch, that's new evidence -- re-open the question then,
+don't reason from first principles again.
+
 ## Checklist before committing math or per-frame code
 
 - [ ] Every `normalized()` / `cross()` / operator result is assigned or passed - none dropped.
