@@ -107,34 +107,18 @@ fun RowScope.surface(
     content = content,
 )
 
-fun UiPrimitiveScope.surface(
-    id: String,
-    verticalArrangement: Arrangement = defaultArrangement(),
-    modifier: UiModifier = Modifier,
-    clipContent: Boolean = false,
-    // Opt-in cross-frame cache for the WrapContent sizing trial below -- same contract as
-    // UiPrimitiveScope.column()'s cacheKey (see resolveMeasuredContentCached).
-    cacheKey: Any? = null,
-    content: ColumnScope.(slot: UiBounds) -> Unit,
-): UiBounds = surfaceCore(
-    id = id,
-    verticalArrangement = verticalArrangement,
-    modifier = modifier,
-    clipContent = clipContent,
-    cacheKey = cacheKey,
-    semanticRole = UiSemanticRole.Panel,
-    resolvedSlot = null,
-    content = content,
-)
-
 /**
  * [surface] plus the two extra knobs an interactive widget composed on top of it needs -- kept
  * as a SEPARATE function, not new parameters on [surface] itself, because [surface] already has
- * two other same-named overloads whose optional-param sets partially overlap a common call
- * shape (`Column.kt`'s `resolveVisualSurface`). Adding params there once already produced a
- * silent, wrong overload pick (not a compile error) that manifested as an infinite WrapContent
- * trial / OOM, caught only by the full test suite, not by inspection. A new name carries zero of
- * that risk.
+ * another same-named overload (the plain, non-interactive `smartColumn`-based one, above) whose
+ * optional-param set partially overlaps a common call shape (`Column.kt`'s
+ * `resolveVisualSurface` used to call `surface(id, verticalArrangement, modifier, clipContent,
+ * content)` -- no `style`, matching both). Adding params to a same-named low-level overload
+ * once already produced a silent, wrong overload pick (not a compile error) that manifested as
+ * an infinite WrapContent trial / OOM, caught only by the full test suite, not by inspection.
+ * `resolveVisualSurface` now calls [surfaceCore] directly instead, so that ambiguous pair no
+ * longer exists at all -- a new name carries zero of that risk for whatever needs this shape
+ * next.
  *
  * @param semanticRole a composed-clickable surface (`Modifier.clickable(...)`) is semantically a
  * Button, a Checkbox, etc, not a generic Panel.
@@ -173,7 +157,7 @@ fun UiPrimitiveScope.interactiveSurface(
     content = content,
 )
 
-private fun UiPrimitiveScope.surfaceCore(
+internal fun UiPrimitiveScope.surfaceCore(
     id: String,
     verticalArrangement: Arrangement,
     modifier: UiModifier,

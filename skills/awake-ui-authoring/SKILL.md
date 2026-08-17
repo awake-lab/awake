@@ -297,6 +297,27 @@ Three rules keep it honest:
 A component shadcn ships that Awake cannot build yet gets a `showcasePlaceholder(...)` entry
 naming the missing primitive, not silence.
 
+## The 4 Closed Foundational Primitives Rule
+
+In Awake, every single UI widget is an atomic composition of exactly 4 primitive categories:
+
+1. **Visual Container**: `surface` is the **ONLY** painted rectangular container (background, border, shape, elevation, hover/pressed state). `interactiveSurface` is deprecated/eliminated -- use `surface` with `Modifier.clickable`.
+2. **Spatial Layout Containers**: `row`, `column`, `box`, `spacer` are the **ONLY** spatial layout containers. They do not paint backgrounds; they only distribute bounds.
+3. **Content Leaf Nodes**: `text` and `icon` are the **ONLY** leaf content primitives.
+4. **Behavioral Modifiers**: `Modifier.clickable`, `padding`, `size`, `weight`, `align`, `alpha` are the **ONLY** way to attach behaviors.
+
+Leaf widgets (`button`, `checkbox`, `switch`, `tabs`, `collapsible`, etc.) must **never** call raw canvas graphics emitters (`emitFillAndBorder`, `emitCheckmark`, `emitRadioDot`) or manually calculate coordinate layouts; they must compose from these 4 primitives.
+
+### Jetpack Compose Naming & Callback Conventions
+
+Headless and Design System components strictly follow standard Compose callback and state parameter conventions:
+- `button`: `onClick: (() -> Unit)? = null`
+- `toggle`, `checkbox`, `switch`: `checked: Boolean`, `onCheckedChange: (Boolean) -> Unit = {}`
+- `radio`: `selected: Boolean`, `onClick: () -> Unit = {}`
+- `textField`, `textarea`: `value: String`, `onValueChange: (String) -> Unit = {}`
+- `slider`, `rangeSlider`: `value: Float`, `onValueChange: (Float) -> Unit = {}`
+- `tabs`: `selected: Boolean`, `onClick: () -> Unit = {}`
+
 ## Checklist
 
 - [ ] Would another skin need this code? If yes it is not design-system code.
@@ -314,3 +335,5 @@ naming the missing primitive, not silence.
 - [ ] No new `ui-headless` `label:`/content-shape overload -- a text label is
       `widget(id) { text("...") }` through the existing slot, not a second resolution path.
       `shadcn*` may still expose `label:` as sugar, but its body must call that same slot.
+- [ ] Built exclusively from the 4 Foundational Primitives (`surface`, `row`/`column`/`box`/`spacer`, `text`/`icon`, `Modifier.*`) -- no raw canvas emitters or `interactiveSurface`.
+

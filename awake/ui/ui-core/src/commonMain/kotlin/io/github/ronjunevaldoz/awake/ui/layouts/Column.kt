@@ -121,11 +121,17 @@ private fun UiPrimitiveScope.resolveVisualSurface(
 ): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
     val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
-    return surface(
+    // Calls surfaceCore directly, not surface() -- see interactiveSurface's doc in Surface.kt.
+    // This call's own shape (no `style` param, style folded into modifier.styleable instead) is
+    // exactly what used to collide with surface()'s other same-named overload.
+    return surfaceCore(
         id = id,
         verticalArrangement = verticalArrangement,
         modifier = modifier.styleable(effectiveStyle).width(requestedWidth).height(requestedHeight),
         clipContent = clipContent,
+        cacheKey = null,
+        semanticRole = UiSemanticRole.Panel,
+        resolvedSlot = null,
         content = content,
     )
 }

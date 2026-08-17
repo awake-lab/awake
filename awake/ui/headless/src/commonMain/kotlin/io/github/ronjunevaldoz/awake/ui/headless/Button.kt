@@ -7,7 +7,6 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import io.github.ronjunevaldoz.awake.ui.headless.button as primitiveButton
 
@@ -75,6 +74,13 @@ fun UiScope.button(
  * `awake-ui-authoring` skill's "4 independent pieces" note). This is deliberately the same
  * `Surface { Row { content } }` shape Jetpack Compose's own `Button` is built from -- centered
  * content is `Arrangement.Center` + `Vertical.Center` on that row, not a `Box`.
+ *
+ * Reads no ambient theme -- `ui-headless` must not (see the `awake-ui-authoring` skill's "headless
+ * consumes Style, not a theme recipe" rule). [style] is the caller's complete, self-sufficient
+ * answer; `shape(0)` is the only default, a genuinely neutral value, not a theme lookup. Every
+ * real caller (`shadcnButton` and friends) already supplies a complete themed [Style], so this
+ * was previously reading `theme.components.button` and then immediately being overridden by it
+ * anyway -- dead weight, not a real fallback.
  */
 fun UiScope.button(
     id: String,
@@ -85,7 +91,6 @@ fun UiScope.button(
     content: RowScope.(slot: UiBounds) -> Unit,
 ): Boolean {
     var clicked = false
-    val defaults = Style { shape(0f.dp) }
     primitive.withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
         interactiveSurface(
             id = id,
@@ -93,7 +98,7 @@ fun UiScope.button(
                 .fillMaxWidthOrDefault()
                 .heightOrDefault(40f.dp)
                 .clickable(enabled) { clicked = true },
-            style = (primitive.theme.components.button then defaults) then style,
+            style = Style { shape(0f.dp) } then style,
             semanticRole = semanticRole,
         ) { slot ->
             row(
