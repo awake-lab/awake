@@ -1,10 +1,12 @@
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -15,6 +17,19 @@ abstract class SyncWgslShaderPipelineTask : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sourceDirectory: DirectoryProperty
+
+    /** Extra read-only roots layered on top of [sourceDirectory] -- empty by default, so every
+     * module that never sets this keeps today's exact single-directory behavior. Each entry's
+     * own `.wgsl` files are walked and synced alongside [sourceDirectory]'s, keeping ITS OWN
+     * root for `relativeTo(...)` (so a shared module's subdirectory structure, if any, is
+     * preserved the same way [sourceDirectory]'s own is) -- see the plugin doc comment for why
+     * this exists (deduplicating WGSL shared verbatim across sample modules). A filename that
+     * exists under more than one root throws rather than silently picking one, so a stray
+     * leftover copy in a consumer's own directory is caught immediately instead of shadowing
+     * the shared canonical file. */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val additionalSourceDirectories: ConfigurableFileCollection
 
     @get:OutputDirectory
     abstract val webGpuOutputDirectory: DirectoryProperty
@@ -34,17 +49,7 @@ abstract class SyncWgslShaderPipelineTask : DefaultTask() {
     @TaskAction
     fun sync() {
         val sourceRoot = sourceDirectory.asFile.get()
-        if (!sourceRoot.exists()) {
-            logger.lifecycle("No WGSL shader sources found at ${sourceRoot.invariantSeparatorsPath}; skipping.")
-            return
-        }
-
-        val wgslFiles = sourceRoot
-            .walkTopDown()
-            .filter { it.isFile && it.extension == "wgsl" }
-            .sortedBy { it.invariantSeparatorsPath }
-            .toList()
-
+        val wgslFiles = collectWgslFiles(sourceRoot, additionalSourceDirectories.files)
         if (wgslFiles.isEmpty()) {
             logger.lifecycle("No WGSL shader sources found at ${sourceRoot.invariantSeparatorsPath}; skipping.")
             return
@@ -55,8 +60,8 @@ abstract class SyncWgslShaderPipelineTask : DefaultTask() {
         val expectedWebGpu = mutableSetOf<String>()
         val expectedVulkan = mutableSetOf<String>()
 
-        wgslFiles.forEach { sourceFile ->
-            val relativePath = sourceFile.relativeTo(sourceRoot).invariantSeparatorsPath
+        wgslFiles.forEach { (sourceFile, root) ->
+            val relativePath = sourceFile.relativeTo(root).invariantSeparatorsPath
             val outputName = sourceFile.nameWithoutExtension
 
             val webGpuTarget = File(webGpuRoot, relativePath)
@@ -64,7 +69,7 @@ abstract class SyncWgslShaderPipelineTask : DefaultTask() {
             sourceFile.copyTo(webGpuTarget, overwrite = true)
             expectedWebGpu += webGpuTarget.canonicalPath
 
-            val relativeParent = sourceFile.relativeTo(sourceRoot).parentFile?.invariantSeparatorsPath
+            val relativeParent = sourceFile.relativeTo(root).parentFile?.invariantSeparatorsPath
             val vulkanParent = relativeParent?.let { File(vulkanRoot, it) } ?: vulkanRoot
             vulkanParent.mkdirs()
             val vertexOutput = File(vulkanParent, "$outputName.vert.spv")
