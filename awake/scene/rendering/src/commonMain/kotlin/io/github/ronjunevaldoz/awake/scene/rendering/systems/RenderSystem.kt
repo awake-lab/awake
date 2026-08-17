@@ -3,8 +3,12 @@
 package io.github.ronjunevaldoz.awake.scene.rendering.systems
 
 import io.github.ronjunevaldoz.awake.core.math.Frustum
+import io.github.ronjunevaldoz.awake.core.math.Mat4
+import io.github.ronjunevaldoz.awake.core.math.ScreenBounds
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.intersects
+import io.github.ronjunevaldoz.awake.core.math.isOccludedBy
+import io.github.ronjunevaldoz.awake.core.math.screenBounds
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
@@ -19,6 +23,7 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
 import io.github.ronjunevaldoz.awake.scene.rendering.components.LodGroup
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Occluder
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.rendering.components.SkinnedPose
 
@@ -26,10 +31,36 @@ class RenderSystem(
     private val renderer: Renderer,
 ) : System {
     private val drawCalls = ArrayList<DrawCall>()
+    private val occluderBounds = ArrayList<ScreenBounds>()
+
+    /** How many entities occlusion culling actually excluded last frame -- zero when no
+     * [Occluder] entities exist, or when none of them fully cover anything. Exists purely so a
+     * demo/debug panel or a test can observe "did this actually cull anything" without pixel-
+     * level verification, same reasoning [io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings]'s
+     * toggles get a live readout for. */
+    var lastOccludedCount: Int = 0
+        private set
 
     override fun update(world: World, delta: Float) {
         val camera = primaryCamera(world) ?: return
         drawCalls.clear()
+        occluderBounds.clear()
+        lastOccludedCount = 0
+        // Gated on occluderFamily.size, not built unconditionally: a scene with zero Occluder
+        // entities (the common case) pays one extra family-cache lookup, not a view-projection
+        // matrix build, per frame. See Occluder's own doc comment for why occlusion is an
+        // independent opt-in from MeshBounds.
+        val occluderFamily = world.family<Transform, Occluder>()
+        val occlusionViewProjection: Mat4? = if (occluderFamily.size > 0) {
+            val viewProjection = camera.camera.viewProjectionMatrix(CONSERVATIVE_ASPECT, renderer.clipSpace)
+            occluderFamily.forEach { _, transform, occluder ->
+                val worldBounds = occluder.localBounds.transformed(transform.worldMatrix)
+                camera.camera.screenBounds(worldBounds, viewProjection)?.let { occluderBounds.add(it) }
+            }
+            viewProjection
+        } else {
+            null
+        }
         world.family<Transform, MeshRenderer>().forEach { entity, transform, meshRenderer ->
             // An entity's mesh format decides which pipeline draws it (see Renderer
             // .pipelinesByFormat) -- extraUniformFloats only matters for a format whose
@@ -56,6 +87,10 @@ class RenderSystem(
             if (bounds != null) {
                 val worldBounds = bounds.localBounds.transformed(transform.worldMatrix)
                 if (!Frustum.intersects(camera.camera, CONSERVATIVE_ASPECT, worldBounds)) return@forEach
+                if (isOccluded(camera.camera, worldBounds, occlusionViewProjection)) {
+                    lastOccludedCount++
+                    return@forEach
+                }
             }
             drawCalls.add(
                 DrawCall(
@@ -107,10 +142,28 @@ class RenderSystem(
             if (bounds != null) {
                 val worldBounds = bounds.localBounds.transformed(transform.worldMatrix)
                 if (!Frustum.intersects(camera.camera, CONSERVATIVE_ASPECT, worldBounds)) return@forEach
+                if (isOccluded(camera.camera, worldBounds, occlusionViewProjection)) {
+                    lastOccludedCount++
+                    return@forEach
+                }
             }
             drawCalls.add(DrawCall(mesh = level.mesh, material = level.material, model = transform.worldMatrix))
         }
         renderer.draw(camera.camera, drawCalls, sceneLight(world))
+    }
+
+    /** `false` when [occlusionViewProjection] is `null` (no [Occluder] entities exist this
+     * frame) or [worldBounds] straddles the near plane (see [io.github.ronjunevaldoz.awake.core.math.screenBounds]'s
+     * own doc comment) -- both are "can't tell, so don't cull" cases, same conservative bias
+     * [Frustum.intersects] already keeps. */
+    private fun isOccluded(
+        camera: io.github.ronjunevaldoz.awake.core.math.Camera,
+        worldBounds: io.github.ronjunevaldoz.awake.core.math.Aabb,
+        occlusionViewProjection: Mat4?,
+    ): Boolean {
+        if (occlusionViewProjection == null || occluderBounds.isEmpty()) return false
+        val candidateBounds = camera.screenBounds(worldBounds, occlusionViewProjection) ?: return false
+        return occluderBounds.any { isOccludedBy(candidateBounds, it) }
     }
 
     /** The first [Light] entity in the world, converted to render-api's backend-neutral
