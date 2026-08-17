@@ -47,7 +47,7 @@ internal fun UiScope.drawStudioBottomDock(store: StudioStore) {
     shadcnSurface(
         id = "studio-bottom-dock-surface",
         variant = ShadcnSurfaceVariant.Muted,
-        modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(BOTTOM_DOCK_INSET),
+        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
     ) {
         val requestedTab = shadcnTabs(
             id = "studio-bottom-dock",
