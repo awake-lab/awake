@@ -22,9 +22,11 @@ These are placement rules, not style preferences.
    named authored theme intended for direct app/sample use.
 4. `samples:*` and future game modules own runtime-bound adapters, authored overlays,
    debug HUD wiring, and sample-specific compositions.
-5. `UiBounds` is an immutable resolved-bounds contract in `ui-api`. It is shared by Core,
-   Headless, Design System, renderers, and tests; it is not a Headless widget or a Core-only
-   runtime capability.
+5. `UiBounds` is an immutable resolved-bounds contract in `awake:ui:graphics` — the de-facto
+   contract module (a dedicated `ui-api` Gradle module does not exist; references to "ui-api"
+   in this doc mean the contract *role*, physically hosted by `graphics` today). It is shared
+   by Core, Headless, Design System, renderers, and tests; it is not a Headless widget or a
+   Core-only runtime capability.
 6. **No authored param may duplicate what `UiModifier` or `Style` already expresses.** Not
    limited to params literally named `width`/`height`/`gap`/`insets` -- any `Dp`/`Float` param
    that's really a size, position, or spacing value under another name (`diameter`, `radius`
@@ -44,8 +46,8 @@ These are placement rules, not style preferences.
    Other fields (`forceHover`/`forceActive`/`forceFocus`/`testTag`/`styleable`/`graphicsLayer`)
    share the same collision shape with their builder functions and carry the same latent risk
    -- if you hit the ambiguity error on one of those, the fix is the same rename pattern, not
-   reaching for `.copy()`. Existing `.copy(widthDimension = ...)` call sites from before this
-   fix were not swept to chained calls in this pass (mechanical follow-up, not yet scoped).
+   reaching for `.copy()`. (The pre-fix `.copy(widthDimension = ...)` call sites were fully
+   swept by 2026-08-17 — none remain outside the builder functions themselves.)
 
 ## headless/Designsystem Content Pairing
 
@@ -230,8 +232,10 @@ this rule, only new/moved files must comply.
 **`ui-core`**
 - No new files directly under `ui/` root. Every new type goes in a themed subfolder
   (`modifier/`, `style/`, `layout/`, `scope/`, `theme/`, `context/`, `font/`, `graphics/`, or a
-  new one if none fit). The 16 existing root files (`UiAnchor.kt`, `Canvas.kt`, `Dp.kt`, etc.)
-  are legacy debt, not a model to copy -- migrating them is a separate, not-yet-scoped cleanup.
+  new one if none fit). The remaining root files (`Canvas.kt`, `ScrollContainers.kt`, etc. —
+  14 as of 2026-08-17; `UiAnchor.kt` and `Dp.kt` have since moved out) are legacy debt, not a
+  model to copy -- the migration plan is audit row E2/pkg-3 in
+  `docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md`.
 - Public runtime types in `ui-core` are `Ui`-prefixed (`UiModifier`, `UiAnchor`, ...) -- the
   prefix signals an engine runtime type. Cross-layer immutable contracts such as `UiBounds`
   belong in `ui-api`, not Core.
@@ -310,37 +314,44 @@ natural stopping point.
 
 ## Mechanical Enforcement
 
-This policy is build-enforced in Awake's reusable UI modules.
+This policy is build-enforced in Awake's reusable UI modules (paths corrected 2026-08-17 —
+the checks had been silently disabled for headless/designsystem by a module-rename path
+mismatch; see `docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md` row A1):
 
-- `:awake:ui:ui-core:check`
-- `:awake:ui:ui-headless:check`
-- `:awake:ui:designsystem:auditUiDesignsystemHeadlessBoundary`
-- `:awake:ui:designsystem:auditUiDesignsystemComponentNaming`
-- `:awake:ui:designsystem:auditUiDesignsystemRecipeDuplicates`
-- `:awake:ui:designsystem:auditUiDesignsystemComponentCoverage`
-- `:awake:ui:designsystem-compat:auditUiDesignsystemCompatConsumers`
+- `:awake:ui:ui-core:verifyUiOwnership` (in `check`)
+- `:awake:ui:headless:verifyUiOwnership` (in `check`)
+- `:awake:ui:designsystem:verifyUiOwnership` (in `check`)
+- `:awake:ui:designsystem:auditUiDesignsystemComponentNaming` (in `check`)
+- `:awake:ui:designsystem:auditUiDesignsystemRecipeDuplicates` (in `check`)
+- `:awake:ui:designsystem:auditUiDesignsystemComponentCoverage` (in `check`)
 
-run a `verifyUiOwnership` task that rejects:
+`verifyUiOwnership` rejects:
 
 - container-bound anchored helper names such as `anchoredColumn`
 - `propertyRow` and `propertyCheckbox` in `ui-core`/`ui-headless`
 - `ShadcnDefaultTheme`, `DarkUiTheme`, and `LightUiTheme` in `ui-core`
 - direct sample/runtime-bound references such as `SceneGameRuntime` or `HelloCube*`
-- Core imports and a leaked `ui-core` compile classpath in the public design-system artifact
+- in designsystem: the `primitive.context` escape hatch, `ui.UiScope` imports, and imports
+  of Core runtime packages (`layouts`, `popup`, `scope`, `animate`, `child`, `modifier`,
+  `unstyled`, and `context` except the licensed `UiLocal`/`uiLocalOf` contract)
+- a module applying the convention without being classified in it (build error, so a module
+  rename can never silently disarm the check again)
+
+Known pre-existing escapes are carried as an explicit per-file exemption ledger inside the
+convention (`exemptUiSourcePatternFiles` — currently `ShadcnButtonGroupRecipes.kt` and
+`ShadcnThemeLocals.kt`, tracked as audit rows B9/D2). The ledger may only shrink.
+
+The designsystem audits additionally reject:
+
 - component files that do not use the `Shadcn*` family prefix or matching subpackage
-- duplicate `shadcn*` recipes with the same receiver across component packages (receiver-specific
-  overloads such as `ColumnScope` and `UiScope` remain valid)
+- the same `shadcn*` recipe (same receiver) declared in more than one file — keyed by file,
+  not package, since components deliberately share one flat package; same-file overloads
+  (string convenience beside the slot form) remain valid
 - public component files that do not delegate through `ui-headless` (contract-only files are
   explicitly exempt)
 
-Legacy Core-receiver implementations are kept physically under the temporary
-`:awake:ui:designsystem-compat` module while consumers migrate. They are not part of the
-public design-system source tree or compile classpath.
-
-The compatibility module also audits its dependency graph. At present only `samples:ui-showcase`
-test source sets may depend on it; adding another consumer fails the
-verification task until that consumer is explicitly classified and migrated. No production source
-set may depend on it.
+The temporary `:awake:ui:designsystem-compat` module and its consumer audit were deleted
+once migration completed (2026-08-13).
 
 The check is intentionally lightweight and curated. It is not a theorem prover. When the
 policy grows, expand the canonical doc first, then update the check.
