@@ -41,7 +41,12 @@ fun UiPrimitiveScope.skeleton(
 ) {
     val slot =
         claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.Fixed(16f.dp)))
-    val resolved = resolveStyle(style = style, defaults = theme.components.slider)
+    // Reads no ambient theme -- shadcnSkeleton's shadcnSkeletonStyle already supplies both
+    // fields skeleton() reads (background, shape); it never reads borderWidth/borderColor
+    // (always hardcoded to none below), so the borrowed `theme.components.slider` bundle this
+    // used to fall back to was never actually needed for its border, only its background/shape,
+    // both of which shadcnSkeletonStyle already provides directly.
+    val resolved = resolveStyle(style = style, defaults = Style.Empty)
     val state = widgetState(id)
     val elapsed = state.get("skeletonElapsed", 0f) + frameDeltaSeconds()
     state.set("skeletonElapsed", elapsed)

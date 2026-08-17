@@ -15,8 +15,11 @@ import kotlin.test.assertEquals
 class SeparatorWidgetsTest {
     @Test
     fun horizontalSeparatorSpansFullWidth() {
+        // separator() itself reads no ambient theme (see the `awake-ui-authoring` skill) -- an
+        // explicit style here stands in for what a real caller (e.g. shadcnSeparator) always
+        // supplies.
         val frame = renderUiComponent(width = 200f, height = 100f) {
-            separator(thickness = 1f.dp)
+            separator(thickness = 1f.dp, style = Style { background(Color(0.4f, 0.4f, 0.45f, 0.9f)) })
         }
 
         val quad = frame.primitives.filterIsInstance<UiDrawPrimitive.Quad>().first()

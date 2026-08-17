@@ -47,7 +47,13 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
     crossinline drawContent: AbsoluteScope.(contentSlot: UiBounds, resolved: ResolvedStyle) -> Unit,
 ): UiButtonResult {
     val theme = theme
-    val defaults = theme.components.button then Style.Companion {
+    // Reads no ambient theme (see Button.kt's doc for the same rule on the slot-form button) --
+    // every real caller (shadcnButton and friends) already supplies a complete themed Style, so
+    // this was previously reading theme.components.button and then immediately being overridden
+    // by it anyway. The one real gap found auditing every caller -- shadcnAlertDialog's default
+    // actions calling the bare label/callback button() with no style at all -- was fixed at that
+    // caller instead (ShadcnPopupRecipes.kt), not papered over here.
+    val defaults = Style.Companion {
         shape(radius)
         if (variant == UiButtonVariant.Outline) {
             borderWidth(1f.dp)
@@ -153,8 +159,9 @@ fun UiPrimitiveScope.buttonSlot(
     radius = radius,
     semanticLabel = label,
     intrinsicWidth = label?.let { labelText ->
-        val theme = theme
-        val defaults = theme.components.button then Style.Companion {
+        // Same no-ambient-theme defaults as buttonSlotInternal's own -- kept in sync by hand
+        // since this is a separate width-measurement pass, not a call into that function.
+        val defaults = Style.Companion {
             shape(radius)
             if (variant == UiButtonVariant.Outline) {
                 borderWidth(1f.dp)

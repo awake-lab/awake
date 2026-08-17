@@ -23,7 +23,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidthOrDefault
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.separator
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.weight
@@ -107,7 +106,7 @@ fun UiScope.shadcnFieldSeparator(
     modifier: Modifier = Modifier,
     label: String? = null,
 ): UiBounds = if (label == null) {
-    separator(modifier = modifier)
+    shadcnSeparator(modifier = modifier)
 } else {
     row(
         modifier = modifier.fillMaxWidth(),

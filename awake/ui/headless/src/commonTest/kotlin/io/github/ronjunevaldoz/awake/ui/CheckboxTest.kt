@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.testing.ui.rasterize
 import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
@@ -42,9 +43,14 @@ class CheckboxTest {
 
     @Test
     fun checkboxEmitsASeparateBoxAndLabelNotOneBigFill() {
+        // checkbox() itself reads no ambient theme (see the `awake-ui-authoring` skill) -- an
+        // explicit border here stands in for what a real caller's Style always supplies (e.g.
+        // shadcnCheckboxStyle), the same way this test already supplies its own `label`/size.
+        val boxStyle = Style { border(1f.dp, Color(0.4f, 0.4f, 0.45f, 0.9f)) }
         val frame = renderUiComponent(width = 200f, height = 100f, font = BitmapFont()) {
             primitive.context.createAbsolute(x = 20f, y = 20f).checkbox(
                 "cb", checked = false, label = "ENABLED", modifier = Modifier.width(160f.px).height(40f.px),
+                style = boxStyle,
             )
         }
         val primitives = frame.primitives

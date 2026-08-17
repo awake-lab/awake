@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.tw
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnInputOtpSlotStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnLegacyAmbientSurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
@@ -32,7 +33,13 @@ fun UiScope.shadcnInputOTP(
     onValueChange: (String) -> Unit = {},
 ): String {
     var resolved = value
-    surface(id = "$id.slots", modifier = modifier) {
+    // Explicit style, not a bare surface() -- this wrapper used to inherit a full card look
+    // (background/border/padding) from ui-core's now-deleted ambient `theme.components.surface`
+    // fallback purely as a side effect of `surface()`'s Panel-role auto-detection, not because
+    // this wrapper asked for one. Reproduces that exact same look explicitly rather than
+    // silently changing it -- see the parent task write-up for the "is this actually correct"
+    // follow-up (real shadcn's InputOTP has no such wrapper card at all).
+    surface(id = "$id.slots", modifier = modifier, style = shadcnLegacyAmbientSurfaceStyle(themeValues)) {
         resolved = otpInput(
             id = id,
             value = value,

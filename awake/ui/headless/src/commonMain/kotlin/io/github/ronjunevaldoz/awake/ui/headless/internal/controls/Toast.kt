@@ -55,7 +55,10 @@ fun UiPrimitiveScope.toast(
             Dimension.Fixed(TOAST_HEIGHT_DP.dp),
         ),
         style = style,
-        defaults = theme.components.surface,
+        // Reads no ambient theme -- shadcnToast's shadcnToastStyle already supplies a complete
+        // Style, including contentPadding (added there so this removal wouldn't leave the
+        // message text flush against the toast's own border).
+        defaults = Style.Empty,
     )
     paintSurface(slot = surface.slot, resolved = surface.resolved)
     text(

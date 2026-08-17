@@ -47,7 +47,10 @@ fun UiPrimitiveScope.checkbox(
     enabled: Boolean = true,
 ): Boolean {
     val theme = theme
-    val defaults = theme.components.checkbox
+    // Reads no ambient theme -- real callers (shadcnCheckbox via shadcnCheckboxStyle) already
+    // supply a complete themed Style, including textSize (added there specifically so this
+    // default's removal wouldn't silently grow the label to the ambient body text size).
+    val defaults = Style.Empty
     val sizedModifier = modifier.withSizeFallback(
         label?.let {
             withIntrinsicLabelWidth(
@@ -166,7 +169,9 @@ fun UiPrimitiveScope.radio(
         // remaining width here makes both the semantic crop and the actual layout diverge.
         modifier = modifier.withSizeFallback(Dimension.Fixed(boxSize), Dimension.Fixed(boxSize)),
         style = style,
-        defaults = theme.components.checkbox,
+        // radio() has no label to paint, so unlike checkbox() there is no textSize concern --
+        // shadcnRadio's shadcnRadioStyle already supplies a complete background/border/shape.
+        defaults = Style.Empty,
         selected = selected,
         disabled = !enabled,
         enabled = enabled,

@@ -11,4 +11,8 @@ fun shadcnToastStyle(values: UiThemeValues): Style = Style {
     foreground(values.colors.cardForeground)
     border(1f.dp, values.colors.border)
     shape(values.shapes.lg)
+    // toast()'s message text sits in `contentSlot`, which insets by this -- without it the
+    // message rendered flush against the toast's own border, the ui-headless default this used
+    // to fall back on (`theme.components.surface`, now deleted) was the only thing supplying it.
+    contentPadding(8f.dp)
 }

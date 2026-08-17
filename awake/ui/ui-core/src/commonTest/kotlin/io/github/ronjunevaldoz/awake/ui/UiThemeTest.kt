@@ -47,14 +47,6 @@ class UiThemeTest {
         assertEquals(first, second, "the same state must always resolve to the same color")
     }
 
-    @Test
-    fun coreUiThemeSharesOneNeutralStyleAcrossWidgetKinds() {
-        val state = MutableStyleState(hovered = false, active = false)
-        val a = UiDefaultTheme.components.button.resolve(state).background!!
-        val b = UiDefaultTheme.components.slider.resolve(state).background!!
-        assertEquals(a, b)
-    }
-
     // Reproduces the ShadcnTheme composition shape: `style(visual, fallback) = fallback then
     // Style { visual overrides }`, where `visual` sets a plain unconditional background (like
     // slider/toggle/switch's static token color) on top of a fallback that also varies by
@@ -81,16 +73,15 @@ class UiThemeTest {
         assertNotEquals(idle, hovered, "hover must resolve to a different color than idle")
     }
 
+    // UiComponentStyles/UiTheme.components was removed (ambient theme-fallback registry retired
+    // -- see docs/audits/); UiTheme now separates only [colors]/[typography]/[shapes], so this
+    // test's one remaining meaningful assertion is that a minimal custom UiTheme implementer
+    // still compiles and reuses the same token values.
     @Test
-    fun uiThemeSeparatesTokensFromComponentDefaults() {
+    fun uiThemeSeparatesTokensFromDefaultTheme() {
         val custom = object : UiTheme {
             override val colors = UiDefaultTheme.colors
-            override val components = UiDefaultTheme.components
         }
         assertEquals(UiDefaultTheme.colors.background, custom.colors.background)
-        assertEquals(
-            UiDefaultTheme.components.button.resolve().background!!,
-            custom.components.button.resolve().background!!,
-        )
     }
 }

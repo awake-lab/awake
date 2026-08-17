@@ -161,7 +161,9 @@ fun UiPrimitiveScope.rangeSlider(
             ),
             modifier = modifier,
             style = style,
-            defaults = theme.components.slider,
+            // Reads no ambient theme -- see Slider.kt's identical `defaults` doc; shadcnRangeSlider
+            // shares shadcnSliderStyle with shadcnSlider.
+            defaults = Style.Empty,
             focused = false,
         )
 

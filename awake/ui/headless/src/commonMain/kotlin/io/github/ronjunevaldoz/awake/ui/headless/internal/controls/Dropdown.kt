@@ -52,7 +52,9 @@ fun UiPrimitiveScope.select(
 ): Int? {
     val theme = theme
     val expandedState = rememberPopupState(id, key = "expanded")
-    val resolvedDefaults = theme.components.dropdown
+    // Reads no ambient theme -- shadcnSelect's caller-supplied style (shadcnTextFieldStyle)
+    // already resolves a complete background/border/shape/contentPadding/textSize.
+    val resolvedDefaults = Style.Empty
     val selectedLabel = options.getOrNull(selectedIndex) ?: placeholder
     val triggerStyle = resolvedDefaults then style
     // A SelectContent item is a menu row, not another SelectTrigger. Keep the trigger's
