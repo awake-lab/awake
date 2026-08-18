@@ -7,11 +7,16 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
+import io.github.ronjunevaldoz.awake.scene.rendering.components.spawnParticleBurst
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.ParticleSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.currentAlpha
+import io.github.ronjunevaldoz.awake.scene.rendering.systems.currentColor
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /** Pure CPU simulation logic -- no GPU/[io.github.ronjunevaldoz.awake.render.renderer.Renderer]
@@ -112,6 +117,155 @@ class ParticleSystemTest {
 
         system.update(world, 0.5f) // age ~= 0.5 of a 1s lifetime -- halfway faded
         assertEquals(0.4f, particle.currentAlpha(), 0.02f, "halfway through lifetime, alpha should be ~half")
+    }
+
+    @Test
+    fun burstEmitterDestroysItsOwnEntityOnceEveryParticleHasDied() {
+        val world = World()
+        val entity = world.create()
+        world.add(
+            entity,
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+                maxParticles = 5, spawnRate = 1000f, lifetime = 0.2f, startAlpha = 1f,
+                baseVelocity = Vec3(0f, 1f, 0f), velocityJitter = 0f, scale = 1f,
+                burstCount = 5,
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f) // spawns all 5 (burstCount reached), still alive
+        assertEquals(1, world.family<ParticleEmitter>().size, "burst entity still alive mid-life")
+
+        system.update(world, 1f) // well past lifetime -- every particle dies this step
+        assertEquals(0, world.family<ParticleEmitter>().size, "burst entity destroyed once spent")
+    }
+
+    @Test
+    fun nonBurstEmitterIsNeverDestroyed() {
+        val world = World()
+        world.add(world.create(), emitter(maxParticles = 1, spawnRate = 1000f, lifetime = 0.1f))
+        val system = ParticleSystem()
+
+        repeat(10) { system.update(world, 0.5f) } // many spawn/die cycles
+        assertEquals(1, world.family<ParticleEmitter>().size, "burstCount == null must never self-destroy")
+    }
+
+    @Test
+    fun spawnParticleBurstHelperCreatesAOneShotEmitterAtThePassedPosition() {
+        val world = World()
+        val entity = spawnParticleBurst(
+            world, fakeMesh(), fakeMaterial(), position = Vec3(3f, 2f, 1f),
+            count = 4, spawnRate = 1000f, lifetime = 5f, startAlpha = 1f,
+            baseVelocity = Vec3(0f, 0f, 0f),
+        )
+        val emitter = requireNotNull(world.get<ParticleEmitter>(entity))
+        assertEquals(4, emitter.burstCount)
+        assertEquals(Vec3(3f, 2f, 1f), emitter.origin)
+    }
+
+    @Test
+    fun coneSpreadKeepsEveryVelocityWithinTheHalfAngleOfBaseVelocity() {
+        val world = World()
+        val baseVelocity = Vec3(0f, 1f, 0f)
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+                maxParticles = 50, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f,
+                baseVelocity = baseVelocity, velocityJitter = 0f, scale = 1f,
+                coneHalfAngleDegrees = 30f,
+            ),
+        )
+        val system = ParticleSystem()
+        system.update(world, 1f) // spawns into every slot
+
+        val emitter = world.family<ParticleEmitter>().components().first()
+        val baseDirection = baseVelocity.normalized()
+        val cosHalfAngle = kotlin.math.cos(30f * (kotlin.math.PI.toFloat() / 180f))
+        emitter.particles.filter { it.alive }.forEach { particle ->
+            val cosAngle = particle.velocity.normalized().let {
+                it.x * baseDirection.x + it.y * baseDirection.y + it.z * baseDirection.z
+            }
+            // cos is monotonically decreasing over [0, 180deg] -- angle <= halfAngle iff
+            // cos(angle) >= cos(halfAngle).
+            assertTrue(cosAngle >= cosHalfAngle - 1e-4f, "velocity direction exceeded the cone's half-angle")
+        }
+    }
+
+    @Test
+    fun aFallingParticleSettlesAtGroundYInsteadOfPassingThrough() {
+        val world = World()
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 5f, 0f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f,
+                baseVelocity = Vec3(0f, -10f, 0f), velocityJitter = 0f, scale = 1f,
+                groundY = 0f,
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f) // spawn near y=5
+        system.update(world, 1f) // -10 units/sec for 1s would put it well below ground
+
+        val particle = world.family<ParticleEmitter>().components().first().particles[0]
+        assertEquals(0f, particle.position.y, 1e-4f, "particle must clamp at groundY, not pass through")
+        assertEquals(0f, particle.velocity.y, "a settled particle's velocity must be zeroed")
+        assertTrue(particle.alive, "a settled particle keeps aging/fading, it doesn't die on landing")
+    }
+
+    @Test
+    fun followEntityReanchorsOriginToTheFollowedTransformEachFrame() {
+        val world = World()
+        val target = world.create()
+        world.add(target, Transform(position = Vec3(1f, 2f, 3f)))
+        val emitterEntity = world.create()
+        world.add(
+            emitterEntity,
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+                maxParticles = 1, spawnRate = 0f, lifetime = 1f, startAlpha = 1f,
+                baseVelocity = Vec3(0f, 0f, 0f), velocityJitter = 0f, scale = 1f,
+                followEntity = target,
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.016f)
+        val emitter = requireNotNull(world.get<ParticleEmitter>(emitterEntity))
+        assertEquals(Vec3(1f, 2f, 3f), emitter.origin)
+
+        world.get<Transform>(target)!!.position.set(5f, 6f, 7f)
+        system.update(world, 0.016f)
+        assertEquals(Vec3(5f, 6f, 7f), emitter.origin, "origin must re-anchor every frame, not just once")
+    }
+
+    @Test
+    fun currentColorLerpsFromStartColorToEndColorOverLife() {
+        val world = World()
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 1f, startAlpha = 1f,
+                baseVelocity = Vec3(0f, 0f, 0f), velocityJitter = 0f, scale = 1f,
+                startColor = Vec3(1f, 0f, 0f), endColor = Vec3(0f, 0f, 1f),
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.001f) // spawn, age ~= 0
+        val emitter = world.family<ParticleEmitter>().components().first()
+        val particle = emitter.particles[0]
+        assertTrue(abs(particle.currentColor(emitter).x - 1f) < 0.01f, "just spawned, color should be ~startColor")
+        assertFalse(particle.currentColor(emitter).z > 0.01f, "just spawned, no endColor blend yet")
+
+        system.update(world, 0.5f) // age ~= 0.5 of a 1s lifetime -- halfway blended
+        val halfway = particle.currentColor(emitter)
+        assertEquals(0.5f, halfway.x, 0.02f, "halfway through lifetime, red should be ~half")
+        assertEquals(0.5f, halfway.z, 0.02f, "halfway through lifetime, blue should be ~half")
     }
 
     private fun fakeMesh(): Mesh = object : Mesh {
