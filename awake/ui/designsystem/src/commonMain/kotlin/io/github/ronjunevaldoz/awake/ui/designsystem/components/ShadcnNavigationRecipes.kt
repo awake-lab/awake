@@ -35,6 +35,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.wrapContentWidth
+import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
 fun UiScope.shadcnCollapsible(
     id: String,
@@ -66,7 +67,7 @@ fun UiScope.shadcnCollapsible(
                 modifier = Modifier.fillMaxWidth().fillMaxHeight(),
             ) {
                 text(title, style = shadcnCollapsibleTitleStyle(themeValues))
-                icon(if (isOpen) ShadcnIcons.chevronDown else ShadcnIcons.chevronRight)
+                icon(if (isOpen) HeroIcons.Solid20Mini.chevronDown else HeroIcons.Solid20Mini.chevronRight)
             }
         }
         if (clicked) toggle()

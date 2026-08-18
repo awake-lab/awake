@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layout.place
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -20,15 +21,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
-import kotlin.math.roundToInt
-
-fun pixelPerfectPixel(value: Float): Float = value.roundToInt().toFloat()
-
-fun UiPrimitiveScope.resolvedTextScale(): Float =
-    pixelPerfectTextScale(
-        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).scale,
-        context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont).textScaleStep,
-    )
 
 fun UiPrimitiveScope.resolveGlyphPx(
     font: UiFont = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),

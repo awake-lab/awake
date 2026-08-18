@@ -19,10 +19,9 @@ class DropdownMenuIntrinsicWidthTest {
      * Regression test for the studio camera menu ("Perspective"/"Orthographic" truncating to
      * ellipsis). Reproduces the exact path from the studio's camera menu (CameraMenu.kt /
      * ShadcnContextMenu.kt): a zero-size point anchor (a right-click cursor position, not a real
-     * control), `width = Dimension.WrapContent`, no `style` override, under [ShadcnTheme] --
-     * whose `theme.components.surface` default carries a Card-sized `contentPadding`
-     * ([intrinsicMenuWidthPx][io.github.ronjunevaldoz.awake.ui.designsystem.components.popup]
-     * never accounted for it, so every item lost that much width to truncation).
+     * control), `width = Dimension.WrapContent`, no `style` override, under [ShadcnTheme] -- the
+     * wrap-content width calculation never accounted for the menu's own content padding, so every
+     * item lost that much width to truncation.
      */
     @Test
     fun wrapContentMenuDoesNotTruncateItsWidestItem() {

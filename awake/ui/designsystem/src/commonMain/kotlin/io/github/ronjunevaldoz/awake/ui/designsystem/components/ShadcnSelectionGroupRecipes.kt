@@ -1,11 +1,13 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-@file:Suppress("UnusedParameter")
+@file:Suppress("UnusedParameter", "MatchingDeclarationName") // ShadcnRadioMetrics is a
+// supporting type; the file's primary export is the shadcnRadio*/shadcnToggleGroup recipes below
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnRadioMetrics
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnRadioGroupStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnRadioLabelStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnRadioStyle
@@ -21,6 +23,21 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.toggleGroup
+
+/**
+ * Measurements from `new-york-v4/ui/radio-group.tsx` in the pinned shadcn-ui checkout.
+ *
+ * `RadioGroupItem` is `size-4`; its indicator icon is `size-2`; an authored label row is
+ * `flex items-center gap-2`; and the group root is `grid gap-3`. Keep these named so a recipe
+ * cannot silently turn a radio into a checkbox-shaped 24dp control again.
+ */
+@Suppress("MatchingDeclarationName") // supporting type; file's primary export is the recipes below
+internal object ShadcnRadioMetrics {
+    val itemSize: Dp = 16f.dp
+    val indicatorSize: Dp = 8f.dp
+    val labelGap: Dp = 8f.dp
+    val groupGap: Dp = 12f.dp
+}
 
 fun UiScope.shadcnToggleGroup(
     id: String,

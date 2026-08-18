@@ -1,8 +1,12 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
+@file:Suppress("MatchingDeclarationName") // ShadcnSidebarMetrics is a supporting type; the
+// file's primary export is the shadcnSidebar* recipes below
+
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -34,6 +38,24 @@ import io.github.ronjunevaldoz.awake.ui.headless.size
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.weight
+import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
+
+/**
+ * Measurements from `new-york-v4/ui/sidebar.tsx` in the pinned shadcn-ui checkout.
+ *
+ * These are component-recipe values, not generic layout defaults. The showcase may choose its
+ * own outer width and content, but a shadcn Sidebar's internal padding and menu rhythm must use
+ * this one contract.
+ */
+internal object ShadcnSidebarMetrics {
+    val contentPadding: Dp = 8f.dp
+    val groupGap: Dp = 4f.dp
+    val menuGap: Dp = 4f.dp
+    val menuButtonHeight: Dp = 32f.dp
+    val submenuIndent: Dp = 14f.dp
+    val submenuGap: Dp = 2f.dp
+    val submenuButtonHeight: Dp = 28f.dp
+}
 
 fun UiScope.shadcnSidebar(
     id: String,
@@ -84,7 +106,7 @@ fun UiScope.shadcnSidebarHeaderButton(
                     modifier = Modifier.size(32f.dp),
                     style = shadcnSidebarHeaderBadgeStyle(themeValues),
                 ) {
-                    icon(ShadcnIcons.squares2x2)
+                    icon(HeroIcons.Solid20Mini.squares2x2)
                 }
                 column {
                     text(
@@ -97,7 +119,7 @@ fun UiScope.shadcnSidebarHeaderButton(
                     )
                 }
             }
-            icon(ShadcnIcons.chevronDown)
+            icon(HeroIcons.Solid20Mini.chevronDown)
         }
     }
     if (clicked) onClick()
@@ -130,7 +152,7 @@ fun UiScope.shadcnSidebarFooterButton(
                     modifier = Modifier.size(32f.dp),
                     style = shadcnSidebarAvatarStyle(themeValues),
                 ) {
-                    icon(ShadcnIcons.user)
+                    icon(HeroIcons.Solid20Mini.user)
                 }
                 column {
                     text(
@@ -143,7 +165,7 @@ fun UiScope.shadcnSidebarFooterButton(
                     )
                 }
             }
-            icon(ShadcnIcons.chevronDown)
+            icon(HeroIcons.Solid20Mini.chevronDown)
         }
     }
     if (clicked) onClick()

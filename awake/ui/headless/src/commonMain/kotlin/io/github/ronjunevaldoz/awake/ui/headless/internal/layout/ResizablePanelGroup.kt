@@ -253,7 +253,7 @@ class ResizablePanelGroupScope internal constructor(
                     w = gripWidth,
                     h = gripHeight,
                     color = theme.colors.border,
-                    radius = 2f,
+                    radius = 2f.dp.toPx(),
                 ),
             )
         }

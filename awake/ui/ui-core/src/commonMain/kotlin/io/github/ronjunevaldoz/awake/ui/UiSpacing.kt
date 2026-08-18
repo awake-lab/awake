@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
+
 /** Named spacing scale, in [Dp] -- not wired into [io.github.ronjunevaldoz.awake.ui.modifier.UiModifier] yet (that grows only when a
  * real padding/margin need shows up), just replaces bare gap literals with a named scale.
  * */

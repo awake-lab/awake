@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO

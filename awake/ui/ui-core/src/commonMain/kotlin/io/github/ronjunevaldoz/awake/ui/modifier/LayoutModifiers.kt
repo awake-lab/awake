@@ -49,8 +49,6 @@ fun UiModifier.offset(x: Dp = UiShape.none, y: Dp = UiShape.none): UiModifier =
 fun UiModifier.padding(all: Dp): UiModifier = copy(insets = UiInsets(all))
 fun UiModifier.paddingTop(top: Dp): UiModifier = padding(0.dp, top, 0.dp, 0.dp)
 fun UiModifier.paddingBottom(bottom: Dp): UiModifier = padding(0.dp, 0.dp, 0.dp, bottom)
-fun UiModifier.paddingStart(start: Dp): UiModifier = padding(start, 0.dp, 0.dp, 0.dp)
-fun UiModifier.paddingEnd(end: Dp): UiModifier = padding(0.dp, 0.dp, end, 0.dp)
 fun UiModifier.padding(horizontal: Dp, vertical: Dp): UiModifier = copy(
     insets = UiInsets(
         horizontal,

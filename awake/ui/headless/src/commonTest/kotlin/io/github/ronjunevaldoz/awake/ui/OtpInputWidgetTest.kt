@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 class OtpInputWidgetTest {
     // row() runs its content lambda twice per frame (trial-measure + real layout, see Row.kt) --
     // asserting through recordSemantic-backed nodes (deduped by id) rather than a raw closure
-    // call counter sidesteps that, matching how ActionRowWidgetsTest checks semantics too.
+    // call counter sidesteps that.
     @Test
     fun eachSlotReceivesItsOwnCharacterFromValue() {
         val frame = renderUiComponent(width = 200f, height = 100f) {

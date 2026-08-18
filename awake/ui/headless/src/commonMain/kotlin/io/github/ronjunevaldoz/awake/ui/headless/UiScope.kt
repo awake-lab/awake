@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
+import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
 import io.github.ronjunevaldoz.awake.ui.ProvideTextStyle
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -14,9 +15,6 @@ import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx as primitiveResolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
-
-@DslMarker
-annotation class AwakeUiDsl
 
 /**
  * Public receiver for ordinary Headless widgets and design-system recipes.

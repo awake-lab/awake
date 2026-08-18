@@ -77,6 +77,13 @@ data class ShadcnMetrics(
 data class ShadcnPalette(
     val background: Color,
     val foreground: Color,
+    // Shadow/scrim tints. Real shadcn's box-shadow and overlay backgrounds are a fixed black at
+    // some alpha regardless of light/dark theme (they represent elevation over the page, not a
+    // brand color), so these are theme-independent constants, not hue-derived like the rest of
+    // this palette -- see createPalette(). Call sites apply their own alpha on top of [shadow];
+    // [overlay] is already the complete scrim color (shadcn's `bg-black/50`).
+    val shadow: Color,
+    val overlay: Color,
     val primary: Color,
     val primaryForeground: Color,
     val primaryHover: Color,

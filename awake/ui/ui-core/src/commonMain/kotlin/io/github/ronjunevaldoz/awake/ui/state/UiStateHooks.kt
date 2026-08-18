@@ -80,11 +80,6 @@ class UiPopupState internal constructor(
     }
 }
 
-fun <T> WidgetState.rememberStateValue(
-    key: String = "value",
-    initial: () -> T,
-): UiStateValue<T> = UiStateValue(this, key, initial)
-
 fun <T> UiContext.rememberStateValue(
     id: String,
     key: String = "value",

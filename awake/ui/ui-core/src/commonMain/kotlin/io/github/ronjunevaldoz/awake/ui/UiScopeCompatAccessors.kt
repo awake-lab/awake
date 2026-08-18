@@ -22,6 +22,3 @@ val UiPrimitiveScope.font: UiFont
 
 val UiPrimitiveScope.textStyle: TextStyle
     get() = context.current(LocalTextStyle)
-
-val UiPrimitiveScope.resolvedThemeCaptionStyle: TextStyle
-    get() = textStyle then TextStyle(size = theme.typography.caption)

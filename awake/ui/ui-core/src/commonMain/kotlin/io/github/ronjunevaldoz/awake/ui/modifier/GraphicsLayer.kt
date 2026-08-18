@@ -9,10 +9,10 @@ package io.github.ronjunevaldoz.awake.ui.modifier
  * instead of each effect getting its own dedicated boolean field on [UiModifier].
  *
  * `ui-core` only owns this contract and does not know how to draw any effect; concrete effects
- * (e.g. a shimmer sweep) are shadcn-compose-style extensions layered on top -- see
- * `StyleModifiers.kt`'s `shadcnShimmer` -- and base components in `ui-headless` interpret them
- * during their own glyph/fill emission. This must not be confused with `Canvas`/`CanvasScope`,
- * which is an app-level escape hatch, not a base-component implementation path.
+ * (e.g. a shimmer sweep) are marker types layered on top -- see `StyleModifiers.kt`'s
+ * [UiShimmerEffect] -- and base components in `ui-headless` interpret them during their own
+ * glyph/fill emission. This must not be confused with `Canvas`/`CanvasScope`, which is an
+ * app-level escape hatch, not a base-component implementation path.
  */
 interface UiGraphicsEffect
 
@@ -48,12 +48,6 @@ fun UiModifier.graphicsLayer(effect: UiGraphicsEffect): UiModifier =
  * docs/reference/MIRROR_MAP.md).
  */
 data class UiAlphaEffect(val alpha: Float) : UiGraphicsEffect
-
-/** The effective alpha this graphics layer would apply -- the product of every [UiAlphaEffect]
- * present (nested/stacked alpha effects compose by multiplying, matching real compositing), or
- * `1f` (fully opaque, no-op) if none is present. */
-val UiGraphicsLayer.effectiveAlpha: Float
-    get() = effects.filterIsInstance<UiAlphaEffect>().fold(1f) { acc, effect -> acc * effect.alpha }
 
 /** Attaches a [UiAlphaEffect] with [alpha] (clamped 0f..1f) to this modifier's graphics layer. */
 fun UiModifier.alpha(alpha: Float): UiModifier = graphicsLayer(UiAlphaEffect(alpha.coerceIn(0f, 1f)))

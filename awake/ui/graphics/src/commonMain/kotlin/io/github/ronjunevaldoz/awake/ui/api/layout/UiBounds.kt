@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.api.layout
 
+import kotlin.math.roundToInt
+
 /** Immutable measured bounds shared by every public UI layer. */
 data class UiBounds(val x: Float, val y: Float, val width: Float, val height: Float)
 
@@ -24,4 +26,4 @@ fun UiBounds.contains(other: UiBounds): Boolean =
         other.y + other.height <= y + height
 
 /** Snaps a coordinate to the nearest integer pixel to avoid subpixel rendering blur. */
-fun pixelPerfectPixel(value: Float): Float = kotlin.math.round(value)
+fun pixelPerfectPixel(value: Float): Float = value.roundToInt().toFloat()

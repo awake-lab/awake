@@ -11,8 +11,8 @@ import io.github.ronjunevaldoz.awake.ui.UiStrokeCap
 import io.github.ronjunevaldoz.awake.ui.UiStrokeJoin
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.api.layout.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.px
-import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.uiPath
@@ -183,24 +183,6 @@ fun UiPrimitiveScope.emitFillAndBorder(
     if (hasBorder) border(slot, borderWidth, borderColor, overlay, tokenId = borderTokenId)
 }
 
-fun UiPrimitiveScope.emitInsetAccent(
-    slot: UiBounds,
-    inset: Float,
-    radiusPx: Float,
-    shapeSpec: UiShapeSpec? = null,
-) {
-    val x = slot.x + inset
-    val y = slot.y + inset
-    val w = slot.width - inset * 2
-    val h = slot.height - inset * 2
-    emitFillShape(
-        slot = UiBounds(x, y, w, h),
-        color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.primary,
-        radiusPx = (radiusPx - inset).coerceAtLeast(0f),
-        shapeSpec = shapeSpec,
-    )
-}
-
 /** The shadcn checkbox indicator is a check icon, not a filled inset square. */
 fun UiPrimitiveScope.emitCheckmark(slot: UiBounds) {
     val path = uiPath {
@@ -232,9 +214,9 @@ fun UiPrimitiveScope.emitRadioDot(slot: UiBounds, color: Color) {
     )
 }
 
-/** Tri-state checkbox's "indeterminate" mark: a horizontal dash instead of the filled
- * inset square [emitInsetAccent] draws for "checked" -- mirrors real shadcn's checkbox
- * drawing a horizontal line (not a checkmark) when its ToggleableState is Indeterminate. */
+/** Tri-state checkbox's "indeterminate" mark: a horizontal dash -- mirrors real shadcn's
+ * checkbox drawing a horizontal line (not a checkmark) when its ToggleableState is
+ * Indeterminate. */
 fun UiPrimitiveScope.emitInsetDash(
     slot: UiBounds,
     inset: Float,

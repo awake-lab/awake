@@ -4,7 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.styles
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.font.FontWeight
 import io.github.ronjunevaldoz.awake.ui.style.Style
@@ -44,8 +43,8 @@ internal fun shadcnTabStyle(values: ShadcnThemeValues, active: Boolean): Style =
     border(1f.dp, Color.Transparent)
     shape(values.shapes.md)
     contentPadding(horizontal = 8f.dp, vertical = 4f.dp)
-    if (active) shadow(Color.Black.withAlpha(0.12f), offsetY = 1f.dp, blurRadius = 2f.dp)
-    textSize(14f.sp)
+    if (active) shadow(values.shadow.withAlpha(0.12f), offsetY = 1f.dp, blurRadius = 2f.dp)
+    textSize(values.typography.label)
     fontWeight(FontWeight.Medium)
 }
 

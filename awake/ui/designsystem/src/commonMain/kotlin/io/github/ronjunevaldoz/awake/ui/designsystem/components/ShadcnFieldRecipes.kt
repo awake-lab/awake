@@ -1,9 +1,10 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-@file:Suppress("LongParameterList", "MagicNumber", "TooManyFunctions", "UnusedParameter")
+@file:Suppress("TooManyFunctions")
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -75,17 +76,27 @@ fun UiScope.shadcnFieldError(text: String, modifier: Modifier = Modifier): UiBou
     overflow = UiTextOverflow.Ellipsis,
 )
 
+/** Shared body behind [shadcnFieldSet] and [shadcnFieldGroup] -- identical column shape, only
+ * [gap] differs between the two. */
+private fun UiScope.shadcnFieldContainer(
+    id: String?,
+    modifier: Modifier,
+    cacheKey: Any?,
+    gap: Dp,
+    content: ColumnScope.() -> Unit,
+): UiBounds = column(
+    id = id,
+    modifier = modifier.fillMaxWidthOrDefault(),
+    verticalArrangement = Arrangement.spacedBy(gap),
+    cacheKey = cacheKey,
+) { content() }
+
 fun UiScope.shadcnFieldSet(
     id: String? = null,
     modifier: Modifier = Modifier,
     cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
-): UiBounds = column(
-    id = id,
-    modifier = modifier.fillMaxWidthOrDefault(),
-    verticalArrangement = Arrangement.spacedBy(24f.dp),
-    cacheKey = cacheKey,
-) { content() }
+): UiBounds = shadcnFieldContainer(id, modifier, cacheKey, 24f.dp, content)
 
 fun UiScope.shadcnFieldLegend(text: String, modifier: Modifier = Modifier): UiBounds =
     shadcnFieldLabel(text = text, modifier = modifier)
@@ -95,16 +106,12 @@ fun UiScope.shadcnFieldGroup(
     modifier: Modifier = Modifier,
     cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
-): UiBounds = column(
-    id = id,
-    modifier = modifier.fillMaxWidthOrDefault(),
-    verticalArrangement = Arrangement.spacedBy(28f.dp),
-    cacheKey = cacheKey,
-) { content() }
+): UiBounds = shadcnFieldContainer(id, modifier, cacheKey, 28f.dp, content)
 
 fun UiScope.shadcnFieldSeparator(
     modifier: Modifier = Modifier,
     label: String? = null,
+    id: String = "field.sep",
 ): UiBounds = if (label == null) {
     shadcnSeparator(modifier = modifier)
 } else {
@@ -114,19 +121,20 @@ fun UiScope.shadcnFieldSeparator(
         verticalAlignment = UiAlignment.Vertical.Center,
     ) {
         surface(
-            id = "field.sep.left",
+            id = "$id.left",
             modifier = Modifier.weight(1f).height(1f.dp),
             style = shadcnFieldSeparatorStyle(themeValues),
         ) {}
         shadcnFieldDescription(label)
         surface(
-            id = "field.sep.right",
+            id = "$id.right",
             modifier = Modifier.weight(1f).height(1f.dp),
             style = shadcnFieldSeparatorStyle(themeValues),
         ) {}
     }
 }
 
+@Suppress("LongParameterList")
 fun UiScope.shadcnFieldTextField(
     id: String,
     label: String,
@@ -137,12 +145,16 @@ fun UiScope.shadcnFieldTextField(
     errorText: String? = null,
     variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default,
 ): String {
-    shadcnFieldLabel(label)
-    val next = shadcnInput(id, value, placeholder, modifier, variant, enabled, errorText != null)
-    errorText?.let(::shadcnFieldError)
+    var next = value
+    shadcnField {
+        shadcnFieldLabel(label)
+        next = shadcnInput(id, value, placeholder, modifier, variant, enabled, errorText != null)
+        errorText?.let(::shadcnFieldError)
+    }
     return next
 }
 
+@Suppress("LongParameterList")
 fun UiScope.shadcnFieldTextarea(
     id: String,
     label: String,
@@ -154,9 +166,12 @@ fun UiScope.shadcnFieldTextarea(
     minLines: Int = 3,
     variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default,
 ): String {
-    shadcnFieldLabel(label)
-    val next = shadcnTextarea(id, value, placeholder, modifier, variant, enabled, errorText != null, minLines)
-    errorText?.let(::shadcnFieldError)
+    var next = value
+    shadcnField {
+        shadcnFieldLabel(label)
+        next = shadcnTextarea(id, value, placeholder, modifier, variant, enabled, errorText != null, minLines)
+        errorText?.let(::shadcnFieldError)
+    }
     return next
 }
 
@@ -168,8 +183,12 @@ fun UiScope.shadcnFieldDropdown(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ): Int? {
-    shadcnFieldLabel(label)
-    return shadcnSelect(id, options, selectedIndex, modifier, enabled)
+    var picked: Int? = null
+    shadcnField {
+        shadcnFieldLabel(label)
+        picked = shadcnSelect(id, options, selectedIndex, modifier, enabled)
+    }
+    return picked
 }
 
 fun UiScope.shadcnFieldSwitch(
@@ -179,10 +198,15 @@ fun UiScope.shadcnFieldSwitch(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ): Boolean {
-    shadcnFieldLabel(label)
-    return shadcnSwitch(id, checked, modifier = modifier, enabled = enabled)
+    var next = checked
+    shadcnField {
+        shadcnFieldLabel(label)
+        next = shadcnSwitch(id, checked, modifier = modifier, enabled = enabled)
+    }
+    return next
 }
 
+@Suppress("LongParameterList")
 fun UiScope.shadcnFieldToggle(
     id: String,
     label: String,
@@ -191,10 +215,22 @@ fun UiScope.shadcnFieldToggle(
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit = {},
 ): Boolean {
-    shadcnFieldLabel(label)
-    return shadcnToggle(id, checked, label = null, modifier = modifier, enabled = enabled, onCheckedChange = onCheckedChange)
+    var next = checked
+    shadcnField {
+        shadcnFieldLabel(label)
+        next = shadcnToggle(
+            id,
+            checked,
+            label = null,
+            modifier = modifier,
+            enabled = enabled,
+            onCheckedChange = onCheckedChange,
+        )
+    }
+    return next
 }
 
+@Suppress("LongParameterList")
 fun UiScope.shadcnFieldSlider(
     id: String,
     label: String,
@@ -204,11 +240,16 @@ fun UiScope.shadcnFieldSlider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ): Float {
-    shadcnFieldLabel(label)
-    return shadcnSlider(id, min, max, value, modifier = modifier, enabled = enabled)
+    var next = value
+    shadcnField {
+        shadcnFieldLabel(label)
+        next = shadcnSlider(id, min, max, value, modifier = modifier, enabled = enabled)
+    }
+    return next
 }
 
 /** Slider field recipe with a compact live value/range label for tooling panels. */
+@Suppress("LongParameterList", "MagicNumber")
 fun UiScope.shadcnFieldSliderWithValue(
     id: String,
     label: String,
@@ -222,25 +263,29 @@ fun UiScope.shadcnFieldSliderWithValue(
         "${rounded(current)} (${rounded(lower)}-${rounded(upper)})"
     },
 ): Float {
-    shadcnFieldLabel(label)
-    val next = shadcnSlider(
-        id = id,
-        min = min,
-        max = max,
-        value = value,
-        modifier = modifier.fillMaxWidth().height(20f.dp),
-        enabled = enabled,
-    )
-    text(
-        label = valueLabel(next, min, max),
-        modifier = Modifier.fillMaxWidth(),
-        style = shadcnFieldDescriptionStyle(themeValues),
-        wrap = UiTextWrap.None,
-        overflow = UiTextOverflow.Clip,
-    )
+    var next = value
+    shadcnField {
+        shadcnFieldLabel(label)
+        next = shadcnSlider(
+            id = id,
+            min = min,
+            max = max,
+            value = value,
+            modifier = modifier.fillMaxWidth().height(20f.dp),
+            enabled = enabled,
+        )
+        text(
+            label = valueLabel(next, min, max),
+            modifier = Modifier.fillMaxWidth(),
+            style = shadcnFieldDescriptionStyle(themeValues),
+            wrap = UiTextWrap.None,
+            overflow = UiTextOverflow.Clip,
+        )
+    }
     return next
 }
 
+@Suppress("LongParameterList")
 fun UiScope.shadcnFieldRangeSlider(
     id: String,
     label: String,
@@ -251,6 +296,10 @@ fun UiScope.shadcnFieldRangeSlider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ): Pair<Float, Float> {
-    shadcnFieldLabel(label)
-    return shadcnRangeSlider(id, min, max, valueStart, valueEnd, modifier = modifier, enabled = enabled)
+    var next = valueStart to valueEnd
+    shadcnField {
+        shadcnFieldLabel(label)
+        next = shadcnRangeSlider(id, min, max, valueStart, valueEnd, modifier = modifier, enabled = enabled)
+    }
+    return next
 }

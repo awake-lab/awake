@@ -158,6 +158,12 @@ interface ShadcnResolvedTheme : UiThemeValues {
     val sidebarRing: Color get() = palette.sidebarRing
     val input: Color get() = palette.input
     val ring: Color get() = palette.ring
+
+    /** Base tint for drop shadows -- callers apply their own alpha (e.g. `shadow.withAlpha(0.16f)`). */
+    val shadow: Color get() = palette.shadow
+
+    /** Complete modal/sheet scrim color, ready to draw with no further alpha applied. */
+    val overlay: Color get() = palette.overlay
 }
 
 private fun shadcnThemeData(config: ShadcnThemeConfig = ShadcnThemeConfig()): ShadcnResolvedTheme = ConfiguredShadcnTheme(config)
@@ -249,6 +255,8 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
     return ShadcnPalette(
         background = background,
         foreground = foreground,
+        shadow = Color.Black,
+        overlay = Color.Black.withAlpha(0.5f),
         primary = primary,
         primaryForeground = primaryForeground,
         primaryHover = mix(primary, background, if (dark) 0.12f else 0.08f),

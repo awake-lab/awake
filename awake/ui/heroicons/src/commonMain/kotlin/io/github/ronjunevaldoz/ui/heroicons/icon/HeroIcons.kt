@@ -23,10 +23,8 @@ import io.github.ronjunevaldoz.awake.ui.uiImageVector
  * ui-headless's `Icon.kt` calls it when a [UiVectorPath][io.github.ronjunevaldoz.awake.ui
  * .UiVectorPath] carries a `stroke`), never pre-flattened into path data here.
  *
- * A generic, unbranded home for icon vector data -- [io.github.ronjunevaldoz.awake.ui.designsystem
- * .components.ShadcnIcons] is the shadcn-facing, *overridable* pointer registry that defaults to
- * these but doesn't have to stay pinned to them; a caller wanting a different icon set entirely
- * reassigns `ShadcnIcons.xxx` without this object needing to know or care. */
+ * A generic, unbranded home for icon vector data -- `ui-designsystem` recipes call
+ * [Solid20Mini] directly at each icon call site rather than through an intermediate registry. */
 sealed interface HeroIcons {
     /** Heroicons' `solid/20/solid` tier ("mini") -- the size real shadcn/ui's own chrome
      * (dropdown/collapsible chevrons, small inline affordances) actually uses. */

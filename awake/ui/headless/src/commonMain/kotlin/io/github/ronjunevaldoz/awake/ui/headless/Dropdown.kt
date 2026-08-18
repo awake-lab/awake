@@ -105,7 +105,7 @@ fun UiScope.combobox(
         )
         filterState.value = query
         separator()
-        val filtered = filterOptionsByQuery(options, query)
+        val filtered = primitiveFilterOptionsByQuery(options, query)
         if (filtered.isEmpty()) {
             text(emptyLabel, modifier = Modifier.fillMaxWidth(), style = optionStyle)
         } else {
@@ -132,10 +132,6 @@ fun UiScope.combobox(
     }
     return picked
 }
-
-/** Neutral searchable option filtering, preserving each option's source index for selection. */
-fun filterOptionsByQuery(options: List<String>, query: String): List<IndexedValue<String>> =
-    primitiveFilterOptionsByQuery(options, query)
 
 /** Secondary-click detection and cursor anchoring without exposing Core's trigger type. */
 fun UiScope.contextMenuTrigger(
