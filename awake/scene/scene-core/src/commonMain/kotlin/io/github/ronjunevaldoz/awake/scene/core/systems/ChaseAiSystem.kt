@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.sample.scene3d.gameplay.systems
+package io.github.ronjunevaldoz.awake.scene.core.systems
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.System
@@ -9,15 +9,20 @@ import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.navigation.NavMesh
 
 /**
- * scene3d's first ECS-coupled AI behavior (see docs/MMORPG_ROADMAP.md): [npcTransform] chases
- * [targetTransform] by periodically re-querying [navMesh] for a path and steering
- * kinematically toward the next waypoint -- same "deliberately simple, no physics" bar as
- * the player's own kinematic movement path. Chase only, not chase-*and*-avoid; dodge/avoid
- * behavior is a follow-up, not required to prove the navmesh pipeline works.
+ * Entity-pursuit AI (see docs/MMORPG_ROADMAP.md): [npcTransform] chases [targetTransform] by
+ * periodically re-querying [navMesh] for a path and steering kinematically toward the next
+ * waypoint -- same "deliberately simple, no physics" bar as a kinematic player-movement path.
+ * Chase only, not chase-*and*-avoid; dodge/avoid behavior is a follow-up, not required to prove
+ * the navmesh pipeline works.
  *
  * Re-paths every [repathInterval] seconds rather than every frame -- `recast4j`'s
  * `findPath`/`findStraightPath` aren't cheap enough to redo at 60Hz for a single NPC, let
  * alone many.
+ *
+ * Engine-owned (not sample-local): only touches [Transform]/[NavMesh], both already engine-
+ * layer types, so any sample can build one directly -- no per-sample port needed, matching
+ * [io.github.ronjunevaldoz.awake.scene.core.systems.TransformSystem]'s own "engine System, thin
+ * per-sample dispatch" shape.
  */
 class ChaseAiSystem(
     private val npcTransform: Transform,
