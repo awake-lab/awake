@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.frameStats
 import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioViewportRect
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
@@ -72,9 +73,20 @@ internal fun SceneGameRuntime.drawStudioShell(
     // The VIEWPORT's own camera, not the selected entity's -- the orientation widget always
     // reflects what the viewport itself is looking at.
     primaryCamera(world)?.let { orientationGizmo.render(renderer, it.camera) }
+    val stats = frameStats()
     headlessFrame(viewportWidth, viewportHeight) {
         shadcnTheme(theme = StudioTheme) {
-            drawStudioShellBody(store, world, renderer, backend, viewportRect, cameraPreview, orientationGizmo)
+            drawStudioShellBody(
+                store,
+                world,
+                renderer,
+                backend,
+                viewportRect,
+                cameraPreview,
+                orientationGizmo,
+                fps = stats.fps,
+                frameTimeMs = stats.frameTimeMs,
+            )
         }
     }
 }
@@ -147,6 +159,8 @@ internal fun UiScope.drawStudioShellBody(
     viewportRect: StudioViewportRect = StudioViewportRect(),
     cameraPreview: StudioCameraPreview = StudioCameraPreview(),
     orientationGizmo: StudioOrientationGizmo = StudioOrientationGizmo(),
+    fps: Float = 0f,
+    frameTimeMs: Float = 0f,
 ) {
     column(
         verticalArrangement = Arrangement.spacedBy(0f.dp),
@@ -183,6 +197,8 @@ internal fun UiScope.drawStudioShellBody(
             mode = if (playing) "Play mode" else "Edit mode",
             backend = backend,
             entityCount = world.namedEntityCount(),
+            fps = fps,
+            frameTimeMs = frameTimeMs,
         )
     }
 }

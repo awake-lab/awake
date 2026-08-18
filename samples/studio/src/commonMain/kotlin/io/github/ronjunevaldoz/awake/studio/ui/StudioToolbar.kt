@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
+import kotlin.math.roundToInt
 
 // internal, not private -- StudioShell.kt reads both to size the panels group's own height
 // explicitly (see its doc comment for why that's computed rather than a weight(1f) fill).
@@ -122,14 +123,26 @@ internal fun UiScope.drawStudioTopBar(
  * [backend] is the backend this game was configured with (see `studioModule`), not one probed
  * from the live window -- `Renderer` exposes no identity, and it was previously a hard-coded
  * "Vulkan" literal that read as fact on every platform including web. */
-internal fun UiScope.drawStudioStatusBar(mode: String, backend: String, entityCount: Int) {
+internal fun UiScope.drawStudioStatusBar(
+    mode: String,
+    backend: String,
+    entityCount: Int,
+    fps: Float = 0f,
+    frameTimeMs: Float = 0f,
+) {
     barBand(id = "studio-status-bar", height = STATUS_BAR_HEIGHT) {
         row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = UiAlignment.Vertical.Center,
             modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         ) {
-            shadcnText("$mode  -  $entityCount entities", tone = ShadcnTextTone.Muted)
+            // Same "${frameTimeMs}ms  ${fps} fps" shape GameUiPerfOverlay already uses --
+            // frameStats() hands frameTimeMs pre-rounded to a tenth, fps still wants its own
+            // roundToInt() here, matching that convention exactly.
+            shadcnText(
+                "$mode  -  $entityCount entities  -  ${frameTimeMs}ms  ${fps.roundToInt()} fps",
+                tone = ShadcnTextTone.Muted,
+            )
             shadcnBadge(id = "studio-status-backend", label = backend, variant = ShadcnBadgeVariant.Outline)
         }
     }
