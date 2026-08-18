@@ -167,6 +167,15 @@ class Material(
     }
 
     fun updateUniformBuffer(frameIndex: Int, drawSlotIndex: Int, values: FloatArray) {
+        // Catches an oversized write here, in Kotlin, with the actual float counts involved --
+        // the alternative is vkMapMemory rejecting it deep in native code as a bare
+        // VUID-vkMapMemory-size-00681 with no indication of which Material/DrawCall was at
+        // fault (see the entity-debugger/skybox session this check was added after).
+        require(values.size <= uniformFloatCount) {
+            "Uniform write of ${values.size} floats overflows this Material's " +
+                "$uniformFloatCount-float buffer -- createMaterial(uniformFloatCount = ...) " +
+                "was sized for a smaller layout than what's actually being written."
+        }
         val slot = uniformSlot(frameIndex, drawSlotIndex)
         VulkanBuffers.writeBufferMemoryFloats(device, slot.uniformBufferMemory.handle, 0, values)
     }

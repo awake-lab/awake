@@ -61,7 +61,7 @@ internal class StudioOrientationGizmo {
         // smaller buffer here is a real vkMapMemory-oversteps-allocation error, not just wasted
         // space. Matches how every other PositionNormalColor material in Studio sizes itself.
         val flatMaterial = axisMaterial
-            ?: renderer.createMaterial(uniformFloatCount = LitShadowUniformLayout.total).also { axisMaterial = it }
+            ?: renderer.createMaterial(LitShadowUniformLayout).also { axisMaterial = it }
         val axisMeshes = meshes ?: buildAxisMeshes(renderer).also { meshes = it }
 
         val direction = (mainCamera.center - mainCamera.eye).normalized()

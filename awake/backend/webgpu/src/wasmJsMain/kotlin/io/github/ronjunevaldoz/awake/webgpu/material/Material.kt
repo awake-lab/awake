@@ -90,6 +90,14 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
      * sharing ONE material within a frame would both see the last write (see `Renderer`'s own
      * class doc comment for the same ceiling on the shared uniform buffer). */
     override fun updateUniformBuffer(mvp: FloatArray) {
+        // Same check Vulkan's Material.updateUniformBuffer has -- catches an oversized write
+        // here, in Kotlin, instead of writeBuffer silently overrunning the GPU buffer (WebGPU
+        // has no equivalent of Vulkan's vkMapMemory validation error to catch it for us).
+        require(mvp.size <= uniformFloatCount) {
+            "Uniform write of ${mvp.size} floats overflows this Material's " +
+                "$uniformFloatCount-float buffer -- createMaterial(uniformFloatCount = ...) " +
+                "was sized for a smaller layout than what's actually being written."
+        }
         device.queue.writeBuffer(requireUniformBuffer(), 0uL, fastArrayBufferOf(mvp))
     }
 
