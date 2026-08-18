@@ -18,7 +18,7 @@ internal fun UiContext.resolveRootSlot(
     defaultWidth: Dimension = Dimension.FillMax,
     defaultHeight: Dimension = Dimension.FillMax,
 ): UiBounds {
-    val frame = frameBounds()
+    val frame = frameBoundsInternal()
     val requestedWidth = modifier.widthDimension ?: defaultWidth
     val requestedHeight = modifier.heightDimension ?: defaultHeight
     val width = requestedWidth.resolveAgainst(frame.width)

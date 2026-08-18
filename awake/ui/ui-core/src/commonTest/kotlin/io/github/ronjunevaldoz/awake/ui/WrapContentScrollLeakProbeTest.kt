@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Real-measurement probe for the live report: "the parent [WrapContent] container is expanding
@@ -45,7 +46,7 @@ class WrapContentScrollLeakProbeTest {
         val ui = UiContext()
 
         fun renderFrame(): UiBounds {
-            ui.beginFrame(920f, 620f, testSnapshot())
+            ui.beginFrame(UiFrameInput(viewportWidth = 920f, viewportHeight = 620f, input = testSnapshot()))
             var outerSlot: UiBounds? = null
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
                 id = "page",
@@ -57,7 +58,7 @@ class WrapContentScrollLeakProbeTest {
                     content = content(),
                 )
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
             return requireNotNull(outerSlot)
         }
 

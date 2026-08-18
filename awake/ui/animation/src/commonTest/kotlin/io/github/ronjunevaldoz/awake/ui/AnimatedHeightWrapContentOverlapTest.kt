@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.math.ceil
 import kotlin.test.Test
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Reproduces the ui-showcase accordion demo's "expanded item covers its neighbour" report.
@@ -42,7 +43,7 @@ class AnimatedHeightWrapContentOverlapTest {
         var lastSlot: UiBounds? = null
 
         fun frame() {
-            ui.beginFrame(400f, 800f, testSnapshot())
+            ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 800f, input = testSnapshot()))
             ui.createColumn(x = 0f, y = 0f, width = columnWidth).apply {
                 // Stand-in for shadcnSurface(modifier = Modifier.height(Dimension.WrapContent))
                 // wrapping the Preview/Code panel around the real accordion demo.
@@ -52,7 +53,7 @@ class AnimatedHeightWrapContentOverlapTest {
                     }
                 }
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
         // Settle collapsed, then expand and run past the tween's duration (250ms default).
@@ -87,7 +88,7 @@ class AnimatedHeightWrapContentOverlapTest {
         var realContentWidth = 0f
 
         fun frame() {
-            ui.beginFrame(600f, 800f, testSnapshot())
+            ui.beginFrame(UiFrameInput(viewportWidth = 600f, viewportHeight = 800f, input = testSnapshot()))
             val scrollState = ui.rememberScrollState("content-scroll")
             ui.createRow(x = 0f, y = 0f, height = 800f, width = rowWidth).column(
                 id = "content-viewport",
@@ -102,7 +103,7 @@ class AnimatedHeightWrapContentOverlapTest {
                     }
                 }
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
         repeat(10) { frame() }

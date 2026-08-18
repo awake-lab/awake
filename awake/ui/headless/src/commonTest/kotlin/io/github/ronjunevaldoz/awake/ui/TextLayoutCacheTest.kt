@@ -12,6 +12,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 /**
  * Regression coverage for docs/tasks/2026-08-03-text-layout-measure-cache.md's
@@ -44,7 +46,7 @@ class TextLayoutCacheTest {
     }
 
     private fun renderOnce(ui: UiContext, font: UiFont, label: String, slotWidth: Float = 200f) {
-        ui.pushFont(font)
+        ui.pushLocal(LocalFont, font)
         val scope = ui.createAbsolute(x = 0f, y = 0f)
         scope.text(label = label, slot = UiBounds(0f, 0f, slotWidth, 12f), font = font)
     }
@@ -61,18 +63,18 @@ class TextLayoutCacheTest {
         // exactly this floor.
         val expectedDrawPassCallsPerFrame = label.length
 
-        ui.beginFrame(400f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 200f, input = testSnapshot()))
         renderOnce(ui, font, label)
-        ui.endFrame()
+        ui.finishFrame().primitives
         val callsAfterFirstFrame = font.advanceForCalls
         assertTrue(
             callsAfterFirstFrame > expectedDrawPassCallsPerFrame,
             "first frame must pay both the layout walk and the draw pass, not just the draw floor",
         )
 
-        ui.beginFrame(400f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 200f, input = testSnapshot()))
         renderOnce(ui, font, label)
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         assertEquals(
             expectedDrawPassCallsPerFrame,
@@ -88,14 +90,14 @@ class TextLayoutCacheTest {
         val font = CountingFont()
         val ui = UiContext()
 
-        ui.beginFrame(400f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 200f, input = testSnapshot()))
         renderOnce(ui, font, "short")
-        ui.endFrame()
+        ui.finishFrame().primitives
         val callsAfterFirstFrame = font.advanceForCalls
 
-        ui.beginFrame(400f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 200f, input = testSnapshot()))
         renderOnce(ui, font, "a much longer label that is clearly not the same string")
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         assertTrue(
             font.advanceForCalls > callsAfterFirstFrame,

@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Regression for [io.github.ronjunevaldoz.awake.ui.graphics.animation.animatedHeight]'s own
@@ -40,7 +41,7 @@ class AnimatedHeightUncachedColumnStalenessTest {
         var contentHeightDp = 100f
 
         fun frame(): UiBounds? {
-            ui.beginFrame(400f, 800f, testSnapshot())
+            ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 800f, input = testSnapshot()))
             var slot: UiBounds? = null
             ui.createAbsolute(x = 0f, y = 0f).column(
                 id = "shell",
@@ -50,7 +51,7 @@ class AnimatedHeightUncachedColumnStalenessTest {
                     spacer(Modifier.height(contentHeightDp.dp))
                 }
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
             return slot
         }
 

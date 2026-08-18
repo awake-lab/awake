@@ -19,6 +19,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Verifies `UiPrimitiveScope.row()`/`UiPrimitiveScope.column()`'s opt-in `id`/`cacheKey` hasWeightedChild cache --
@@ -41,20 +42,20 @@ class RowColumnWeightCacheTest {
             row(modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(30f.px))) { }
         }
 
-        ui.beginFrame(400f, 400f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 400f, input = testSnapshot()))
         UiMeasureTrialStats.reset()
         UiMeasureTrialStats.enabled = true
         val firstSlot = draw()
         val firstFrameTrials = UiMeasureTrialStats.trialCount
-        ui.endFrame()
+        ui.finishFrame().primitives
 
-        ui.beginFrame(400f, 400f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 400f, input = testSnapshot()))
         UiMeasureTrialStats.reset()
         val secondSlot = draw()
         val secondFrameTrials = UiMeasureTrialStats.trialCount
         UiMeasureTrialStats.enabled = false
         UiMeasureTrialStats.reset()
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         assertTrue(
             secondFrameTrials < firstFrameTrials,
@@ -101,15 +102,15 @@ class RowColumnWeightCacheTest {
             return slots
         }
 
-        ui.beginFrame(400f, 400f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 400f, input = testSnapshot()))
         val unweighted = draw(useWeight = false, cacheKey = "v1")
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         // Different cacheKey -> guaranteed cache miss -> fresh trial picks up the real,
         // structurally-changed content (a weighted first child now fills remaining width).
-        ui.beginFrame(400f, 400f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 400f, input = testSnapshot()))
         val weighted = draw(useWeight = true, cacheKey = "v2")
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         assertTrue(
             weighted[0].width > unweighted[0].width,
@@ -150,14 +151,14 @@ class RowColumnWeightCacheTest {
 
         UiWeightCacheConsistencyCheck.enabled = true
         try {
-            ui.beginFrame(400f, 400f, testSnapshot())
+            ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 400f, input = testSnapshot()))
             draw(useWeight = false)
-            ui.endFrame()
+            ui.finishFrame().primitives
 
             // Second frame: same cacheKey, but a .weight() child was added -- this is a cache
             // *hit* by id/cacheKey, so without the debug consistency check it would silently
             // return the stale "no weighted child" answer. With the check enabled it must throw.
-            ui.beginFrame(400f, 400f, testSnapshot())
+            ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 400f, input = testSnapshot()))
             assertFailsWith<IllegalStateException> {
                 draw(useWeight = true)
             }

@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 class UiDebugOverlayTest {
 
@@ -42,7 +43,7 @@ class UiDebugOverlayTest {
     @Test
     fun contextOverlaySurvivesPastEndFrameUntilNextBeginFrame() {
         val ui = UiContext()
-        ui.beginFrame(200f, 100f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 100f, input = testSnapshot()))
         ui.createAbsolute(slot = ui.resolveRootSlot(Modifier.offset(10f.dp, 10f.dp), defaultWidth = Dimension.Fixed(0.dp), defaultHeight = Dimension.Fixed(0.dp))).recordSemantic(
             role = UiSemanticRole.Button,
             bounds = UiBounds(
@@ -53,12 +54,12 @@ class UiDebugOverlayTest {
             ),
             id = "b",
         )
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         val overlay = ui.debugOverlayPrimitives()
         assertTrue(overlay.isNotEmpty(), "semantic nodes recorded during the frame should still be readable after endFrame()")
 
-        ui.beginFrame(200f, 100f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 100f, input = testSnapshot()))
         assertTrue(ui.debugOverlayPrimitives().isEmpty(), "beginFrame() clears semantic nodes from the prior frame")
     }
 }

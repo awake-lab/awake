@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Orchestrates a single 3D scene session.
@@ -132,10 +133,12 @@ class SceneGameRuntime internal constructor(
 
         // 1. UI Pass
         uiContext.beginFrame(
-            screenWidth = viewportWidth,
-            screenHeight = viewportHeight,
-            inputState = snapshot.toUiInputState(),
-            deltaSeconds = delta,
+            UiFrameInput(
+                viewportWidth = viewportWidth,
+                viewportHeight = viewportHeight,
+                input = snapshot.toUiInputState(),
+                deltaSeconds = delta,
+            ),
         )
         spec.overlayBlock(this, viewportWidth, viewportHeight)
         val uiFrame = uiContext.finishFrame()

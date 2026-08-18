@@ -182,7 +182,10 @@ fun UiPrimitiveScope.rangeSlider(
             if (fillWidth > 0f) {
                 emitFillAndBorder(
                     slot = UiBounds(fillX, trackSlot.y, fillWidth, trackSlot.height),
-                    fillColor = theme.colors.primary,
+                    // resolved.foreground is the caller's accent color (shares shadcnSliderStyle
+                    // with slider()) -- the token is only a fallback for a bare Style.Empty
+                    // caller, not a hardcoded override.
+                    fillColor = surface.resolved.foreground ?: theme.colors.primary,
                     radiusPx = 0f,
                     borderWidth = UiShape.none,
                     borderColor = Color.Transparent,
@@ -202,8 +205,10 @@ fun UiPrimitiveScope.rangeSlider(
                             ?: 1f.dp,
                         shapeSpec = UiShapeSpec.Pill,
                     ),
+                    // See slider()'s identical knob-fill comment -- no dedicated resolved field
+                    // for the knob's own fill, only the accent border is caller-overridable.
                     fillColor = theme.colors.background,
-                    borderColor = theme.colors.primary,
+                    borderColor = surface.resolved.foreground ?: theme.colors.primary,
                 )
             }
         }

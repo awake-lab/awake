@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Regression coverage for the dropdown/dialog "text renders under its own background" bug:
@@ -24,7 +25,7 @@ class UiOverlayLayerTest {
     @Test
     fun childAbsoluteInheritsOverlayFromItsCallingScope() {
         val ui = UiContext()
-        ui.beginFrame(200f, 100f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 100f, input = testSnapshot()))
 
         // A base-layer marker, emitted first -- e.g. ordinary page content behind a popup.
         ui.createColumn(x = 0f, y = 0f, width = 100f)
@@ -37,7 +38,7 @@ class UiOverlayLayerTest {
         val overlayMarker = UiDrawPrimitive.Quad(0f, 0f, 10f, 10f, Color(0f, 0f, 1f, 1f))
         overlayColumn.childAbsolute(UiBounds(0f, 0f, 10f, 10f)).emit(overlayMarker)
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         assertEquals(
             overlayMarker,
             primitives.last(),
@@ -51,7 +52,7 @@ class UiOverlayLayerTest {
     @Test
     fun emitFillAndBorderDefaultsToItsScopesOverlayLayer() {
         val ui = UiContext()
-        ui.beginFrame(200f, 100f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 100f, input = testSnapshot()))
 
         // A base-layer marker, emitted first.
         ui.createColumn(x = 0f, y = 0f, width = 100f)
@@ -67,7 +68,7 @@ class UiOverlayLayerTest {
             borderWidth = 0f.dp,
         )
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         assertEquals(
             1,
             primitives.count { it is UiDrawPrimitive.Quad && (it as UiDrawPrimitive.Quad).color == Color(0f, 0f, 1f, 1f) },
@@ -97,7 +98,7 @@ class UiOverlayLayerTest {
     @Test
     fun overlayClipIsIndependentOfAmbientBaseLayerClip() {
         val ui = UiContext()
-        ui.beginFrame(200f, 100f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 100f, input = testSnapshot()))
 
         // A small base-layer ancestor clip -- e.g. a WrapContent card only tall enough for its
         // own normal-flow content, textually wrapping a nested popup call.
@@ -112,7 +113,7 @@ class UiOverlayLayerTest {
             }
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val overlayClipPush = primitives
             .filterIsInstance<UiDrawPrimitive.ClipPush>()
             .last()

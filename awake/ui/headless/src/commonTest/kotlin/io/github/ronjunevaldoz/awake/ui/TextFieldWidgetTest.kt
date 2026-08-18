@@ -26,7 +26,7 @@ class TextFieldWidgetTest {
                     .textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
             }
             click(100f, 20f) { draw() }
-            assertTrue(ui.isFocused("field"), "clicking a text field must grant it focus")
+            assertTrue(ui.isFocusedInternal("field"), "clicking a text field must grant it focus")
             input.pushTypedText("abc")
             frame(x = 100f, y = 20f, down = false) { draw() }
         }
@@ -61,9 +61,9 @@ class TextFieldWidgetTest {
                     .textField("field", value, modifier = Modifier.width(160f.px).height(36f.px))
             }
             click(100f, 20f) { draw() }
-            assertTrue(ui.isFocused("field"))
+            assertTrue(ui.isFocusedInternal("field"))
             click(100f, 150f) { draw() }
-            assertFalse(ui.isFocused("field"), "a fresh click outside every focusable widget must clear focus")
+            assertFalse(ui.isFocusedInternal("field"), "a fresh click outside every focusable widget must clear focus")
             input.pushTypedText("ignored")
             frame(x = 100f, y = 150f, down = false) { draw() }
         }

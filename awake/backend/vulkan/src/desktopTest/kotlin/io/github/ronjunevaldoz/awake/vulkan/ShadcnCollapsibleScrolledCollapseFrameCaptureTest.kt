@@ -24,6 +24,10 @@ import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import java.io.File
 import kotlin.test.Test
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
+import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
+import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 
 /**
  * Follow-up to [ShadcnCollapsibleRealRenderCollapseFrameCaptureTest]: that test (and the two
@@ -69,9 +73,9 @@ class ShadcnCollapsibleScrolledCollapseFrameCaptureTest {
         lateinit var sidebarScroll: ScrollState
 
         fun frame(): List<UiDrawPrimitive> {
-            ui.beginFrame(480f, 800f, input.updateSnapshot().toUiInputState())
-            ui.pushFont(font)
-            ui.pushTheme(ShadcnTheme)
+            ui.beginFrame(UiFrameInput(viewportWidth = 480f, viewportHeight = 800f, input = input.updateSnapshot().toUiInputState()))
+            ui.pushLocal(LocalFont, font)
+            ui.pushLocal(LocalTheme, ShadcnTheme.asRuntimeTheme())
             sidebarScroll = ui.rememberScrollState("scrolled-capture-sidebar-scroll")
             ui.createUiScope(UiBounds(0f, 0f, 480f, 800f)).shadcnSidebar(
                 id = "scrolled-capture-sidebar",
@@ -98,7 +102,7 @@ class ShadcnCollapsibleScrolledCollapseFrameCaptureTest {
                     }
                 }
             }
-            return ui.endFrame()
+            return ui.finishFrame().primitives
         }
 
         val outputDir = File("build/ui-animation-capture/shadcn-collapsible-scrolled-collapse")

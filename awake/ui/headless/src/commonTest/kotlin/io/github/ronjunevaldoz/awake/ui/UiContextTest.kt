@@ -16,6 +16,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 @io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks UiContext widget state and overlay mechanics directly")
 class UiContextTest {
@@ -100,7 +101,7 @@ class UiContextTest {
 
         // Press inside the slider's track -- latches activeId, no drag yet on this frame's
         // pointer position (matches button's own press-edge semantics).
-        ui.beginFrame(200f, 100f, testSnapshot(x = 20f, y = 30f, down = true))
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 100f, input = testSnapshot(x = 20f, y = 30f, down = true)))
         var value = ui.createAbsolute(x = 20f, y = 20f).slider(
             "vol",
             min = 0f,
@@ -110,10 +111,10 @@ class UiContextTest {
                 100f.px,
             ).height(20f.px),
         )
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         // Drag to the track's midpoint while still held.
-        ui.beginFrame(200f, 100f, testSnapshot(x = 70f, y = 30f, down = true))
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 100f, input = testSnapshot(x = 70f, y = 30f, down = true)))
         value = ui.createAbsolute(x = 20f, y = 20f).slider(
             "vol",
             min = 0f,
@@ -123,11 +124,11 @@ class UiContextTest {
                 100f.px,
             ).height(20f.px),
         )
-        ui.endFrame()
+        ui.finishFrame().primitives
         assertEquals(5f, value, "dragging to the track midpoint should map to the midpoint value")
 
         // Release -- value should hold at whatever it last was.
-        ui.beginFrame(200f, 100f, testSnapshot(x = 70f, y = 30f, down = false))
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 100f, input = testSnapshot(x = 70f, y = 30f, down = false)))
         value = ui.createAbsolute(x = 20f, y = 20f).slider(
             "vol",
             min = 0f,
@@ -137,14 +138,14 @@ class UiContextTest {
                 100f.px,
             ).height(20f.px),
         )
-        ui.endFrame()
+        ui.finishFrame().primitives
         assertEquals(5f, value, "releasing should not further change the value")
     }
 
     @Test
     fun dropdownCanUseModifierSizingAsPrimaryApi() {
         val ui = UiContext()
-        ui.beginFrame(220f, 160f, testSnapshot(x = 0f, y = 0f, down = false))
+        ui.beginFrame(UiFrameInput(viewportWidth = 220f, viewportHeight = 160f, input = testSnapshot(x = 0f, y = 0f, down = false)))
         val column = ui.createColumn(x = 20f, y = 20f, width = 160f)
         val expandedState = column.widgetState("dd")
         expandedState.set("expanded", true)
@@ -157,7 +158,7 @@ class UiContextTest {
                 .height(32f.px),
         )
 
-        val optionBackgrounds = ui.endFrame().filter { primitive ->
+        val optionBackgrounds = ui.finishFrame().primitives.filter { primitive ->
             when (primitive) {
                 is UiDrawPrimitive.Quad -> primitive.x == 20f && primitive.w == 160f && (primitive.y == 52f || primitive.y == 84f)
                 is UiDrawPrimitive.RoundedQuad -> primitive.x == 20f && primitive.w == 160f && (primitive.y == 52f || primitive.y == 84f)
@@ -178,7 +179,7 @@ class UiContextTest {
         // up later in endFrame()'s output (painted on top), since they go through
         // emitOverlay() rather than emit().
         val ui = UiContext()
-        ui.beginFrame(200f, 200f, testSnapshot(x = 0f, y = 0f, down = false))
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 200f, input = testSnapshot(x = 0f, y = 0f, down = false)))
         val column = ui.createColumn(x = 20f, y = 20f, width = 160f)
 
         // Expand the dropdown first (simulating it was already expanded from a prior frame).
@@ -203,7 +204,7 @@ class UiContextTest {
             ).height(32f.px),
         )
 
-        val allPrimitives = ui.endFrame()
+        val allPrimitives = ui.finishFrame().primitives
         val siblingIndex = allPrimitives.indexOfLast { primitive ->
             when (primitive) {
                 is UiDrawPrimitive.Quad -> primitive.x == 20f && primitive.y == 60f && primitive.w == 160f && primitive.h == 32f

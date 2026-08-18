@@ -94,8 +94,14 @@ fun UiPrimitiveScope.checkbox(
             } else {
                 surface.resolved
             },
-            fillColor = if (checked || indeterminate) theme.colors.primary else surface.resolved.background,
-            borderColor = if (checked || indeterminate) theme.colors.primary else surface.resolved.borderColor,
+            // resolved.background/borderColor already reflect the caller's own checked-state
+            // colors (shadcnCheckboxStyle sets both per `checked`); the theme token is only a
+            // fallback for a bare-Style.Empty caller, not a hardcoded override that would ignore
+            // a caller's own Style -- see skills/awake-ui-authoring's headless-Style-only rule.
+            fillColor = surface.resolved.background
+                ?: theme.colors.primary.takeIf { checked || indeterminate },
+            borderColor = surface.resolved.borderColor
+                ?: theme.colors.primary.takeIf { checked || indeterminate },
         )
         // Mirrors real shadcn's triStateToggleable: clicking an Indeterminate box always lands
         // on checked=true, same as clicking an Off box -- only an On box flips to false.

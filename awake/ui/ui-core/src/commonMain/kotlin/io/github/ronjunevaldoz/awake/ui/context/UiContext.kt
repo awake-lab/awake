@@ -12,8 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
-import io.github.ronjunevaldoz.awake.ui.api.theme.UiThemeValues
-import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
@@ -21,9 +19,6 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.RowScope
 import io.github.ronjunevaldoz.awake.ui.layouts.defaultArrangement
 import io.github.ronjunevaldoz.awake.ui.scaledByAlpha
-import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
-import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
-import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.withTransform
 
@@ -42,12 +37,6 @@ class UiContext internal constructor(
     private val measurement = UiMeasurementRuntime()
     private val layouts = UiLayoutFactory(this)
 
-    @Deprecated("Use current(LocalTheme) from a UiPrimitiveScope or UiScope accessor instead")
-    val currentTheme: UiTheme get() = current(LocalTheme)
-    @Deprecated("Use current(LocalTextStyle) from a UiPrimitiveScope or UiScope accessor instead")
-    val currentTextStyle: TextStyle get() = current(LocalTextStyle)
-    @Deprecated("Use current(LocalFont) from a UiPrimitiveScope or UiScope accessor instead")
-    val currentFont get() = current(LocalFont)
     val currentShapeSpec get() = stacks.currentShapeSpec
     val inputState: UiInputState get() = runtime.inputState
 
@@ -57,25 +46,6 @@ class UiContext internal constructor(
     /** Prefer `Provide(local, value) { }`, which cannot leak the value past a throw. */
     fun <T> pushLocal(local: UiLocal<T>, value: T) = stacks.push(local, value)
     fun <T> popLocal(local: UiLocal<T>) = stacks.pop(local)
-
-    @Deprecated("Use pushLocal(LocalTheme, theme), preferably through provideTheme")
-    fun pushTheme(theme: UiTheme) = pushLocal(LocalTheme, theme)
-
-    /** Installs a runtime-free theme contract; Core supplies neutral fallback recipes internally. */
-    @Deprecated("Use pushLocal(LocalTheme, theme.asRuntimeTheme()), preferably through provideTheme")
-    fun pushTheme(theme: UiThemeValues) = pushLocal(LocalTheme, theme.asRuntimeTheme())
-    @Deprecated("Use popLocal(LocalTheme), preferably through provideTheme")
-    fun popTheme() = popLocal(LocalTheme)
-
-    @Deprecated("Use pushLocal(LocalTextStyle, style), preferably through provideTextStyle")
-    fun pushTextStyle(style: TextStyle) = pushLocal(LocalTextStyle, style)
-    @Deprecated("Use popLocal(LocalTextStyle), preferably through provideTextStyle")
-    fun popTextStyle() = popLocal(LocalTextStyle)
-
-    @Deprecated("Use pushLocal(LocalFont, font), preferably through provideFont")
-    fun pushFont(font: UiFont) = pushLocal(LocalFont, font)
-    @Deprecated("Use popLocal(LocalFont), preferably through provideFont")
-    fun popFont() = popLocal(LocalFont)
 
     fun pushShapeSpec(spec: io.github.ronjunevaldoz.awake.ui.UiShapeSpec?) = stacks.pushShapeSpec(spec)
     fun popShapeSpec() = stacks.popShapeSpec()
@@ -97,29 +67,6 @@ class UiContext internal constructor(
         )
         measurement.beginFrame()
         beginWeightAnswerFrame()
-    }
-
-    @Deprecated(
-        message = "Use beginFrame(UiFrameInput(...)) to keep the frame lifecycle input bundled as a single value.",
-        replaceWith = ReplaceWith(
-            "beginFrame(UiFrameInput(viewportWidth = screenWidth, viewportHeight = screenHeight, input = inputState, deltaSeconds = deltaSeconds))",
-            imports = ["io.github.ronjunevaldoz.awake.ui.context.UiFrameInput"],
-        ),
-    )
-    fun beginFrame(
-        screenWidth: Float,
-        screenHeight: Float,
-        inputState: UiInputState,
-        deltaSeconds: Float = 1f / 60f,
-    ) {
-        beginFrame(
-            UiFrameInput(
-                viewportWidth = screenWidth,
-                viewportHeight = screenHeight,
-                input = inputState,
-                deltaSeconds = deltaSeconds,
-            ),
-        )
     }
 
     fun createColumn(
@@ -312,40 +259,15 @@ class UiContext internal constructor(
         ).content()
     }
 
-    @Deprecated(
-        message = "Use finishFrame().ownership instead of reading intermediate input ownership directly from UiContext.",
-    )
-    fun inputResult(): UiInputResult = runtime.inputResult()
-
-    @Deprecated(
-        message = "Use finishFrame().primitives as the single public frame result.",
-    )
-    fun endFrame(): List<UiDrawPrimitive> = runtime.endFrame()
-
     fun finishFrame(): UiFrameOutput = runtime.finishFrame()
 
     internal fun onOverScrollableInternal() {
         if (!measuring) runtime.onOverScrollable()
     }
 
-    @Deprecated(
-        message = "Scrollable widget ownership should be coordinated from UiPrimitiveScope helpers, not public UiContext.",
-    )
-    fun onOverScrollable() = onOverScrollableInternal()
-
     internal fun onScrollConsumedInternal() {
         if (!measuring) runtime.onScrollConsumed()
     }
-
-    @Deprecated(
-        message = "Scrollable widget ownership should be coordinated from UiPrimitiveScope helpers, not public UiContext.",
-    )
-    fun onScrollConsumed() = onScrollConsumedInternal()
-
-    @Deprecated(
-        message = "Use finishFrame().semantics as the single public frame result.",
-    )
-    fun semanticNodes(): List<UiSemanticNode> = runtime.semanticNodes()
 
     internal fun hitTestInternal(slot: UiBounds): Boolean =
         !measuring && runtime.hitTest(slot)
@@ -360,7 +282,11 @@ class UiContext internal constructor(
         if (!measuring) runtime.releaseActiveIfMatches(id)
     }
 
-    internal fun isFocusedInternal(id: String): Boolean = runtime.isFocused(id)
+    // Public (not module-internal) despite the name: a handful of low-level test harnesses hold
+    // a raw UiContext with no UiPrimitiveScope to route through -- see
+    // io.github.ronjunevaldoz.awake.ui.scope.isFocused for the scope-based path ordinary widget
+    // code should prefer.
+    fun isFocusedInternal(id: String): Boolean = runtime.isFocused(id)
 
     internal fun requestFocusInternal(id: String) {
         if (!measuring) runtime.requestFocus(id)
@@ -424,24 +350,9 @@ class UiContext internal constructor(
 
     fun pushClipInternal(rect: UiBounds, overlay: Boolean = false): UiBounds = runtime.pushClip(rect, overlay)
 
-    @Deprecated(
-        message = "Prefer clip helpers or UiPrimitiveScope-scoped clipping instead of manipulating UiContext clip stacks directly.",
-    )
-    fun pushClip(rect: UiBounds): UiBounds = pushClipInternal(rect)
-
     fun popClipInternal(overlay: Boolean = false): UiBounds = runtime.popClip(overlay)
 
-    @Deprecated(
-        message = "Prefer clip helpers or UiPrimitiveScope-scoped clipping instead of manipulating UiContext clip stacks directly.",
-    )
-    fun popClip(): UiBounds = popClipInternal()
-
     fun pointerDownEdgeInternal(): Boolean = runtime.pointerDownEdge()
-
-    @Deprecated(
-        message = "Pointer edge state should be read from UiPrimitiveScope helpers inside composition.",
-    )
-    fun pointerDownEdge(): Boolean = pointerDownEdgeInternal()
 
     fun setActiveInternal(id: String?) {
         runtime.setActive(id)
@@ -455,41 +366,11 @@ class UiContext internal constructor(
         if (!measuring) runtime.requestCursor(cursor)
     }
 
-    @Deprecated(
-        message = "Active-state mutation belongs to widgets and scopes, not public UiContext callers.",
-    )
-    fun setActive(id: String?) {
-        setActiveInternal(id)
-    }
-
-    @Deprecated(
-        message = "Focus queries should go through UiPrimitiveScope helpers inside composition.",
-    )
-    fun isFocused(id: String): Boolean = isFocusedInternal(id)
-
-    @Deprecated(
-        message = "Focus mutation should go through UiPrimitiveScope helpers inside composition.",
-    )
-    fun requestFocus(id: String) = requestFocusInternal(id)
-
-    @Deprecated(
-        message = "Focus mutation should go through UiPrimitiveScope helpers inside composition.",
-    )
-    fun clearFocusIfMatches(id: String) = clearFocusIfMatchesInternal(id)
-
     fun frameDeltaSecondsInternal(): Float = runtime.frameDeltaSeconds
 
-    @Deprecated(
-        message = "Frame metrics should be read from UiPrimitiveScope helpers inside composition.",
-    )
-    fun frameDeltaSeconds(): Float = frameDeltaSecondsInternal()
-
-    internal fun frameBoundsInternal(): UiBounds = runtime.fullFrameRect
-
-    @Deprecated(
-        message = "Frame metrics should be read from UiPrimitiveScope helpers inside composition.",
-    )
-    fun frameBounds(): UiBounds = frameBoundsInternal()
+    // Public (not module-internal) despite the name -- see isFocusedInternal's doc above; the
+    // same low-level, scope-less test harnesses read frame bounds off a raw UiContext.
+    fun frameBoundsInternal(): UiBounds = runtime.fullFrameRect
 
     fun isMeasuringInternal(): Boolean = measuring
 
@@ -499,11 +380,6 @@ class UiContext internal constructor(
      * with its source context instead of measuring stateful content (a `WrapContent` branch
      * that reads persisted selection/toggle state, for example) against fresh default values. */
     internal fun stateStoreInternal(): UiStateStore = stateStore
-
-    @Deprecated(
-        message = "Measurement mode is engine plumbing; prefer UiPrimitiveScope/layout helpers instead of branching on UiContext.",
-    )
-    fun isMeasuring(): Boolean = isMeasuringInternal()
 
     // A row/column's own "measured" trial (see measureRowContentInternal/measureColumnContentInternal
     // below) reads measuredSlots/measuredWeights as one entry per DIRECT child claim, index-
@@ -746,23 +622,6 @@ class UiContext internal constructor(
         }
     }
 
-    @Deprecated(
-        message = "Measurement should be coordinated from UiPrimitiveScope/layout helpers, not from the public UiContext surface.",
-    )
-    fun measureColumnContent(
-        width: Float,
-        gap: Float = UiSpacing.sm.toPx(),
-        insets: UiInsets = UiInsets.Zero,
-        height: Float = UNBOUNDED_MAIN_AXIS,
-        content: ColumnScope.(slot: UiBounds) -> Unit,
-    ): UiMeasuredContent = measureColumnContentInternal(
-        width = width,
-        gap = gap,
-        insets = insets,
-        height = height,
-        content = content,
-    )
-
     internal fun measureRowContentInternal(
         height: Float,
         gap: Float,
@@ -778,23 +637,6 @@ class UiContext internal constructor(
         content = content,
     )
 
-    @Deprecated(
-        message = "Measurement should be coordinated from UiPrimitiveScope/layout helpers, not from the public UiContext surface.",
-    )
-    fun measureRowContent(
-        height: Float,
-        gap: Float,
-        insets: UiInsets = UiInsets.Zero,
-        width: Float = UNBOUNDED_MAIN_AXIS,
-        content: RowScope.(slot: UiBounds) -> Unit,
-    ): UiMeasuredContent = measureRowContentInternal(
-        height = height,
-        gap = gap,
-        insets = insets,
-        width = width,
-        content = content,
-    )
-
     private companion object {
         const val OBSERVED_WEIGHT = 1
         const val TOLERATE_UNPLANNED_WEIGHT = 2
@@ -803,19 +645,4 @@ class UiContext internal constructor(
     internal fun pointerXInternal(): Float = runtime.inputState.pointerX
     internal fun pointerYInternal(): Float = runtime.inputState.pointerY
     internal fun pointerDownInternal(): Boolean = runtime.inputState.pointerDown
-
-    @Deprecated(
-        message = "Pointer coordinates should be read from UiPrimitiveScope helpers inside composition.",
-    )
-    fun pointerX(): Float = pointerXInternal()
-
-    @Deprecated(
-        message = "Pointer coordinates should be read from UiPrimitiveScope helpers inside composition.",
-    )
-    fun pointerY(): Float = pointerYInternal()
-
-    @Deprecated(
-        message = "Pointer state should be read from UiPrimitiveScope helpers inside composition.",
-    )
-    fun pointerDown(): Boolean = pointerDownInternal()
 }

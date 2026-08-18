@@ -217,7 +217,7 @@ internal fun UiPrimitiveScope.surfaceCore(
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: initialHovered,
         active = modifier.forceActive ?: isActive(id),
-        focused = modifier.forceFocus ?: context.isFocused(id),
+        focused = modifier.forceFocus ?: context.isFocusedInternal(id),
     )
     val resolved = resolveStyle(
         style = effectiveStyle,
@@ -261,7 +261,7 @@ internal fun UiPrimitiveScope.surfaceCore(
                 availableWidth = maxContentWidth,
                 gap = gap,
             ) {
-                context.measureColumnContent(
+                context.measureColumnContentInternal(
                     width = maxContentWidth,
                     gap = gap,
                     content = content,

@@ -14,6 +14,9 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
+import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
 
 class DpTest {
 
@@ -68,10 +71,10 @@ class DpTest {
         UiDensity.fontScale = 1f
         val font = BitmapFont()
         val ui = UiContext()
-        ui.beginFrame(120f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 120f, viewportHeight = 80f, input = testSnapshot()))
 
-        ui.pushFont(font)
-        ui.pushTheme(UiDefaultTheme)
+        ui.pushLocal(LocalFont, font)
+        ui.pushLocal(LocalTheme, UiDefaultTheme)
         val glyphPx = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f)).resolveGlyphPx(
             font = font,
             textStyle = TextStyle(size = 10.sp),
@@ -86,10 +89,10 @@ class DpTest {
         UiDensity.fontScale = 1.1f
         val font = BitmapFont()
         val ui = UiContext()
-        ui.beginFrame(120f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 120f, viewportHeight = 80f, input = testSnapshot()))
 
-        ui.pushFont(font)
-        ui.pushTheme(UiDefaultTheme)
+        ui.pushLocal(LocalFont, font)
+        ui.pushLocal(LocalTheme, UiDefaultTheme)
         val glyphPx = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f)).resolveGlyphPx(
             font = font,
             textStyle = TextStyle(size = 13f.sp),

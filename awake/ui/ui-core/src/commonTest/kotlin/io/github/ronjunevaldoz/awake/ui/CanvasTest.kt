@@ -15,13 +15,15 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertSame
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 class CanvasTest {
 
     @Test
     fun canvasTranslatesPrimitiveCoordinatesIntoBounds() {
         val ui = UiContext()
-        ui.beginFrame(200f, 120f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 120f, input = testSnapshot()))
         val root = ui.createAbsolute(x = 20f, y = 30f)
 
         root.canvas(
@@ -37,7 +39,7 @@ class CanvasTest {
             )
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val rect = assertIs<UiDrawPrimitive.Quad>(primitives[0])
         assertEquals(25f, rect.x)
         assertEquals(37f, rect.y)
@@ -54,11 +56,11 @@ class CanvasTest {
     @Test
     fun canvasTextAndTextureUseCanvasLocalCoordinates() {
         val ui = UiContext()
-        ui.beginFrame(240f, 160f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 240f, viewportHeight = 160f, input = testSnapshot()))
         val material = Any()
         val root = ui.createAbsolute(x = 40f, y = 50f)
         val glyphPx = root.resolveGlyphPx()
-        val glyphRect = ui.currentFont.uvFor('A')!!
+        val glyphRect = ui.current(LocalFont).uvFor('A')!!
 
         root.canvas(
             modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(80f.px)),
@@ -67,7 +69,7 @@ class CanvasTest {
             drawImage(x = 12f, y = 18f, width = 24f, height = 20f, material = material)
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val glyph = primitives.filterIsInstance<UiDrawPrimitive.Glyph>().single()
         assertEquals(48f + glyphRect.offsetXEm * glyphPx, glyph.x)
         assertEquals(60f + glyphRect.offsetYEm * glyphPx, glyph.y)
@@ -84,7 +86,7 @@ class CanvasTest {
     @Test
     fun canvasPathAndClipStayRelativeToCanvasBounds() {
         val ui = UiContext()
-        ui.beginFrame(240f, 160f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 240f, viewportHeight = 160f, input = testSnapshot()))
 
         ui.createAbsolute(x = 10f, y = 15f).canvas(
             modifier = Modifier.width(Dimension.Fixed(100f.px)).height(Dimension.Fixed(80f.px)),
@@ -109,7 +111,7 @@ class CanvasTest {
             }
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val path = primitives.filterIsInstance<UiDrawPrimitive.FilledPath>().first()
         val pathBounds = path.path.bounds()
         assertEquals(11f, pathBounds.x)
@@ -122,7 +124,7 @@ class CanvasTest {
     @Test
     fun nestedCanvasOffsetsChildBoundsFromParentCanvas() {
         val ui = UiContext()
-        ui.beginFrame(300f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 200f, input = testSnapshot()))
 
         ui.createAbsolute(x = 50f, y = 60f).canvas(
             modifier = Modifier.width(Dimension.Fixed(120f.px)).height(Dimension.Fixed(90f.px)),
@@ -133,7 +135,7 @@ class CanvasTest {
             }
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val stroke = primitives.filterIsInstance<UiDrawPrimitive.StrokedPath>().single()
         val strokeBounds = stroke.path.bounds()
         assertEquals(60f, strokeBounds.x)

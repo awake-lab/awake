@@ -33,7 +33,7 @@ class StudioShellChromeTest {
         assertEquals(UiCursor.Default, runtime.cursor, "no hover -> default cursor")
 
         val handle = assertNotNull(
-            runtime.uiContext.semanticNodes().firstOrNull { it.id == "studio-panel-handle-left" },
+            runtime.uiContext.finishFrame().semantics.firstOrNull { it.id == "studio-panel-handle-left" },
             "left workspace handle must exist",
         )
         input.setPointer(
@@ -61,7 +61,7 @@ class StudioShellChromeTest {
         game.render(1f / 60f, 1440f, 900f)
 
         val dock = assertNotNull(
-            runtime.uiContext.semanticNodes().firstOrNull { it.id == "studio-bottom-dock-surface" },
+            runtime.uiContext.finishFrame().semantics.firstOrNull { it.id == "studio-bottom-dock-surface" },
             "dock surface must exist",
         )
         val background = assertNotNull(dock.backgroundColor, "dock must declare a background")

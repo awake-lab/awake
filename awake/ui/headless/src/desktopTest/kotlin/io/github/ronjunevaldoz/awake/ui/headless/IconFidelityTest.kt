@@ -19,6 +19,7 @@ import java.io.File
 import javax.imageio.ImageIO
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Proves each shipped [io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons] glyph renders the *same shape* as the official Heroicons SVG
@@ -136,10 +137,10 @@ class IconFidelityTest {
      * CPU [rasterize] `UiSnapshotWriter`/`SkeletonShimmerPixelTest` use for real-pixel proof. */
     private fun renderIcon(vector: UiImageVector): ByteArray {
         val ui = UiContext()
-        ui.beginFrame(size.toFloat(), size.toFloat(), testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = size.toFloat(), viewportHeight = size.toFloat(), input = testSnapshot(), deltaSeconds = 1f / 60f))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
         scope.icon(vector, modifier = Modifier.width(size.dp).height(size.dp), tint = Color.White)
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         return primitives.rasterize(size, size, background = Color.Black)
     }
 

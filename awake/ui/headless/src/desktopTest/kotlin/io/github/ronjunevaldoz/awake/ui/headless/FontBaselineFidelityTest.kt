@@ -15,6 +15,7 @@ import javax.imageio.ImageIO
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Compares our text rendering against the same TTF rendered by Chromium
@@ -76,7 +77,7 @@ class FontBaselineFidelityTest {
         val w = 640
         val h = 96
         val ui = UiContext()
-        ui.beginFrame(w.toFloat(), h.toFloat(), testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = w.toFloat(), viewportHeight = h.toFloat(), input = testSnapshot()))
         ui.createAbsolute(x = 16f, y = 48f)
             .text(sample.text, style = Style { textSize(sample.sizePx.sp) })
         // The font MUST be passed: without it the rasterizer draws its null-font placeholder
@@ -87,7 +88,7 @@ class FontBaselineFidelityTest {
         // TRANSPARENT: an opaque background fills alpha with 255, every pixel then passes the
         // ink threshold, the whole canvas collapses into one full-width run and the spread is 0
         // no matter what was drawn -- the gate passes vacuously.
-        val pixels = ui.endFrame().rasterize(
+        val pixels = ui.finishFrame().primitives.rasterize(
             w,
             h,
             background = Color(0f, 0f, 0f, 0f),

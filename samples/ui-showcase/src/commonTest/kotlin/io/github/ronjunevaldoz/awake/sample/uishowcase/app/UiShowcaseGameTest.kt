@@ -71,6 +71,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 class UiShowcaseGameTest {
 
@@ -306,14 +308,14 @@ class UiShowcaseGameTest {
         val ui = UiContext()
         val input = Input()
 
-        ui.beginFrame(960f, 540f, input.updateSnapshot().toUiInputState())
+        ui.beginFrame(UiFrameInput(viewportWidth = 960f, viewportHeight = 540f, input = input.updateSnapshot().toUiInputState()))
         val selectedPageState = ui.rememberStateValue("ui-showcase-page", "entry") {
             ShowcasePages.first().id
         }
         selectedPageState.value = "theming"
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
-        ui.pushFont(BitmapFont())
+        ui.pushLocal(LocalFont, BitmapFont())
         ui.showcaseRoot(theme = state.showcaseTheme(), bounds = UiBounds(24f, 24f, 720f, 516f)) {
             column(
             id = "ui-showcase-content-viewport",
@@ -330,8 +332,8 @@ class UiShowcaseGameTest {
             }
         }
 
-        ui.endFrame()
-        val semantics = ui.semanticNodes()
+        ui.finishFrame().primitives
+        val semantics = ui.finishFrame().semantics
         val viewport = requireSemanticNode(
             semantics,
             "ui-showcase-content-viewport",
@@ -355,7 +357,7 @@ class UiShowcaseGameTest {
         val ui = UiContext()
         val input = Input()
 
-        ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
+        ui.beginFrame(UiFrameInput(viewportWidth = 1440f, viewportHeight = 900f, input = input.updateSnapshot().toUiInputState()))
         var selectedPage by ui.rememberStateValue("ui-showcase-page", "entry") {
             ShowcasePages.first().id
         }
@@ -363,7 +365,7 @@ class UiShowcaseGameTest {
         val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side")
         val contentScroll = ui.rememberScrollState("ui-showcase-scroll-content")
 
-        ui.pushFont(BitmapFont())
+        ui.pushLocal(LocalFont, BitmapFont())
         ui.showcaseRoot(theme = shadcnThemeValues(dark = false), bounds = UiBounds(0f, 0f, 1440f, 900f)) {
             row(
             modifier = Modifier.fillMaxSize().padding(24f.dp),
@@ -389,8 +391,8 @@ class UiShowcaseGameTest {
             }
         }
 
-        ui.endFrame()
-        val semantics = ui.semanticNodes()
+        ui.finishFrame().primitives
+        val semantics = ui.finishFrame().semantics
 
         assertEquals(
             1,
@@ -416,16 +418,16 @@ class UiShowcaseGameTest {
 
         fun renderSidebar() {
             // Large deltaSeconds lets the collapsible's height animation converge in one frame.
-            ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState(), deltaSeconds = 5f)
-            ui.pushFont(BitmapFont())
+            ui.beginFrame(UiFrameInput(viewportWidth = 1440f, viewportHeight = 900f, input = input.updateSnapshot().toUiInputState(), deltaSeconds = 5f))
+            ui.pushLocal(LocalFont, BitmapFont())
             ui.showcaseRoot(theme = shadcnThemeValues(dark = false), bounds = UiBounds(0f, 0f, 264f, 900f)) {
                 column { drawUiShowcaseSidebar(compact = false) }
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
         renderSidebar()
-        var semantics = ui.semanticNodes()
+        var semantics = ui.finishFrame().semantics
         assertTrue(
             semantics.any { it.id == "ui-showcase-sidebar-category-GettingStarted.header" || it.id == "ui-showcase-sidebar-category-GettingStarted.trigger" },
             "expected a collapsible header for the GettingStarted category",
@@ -444,7 +446,7 @@ class UiShowcaseGameTest {
 
         renderSidebar()
         renderSidebar()
-        semantics = ui.semanticNodes()
+        semantics = ui.finishFrame().semantics
         assertTrue(
             semantics.none { it.id == "ui-showcase-page-introduction" },
             "collapsing the GettingStarted group should hide its page buttons",
@@ -456,14 +458,14 @@ class UiShowcaseGameTest {
         val ui = UiContext()
         val input = Input()
 
-        ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState(), deltaSeconds = 5f)
-        ui.pushFont(BitmapFont())
+        ui.beginFrame(UiFrameInput(viewportWidth = 1440f, viewportHeight = 900f, input = input.updateSnapshot().toUiInputState(), deltaSeconds = 5f))
+        ui.pushLocal(LocalFont, BitmapFont())
         ui.showcaseRoot(theme = shadcnThemeValues(dark = false), bounds = UiBounds(0f, 0f, 264f, 900f)) {
             column { drawUiShowcaseSidebar(compact = false) }
         }
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
 
-        val semantics = ui.semanticNodes()
+        val semantics = ui.finishFrame().semantics
         val header = requireSemanticNode(
             semantics,
             "ui-showcase-sidebar-category-GettingStarted.trigger",
@@ -570,12 +572,8 @@ private fun List<UiDrawPrimitive.RoundedQuad>.deduplicatedCards(): List<UiDrawPr
 
 private fun renderSidebarSurfaceColor(theme: io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues): Color {
     val ui = UiContext()
-    ui.beginFrame(
-        360f,
-        240f,
-        Input().updateSnapshot().toUiInputState(),
-    )
-    ui.pushFont(BitmapFont())
+    ui.beginFrame(UiFrameInput(viewportWidth = 360f, viewportHeight = 240f, input = Input().updateSnapshot().toUiInputState()))
+    ui.pushLocal(LocalFont, BitmapFont())
     ui.showcaseRoot(theme = theme, bounds = UiBounds(24f, 24f, 264f, 180f)) {
         column {
         shadcnSidebar(
@@ -586,7 +584,7 @@ private fun renderSidebarSurfaceColor(theme: io.github.ronjunevaldoz.awake.ui.de
         }
         }
     }
-    val rounded = ui.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>()
+    val rounded = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>()
     return requireNotNull(rounded.maxByOrNull { it.w * it.h }) { "expected sidebar probe background" }.color
 }
 

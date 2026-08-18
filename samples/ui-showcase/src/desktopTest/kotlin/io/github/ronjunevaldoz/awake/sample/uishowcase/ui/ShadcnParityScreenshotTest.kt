@@ -78,6 +78,8 @@ import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlin.test.Test
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDropdownMenuItem as UiDropdownMenuItem
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 /** Builds a one-off [UiInputState] for a preview frame -- [Input] is a per-session
  * instance now (no longer a global object), so tests construct their own throwaway one. */
@@ -166,8 +168,8 @@ private fun parityFrame(
     val theme = shadcnThemeValues(dark = dark)
     val font = UiFonts.default()
     val ui = UiContext()
-    ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), parityTestSnapshot())
-    ui.pushFont(font)
+    ui.beginFrame(UiFrameInput(viewportWidth = metadata.width.toFloat(), viewportHeight = metadata.height.toFloat(), input = parityTestSnapshot()))
+    ui.pushLocal(LocalFont, font)
     ui.showcaseRoot(theme = theme, bounds = UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())) {
         body()
     }
@@ -421,7 +423,7 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
         val font = UiFonts.default()
         val ui = UiContext()
         fun composeFrame() {
-            ui.pushFont(font)
+            ui.pushLocal(LocalFont, font)
             ui.showcaseRoot(theme = theme, bounds = UiBounds(0f, 0f, 212f, metadata.height.toFloat())) {
                 column(
                 modifier = Modifier.width(212f.dp)
@@ -443,21 +445,11 @@ internal object AwakeProgressLightPreview : AwakeUiPreviewEntry {
         }
 
         repeat(PROGRESS_PARITY_SETTLE_FRAMES) {
-            ui.beginFrame(
-                metadata.width.toFloat(),
-                metadata.height.toFloat(),
-                parityTestSnapshot(),
-                deltaSeconds = PROGRESS_PARITY_SETTLE_DELTA_SECONDS,
-            )
+            ui.beginFrame(UiFrameInput(viewportWidth = metadata.width.toFloat(), viewportHeight = metadata.height.toFloat(), input = parityTestSnapshot(), deltaSeconds = PROGRESS_PARITY_SETTLE_DELTA_SECONDS))
             composeFrame()
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
-        ui.beginFrame(
-            metadata.width.toFloat(),
-            metadata.height.toFloat(),
-            parityTestSnapshot(),
-            deltaSeconds = PROGRESS_PARITY_SETTLE_DELTA_SECONDS,
-        )
+        ui.beginFrame(UiFrameInput(viewportWidth = metadata.width.toFloat(), viewportHeight = metadata.height.toFloat(), input = parityTestSnapshot(), deltaSeconds = PROGRESS_PARITY_SETTLE_DELTA_SECONDS))
         composeFrame()
         val output = ui.finishFrame()
         return AwakeUiPreviewFrame(

@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.ResizableDirection as PrimitiveDirection
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.ResizablePanelGroupScope as PrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.resizablePanelGroup as primitiveResizablePanelGroup
@@ -44,4 +45,5 @@ fun ResizablePanelGroupScope.panel(
 fun ResizablePanelGroupScope.handle(
     id: String,
     withHandle: Boolean = false,
-): UiBounds = primitive.handle(id = id, withHandle = withHandle)
+    style: Style = Style.Empty,
+): UiBounds = primitive.handle(id = id, withHandle = withHandle, style = style)

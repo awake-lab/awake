@@ -70,6 +70,8 @@ import kotlin.math.abs
 import kotlin.math.round
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 private fun comparisonTestSnapshot(): UiInputState {
     val input = Input()
@@ -99,8 +101,8 @@ internal object AwakeCardLightPreview : AwakeUiPreviewEntry {
         val theme = shadcnThemeValues(dark = false)
         val font = UiFonts.default()
         val ui = UiContext()
-        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), comparisonTestSnapshot())
-        ui.pushFont(font)
+        ui.beginFrame(UiFrameInput(viewportWidth = metadata.width.toFloat(), viewportHeight = metadata.height.toFloat(), input = comparisonTestSnapshot()))
+        ui.pushLocal(LocalFont, font)
         ui.showcaseRoot(theme = theme, bounds = UiBounds(0f, 0f, metadata.width.toFloat(), metadata.height.toFloat())) {
             column(
             modifier = Modifier.offset(8f.dp, 8f.dp).width(272f.dp)
@@ -170,8 +172,8 @@ internal object AwakeTooltipContentLightPreview : AwakeUiPreviewEntry {
         val theme = shadcnThemeValues(dark = false)
         val font = UiFonts.default()
         val ui = UiContext()
-        ui.beginFrame(metadata.width.toFloat(), metadata.height.toFloat(), comparisonTestSnapshot())
-        ui.pushFont(font)
+        ui.beginFrame(UiFrameInput(viewportWidth = metadata.width.toFloat(), viewportHeight = metadata.height.toFloat(), input = comparisonTestSnapshot()))
+        ui.pushLocal(LocalFont, font)
         // Anchor is a 1px sliver, not drawn -- just enough for BottomCenter/TopCenter +
         // spacing.xs to place the bubble, so the canvas doesn't waste rows on a full-size
         // trigger the reference (bubble-only capture) never shows either.

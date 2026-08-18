@@ -44,6 +44,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 class GameUiDslTest {
 
@@ -211,7 +212,7 @@ class GameUiDslTest {
         val panelColor = Color(0.15f, 0.32f, 0.62f, 1f)
         val markerColor = Color(0.92f, 0.28f, 0.24f, 1f)
 
-        runtime.uiContext.beginFrame(240f, 160f, UiInputState())
+        runtime.uiContext.beginFrame(UiFrameInput(viewportWidth = 240f, viewportHeight = 160f, input = UiInputState()))
         with(runtime) {
             uiContext.createBox(
                 slot = UiBounds(0f, 0f, 240f, 160f),
@@ -240,7 +241,7 @@ class GameUiDslTest {
             }
         }
 
-        val primitives = runtime.uiContext.endFrame()
+        val primitives = runtime.uiContext.finishFrame().primitives
         val panelIndex = primitives.indexOfFirst { primitive ->
             primitive is UiDrawPrimitive.RoundedQuad && primitive.color == panelColor
         }

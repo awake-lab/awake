@@ -17,6 +17,7 @@ import kotlinx.benchmark.Param
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Frame cost of nested row/column layout, parameterised by nesting depth.
@@ -49,7 +50,7 @@ open class LayoutNestingBenchmark {
 
     @Benchmark
     fun nestedColumnsAndRows(): Int {
-        ui.beginFrame(FRAME_WIDTH, FRAME_HEIGHT, UiInputState(pointerX = -100f, pointerY = -100f))
+        ui.beginFrame(UiFrameInput(viewportWidth = FRAME_WIDTH, viewportHeight = FRAME_HEIGHT, input = UiInputState(pointerX = -100f, pointerY = -100f)))
         ui.createAbsolute(x = 0f, y = 0f).column(id = "bench-root") {
             nest(depth)
         }

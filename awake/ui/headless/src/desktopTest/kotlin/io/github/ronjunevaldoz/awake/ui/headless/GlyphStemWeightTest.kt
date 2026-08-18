@@ -14,6 +14,7 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Asserts that repeating one glyph renders it at the same weight every time.
@@ -57,7 +58,7 @@ class GlyphStemWeightTest {
         val width = 640
         val height = 96
         val ui = UiContext()
-        ui.beginFrame(width.toFloat(), height.toFloat(), testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = width.toFloat(), viewportHeight = height.toFloat(), input = testSnapshot()))
         // Enough repetitions that fractional advances sweep through a full range of sub-pixel
         // phases -- a short string can land every instance on a similar phase and hide the bug.
         ui.createAbsolute(x = 16f, y = 48f)
@@ -66,7 +67,7 @@ class GlyphStemWeightTest {
         // rect for every glyph, and this gate silently measures placeholder geometry instead
         // of glyph sampling. That is exactly what happened -- see
         // docs/tasks/2026-08-10-glyph-scale-regression.md.
-        val pixels = ui.endFrame().rasterize(width, height, background = Color.Black, font = UiFonts.default())
+        val pixels = ui.finishFrame().primitives.rasterize(width, height, background = Color.Black, font = UiFonts.default())
 
         // Coverage lives in the alpha channel: drawGlyph writes the tint's full RGB into any
         // pixel with nonzero coverage, so thresholding red would count the entire AA skirt.

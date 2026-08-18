@@ -30,6 +30,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 class LayoutTest {
 
@@ -48,7 +49,7 @@ class LayoutTest {
         // measuredSlots/measuredWeights/fillsMainAxis trial, desyncing resolveWeightedMainAxis()'s
         // index pairing and this row's plannedSlots consumption order.
         val ui = UiContext()
-        ui.beginFrame(1200f, 800f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 1200f, viewportHeight = 800f, input = testSnapshot()))
         var sidebar: UiBounds? = null
         var viewport: UiBounds? = null
         var controls: UiBounds? = null
@@ -69,7 +70,7 @@ class LayoutTest {
                 claimSlot(Dimension.Fixed(70f.px), Dimension.Fixed(20f.px))
             }
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         assertEquals(200f, sidebar?.width)
         assertEquals(0f, sidebar?.x)
@@ -153,7 +154,7 @@ class LayoutTest {
     @Test
     fun rowSpaceBetweenDistributesChildrenAcrossRemainingWidth() {
         val ui = UiContext()
-        ui.beginFrame(240f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 240f, viewportHeight = 80f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 240f)
         var first: UiBounds? = null
         var second: UiBounds? = null
@@ -173,7 +174,7 @@ class LayoutTest {
     @Test
     fun columnSpaceEvenlyAddsLeadingAndBetweenSpace() {
         val ui = UiContext()
-        ui.beginFrame(120f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 120f, viewportHeight = 200f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 120f, height = 200f)
         var first: UiBounds? = null
         var second: UiBounds? = null
@@ -201,7 +202,7 @@ class LayoutTest {
     @Test
     fun rowVerticalAlignmentCentersMismatchedHeightChildrenWithoutPerChildAlign() {
         val ui = UiContext()
-        ui.beginFrame(240f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 240f, viewportHeight = 80f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 240f)
         var tall: UiBounds? = null
         var short: UiBounds? = null
@@ -221,7 +222,7 @@ class LayoutTest {
     @Test
     fun rowChildExplicitAlignOverridesContainerVerticalAlignment() {
         val ui = UiContext()
-        ui.beginFrame(240f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 240f, viewportHeight = 80f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 240f)
         var overridden: UiBounds? = null
 
@@ -240,7 +241,7 @@ class LayoutTest {
     @Test
     fun columnHorizontalAlignmentCentersMismatchedWidthChildrenWithoutPerChildAlign() {
         val ui = UiContext()
-        ui.beginFrame(120f, 240f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 120f, viewportHeight = 240f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 120f)
         var wide: UiBounds? = null
         var narrow: UiBounds? = null
@@ -260,7 +261,7 @@ class LayoutTest {
     @Test
     fun columnChildExplicitAlignOverridesContainerHorizontalAlignment() {
         val ui = UiContext()
-        ui.beginFrame(120f, 240f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 120f, viewportHeight = 240f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 120f)
         var overridden: UiBounds? = null
 
@@ -347,7 +348,7 @@ class LayoutTest {
     @Test
     fun scrollableColumnInRowPreservesRequestedFixedWidth() {
         val ui = UiContext()
-        ui.beginFrame(800f, 600f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 800f, viewportHeight = 600f, input = testSnapshot()))
 
         var sidebarSlot: UiBounds? = null
         var contentSlot: UiBounds? = null
@@ -463,7 +464,7 @@ class LayoutTest {
     @Test
     fun scrollableColumnFillMaxInUnboundedParentFailsLoudlyWithParentName() {
         val ui = UiContext()
-        ui.beginFrame(920f, 620f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 920f, viewportHeight = 620f, input = testSnapshot()))
 
         val error = assertFailsWith<IllegalStateException> {
             ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).surface(
@@ -498,7 +499,7 @@ class LayoutTest {
     @Test
     fun rowWeightSplitsRemainingSpaceEvenlyForEqualWeights() {
         val ui = UiContext()
-        ui.beginFrame(200f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 80f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
         var first: UiBounds? = null
         var second: UiBounds? = null
@@ -520,7 +521,7 @@ class LayoutTest {
     @Test
     fun rowWeightSplitsRemainingSpaceProportionallyForUnequalWeights() {
         val ui = UiContext()
-        ui.beginFrame(200f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 80f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
         var first: UiBounds? = null
         var second: UiBounds? = null
@@ -541,7 +542,7 @@ class LayoutTest {
     @Test
     fun rowWeightReservesFixedSiblingSpaceFirst() {
         val ui = UiContext()
-        ui.beginFrame(200f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 80f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
         var fixed: UiBounds? = null
         var weighted: UiBounds? = null
@@ -566,7 +567,7 @@ class LayoutTest {
         // row's full width as "occupied" before the weighted sibling gets its share -- see
         // resolveWeightedMainAxis() in Arrangement.kt.
         val ui = UiContext()
-        ui.beginFrame(200f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 80f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
         var weighted: UiBounds? = null
         var fillMax: UiBounds? = null
@@ -590,7 +591,7 @@ class LayoutTest {
         // Reverse-order case: the non-weighted FillMax sibling comes first. Fix must not be
         // order-dependent.
         val ui = UiContext()
-        ui.beginFrame(200f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 80f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
         var fillMax: UiBounds? = null
         var weighted: UiBounds? = null
@@ -612,7 +613,7 @@ class LayoutTest {
     @Test
     fun rowWeightFillFalseLetsChildUseLessThanItsAllottedShare() {
         val ui = UiContext()
-        ui.beginFrame(200f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 80f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
         var filled: UiBounds? = null
         var unfilled: UiBounds? = null
@@ -633,7 +634,7 @@ class LayoutTest {
     @Test
     fun columnWeightSplitsRemainingSpaceEvenlyForEqualWeights() {
         val ui = UiContext()
-        ui.beginFrame(80f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 80f, viewportHeight = 200f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 80f)
         var first: UiBounds? = null
         var second: UiBounds? = null
@@ -655,7 +656,7 @@ class LayoutTest {
     @Test
     fun rowModifierWeightWiresThroughClaimModifiedSlot() {
         val ui = UiContext()
-        ui.beginFrame(200f, 80f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 80f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 200f)
         var first: UiBounds? = null
         var second: UiBounds? = null
@@ -683,7 +684,7 @@ class LayoutTest {
         // a negative-size crash in real widgets (e.g. a surface subtracting border/padding from
         // a near-zero measured width).
         val ui = UiContext()
-        ui.beginFrame(300f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 200f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 300f)
         val columnSlots = mutableListOf<UiBounds>()
         var rowSlot: UiBounds? = null
@@ -731,7 +732,7 @@ class LayoutTest {
         // child to justify it -- cutting this to 2^N. Regression guard: 4 levels must invoke the
         // leaf content exactly 16 times (2^4), not 81 (3^4).
         val ui = UiContext()
-        ui.beginFrame(400f, 800f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 800f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 400f)
         var leafCount = 0
 
@@ -766,7 +767,7 @@ class LayoutTest {
         // row's own measured height. Regression guard: this row must hug its one real 40px-tall
         // child, not the sizing trial's placeholder.
         val ui = UiContext()
-        ui.beginFrame(300f, 2000f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 2000f, input = testSnapshot()))
         val root = ui.createColumn(x = 0f, y = 0f, width = 300f)
 
         val rowSlot = root.row(modifier = Modifier.width(Dimension.FillMax).height(Dimension.WrapContent)) {
@@ -786,7 +787,7 @@ class LayoutTest {
 
 private fun renderScrollableNestedSurface(renderParent: (UiContext, ColumnContent) -> Unit) {
     val ui = UiContext()
-    ui.beginFrame(920f, 620f, testSnapshot())
+    ui.beginFrame(UiFrameInput(viewportWidth = 920f, viewportHeight = 620f, input = testSnapshot()))
 
     val content: ColumnContent = {
         surface(
@@ -805,7 +806,7 @@ private fun renderScrollableNestedSurface(renderParent: (UiContext, ColumnConten
     }
 
     renderParent(ui, content)
-    ui.endFrame()
+    ui.finishFrame().primitives
 }
 
 private typealias ColumnContent = io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.() -> Unit

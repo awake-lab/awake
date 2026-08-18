@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Regression test for the real bug report (Task #21): `shadcnCard(modifier =
@@ -32,7 +33,7 @@ class WrapContentWidthFillMaxChildTest {
     @Test
     fun wrapContentSurfaceHugsShortFixedWidthContent() {
         val ui = UiContext()
-        ui.beginFrame(1000f, 400f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 1000f, viewportHeight = 400f, input = testSnapshot()))
 
         var slot: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 900f, height = 400f).column(
@@ -46,7 +47,7 @@ class WrapContentWidthFillMaxChildTest {
                 spacer(Modifier.width(Dimension.Fixed(80f.px)).height(Dimension.Fixed(20f.px)))
             }
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         val width = requireNotNull(slot).width
         assertTrue(
@@ -61,7 +62,7 @@ class WrapContentWidthFillMaxChildTest {
         // Mirrors shadcnCard's real shape: a divider (fillMaxWidth(), like separator()) mixed
         // with fixed-width body content. The card must hug the fixed content, not the divider.
         val ui = UiContext()
-        ui.beginFrame(1000f, 400f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 1000f, viewportHeight = 400f, input = testSnapshot()))
 
         var slot: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 900f, height = 400f).column(
@@ -77,7 +78,7 @@ class WrapContentWidthFillMaxChildTest {
                 spacer(Modifier.width(Dimension.FillMax).height(Dimension.Fixed(2f.px)))
             }
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         val width = requireNotNull(slot).width
         assertTrue(

@@ -29,6 +29,8 @@ import io.github.ronjunevaldoz.awake.ui.scope.pointerX
 import io.github.ronjunevaldoz.awake.ui.scope.pointerY
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.requestCursor
+import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.floor
 
@@ -154,7 +156,7 @@ class ResizablePanelGroupScope internal constructor(
     /** A draggable divider between the [panel] immediately before and after it. Real drag/resize
      * mechanics only -- the visible line and optional grip are the shadcn skin's job (see
      * `shadcnResizableHandle` in ui-designsystem). */
-    fun handle(id: String, withHandle: Boolean = false): UiBounds {
+    fun handle(id: String, withHandle: Boolean = false, style: Style = Style.Empty): UiBounds {
         if (countingOnly) {
             handleCount++
             collectedHandleIds.add(id)
@@ -206,6 +208,12 @@ class ResizablePanelGroupScope internal constructor(
         }
         handleIndex++
         recordSemantic(role = UiSemanticRole.Separator, id = id, bounds = slot)
+        // No caller could previously re-color this line/grip -- there was no `style` param at
+        // all. `resolved.foreground` is the one channel a caller now has to override the
+        // divider's accent color; `theme.colors.border` remains the fallback for a bare
+        // Style.Empty caller.
+        val resolved = style.resolve(MutableStyleState(hovered = hovered, active = dragging))
+        val handleColor = resolved.foreground ?: theme.colors.border
         // Reference's always-visible separator line (resizable.tsx: `w-px bg-border` full
         // cross-axis) -- a hairline centered in the grab strip, drawn whether or not the grip
         // box is requested. Before this the strip was fully invisible without `withHandle`.
@@ -219,7 +227,7 @@ class ResizablePanelGroupScope internal constructor(
                     y = slot.y,
                     w = lineThickness,
                     h = slot.height,
-                    color = theme.colors.border,
+                    color = handleColor,
                 ),
             )
         } else {
@@ -229,7 +237,7 @@ class ResizablePanelGroupScope internal constructor(
                     y = floor(slot.y + (slot.height - lineThickness) / 2f),
                     w = slot.width,
                     h = lineThickness,
-                    color = theme.colors.border,
+                    color = handleColor,
                 ),
             )
         }
@@ -252,7 +260,7 @@ class ResizablePanelGroupScope internal constructor(
                     y = gripY,
                     w = gripWidth,
                     h = gripHeight,
-                    color = theme.colors.border,
+                    color = handleColor,
                     radius = 2f.dp.toPx(),
                 ),
             )

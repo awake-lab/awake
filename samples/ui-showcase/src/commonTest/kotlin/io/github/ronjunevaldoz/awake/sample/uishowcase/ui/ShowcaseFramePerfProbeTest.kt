@@ -19,6 +19,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 import kotlin.test.Test
 import kotlin.time.measureTime
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 /** Perf probe for the wasm "1 fps" report: same shell composition, desktop JVM numbers.
  * Prints steady-state ms/frame and trial-measure passes per frame. */
@@ -28,10 +30,10 @@ class ShowcaseFramePerfProbeTest {
     fun measureShellFrameCost() {
         val ui = UiContext()
         val state = UiShowcaseRuntimeState()
-        ui.pushFont(BitmapFont())
+        ui.pushLocal(LocalFont, BitmapFont())
 
         fun frame() {
-            ui.beginFrame(1280f, 900f, UiInputState(pointerX = 400f, pointerY = 300f))
+            ui.beginFrame(UiFrameInput(viewportWidth = 1280f, viewportHeight = 900f, input = UiInputState(pointerX = 400f, pointerY = 300f)))
             ui.showcaseRoot(theme = shadcnThemeValues(dark = false), bounds = UiBounds(0f, 0f, 1280f, 900f)) {
                 row(
                     modifier = Modifier.padding(24f.dp).fillMaxWidth().fillMaxHeight(),
@@ -44,7 +46,7 @@ class ShowcaseFramePerfProbeTest {
                     }
                 }
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
         repeat(30) { frame() }

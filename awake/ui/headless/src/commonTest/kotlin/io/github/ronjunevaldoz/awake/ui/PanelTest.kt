@@ -15,6 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 @io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks immediate column-slot and surface layout contracts")
 class PanelTest {
@@ -74,7 +75,7 @@ class PanelTest {
                 shape(UiShape.none)
             },
         ) { }
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         assertTrue(primitives.isNotEmpty())
         assertIs<UiDrawPrimitive.Quad>(
             primitives.first(),
@@ -90,7 +91,7 @@ class PanelTest {
             "p",
             modifier = Modifier.width(Dimension.Fixed(180f.px)).height(Dimension.Fixed(100f.px)),
         ) { }
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         assertTrue(primitives.isNotEmpty())
         assertIs<UiDrawPrimitive.RoundedQuad>(
             primitives.first(),
@@ -102,7 +103,7 @@ class PanelTest {
     fun wrapContentHeightTracksChildContent() {
         val ui = UiContext()
         val font = io.github.ronjunevaldoz.awake.ui.font.BitmapFont()
-        ui.pushFont(font)
+        ui.pushLocal(LocalFont, font)
         val column = ui.createColumn(x = 0f, y = 0f, width = 220f)
 
         val panelSlot = column.surface(
@@ -124,7 +125,7 @@ class PanelTest {
     fun wrapContentWidthTracksChildContent() {
         val ui = UiContext()
         val font = io.github.ronjunevaldoz.awake.ui.font.BitmapFont()
-        ui.pushFont(font)
+        ui.pushLocal(LocalFont, font)
         val column = ui.createColumn(x = 0f, y = 0f, width = 220f)
 
         val panelSlot = column.surface(

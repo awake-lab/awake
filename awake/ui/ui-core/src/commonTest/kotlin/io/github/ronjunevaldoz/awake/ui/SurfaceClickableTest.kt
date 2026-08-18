@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.clickable
@@ -28,9 +29,9 @@ class SurfaceClickableTest {
 
     private fun UiContext.frame(input: Input, down: Boolean, x: Float, y: Float, body: () -> Unit) {
         input.setPointer(down, x, y)
-        beginFrame(200f, 100f, input.updateSnapshot().toUiInputState())
+        beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 100f, input = input.updateSnapshot().toUiInputState()))
         body()
-        endFrame()
+        finishFrame()
     }
 
     private fun UiContext.click(input: Input, downAt: Pair<Float, Float>, upAt: Pair<Float, Float>, body: () -> Unit) {

@@ -32,6 +32,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.size
+import io.github.ronjunevaldoz.awake.ui.headless.textureQuad
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.px
@@ -52,6 +54,7 @@ internal fun SceneGameRuntime.drawStudioShell(
     viewportHeight: Float,
     viewportRect: StudioViewportRect = StudioViewportRect(),
     cameraPreview: StudioCameraPreview = StudioCameraPreview(),
+    orientationGizmo: StudioOrientationGizmo = StudioOrientationGizmo(),
 ) {
     renderer.clearColor = ViewportClearColor
     // Before the shell body, not inside the inspector's own draw: the offscreen pass has to run
@@ -60,9 +63,12 @@ internal fun SceneGameRuntime.drawStudioShell(
     store.state.value.inspector.selectedEntityId
         ?.let { world.cameraOf(it) }
         ?.let { cameraPreview.render(renderer, it.camera, collectDrawCalls()) }
+    // The VIEWPORT's own camera, not the selected entity's -- the orientation widget always
+    // reflects what the viewport itself is looking at.
+    primaryCamera(world)?.let { orientationGizmo.render(renderer, it.camera) }
     headlessFrame(viewportWidth, viewportHeight) {
         shadcnTheme(theme = StudioTheme) {
-            drawStudioShellBody(store, world, renderer, backend, viewportRect, cameraPreview)
+            drawStudioShellBody(store, world, renderer, backend, viewportRect, cameraPreview, orientationGizmo)
         }
     }
 }
@@ -72,6 +78,15 @@ internal fun SceneGameRuntime.drawStudioShell(
 private fun World.cameraOf(entityId: Int): Camera? {
     var found: Camera? = null
     family<Camera>().forEach { entity, camera -> if (entity.id == entityId) found = camera }
+    return found
+}
+
+/** The scene's primary camera, or `null` when none is marked -- same lookup
+ * `RenderSystemSupport.primaryCamera` and `StudioModule`'s own gizmo system already duplicate
+ * (an `internal` function in a different Gradle module isn't visible here). */
+private fun primaryCamera(world: World): Camera? {
+    var found: Camera? = null
+    world.family<Camera>().forEach { _, camera -> if (found == null && camera.isPrimary) found = camera }
     return found
 }
 
@@ -116,6 +131,7 @@ internal fun UiScope.drawStudioShellBody(
     backend: String,
     viewportRect: StudioViewportRect = StudioViewportRect(),
     cameraPreview: StudioCameraPreview = StudioCameraPreview(),
+    orientationGizmo: StudioOrientationGizmo = StudioOrientationGizmo(),
 ) {
     column(
         verticalArrangement = Arrangement.spacedBy(0f.dp),
@@ -145,6 +161,7 @@ internal fun UiScope.drawStudioShellBody(
             heightPx = workspaceHeightPx,
             viewportRect = viewportRect,
             cameraPreview = cameraPreview,
+            orientationGizmo = orientationGizmo,
         )
         shadcnSeparator(thickness = SEPARATOR_THICKNESS)
         drawStudioStatusBar(
@@ -192,6 +209,7 @@ private fun UiScope.drawStudioWorkspace(
     heightPx: Float,
     viewportRect: StudioViewportRect,
     cameraPreview: StudioCameraPreview,
+    orientationGizmo: StudioOrientationGizmo,
 ) {
     shadcnResizablePanelGroup(
         id = "studio-workspace-group",
@@ -225,7 +243,7 @@ private fun UiScope.drawStudioWorkspace(
                 }
                 shadcnResizableHandle(id = "studio-panel-handle-left", withHandle = true)
                 shadcnResizablePanel(id = "studio-panel-viewport", defaultSize = VIEWPORT_FRACTION, minSize = 0.3f) {
-                    drawStudioViewportPanel(store, world, renderer, viewportRect)
+                    drawStudioViewportPanel(store, world, renderer, viewportRect, orientationGizmo)
                 }
                 shadcnResizableHandle(id = "studio-panel-handle-right", withHandle = true)
                 shadcnResizablePanel(
@@ -262,6 +280,7 @@ private fun UiScope.drawStudioViewportPanel(
     world: World,
     renderer: Renderer,
     viewportRect: StudioViewportRect,
+    orientationGizmo: StudioOrientationGizmo,
 ) {
     val state = store.state.value
     val debugSettings = world.family<WorldDebugSettings>().components().firstOrNull()
@@ -317,7 +336,13 @@ private fun UiScope.drawStudioViewportPanel(
         ) {
             val viewportBounds = column(
                 modifier = Modifier.weight(1f).fillMaxHeight().padding(PILL_INSET),
-            ) { }
+            ) {
+                orientationGizmo.material?.let { gizmoTexture ->
+                    row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        textureQuad(gizmoTexture, Modifier.size(ORIENTATION_GIZMO_SIZE))
+                    }
+                }
+            }
             renderer.confineSceneTo(viewportBounds)
             viewportRect.bounds = viewportBounds
         }
@@ -326,3 +351,6 @@ private fun UiScope.drawStudioViewportPanel(
 
 /** Enough space that a floating pill reads as floating over the scene rather than stuck to it. */
 private val PILL_INSET = 8f.dp
+
+/** Matches [StudioOrientationGizmo]'s own render-target size -- composited 1:1, no scaling. */
+private val ORIENTATION_GIZMO_SIZE = 64f.dp

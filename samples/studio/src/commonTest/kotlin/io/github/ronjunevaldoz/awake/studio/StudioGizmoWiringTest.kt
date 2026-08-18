@@ -37,10 +37,10 @@ class StudioGizmoWiringTest {
         game.render(1f / 60f, FRAME_WIDTH, FRAME_HEIGHT)
 
         val viewport = assertNotNull(
-            runtime.uiContext.semanticNodes().firstOrNull { it.id == "studio-panel-viewport" },
+            runtime.uiContext.finishFrame().semantics.firstOrNull { it.id == "studio-panel-viewport" },
         )
         val inspector = assertNotNull(
-            runtime.uiContext.semanticNodes().firstOrNull { it.id == "studio-panel-inspector" },
+            runtime.uiContext.finishFrame().semantics.firstOrNull { it.id == "studio-panel-inspector" },
         )
 
         // Over the inspector: outside the viewport entirely, so no pick may run. A gizmo handed
@@ -86,7 +86,7 @@ class StudioGizmoWiringTest {
         game.render(1f / 60f, FRAME_WIDTH, FRAME_HEIGHT)
 
         val viewport = assertNotNull(
-            runtime.uiContext.semanticNodes().firstOrNull { it.id == "studio-panel-viewport" },
+            runtime.uiContext.finishFrame().semantics.firstOrNull { it.id == "studio-panel-viewport" },
         )
         val x = viewport.bounds.x + viewport.bounds.width / 2f
         val y = viewport.bounds.y + viewport.bounds.height / 2f

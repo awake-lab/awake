@@ -19,6 +19,8 @@ import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 /**
  * Drives the REAL "text-input" showcase page -- the actual [ShowcasePages] entry,
@@ -45,8 +47,8 @@ class UiShowcaseTextInputIntegrationTest {
 
         fun frame(pointerDown: Boolean, x: Float, y: Float): List<UiDrawPrimitive> {
             input.setPointer(down = pointerDown, x = x, y = y)
-            ui.beginFrame(width, height, input.updateSnapshot().toUiInputState())
-            ui.pushFont(font)
+            ui.beginFrame(UiFrameInput(viewportWidth = width, viewportHeight = height, input = input.updateSnapshot().toUiInputState()))
+            ui.pushLocal(LocalFont, font)
             ui.showcaseRoot(theme = theme) {
                 column(
                     modifier = Modifier.offset(24f.dp, 24f.dp)
@@ -57,13 +59,13 @@ class UiShowcaseTextInputIntegrationTest {
                     renderUiShowcasePagePreview(page, state)
                 }
             }
-            return ui.endFrame()
+            return ui.finishFrame().primitives
         }
 
         // Frame 1: locate the real field via its recorded semantics, same as an E2E test
         // would locate an element -- not a hand-guessed pixel coordinate.
         frame(pointerDown = false, x = -100f, y = -100f)
-        val nameField = ui.semanticNodes()
+        val nameField = ui.finishFrame().semantics
             .firstOrNull { it.role == UiSemanticRole.Text && it.id == "showcase-name" }
         requireNotNull(nameField) { "showcase-name text field must be present in the real page's semantics" }
         val clickX = nameField.bounds.x + nameField.bounds.width / 2f
@@ -73,7 +75,7 @@ class UiShowcaseTextInputIntegrationTest {
         // sets pointer state, then the UI frame runs).
         frame(pointerDown = true, x = clickX, y = clickY)
         assertTrue(
-            ui.isFocused("showcase-name"),
+            ui.isFocusedInternal("showcase-name"),
             "clicking the real page's field must grant it focus",
         )
 
@@ -87,7 +89,7 @@ class UiShowcaseTextInputIntegrationTest {
             "typed text must actually render as glyph primitives, not just update hidden state",
         )
 
-        val nameLabel = ui.semanticNodes()
+        val nameLabel = ui.finishFrame().semantics
             .firstOrNull { it.role == UiSemanticRole.Text && it.id == "showcase-name" }?.label
         assertEquals(
             "Hi",
@@ -106,8 +108,8 @@ class UiShowcaseTextInputIntegrationTest {
         val input = Input()
 
         input.setPointer(down = false, x = -100f, y = -100f)
-        ui.beginFrame(900f, 460f, input.updateSnapshot().toUiInputState())
-        ui.pushFont(font)
+        ui.beginFrame(UiFrameInput(viewportWidth = 900f, viewportHeight = 460f, input = input.updateSnapshot().toUiInputState()))
+        ui.pushLocal(LocalFont, font)
         ui.showcaseRoot(theme = theme) {
             column(
                 modifier = Modifier.offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
@@ -116,12 +118,12 @@ class UiShowcaseTextInputIntegrationTest {
                 renderUiShowcasePagePreview(page, state)
             }
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         input.pushTypedText("ignored")
         input.setPointer(down = false, x = -100f, y = -100f)
-        ui.beginFrame(900f, 460f, input.updateSnapshot().toUiInputState())
-        ui.pushFont(font)
+        ui.beginFrame(UiFrameInput(viewportWidth = 900f, viewportHeight = 460f, input = input.updateSnapshot().toUiInputState()))
+        ui.pushLocal(LocalFont, font)
         ui.showcaseRoot(theme = theme) {
             column(
                 modifier = Modifier.offset(24f.dp, 24f.dp).width(852f.dp).height(412f.dp),
@@ -130,9 +132,9 @@ class UiShowcaseTextInputIntegrationTest {
                 renderUiShowcasePagePreview(page, state)
             }
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
-        val label = ui.semanticNodes()
+        val label = ui.finishFrame().semantics
             .firstOrNull { it.role == UiSemanticRole.Text && it.id == "showcase-name" }?.label
         assertEquals(
             "Jane Doe",
