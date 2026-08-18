@@ -9,6 +9,27 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 AUDIT_SCRIPT="$REPO_ROOT/.claude/skills/kmp-audit/scripts/audit_project.py"
 
+
+# CLAUDE.md / AGENTS.md / GEMINI.md are per-tool profile stubs that must share one body
+# (only the "### <Tool> Project Profile" title line differs) -- they point every tool at
+# the same real content, .claude/AGENTS.md. Found drifted 2026-08-18: GEMINI.md had fallen
+# out of sync with the other two and nothing caught it. Warn (not block, matching this
+# hook's existing policy) whenever one of the three is staged and its body has diverged.
+ROOT_PROFILES=(CLAUDE.md AGENTS.md GEMINI.md)
+STAGED_PROFILES="$(git diff --cached --name-only | grep -E '^(CLAUDE|AGENTS|GEMINI)\.md$' || true)"
+if [[ -n "$STAGED_PROFILES" ]]; then
+  echo "Checking CLAUDE.md/AGENTS.md/GEMINI.md body parity..."
+  REFERENCE="$REPO_ROOT/CLAUDE.md"
+  for f in "${ROOT_PROFILES[@]}"; do
+    path="$REPO_ROOT/$f"
+    [[ -f "$path" ]] || continue
+    if ! diff -q <(tail -n +2 "$REFERENCE") <(tail -n +2 "$path") > /dev/null 2>&1; then
+      echo "  WARNING: $f's body has diverged from CLAUDE.md (only the title line should differ)."
+      echo "  Run: diff <(tail -n +2 CLAUDE.md) <(tail -n +2 $f)"
+    fi
+  done
+fi
+
 STAGED_KT="$(git diff --cached --name-only | grep -E '\.(kt|kts)$' || true)"
 
 if [[ -z "$STAGED_KT" ]]; then
