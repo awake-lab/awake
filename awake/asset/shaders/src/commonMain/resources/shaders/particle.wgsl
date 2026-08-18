@@ -5,11 +5,10 @@
 // vertexInputState computes this same firstLocation dynamically from the vertex format, so
 // this shader's literal locations must match that arithmetic, not instanced.wgsl's). Each
 // instance's own model matrix (locations 2-5, same column-major instance buffer instanced.wgsl
-// already documents) supplies world position and uniform scale; a SEPARATE per-instance alpha
-// (location 6, its own small instance-rate buffer -- see DrawCall.instanceAlphas' own doc
-// comment) supplies independent fade. No
-// per-instance rotation: the quad always faces the camera, built from cameraRight/cameraUp
-// rather than the instance matrix's own basis vectors.
+// already documents) supplies world position and uniform scale; a per-instance RGBA color+alpha
+// (location 6, DrawCall.instanceColors -- one vec4f/instance, alpha in .w) supplies independent
+// per-particle fade/tint. No per-instance rotation: the quad always faces the camera, built
+// from cameraRight/cameraUp rather than the instance matrix's own basis vectors.
 struct Uniforms {
   viewProjection : mat4x4<f32>,
   // World-space camera basis, CPU-computed once per frame from Camera.eye/center/up (cross
@@ -18,9 +17,12 @@ struct Uniforms {
   // recomputed per vertex.
   cameraRight : vec4f,
   cameraUp : vec4f,
-  // One color per EMITTER (not per particle/instance) -- every particle in one DrawCall shares
-  // it, see ParticleEmitter.tintColor's own doc comment.
-  tintColor : vec4f,
+  // (frameCount, currentFrame, unused, unused) -- a horizontal sprite-strip atlas index, one
+  // per EMITTER (every particle in a DrawCall shows the same frame simultaneously; this is a
+  // synced flicker, not a per-particle-desynced animation -- see ParticleEmitter.frameCount's
+  // own doc comment for that limitation). frameCount = 1 (the default) is a no-op: uv is used
+  // unchanged.
+  frameInfo : vec4f,
 }
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
 @binding(1) @group(0) var particleTexture : texture_2d<f32>;
@@ -29,7 +31,7 @@ struct Uniforms {
 struct VertexOutput {
   @builtin(position) position : vec4f,
   @location(0) uv : vec2f,
-  @location(1) alpha : f32,
+  @location(1) color : vec4f,
 }
 
 @vertex
@@ -40,7 +42,7 @@ fn vertexMain(
   @location(3) model1 : vec4f,
   @location(4) model2 : vec4f,
   @location(5) model3 : vec4f,
-  @location(6) inAlpha : f32,
+  @location(6) inColor : vec4f,
 ) -> VertexOutput {
   let model = mat4x4<f32>(model0, model1, model2, model3);
   // Translation-only read: this system never writes rotation into an instance's model matrix
@@ -54,13 +56,16 @@ fn vertexMain(
 
   var output : VertexOutput;
   output.position = uniforms.viewProjection * vec4f(worldPos, 1.0);
-  output.uv = inUv;
-  output.alpha = inAlpha;
+  // Horizontal sprite-strip atlas: frame index picks a 1/frameCount-wide slice of the texture.
+  let frameCount = uniforms.frameInfo.x;
+  let currentFrame = uniforms.frameInfo.y;
+  output.uv = vec2f((inUv.x + currentFrame) / frameCount, inUv.y);
+  output.color = inColor;
   return output;
 }
 
 @fragment
-fn fragmentMain(@location(0) uv : vec2f, @location(1) alpha : f32) -> @location(0) vec4f {
+fn fragmentMain(@location(0) uv : vec2f, @location(1) color : vec4f) -> @location(0) vec4f {
   let sampled = textureSample(particleTexture, particleSampler, uv);
-  return vec4f(sampled.rgb * uniforms.tintColor.rgb, sampled.a * alpha);
+  return vec4f(sampled.rgb * color.rgb, sampled.a * color.a);
 }

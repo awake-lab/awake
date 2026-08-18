@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan.mesh
 
+import io.github.ronjunevaldoz.awake.core.math.Vec4
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
@@ -12,14 +13,15 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 
 /**
- * The per-instance alpha values behind one particle-instanced draw call -- an instance-rate
+ * The per-instance RGBA color+alpha behind one particle-instanced draw call -- an instance-rate
  * vertex buffer bound at binding 2, alongside the mesh's own per-vertex buffer at binding 0
  * and [InstanceBuffer]'s model matrices at binding 1 (see `RenderPipeline`'s `instanceAlpha`
  * parameter, which declares the matching vertex input state). Same
  * HOST_VISIBLE|HOST_COHERENT, fixed-capacity, rewritten-every-frame lifecycle as
- * [InstanceBuffer] itself -- this is that same shape with `FLOATS_PER_INSTANCE = 1` and its
- * own binding, not a generalization of it, since widening [InstanceBuffer]'s own stride would
- * ripple into every OTHER instanced format that doesn't use per-instance alpha at all.
+ * [InstanceBuffer] itself -- this is that same shape with `FLOATS_PER_INSTANCE = 4` (one
+ * `vec4f` per instance, not a generalization of [InstanceBuffer]'s own `mat4` stride) and its
+ * own binding, since widening [InstanceBuffer]'s own stride would ripple into every OTHER
+ * instanced format that doesn't use per-instance color at all.
  */
 class AlphaInstanceBuffer(
     private val graphicsDevice: GraphicsDevice,
@@ -37,7 +39,7 @@ class AlphaInstanceBuffer(
     )
 
     private val frameResources: Array<FrameResources> = Array(framesInFlight) {
-        val (buffer, memory) = allocateHostVisibleBuffer((maxInstances * Float.SIZE_BYTES).toLong())
+        val (buffer, memory) = allocateHostVisibleBuffer((maxInstances * FLOATS_PER_INSTANCE * Float.SIZE_BYTES).toLong())
         FrameResources(BufferHandle(buffer), DeviceMemoryHandle(memory))
     }
 
@@ -45,18 +47,23 @@ class AlphaInstanceBuffer(
     // "resize only when the count actually changes" shape InstanceBuffer's own `packed` uses.
     private var packed: FloatArray = FloatArray(0)
 
-    fun update(frameIndex: Int, alphas: List<Float>) {
-        require(alphas.size <= maxInstances) {
-            "Instance count (${alphas.size}) exceeds AlphaInstanceBuffer capacity ($maxInstances) -- " +
+    fun update(frameIndex: Int, colors: List<Vec4>) {
+        require(colors.size <= maxInstances) {
+            "Instance count (${colors.size}) exceeds AlphaInstanceBuffer capacity ($maxInstances) -- " +
                 "raise maxInstances or draw fewer instances."
         }
-        if (alphas.isEmpty()) return
-        if (packed.size != alphas.size) {
-            packed = FloatArray(alphas.size)
+        if (colors.isEmpty()) return
+        if (packed.size != colors.size * FLOATS_PER_INSTANCE) {
+            packed = FloatArray(colors.size * FLOATS_PER_INSTANCE)
         }
         var index = 0
-        while (index < alphas.size) {
-            packed[index] = alphas[index]
+        while (index < colors.size) {
+            val color = colors[index]
+            val offset = index * FLOATS_PER_INSTANCE
+            packed[offset] = color.x
+            packed[offset + 1] = color.y
+            packed[offset + 2] = color.z
+            packed[offset + 3] = color.w
             index += 1
         }
         VulkanBuffers.writeBufferMemoryFloats(device, resourcesFor(frameIndex).memory.handle, 0, packed)
@@ -110,5 +117,6 @@ class AlphaInstanceBuffer(
 
     private companion object {
         const val INSTANCE_ALPHA_BINDING = 2
+        const val FLOATS_PER_INSTANCE = 4
     }
 }

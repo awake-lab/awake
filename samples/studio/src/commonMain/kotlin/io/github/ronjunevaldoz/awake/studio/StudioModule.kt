@@ -97,6 +97,7 @@ internal fun studioModule(
                 material("instanced-skinned-material") { InstancedSkinnedExampleDriver.createMaterial(this) }
                 mesh("particle-quad") { ParticleEmitterExampleDriver.createMesh(this) }
                 material("particle") { ParticleEmitterExampleDriver.createMaterial(this) }
+                material("particle-flicker") { ParticleEmitterExampleDriver.createFlickerMaterial(this) }
             }
             // The input system writes engine CameraMode hotkeys before the studio bridge syncs
             // them into UI state; CameraSystem then applies the pose after that bridge has

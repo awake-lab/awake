@@ -63,9 +63,9 @@ sealed interface PipelineVariant {
      * carrying one `mat4` model matrix per instance -- see `instanced.wgsl`. */
     val instanced: Boolean
 
-    /** Only meaningful alongside [instanced]. Adds a THIRD vertex binding (binding 2, stride 4)
-     * carrying one `f32` alpha per instance -- see `particle.wgsl` and
-     * `DrawCall.instanceAlphas`. */
+    /** Only meaningful alongside [instanced]. Adds a THIRD vertex binding (binding 2, stride 16)
+     * carrying one `vec4f` RGBA color+alpha per instance -- see `particle.wgsl` and
+     * `DrawCall.instanceColors`. */
     val instanceAlpha: Boolean
 
     /** `true` enables standard straight-alpha blending (`SRC_ALPHA`/`ONE_MINUS_SRC_ALPHA`, both
@@ -414,14 +414,16 @@ private fun vertexInputState(
         bindings += matrixBinding
         attributes += matrixAttributes
         if (variant.instanceAlpha) {
-            val (alphaBinding, alphaAttributes) = instanceRateBinding(
+            // One vec4 (rgba) per instance, not a lone float -- alpha rides in .w alongside
+            // per-particle color, see DrawCall.instanceColors' own doc comment.
+            val (colorBinding, colorAttributes) = instanceRateBinding(
                 INSTANCE_ALPHA_BINDING,
-                Float.SIZE_BYTES,
+                VEC4_BYTES,
                 firstLocation + MATRIX_ROWS,
-                listOf(0 to VkFormat.VK_FORMAT_R32_SFLOAT),
+                listOf(0 to VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT),
             )
-            bindings += alphaBinding
-            attributes += alphaAttributes
+            bindings += colorBinding
+            attributes += colorAttributes
         }
     }
     return arrayOf(

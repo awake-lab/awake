@@ -180,7 +180,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                     setVertexBuffer(1u, instanceBuffer.bufferRef())
                     if (particleMaterial != null) {
                         val alphaBuffer = alphaInstanceBufferForRun(instancedIndex)
-                        alphaBuffer.update(drawCall.instanceAlphas.orEmpty())
+                        alphaBuffer.update(drawCall.instanceColors.orEmpty())
                         setVertexBuffer(2u, alphaBuffer.bufferRef())
                     }
                     setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)

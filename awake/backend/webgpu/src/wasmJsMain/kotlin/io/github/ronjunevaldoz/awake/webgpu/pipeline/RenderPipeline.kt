@@ -66,8 +66,9 @@ class RenderPipeline(
      * renumbering. Mirrors Vulkan's `RenderPipeline.instanced`. */
     instanced: Boolean = false,
     /** Only meaningful alongside [instanced]. Adds a THIRD, `GPUVertexStepMode.Instance` vertex
-     * buffer layout (stride 4) carrying one `f32` alpha per instance -- see `particle.wgsl` and
-     * `DrawCall.instanceAlphas`. Mirrors Vulkan's `RenderPipeline.instanceAlpha`. */
+     * buffer layout (stride 16) carrying one `vec4f` RGBA color+alpha per instance -- see
+     * `particle.wgsl` and `DrawCall.instanceColors`. Mirrors Vulkan's
+     * `RenderPipeline.instanceAlpha`. */
     instanceAlpha: Boolean = false,
     /** `false` (default) is byte-for-byte the opaque pipeline this class always built. `true`
      * enables standard straight-alpha blending, same factors [io.github.ronjunevaldoz.awake
@@ -114,13 +115,13 @@ class RenderPipeline(
             )
             if (instanceAlpha) {
                 vertexBuffers += VertexBufferLayout(
-                    arrayStride = Float.SIZE_BYTES.toULong(),
+                    arrayStride = VEC4_BYTES.toULong(),
                     stepMode = GPUVertexStepMode.Instance,
                     attributes = listOf(
                         VertexAttribute(
                             shaderLocation = (firstLocation + MATRIX_ROWS).toUInt(),
                             offset = 0uL,
-                            format = GPUVertexFormat.Float32,
+                            format = GPUVertexFormat.Float32x4,
                         ),
                     ),
                 )

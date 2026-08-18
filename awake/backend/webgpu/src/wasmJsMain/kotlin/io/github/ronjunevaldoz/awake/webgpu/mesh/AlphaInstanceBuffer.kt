@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.mesh
 
+import io.github.ronjunevaldoz.awake.core.math.Vec4
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.ygdrasil.webgpu.BufferDescriptor
@@ -9,11 +10,12 @@ import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
 
 /**
- * The per-instance alpha values behind one billboard-particle instanced draw call -- vertex
- * buffer slot 2, alongside the mesh's own slot 0 and [InstanceBuffer]'s model matrices at slot 1
- * (see `RenderPipeline`'s `instanceAlpha` parameter). Mirrors [InstanceBuffer]'s shape with
- * `FLOATS_PER_INSTANCE = 1`, its own slot -- not a generalization of [InstanceBuffer] itself,
- * since widening its stride would ripple into every other instanced format.
+ * The per-instance RGBA color+alpha behind one billboard-particle instanced draw call --
+ * vertex buffer slot 2, alongside the mesh's own slot 0 and [InstanceBuffer]'s model matrices
+ * at slot 1 (see `RenderPipeline`'s `instanceAlpha` parameter). Mirrors [InstanceBuffer]'s
+ * shape with `FLOATS_PER_INSTANCE = 4` (one `vec4f` per instance, not a generalization of
+ * [InstanceBuffer]'s own `mat4` stride), its own slot -- not a generalization of [InstanceBuffer]
+ * itself, since widening its stride would ripple into every other instanced format.
  */
 class AlphaInstanceBuffer(
     private val graphicsDevice: GraphicsDevice,
@@ -21,25 +23,30 @@ class AlphaInstanceBuffer(
 ) {
     private val buffer: GPUBuffer = graphicsDevice.wgpuContext.device.createBuffer(
         BufferDescriptor(
-            size = (maxInstances * Float.SIZE_BYTES).toULong(),
+            size = (maxInstances * FLOATS_PER_INSTANCE * Float.SIZE_BYTES).toULong(),
             usage = GPUBufferUsage.Vertex or GPUBufferUsage.CopyDst,
         ),
     )
 
     private var packed: FloatArray = FloatArray(0)
 
-    fun update(alphas: List<Float>) {
-        require(alphas.size <= maxInstances) {
-            "Instance count (${alphas.size}) exceeds AlphaInstanceBuffer capacity ($maxInstances) -- " +
+    fun update(colors: List<Vec4>) {
+        require(colors.size <= maxInstances) {
+            "Instance count (${colors.size}) exceeds AlphaInstanceBuffer capacity ($maxInstances) -- " +
                 "raise maxInstances or draw fewer instances."
         }
-        if (alphas.isEmpty()) return
-        if (packed.size != alphas.size) {
-            packed = FloatArray(alphas.size)
+        if (colors.isEmpty()) return
+        if (packed.size != colors.size * FLOATS_PER_INSTANCE) {
+            packed = FloatArray(colors.size * FLOATS_PER_INSTANCE)
         }
         var index = 0
-        while (index < alphas.size) {
-            packed[index] = alphas[index]
+        while (index < colors.size) {
+            val color = colors[index]
+            val offset = index * FLOATS_PER_INSTANCE
+            packed[offset] = color.x
+            packed[offset + 1] = color.y
+            packed[offset + 2] = color.z
+            packed[offset + 3] = color.w
             index += 1
         }
         graphicsDevice.wgpuContext.device.queue.writeBuffer(buffer, 0uL, fastArrayBufferOf(packed))
@@ -49,5 +56,9 @@ class AlphaInstanceBuffer(
 
     fun destroy() {
         buffer.close()
+    }
+
+    private companion object {
+        const val FLOATS_PER_INSTANCE = 4
     }
 }

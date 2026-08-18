@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.math.Frustum
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.ScreenBounds
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.Vec4
 import io.github.ronjunevaldoz.awake.core.math.intersects
 import io.github.ronjunevaldoz.awake.core.math.isOccludedBy
 import io.github.ronjunevaldoz.awake.core.math.screenBounds
@@ -130,7 +131,7 @@ class RenderSystem(
                 ),
             )
         }
-        // Billboard particles -- one DrawCall per emitter, instanceModels/instanceAlphas carry
+        // Billboard particles -- one DrawCall per emitter, instanceModels/instanceColors carry
         // one entry per LIVE particle (dead pool slots are skipped, not drawn as invisible
         // instances). cameraRight/cameraUp are the same forward/right/up basis Frustum.corners
         // already computes, just used here to keep every particle facing the camera in the
@@ -153,14 +154,21 @@ class RenderSystem(
                             Mat4().translate(it.position.x, it.position.y, it.position.z)
                                 .scale(it.scale, it.scale, it.scale)
                         },
-                        instanceAlphas = live.map { it.currentAlpha() },
+                        // Per-PARTICLE color+alpha (each ages independently, so a burst's
+                        // later-spawned particles sit at an earlier point in the emitter's
+                        // startColor->endColor gradient than its first-spawned ones) -- see
+                        // Particle.currentColor's own doc comment.
+                        instanceColors = live.map {
+                            val color = it.currentColor(emitter)
+                            Vec4(color.x, color.y, color.z, it.currentAlpha())
+                        },
                         // Camera basis (shared, every emitter this frame) + this emitter's own
-                        // tint (one per DrawCall, not per instance) -- see ParticleEmitter
-                        // .tintColor's own doc comment.
+                        // sprite-strip frame index -- see ParticleEmitter.frameCount's own doc
+                        // comment. (frameCount, currentFrame, pad, pad).
                         extraUniformFloats = cameraBasis + floatArrayOf(
-                            emitter.tintColor.x,
-                            emitter.tintColor.y,
-                            emitter.tintColor.z,
+                            emitter.frameCount.toFloat(),
+                            currentFrame(emitter),
+                            0f,
                             0f,
                         ),
                     ),
@@ -216,3 +224,9 @@ class RenderSystem(
 }
 
 private val EMPTY_EXTRAS = FloatArray(0)
+
+/** Which sprite-strip frame [emitter] is showing right now -- `floor(elapsedTime * frameRate)
+ * mod frameCount`. Always `0` when `frameCount == 1` (the no-op default), so `particle.wgsl`'s
+ * `uv.x + 0 / 1` reduces to plain `uv.x`. */
+private fun currentFrame(emitter: ParticleEmitter): Float =
+    ((emitter.elapsedTime * emitter.frameRate).toInt() % emitter.frameCount).toFloat()

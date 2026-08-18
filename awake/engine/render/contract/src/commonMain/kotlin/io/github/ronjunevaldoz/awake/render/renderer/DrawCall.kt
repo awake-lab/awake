@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.render.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
+import io.github.ronjunevaldoz.awake.core.math.Vec4
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 
@@ -41,12 +42,14 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
  * one animated-instanced batch), but nothing here enforces that -- it's a backend concern, same
  * as [extraUniformFloats]'s own doc comment already notes for format-specific interpretation.
  *
- * [instanceAlphas] is the billboard-particle counterpart to [instanceModels] -- `null` by
- * default, one alpha per instance, index-for-index, same "only meaningful alongside a
- * same-size [instanceModels]" contract as [instanceJointPalettes]. One `f32`/instance fits an
+ * [instanceColors] is the billboard-particle counterpart to [instanceModels] -- `null` by
+ * default, one RGBA color per instance, index-for-index, same "only meaningful alongside a
+ * same-size [instanceModels]" contract as [instanceJointPalettes]. One `vec4f`/instance fits an
  * ordinary instance-rate vertex attribute (unlike a joint palette), so a backend with a
  * particle-instanced pipeline for [mesh.format] uploads this into its own small per-frame
- * vertex buffer rather than a storage buffer.
+ * vertex buffer rather than a storage buffer. Alpha lives in the same attribute as color
+ * (`.w`), not a separate one -- every particle-instanced draw needs both, so splitting them
+ * across two buffers would only add a binding for no benefit.
  */
 data class DrawCall(
     val mesh: Mesh,
@@ -55,7 +58,7 @@ data class DrawCall(
     val extraUniformFloats: FloatArray = EMPTY_UNIFORM_FLOATS,
     val instanceModels: List<Mat4>? = null,
     val instanceJointPalettes: List<FloatArray>? = null,
-    val instanceAlphas: List<Float>? = null,
+    val instanceColors: List<Vec4>? = null,
 )
 
 private val EMPTY_UNIFORM_FLOATS = FloatArray(0)

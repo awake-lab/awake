@@ -404,7 +404,7 @@ internal data class PreparedDrawCall(
     /** Non-null only for an ANIMATED instanced draw ([DrawCall.instanceJointPalettes]), where it
      * accompanies [instanceBuffer] -- per-instance model matrices still come through that. */
     val jointPaletteBuffer: SkinnedInstanceBuffer? = null,
-    /** Non-null only for a billboard-particle instanced draw ([DrawCall.instanceAlphas]),
+    /** Non-null only for a billboard-particle instanced draw ([DrawCall.instanceColors]),
      * bound at binding 2 alongside [instanceBuffer]'s binding 1. */
     val alphaInstanceBuffer: AlphaInstanceBuffer? = null,
 )
@@ -595,7 +595,7 @@ private fun Renderer.prepareInstancedDrawCall(
     }
     val alphaInstanceBuffer = if (isParticle) {
         alphaInstanceBufferForRun(instancedIndex).also {
-            it.update(frameIndex, drawCall.instanceAlphas.orEmpty())
+            it.update(frameIndex, drawCall.instanceColors.orEmpty())
         }
     } else {
         null
