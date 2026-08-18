@@ -86,7 +86,7 @@ tied to the rect shape today.
 
 Perf: rotating/scaling 4 corners per primitive is ~8 multiply-adds, genuinely cheap in
 isolation. But this session's trial-measure investigation
-(`docs/tasks/2026-08-02-trial-measure-double-execution.md`) is a live demonstration that
+(`docs/tasks/archive/2026-08-02-trial-measure-double-execution.md`) is a live demonstration that
 "cheap per-node work" in this codebase can still blow up badly when it repeats at every
 primitive, every frame, especially under nested nodes (the Checkout Form page alone emits
 1,344-1,480 glyphs/quads per frame `per that doc's own numbers`). A `graphicsLayer` rotation

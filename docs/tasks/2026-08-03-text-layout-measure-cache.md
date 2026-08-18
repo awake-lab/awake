@@ -30,7 +30,7 @@ frame-to-frame, so steps 1-2 are pure waste after the first frame.
 
 ## Why this is a fundamentally easier/safer cache than the row/column weight cache
 
-`docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md` ruled out automatic caching for
+`docs/tasks/archive/2026-08-02-trial-measure-cross-frame-cache.md` ruled out automatic caching for
 `row()`/`column()` because the thing that determines the cached answer is the **opaque `content`
 lambda's body** -- not enumerable without running it (no compiler-tracked call-site identity, no
 read-tracking, closures aren't introspectable in common code).

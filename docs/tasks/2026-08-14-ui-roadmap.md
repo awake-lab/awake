@@ -1,6 +1,6 @@
 # UI roadmap — consolidated 2026-08-14
 
-Supersedes `2026-08-14-ui-implementation-plan.md` (phases 0–2 are done). Companion:
+Supersedes `archive/2026-08-14-ui-implementation-plan.md` (phases 0–2 are done). Companion:
 `2026-08-14-ui-layout-weight-parking.md` for what is already ruled out with evidence.
 
 ## Where things stand

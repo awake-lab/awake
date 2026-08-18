@@ -19,7 +19,7 @@ just spread unclear ownership across more folders.
 - 2026-08-05: Phase 2 ECS/scene API classification audit recorded in the API layering
   plan. Demo navmesh bootstrap moved out of `awake:scene`; authored gameplay systems moved
   to the scene3d sample. The scene module split proposal is now tracked in
-  [docs/tasks/2026-08-05-scene-module-split-proposal.md](tasks/2026-08-05-scene-module-split-proposal.md).
+  [docs/tasks/archive/2026-08-05-scene-module-split-proposal.md](tasks/archive/2026-08-05-scene-module-split-proposal.md).
 - 2026-08-05: First scene split slice landed behind the `awake-scene` facade:
   `:awake:scene:scene-core` owns `Transform`/`Name`, and `:awake:scene:rendering` owns
   render-facing scene components plus `RenderSystem`.
@@ -82,7 +82,7 @@ just spread unclear ownership across more folders.
   [docs/reference/decision-log.md](reference/decision-log.md) D11-D13)
 - Dev: ECS/scene API layering and classification
 - Dev: Scene module split (complete -- see
-  [docs/tasks/2026-08-05-scene-module-split-proposal.md](tasks/2026-08-05-scene-module-split-proposal.md))
+  [docs/tasks/archive/2026-08-05-scene-module-split-proposal.md](tasks/archive/2026-08-05-scene-module-split-proposal.md))
 - Dev: UI DSL and style audit
 - Beta: None yet
 - Stable: Refresh runtime docs after the module split lands
@@ -90,14 +90,20 @@ just spread unclear ownership across more folders.
 ## Task Log
 
 - [2026-07-09-decouple-world](tasks/2026-07-09-decouple-world.md)
-- [2026-07-10-scene-runtime](tasks/2026-07-10-scene-runtime.md)
-- [2026-07-14-ui-dsl-audit](tasks/2026-07-14-ui-dsl-audit.md)
-- [2026-07-14-ui-module-split](tasks/2026-07-14-ui-module-split.md)
-- [2026-07-17-ui-api-simplification](tasks/2026-07-17-ui-api-simplification.md)
 - [2026-08-05-api-layering-plan](tasks/2026-08-05-api-layering-plan.md)
-- [2026-08-05-scene-module-split-proposal](tasks/2026-08-05-scene-module-split-proposal.md)
 - [2026-08-12-ui-showcase-parity-tracker](tasks/2026-08-12-ui-showcase-parity-tracker.md)
 
 ## Archive Index
 
-- None yet
+- [2026-07-10-scene-runtime](tasks/archive/2026-07-10-scene-runtime.md) -- core split executed
+- [2026-07-14-ui-dsl-audit](tasks/archive/2026-07-14-ui-dsl-audit.md) -- superseded by the 2026-08-11 headless boundary migration doc
+- [2026-07-14-ui-module-split](tasks/archive/2026-07-14-ui-module-split.md) -- superseded by the 2026-08-11 headless boundary migration doc
+- [2026-07-17-ui-api-simplification](tasks/archive/2026-07-17-ui-api-simplification.md) -- all implementation items done
+- [2026-07-22-core-graphics-split](tasks/archive/2026-07-22-core-graphics-split.md) -- standing policy decided (no shared graphics module yet)
+- [2026-07-24-uislot-narrowing](tasks/archive/2026-07-24-uislot-narrowing.md) -- superseded plan, UiSlot/UiBounds merged
+- [2026-08-02-trial-measure-cross-frame-cache](tasks/archive/2026-08-02-trial-measure-cross-frame-cache.md) -- shipped (`cacheKey` param on row/column)
+- [2026-08-02-trial-measure-double-execution](tasks/archive/2026-08-02-trial-measure-double-execution.md) -- shipped (`requiresMeasuredDistribution()`, commit `55dd0681`)
+- [2026-08-05-scene-module-split-proposal](tasks/archive/2026-08-05-scene-module-split-proposal.md) -- complete, all five leaf modules exist
+- [2026-08-10-glyph-scale-regression](tasks/archive/2026-08-10-glyph-scale-regression.md) -- resolved bug investigation
+- [2026-08-11-ui-designsystem-headless-boundary-migration](tasks/archive/2026-08-11-ui-designsystem-headless-boundary-migration.md) -- superseded by the 2026-08-15 visual-policy decision
+- [2026-08-14-ui-implementation-plan](tasks/archive/2026-08-14-ui-implementation-plan.md) -- superseded by 2026-08-14-ui-roadmap.md
