@@ -243,4 +243,4 @@ The first source cleanup from the Phase 2 audit has started:
 3. `SceneRuntime` is deprecated in favor of `SceneGameRuntime`/`sceneGame {}`.
 4. Authored gameplay systems moved to `samples:scene3d-playground`.
 5. Scene split proposal drafted in
-   [docs/tasks/2026-08-05-scene-module-split-proposal.md](2026-08-05-scene-module-split-proposal.md).
+   [docs/tasks/archive/2026-08-05-scene-module-split-proposal.md](archive/2026-08-05-scene-module-split-proposal.md).

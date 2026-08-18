@@ -36,7 +36,7 @@ These are placement rules, not style preferences.
    `Style.shape()`/`.borderWidth()` already covers it. This has no generic mechanical check
    (param names vary too much for a denylist) -- it's a manual gate at review time. Found and
    fixed 2026-07-24: `avatarFallback`'s `diameter: Dp` param (see `docs/tasks/
-   2026-07-17-ui-api-simplification.md`'s modifier-first policy for the full history of this
+   archive/2026-07-17-ui-api-simplification.md`'s modifier-first policy for the full history of this
    class of bug, starting with `surface()`'s `radius`/`borderWidth`).
 7. **Prefer `UiModifier` builder chaining (`.width().height().padding()`) over `.copy(...)`.**
    `.copy()` used to be the workaround for a name collision between `UiModifier`'s stored
@@ -380,7 +380,7 @@ unrelated purposes -- never treat one as a substitute for another.
 |---|---|---|---|---|
 | `id: String` | positional widget param | required, no default | Cross-frame `WidgetState` lookup key -- dropdown open/close, animation progress, any per-widget state that must survive frame-to-frame | Stable for the widget's lifetime; changing it resets its state |
 | `testTag: String?` | `UiModifier` field | optional, `null` default | Debug/test identification only -- has zero effect on rendering, state, or measurement | N/A -- cosmetic |
-| `id` / `cacheKey` (on `row()`/`column()`) | opt-in perf params | optional, both `null` | Cross-frame trial-measure cache key (see `docs/tasks/2026-08-02-trial-measure-cross-frame-cache.md`) -- `cacheKey` must change whenever the weighted-child structure could change | Opt-in; omitting both means no caching, safest default |
+| `id` / `cacheKey` (on `row()`/`column()`) | opt-in perf params | optional, both `null` | Cross-frame trial-measure cache key (see `docs/tasks/archive/2026-08-02-trial-measure-cross-frame-cache.md`) -- `cacheKey` must change whenever the weighted-child structure could change | Opt-in; omitting both means no caching, safest default |
 
 Rule: if a widget owns state (open/closed, progress, selection), it takes a required
 `id: String`. If you only need to find/assert on a node in a test, use `testTag` via the
