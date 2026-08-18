@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
-import io.github.ronjunevaldoz.awake.ui.ProvideTextStyle
+import io.github.ronjunevaldoz.awake.ui.provideTextStyle
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
@@ -88,7 +88,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
         // `surface()`/`column()`/`row()`/`box()` already propagate their resolved text style to
         // their own children. Mirrors the explicit `color = resolved.foreground` passed to the
         // label overload's own internal `text()` call below.
-        ProvideTextStyle(surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground)) {
+        provideTextStyle(surface.resolved.textStyle then TextStyle(color = surface.resolved.foreground)) {
             // A button's content is its own subtree, not a sibling list for whatever column contains
             // the button -- see compositeContent(). Without this, a sidebar header button's inner rows
             // were counted as direct children of the sidebar, and the weighted content slot below it

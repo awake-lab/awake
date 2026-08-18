@@ -3,8 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem
 
 import io.github.ronjunevaldoz.awake.ui.Provide
-import io.github.ronjunevaldoz.awake.ui.ProvideTextStyle
-import io.github.ronjunevaldoz.awake.ui.ProvideTheme
+import io.github.ronjunevaldoz.awake.ui.provideTextStyle
+import io.github.ronjunevaldoz.awake.ui.provideTheme
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
@@ -46,13 +46,13 @@ fun UiScope.shadcnTheme(
     theme: ShadcnThemeValues,
     content: UiScope.() -> Unit,
 ) {
-    primitive.ProvideTheme(theme.core.asRuntimeTheme()) {
-        // Already a UiPrimitiveScope receiver here (ProvideTheme's own content lambda) -- no
+    primitive.provideTheme(theme.core.asRuntimeTheme()) {
+        // Already a UiPrimitiveScope receiver here (provideTheme's own content lambda) -- no
         // need to route back through the outer UiScope's `primitive` property, which is also no
         // longer implicitly reachable now that UiScope and UiPrimitiveScope share one
         // @AwakeUiDsl marker (see B7).
         Provide(LocalShadcnTheme, theme) {
-            ProvideTextStyle(TextStyle(size = theme.core.typography.body)) {
+            provideTextStyle(TextStyle(size = theme.core.typography.body)) {
                 content(UiScope(this))
             }
         }
