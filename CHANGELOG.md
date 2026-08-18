@@ -206,6 +206,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is now a companion function and only the layout handle is held.
 - Dark-theme `card` and `sidebar` colors corrected to oklch lightness 0.205, matching the
   published shadcn spec (they were 0.168 and 0.158).
+- `UiContext.column`/`row` (member) and `UiPrimitiveScope.column`/`row` (extension) — the
+  raw-slot forms that take an already-resolved `UiBounds` — renamed to `columnAt`/`rowAt`.
+  They shared a name with the unrelated "smart" `column`/`row` family that resolves its own
+  slot from id/style/arrangement, an overload-resolution trap. Root-authoring
+  `UiContext.column`/`row` (resolves its own slot from a `Modifier`) is unaffected.
 
 ## [0.1.0-dev.5] - 2026-08-18
 
