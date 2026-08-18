@@ -2,6 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.render.renderer
 
+import io.github.ronjunevaldoz.awake.render.material.Material
+import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
+import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
+import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+
 /** One named block of floats inside a shader's `Uniforms` struct, in the order it's
  * concatenated. [floats] is the float count (`vec4f`-padded fields, e.g. `light`, are 8/4
  * even though only 3 components are read -- see `textured.wgsl`'s own doc comment on why). */
@@ -40,4 +45,22 @@ val TexturedUniformLayout = UniformLayout(
 val LitShadowUniformLayout = UniformLayout(
     UniformFields.Mvp, UniformFields.Light, UniformFields.LightMvp, UniformFields.Model,
     UniformFields.Camera, UniformField("material", 4), UniformFields.Fog,
+)
+
+/** [Renderer.createMaterial] sized from [layout] instead of a bare `Int` -- the size a caller
+ * actually has to get right (matching whatever pipeline/format this material will draw
+ * through) is derived, not hand-typed. Prefer this over the raw `uniformFloatCount` parameter
+ * whenever a [UniformLayout] for the target format already exists; both backends' `Material
+ * .updateUniformBuffer` still assert the write fits regardless, so a wrong layout choice fails
+ * loudly at the write site rather than as a native buffer-overrun. */
+fun Renderer.createMaterial(
+    layout: UniformLayout,
+    texture: TextureAsset? = null,
+    renderTarget: RenderTarget? = null,
+    pbrTextures: PbrTextureSet? = null,
+): Material = createMaterial(
+    texture = texture,
+    renderTarget = renderTarget,
+    uniformFloatCount = layout.total,
+    pbrTextures = pbrTextures,
 )
