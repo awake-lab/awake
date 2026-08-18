@@ -7,7 +7,20 @@ actual object VulkanWindow {
     // (e.g. Vulkan's) init block having loaded the library first -- caused a real
     // UnsatisfiedLinkError when touched before Vulkan in a test run.
     init {
-        System.loadLibrary("awake-vulkan")
+        try {
+            System.loadLibrary("awake-vulkan")
+        } catch (e: UnsatisfiedLinkError) {
+            // buildDesktopNative is deliberately NOT a dependency of desktopMainClasses/run
+            // (CMake configure+build is slow) -- a fresh checkout, or a `clean`, silently
+            // leaves the native lib missing, and the raw UnsatisfiedLinkError gives no hint
+            // why. Fail loud with the exact fix instead.
+            throw IllegalStateException(
+                "Native Vulkan library 'awake-vulkan' not found. Build it once with:\n" +
+                    "  ./gradlew :awake:backend:vulkan:bindings:configureDesktopNative " +
+                    ":awake:backend:vulkan:bindings:buildDesktopNative",
+                e,
+            )
+        }
     }
 
     actual external fun glfwInit(): Boolean
