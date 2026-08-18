@@ -284,6 +284,10 @@ private fun UiScope.drawStudioViewportPanel(
 ) {
     val state = store.state.value
     val debugSettings = world.family<WorldDebugSettings>().components().firstOrNull()
+    // Kept live every frame, not just on selection change: the debug system reads it fresh
+    // each update, same "system reads whatever's currently set" contract every other field on
+    // WorldDebugSettings already has.
+    debugSettings?.frustumTargetEntityId = state.inspector.selectedEntityId
     column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
         row(
             horizontalArrangement = Arrangement.spacedBy(PILL_INSET),

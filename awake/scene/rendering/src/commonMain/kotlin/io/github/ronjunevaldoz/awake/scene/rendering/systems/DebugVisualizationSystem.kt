@@ -18,6 +18,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.directionalShadowBox
 import io.github.ronjunevaldoz.awake.render.renderer.frustumDebugLines
 import io.github.ronjunevaldoz.awake.render.renderer.lightGizmoLines
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Occluder
@@ -45,11 +46,15 @@ class DebugVisualizationSystem(
         ) {
             return
         }
-        val camera = primaryCamera(world) ?: return
-
         lines.clear()
+        // Deliberately NOT primaryCamera -- see WorldDebugSettings.frustumTargetEntityId's own
+        // doc comment for why drawing the viewport's own camera's frustum is invisible by
+        // construction. No target (or a target with no Camera) draws nothing, rather than
+        // falling back to primaryCamera and reintroducing that same invisible case.
         if (settings.showFrustum) {
-            lines += frustumDebugLines(camera.camera, CONSERVATIVE_ASPECT, FRUSTUM_COLOR)
+            settings.frustumTargetEntityId
+                ?.let { targetId -> world.cameraOf(targetId) }
+                ?.let { lines += frustumDebugLines(it.camera, CONSERVATIVE_ASPECT, FRUSTUM_COLOR) }
         }
         if (settings.showBounds) {
             world.family<Transform, MeshBounds>().forEach { _, transform, bounds ->
@@ -84,6 +89,15 @@ class DebugVisualizationSystem(
         }
         renderer.drawDebugLines(lines)
     }
+}
+
+/** The [Camera] component on the entity with [entityId], or `null` when that entity has none --
+ * same lookup `StudioShell.kt`'s own (Studio-private) `cameraOf` does, duplicated here since
+ * this module is engine-neutral and can't depend on a Studio-only helper. */
+private fun World.cameraOf(entityId: Int): Camera? {
+    var found: Camera? = null
+    family<Camera>().forEach { entity, camera -> if (entity.id == entityId) found = camera }
+    return found
 }
 
 private val FRUSTUM_COLOR = floatArrayOf(1f, 1f, 0f, 1f)
