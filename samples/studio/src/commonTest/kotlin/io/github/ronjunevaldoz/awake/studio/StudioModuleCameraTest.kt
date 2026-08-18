@@ -34,6 +34,11 @@ import kotlin.test.assertNotNull
  * `awake:scene-dsl`'s own `SceneGameDslTest`. Asserts on the eye position the *renderer*
  * was actually handed by [Renderer.draw], since that -- not the store's own state -- is
  * the nearest real proxy for "did the rendered camera move" this module exposes headlessly.
+ *
+ * The rendered eye is the EDITOR camera's, not `rotating-cube.scene.json`'s own "camera" entity
+ * -- Studio drives a persistent Scene-view camera distinct from whatever a loaded example
+ * authors (see `StudioEditorCamera`), so `SetCameraMode` moves the render-drawn eye while the
+ * scene's own authored camera stays untouched at its authored pose.
  */
 class StudioModuleCameraTest {
 
@@ -86,12 +91,13 @@ class StudioModuleCameraTest {
         assertEquals(cubeCameraCenterY + TOP_DOWN_DISTANCE * sin(TOP_DOWN_ANGLE), topEye.y, TOLERANCE)
         assertEquals(TOP_DOWN_DISTANCE * 0.5f, topEye.z, TOLERANCE)
 
-        // Same object the driver system mutated -- confirms the renderer and the camera
-        // entity the ECS world holds are one and the same, not two independent cameras.
+        // The scene's OWN authored "camera" entity stays exactly where it was authored --
+        // SetCameraMode now drives a separate, persistent editor (Scene-view) camera, not the
+        // scene's own entity (see StudioEditorCamera). Only Play mode renders through this one.
         val worldEye = assertNotNull(runtime.findCamera("camera")).camera.eye
-        assertEquals(topEye.x, worldEye.x, TOLERANCE)
-        assertEquals(topEye.y, worldEye.y, TOLERANCE)
-        assertEquals(topEye.z, worldEye.z, TOLERANCE)
+        assertEquals(0f, worldEye.x, TOLERANCE)
+        assertEquals(5f, worldEye.y, TOLERANCE)
+        assertEquals(10f, worldEye.z, TOLERANCE)
     }
 
     @Test

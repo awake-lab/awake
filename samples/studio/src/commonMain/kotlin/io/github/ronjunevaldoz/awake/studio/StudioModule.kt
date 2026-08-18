@@ -2,30 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio
 
-import io.github.ronjunevaldoz.awake.core.math.Aabb
-import io.github.ronjunevaldoz.awake.core.math.Vec2
-import io.github.ronjunevaldoz.awake.ecs.Entity
-import io.github.ronjunevaldoz.awake.ecs.System
-import io.github.ronjunevaldoz.awake.ecs.World
-import io.github.ronjunevaldoz.awake.ecs.ensure
+import io.github.ronjunevaldoz.awake.core.input.Input
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.game.GameModule
 import io.github.ronjunevaldoz.awake.engine.game.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.asset.shaders.LitShadowUniformLayout
-import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraInputSystem
-import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraSystem
 import io.github.ronjunevaldoz.awake.scene.authoring.scene
 import io.github.ronjunevaldoz.awake.scene.controls.components.ActiveCamera
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
-import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
-import io.github.ronjunevaldoz.awake.scene.core.components.SpinControl
+import io.github.ronjunevaldoz.awake.scene.controls.systems.CameraInputSystem
+import io.github.ronjunevaldoz.awake.scene.controls.systems.CameraSystem
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.core.systems.SpinSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.scene.runtime.defaultInfrastructureSystems
 import io.github.ronjunevaldoz.awake.studio.app.platformBackendPreference
 import io.github.ronjunevaldoz.awake.studio.app.writeSceneDocument
@@ -37,26 +29,36 @@ import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import io.github.ronjunevaldoz.awake.studio.examples.StudioMeshBounds
 import io.github.ronjunevaldoz.awake.studio.examples.studioCubeGeometry
 import io.github.ronjunevaldoz.awake.studio.examples.studioGroundGeometry
-import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoFrame
-import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoPick
-import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoPointer
-import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoTool
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioGizmo
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioViewportRect
-import io.github.ronjunevaldoz.awake.studio.gizmo.ViewportProjection
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
+import io.github.ronjunevaldoz.awake.studio.systems.PlayModeSystem
+import io.github.ronjunevaldoz.awake.studio.systems.SpinClockSystem
+import io.github.ronjunevaldoz.awake.studio.systems.StudioEditorCamera
+import io.github.ronjunevaldoz.awake.studio.systems.StudioExampleDriverSystem
+import io.github.ronjunevaldoz.awake.studio.systems.StudioGizmoSystem
+import io.github.ronjunevaldoz.awake.studio.systems.gizmoCapturedOwnership
 import io.github.ronjunevaldoz.awake.studio.ui.StudioCameraPreview
 import io.github.ronjunevaldoz.awake.studio.ui.StudioOrientationGizmo
 import io.github.ronjunevaldoz.awake.studio.ui.drawStudioShell
-import kotlin.math.asin
-import kotlin.math.atan2
-import kotlin.math.sqrt
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /** `lit_shadow.wgsl`'s Uniforms size -- taken from the shared layout rather than re-summed
  * here, so adding a field to that shader can't leave this call site silently short. */
 internal val LIT_SHADOW_UNIFORM_FLOAT_COUNT = LitShadowUniformLayout.total
+
+// Matches the lens every example scene authors (see rotating-cube.scene.json) -- only matters
+// for the one frame between onReady creating the editor camera and the first LoadExample's
+// seedFromAuthoredPose overwriting its pose/angles from whatever the loaded example actually
+// authors.
+private const val DEFAULT_EDITOR_CAMERA_FOV_RADIANS = 0.7853982f // 45 degrees
+private const val DEFAULT_EDITOR_CAMERA_NEAR = 0.1f
+private const val DEFAULT_EDITOR_CAMERA_FAR = 100f
+
+/** An editor's own free-look zoom range is a different concern than a gameplay orbit rig's --
+ * see the call site's own comment for why this is wider than [CameraComponent]'s engine default. */
+private const val EDITOR_CAMERA_MAX_DISTANCE = 100f
 
 /** [backend] is only a status-bar label. It is the backend this game asks its window for (see
  * `configureStudioWindow`), which is the closest honest answer available: `Renderer` exposes no
@@ -76,6 +78,7 @@ internal fun studioModule(
     // every frame and can own nothing that needs destroying.
     val cameraPreview = StudioCameraPreview()
     val orientationGizmo = StudioOrientationGizmo()
+    val editorCamera = StudioEditorCamera()
     return gameModule {
         scene("studio") {
             assets {
@@ -94,7 +97,19 @@ internal fun studioModule(
             // The input system writes engine CameraMode hotkeys before the studio bridge syncs
             // them into UI state; CameraSystem then applies the pose after that bridge has
             // handled a header/menu selection for this frame.
-            cameraInputSystem()
+            //
+            // Direct construction, not the `cameraInputSystem()`/`cameraSystem()` DSL helpers --
+            // both need `isCaptured` to also cover a gizmo handle drag, not just real UI widgets,
+            // otherwise dragging a handle ALSO orbits the camera underneath it (the same raw
+            // pointer drag read twice, with no mutual exclusion). `gizmoCapturedOwnership` is the
+            // one place that OR's the two together; everything else about these systems is
+            // unchanged from what the DSL helpers themselves construct.
+            frameSystem("cameraInput") {
+                CameraInputSystem(
+                    inputProvider = { requireService(Input::class).currentSnapshot },
+                    uiResultProvider = { uiContext.finishFrame().ownership.gizmoCapturedOwnership(gizmo) },
+                )
+            }
             // Registered here rather than left out: the rotating-cube scene authors a
             // SpinControl that nothing was ticking, so studio's "rotating cube" never rotated.
             // Two systems because SpinControl is a "control carries state, system only composes"
@@ -103,9 +118,14 @@ internal fun studioModule(
             frameSystem("spin-clock") { PlayModeSystem(SpinClockSystem(), store) }
             frameSystem("spin") { PlayModeSystem(SpinSystem(), store) }
             frameSystem("example-driver") {
-                StudioExampleDriverSystem(this, store, loader, writeScene)
+                StudioExampleDriverSystem(this, store, loader, writeScene, editorCamera)
             }
-            cameraSystem()
+            frameSystem("camera") {
+                CameraSystem(
+                    inputProvider = { requireService(Input::class).currentSnapshot },
+                    uiResultProvider = { uiContext.finishFrame().ownership.gizmoCapturedOwnership(gizmo) },
+                )
+            }
             // Runs after the default infrastructure systems (Transform/Render/Debug), not as a
             // frameSystem -- Renderer.drawDebugLines replaces the whole line buffer each call
             // rather than appending, so whichever system calls it last wins. DebugVisualization
@@ -125,6 +145,39 @@ internal fun studioModule(
                 // destroys instantiated scene roots), so the frustum/bounds toggle survives
                 // switching examples instead of resetting to off each time.
                 world.create().also { world.add(it, WorldDebugSettings()) }
+                // Same "created once, survives every LoadExample" shape -- the editor's own
+                // Scene-view camera, distinct from whatever camera a loaded example authors (see
+                // StudioEditorCamera's own doc comment). No Name: not a selectable/deletable
+                // scene object, same reasoning WorldDebugSettings' entity is invisible in the
+                // hierarchy.
+                editorCamera.entity = world.create().also { entity ->
+                    world.add(
+                        entity,
+                        Camera(
+                            CoreCamera(
+                                eye = Vec3(6f, 4f, 8f),
+                                center = Vec3.ZERO,
+                                fovYRadians = DEFAULT_EDITOR_CAMERA_FOV_RADIANS,
+                                near = DEFAULT_EDITOR_CAMERA_NEAR,
+                                far = DEFAULT_EDITOR_CAMERA_FAR,
+                            ),
+                            isPrimary = true,
+                        ),
+                    )
+                    world.add(entity, Transform())
+                    world.add(entity, CameraComponent().also {
+                        it.targetEntity = entity
+                        // An editor's own free-look zoom range is a different concern than a
+                        // gameplay orbit rig's -- the engine default (CameraComponent
+                        // .DEFAULT_MAX_DISTANCE, 20f) is a character-camera range, not enough to
+                        // pull back and see a whole scene laid out. seedFromAuthoredPose only
+                        // WIDENS this if a scene's authored eye sits farther out, it never
+                        // shrinks it -- so this floor is a permanent editor-camera property, not
+                        // overwritten per scene load.
+                        it.maxDistance = EDITOR_CAMERA_MAX_DISTANCE
+                    })
+                    world.add(entity, ActiveCamera())
+                }
                 // dispatch, not activate() directly: only Intent.SelectExample queues the
                 // LoadExample effect the driver system acts on. Without this, the store's
                 // default activeExampleId sits "active" in the rail but nothing ever loads,
@@ -162,273 +215,4 @@ private fun GameWindowBackend.label(): String = when (this) {
     GameWindowBackend.VULKAN -> "Vulkan"
     GameWindowBackend.WEBGPU -> "WebGPU"
     GameWindowBackend.OPENGL -> "OpenGL"
-}
-
-/** Advances every [SpinControl] by its own rate, which is the half [SpinSystem] deliberately
- * does not do. Runs before it, so the composed transform is this frame's angle. */
-private class SpinClockSystem : System {
-    override fun update(world: World, delta: Float) {
-        world.queryEach(SpinControl::class) { _, spin -> spin.radians += spin.speed * delta }
-    }
-}
-
-/** Ticks [delegate] only in [StudioContract.Mode.Play]. A wrapper rather than a mode check
- * inside each system: the systems are engine-owned, and an editor's mode is not their concern. */
-private class PlayModeSystem(private val delegate: System, private val store: StudioStore) : System {
-    override fun update(world: World, delta: Float) {
-        if (store.state.value.mode == StudioContract.Mode.Play) delegate.update(world, delta)
-    }
-}
-
-/**
- * Drives the translate gizmo once per frame.
- *
- * A system rather than something hooked into the overlay: the UI layout callback it used to run
- * from fires several times per frame (the resizable group measures before it places), which
- * advanced a drag's state machine multiple times per frame and against intermediate rects.
- *
- * The viewport rect comes from [StudioViewportRect], written by the shell during layout -- the
- * same rect the scene is rendered into, so a pick can never disagree with what the user sees.
- */
-/** Below this the authored eye sits on the target and describes no direction to orbit from. */
-private const val MIN_AUTHORED_DISTANCE = 1e-4f
-
-/** Standing eye height above the aim point, so first person starts outside whatever it was
- * looking at rather than inside it. */
-private const val FIRST_PERSON_EYE_HEIGHT = 1.8f
-
-private class StudioGizmoSystem(
-    private val runtime: SceneGameRuntime,
-    private val store: StudioStore,
-    private val gizmo: StudioGizmo,
-    private val viewportRect: StudioViewportRect,
-    private val boundsOf: (Int) -> Aabb?,
-) : System {
-    override fun update(world: World, delta: Float) {
-        val viewport = viewportRect.bounds ?: return
-        val camera = primaryCamera(world) ?: return
-        val projection = ViewportProjection(
-            camera = camera.camera,
-            viewProjection = camera.camera.viewProjectionMatrix(
-                viewport.width / viewport.height,
-                runtime.renderer.clipSpace,
-            ),
-            width = viewport.width,
-            height = viewport.height,
-        )
-
-        val input = runtime.uiContext.inputState
-        val insideViewport = input.pointerX >= viewport.x &&
-            input.pointerX <= viewport.x + viewport.width &&
-            input.pointerY >= viewport.y &&
-            input.pointerY <= viewport.y + viewport.height
-        // null rather than a clamped edge position: a drag must not keep running against the
-        // panel border after the cursor leaves it.
-        val local = if (insideViewport) Vec2(input.pointerX - viewport.x, input.pointerY - viewport.y) else null
-
-        val selected = store.state.value.inspector.selectedEntityId
-        val tool = store.state.value.tools.active.toGizmoTool()
-        // Edit mode only: dragging while gameplay systems own the transform would fight them, and
-        // the result is discarded on stop anyway.
-        if (store.state.value.mode == StudioContract.Mode.Edit) {
-            val pick = gizmo.update(
-                world,
-                GizmoFrame(projection, selected, GizmoPointer(local, input.pointerDown), tool),
-                boundsOf,
-            )
-            // Only a frame that actually resolved a press changes the selection. Dispatching on
-            // every frame the button is held cleared it one frame after making it.
-            if (pick is GizmoPick.Selected && pick.entityId != selected) {
-                store.dispatch(StudioContract.Intent.SelectEntity(pick.entityId))
-            }
-        }
-        // Only when there's actually a gizmo to show -- Renderer.drawDebugLines REPLACES the
-        // whole line buffer rather than appending, and this system now runs after
-        // DebugVisualizationSystem (see infrastructureSystems' own comment) specifically so a
-        // real gizmo isn't wiped by it. But that ordering flips the failure the other way on
-        // every frame nothing is selected: an unconditional call here with an empty list would
-        // silently wipe whatever DebugVisualizationSystem just drew (frustum/bounds/light/
-        // shadow lines), which is exactly why none of those toggles showed anything.
-        val handleLines = gizmo.handleLines(world, selected, tool)
-        if (handleLines.isNotEmpty()) runtime.renderer.drawDebugLines(handleLines)
-    }
-
-    /** Mapped rather than shared: the gizmo does not depend on studio's store, and a UI enum
-     * gaining a case that has no drag behaviour should fail to compile here. */
-    private fun StudioContract.Tool.toGizmoTool(): GizmoTool = when (this) {
-        StudioContract.Tool.Select -> GizmoTool.Select
-        StudioContract.Tool.Move -> GizmoTool.Move
-        StudioContract.Tool.Rotate -> GizmoTool.Rotate
-        StudioContract.Tool.Scale -> GizmoTool.Scale
-    }
-
-    private fun primaryCamera(world: World): Camera? {
-        var found: Camera? = null
-        world.family<Camera>().forEach { _, camera -> if (found == null && camera.isPrimary) found = camera }
-        return found
-    }
-}
-
-private class StudioExampleDriverSystem(
-    private val runtime: SceneGameRuntime,
-    private val store: StudioStore,
-    private val loader: ExampleLoader,
-    private val writeScene: (fileName: String, json: String) -> String,
-) : System {
-    private var syncedCameraEntity: Entity? = null
-    private var syncedStoreMode: CameraMode? = null
-    private var syncedComponentMode: CameraMode? = null
-
-    override fun update(world: World, delta: Float) {
-        store.drainEffects().forEach { effect ->
-            when (effect) {
-                StudioContract.Effect.SaveScene -> saveActiveScene(world)
-
-                is StudioContract.Effect.LoadExample -> {
-                    loader.activate(effect.exampleId, runtime)
-                    store.dispatch(
-                        StudioContract.Intent.AppendConsole(
-                            level = StudioContract.ConsoleLevel.Info,
-                            message = "Loaded ${effect.exampleId}",
-                        ),
-                    )
-                }
-            }
-        }
-        // Drivers are gameplay: an animation that keeps running in Edit would fight every
-        // inspector edit, and its result would be saved as if it had been authored.
-        if (store.state.value.mode == StudioContract.Mode.Play) {
-            val activeId = store.state.value.examples.activeExampleId
-            StudioExamples.first { it.id == activeId }.driver?.invoke(runtime, delta)
-        }
-        syncCameraComponent(world)
-    }
-
-    /**
-     * Exports the LIVE world, so inspector edits are what land on disk -- not the document that
-     * was loaded. Failures are reported to the studio console rather than thrown: a save that
-     * cannot resolve an asset ID must not take the frame loop down with it.
-     */
-    private fun saveActiveScene(world: World) {
-        val exampleId = store.state.value.examples.activeExampleId
-        val message = runCatching {
-            val document = loader.exportActive(world, name = exampleId)
-            val target = writeScene("$exampleId.scene.json", SceneLoader.encode(document))
-            StudioContract.ConsoleLevel.Info to "Saved to $target"
-        }.getOrElse { failure ->
-            StudioContract.ConsoleLevel.Error to "Save failed: ${failure.message}"
-        }
-        store.dispatch(StudioContract.Intent.AppendConsole(message.first, message.second))
-    }
-
-    /**
-     * Pushes the store's camera state onto the ECS [CameraComponent] that `CameraSystem` reads.
-     *
-     * Studio used to run its own `CameraPresetMath` here, a second camera implementation beside
-     * the engine's. That left Cinematic and TopDown unreachable and drag responding only in
-     * Orbit, because `CameraInputSystem`'s per-mode usesYaw/usesPitch/usesZoom handling was never
-     * in the loop. The store stays the source of truth for what the UI selected; the systems own
-     * how that mode behaves.
-     *
-     * The camera entity is recreated on every `LoadExample`, so the components are ensured each
-     * frame rather than attached once at setup.
-     */
-    private fun syncCameraComponent(world: World) {
-        val entity = primaryCameraEntity(world) ?: return
-        val renderingCamera = world.get<Camera>(entity) ?: return
-        world.ensure(entity) { ActiveCamera() }
-        val needsTargetInitialization = !world.has(entity, CameraComponent::class)
-        val camera = world.ensure(entity) { CameraComponent() }
-        // Scene documents author a rendering Camera but no Transform. CameraSystem requires a
-        // Transform target for every mode, so the camera entity itself owns a stable target
-        // initialized from the document's original aim point.
-        val target = world.ensure(entity, ::Transform)
-        if (needsTargetInitialization) target.position.set(renderingCamera.camera.center)
-        camera.targetEntity = entity
-        if (needsTargetInitialization) {
-            seedFromAuthoredPose(camera, renderingCamera.camera)
-        }
-        val stateBeforeSync = store.state.value.camera
-        val sameCamera = syncedCameraEntity == entity
-        val modeChangedByInput = sameCamera &&
-            camera.mode != syncedComponentMode &&
-            stateBeforeSync.mode == syncedStoreMode
-        if (modeChangedByInput) store.dispatch(StudioContract.Intent.SetCameraMode(camera.mode))
-
-        val state = store.state.value.camera
-        applyModeOffset(camera, state.mode)
-        // Store changes originate in studio's header/menu. Input changes originate in the
-        // engine's CameraInputSystem. Keep both paths live without reapplying stale yaw, pitch,
-        // or distance over CameraSystem's per-mode gesture state every frame.
-        if (needsTargetInitialization || !sameCamera || state.mode != syncedStoreMode) {
-            camera.mode = state.mode
-        }
-        syncedCameraEntity = entity
-        syncedStoreMode = state.mode
-        syncedComponentMode = camera.mode
-
-        // Projection stays here rather than moving to CameraComponent: it belongs to the
-        // rendering Camera, and CameraSystem only owns pose. Dropping it was a regression when
-        // CameraPresetMath went away, since that had set both.
-        renderingCamera.camera.projection = when (state.projection) {
-            StudioContract.Projection.Perspective -> CoreCamera.Projection.Perspective
-            StudioContract.Projection.Orthographic -> CoreCamera.Projection.Orthographic
-        }
-    }
-
-    /**
-     * The eye offset each mode actually wants.
-     *
-     * `CameraComponent` defaults it to a 1.8 eye height, which is a character controller's, and
-     * the two modes read it for opposite purposes. The orbit modes aim at `target + offset`, so a
-     * non-zero offset put the orbit centre 1.8 units ABOVE the model and framed every scene low.
-     * FirstPerson instead PLACES the eye there -- so zeroing it for everything, which is what
-     * fixed the orbit framing, dropped the first-person eye exactly onto the orbit target and put
-     * the viewer inside the cube it was aiming at.
-     */
-    private fun applyModeOffset(camera: CameraComponent, mode: CameraMode) {
-        if (mode == CameraMode.FirstPerson) {
-            camera.offsetPosition.set(0f, FIRST_PERSON_EYE_HEIGHT, 0f)
-        } else {
-            camera.offsetPosition.set(0f, 0f, 0f)
-        }
-    }
-
-    /**
-     * Adopts the scene document's own camera as the starting orbit.
-     *
-     * `CameraSystem` recomputes the eye from yaw/pitch/distance every frame, so an authored eye
-     * is overwritten on the first frame and the scene is framed by whatever the mode's defaults
-     * happen to be -- rotating-cube authors an eye 10 units back and got 4.6, well inside its own
-     * ground plane. Converting that eye into the angles the system actually reads makes the first
-     * frame match the document, and leaves the camera fully input-driven from there.
-     *
-     * Clears `needsReset` because setting the mode above raised it, and the reset it asks for is
-     * exactly the mode-default pose being replaced here.
-     */
-    private fun seedFromAuthoredPose(camera: CameraComponent, authored: CoreCamera) {
-        val offsetX = authored.eye.x - authored.center.x
-        val offsetY = authored.eye.y - authored.center.y
-        val offsetZ = authored.eye.z - authored.center.z
-        val distance = sqrt(offsetX * offsetX + offsetY * offsetY + offsetZ * offsetZ)
-        if (distance < MIN_AUTHORED_DISTANCE) return
-        // CameraSystem places the eye at `center - forward * distance`, so the authored offset is
-        // that forward negated -- see its own forwardFrom for the basis these angles feed.
-        camera.pitch = asin((-offsetY / distance).coerceIn(-1f, 1f))
-        camera.yaw = atan2(-offsetX, offsetZ)
-        camera.maxDistance = maxOf(camera.maxDistance, distance)
-        camera.distance = distance
-        camera.needsReset = false
-    }
-
-    /** Mirrors `RenderSystem.primaryCamera`, but returns the ENTITY: the camera components live
-     * on it, and the entity is recreated on every `LoadExample`, so this looks it up fresh each
-     * frame rather than caching one. */
-    private fun primaryCameraEntity(world: World): Entity? {
-        var found: Entity? = null
-        world.family<Camera>().forEach { entity, camera ->
-            if (found == null && camera.isPrimary) found = entity
-        }
-        return found
-    }
 }

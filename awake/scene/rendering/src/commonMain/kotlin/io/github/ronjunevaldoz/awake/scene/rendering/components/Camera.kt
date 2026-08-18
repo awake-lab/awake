@@ -6,5 +6,5 @@ import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 data class Camera(
     val camera: CoreCamera,
-    val isPrimary: Boolean = true,
+    var isPrimary: Boolean = true,
 )

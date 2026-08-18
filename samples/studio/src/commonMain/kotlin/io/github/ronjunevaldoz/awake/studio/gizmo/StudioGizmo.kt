@@ -60,6 +60,11 @@ class StudioGizmo {
     private var lastPointer: Vec2? = null
     private var wasDown = false
 
+    /** True while a handle drag is in progress -- lets a caller suppress an unrelated input
+     * consumer (the orbit camera) that would otherwise read the SAME raw pointer drag and move
+     * the viewport out from under a drag that was meant to move the object instead. */
+    val isDraggingHandle: Boolean get() = draggingAxis != null
+
     /**
      * Advances one frame and reports what the pointer did to the selection.
      *
