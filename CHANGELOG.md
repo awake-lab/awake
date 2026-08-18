@@ -215,6 +215,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   slot from id/style/arrangement, an overload-resolution trap. Root-authoring
   `UiContext.column`/`row` (resolves its own slot from a `Modifier`) is unaffected.
 
+### Fixed
+
+- A `FillMax`-width `interactiveSurface()`/`button()` (any content-lambda form, not just the
+  headless label form) with no explicit width could never resolve a hover-conditional
+  `Style` — `surfaceCore` built its interactive style from a placeholder `hovered = false`
+  computed before any real slot existed, then never recomputed it once the real slot (and a
+  real hit test) existed. `resolveInteractiveSurface`'s headless path never had this bug; it
+  now shares the same claim-then-hit-test-then-resolve order. Same fix ports package 5's
+  wrap-content/`FillMax` intrinsic-width exception into `surfaceCore`, which had only ever
+  reached the headless-only button path.
+
 ## [0.1.0-dev.5] - 2026-08-18
 
 UI-core cleanup and correctness pass: dead deprecated-API surface removed, the style-merge
