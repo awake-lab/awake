@@ -58,23 +58,23 @@ class UiContext internal constructor(
     fun <T> pushLocal(local: UiLocal<T>, value: T) = stacks.push(local, value)
     fun <T> popLocal(local: UiLocal<T>) = stacks.pop(local)
 
-    @Deprecated("Use pushLocal(LocalTheme, theme), preferably through ProvideTheme")
+    @Deprecated("Use pushLocal(LocalTheme, theme), preferably through provideTheme")
     fun pushTheme(theme: UiTheme) = pushLocal(LocalTheme, theme)
 
     /** Installs a runtime-free theme contract; Core supplies neutral fallback recipes internally. */
-    @Deprecated("Use pushLocal(LocalTheme, theme.asRuntimeTheme()), preferably through ProvideTheme")
+    @Deprecated("Use pushLocal(LocalTheme, theme.asRuntimeTheme()), preferably through provideTheme")
     fun pushTheme(theme: UiThemeValues) = pushLocal(LocalTheme, theme.asRuntimeTheme())
-    @Deprecated("Use popLocal(LocalTheme), preferably through ProvideTheme")
+    @Deprecated("Use popLocal(LocalTheme), preferably through provideTheme")
     fun popTheme() = popLocal(LocalTheme)
 
-    @Deprecated("Use pushLocal(LocalTextStyle, style), preferably through ProvideTextStyle")
+    @Deprecated("Use pushLocal(LocalTextStyle, style), preferably through provideTextStyle")
     fun pushTextStyle(style: TextStyle) = pushLocal(LocalTextStyle, style)
-    @Deprecated("Use popLocal(LocalTextStyle), preferably through ProvideTextStyle")
+    @Deprecated("Use popLocal(LocalTextStyle), preferably through provideTextStyle")
     fun popTextStyle() = popLocal(LocalTextStyle)
 
-    @Deprecated("Use pushLocal(LocalFont, font), preferably through ProvideFont")
+    @Deprecated("Use pushLocal(LocalFont, font), preferably through provideFont")
     fun pushFont(font: UiFont) = pushLocal(LocalFont, font)
-    @Deprecated("Use popLocal(LocalFont), preferably through ProvideFont")
+    @Deprecated("Use popLocal(LocalFont), preferably through provideFont")
     fun popFont() = popLocal(LocalFont)
 
     fun pushShapeSpec(spec: io.github.ronjunevaldoz.awake.ui.UiShapeSpec?) = stacks.pushShapeSpec(spec)

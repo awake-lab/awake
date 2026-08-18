@@ -22,7 +22,7 @@ fun UiPrimitiveScope.icon(
     modifier: UiModifier = Modifier,
     // Same fallback every text draw already uses (see BasicText.kt/Text.kt) -- a button already
     // resolves its own contrasting foreground into the ambient LocalTextStyle around its content
-    // (buttonSlotInternal's ProvideTextStyle), so an icon inside it auto-contrasts by default the
+    // (buttonSlotInternal's provideTextStyle), so an icon inside it auto-contrasts by default the
     // same way text() does. Defaulting straight to the raw theme foreground instead skipped that
     // per-instance resolution, so a caller had to hardcode a tint per variant to stay visible --
     // and a hardcoded tint doesn't track theme/hover/dark-mode changes the way the ambient does.

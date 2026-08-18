@@ -32,14 +32,14 @@ fun <T> UiPrimitiveScope.Provide(local: UiLocal<T>, value: T, content: UiPrimiti
     }
 }
 
-fun UiPrimitiveScope.ProvideTextStyle(style: TextStyle, content: UiPrimitiveScope.() -> Unit) {
+fun UiPrimitiveScope.provideTextStyle(style: TextStyle, content: UiPrimitiveScope.() -> Unit) {
     Provide(LocalTextStyle, style, content)
 }
 
-fun UiPrimitiveScope.ProvideTheme(theme: UiTheme, content: UiPrimitiveScope.() -> Unit) {
+fun UiPrimitiveScope.provideTheme(theme: UiTheme, content: UiPrimitiveScope.() -> Unit) {
     Provide(LocalTheme, theme, content)
 }
 
-fun UiPrimitiveScope.ProvideFont(font: UiFont, content: UiPrimitiveScope.() -> Unit) {
+fun UiPrimitiveScope.provideFont(font: UiFont, content: UiPrimitiveScope.() -> Unit) {
     Provide(LocalFont, font, content)
 }

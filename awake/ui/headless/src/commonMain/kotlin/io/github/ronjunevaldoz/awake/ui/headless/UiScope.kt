@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.AwakeUiDsl
-import io.github.ronjunevaldoz.awake.ui.ProvideTextStyle
+import io.github.ronjunevaldoz.awake.ui.provideTextStyle
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -52,13 +52,13 @@ fun UiScope.panelSemantics(id: String, bounds: UiBounds) {
 /**
  * Provides an inheritable text style to this subtree.
  *
- * The facade counterpart to Core's `ProvideTextStyle`. Without it, a caller inside a scope that
+ * The facade counterpart to Core's `provideTextStyle`. Without it, a caller inside a scope that
  * already provides a text style (`shadcnTheme { }` provides the body style) had no way to
  * override it without dropping to `primitive.` and losing the headless receiver for the whole
  * subtree -- which is why the snapshot fixtures still push theme/text-style imperatively.
  */
 fun UiScope.provideTextStyle(style: TextStyle, content: UiScope.() -> Unit) {
-    primitive.ProvideTextStyle(style) { content(UiScope(this)) }
+    primitive.provideTextStyle(style) { content(UiScope(this)) }
 }
 
 /** Applies natural label width and font-metric height to surface recipes. */

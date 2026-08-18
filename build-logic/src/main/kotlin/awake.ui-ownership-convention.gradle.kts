@@ -62,8 +62,20 @@ val forbiddenUiTypeReferences = when (project.path) {
 // internals. Core *contract* packages (style, theme, modifier, font) are licensed for
 // design-system style/local infrastructure per docs/reference/ui-ownership.md; Core
 // runtime packages (layouts, popup, scope, child, animate, context) are not.
+// Naming lexicon (docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md row P2):
+// draw* is the only painting verb for future scope-level API; render* belongs to backends;
+// emit*/paint* are legacy dialects frozen to their current files (exempt below, die with P1);
+// providers are camelCase; *Slot widget twins are overloading-by-name (row C10).
+val uiNamingLexiconPatterns = listOf(
+    "\\bfun\\s+\\w*Scope\\.(emit|paint|render)[A-Z]",
+    "\\bfun\\s+[\\w.]*\\.?Provide[A-Z]",
+    "\\bfun\\s+\\w*Scope\\.(?!claim)[a-z]\\w*Slot\\s*\\(",
+)
+
 val forbiddenUiSourcePatterns = when (project.path) {
-    ":awake:ui:designsystem" -> listOf(
+    ":awake:ui:ui-core",
+    ":awake:ui:headless" -> uiNamingLexiconPatterns
+    ":awake:ui:designsystem" -> uiNamingLexiconPatterns + listOf(
         // The escape hatch is headless UiScope.primitive.context; a bare `context.` match
         // would also flag every `ui.context.X` import line and double-count them.
         "\\bprimitive\\s*\\.\\s*context\\b",
@@ -81,6 +93,17 @@ val forbiddenUiSourcePatterns = when (project.path) {
 // one file from forbiddenUiSourcePatterns only; declaration/type-reference rules still apply.
 // Shrink this list — never grow it without an audit row.
 val exemptUiSourcePatternFiles = when (project.path) {
+    ":awake:ui:ui-core" -> listOf(
+        // emit* painter family — becomes UiDrawScope draw* members in the P1 receiver split.
+        "graphics/ShapePainter.kt",
+    )
+    ":awake:ui:headless" -> listOf(
+        // paintSurface / renderTextBlock — same P1 fate as ShapePainter's emit family.
+        "internal/controls/Surface.kt",
+        "internal/text/BasicText.kt",
+        // buttonSlot twins — die with the UiButtonVariant deletion (row E4, package 4).
+        "internal/controls/Buttons.kt",
+    )
     ":awake:ui:designsystem" -> listOf(
         "components/ShadcnButtonGroupRecipes.kt",
         "components/ShadcnThemeLocals.kt",
