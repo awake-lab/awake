@@ -21,6 +21,10 @@ struct Uniforms {
   // x = metallic, y = roughness. Packed as vec4f for the same 16-byte alignment reason as
   // lightDirection above.
   material : vec4f,
+  // rgb = fog colour, a = fog DENSITY (not alpha) -- packed into the unused 4th component the
+  // same way lightDirection.w above already carries the shadow depth scale. Density 0 (the
+  // renderer default) makes applyFog a no-op.
+  fogColor : vec4f,
 }
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
 // Bindings 1/2 (base-color texture) are declared by triangle.wgsl's descriptor-set-layout
@@ -128,6 +132,14 @@ fn linearToSrgb(linear : vec3f) -> vec3f {
   return pow(max(linear, vec3f(0.0)), vec3f(INV_GAMMA));
 }
 
+// Standard exponential distance fog. A density of 0 leaves [color] untouched, which is what
+// every scene renders with until a game sets Renderer.fogDensity.
+fn applyFog(color : vec3f, worldPos : vec3f) -> vec3f {
+  let dist = length(uniforms.cameraPosition.xyz - worldPos);
+  let fogAmount = 1.0 - exp(-uniforms.fogColor.a * dist);
+  return mix(color, uniforms.fogColor.rgb, saturate(fogAmount));
+}
+
 @fragment
 fn fragmentMain(
   @location(0) color : vec3f,
@@ -169,5 +181,5 @@ fn fragmentMain(
   // the only pass producing linear radiance, so it is the one that has to encode -- a lit
   // 0.5-albedo ground otherwise reached the display at roughly half its intended brightness,
   // which reads as "the scene is too dark" rather than "the scene is unencoded".
-  return vec4f(linearToSrgb(mapped), 1.0);
+  return vec4f(applyFog(linearToSrgb(mapped), worldPos), 1.0);
 }

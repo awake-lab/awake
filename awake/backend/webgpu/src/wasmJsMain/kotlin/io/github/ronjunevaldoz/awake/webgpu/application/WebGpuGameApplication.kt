@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.engine.game.GameApplication
 import io.github.ronjunevaldoz.awake.engine.game.GameShaderSet
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
+import io.github.ronjunevaldoz.awake.webgpu.debug.SkyboxRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.RenderPipeline
@@ -53,6 +54,10 @@ open class WebGpuGameApplication(
      * built for [VertexFormat.PositionNormalColorSkin] rather than the primary [vertexFormat].
      * `null` (default) means an `InstancedSkinnedMeshRenderer` entity simply doesn't draw. */
     private val skinnedInstancedShaderSet: GameShaderSet? = null,
+    /** Opts into the procedural sky -- mirrors `VulkanGameApplication.skyboxShaderSet` (see its
+     * doc comment, including why it is opt-in rather than always-on). `null` (default) leaves
+     * `Renderer.showEnvironment` an inert flag. */
+    private val skyboxShaderSet: GameShaderSet? = null,
 ) : GameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -67,6 +72,7 @@ open class WebGpuGameApplication(
         additionalPipelines: Map<VertexFormat, GameShaderSet> = emptyMap(),
         instancedShaderSet: GameShaderSet? = null,
         skinnedInstancedShaderSet: GameShaderSet? = null,
+        skyboxShaderSet: GameShaderSet? = null,
     ) : this(
         vertexShaderResourcePath = shaderSet.webGpu.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.webGpu.fragmentResourcePath,
@@ -78,6 +84,7 @@ open class WebGpuGameApplication(
         additionalPipelines = additionalPipelines,
         instancedShaderSet = instancedShaderSet,
         skinnedInstancedShaderSet = skinnedInstancedShaderSet,
+        skyboxShaderSet = skyboxShaderSet,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -88,6 +95,7 @@ open class WebGpuGameApplication(
     private var instancedRenderPipeline: RenderPipeline? = null
     private var skinnedInstancedRenderPipeline: RenderPipeline? = null
     private lateinit var lineRenderPipeline: LineRenderPipeline
+    private var skyboxRenderPipeline: SkyboxRenderPipeline? = null
 
     override suspend fun createBackendResources(window: Any): BackendResources {
         graphicsDevice = GraphicsDevice()
@@ -167,6 +175,13 @@ open class WebGpuGameApplication(
             swapchainManager,
             readResourceBytes(DEBUG_LINE_SHADER_RESOURCE_PATH),
         )
+        skyboxRenderPipeline = skyboxShaderSet?.let { shaderSet ->
+            SkyboxRenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                readResourceBytes(shaderSet.webGpu.vertexResourcePath),
+            )
+        }
         val renderer = Renderer(
             graphicsDevice,
             swapchainManager,
@@ -185,6 +200,7 @@ open class WebGpuGameApplication(
             skinnedInstancedRenderPipeline
                 ?.let { mapOf(VertexFormat.PositionNormalColorSkin to it) }
                 ?: emptyMap(),
+            skyboxRenderPipeline,
         )
 
         return BackendResources(
@@ -205,6 +221,7 @@ open class WebGpuGameApplication(
         instancedRenderPipeline?.destroy()
         skinnedInstancedRenderPipeline?.destroy()
         lineRenderPipeline.destroy()
+        skyboxRenderPipeline?.destroy()
         graphicsDevice.destroy()
     }
 

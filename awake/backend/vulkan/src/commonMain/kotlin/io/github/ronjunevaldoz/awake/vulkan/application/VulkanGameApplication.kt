@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.engine.game.GameShaderSet
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.debug.SkyboxRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPolygonMode
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
@@ -76,6 +77,13 @@ open class VulkanGameApplication(
      * that is the only format this shader can ever read. `null` (default) means no such
      * pipeline exists and an `InstancedSkinnedMeshRenderer` entity simply doesn't draw. */
     private val skinnedInstancedShaderSet: GameShaderSet? = null,
+    /** Opts into the procedural sky (see `SkyboxRenderPipeline`/`Renderer.showEnvironment`):
+     * builds ONE extra pipeline from this shader set against the primary pipeline's own render
+     * pass. `null` (default) means no skybox pipeline is built at all and
+     * `Renderer.showEnvironment` stays an inert flag -- which is also why this is opt-in rather
+     * than always-on: `skybox.wgsl` ships in `awake:asset:shaders`, so only a module that syncs
+     * that directory actually has the compiled SPIR-V on its resource path. */
+    private val skyboxShaderSet: GameShaderSet? = null,
 ) : GameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -91,6 +99,7 @@ open class VulkanGameApplication(
         shadowShaderSet: GameShaderSet? = null,
         instancedShaderSet: GameShaderSet? = null,
         skinnedInstancedShaderSet: GameShaderSet? = null,
+        skyboxShaderSet: GameShaderSet? = null,
     ) : this(
         vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
@@ -103,6 +112,7 @@ open class VulkanGameApplication(
         shadowShaderSet = shadowShaderSet,
         instancedShaderSet = instancedShaderSet,
         skinnedInstancedShaderSet = skinnedInstancedShaderSet,
+        skyboxShaderSet = skyboxShaderSet,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -112,6 +122,7 @@ open class VulkanGameApplication(
     private val additionalRenderPipelines = mutableMapOf<VertexFormat, RenderPipeline>()
     private val wireframeAdditionalRenderPipelines = mutableMapOf<VertexFormat, RenderPipeline>()
     private lateinit var lineRenderPipeline: LineRenderPipeline
+    private var skyboxRenderPipeline: SkyboxRenderPipeline? = null
     private lateinit var transferContext: TransferContext
     private var shadowMap: ShadowMap? = null
     private var shadowRenderPipeline: ShadowRenderPipeline? = null
@@ -265,6 +276,19 @@ open class VulkanGameApplication(
             ),
             MAX_FRAMES_IN_FLIGHT,
         )
+        skyboxRenderPipeline = skyboxShaderSet?.let { shaderSet ->
+            SkyboxRenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                // The EXISTING 3D pass, same reuse lineRenderPipeline above does.
+                renderPipeline.renderPass,
+                loadShaderPair(
+                    shaderSet.vulkan.vertexResourcePath,
+                    shaderSet.vulkan.fragmentResourcePath,
+                ),
+                MAX_FRAMES_IN_FLIGHT,
+            )
+        }
         transferContext = TransferContext(graphicsDevice)
         val additionalPipelinesByFormat = additionalRenderPipelines.toMap()
         val wireframePipelinesByFormat = buildMap {
@@ -299,6 +323,7 @@ open class VulkanGameApplication(
             skinnedInstancedRenderPipeline
                 ?.let { mapOf(VertexFormat.PositionNormalColorSkin to it) }
                 ?: emptyMap(),
+            skyboxRenderPipeline,
         )
         swapchainManager.createSyncObjects()
 
@@ -337,6 +362,7 @@ open class VulkanGameApplication(
         shadowRenderPipeline?.destroy()
         shadowMap?.destroy()
         lineRenderPipeline.destroy()
+        skyboxRenderPipeline?.destroy()
         graphicsDevice.destroy()
     }
 

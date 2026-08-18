@@ -7,8 +7,10 @@ import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
+import io.github.ronjunevaldoz.awake.render.renderer.skyboxUniformFloats
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
+import io.github.ronjunevaldoz.awake.webgpu.debug.SkyboxRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
@@ -62,6 +64,13 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     val viewProjection = camera.viewProjectionMatrix(aspect, clipSpace)
     // Debug lines are already in world space, so their MVP is exactly viewProjection.
     lineRenderPipeline.writeMvp(viewProjection.data)
+    // Reuses this frame's already-built viewProjection: the sky needs its inverse to turn each
+    // pixel back into a world-space ray. Null whenever the sky isn't drawn this frame.
+    val skybox = skyboxRenderPipeline?.takeIf { showEnvironment }
+    val skyboxUniforms = skybox?.let {
+        skyboxUniformFloats(viewProjection, camera.eye, light.direction, horizonColor, zenithColor)
+    }
+    skyboxUniforms?.let { skybox?.writeUniforms(it) }
 
     // vec4f (not vec3f) for both -- see triangle.wgsl's own Uniforms struct doc comment.
     val lightFloats = floatArrayOf(
@@ -100,6 +109,14 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
         sceneRect?.let { rect ->
             setViewport(rect.x, rect.y, rect.width, rect.height, 0f, 1f)
             setScissorRect(rect.x.toUInt(), rect.y.toUInt(), rect.width.toUInt(), rect.height.toUInt())
+        }
+        // The sky goes FIRST, before any geometry -- depth test/write are both off on this
+        // pipeline, so it neither occludes nor is occluded by what follows. No vertex buffer:
+        // the vertex shader generates a full-screen triangle from vertex_index.
+        if (skybox != null && skyboxUniforms != null) {
+            setPipeline(skybox.pipeline)
+            setBindGroup(0u, skybox.bindGroup)
+            draw(SkyboxRenderPipeline.FULLSCREEN_TRIANGLE_VERTICES)
         }
         var drawIndex = 0
         var instancedIndex = 0
@@ -194,7 +211,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                     extraMaterial.updateUniformBuffer(
                         mvp.data + lightFloats + drawCall.model.data +
                             floatArrayOf(camera.eye.x, camera.eye.y, camera.eye.z, 0f) +
-                            pbrTexturedMaterialFloats(drawCall),
+                            pbrTexturedMaterialFloats(drawCall) + fogFloats(),
                     )
                     setBindGroup(0u, extraMaterial.bindGroupFor(texturedPipeline))
                 } else {
@@ -363,6 +380,13 @@ private fun pbrTexturedMaterialFloats(drawCall: DrawCall): FloatArray {
         0f, 0f, 0f, 0f,
     )
 }
+
+/** `[fogColor.rgb, fogDensity]` -- density rides in the 4th component, matching
+ * `textured.wgsl`'s `fogColor : vec4f` (see `UniformFields.Fog`). Same packing as Vulkan's own
+ * `RendererDraw3D.fogFloats`. The primary path here is `triangle.wgsl`, which has no worldPos/
+ * cameraPosition to fog against, so only the textured path gets this. */
+private fun Renderer.fogFloats(): FloatArray =
+    floatArrayOf(fogColor[0], fogColor[1], fogColor[2], fogDensity)
 
 private const val PBR_TEXTURED_MATERIAL_FLOATS = 12
 private const val DEFAULT_METALLIC_FACTOR = 1f

@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.engine.game.GameModule
 import io.github.ronjunevaldoz.awake.engine.game.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.renderer.LitShadowUniformLayout
 import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraInputSystem
 import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraSystem
 import io.github.ronjunevaldoz.awake.scene.authoring.scene
@@ -52,9 +53,9 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
-/** mvp(16) + lightDirection(4) + lightColor(4) + lightMvp(16) + model(16) + cameraPosition(4)
- * + material(4). Must match `lit_shadow.wgsl`'s Uniforms field order. */
-internal const val LIT_SHADOW_UNIFORM_FLOAT_COUNT = 64
+/** `lit_shadow.wgsl`'s Uniforms size -- taken from the shared layout rather than re-summed
+ * here, so adding a field to that shader can't leave this call site silently short. */
+internal val LIT_SHADOW_UNIFORM_FLOAT_COUNT = LitShadowUniformLayout.total
 
 /** [backend] is only a status-bar label. It is the backend this game asks its window for (see
  * `configureStudioWindow`), which is the closest honest answer available: `Renderer` exposes no

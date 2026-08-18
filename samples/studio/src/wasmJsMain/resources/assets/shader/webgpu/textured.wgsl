@@ -23,6 +23,10 @@ struct Uniforms {
   baseColorFactor : vec4f,
   // xyz used, w unused -- glTF emissiveFactor has no alpha component.
   emissiveFactor : vec4f,
+  // rgb = fog colour, a = fog DENSITY (not alpha) -- packed into the unused 4th component the
+  // same way lightDirection.w already carries the shadow depth scale in lit_shadow.wgsl.
+  // Density 0 (the renderer default) makes the mix below a no-op.
+  fogColor : vec4f,
 }
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
 @binding(1) @group(0) var baseColorTexture : texture_2d<f32>;
@@ -116,6 +120,14 @@ fn perturbNormal(n : vec3f, worldPos : vec3f, uv : vec2f, tangentNormal : vec3f)
   return normalize(mat3x3<f32>(tangent * invMax, bitangent * invMax, n) * tangentNormal);
 }
 
+// Standard exponential distance fog. A density of 0 leaves [color] untouched, which is what
+// every scene renders with until a game sets Renderer.fogDensity.
+fn applyFog(color : vec3f, worldPos : vec3f) -> vec3f {
+  let dist = length(uniforms.cameraPosition.xyz - worldPos);
+  let fogAmount = 1.0 - exp(-uniforms.fogColor.a * dist);
+  return mix(color, uniforms.fogColor.rgb, saturate(fogAmount));
+}
+
 @fragment
 fn fragmentMain(
   @location(0) color : vec3f,
@@ -154,8 +166,9 @@ fn fragmentMain(
   let radiance = uniforms.lightColor.xyz * PI * nDotL;
   let specularOut = specular * radiance;
   let ambient = albedo * AMBIENT_STRENGTH * occlusion;
+  let lit = ambient + diffuse * radiance + specularOut / (specularOut + vec3f(1.0)) + emissive;
   return vec4f(
-    ambient + diffuse * radiance + specularOut / (specularOut + vec3f(1.0)) + emissive,
+    applyFog(lit, worldPos),
     baseColorSample.a * uniforms.baseColorFactor.a,
   );
 }

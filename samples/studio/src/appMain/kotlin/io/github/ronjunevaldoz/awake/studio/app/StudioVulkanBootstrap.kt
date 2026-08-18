@@ -13,6 +13,7 @@ private val StudioTexturedShaders = gameShaderSet("textured")
 private val StudioShadowShaders = gameShaderSet("shadow_depth")
 private val StudioInstancedShaders = gameShaderSet("instanced")
 private val StudioSkinnedInstancedShaders = gameShaderSet("skinned_instanced")
+private val StudioSkyboxShaders = gameShaderSet("skybox")
 
 fun createStudioVulkanApplication(
     game: AwakeGame = studioGame(),
@@ -32,4 +33,7 @@ fun createStudioVulkanApplication(
     // Powers the "Instanced skinned" example; without it that example's single DrawCall is
     // skipped entirely (no skinned-instanced pipeline registered for its format).
     skinnedInstancedShaderSet = StudioSkinnedInstancedShaders,
+    // Powers Renderer.showEnvironment; without it that flag draws nothing (no skybox
+    // pipeline built).
+    skyboxShaderSet = StudioSkyboxShaders,
 )

@@ -26,6 +26,19 @@ val DEFAULT_SCENE_LIGHT = SceneLight(
     color = Vec3(1f, 1f, 1f),
 )
 
+/** Defaults for [Renderer.horizonColor]/[Renderer.zenithColor]/[Renderer.fogColor] -- a plain
+ * daytime sky (warm, light blue-white at the horizon, deeper blue overhead) and a neutral
+ * gray-blue haze. Read-only in practice: a backend overriding these with real storage hands
+ * out its own arrays. */
+@Suppress("MagicNumber") // Colour components; naming each channel would not clarify anything.
+val DEFAULT_HORIZON_COLOR = floatArrayOf(0.72f, 0.80f, 0.88f, 1f)
+
+@Suppress("MagicNumber")
+val DEFAULT_ZENITH_COLOR = floatArrayOf(0.20f, 0.38f, 0.68f, 1f)
+
+@Suppress("MagicNumber")
+val DEFAULT_FOG_COLOR = floatArrayOf(0.55f, 0.62f, 0.70f, 1f)
+
 /**
  * Module restructuring slice 1 (see docs/MVP_PLAN.md): the one real cross-backend entry
  * point `RenderSystem` calls. `awake-vulkan`'s `expect class Renderer` implements this
@@ -90,6 +103,53 @@ interface Renderer {
     var debugMode: Boolean
         get() = false
         set(_) {}
+
+    /**
+     * When `true`, the 3D pass draws a procedural sky (horizon-to-zenith gradient plus a sun
+     * disc at the frame's `SceneLight.direction` and a moon disc opposite it) behind all scene
+     * geometry, instead of leaving [clearColor] visible. `false` by default, so nothing changes
+     * appearance until a game opts in.
+     *
+     * Accessors default to "ignore" rather than being abstract, same as [debugMode]: a backend
+     * whose bootstrap never built a skybox pipeline, and every test double, keeps rendering
+     * exactly as it always did. Both real backends override this with real storage.
+     */
+    var showEnvironment: Boolean
+        get() = false
+
+        @Suppress("UNUSED_PARAMETER")
+        set(value) = Unit
+
+    /** RGB(A) the sky gradient blends from at the horizon ([showEnvironment] only). */
+    var horizonColor: FloatArray
+        get() = DEFAULT_HORIZON_COLOR
+
+        @Suppress("UNUSED_PARAMETER")
+        set(value) = Unit
+
+    /** RGB(A) the sky gradient blends to straight overhead ([showEnvironment] only). */
+    var zenithColor: FloatArray
+        get() = DEFAULT_ZENITH_COLOR
+
+        @Suppress("UNUSED_PARAMETER")
+        set(value) = Unit
+
+    /** RGB(A) distant geometry blends toward on the two PBR-capable lit paths
+     * (`textured.wgsl`/`lit_shadow.wgsl`). Only visible once [fogDensity] is non-zero. */
+    var fogColor: FloatArray
+        get() = DEFAULT_FOG_COLOR
+
+        @Suppress("UNUSED_PARAMETER")
+        set(value) = Unit
+
+    /** Exponential fog density -- `0f` (default) is "no fog", which is what every scene got
+     * before this existed. Unlike [showEnvironment] this needs no pipeline support: it is one
+     * more uniform field the existing lit shaders read, so it works on any backend. */
+    var fogDensity: Float
+        get() = 0f
+
+        @Suppress("UNUSED_PARAMETER")
+        set(value) = Unit
 
     /**
      * The sub-rect of the surface [draw]'s 3D pass renders into, and the aspect ratio its

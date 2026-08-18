@@ -25,6 +25,10 @@ struct Uniforms {
   // x = metallic, y = roughness. Packed as vec4f for the same 16-byte alignment reason as
   // lightDirection above.
   material : vec4f,
+  // rgb = fog colour, a = fog DENSITY (not alpha) -- packed into the unused 4th component the
+  // same way lightDirection.w above already carries the shadow depth scale. Density 0 (the
+  // renderer default) makes applyFog a no-op.
+  fogColor : vec4f,
 }
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
 // Bindings 1/2 (base-color texture) are declared by triangle.wgsl's descriptor-set-layout
@@ -128,6 +132,14 @@ fn fresnelSchlick(cosTheta : f32, f0 : vec3f) -> vec3f {
   return f0 + (vec3f(1.0) - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+// Standard exponential distance fog. A density of 0 leaves [color] untouched, which is what
+// every scene renders with until a game sets Renderer.fogDensity.
+fn applyFog(color : vec3f, worldPos : vec3f) -> vec3f {
+  let dist = length(uniforms.cameraPosition.xyz - worldPos);
+  let fogAmount = 1.0 - exp(-uniforms.fogColor.a * dist);
+  return mix(color, uniforms.fogColor.rgb, saturate(fogAmount));
+}
+
 @fragment
 fn fragmentMain(
   @location(0) color : vec3f,
@@ -167,5 +179,6 @@ fn fragmentMain(
   // Reinhard over the specular lobe alone -- that is the only term that can exceed 1.0 (GGX
   // spikes at low roughness). Running the whole image through it maps 1.0 to 0.5 and takes
   // every midtone down with it.
-  return vec4f(ambient + diffuse * radiance + specularOut / (specularOut + vec3f(1.0)), 1.0);
+  let lit = ambient + diffuse * radiance + specularOut / (specularOut + vec3f(1.0));
+  return vec4f(applyFog(lit, worldPos), 1.0);
 }
