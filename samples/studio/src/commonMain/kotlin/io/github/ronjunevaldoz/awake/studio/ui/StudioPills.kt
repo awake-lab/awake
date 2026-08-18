@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
@@ -172,6 +173,12 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
         shadcnButtonGroup(id = "studio-debug-pill") {
             shadcnButton(
                 id = "studio-view-debug-menu",
+                // Explicit width, not WrapContent: a WrapContent trigger's content lambda runs
+                // multiple times per frame for layout trial passes, and interactive controls
+                // nested inside it (the checkboxes below) see those trial invocations as real
+                // clicks -- see PopoverPage.kt's own trigger for the same explicit-width
+                // precedent every other popover-with-a-trigger call site already follows.
+                modifier = Modifier.width(64f.dp),
                 variant = if (debugMenuExpanded) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
                 size = ShadcnButtonSize.Xs,
                 onClick = { debugMenuExpanded = !debugMenuExpanded },
