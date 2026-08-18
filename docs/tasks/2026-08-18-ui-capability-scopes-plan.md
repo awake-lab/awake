@@ -137,20 +137,83 @@ and `context` has no reason to stay public).
    // →
    interface UiScope : UiPrimitiveScope   // tomorrow: nothing left to escape into
    ```
-6. **Layout vs interaction split** (**investigation in progress, 2026-08-18** —
-   promoted from "optional" after re-checking real Compose source: Compose
-   genuinely separates `MeasureScope` (layout, handed to `Layout{}`'s measure
-   lambda) from `PointerInputScope` (input, handed inside
-   `Modifier.pointerInput{}`) — two unrelated types, not one bundled interface.
-   Compose does NOT scope state behind any capability type at all
-   (`remember{}`/`mutableStateOf` are callable from anywhere), so `widgetState`
-   has no direct Compose analog to split against and may not belong in either
-   new scope). Separate `UiPrimitiveScope`'s remaining layout (`claimSlot`) from
-   input (`hitTest`/`isActive`/`tryClaimActive`/`releaseActiveIfMatches`) into
-   two interfaces; decide `widgetState`'s home once the real usage picture is
-   in. An agent is investigating the real call-site picture now (interleaved
-   vs cleanly separated usage) before any interface is designed or code moves —
-   this section will be updated with the real finding once that lands.
+6. **Layout vs interaction split — investigated 2026-08-18, REJECTED. Not
+   scoped for execution; nothing implemented.**
+
+   Compose's `MeasureScope`/`PointerInputScope` split works because those really
+   are separate phases in time: measure runs once per recomposition, pointer
+   input reacts later, in its own coroutine, inside `Modifier.pointerInput{}`.
+   Awake's immediate-mode model has no such separation — every widget claims its
+   slot and evaluates `hitTest`/`isActive` against that exact slot in the same
+   synchronous call, because there's no later phase to hand off to.
+
+   Grepped every real call site of `claimSlot` vs `hitTest`/`isActive`/
+   `tryClaimActive`/`releaseActiveIfMatches` across `ui-core`/`headless`. The
+   claim-then-hit-test pattern is the norm at every real widget-authoring
+   chokepoint, not an edge case:
+   - `ui-core/layouts/Box.kt` (`box()`): `claimModifiedSlot` then `hitTest(slot)`
+     the very next line.
+   - `ui-core/layouts/Surface.kt` (`surfaceCore`, the shared chrome path every
+     `shadcn*` surface widget funnels through): claims a slot, hit-tests it,
+     resolves `isActive`, then *re-claims and re-hit-tests* once real bounds are
+     known for wrap-content sizing — the file's own comment names this
+     "claim-slot-then-hit-test order" and says it deliberately mirrors
+     `interact()` in ui-headless.
+   - `ui-core/layouts/Row.kt` / `Column.kt`: `hovered = modifier.forceHover ?:
+     hitTest(slot)` / `active = ... isActive(id)` immediately after each
+     `claimSlot`.
+   - `ui-core/layouts/LazyList.kt`: `claimModifiedSlot` then `if (hitTest(slot))`
+     for scroll-wheel consumption.
+   - `ui-core/modifier/ClickableModifiers.kt` (`resolveClickable`): `hitTest` →
+     `tryClaimActive` → `isActive` → `releaseActiveIfMatches` → `isActive` again,
+     all against a slot the caller just claimed.
+   - `headless/internal/layout/Interaction.kt` (`interact()` — the one function
+     nearly every interactive headless widget calls): `claimModifiedSlot` then
+     `hitTest`/`tryClaimActive`/`isActive`/`releaseActiveIfMatches`/`isActive`
+     again, five calls in one function body:
+
+     ```kotlin
+     // headless/internal/layout/Interaction.kt — real code, the shared chokepoint
+     internal fun UiPrimitiveScope.interact(
+         id: String,
+         modifier: UiModifier = Modifier,
+         enabled: Boolean = true,
+     ): UiInteraction {
+         val slot = claimModifiedSlot(modifier)        // layout
+         val hovered = hitTest(slot)                     // interaction — needs `slot` from above
+         tryClaimActive(id, hovered && enabled)           // interaction
+         val wasActiveBeforeRelease = isActive(id)        // interaction
+         releaseActiveIfMatches(id)                        // interaction
+         val active = isActive(id)                          // interaction
+         // …
+         return UiInteraction(slot, hovered, active, clicked = ...)
+     }
+     ```
+
+     Splitting `claimSlot` onto a `UiLayoutScope` and the rest onto a
+     `UiInteractionScope` means this one function needs both receivers held at
+     once, and every interaction call directly depends on `slot`, the layout
+     call's own return value — not a coincidental adjacency, a real data
+     dependency.
+
+   That's every layout composite (`box`/`row`/`column`/`surface`/
+   `scrollPanel`-family) plus both shared interaction chokepoints
+   (`resolveClickable`, `interact()`) needing both capabilities in the same
+   function. Splitting `UiPrimitiveScope` here doesn't remove a leak — it forces
+   every one of those ~9 files to juggle two receivers simultaneously (or reach
+   for a combined wrapper type, which just rebuilds the god receiver one level
+   up).
+
+   `widgetState` reads (text cursor, skeleton/spinner animation, collapsible
+   height, dropdown expanded flag) are NOT tangled with `claimSlot` in the same
+   expression the way `hitTest`/`isActive` are — but that argues for leaving it
+   ambient (no scope gate at all, matching Compose's own choice not to gate
+   `remember{}`/`mutableStateOf`), not for giving it a third interface just for
+   symmetry.
+
+   **Verdict: do not split layout from input/state.** If this gets
+   re-litigated later, re-run the grep above first — the interleaving is the
+   load-bearing fact, not an impression.
 
 Each numbered step is its own scoped, verified pass — land it, run
 `verifyUiOwnership` + the three UI `desktopTest` suites, then decide whether the
