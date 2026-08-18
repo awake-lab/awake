@@ -214,6 +214,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   They shared a name with the unrelated "smart" `column`/`row` family that resolves its own
   slot from id/style/arrangement, an overload-resolution trap. Root-authoring
   `UiContext.column`/`row` (resolves its own slot from a `Modifier`) is unaffected.
+- `ui-headless`'s own `Modifier` type (`HeadlessModifier`, plus ~14 duplicate builder
+  functions) is gone. `Modifier` and its builders (`width`, `padding`, `clickable`, etc.) are
+  now `ui-core`'s real `UiModifier`, re-exported through `ui-headless` for `ui-designsystem`'s
+  benefit — behaviorally identical, but any code importing
+  `io.github.ronjunevaldoz.awake.ui.headless.Modifier` directly by fully-qualified name (rare)
+  should re-check that the symbol still resolves; the star/named import form is unaffected.
 
 ### Fixed
 
