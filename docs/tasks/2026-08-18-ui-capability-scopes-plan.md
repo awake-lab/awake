@@ -137,12 +137,20 @@ and `context` has no reason to stay public).
    // →
    interface UiScope : UiPrimitiveScope   // tomorrow: nothing left to escape into
    ```
-6. **Optional further split** (not scoped, not committed) — separate
-   `UiPrimitiveScope`'s remaining layout (`claimSlot`) from input/state
-   (`hitTest`/`isActive`/`tryClaimActive`/`releaseActiveIfMatches`/`widgetState`)
-   into two interfaces, mirroring Compose's `MeasureScope` vs `PointerInputScope`
-   split. Only worth it if step 4's 6-member interface still feels like a god
-   receiver in practice — re-measure before committing to it.
+6. **Layout vs interaction split** (**investigation in progress, 2026-08-18** —
+   promoted from "optional" after re-checking real Compose source: Compose
+   genuinely separates `MeasureScope` (layout, handed to `Layout{}`'s measure
+   lambda) from `PointerInputScope` (input, handed inside
+   `Modifier.pointerInput{}`) — two unrelated types, not one bundled interface.
+   Compose does NOT scope state behind any capability type at all
+   (`remember{}`/`mutableStateOf` are callable from anywhere), so `widgetState`
+   has no direct Compose analog to split against and may not belong in either
+   new scope). Separate `UiPrimitiveScope`'s remaining layout (`claimSlot`) from
+   input (`hitTest`/`isActive`/`tryClaimActive`/`releaseActiveIfMatches`) into
+   two interfaces; decide `widgetState`'s home once the real usage picture is
+   in. An agent is investigating the real call-site picture now (interleaved
+   vs cleanly separated usage) before any interface is designed or code moves —
+   this section will be updated with the real finding once that lands.
 
 Each numbered step is its own scoped, verified pass — land it, run
 `verifyUiOwnership` + the three UI `desktopTest` suites, then decide whether the
