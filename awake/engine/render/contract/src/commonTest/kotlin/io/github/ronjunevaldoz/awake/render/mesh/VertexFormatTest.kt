@@ -23,10 +23,10 @@ class VertexFormatTest {
     fun offsetsAccumulateInDeclarationOrder() {
         val format = VertexFormat(
             listOf(
-                VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
-                VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
-                VertexAttribute(VertexSemantic.JointIndices, VertexAttributeFormat.UInt4, location = 2),
-                VertexAttribute(VertexSemantic.JointWeights, VertexAttributeFormat.Float4, location = 3),
+                VertexAttribute(VertexSemantic.Position, GpuDataShape.Vec3, location = 0),
+                VertexAttribute(VertexSemantic.Normal, GpuDataShape.Vec3, location = 1),
+                VertexAttribute(VertexSemantic.JointIndices, GpuDataShape.UInt4, location = 2),
+                VertexAttribute(VertexSemantic.JointWeights, GpuDataShape.Vec4, location = 3),
             ),
         )
 

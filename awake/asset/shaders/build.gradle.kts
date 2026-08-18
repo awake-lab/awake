@@ -17,11 +17,49 @@
  * limitations under the License.
  */
 
-// No Kotlin plugin -- this module is shader text only, consumed as a plain on-disk directory by
-// samples/*'s own syncAwakeShaders/validateAwakeShaders tasks (see SyncWgslShaderPipelineTask's
-// additionalSourceDirectories), not compiled or resolved as a code/resource dependency.
+// Two things live in this module now: the shared shader TEXT (consumed as a plain on-disk
+// directory by samples/*'s own syncAwakeShaders/validateAwakeShaders tasks, unchanged), and
+// Kotlin describing each shared shader's own Uniforms struct (TexturedUniformLayout.kt,
+// LitShadowUniformLayout.kt) -- moved here from awake:engine:render:contract so the layout and
+// the shader file it describes live in one module instead of the generic render API module
+// carrying authored-shader-specific knowledge. A small, concrete step in the same direction as
+// awake/core/README.md's "Proposed future modules" section (many small focused leaf modules
+// instead of one module accreting unrelated concerns) -- see docs/tasks/
+// 2026-08-17-awake-core-module-split-proposal.md for that broader (separate, awake:core-only)
+// proposal this doesn't implement, just echoes the same instinct for.
 plugins {
     id("awake.shader-pipeline-convention")
+    id("awake.kmp-library-convention")
+    id("awake.publish-convention")
+    id("awake.dokka-convention")
+    id("awake.detekt-convention")
+    id("awake.spotless-convention")
+}
+
+kotlin {
+    android {
+        namespace = "io.github.ronjunevaldoz.awake.asset.shaders"
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+            // UniformField/UniformLayout/GpuDataShape -- the generic machinery
+            // TexturedUniformLayout/LitShadowUniformLayout are built from. api, not
+            // implementation: a consumer needs those types visible through this module too
+            // (matches awake:backend:vulkan's own api(render:contract) for the same reason).
+            api(project(":awake:engine:render:contract"))
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+    }
+}
+
+mavenPublishing {
+    pom {
+        name.set("Awake Asset Shaders")
+        description.set("Shared WGSL shader sources and their Kotlin-side uniform layouts")
+    }
 }
 
 // The convention plugin defaults sourceDirectory to the non-standard src/commonMain/shaders --

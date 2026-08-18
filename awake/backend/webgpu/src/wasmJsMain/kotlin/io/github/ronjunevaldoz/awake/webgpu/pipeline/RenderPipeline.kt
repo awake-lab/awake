@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.pipeline
 
-import io.github.ronjunevaldoz.awake.render.mesh.VertexAttributeFormat
+import io.github.ronjunevaldoz.awake.render.mesh.GpuDataShape
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
@@ -150,9 +150,11 @@ class RenderPipeline(
     }
 }
 
-private fun VertexAttributeFormat.toGpuVertexFormat(): GPUVertexFormat = when (this) {
-    VertexAttributeFormat.Float2 -> GPUVertexFormat.Float32x2
-    VertexAttributeFormat.Float3 -> GPUVertexFormat.Float32x3
-    VertexAttributeFormat.Float4 -> GPUVertexFormat.Float32x4
-    VertexAttributeFormat.UInt4 -> GPUVertexFormat.Uint32x4
+private fun GpuDataShape.toGpuVertexFormat(): GPUVertexFormat = when (this) {
+    GpuDataShape.Float -> GPUVertexFormat.Float32
+    GpuDataShape.Vec2 -> GPUVertexFormat.Float32x2
+    GpuDataShape.Vec3 -> GPUVertexFormat.Float32x3
+    GpuDataShape.Vec4 -> GPUVertexFormat.Float32x4
+    GpuDataShape.UInt4 -> GPUVertexFormat.Uint32x4
+    GpuDataShape.Mat4 -> error("Mat4 is not a valid vertex-attribute format.")
 }

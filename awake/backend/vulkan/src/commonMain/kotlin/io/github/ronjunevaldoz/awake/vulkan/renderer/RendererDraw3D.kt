@@ -619,7 +619,7 @@ private fun Renderer.skyboxUniforms(viewProjection: Mat4, cameraEye: Vec3, light
 }
 
 /** `[fogColor.rgb, fogDensity]` -- density rides in the 4th component, matching both lit
- * shaders' `fogColor : vec4f` (see [UniformFields.Fog]). Scene-wide, so it comes off the
+ * shaders' `fogColor : vec4f` (see [UniformFields.FogColor]). Scene-wide, so it comes off the
  * [Renderer] rather than off a [DrawCall]. */
 private fun Renderer.fogFloats(): FloatArray =
     floatArrayOf(fogColor[0], fogColor[1], fogColor[2], fogDensity)

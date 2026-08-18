@@ -12,7 +12,7 @@ import io.github.ronjunevaldoz.awake.engine.game.GameModule
 import io.github.ronjunevaldoz.awake.engine.game.GameWindowBackend
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
-import io.github.ronjunevaldoz.awake.render.renderer.LitShadowUniformLayout
+import io.github.ronjunevaldoz.awake.asset.shaders.LitShadowUniformLayout
 import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraInputSystem
 import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraSystem
 import io.github.ronjunevaldoz.awake.scene.authoring.scene
