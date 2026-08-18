@@ -54,6 +54,18 @@ fi
 
 STAGED_KT="$(git diff --cached --name-only | grep -E '\.(kt|kts)$' || true)"
 
+# Nudge (not block) when a commit changes real, non-test Kotlin source but CHANGELOG.md
+# isn't staged alongside it. Skips test-source and generated files -- those don't usually
+# warrant a changelog entry, and false-positiving on every test-only commit would train
+# people to ignore the warning. CHANGELOG.md already exists and is actively maintained
+# (Keep a Changelog format, real [Unreleased] content) -- this just reminds, doesn't enforce.
+NON_TEST_KT="$(echo "$STAGED_KT" | grep -vE '(Test|Tests)\.kts?$|/(commonTest|desktopTest|androidTest|iosTest|jvmTest|wasmJsTest)/|/build/|/generator/' || true)"
+if [[ -n "$NON_TEST_KT" ]] && ! echo "$STAGED_ALL" | grep -qx "CHANGELOG.md"; then
+  echo ""
+  echo "Reminder: this commit touches non-test Kotlin source but not CHANGELOG.md."
+  echo "  If this is user-visible behavior, add an entry under [Unreleased]."
+fi
+
 if [[ -z "$STAGED_KT" ]]; then
   exit 0
 fi
