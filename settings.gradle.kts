@@ -58,7 +58,6 @@ include(":awake:backend:vulkan:generator")
 include(":awake:physics:api")
 include(":awake:backend:jolt")
 include(":samples:ui-showcase")
-include(":samples:scene3d-playground")
 include(":samples:studio")
 include(":samples:server")
 

@@ -106,7 +106,7 @@ plainly rather than burying it.
    recycling/generation correctness, add/remove, query correctness, hierarchy propagation
    order are all real correctness properties worth a test each.
 2. `./gradlew :awake:ecs:desktopTest` — read the result, report the real pass count.
-3. When touching `RenderSystem`, compile-check `:samples:scene3d-playground` too to catch
-   integration breaks early. No APK build or device verification needed — `awake:ecs` is
-   pure JVM/commonTest logic, no GPU-facing code.
+3. When touching `RenderSystem`, compile-check `:samples:studio` too to catch integration
+   breaks early. No APK build or device verification needed — `awake:ecs` is pure
+   JVM/commonTest logic, no GPU-facing code.
 4. No `Co-Authored-By` trailer on commits — this project's convention.

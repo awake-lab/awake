@@ -22,7 +22,7 @@ metadata:
     - sceneGame
     - RenderSystem
     - TransformSystem
-    - scene3d-playground
+    - studio
 ---
 
 ## When to Use This Skill
@@ -146,7 +146,7 @@ DSL method exists; it's a small, closed surface, not an open-ended builder.
 
 ## Spawn-on-activate / destroy-on-deactivate (the per-demo-page pattern)
 
-A multi-page sample (see `samples/scene3d-playground`) needs each page to own its own entities
+A multi-page sample (see `samples/studio`'s example switcher) needs each page to own its own entities
 without leaking a previous page's mesh when the user switches pages. The pattern:
 
 ```kotlin
@@ -190,8 +190,9 @@ system is installed automatically as built-in infrastructure, before the built-i
 `RenderSystem`. If you set `worldMatrix` directly (e.g. from a parsed glTF node transform, or a
 hand-built `Mat4`), expect the infrastructure transform pass to recompute it from component
 fields on the next frame unless the component model explicitly preserves that authored matrix.
-This isn't hypothetical -- it is exactly what `samples/scene3d-playground`'s glTF viewer demo
-has to account for (see `GltfViewerDemo.kt`'s own doc comment).
+This isn't hypothetical -- it is exactly what a glTF viewer demo (a parsed node transform
+feeding `worldMatrix` directly) has to account for; `samples/studio`'s own glTF viewer example
+hits the same trap.
 
 **Do not register `RenderSystem` manually inside `scene {}` DSL modules.**
 `SceneGameDsl.build()` calls `installInfrastructureSystems()`, which appends a built-in
@@ -218,8 +219,8 @@ sometimes grab the wrong window). The fix is a real, deterministic, CI-runnable 
 instead of eyeballing screenshots.
 
 **Pattern** (see `awake/backend/vulkan/src/desktopTest/.../RendererHeadlessPixelBaselineTest.kt`
-for the original, and `samples/scene3d-playground/src/desktopTest/.../RotatingCubePixelBaselineTest.kt`
-for a sample-level example built on it):
+for the original -- the sample-level example this once pointed at was retired with
+`samples/scene3d-playground`; a `samples/studio`-level equivalent doesn't exist yet):
 
 1. Construct a headless Vulkan pipeline -- `GraphicsDevice.createHeadless()` +
    `SwapchainManager.createHeadless(width, height)` -- no GLFW window, no real swapchain/surface.
