@@ -147,6 +147,6 @@ class ShadcnInputOTPTest {
             shadcnInputOTP(id = "otp-focus-test", value = "482019", length = 6)
         }
 
-        assertTrue(ui.isFocused("otp-focus-test"), "Clicking OTP slot 0 must delegate focus to input 'otp-focus-test'")
+        assertTrue(ui.isFocusedInternal("otp-focus-test"), "Clicking OTP slot 0 must delegate focus to input 'otp-focus-test'")
     }
 }

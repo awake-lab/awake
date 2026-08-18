@@ -8,6 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 class UiStateHooksTest {
 
@@ -15,11 +16,11 @@ class UiStateHooksTest {
     fun rememberStateValuePersistsAcrossFramesForTheSameId() {
         val ui = UiContext()
 
-        ui.beginFrame(320f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot()))
         var first by ui.rememberIntState("counter")
         first += 1
 
-        ui.beginFrame(320f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot()))
         val second by ui.rememberIntState("counter")
 
         assertEquals(1, second)
@@ -28,7 +29,7 @@ class UiStateHooksTest {
     @Test
     fun rememberStateValueKeepsKeysIndependentWithinOneWidget() {
         val ui = UiContext()
-        ui.beginFrame(320f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot()))
         var expanded by ui.rememberStateValue("widget", "expanded") { false }
         var clicks by ui.rememberStateValue("widget", "clicks") { 0 }
 
@@ -42,7 +43,7 @@ class UiStateHooksTest {
     @Test
     fun resetRemovesStoredValueAndRestoresInitial() {
         val ui = UiContext()
-        ui.beginFrame(320f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot()))
         val remembered = ui.rememberStateValue("widget", "mode") { "orbit" }
 
         remembered.value = "fly"
@@ -55,12 +56,12 @@ class UiStateHooksTest {
     fun rememberBooleanStateCanBeUsedAsAPropertyDelegate() {
         val ui = UiContext()
 
-        ui.beginFrame(320f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f))
         var expanded by scope.rememberBooleanState("delegate-demo", initial = true)
         expanded = false
 
-        ui.beginFrame(320f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot()))
         val nextScope = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f))
         val persisted by nextScope.rememberBooleanState("delegate-demo", initial = true)
 
@@ -71,21 +72,21 @@ class UiStateHooksTest {
     fun rememberPopupStatePersistsAndSupportsToggleHelpers() {
         val ui = UiContext()
 
-        ui.beginFrame(320f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f))
         val popupState = scope.rememberPopupState("menu")
         popupState.open()
         popupState.toggle()
         popupState.toggle()
 
-        ui.beginFrame(320f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot()))
         val nextScope = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f))
         val persisted = nextScope.rememberPopupState("menu")
         assertTrue(persisted.expanded)
 
         persisted.close()
 
-        ui.beginFrame(320f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot()))
         val finalScope = ui.createAbsolute(slot = UiBounds(0f, 0f, 0f, 0f))
         val closed = finalScope.rememberPopupState("menu")
         assertFalse(closed.expanded)

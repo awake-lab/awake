@@ -17,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 @io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks popup placement, dismissal, and exit-frame lifecycle")
 class UiPopupTest {
@@ -24,7 +25,7 @@ class UiPopupTest {
     @Test
     fun popupPositionsBelowAnchorByDefault() {
         val ui = UiContext()
-        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 200f, input = testSnapshot(x = -100f, y = -100f, down = false)))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
@@ -47,7 +48,7 @@ class UiPopupTest {
         // expression -- Dimension.Fixed pins a popup to exactly one size rather than capping a
         // content-driven one -- so shadcn's popup components hard-coded their caps.
         val ui = UiContext()
-        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 200f, input = testSnapshot(x = -100f, y = -100f, down = false)))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
@@ -66,7 +67,7 @@ class UiPopupTest {
     @Test
     fun popupClampsBelowMinWidth() {
         val ui = UiContext()
-        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 200f, input = testSnapshot(x = -100f, y = -100f, down = false)))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
@@ -83,7 +84,7 @@ class UiPopupTest {
     @Test
     fun popupDismissesOnOutsidePointerPress() {
         val ui = UiContext()
-        ui.beginFrame(300f, 200f, testSnapshot(x = 280f, y = 180f, down = true))
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 200f, input = testSnapshot(x = 280f, y = 180f, down = true)))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
@@ -107,7 +108,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(x = 0f, y = 0f)
         val anchor = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 30f, 120f, 32f)
 
-        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 200f, input = testSnapshot(x = -100f, y = -100f, down = false)))
         scope.popup(
             id = "regression-popup",
             anchorSlot = anchor,
@@ -116,9 +117,9 @@ class UiPopupTest {
             height = Dimension.Fixed(64f.px),
             fadeDurationMs = 200f,
         ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
-        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 200f, input = testSnapshot(x = -100f, y = -100f, down = false)))
         val firstExitFrame = scope.popup(
             id = "regression-popup",
             anchorSlot = anchor,
@@ -127,7 +128,7 @@ class UiPopupTest {
             height = Dimension.Fixed(64f.px),
             fadeDurationMs = 200f,
         ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         assertNotNull(
             firstExitFrame.slot,
@@ -145,7 +146,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(x = 0f, y = 0f)
         val anchor = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 30f, 120f, 32f)
 
-        ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 200f, input = testSnapshot(x = -100f, y = -100f, down = false)))
         scope.popup(
             id = "settle-popup",
             anchorSlot = anchor,
@@ -154,12 +155,12 @@ class UiPopupTest {
             height = Dimension.Fixed(64f.px),
             fadeDurationMs = 100f,
         ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         var lastResult: UiPopupResult? = null
         repeat(20) {
             // 20 frames * 1/60s ~= 333ms, well past a 100ms fade.
-            ui.beginFrame(300f, 200f, testSnapshot(x = -100f, y = -100f, down = false))
+            ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 200f, input = testSnapshot(x = -100f, y = -100f, down = false)))
             lastResult = scope.popup(
                 id = "settle-popup",
                 anchorSlot = anchor,
@@ -168,7 +169,7 @@ class UiPopupTest {
                 height = Dimension.Fixed(64f.px),
                 fadeDurationMs = 100f,
             ) { claimSlot(120f.toDimension(), 32f.toDimension()) }
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
         assertEquals(
@@ -183,24 +184,24 @@ class UiPopupTest {
         val ui = UiContext()
         ui.createColumn(x = 20f, y = 20f, width = 160f).widgetState("dd").set("expanded", true)
 
-        ui.beginFrame(240f, 200f, testSnapshot(x = 30f, y = 60f, down = true))
+        ui.beginFrame(UiFrameInput(viewportWidth = 240f, viewportHeight = 200f, input = testSnapshot(x = 30f, y = 60f, down = true)))
         var picked = ui.createColumn(x = 20f, y = 20f, width = 160f).select(
             "dd",
             listOf("A", "B"),
             selectedIndex = 0,
             modifier = Modifier.width(160f.px).height(32f.px),
         )
-        ui.endFrame()
+        ui.finishFrame().primitives
         assertEquals(null, picked)
 
-        ui.beginFrame(240f, 200f, testSnapshot(x = 30f, y = 60f, down = false))
+        ui.beginFrame(UiFrameInput(viewportWidth = 240f, viewportHeight = 200f, input = testSnapshot(x = 30f, y = 60f, down = false)))
         picked = ui.createColumn(x = 20f, y = 20f, width = 160f).select(
             "dd",
             listOf("A", "B"),
             selectedIndex = 0,
             modifier = Modifier.width(160f.px).height(32f.px),
         )
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         assertEquals(0, picked)
         assertFalse(

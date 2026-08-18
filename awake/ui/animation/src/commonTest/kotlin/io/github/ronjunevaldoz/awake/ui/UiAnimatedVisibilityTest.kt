@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -22,7 +23,7 @@ class UiAnimatedVisibilityTest {
     }
 
     private fun UiContext.frame(visible: Boolean, durationMs: Float = 100f): List<UiDrawPrimitive> {
-        beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         createAbsolute(x = 0f, y = 0f).animatedVisibility(id = "panel", visible = visible, durationMs = durationMs) {
             emitMarkerQuad()
         }

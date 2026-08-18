@@ -23,7 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 /** Direct-context counterpart to [showcaseTestSession] for probes that manage their own frames. */
 internal fun UiContext.showcaseRoot(
     theme: ShadcnThemeValues = shadcnThemeValues(),
-    bounds: UiBounds = frameBounds(),
+    bounds: UiBounds = frameBoundsInternal(),
     content: UiScope.() -> Unit,
 ) {
     createUiScope(bounds).shadcnTheme(theme = theme, content = content)

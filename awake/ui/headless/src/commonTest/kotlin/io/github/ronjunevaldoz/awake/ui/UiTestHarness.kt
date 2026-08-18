@@ -8,6 +8,7 @@ package io.github.ronjunevaldoz.awake.ui
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /** Builds a one-off [UiInputState] for a test frame. */
 fun testSnapshot(x: Float = -100f, y: Float = -100f, down: Boolean = false, scrollDeltaY: Float = 0f): UiInputState {
@@ -31,9 +32,15 @@ fun UiContext.simulateFrame(
     widgetCalls: () -> Unit,
 ) {
     input.setPointer(down = pointerDown, x = x, y = y)
-    beginFrame(screenWidth, screenHeight, input.updateSnapshot().toUiInputState())
+    beginFrame(
+        UiFrameInput(
+            viewportWidth = screenWidth,
+            viewportHeight = screenHeight,
+            input = input.updateSnapshot().toUiInputState(),
+        ),
+    )
     widgetCalls()
-    endFrame()
+    finishFrame()
 }
 
 fun UiContext.simulateScrollFrame(

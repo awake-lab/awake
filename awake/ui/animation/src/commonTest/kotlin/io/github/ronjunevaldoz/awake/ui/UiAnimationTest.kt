@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 class UiAnimationTest {
 
@@ -33,10 +34,10 @@ class UiAnimationTest {
     fun uiContextAnimateFloatPersistsAcrossFrames() {
         val ui = UiContext()
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val first = ui.animateFloat(id = "panel-lift", target = 12f, initial = 0f, responsiveness = 12f)
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val second = ui.animateFloat(id = "panel-lift", target = 12f, initial = 0f, responsiveness = 12f)
 
         assertTrue(second > first, "subsequent frames should continue easing toward the same target")
@@ -53,7 +54,7 @@ class UiAnimationTest {
         var lastPhase = 0f
 
         fun drawFrame() {
-            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+            ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
             ui.createBox(x = 0f, y = 0f, width = 320f, height = 200f).column(
                 id = "viewport",
                 modifier = Modifier.verticalScroll(UiScrollState()).width(Dimension.FillMax).height(Dimension.FillMax),
@@ -65,7 +66,7 @@ class UiAnimationTest {
                     lastPhase = animateFloat(id = "shimmer-phase", target = 1f, initial = 0f, responsiveness = 12f)
                 }
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
         drawFrame()
@@ -161,9 +162,9 @@ class UiAnimationTest {
         val samples = mutableListOf<Float>()
 
         repeat(6) {
-            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+            ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
             samples += ui.animateFloatTween(id = "slider-thumb", target = 100f, initial = 0f, durationMs = durationMs, easing = LinearEasing)
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
         for (i in 1 until samples.size) {
@@ -178,12 +179,12 @@ class UiAnimationTest {
 
         repeat(30) {
             // 30 frames * 1/60s = 500ms, comfortably past a 300ms duration.
-            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+            ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
             ui.animateFloatTween(id = "panel-slide", target = 50f, initial = 0f, durationMs = 300f, easing = LinearEasing)
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val final = ui.animateFloatTween(id = "panel-slide", target = 50f, initial = 0f, durationMs = 300f, easing = LinearEasing)
         assertEquals(50f, final)
     }
@@ -194,17 +195,17 @@ class UiAnimationTest {
 
         repeat(15) {
             // 15 frames * 1/60s = 250ms into a 300ms tween toward 100 -- clearly mid-flight.
-            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+            ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
             ui.animateFloatTween(id = "retarget-demo", target = 100f, initial = 0f, durationMs = 300f, easing = LinearEasing)
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val valueBeforeRetarget = ui.animateFloatTween(id = "retarget-demo", target = 100f, initial = 0f, durationMs = 300f, easing = LinearEasing)
 
         // Retarget mid-flight: the very next frame must continue from valueBeforeRetarget, not
         // snap back toward `initial` (0f).
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val firstFrameAfterRetarget =
             ui.animateFloatTween(id = "retarget-demo", target = 0f, initial = 0f, durationMs = 300f, easing = LinearEasing)
 
@@ -342,7 +343,7 @@ class UiAnimationTest {
 
         val samples = mutableListOf<Float>()
         repeat(totalFrames) {
-            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = frameDeltaSeconds)
+            ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = frameDeltaSeconds))
             samples += ui.animateFloatRepeatable(
                 id = "shimmer-probe",
                 initialValue = 0f,
@@ -350,7 +351,7 @@ class UiAnimationTest {
                 durationMs = durationMs,
                 repeatMode = RepeatMode.Restart,
             )
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
         var resetCount = 0
@@ -374,7 +375,7 @@ class UiAnimationTest {
         val ui = UiContext()
         val durationMs = 300f
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val first = ui.animateFloatRepeatable(
             id = "pulse",
             initialValue = 0f,
@@ -383,7 +384,7 @@ class UiAnimationTest {
             easing = LinearEasing,
         )
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val second = ui.animateFloatRepeatable(
             id = "pulse",
             initialValue = 0f,

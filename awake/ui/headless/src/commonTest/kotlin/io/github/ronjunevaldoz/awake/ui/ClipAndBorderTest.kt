@@ -23,6 +23,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 @io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks clip-stack and primitive emission mechanics directly")
 class ClipAndBorderTest {
@@ -55,7 +56,7 @@ class ClipAndBorderTest {
     @Test
     fun clipStackResolvesNestedIntersection() {
         val ui = UiContext()
-        ui.beginFrame(200f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         scope.clip(UiBounds(0f, 0f, 100f, 100f)) {
@@ -64,7 +65,7 @@ class ClipAndBorderTest {
             }
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val pushes = primitives.filterIsInstance<UiDrawPrimitive.ClipPush>()
         assertEquals(2, pushes.size)
         assertEquals(UiBounds(0f, 0f, 100f, 100f), pushes[0].rect, "outer clip has no parent to intersect against")
@@ -74,14 +75,14 @@ class ClipAndBorderTest {
     @Test
     fun clipStackPopRestoresParentRect() {
         val ui = UiContext()
-        ui.beginFrame(200f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         scope.clip(UiBounds(0f, 0f, 100f, 100f)) {
             scope.clip(UiBounds(20f, 20f, 50f, 50f)) { }
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val pops = primitives.filterIsInstance<UiDrawPrimitive.ClipPop>()
         assertEquals(2, pops.size)
         assertEquals(UiBounds(0f, 0f, 100f, 100f), pops[0].restoreRect, "popping the inner clip restores the outer's resolved rect")
@@ -91,14 +92,14 @@ class ClipAndBorderTest {
     @Test
     fun borderEmitsFourQuadsMatchingSlotGeometry() {
         val ui = UiContext()
-        ui.beginFrame(200f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
         val slot = UiBounds(10f, 10f, 100f, 50f)
         val color = Color(1f, 0f, 0f, 1f)
 
         scope.border(slot, width = 2f.dp, color = color)
 
-        val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
+        val quads = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Quad>()
         assertEquals(4, quads.size, "border must emit exactly one Quad per edge")
         assertEquals(UiDrawPrimitive.Quad(10f, 10f, 100f, 2f, color), quads[0], "top")
         assertEquals(UiDrawPrimitive.Quad(10f, 58f, 100f, 2f, color), quads[1], "bottom")
@@ -109,16 +110,16 @@ class ClipAndBorderTest {
     @Test
     fun zeroWidthBorderEmitsNothing() {
         val ui = UiContext()
-        ui.beginFrame(200f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
         scope.border(UiBounds(0f, 0f, 100f, 100f), width = UiShape.none)
-        assertEquals(0, ui.endFrame().size)
+        assertEquals(0, ui.finishFrame().primitives.size)
     }
 
     @Test
     fun styleShapeOverridesButtonSlotRadiusParam() {
         val ui = UiContext()
-        ui.beginFrame(200f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
         scope.buttonSlot(
             "b",
@@ -130,14 +131,14 @@ class ClipAndBorderTest {
             },
             radius = UiShape.none,
         )
-        val primitive = ui.endFrame().first()
+        val primitive = ui.finishFrame().primitives.first()
         assertIs<UiDrawPrimitive.RoundedQuad>(primitive, "style.shape() must produce a RoundedQuad even though radius param was UiShape.none")
     }
 
     @Test
     fun styleBorderOverridesVariantDefault() {
         val ui = UiContext()
-        ui.beginFrame(200f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
         val customColor = Color(1f, 0f, 0f, 1f)
         scope.buttonSlot(
@@ -146,7 +147,7 @@ class ClipAndBorderTest {
             style = Style { border(3f.dp, customColor) },
             variant = UiButtonVariant.Filled,
         )
-        val quads = ui.endFrame().filterIsInstance<UiDrawPrimitive.Quad>()
+        val quads = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Quad>()
         val borderQuads = quads.filter { it.color == customColor }
         assertEquals(4, borderQuads.size, "style.border() must draw all 4 edge quads even for a Filled (non-Outline) button")
     }
@@ -154,7 +155,7 @@ class ClipAndBorderTest {
     @Test
     fun cutCornerShapeSpecEmitsPathPrimitives() {
         val ui = UiContext()
-        ui.beginFrame(200f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
         val customBorder = Color(1f, 0f, 0f, 1f)
 
@@ -167,7 +168,7 @@ class ClipAndBorderTest {
             },
         )
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         assertIs<UiDrawPrimitive.FilledPath>(primitives.first(), "cut-corner widget fill should use the path lane instead of pretending to be a rounded box")
         assertIs<UiDrawPrimitive.StrokedPath>(primitives[1], "cut-corner border should use the path stroke lane")
     }
@@ -175,7 +176,7 @@ class ClipAndBorderTest {
     @Test
     fun circleShapeSpecOnNonSquareSlotUsesPathLane() {
         val ui = UiContext()
-        ui.beginFrame(200f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         scope.buttonSlot(
@@ -184,19 +185,19 @@ class ClipAndBorderTest {
             style = Style { shape(UiShapeSpec.Circle) },
         )
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         assertTrue(primitives.any { it is UiDrawPrimitive.FilledPath }, "a true circle inside a non-square slot needs the path lane")
     }
 
     @Test
     fun shapeClipEmitsClipPathPushWithResolvedBounds() {
         val ui = UiContext()
-        ui.beginFrame(100f, 100f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 100f, viewportHeight = 100f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         scope.clip(UiShapeSpec.CutCorner(8f.dp), UiBounds(10f, 10f, 40f, 30f)) { }
 
-        val push = ui.endFrame().filterIsInstance<UiDrawPrimitive.ClipPathPush>().single()
+        val push = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.ClipPathPush>().single()
         assertEquals(UiBounds(10f, 10f, 40f, 30f), push.boundsRect)
     }
 
@@ -240,7 +241,7 @@ class ClipAndBorderTest {
     @Test
     fun panelClipContentEmitsShapeClip() {
         val ui = UiContext()
-        ui.beginFrame(120f, 120f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 120f, viewportHeight = 120f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         scope.surface(
@@ -252,7 +253,7 @@ class ClipAndBorderTest {
             emit(UiDrawPrimitive.Quad(slot.x, slot.y, slot.width, slot.height, Color(1f, 0f, 0f, 1f)))
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         assertTrue(primitives.any { it is UiDrawPrimitive.ClipPathPush }, "clipContent should route shaped panels through the shape clip lane")
     }
 }

@@ -27,6 +27,8 @@ import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 /**
  * Renders the desktop shell exactly as `drawUiShowcaseOverlay` composes it -- header slot,
@@ -125,8 +127,8 @@ class ShowcaseShellSidebarTest {
         val input = Input()
         input.setPointer(down = false, x = -100f, y = -100f)
 
-        ui.beginFrame(1440f, 500f, input.updateSnapshot().toUiInputState())
-        ui.pushFont(BitmapFont())
+        ui.beginFrame(UiFrameInput(viewportWidth = 1440f, viewportHeight = 500f, input = input.updateSnapshot().toUiInputState()))
+        ui.pushLocal(LocalFont, BitmapFont())
 
         val sidebarScroll = ui.rememberScrollState("ui-showcase-scroll-side-test")
         ui.showcaseRoot(theme = shadcnThemeValues(dark = false), bounds = UiBounds(0f, 0f, 1440f, 500f)) {
@@ -156,7 +158,7 @@ class ShowcaseShellSidebarTest {
             }
             }
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         // Before the fix there was no scroll modifier on the desktop nav at all, so no
         // ScrollState was ever established here -- content simply painted at its full,
@@ -172,7 +174,7 @@ class ShowcaseShellSidebarTest {
             "sidebar body measured to a zero-height viewport instead of clipping/scrolling",
         )
 
-        val nodes = ui.semanticNodes()
+        val nodes = ui.finishFrame().semantics
         val sidebar = nodes.first { it.id == "ui-showcase-sidebar" }
         val footer = nodes.first { it.id == "ui-showcase-user-profile" }
         assertTrue(
@@ -186,8 +188,8 @@ class ShowcaseShellSidebarTest {
         val input = Input()
         input.setPointer(down = false, x = -100f, y = -100f)
 
-        ui.beginFrame(1440f, 900f, input.updateSnapshot().toUiInputState())
-        ui.pushFont(BitmapFont())
+        ui.beginFrame(UiFrameInput(viewportWidth = 1440f, viewportHeight = 900f, input = input.updateSnapshot().toUiInputState()))
+        ui.pushLocal(LocalFont, BitmapFont())
         ui.showcaseRoot(theme = shadcnThemeValues(dark = false), bounds = UiBounds(0f, 0f, 1440f, 900f)) {
             row(
             modifier = Modifier.padding(24f.dp).fillMaxWidth().fillMaxHeight(),
@@ -227,7 +229,7 @@ class ShowcaseShellSidebarTest {
             }
         }
 
-        ui.endFrame()
-        return ui.semanticNodes()
+        ui.finishFrame().primitives
+        return ui.finishFrame().semantics
     }
 }

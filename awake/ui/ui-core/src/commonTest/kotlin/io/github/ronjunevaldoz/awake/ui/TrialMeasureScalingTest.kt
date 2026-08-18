@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.px
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Synthetic, ui-core-only regression gate for the trial-measure fix in
@@ -70,7 +71,7 @@ class TrialMeasureScalingTest {
 
     private fun measureTrialCount(depth: Int): Int {
         val ui = UiContext()
-        ui.beginFrame(1000f, 1000f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 1000f, viewportHeight = 1000f, input = testSnapshot()))
         UiMeasureTrialStats.reset()
         UiMeasureTrialStats.enabled = true
         try {
@@ -79,7 +80,7 @@ class TrialMeasureScalingTest {
             ) {
                 buildSpaceBetweenWeightedChain(depth)
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
             return UiMeasureTrialStats.trialCount
         } finally {
             UiMeasureTrialStats.enabled = false

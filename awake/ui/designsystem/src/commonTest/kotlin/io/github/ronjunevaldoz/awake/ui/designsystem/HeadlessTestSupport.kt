@@ -11,4 +11,4 @@ import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
  * Keeps Design System tests on the public Headless facade while retaining the Core-owned frame
  * lifecycle used by the test harness.
  */
-internal fun UiContext.headlessRoot(bounds: UiBounds = frameBounds()): UiScope = createUiScope(bounds)
+internal fun UiContext.headlessRoot(bounds: UiBounds = frameBoundsInternal()): UiScope = createUiScope(bounds)

@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 class ShimmerPrimitivesTest {
 
@@ -24,10 +25,10 @@ class ShimmerPrimitivesTest {
 
         val samples = mutableListOf<Float>()
         repeat(totalFrames) {
-            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = frameDeltaSeconds)
+            ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = frameDeltaSeconds))
             val scope = ui.createAbsolute(x = 0f, y = 0f)
             samples += scope.shimmerBand(id = "shimmer-band-probe", slot = slot, durationMs = durationMs).phase
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
         var resetCount = 0
@@ -47,11 +48,11 @@ class ShimmerPrimitivesTest {
     @Test
     fun shimmerBandWidthIsAtLeastTheFloorAndSweepsAcrossTheSlot() {
         val ui = UiContext()
-        ui.beginFrame(320f, 200f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot()))
         val scope = ui.createAbsolute(x = 0f, y = 0f)
         val slot = UiBounds(x = 10f, y = 0f, width = 40f, height = 20f) // narrower than the 160px floor
         val band = scope.shimmerBand(id = "shimmer-band-width-probe", slot = slot)
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         assertTrue(band.width >= 160f, "band width must respect the 160px floor even for a narrow slot, was ${band.width}")
         // At phase 0f, the band starts fully to the left of the slot.

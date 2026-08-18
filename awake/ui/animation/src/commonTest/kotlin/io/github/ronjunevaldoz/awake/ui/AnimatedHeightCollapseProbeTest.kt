@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.spacer
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import kotlin.test.Test
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Throwaway probe driving the real [animatedHeight] (as used by `shadcnCollapsible`) through an
@@ -25,14 +26,14 @@ class AnimatedHeightCollapseProbeTest {
         var expanded = true
 
         fun frame(): Float {
-            ui.beginFrame(400f, 800f, testSnapshot())
+            ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 800f, input = testSnapshot()))
             val slot = ui.createColumn(x = 0f, y = 0f, width = 300f).animatedHeight(
                 id = "probe",
                 expanded = expanded,
             ) {
                 spacer(Modifier.height(120f.dp))
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
             return slot?.height ?: 0f
         }
 
@@ -82,14 +83,14 @@ class AnimatedHeightCollapseProbeTest {
         val expectedFrames = kotlin.math.ceil(durationMs / frameDeltaMs).toInt()
 
         fun frame(): UiBounds? {
-            ui.beginFrame(400f, 800f, testSnapshot())
+            ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 800f, input = testSnapshot()))
             val slot = ui.createColumn(x = 0f, y = 0f, width = 300f).animatedHeight(
                 id = "shadcn-collapsible-probe",
                 expanded = expanded,
             ) {
                 spacer(Modifier.height(120f.dp))
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
             return slot
         }
 

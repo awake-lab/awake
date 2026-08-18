@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 class UiTransitionTest {
 
@@ -22,15 +23,15 @@ class UiTransitionTest {
     fun changingTargetStateStartsARealTransitionTowardOne() {
         val ui = UiContext()
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val atRest = ui.rememberTransition(id = "card", targetState = CardState.Collapsed, durationMs = 300f)
         assertEquals(0f, atRest, "no transition has happened yet: progress should sit at the anchor state's 0f")
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val firstStep = ui.rememberTransition(id = "card", targetState = CardState.Expanded, durationMs = 300f)
         assertTrue(firstStep > 0f && firstStep < 1f, "progress must have moved partway from 0 toward 1")
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val secondStep = ui.rememberTransition(id = "card", targetState = CardState.Expanded, durationMs = 300f)
         assertTrue(secondStep > firstStep, "progress must keep climbing toward 1 across frames")
     }
@@ -38,16 +39,16 @@ class UiTransitionTest {
     @Test
     fun transitionSettlesAtOneOnceDurationElapses() {
         val ui = UiContext()
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         ui.rememberTransition(id = "card", targetState = CardState.Collapsed, durationMs = 300f)
 
         repeat(30) {
             // 500ms, comfortably past a 300ms duration.
-            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+            ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
             ui.rememberTransition(id = "card", targetState = CardState.Expanded, durationMs = 300f)
         }
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val settled = ui.rememberTransition(id = "card", targetState = CardState.Expanded, durationMs = 300f)
         assertEquals(1f, settled)
     }
@@ -55,10 +56,10 @@ class UiTransitionTest {
     @Test
     fun twoPropertiesDerivedFromTheSameTransitionIdSeeConsistentProgress() {
         val ui = UiContext()
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         ui.rememberTransition(id = "card", targetState = CardState.Collapsed, durationMs = 300f)
 
-        ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val progress = ui.rememberTransition(id = "card", targetState = CardState.Expanded, durationMs = 300f)
 
         // The intended usage: read progress once, derive N properties from that single float via
@@ -79,7 +80,7 @@ class UiTransitionTest {
         var lastProgress = 0f
 
         fun drawFrame(targetState: CardState) {
-            ui.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+            ui.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
             ui.createBox(x = 0f, y = 0f, width = 320f, height = 200f).column(
                 id = "viewport",
                 modifier = Modifier.verticalScroll(UiScrollState()).width(Dimension.FillMax).height(Dimension.FillMax),
@@ -91,7 +92,7 @@ class UiTransitionTest {
                     lastProgress = rememberTransition(id = "card", targetState = targetState, durationMs = 1000f)
                 }
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
         }
 
         // Seed the anchor state (Collapsed) before switching, same setup as the reference below.
@@ -102,9 +103,9 @@ class UiTransitionTest {
         // Reference: the same un-nested rememberTransition call sequence, one step's worth of
         // delta after the anchor was seeded -- no WrapContent/scroll trial-measure pass involved.
         val reference = UiContext()
-        reference.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        reference.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         reference.rememberTransition(id = "card", targetState = CardState.Collapsed, durationMs = 1000f)
-        reference.beginFrame(320f, 200f, testSnapshot(), deltaSeconds = 1f / 60f)
+        reference.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 200f, input = testSnapshot(), deltaSeconds = 1f / 60f))
         val expectedSingleStep = reference.rememberTransition(id = "card", targetState = CardState.Expanded, durationMs = 1000f)
 
         assertEquals(

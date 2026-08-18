@@ -15,6 +15,8 @@ import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import kotlin.test.Test
 import kotlin.time.measureTime
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 /** Throwaway probe for the reported UI performance drop: real shell composition, steady-state
  * frame cost + trial-measure count + text-layout cache behavior. Numbers print to stdout. */
@@ -26,10 +28,10 @@ class StudioFramePerfProbeTest {
         val store = StudioStore()
         val world = World()
         val renderer = NoopRenderer()
-        ui.pushFont(BitmapFont())
+        ui.pushLocal(LocalFont, BitmapFont())
 
         fun frame() {
-            ui.beginFrame(1440f, 900f, UiInputState(pointerX = 400f, pointerY = 300f))
+            ui.beginFrame(UiFrameInput(viewportWidth = 1440f, viewportHeight = 900f, input = UiInputState(pointerX = 400f, pointerY = 300f)))
             ui.createUiScope(slot = UiBounds(0f, 0f, 1440f, 900f)).shadcnTheme(
                 theme = shadcnThemeValues(dark = true),
             ) {

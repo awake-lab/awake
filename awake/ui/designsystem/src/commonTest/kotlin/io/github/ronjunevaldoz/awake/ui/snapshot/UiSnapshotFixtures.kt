@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.snapshot
 
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.scope.requestFocus
 import io.github.ronjunevaldoz.awake.ui.headless.provideTextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.core.colors.Color
@@ -447,7 +448,7 @@ internal fun tutorialSnapshotScenes(): List<UiSnapshotScene> {
             title = "Component State Matrix",
             summary = "Every state a component can be in, side by side under the shadcn theme -- not just its default rest look. This is the gallery page that would have shown the toggle/slider/checkbox color-inversion bug and the dropdown-row styling bug at a glance instead of requiring a live click-through.",
         ) { snapshotFont ->
-            primitive.context.requestFocus("state-matrix-focused-field")
+            primitive.requestFocus("state-matrix-focused-field")
             provideTextStyle(TextStyle(scale = 2f)) {
                 headlessColumn(
                 modifier = Modifier.offset(20f.dp, 20f.dp).width(420f.dp).fillMaxHeight(),

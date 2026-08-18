@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Real-rendered proof (via the same CPU [rasterize] pipeline `UiSnapshotWriter.kt` uses) that
@@ -42,12 +43,7 @@ class SkeletonShimmerPixelTest {
         val frameDeltaSeconds = 1f / 60f
         var primitives: List<io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive> = emptyList()
         repeat(36) {
-            ui.beginFrame(
-                width.toFloat(),
-                height.toFloat(),
-                testSnapshot(),
-                deltaSeconds = frameDeltaSeconds,
-            )
+            ui.beginFrame(UiFrameInput(viewportWidth = width.toFloat(), viewportHeight = height.toFloat(), input = testSnapshot(), deltaSeconds = frameDeltaSeconds))
             val scope = ui.createAbsolute(x = 0f, y = 0f)
             scope.skeleton(
                 id = "skeleton-shimmer-probe",
@@ -55,7 +51,7 @@ class SkeletonShimmerPixelTest {
                 style = Style { shape(radiusDp.dp) },
                 shimmer = shimmer,
             )
-            primitives = ui.endFrame()
+            primitives = ui.finishFrame().primitives
         }
         return primitives.rasterize(width, height, background = Color.Black)
     }

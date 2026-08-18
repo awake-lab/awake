@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 @io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks resize-handle input and panel-fraction mechanics")
 class ResizablePanelGroupTest {
@@ -143,7 +144,7 @@ class ResizablePanelGroupTest {
     @Test
     fun nestedVerticalGroupInsideHorizontalPanelLaysOutCleanly() {
         val ui = UiContext()
-        ui.beginFrame(600f, 400f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 600f, viewportHeight = 400f, input = testSnapshot()))
         ui.createAbsolute(x = 0f, y = 0f).resizablePanelGroup(
             id = "outer",
             direction = ResizableDirection.Horizontal,
@@ -166,7 +167,7 @@ class ResizablePanelGroupTest {
             }
         }
         val output = ui.finishFrame()
-        val report = inspectUiFrame(output.primitives, ui.frameBounds())
+        val report = inspectUiFrame(output.primitives, ui.frameBoundsInternal())
         assertTrue(report.isClean, report.summary())
     }
 

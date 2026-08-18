@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
@@ -26,6 +27,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 @io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks public custom-composition contracts against the Core scope")
 class ReusableCompositionTest {
@@ -49,9 +52,9 @@ class ReusableCompositionTest {
     @Test
     fun customLayoutCanDriveBuiltInWidgets() {
         val ui = UiContext()
-        ui.beginFrame(240f, 120f, testSnapshot())
-        ui.pushFont(BitmapFont())
-        ui.pushTheme(UiDefaultTheme)
+        ui.beginFrame(UiFrameInput(viewportWidth = 240f, viewportHeight = 120f, input = testSnapshot()))
+        ui.pushLocal(LocalFont, BitmapFont())
+        ui.pushLocal(LocalTheme, UiDefaultTheme)
 
         val scope = DiagonalScope(ui, startX = 10f, startY = 20f, stepX = 15f, stepY = 10f)
         val first = scope.buttonSlot(
@@ -78,9 +81,9 @@ class ReusableCompositionTest {
     @Test
     fun buttonSlotCanHostCustomComposedContent() {
         val ui = UiContext()
-        ui.beginFrame(260f, 120f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 260f, viewportHeight = 120f, input = testSnapshot()))
 
-        ui.pushFont(BitmapFont())
+        ui.pushLocal(LocalFont, BitmapFont())
         val result = ui.createAbsolute(x = 20f, y = 20f).buttonSlot(
             id = "launch",
             modifier = Modifier.width(180f.px).height(40f.px),
@@ -104,7 +107,7 @@ class ReusableCompositionTest {
             )
         }
 
-        val glyphs = ui.endFrame().filterIsInstance<UiDrawPrimitive.Glyph>()
+        val glyphs = ui.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Glyph>()
         assertEquals(
             UiBounds(20f, 20f, 180f, 40f),
             result.slot,

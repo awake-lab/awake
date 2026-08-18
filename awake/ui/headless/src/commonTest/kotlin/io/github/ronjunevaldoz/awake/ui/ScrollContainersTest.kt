@@ -16,6 +16,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
+import io.github.ronjunevaldoz.awake.ui.context.LocalFont
 
 @io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks scroll-state consumption and emitted viewport primitives")
 class ScrollContainersTest {
@@ -24,7 +26,7 @@ class ScrollContainersTest {
     fun hoveredScrollConsumesDeltaAndMovesState() {
         val ui = UiContext()
         val state = UiScrollState()
-        ui.pushFont(UiFonts.default())
+        ui.pushLocal(LocalFont, UiFonts.default())
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         ui.simulateScrollFrame(x = 20f, y = 20f, scrollDeltaY = -1f) {
@@ -44,7 +46,7 @@ class ScrollContainersTest {
 
         assertEquals(24f, state.offsetY)
         assertTrue(
-            ui.inputResult().isScrollConsumed,
+            ui.finishFrame().ownership.isScrollConsumed,
             "a hovered scrollable scroll panel must mark the frame's delta as consumed",
         )
         assertTrue(state.canScroll)
@@ -54,7 +56,7 @@ class ScrollContainersTest {
     fun nonHoveredScrollLeavesDeltaForOtherConsumers() {
         val ui = UiContext()
         val state = UiScrollState()
-        ui.pushFont(UiFonts.default())
+        ui.pushLocal(LocalFont, UiFonts.default())
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         ui.simulateScrollFrame(x = 180f, y = 180f, scrollDeltaY = -1f) {
@@ -77,7 +79,7 @@ class ScrollContainersTest {
         // pinch-zoom) reads UiInputResult.isScrollConsumed, not a live Input field, to decide
         // whether it's still free to use this frame's delta.
         assertFalse(
-            ui.inputResult().isScrollConsumed,
+            ui.finishFrame().ownership.isScrollConsumed,
             "a non-hovered scroll panel must not mark the frame's delta as consumed",
         )
     }
@@ -85,8 +87,8 @@ class ScrollContainersTest {
     @Test
     fun scrollPanelEmitsViewportClipAndScrollbarThumb() {
         val ui = UiContext()
-        ui.beginFrame(220f, 200f, testSnapshot())
-        ui.pushFont(UiFonts.default())
+        ui.beginFrame(UiFrameInput(viewportWidth = 220f, viewportHeight = 200f, input = testSnapshot()))
+        ui.pushLocal(LocalFont, UiFonts.default())
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.scrollPanel(
@@ -101,7 +103,7 @@ class ScrollContainersTest {
                 text("Row $index", slot = row)
             }
         }
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
 
         assertNotNull(result.verticalThumb)
         assertTrue(

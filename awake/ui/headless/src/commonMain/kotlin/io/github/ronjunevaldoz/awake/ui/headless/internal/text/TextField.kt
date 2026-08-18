@@ -90,19 +90,17 @@ fun UiPrimitiveScope.textField(
         focused = focused,
     )
     // Upstream: `focus-visible:border-ring` -- the border itself switches to the ring color when
-    // focused, not just a thicker border in whatever color it already had (see borderWidth below,
-    // which was the only focus signal before this). The `ring-ring/50 ring-[3px]` outer glow is
-    // not reproduced here: there is no box-shadow/halo draw primitive to paint it with yet.
+    // focused. That color now comes through resolved.borderColor's own `focused {}` rule
+    // (shadcnFocusRing(), composed into shadcnTextFieldStyle) rather than a hardcode here, so a
+    // caller-supplied Style can actually change it -- theme.colors.ring is only the fallback for
+    // a bare Style.Empty caller. The `ring-ring/50 ring-[3px]` outer glow is not reproduced here:
+    // there is no box-shadow/halo draw primitive to paint it with yet.
     val borderColor =
         if (isError) {
             theme.colors.destructive
-        } else if (focused) {
-            theme.colors.ring
         } else {
-            (
-                surface.resolved.borderColor
-                    ?: theme.colors.border
-                )
+            surface.resolved.borderColor
+                ?: if (focused) theme.colors.ring else theme.colors.border
         }
     // Reference's `disabled:opacity-50` treatment, same single group-alpha shape as
     // `Buttons.kt`'s `buttonSlotInternal` -- covers the fill/border paint, icons, and typed

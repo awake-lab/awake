@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.frameStats
 import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
@@ -25,6 +26,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 
 /** shadcn-compose's own library default is dark = true; every other Awake sample (ui-showcase)
  * explicitly opts into light instead of inheriting that default. The per-frame ambient theme
@@ -43,7 +45,7 @@ internal fun SceneGameRuntime.drawScene3DPlaygroundOverlay(
     viewportHeight: Float,
 ) {
     val runtime = this
-    uiContext.pushTheme(PlaygroundTheme)
+    uiContext.pushLocal(LocalTheme, PlaygroundTheme.asRuntimeTheme())
     headlessFrame(viewportWidth, viewportHeight) {
         row(
             horizontalArrangement = Arrangement.spacedBy(0f.dp),

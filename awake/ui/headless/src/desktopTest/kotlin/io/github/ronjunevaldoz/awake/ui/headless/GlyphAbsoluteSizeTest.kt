@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.testSnapshot
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Asserts rendered ink SIZE against the font's own metrics -- the absolute gate this repo never
@@ -48,11 +49,11 @@ class GlyphAbsoluteSizeTest {
         val width = 64
         val height = 64
         val ui = UiContext()
-        ui.beginFrame(width.toFloat(), height.toFloat(), testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = width.toFloat(), viewportHeight = height.toFloat(), input = testSnapshot()))
         ui.createAbsolute(x = 20f, y = 32f).text("H", style = Style { textSize(sizePx.sp) })
         // Transparent background so the alpha channel holds pure glyph coverage -- an opaque
         // background writes alpha 255 everywhere and the ink scan degenerates to the canvas.
-        val pixels = ui.endFrame().rasterize(
+        val pixels = ui.finishFrame().primitives.rasterize(
             width,
             height,
             background = Color(0f, 0f, 0f, 0f),

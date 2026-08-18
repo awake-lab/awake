@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import kotlin.test.Test
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /** Scratch probe -- counts content-lambda executions for the benchmark's nesting shape. */
 class NestedContentExecutionProbeTest {
@@ -18,7 +19,7 @@ class NestedContentExecutionProbeTest {
             var real = 0
             var measuring = 0
             val ui = UiContext()
-            ui.beginFrame(1280f, 900f, UiInputState(pointerX = -100f, pointerY = -100f))
+            ui.beginFrame(UiFrameInput(viewportWidth = 1280f, viewportHeight = 900f, input = UiInputState(pointerX = -100f, pointerY = -100f)))
             fun ColumnScope.nest(remaining: Int) {
                 if (remaining == 0) return
                 column {

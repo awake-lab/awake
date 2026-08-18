@@ -18,6 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Proves [io.github.ronjunevaldoz.awake.ui.layouts.lazyColumn]/[lazyRow] actually virtualize --
@@ -32,7 +33,7 @@ class LazyColumnVirtualizationTest {
     @Test
     fun tenThousandItemListOnlyEmitsPrimitivesForVisibleWindow() {
         val ui = UiContext()
-        ui.beginFrame(400f, 300f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 300f, input = testSnapshot()))
         val state = UiScrollState()
 
         ui.createColumn(x = 0f, y = 0f, width = 400f).lazyColumn(
@@ -50,7 +51,7 @@ class LazyColumnVirtualizationTest {
             ) {}
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val quadCount = primitives.filterIsInstance<UiDrawPrimitive.Quad>().count()
 
         // Viewport is 300px tall / 20px items = 15 fully visible + default overscan(2) each side
@@ -65,7 +66,7 @@ class LazyColumnVirtualizationTest {
     @Test
     fun scrollingMovesTheComposedWindowInsteadOfComposingEverything() {
         val ui = UiContext()
-        ui.beginFrame(400f, 300f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 300f, input = testSnapshot()))
         val state = UiScrollState()
         state.update(viewportHeight = 300f, contentHeight = 200_000f)
         state.scrollTo(offsetY = 5_000f)
@@ -85,7 +86,7 @@ class LazyColumnVirtualizationTest {
             ) {}
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val quadCount = primitives.filterIsInstance<UiDrawPrimitive.Quad>().count()
         assertTrue(quadCount in 1..25, "expected a small scrolled-in window, got $quadCount")
     }
@@ -93,7 +94,7 @@ class LazyColumnVirtualizationTest {
     @Test
     fun lazyRowVirtualizesAlongTheHorizontalAxis() {
         val ui = UiContext()
-        ui.beginFrame(300f, 100f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 300f, viewportHeight = 100f, input = testSnapshot()))
         val state = UiScrollState()
 
         ui.createColumn(x = 0f, y = 0f, width = 300f).lazyRow(
@@ -111,7 +112,7 @@ class LazyColumnVirtualizationTest {
             ) {}
         }
 
-        val primitives = ui.endFrame()
+        val primitives = ui.finishFrame().primitives
         val quadCount = primitives.filterIsInstance<UiDrawPrimitive.Quad>().count()
         assertTrue(quadCount in 1..25, "expected roughly the visible window, got $quadCount")
         assertTrue(quadCount < 10_000, "virtualization defeated: composed close to every item")
@@ -120,7 +121,7 @@ class LazyColumnVirtualizationTest {
     @Test
     fun keyIsThreadedIntoItemContentForStableNestedIds() {
         val ui = UiContext()
-        ui.beginFrame(400f, 100f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 100f, input = testSnapshot()))
         val state = UiScrollState()
         val seenKeys = mutableListOf<Any>()
 
@@ -135,7 +136,7 @@ class LazyColumnVirtualizationTest {
             surface(id = "row-$key") {}
         }
 
-        ui.endFrame()
+        ui.finishFrame().primitives
         assertEquals(listOf("item-0", "item-1", "item-2", "item-3", "item-4"), seenKeys.take(5))
     }
 }

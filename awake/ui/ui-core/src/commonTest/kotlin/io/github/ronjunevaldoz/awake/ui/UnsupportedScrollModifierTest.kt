@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Scrolling is dispatched on `UiModifier.scrollState` and only `column()` reads it. `row()` and
@@ -27,9 +28,9 @@ class UnsupportedScrollModifierTest {
 
     private fun frame(body: UiPrimitiveScope.() -> Unit) {
         val ui = UiContext()
-        ui.beginFrame(400f, 400f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 400f, input = testSnapshot()))
         ui.createBox(x = 0f, y = 0f, width = 400f, height = 400f).body()
-        ui.endFrame()
+        ui.finishFrame().primitives
     }
 
     @Test

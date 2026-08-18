@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx as primitiveResolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
+import io.github.ronjunevaldoz.awake.ui.scope.requestFocus as primitiveRequestFocus
 
 /**
  * Public receiver for ordinary Headless widgets and design-system recipes.
@@ -35,7 +36,7 @@ internal class DefaultUiScope internal constructor(
 fun UiScope(primitive: UiPrimitiveScope): UiScope = DefaultUiScope(primitive)
 
 /** Requests keyboard focus for a Headless-owned input or composite widget. */
-fun UiScope.requestFocus(id: String) = primitive.context.requestFocus(id)
+fun UiScope.requestFocus(id: String) = primitive.primitiveRequestFocus(id)
 
 /** Current composition font for Headless measurement recipes. */
 val UiScope.currentFont: UiFont

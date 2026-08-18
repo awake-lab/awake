@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.Provide
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Regression test for the real bug report: a `verticalScroll` column wrapping a WrapContent
@@ -32,7 +33,7 @@ class WrapContentMeasurementStateTest {
     @Test
     fun wrapContentTrialInheritsAppDefinedLocal() {
         val ui = UiContext()
-        ui.beginFrame(920f, 620f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 920f, viewportHeight = 620f, input = testSnapshot()))
 
         var content: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
@@ -53,7 +54,7 @@ class WrapContentMeasurementStateTest {
                 }
             }
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         assertTrue(
             (content?.height ?: 0f) > 144f,
@@ -64,7 +65,7 @@ class WrapContentMeasurementStateTest {
     @Test
     fun wrapContentSurfaceSizesAgainstRealPersistedStateNotDefault() {
         val ui = UiContext()
-        ui.beginFrame(920f, 620f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 920f, viewportHeight = 620f, input = testSnapshot()))
 
         // content() below mirrors drawUiShowcasePageContent(): rememberStateValue() is read
         // *inside* the content passed to the WrapContent surface itself, not the outer scroll
@@ -93,7 +94,7 @@ class WrapContentMeasurementStateTest {
                 content = content,
             )
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         // Simulate a click handler committing new state on a *prior* frame (as real widgets
         // do), so this frame's composition only ever *reads* the persisted value -- exactly
@@ -102,7 +103,7 @@ class WrapContentMeasurementStateTest {
         ui.rememberStateValue<String>("page-mode", "value") { "short" }.value = "long"
 
         // Second frame: real app-driven state change -- user navigates to the "long" page.
-        ui.beginFrame(920f, 620f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 920f, viewportHeight = 620f, input = testSnapshot()))
         var slotLong: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
@@ -114,7 +115,7 @@ class WrapContentMeasurementStateTest {
                 content = content,
             )
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         assertTrue(
             (slotLong?.height ?: 0f) > (slotShort?.height ?: 0f) * 5f,
@@ -138,7 +139,7 @@ class WrapContentMeasurementStateTest {
     ): Pair<Float, Float> {
         val content = statefulRows(stateKey)
         val ui = UiContext()
-        ui.beginFrame(920f, 620f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 920f, viewportHeight = 620f, input = testSnapshot()))
         var slotShort: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
@@ -146,11 +147,11 @@ class WrapContentMeasurementStateTest {
         ) {
             slotShort = wrap(this, content)
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
 
         ui.rememberStateValue<String>(stateKey, "value") { "short" }.value = "long"
 
-        ui.beginFrame(920f, 620f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 920f, viewportHeight = 620f, input = testSnapshot()))
         var slotLong: UiBounds? = null
         ui.createBox(x = 0f, y = 0f, width = 920f, height = 620f).column(
             id = "content-viewport",
@@ -158,7 +159,7 @@ class WrapContentMeasurementStateTest {
         ) {
             slotLong = wrap(this, content)
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
         return (slotShort?.height ?: 0f) to (slotLong?.height ?: 0f)
     }
 

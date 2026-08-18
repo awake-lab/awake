@@ -15,6 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 @io.github.ronjunevaldoz.awake.testing.ui.UiLowLevelTest("Checks Headless facade mapping to low-level scope mechanics")
 class UiScopeFacadeTest {
@@ -45,12 +46,12 @@ class UiScopeFacadeTest {
     @Test
     fun facadeCanUseHeadlessOverlayBehaviorWithoutExposingThePrimitiveScope() {
         val context = UiContext()
-        context.beginFrame(320f, 240f, UiInputState())
+        context.beginFrame(UiFrameInput(viewportWidth = 320f, viewportHeight = 240f, input = UiInputState()))
         val scope = context.createUiScope(UiBounds(0f, 0f, 320f, 240f))
 
         scope.overlayScrim(scope.frameBounds(), Color.Black)
 
-        val overlay = context.endFrame().filterIsInstance<UiDrawPrimitive.Quad>().single()
+        val overlay = context.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Quad>().single()
         assertEquals(320f, overlay.w)
         assertEquals(240f, overlay.h)
         assertTrue(overlay.color == Color.Black)
@@ -59,7 +60,7 @@ class UiScopeFacadeTest {
     @Test
     fun popupUsesHeadlessContractsAndColumnScope() {
         val context = UiContext()
-        context.beginFrame(200f, 120f, UiInputState())
+        context.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 120f, input = UiInputState()))
         val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
 
         var receivedColumnScope = false
@@ -79,7 +80,7 @@ class UiScopeFacadeTest {
     @Test
     fun layoutsUseHeadlessScopesAndComposeStyleModifier() {
         val context = UiContext()
-        context.beginFrame(200f, 120f, UiInputState())
+        context.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 120f, input = UiInputState()))
         val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
 
         var receivedRowScope = false
@@ -96,7 +97,7 @@ class UiScopeFacadeTest {
     @Test
     fun surfaceUsesHeadlessVisualContracts() {
         val context = UiContext()
-        context.beginFrame(200f, 120f, UiInputState())
+        context.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 120f, input = UiInputState()))
         val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
 
         val slot = scope.surface(
@@ -106,13 +107,13 @@ class UiScopeFacadeTest {
         ) { }
 
         assertEquals(UiBounds(0f, 0f, 80f, 40f), slot)
-        assertTrue(context.endFrame().filterIsInstance<UiDrawPrimitive.RoundedQuad>().any { it.color == Color.Black })
+        assertTrue(context.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.RoundedQuad>().any { it.color == Color.Black })
     }
 
     @Test
     fun buttonUsesHeadlessModifierAndNeutralStyle() {
         val context = UiContext()
-        context.beginFrame(200f, 120f, UiInputState())
+        context.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 120f, input = UiInputState()))
         val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
 
         val clicked = scope.button(
@@ -123,13 +124,13 @@ class UiScopeFacadeTest {
         )
 
         assertTrue(!clicked)
-        assertTrue(context.endFrame().filterIsInstance<UiDrawPrimitive.Quad>().any { it.color == Color.Black })
+        assertTrue(context.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Quad>().any { it.color == Color.Black })
     }
 
     @Test
     fun buttonUsesTheStyleNativeApi() {
         val context = UiContext()
-        context.beginFrame(200f, 120f, UiInputState())
+        context.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 120f, input = UiInputState()))
         val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
 
         scope.button(
@@ -139,19 +140,19 @@ class UiScopeFacadeTest {
             style = Style { background(Color.Black) },
         )
 
-        assertTrue(context.endFrame().filterIsInstance<UiDrawPrimitive.Quad>().any { it.color == Color.Black })
+        assertTrue(context.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Quad>().any { it.color == Color.Black })
     }
 
     @Test
     fun textureQuadForwardsTheMaterialIntoTheSlotItClaims() {
         val context = UiContext()
-        context.beginFrame(200f, 120f, UiInputState())
+        context.beginFrame(UiFrameInput(viewportWidth = 200f, viewportHeight = 120f, input = UiInputState()))
         val scope = context.createUiScope(UiBounds(0f, 0f, 200f, 120f))
         val material = Any()
 
         scope.textureQuad(material, modifier = Modifier.width(80f.px).height(45f.px))
 
-        val texture = context.endFrame().filterIsInstance<UiDrawPrimitive.Texture>().single()
+        val texture = context.finishFrame().primitives.filterIsInstance<UiDrawPrimitive.Texture>().single()
         assertEquals(UiBounds(0f, 0f, 80f, 45f), UiBounds(texture.x, texture.y, texture.w, texture.h))
         assertTrue(texture.material === material)
     }

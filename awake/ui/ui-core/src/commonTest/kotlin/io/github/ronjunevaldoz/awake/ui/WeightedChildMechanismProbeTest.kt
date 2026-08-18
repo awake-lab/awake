@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.weight
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Same parent, two ways of asking for weight -- which one is broken.
@@ -27,14 +28,14 @@ class WeightedChildMechanismProbeTest {
 
     private fun parent(body: io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope.() -> Unit) {
         val ui = UiContext()
-        ui.beginFrame(FRAME, FRAME, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = FRAME, viewportHeight = FRAME, input = testSnapshot()))
         ui.createBox(x = 0f, y = 0f, width = FRAME, height = FRAME).column(
             id = "parent",
             verticalArrangement = Arrangement.spacedBy(0f.px),
             modifier = Modifier.width(Dimension.FillMax).height(Dimension.Fixed(PARENT.px)),
             content = { body() },
         )
-        ui.endFrame()
+        ui.finishFrame().primitives
     }
 
     @Test

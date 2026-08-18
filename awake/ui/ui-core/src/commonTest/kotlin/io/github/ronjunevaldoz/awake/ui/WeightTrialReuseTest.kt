@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.px
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Gate against the throwaway `hasWeightedChild` trial coming back (see
@@ -55,14 +56,14 @@ class WeightTrialReuseTest {
         val ui = UiContext()
         val slots = mutableListOf<UiBounds>()
         repeat(3) { frame ->
-            ui.beginFrame(400f, 400f, testSnapshot())
+            ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 400f, input = testSnapshot()))
             slots += ui.createColumn(x = 0f, y = 0f, width = 400f, height = 400f).row(
                 modifier = Modifier.width(Dimension.Fixed(300f.px)).height(Dimension.Fixed(40f.px)),
             ) {
                 column(modifier = Modifier.weight(1f).height(Dimension.Fixed(40f.px))) { }
                 column(modifier = Modifier.width(Dimension.Fixed(50f.px)).height(Dimension.Fixed(40f.px))) { }
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
             if (frame > 0) {
                 assertEquals(slots[0], slots[frame], "reused answer changed the layout on frame $frame")
             }
@@ -77,7 +78,7 @@ class WeightTrialReuseTest {
 
         fun draw(useWeight: Boolean): UiBounds {
             var first = UiBounds(0f, 0f, 0f, 0f)
-            ui.beginFrame(400f, 400f, testSnapshot())
+            ui.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 400f, input = testSnapshot()))
             ui.createColumn(x = 0f, y = 0f, width = 400f, height = 400f).row(
                 modifier = Modifier.width(Dimension.Fixed(300f.px)).height(Dimension.Fixed(40f.px)),
             ) {
@@ -90,7 +91,7 @@ class WeightTrialReuseTest {
                 ) { }
                 column(modifier = Modifier.width(Dimension.Fixed(50f.px)).height(Dimension.Fixed(40f.px))) { }
             }
-            ui.endFrame()
+            ui.finishFrame().primitives
             return first
         }
 
@@ -99,7 +100,7 @@ class WeightTrialReuseTest {
         val lagged = draw(useWeight = true)
         val corrected = draw(useWeight = true)
         val reference = UiContext().let { fresh ->
-            fresh.beginFrame(400f, 400f, testSnapshot())
+            fresh.beginFrame(UiFrameInput(viewportWidth = 400f, viewportHeight = 400f, input = testSnapshot()))
             var slot = UiBounds(0f, 0f, 0f, 0f)
             fresh.createColumn(x = 0f, y = 0f, width = 400f, height = 400f).row(
                 modifier = Modifier.width(Dimension.Fixed(300f.px)).height(Dimension.Fixed(40f.px)),
@@ -107,7 +108,7 @@ class WeightTrialReuseTest {
                 slot = column(modifier = Modifier.weight(1f).height(Dimension.Fixed(40f.px))) { }
                 column(modifier = Modifier.width(Dimension.Fixed(50f.px)).height(Dimension.Fixed(40f.px))) { }
             }
-            fresh.endFrame()
+            fresh.finishFrame().primitives
             slot
         }
 
@@ -124,12 +125,12 @@ class WeightTrialReuseTest {
     }
 
     private fun countTrials(ui: UiContext, content: UiPrimitiveScope.() -> Unit): Int {
-        ui.beginFrame(1000f, 1000f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 1000f, viewportHeight = 1000f, input = testSnapshot()))
         UiMeasureTrialStats.reset()
         UiMeasureTrialStats.enabled = true
         try {
             ui.createColumn(x = 0f, y = 0f, width = 1000f, height = 1000f).content()
-            ui.endFrame()
+            ui.finishFrame().primitives
             return UiMeasureTrialStats.trialCount
         } finally {
             UiMeasureTrialStats.enabled = false

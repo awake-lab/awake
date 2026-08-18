@@ -111,17 +111,14 @@ fun UiPrimitiveScope.switch(
         height = TOGGLE_HEIGHT.toPx(),
     )
     val newChecked = if (surface.interaction.clicked) !checked else checked
-    // Both states are hardcoded tokens, not resolved.background -- a Switch's on/off track
-    // color is structural to what a switch communicates, not something a caller-supplied
-    // style should be able to accidentally collapse to the page background (verified via a
-    // real render: falling back to resolved.background/theme.tokens.background left the
-    // unchecked track literally invisible whenever a style plumbed in a background matching
-    // the page, e.g. shadcnSwitch borrowing a text-field style).
-    val trackFill = if (newChecked) {
-        theme.colors.primary
-    } else {
-        surface.resolved.background ?: theme.colors.muted
-    }
+    // resolved.background already reflects the caller's own checked-state color
+    // (shadcnSwitchStyle sets `background(if (checked) primary else input)`) -- the theme
+    // token below is only a fallback for a bare-Style.Empty caller, not a hardcoded override
+    // that discards what the caller's Style resolved. The earlier "invisible unchecked track"
+    // regression this used to guard against was a missing background rule in shadcnSwitchStyle,
+    // not a reason to make this channel unoverridable.
+    val trackFill = surface.resolved.background
+        ?: if (newChecked) theme.colors.primary else theme.colors.muted
     // See `ShadcnButtons.kt`'s `buttonSlotInternal` doc for why this is one group alpha
     // around the whole painted widget, not a per-color tweak.
     withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {

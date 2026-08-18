@@ -51,7 +51,7 @@ class UiAnimationFrameCapture private constructor(
     private val fixture: HeadlessUiRendererFixture,
 ) : AutoCloseable {
 
-    /** Renders [primitives] (one real frame's worth, as returned by `UiContext.endFrame()`)
+    /** Renders [primitives] (one real frame's worth, as returned by `UiContext.finishFrame().primitives`)
      * through the real Vulkan UI pipelines and writes it to `outputDir/<namePrefix><frameIndex
      * padded>.png`. Returns the written [File] so callers can immediately read it back (e.g.
      * for a pixel-level jump check) without re-deriving the naming scheme. */

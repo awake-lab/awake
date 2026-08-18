@@ -34,8 +34,11 @@ fun ResizablePanelGroupScope.shadcnResizablePanel(
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = panel(id, defaultSize, minSize, maxSize, content)
 
-fun ResizablePanelGroupScope.shadcnResizableHandle(id: String, withHandle: Boolean = false): UiBounds =
-    handle(id = id, withHandle = withHandle)
+fun ResizablePanelGroupScope.shadcnResizableHandle(
+    id: String,
+    withHandle: Boolean = false,
+    style: Style = Style.Empty,
+): UiBounds = handle(id = id, withHandle = withHandle, style = style)
 
 fun UiScope.shadcnScrollArea(
     id: String,

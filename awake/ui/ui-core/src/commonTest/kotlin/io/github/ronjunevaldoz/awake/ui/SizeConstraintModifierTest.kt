@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.widthIn
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * `widthIn`/`heightIn` bound a resolved size, mirroring Compose. Without them the only sizing
@@ -24,7 +25,7 @@ class SizeConstraintModifierTest {
 
     private fun claim(modifier: io.github.ronjunevaldoz.awake.ui.modifier.UiModifier): UiBounds {
         val ui = UiContext()
-        ui.beginFrame(500f, 300f, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = 500f, viewportHeight = 300f, input = testSnapshot()))
         return ui.createAbsolute(x = 0f, y = 0f).claimModifiedSlot(modifier)
     }
 

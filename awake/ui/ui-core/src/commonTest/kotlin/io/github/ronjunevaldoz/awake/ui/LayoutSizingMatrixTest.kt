@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * How a middle child is sized, across container type x parent sizing x child sizing.
@@ -88,7 +89,7 @@ class LayoutSizingMatrixTest {
         // the whole table, which is the one thing it is for.
         UiLayoutDiagnostics.allowUnplannedWeight = true
         val ui = UiContext()
-        ui.beginFrame(FRAME, FRAME, testSnapshot())
+        ui.beginFrame(UiFrameInput(viewportWidth = FRAME, viewportHeight = FRAME, input = testSnapshot()))
         var child: UiBounds? = null
         val body: ColumnScope.(UiBounds) -> Unit = {
             column(id = "head", modifier = Modifier.width(Dimension.FillMax).height(FIXED.px)) { }
@@ -154,7 +155,7 @@ class LayoutSizingMatrixTest {
                 modifier = Modifier.width(Dimension.FillMax).height(FRAME.px),
             ) { placeCase() }
         }
-        ui.endFrame()
+        ui.finishFrame().primitives
         UiLayoutDiagnostics.allowUnplannedWeight = false
         return child?.height ?: -1f
     }

@@ -51,7 +51,7 @@ fun ColumnScope.row(
                 availableWidth = availableHeight,
                 gap = effectiveArrangement.baseSpacingPx(),
             ) {
-                context.measureRowContent(
+                context.measureRowContentInternal(
                     availableHeight,
                     effectiveArrangement.baseSpacingPx(),
                     content = content,
@@ -109,7 +109,7 @@ fun RowScope.row(
                 availableWidth = availableHeight,
                 gap = effectiveArrangement.baseSpacingPx(),
             ) {
-                context.measureRowContent(
+                context.measureRowContentInternal(
                     availableHeight,
                     effectiveArrangement.baseSpacingPx(),
                     content = content,
@@ -168,7 +168,7 @@ fun AbsoluteScope.row(
                 availableWidth = availableHeight,
                 gap = effectiveArrangement.baseSpacingPx(),
             ) {
-                context.measureRowContent(
+                context.measureRowContentInternal(
                     availableHeight,
                     effectiveArrangement.baseSpacingPx(),
                     content = content,
@@ -226,7 +226,7 @@ fun BoxScope.row(
                 availableWidth = availableHeight,
                 gap = effectiveArrangement.baseSpacingPx(),
             ) {
-                context.measureRowContent(
+                context.measureRowContentInternal(
                     availableHeight,
                     effectiveArrangement.baseSpacingPx(),
                     content = content,
@@ -301,7 +301,7 @@ fun UiPrimitiveScope.row(
                 availableWidth = availableHeight,
                 gap = horizontalArrangement.baseSpacingPx(),
             ) {
-                context.measureRowContent(
+                context.measureRowContentInternal(
                     availableHeight,
                     horizontalArrangement.baseSpacingPx(),
                     content = content,
@@ -375,7 +375,7 @@ fun UiPrimitiveScope.row(
             precomputedMeasured.weights.any { it != null }
         } else {
             remembered ?: context.resolveHasWeightedChild(id, cacheKey) {
-                context.measureRowContent(
+                context.measureRowContentInternal(
                     height = slot.height,
                     gap = effectiveArrangement.baseSpacingPx(),
                     width = slot.width,
@@ -388,7 +388,7 @@ fun UiPrimitiveScope.row(
         // unlike the hasWeightedChild check above, this genuinely needs a trial at this row's
         // actual resolved [slot] (not the wrapper's provisional available-size bound), so always
         // re-measure here regardless of whether a precomputed trial was supplied.
-        val measured = context.measureRowContent(
+        val measured = context.measureRowContentInternal(
             height = slot.height,
             // Real gap, not 0 -- a FillMax child's own trial width must already account for the
             // gap before its next sibling, or it silently overclaims the space that sibling's

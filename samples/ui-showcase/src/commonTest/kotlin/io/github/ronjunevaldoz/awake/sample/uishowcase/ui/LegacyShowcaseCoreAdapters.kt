@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope as CoreColumnScope
 
 /** Test-only receiver adapters for legacy preview harnesses while their roots migrate. */
 internal fun CoreColumnScope.drawUiShowcaseSidebar(compact: Boolean) {
-    context.createUiScope(context.frameBounds()).column(modifier = Modifier.fillMaxSize()) {
+    context.createUiScope(context.frameBoundsInternal()).column(modifier = Modifier.fillMaxSize()) {
         drawUiShowcaseSidebar(compact)
     }
 }
@@ -20,13 +20,13 @@ internal fun CoreColumnScope.drawUiShowcasePageContent(
     state: UiShowcaseRuntimeState,
     showInlineMenu: Boolean,
 ) {
-    context.createUiScope(context.frameBounds()).column(modifier = Modifier.fillMaxSize()) {
+    context.createUiScope(context.frameBoundsInternal()).column(modifier = Modifier.fillMaxSize()) {
         drawUiShowcasePageContent(state, showInlineMenu)
     }
 }
 
 internal fun CoreColumnScope.drawUiShowcaseCanvasPreview() {
-    context.createUiScope(context.frameBounds()).column(modifier = Modifier.fillMaxSize()) {
+    context.createUiScope(context.frameBoundsInternal()).column(modifier = Modifier.fillMaxSize()) {
         drawUiShowcaseCanvasPreview()
     }
 }
@@ -35,7 +35,7 @@ internal fun CoreColumnScope.renderUiShowcasePagePreview(
     page: ShowcasePage,
     state: UiShowcaseRuntimeState,
 ) {
-    context.createUiScope(context.frameBounds()).column(modifier = Modifier.fillMaxSize()) {
+    context.createUiScope(context.frameBoundsInternal()).column(modifier = Modifier.fillMaxSize()) {
         renderUiShowcasePagePreview(page, state)
     }
 }

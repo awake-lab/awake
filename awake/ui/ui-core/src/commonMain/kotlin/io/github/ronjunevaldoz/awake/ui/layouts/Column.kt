@@ -84,7 +84,7 @@ private fun UiPrimitiveScope.hasResolvedVisuals(
     val styleState = MutableStyleState(
         hovered = modifier.forceHover ?: false,
         active = modifier.forceActive ?: (id?.let { isActive(it) } ?: false),
-        focused = modifier.forceFocus ?: (id?.let { context.isFocused(it) } ?: false),
+        focused = modifier.forceFocus ?: (id?.let { context.isFocusedInternal(it) } ?: false),
     )
     val visualDefaults = if (role == UiSemanticRole.Panel) {
         neutralSurfaceDefaults
@@ -208,7 +208,7 @@ private fun UiPrimitiveScope.resolveMeasuredColumn(
             availableWidth = trialWidth,
             gap = trialGap,
         ) {
-            context.measureColumnContent(
+            context.measureColumnContentInternal(
                 width = trialWidth,
                 gap = trialGap,
                 insets = insets,
@@ -254,7 +254,7 @@ private fun UiPrimitiveScope.resolveMeasuredColumn(
         val styleState = MutableStyleState(
             hovered = modifier.forceHover ?: hitTest(rawSlot),
             active = modifier.forceActive ?: isActive(id),
-            focused = modifier.forceFocus ?: context.isFocused(id),
+            focused = modifier.forceFocus ?: context.isFocusedInternal(id),
         )
         val resolved = resolveStyle(
             style = effectiveStyle,
@@ -472,7 +472,7 @@ fun UiPrimitiveScope.column(
             precomputedMeasured.weights.any { it != null }
         } else {
             remembered ?: context.resolveHasWeightedChild(id, cacheKey) {
-                context.measureColumnContent(
+                context.measureColumnContentInternal(
                     width = slot.width,
                     gap = effectiveArrangement.baseSpacingPx(),
                     height = slot.height,
@@ -485,7 +485,7 @@ fun UiPrimitiveScope.column(
         // unlike the hasWeightedChild check above, this genuinely needs a trial at this column's
         // actual resolved [slot] (not resolveMeasuredColumn's provisional available-width bound),
         // so always re-measure here regardless of whether a precomputed trial was supplied.
-        val measured = context.measureColumnContent(
+        val measured = context.measureColumnContentInternal(
             width = slot.width,
             // See the matching comment in UiPrimitiveScope.row() -- real gap so a FillMax child's trial
             // height already accounts for the gap before its next sibling.

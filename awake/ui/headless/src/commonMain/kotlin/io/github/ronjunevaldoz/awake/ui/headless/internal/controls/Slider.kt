@@ -112,7 +112,10 @@ fun UiPrimitiveScope.slider(
                     handleWidth,
                     trackSlot.height,
                 ),
-                fillColor = theme.colors.primary,
+                // resolved.foreground is the caller's accent color (shadcnSliderStyle sets
+                // `foreground(colors.primary)`) -- the token is only a fallback for a bare
+                // Style.Empty caller, not a hardcoded override.
+                fillColor = surface.resolved.foreground ?: theme.colors.primary,
                 radiusPx = 0f,
                 borderWidth = UiShape.none,
                 borderColor = Color.Transparent,
@@ -131,8 +134,11 @@ fun UiPrimitiveScope.slider(
                     borderWidth = surface.resolved.borderWidth.takeIf { it.value > 0f } ?: 1f.dp,
                     shapeSpec = UiShapeSpec.Pill,
                 ),
+                // Knob fill has no dedicated resolved field (background is already the track's
+                // muted fill) -- the real shadcn thumb is always page-background with an
+                // accent-colored border, so only the border needs to be caller-overridable.
                 fillColor = theme.colors.background,
-                borderColor = theme.colors.primary,
+                borderColor = surface.resolved.foreground ?: theme.colors.primary,
             )
         }
     }
