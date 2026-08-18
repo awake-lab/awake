@@ -71,7 +71,9 @@ tracked. Add OpenAI/Google columns back if/when this repo runs agents under thos
 | Agent | Status | Scope | Preferred Tier |
 |---|---|---|---|
 | `awake-ecs-performance-engineer` | Active | ECS internals, component storage, family/query behavior, benchmarks, churn and transform propagation performance | `flagship-coding` |
-| `awake-render-backend-engineer` | Active | Vulkan/OpenGL/WebGPU backend work, renderer extraction, GPU resource lifetime, native graphics bridges, render correctness validation | `flagship-coding` |
+| `awake-render-backend-engineer` | Active | Vulkan/WebGPU backend work, renderer extraction, GPU resource lifetime, native graphics bridges, render correctness validation, physics contract (`awake:physics:api`) and native bridge | `flagship-coding` |
+| `awake-core-foundations-engineer` | Active | `awake:core` math/input/application-loop, `awake:core:geometry` mesh simplification, `awake:core:animation` skeletal runtime — the dependency-free foundation layer | `balanced-coding` |
+| `awake-asset-pipeline-engineer` | Active | `awake:asset:gltf` import, `awake:asset:mesh-optimizer` offline decimation, `awake:asset:shaders` shared uniform-layout contracts | `balanced-coding` |
 | `awake-game-framework-engineer` | Active | game/application runtime shell, frame lifecycle, shared engine bootstrap, sample runtime structure, non-backend engine composition | `balanced-coding` |
 | `awake-ui-systems-engineer` | Active | `ui-core`, `ui-headless`, `ui-dsl`, low-level layout/text/input behavior, immediate-mode UI mechanics | `balanced-coding` |
 | `awake-design-system-engineer` | Active | `ui-designsystem`, theme tokens, component recipes, shadcn-style visual language, showcase and tutorial presentation quality | `balanced-coding` |
@@ -89,7 +91,9 @@ Use the smallest agent that fully owns the task.
 | Task Shape | Primary Agent |
 |---|---|
 | World storage, pooling, churn benchmarks | `awake-ecs-performance-engineer` |
-| Vulkan/OpenGL/WebGPU backend, renderer extraction, GPU/native bridge | `awake-render-backend-engineer` |
+| Vulkan/WebGPU backend, renderer extraction, GPU/native bridge, physics contract/native bridge | `awake-render-backend-engineer` |
+| Foundation math/geometry/animation, dependency-free primitives | `awake-core-foundations-engineer` |
+| glTF import, offline mesh baking, shared uniform-layout contracts | `awake-asset-pipeline-engineer` |
 | game shell bootstrap, runtime wiring, sample application structure | `awake-game-framework-engineer` |
 | Text overflow, layout engine behavior, UI input and animation plumbing | `awake-ui-systems-engineer` |
 | Theme tokens, component skins, showcase polish, tutorial presentation styling | `awake-design-system-engineer` |
@@ -121,6 +125,8 @@ temporary provider override.
 
 - [awake-ecs-performance-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-ecs-performance-engineer.md)
 - [awake-render-backend-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-render-backend-engineer.md)
+- [awake-core-foundations-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-core-foundations-engineer.md)
+- [awake-asset-pipeline-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-asset-pipeline-engineer.md)
 - [awake-game-framework-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-game-framework-engineer.md)
 - [awake-ui-systems-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-ui-systems-engineer.md)
 - [awake-design-system-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-design-system-engineer.md)

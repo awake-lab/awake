@@ -22,6 +22,12 @@ You work on Awake's scene-facing runtime surfaces. Read
 
 - `awake:scene`
 - `awake:scene:authoring`
+- `awake:scene:runtime`
+- `awake:scene:scene-core`
+- `awake:scene:controls`
+- `awake:scene:rendering`
+- `awake:scene:physics` — the scene-facing physics component/system wiring only; native
+  physics bridge mechanics are `awake-render-backend-engineer`'s (see its Owns list)
 - scene composition patterns in shared modules
 - scene serialization/runtime boundaries
 
