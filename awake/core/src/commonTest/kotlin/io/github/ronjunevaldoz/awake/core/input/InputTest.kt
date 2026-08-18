@@ -89,4 +89,39 @@ class InputTest {
         assertEquals(56f, input.pointerX)
         assertEquals(78f, input.pointerY)
     }
+
+    @Test
+    fun aSubFrameDownUpPairIsNotSilentlyDropped() {
+        // F11: a fast tap, a trackpad tap, or any synthetic/automation click can deliver
+        // both mousedown and mouseup before the frame reads pointerDown -- the second call
+        // used to silently erase the first with no trace either edge occurred.
+        val input = Input()
+        input.setPointer(down = true, x = 10f, y = 10f)
+        input.setPointer(down = false, x = 10f, y = 10f)
+
+        val frame = input.updateSnapshot()
+        assertTrue(frame.pointerPressed, "the down edge must not be erased by the up call")
+        assertTrue(frame.pointerReleased, "the up edge must also be captured")
+        assertFalse(frame.pointerDown, "continuous state still reflects the final call")
+    }
+
+    @Test
+    fun pointerEdgesFireOnceAcrossPressHoldRelease() {
+        val input = Input()
+
+        input.setPointer(down = true, x = 1f, y = 1f)
+        val pressFrame = input.updateSnapshot()
+        assertTrue(pressFrame.pointerPressed)
+        assertFalse(pressFrame.pointerReleased)
+
+        val holdFrame = input.updateSnapshot()
+        assertFalse(holdFrame.pointerPressed, "holding must not re-fire the rising edge")
+        assertFalse(holdFrame.pointerReleased)
+        assertTrue(holdFrame.pointerDown, "held state persists across frames with no new event")
+
+        input.setPointer(down = false, x = 1f, y = 1f)
+        val releaseFrame = input.updateSnapshot()
+        assertFalse(releaseFrame.pointerPressed)
+        assertTrue(releaseFrame.pointerReleased)
+    }
 }
