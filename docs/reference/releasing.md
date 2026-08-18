@@ -55,8 +55,12 @@ Not this — it names a symbol and stops:
 
 1. Everything green: `./gradlew check` and the demo runs.
 2. In `CHANGELOG.md`, rename `## [Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD` and open a
-   fresh empty `## [Unreleased]` above it.
-3. Bump `version` in the root `build.gradle.kts`.
+   fresh empty `## [Unreleased]` above it. Known Issues stay under `[Unreleased]` — they're
+   open by definition, don't duplicate them into the dated section (see `dev.3`'s own
+   changelog entry for this precedent).
+3. Nothing to bump — `version` in the root `build.gradle.kts` is derived from
+   `git describe --tags` (see the comment above `gitDerivedVersion`), not a literal to
+   hand-edit. It resolves correctly the moment step 5's tag lands.
 4. Commit as `chore(release): X.Y.Z`.
 5. Tag and push:
    ```bash
