@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.styles
 
-import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
@@ -28,7 +27,8 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 internal fun shadcnLegacyAmbientSurfaceStyle(values: ShadcnThemeValues): Style = Style {
     background(values.colors.card, "card")
     foreground(values.colors.cardForeground, "card-foreground")
-    contentPadding(UiSpacing.sm)
+    // 8dp: reproduces ui-core's former ambient default (UiSpacing.sm), not a shadcn-branded value.
+    contentPadding(8f.dp)
 }
 
 internal fun shadcnSurfaceStyle(values: ShadcnThemeValues, metrics: ShadcnMetrics, variant: ShadcnSurfaceVariant?): Style =

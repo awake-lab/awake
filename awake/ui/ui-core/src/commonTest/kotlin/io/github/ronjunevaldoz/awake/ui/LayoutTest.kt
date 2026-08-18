@@ -717,7 +717,7 @@ class LayoutTest {
         }
 
         // Tallest (and only) child shape is 16px label + default sm gap + 32px input.
-        val expectedRowHeight = 16f + UiSpacing.sm.toPx() + 32f
+        val expectedRowHeight = 16f + 8f.dp.toPx() + 32f
         assertEquals(expectedRowHeight, rowSlot.height, 0.01f, "WrapContent row height must hug the tallest child's real content height")
     }
 

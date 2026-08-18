@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
@@ -53,12 +54,12 @@ class PanelTest {
 
         val childSlot = requireNotNull(firstChildSlot)
         assertEquals(
-            10f + UiSpacing.sm.toPx(),
+            10f + 8f.dp.toPx(),
             childSlot.x,
             "nested content must start after the panel's content padding",
         )
         assertEquals(
-            20f + UiSpacing.sm.toPx(),
+            20f + 8f.dp.toPx(),
             childSlot.y,
             "nested content must start after the panel's content padding",
         )

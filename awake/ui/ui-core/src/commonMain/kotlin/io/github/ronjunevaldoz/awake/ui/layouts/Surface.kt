@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
-import io.github.ronjunevaldoz.awake.ui.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childColumn
@@ -51,7 +51,7 @@ import io.github.ronjunevaldoz.awake.ui.toPx
 internal val neutralSurfaceDefaults: Style = Style {
     background(UiDefaultTheme.colors.background)
     foreground(UiDefaultTheme.colors.foreground)
-    contentPadding(UiSpacing.sm)
+    contentPadding(8f.dp)
 }
 
 fun UiPrimitiveScope.surface(

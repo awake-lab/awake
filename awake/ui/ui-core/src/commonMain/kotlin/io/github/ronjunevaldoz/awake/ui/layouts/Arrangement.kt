@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.layouts
 
-import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.api.Dp
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.toPx
 import kotlin.math.min
@@ -127,4 +127,4 @@ internal fun resolveWeightedMainAxis(
     }
 }
 
-fun defaultArrangement(): Arrangement = Arrangement.spacedBy(UiSpacing.sm)
+fun defaultArrangement(): Arrangement = Arrangement.spacedBy(8f.dp)

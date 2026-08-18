@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.scope
 
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
-import io.github.ronjunevaldoz.awake.ui.UiSpacing
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
 import io.github.ronjunevaldoz.awake.ui.context.UNBOUNDED_MAIN_AXIS
@@ -55,7 +55,7 @@ fun UiPrimitiveScope.requestCursor(cursor: UiCursor) = context.requestCursorInte
  */
 fun UiPrimitiveScope.measureColumnContent(
     width: Float,
-    gap: Float = UiSpacing.sm.toPx(),
+    gap: Float = 8f.dp.toPx(),
     insets: UiInsets = UiInsets.Zero,
     height: Float? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,

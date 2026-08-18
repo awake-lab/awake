@@ -6,8 +6,8 @@ import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiInputState
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 import io.github.ronjunevaldoz.awake.ui.UiSemanticNode
-import io.github.ronjunevaldoz.awake.ui.UiSpacing
 import io.github.ronjunevaldoz.awake.ui.WidgetState
+import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.LayoutWeight
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
@@ -612,7 +612,7 @@ class UiContext internal constructor(
 
     internal fun measureColumnContentInternal(
         width: Float,
-        gap: Float = UiSpacing.sm.toPx(),
+        gap: Float = 8f.dp.toPx(),
         insets: UiInsets = UiInsets.Zero,
         height: Float = UNBOUNDED_MAIN_AXIS,
         // See [wrapContentPass] -- true only for the WrapContent-sizing trial (resolveMeasuredColumn),
