@@ -21,7 +21,8 @@ class DialogTest {
         val output = renderUiComponent(width = 200f, height = 120f) {
             result = dialog(
                 id = "confirm", expanded = true, width = Dimension.Fixed(100f.dp), height = Dimension.Fixed(80f.dp),
-                properties = DialogProperties(showScrim = true, scrimColor = Color.Black, surface = Style { background(Color.White); shape(4f.dp) }),
+                style = Style { background(Color.White); shape(4f.dp) },
+                properties = DialogProperties(showScrim = true, scrimColor = Color.Black),
             ) { }
         }
 

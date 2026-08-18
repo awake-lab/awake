@@ -10,11 +10,22 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
+/**
+ * Canonical focus-ring fragment (`focus-visible:border-ring`) -- any interactive recipe composes
+ * this via `then` to get the same focused-state border color, instead of duplicating its own
+ * `focused {}` rule or hardcoding the ring token past the `Style` channel in headless. State
+ * rules always outrank a later unconditional (see `StyleResolutionOrderTest`), so this can be
+ * composed either before or after a recipe's own base style.
+ */
+internal fun UiThemeValues.shadcnFocusRing(): Style = Style {
+    focused { borderColor(colors.ring) }
+}
+
 fun UiThemeValues.shadcnTextFieldStyle(variant: ShadcnTextFieldVariant, metrics: ShadcnMetrics): Style =
-    shadcnInputStyle(variant, UiInsets(metrics.fieldPaddingX, metrics.inputPaddingY))
+    shadcnInputStyle(variant, UiInsets(metrics.fieldPaddingX, metrics.inputPaddingY)) then shadcnFocusRing()
 
 fun UiThemeValues.shadcnTextareaStyle(variant: ShadcnTextFieldVariant, metrics: ShadcnMetrics): Style =
-    shadcnInputStyle(variant, UiInsets(metrics.fieldPaddingX, metrics.fieldPaddingY))
+    shadcnInputStyle(variant, UiInsets(metrics.fieldPaddingX, metrics.fieldPaddingY)) then shadcnFocusRing()
 
 internal fun shadcnSelectOptionStyle(values: ShadcnThemeValues): Style = Style {
     background(values.colors.popover)

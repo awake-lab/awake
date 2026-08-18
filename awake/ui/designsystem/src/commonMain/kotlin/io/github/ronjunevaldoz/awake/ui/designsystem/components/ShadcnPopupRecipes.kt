@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.headless.UiAlertDialogResult
 import io.github.ronjunevaldoz.awake.ui.headless.UiMenuItem
+import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.UiMenuResult
 import io.github.ronjunevaldoz.awake.ui.headless.UiMenuSeparator
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
@@ -179,6 +180,7 @@ fun UiScope.shadcnAlertDialog(
     expanded: Boolean,
     title: String,
     width: Dimension = Dimension.Fixed(320f.dp),
+    style: Style = Style.Empty,
     properties: DialogProperties = DialogProperties(),
     actions: ColumnScope.() -> UiAlertDialogAction?,
     body: ColumnScope.() -> Unit,
@@ -188,9 +190,8 @@ fun UiScope.shadcnAlertDialog(
         id = id,
         expanded = expanded,
         width = width,
-        properties = properties.copy(
-            surface = properties.surface then shadcnAlertDialogSurfaceStyle(themeValues, shadcnMetrics),
-        ),
+        style = shadcnAlertDialogSurfaceStyle(themeValues, shadcnMetrics) then style,
+        properties = properties,
     ) {
         text(label = title, style = shadcnDialogTitleStyle(themeValues), wrap = UiTextWrap.Word)
         body()
@@ -207,12 +208,14 @@ fun UiScope.shadcnAlertDialog(
     width: Dimension = Dimension.Fixed(320f.dp),
     confirmLabel: String = "Confirm",
     dismissLabel: String? = "Cancel",
+    style: Style = Style.Empty,
     properties: DialogProperties = DialogProperties(),
 ): UiAlertDialogResult = shadcnAlertDialog(
     id = id,
     expanded = expanded,
     title = title,
     width = width,
+    style = style,
     properties = properties,
     actions = {
         var picked: UiAlertDialogAction? = null

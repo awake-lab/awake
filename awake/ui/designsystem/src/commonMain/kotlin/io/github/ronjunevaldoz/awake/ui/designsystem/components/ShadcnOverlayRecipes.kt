@@ -139,11 +139,11 @@ fun UiScope.shadcnDrawer(
     expanded = expanded,
     width = if (position == ShadcnDrawerPosition.Left || position == ShadcnDrawerPosition.Right) Dimension.Fixed(size) else Dimension.FillMax,
     height = if (position == ShadcnDrawerPosition.Top || position == ShadcnDrawerPosition.Bottom) Dimension.Fixed(size) else Dimension.FillMax,
+    style = shadcnDrawerSurfaceStyle(themeValues, shadcnMetrics),
     properties = DialogProperties(
         dismissOnClickOutside = true,
         showScrim = true,
         scrimColor = themeValues.overlay,
-        surface = shadcnDrawerSurfaceStyle(themeValues, shadcnMetrics),
     ),
 ) { slot ->
     column {
@@ -172,11 +172,11 @@ fun UiScope.shadcnDialog(
     expanded = expanded,
     width = width,
     height = height,
+    style = shadcnDialogSurfaceStyle(themeValues, shadcnMetrics),
     properties = DialogProperties(
         dismissOnClickOutside = true,
         showScrim = true,
         scrimColor = themeValues.overlay,
-        surface = shadcnDialogSurfaceStyle(themeValues, shadcnMetrics),
     ),
 ) { slot ->
     column(verticalArrangement = Arrangement.spacedBy(16f.dp)) {
