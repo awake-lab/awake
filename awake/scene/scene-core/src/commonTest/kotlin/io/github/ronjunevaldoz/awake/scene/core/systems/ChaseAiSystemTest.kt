@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.sample.scene3d.gameplay.systems
+package io.github.ronjunevaldoz.awake.scene.core.systems
 
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.World
