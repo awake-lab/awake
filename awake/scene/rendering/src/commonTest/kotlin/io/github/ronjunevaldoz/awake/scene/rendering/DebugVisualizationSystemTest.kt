@@ -68,6 +68,12 @@ class DebugVisualizationSystemTest {
         return world
     }
 
+    private fun World.primaryCameraEntityId(): Int {
+        var id = -1
+        family<io.github.ronjunevaldoz.awake.scene.rendering.components.Camera>().forEach { entity, _ -> id = entity.id }
+        return id
+    }
+
     @Test
     fun drawsNothingWhenNoWorldDebugSettingsExists() {
         val world = worldWithPrimaryCamera()
@@ -92,7 +98,7 @@ class DebugVisualizationSystemTest {
     @Test
     fun showFrustumDrawsOneLinePerFrustumEdge() {
         val world = worldWithPrimaryCamera()
-        world.add(world.create(), WorldDebugSettings(showFrustum = true))
+        world.add(world.create(), WorldDebugSettings(showFrustum = true, frustumTargetEntityId = world.primaryCameraEntityId()))
         val renderer = RecordingRenderer()
 
         DebugVisualizationSystem(renderer).update(world, 1f / 60f)
@@ -117,7 +123,10 @@ class DebugVisualizationSystemTest {
     @Test
     fun bothTogglesCombineTheirLines() {
         val world = worldWithPrimaryCamera()
-        world.add(world.create(), WorldDebugSettings(showFrustum = true, showBounds = true))
+        world.add(
+            world.create(),
+            WorldDebugSettings(showFrustum = true, showBounds = true, frustumTargetEntityId = world.primaryCameraEntityId()),
+        )
         val entity = world.create()
         world.add(entity, Transform())
         world.add(entity, MeshBounds(Aabb(Vec3(-0.5f, -0.5f, -0.5f), Vec3(0.5f, 0.5f, 0.5f))))
