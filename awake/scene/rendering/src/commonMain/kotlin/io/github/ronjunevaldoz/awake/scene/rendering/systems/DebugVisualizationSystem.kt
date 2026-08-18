@@ -68,9 +68,17 @@ fun debugVisualizationLines(world: World, renderer: Renderer, settings: WorldDeb
     // construction. No target (or a target with no Camera) draws nothing, rather than
     // falling back to primaryCamera and reintroducing that same invisible case.
     if (settings.showFrustum) {
+        // The REAL viewport aspect, not CONSERVATIVE_ASPECT -- that constant is deliberately
+        // wider than any real viewport (a safety margin for RenderSystem's own CPU-side
+        // frustum-cull check, see its own doc comment), so reusing it here drew a visibly wider
+        // box than the camera's actual fovY/aspect would ever really see. renderer.sceneViewport
+        // is the same rect Studio's confineSceneTo(...) sets every frame; falls back to the
+        // conservative constant only when nothing has set a real viewport (e.g. a full-window
+        // render with no confined scene rect).
+        val aspect = renderer.sceneViewport?.aspect ?: CONSERVATIVE_ASPECT
         settings.frustumTargetEntityId
             ?.let { targetId -> world.cameraOf(targetId) }
-            ?.let { lines += frustumDebugLines(it.camera, CONSERVATIVE_ASPECT, FRUSTUM_COLOR) }
+            ?.let { lines += frustumDebugLines(it.camera, aspect, FRUSTUM_COLOR) }
     }
     if (settings.showBounds) {
         world.family<Transform, MeshBounds>().forEach { _, transform, bounds ->
