@@ -62,6 +62,10 @@ internal object StudioContract {
         data class SelectTool(val tool: Tool) : Intent
         data class SetMode(val mode: Mode) : Intent
         data object SaveScene : Intent
+        // One-shot: snaps the editor (Scene-view) camera's pose to match the scene's own
+        // authored camera, like Blender's "View from Camera" -- not a live lock, the editor
+        // camera is free to orbit away again right after.
+        data object AlignViewToCamera : Intent
         data class AppendConsole(val level: ConsoleLevel, val message: String) : Intent
         data object ClearConsole : Intent
     }
@@ -72,5 +76,8 @@ internal object StudioContract {
 
         // Reading the live world and writing a file are both side effects, for the same reason.
         data object SaveScene : Effect
+
+        // Mutating the editor camera's CameraComponent orbit state is a side effect too.
+        data object AlignViewToCamera : Effect
     }
 }

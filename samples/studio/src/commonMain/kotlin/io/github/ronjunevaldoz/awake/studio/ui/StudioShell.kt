@@ -16,7 +16,9 @@ import io.github.ronjunevaldoz.awake.studio.gizmo.StudioViewportRect
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableHandle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
@@ -24,6 +26,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnCardStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
@@ -407,7 +411,23 @@ private fun UiScope.drawStudioViewportPanel(
                                 StudioTheme.metrics.copy(panelPadding = CAMERA_PREVIEW_CARD_PADDING),
                             ),
                         ) {
-                            shadcnText("Camera Preview")
+                            row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = UiAlignment.Vertical.Center,
+                            ) {
+                                shadcnText("Camera Preview")
+                                // One-shot snap, not a live lock -- see StudioContract.Intent
+                                // .AlignViewToCamera's own doc comment. The editor camera is
+                                // still free to orbit away again right after.
+                                shadcnButton(
+                                    id = "studio-camera-preview-align",
+                                    label = "Align View",
+                                    variant = ShadcnButtonVariant.Ghost,
+                                    size = ShadcnButtonSize.Xs,
+                                    onClick = { store.dispatch(StudioContract.Intent.AlignViewToCamera) },
+                                )
+                            }
                             spacer(Modifier.height(CAMERA_PREVIEW_CARD_PADDING))
                             textureQuad(
                                 previewTexture,

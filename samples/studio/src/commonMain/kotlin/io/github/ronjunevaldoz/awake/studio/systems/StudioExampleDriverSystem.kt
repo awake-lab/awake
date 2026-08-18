@@ -53,6 +53,8 @@ internal class StudioExampleDriverSystem(
                         ),
                     )
                 }
+
+                StudioContract.Effect.AlignViewToCamera -> alignEditorCameraToAuthored(world)
             }
         }
         // Drivers are gameplay: an animation that keeps running in Edit would fight every
@@ -131,10 +133,7 @@ internal class StudioExampleDriverSystem(
         val authoredEntity = findAuthoredCameraEntity(world, entity)
         val authoredCameraChanged = authoredEntity != null && authoredEntity != editorCamera.authoredCameraEntity
         if (authoredCameraChanged) {
-            world.get<Camera>(authoredEntity)?.camera?.let { authored ->
-                target.position.set(authored.center)
-                seedFromAuthoredPose(camera, authored)
-            }
+            alignEditorPose(camera, target, world, authoredEntity)
             editorCamera.authoredCameraEntity = authoredEntity
         }
 
@@ -160,6 +159,30 @@ internal class StudioExampleDriverSystem(
         renderingCamera.camera.projection = when (state.projection) {
             StudioContract.Projection.Perspective -> CoreCamera.Projection.Perspective
             StudioContract.Projection.Orthographic -> CoreCamera.Projection.Orthographic
+        }
+    }
+
+    /**
+     * One-shot: snaps the editor camera's orbit pose to match the scene's own authored camera
+     * right now, same math [syncCameraComponent] already runs when a fresh example loads --
+     * just triggered on demand ([StudioContract.Intent.AlignViewToCamera]) instead of only on an
+     * authored-camera identity change. No-ops silently if the editor entity's own
+     * `CameraComponent`/`Transform` don't exist yet (can't happen once the app is running
+     * interactively -- `ready()`'s own initial sync pass already creates them) or if the scene
+     * authors no camera at all.
+     */
+    private fun alignEditorCameraToAuthored(world: World) {
+        val entity = editorCamera.entity ?: return
+        val camera = world.get<CameraComponent>(entity) ?: return
+        val target = world.get<Transform>(entity) ?: return
+        val authoredEntity = findAuthoredCameraEntity(world, entity) ?: return
+        alignEditorPose(camera, target, world, authoredEntity)
+    }
+
+    private fun alignEditorPose(camera: CameraComponent, target: Transform, world: World, authoredEntity: Entity) {
+        world.get<Camera>(authoredEntity)?.camera?.let { authored ->
+            target.position.set(authored.center)
+            seedFromAuthoredPose(camera, authored)
         }
     }
 

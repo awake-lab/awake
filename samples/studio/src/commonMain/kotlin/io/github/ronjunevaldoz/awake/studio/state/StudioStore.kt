@@ -47,6 +47,10 @@ internal class StudioStore {
                 }
             }
 
+            StudioContract.Intent.AlignViewToCamera -> {
+                effects.trySend(StudioContract.Effect.AlignViewToCamera)
+            }
+
             StudioContract.Intent.SaveScene -> {
                 effects.trySend(StudioContract.Effect.SaveScene)
             }
