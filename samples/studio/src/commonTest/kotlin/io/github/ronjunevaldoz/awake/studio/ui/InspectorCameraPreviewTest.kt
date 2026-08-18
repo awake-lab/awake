@@ -7,6 +7,8 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
+import io.github.ronjunevaldoz.awake.studio.state.StudioContract
+import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
@@ -33,27 +35,43 @@ private fun studioCamera() = CoreCamera(
 
 class InspectorCameraPreviewTest {
 
+    /** The preview quad lives in the viewport's own corner overlay now (`StudioShell.kt`), not
+     * the Inspector panel, and is always on once the scene has its own (non-primary) camera --
+     * no selection required (see `StudioEditorCamera`'s own doc comment: forcing a click first
+     * just to preview the only OTHER camera in the scene was the reported bug this replaced).
+     * `drawStudioShellBody` is the smallest accessible entry point that still exercises the real
+     * quad. `isPrimary = false` on [cameraEntity] mirrors the real app's shape -- the viewport's
+     * own (primary) camera is a separate, persistent editor camera Studio creates itself, never
+     * one of these test-authored entities. */
     @Test
-    fun onlyASelectedCameraEntityGetsAPreviewQuad() {
+    fun aNonPrimaryCameraEntityAlwaysGetsAPreviewQuadRegardlessOfSelection() {
         val world = World()
         val cameraEntity = world.create()
         world.add(cameraEntity, Name("camera"))
-        world.add(cameraEntity, Camera(studioCamera()))
+        world.add(cameraEntity, Camera(studioCamera(), isPrimary = false))
         val cubeEntity = world.create()
         world.add(cubeEntity, Name("Cube"))
 
         val preview = StudioCameraPreview()
         preview.render(ViewportRecordingRenderer(), studioCamera(), emptyList())
+        val store = StudioStore()
 
-        uiTestSession(width = 320f, height = 600f, font = BitmapFont()) {
-            fun textureQuads(selectedEntityId: Int) = frame {
+        uiTestSession(width = 1440f, height = 900f, font = BitmapFont()) {
+            fun textureQuads(): Int = frame {
                 shadcnTheme(theme = shadcnThemeValues(dark = true)) {
-                    drawInspectorPanel(world, selectedEntityId, preview)
+                    drawStudioShellBody(
+                        store,
+                        world,
+                        ViewportRecordingRenderer(),
+                        backend = "Vulkan",
+                        cameraPreview = preview,
+                    )
                 }
             }.primitives.count { it is UiDrawPrimitive.Texture }
 
-            assertEquals(1, textureQuads(cameraEntity.id), "a camera entity must show its preview")
-            assertEquals(0, textureQuads(cubeEntity.id), "an entity with no Camera must show none")
+            assertEquals(1, textureQuads(), "a non-primary camera entity must show its preview with nothing selected")
+            store.dispatch(StudioContract.Intent.SelectEntity(cubeEntity.id))
+            assertEquals(1, textureQuads(), "selecting an unrelated entity must not hide the preview")
         }
     }
 

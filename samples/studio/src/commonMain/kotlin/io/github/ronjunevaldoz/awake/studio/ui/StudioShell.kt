@@ -20,8 +20,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableH
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnCardVariant
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnCardStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiResizableDirection
@@ -33,6 +36,8 @@ import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.padding
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.size
+import io.github.ronjunevaldoz.awake.ui.headless.spacer
+import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.textureQuad
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 import io.github.ronjunevaldoz.awake.ui.headless.width
@@ -59,10 +64,11 @@ internal fun SceneGameRuntime.drawStudioShell(
     renderer.clearColor = ViewportClearColor
     // Before the shell body, not inside the inspector's own draw: the offscreen pass has to run
     // exactly once per frame (see StudioCameraPreview.render), and the texture it produces has to
-    // exist by the time the inspector stages a quad sampling it.
-    store.state.value.inspector.selectedEntityId
-        ?.let { world.cameraOf(it) }
-        ?.let { cameraPreview.render(renderer, it.camera, collectDrawCalls()) }
+    // exist by the time the shell stages a quad sampling it. Always the scene's own authored
+    // camera (whichever Camera entity ISN'T the viewport's own primary one, i.e. the editor
+    // camera in Edit mode) -- no selection required, same "always-on Game view" a Unity/Godot
+    // editor already gives you next to its Scene view.
+    nonPrimaryCamera(world)?.let { cameraPreview.render(renderer, it.camera, collectDrawCalls()) }
     // The VIEWPORT's own camera, not the selected entity's -- the orientation widget always
     // reflects what the viewport itself is looking at.
     primaryCamera(world)?.let { orientationGizmo.render(renderer, it.camera) }
@@ -73,20 +79,21 @@ internal fun SceneGameRuntime.drawStudioShell(
     }
 }
 
-/** The [Camera] component on the entity with [entityId], or `null` when that entity has none.
- * Looked up fresh rather than cached: examples recreate their camera entity on every load. */
-private fun World.cameraOf(entityId: Int): Camera? {
-    var found: Camera? = null
-    family<Camera>().forEach { entity, camera -> if (entity.id == entityId) found = camera }
-    return found
-}
-
 /** The scene's primary camera, or `null` when none is marked -- same lookup
  * `RenderSystemSupport.primaryCamera` and `StudioModule`'s own gizmo system already duplicate
  * (an `internal` function in a different Gradle module isn't visible here). */
 private fun primaryCamera(world: World): Camera? {
     var found: Camera? = null
     world.family<Camera>().forEach { _, camera -> if (found == null && camera.isPrimary) found = camera }
+    return found
+}
+
+/** The scene's OWN authored camera -- any `Camera` entity that ISN'T the viewport's own primary
+ * one (the editor camera in Edit mode, see `StudioEditorCamera`). Every example authors exactly
+ * one camera today, so "the non-primary entity" is unambiguous in practice. */
+private fun nonPrimaryCamera(world: World): Camera? {
+    var found: Camera? = null
+    world.family<Camera>().forEach { _, camera -> if (!camera.isPrimary) found = camera }
     return found
 }
 
@@ -243,7 +250,7 @@ private fun UiScope.drawStudioWorkspace(
                 }
                 shadcnResizableHandle(id = "studio-panel-handle-left", withHandle = true)
                 shadcnResizablePanel(id = "studio-panel-viewport", defaultSize = VIEWPORT_FRACTION, minSize = 0.3f) {
-                    drawStudioViewportPanel(store, world, renderer, viewportRect, orientationGizmo)
+                    drawStudioViewportPanel(store, world, renderer, viewportRect, orientationGizmo, cameraPreview)
                 }
                 shadcnResizableHandle(id = "studio-panel-handle-right", withHandle = true)
                 shadcnResizablePanel(
@@ -255,7 +262,6 @@ private fun UiScope.drawStudioWorkspace(
                     drawInspectorPanel(
                         world = world,
                         selectedEntityId = store.state.value.inspector.selectedEntityId,
-                        cameraPreview = cameraPreview,
                     )
                 }
             }
@@ -281,6 +287,7 @@ private fun UiScope.drawStudioViewportPanel(
     renderer: Renderer,
     viewportRect: StudioViewportRect,
     orientationGizmo: StudioOrientationGizmo,
+    cameraPreview: StudioCameraPreview,
 ) {
     val state = store.state.value
     val debugSettings = world.family<WorldDebugSettings>().components().firstOrNull()
@@ -340,10 +347,45 @@ private fun UiScope.drawStudioViewportPanel(
         ) {
             val viewportBounds = column(
                 modifier = Modifier.weight(1f).fillMaxHeight().padding(PILL_INSET),
+                // Pushes the first and last child to opposite ends using this column's OWN
+                // measured content size -- not a `Modifier.weight(1f)` spacer, which measured
+                // zero height here (this column already sits inside an outer `row(weight(1f))`'s
+                // own trial-measurement pass, and a second, nested weight() resolution is exactly
+                // the class of weight-distribution bug this codebase has hit before -- parked the
+                // preview right under the gizmo instead of the bottom-right corner).
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 orientationGizmo.material?.let { gizmoTexture ->
                     row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         textureQuad(gizmoTexture, Modifier.size(ORIENTATION_GIZMO_SIZE))
+                    }
+                }
+                // Always on once a scene's own camera exists to preview -- no selection required
+                // (see drawStudioShell's own render() call site). `material` is null only before
+                // the first frame that had a non-primary camera to render.
+                cameraPreview.material?.let { previewTexture ->
+                    row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        // shadcnCard's own body padding is real shadcn Card p-6 (24dp) -- fine for
+                        // a page card, way too much chrome around a small 220x124 HUD thumbnail.
+                        // Reuses shadcnCardStyle (same border/shape/elevation) with just its
+                        // panelPadding swapped for a compact one, via `surface()` directly rather
+                        // than the `shadcnCard()` wrapper, which has no padding override of its
+                        // own.
+                        surface(
+                            id = "studio-camera-preview-card",
+                            modifier = Modifier.width(CAMERA_PREVIEW_WIDTH),
+                            style = StudioTheme.shadcnCardStyle(
+                                ShadcnCardVariant.Elevated,
+                                StudioTheme.metrics.copy(panelPadding = CAMERA_PREVIEW_CARD_PADDING),
+                            ),
+                        ) {
+                            shadcnText("Camera Preview")
+                            spacer(Modifier.height(CAMERA_PREVIEW_CARD_PADDING))
+                            textureQuad(
+                                previewTexture,
+                                Modifier.fillMaxWidth().height(CAMERA_PREVIEW_HEIGHT),
+                            )
+                        }
                     }
                 }
             }
@@ -358,3 +400,10 @@ private val PILL_INSET = 8f.dp
 
 /** Matches [StudioOrientationGizmo]'s own render-target size -- composited 1:1, no scaling. */
 private val ORIENTATION_GIZMO_SIZE = 64f.dp
+
+/** 16:9, matching [StudioCameraPreview]'s own render-target aspect ratio. */
+private val CAMERA_PREVIEW_WIDTH = 220f.dp
+private val CAMERA_PREVIEW_HEIGHT = 124f.dp
+
+/** Compact HUD inset, not shadcn's real Card p-6 -- see the call site's own comment. */
+private val CAMERA_PREVIEW_CARD_PADDING = 6f.dp
