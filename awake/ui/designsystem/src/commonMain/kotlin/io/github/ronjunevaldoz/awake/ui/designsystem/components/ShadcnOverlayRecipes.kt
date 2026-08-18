@@ -4,7 +4,6 @@
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.EaseOut
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
@@ -13,6 +12,8 @@ import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogSurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDrawerSurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSheetSurfaceStyle
@@ -37,6 +38,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.popup
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.toPx
+import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
 /** Public, skin-level menu entries. They intentionally contain no Core style or layout types. */
 sealed interface ShadcnMenuEntry
@@ -84,7 +86,7 @@ fun UiScope.shadcnSheet(
 ): UiPopupResult {
     if (!expanded) return UiPopupResult(null, false)
     val progress = animateFloatTween("$id.slide", 1f, 0f, 250f, EaseOut)
-    overlayScrim(frameBounds(), Color.Black.withAlpha(0.48f))
+    overlayScrim(frameBounds(), themeValues.overlay)
     val result = popup(
         id = id,
         anchorSlot = UiBounds(0f, 0f, 0f, 0f),
@@ -100,7 +102,12 @@ fun UiScope.shadcnSheet(
         ) { _ ->
             column {
                 row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                    icon(ShadcnIcons.xMark)
+                    val closeClicked = shadcnButton(
+                        id = "$id.close",
+                        variant = ShadcnButtonVariant.Ghost,
+                        size = ShadcnButtonSize.Icon,
+                    ) { icon(HeroIcons.Solid20Mini.xMark) }
+                    if (closeClicked) onDismissRequest()
                 }
                 content(slot)
             }
@@ -135,12 +142,18 @@ fun UiScope.shadcnDrawer(
     properties = DialogProperties(
         dismissOnClickOutside = true,
         showScrim = true,
+        scrimColor = themeValues.overlay,
         surface = shadcnDrawerSurfaceStyle(themeValues, shadcnMetrics),
     ),
 ) { slot ->
     column {
         row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-            icon(ShadcnIcons.xMark)
+            val closeClicked = shadcnButton(
+                id = "$id.close",
+                variant = ShadcnButtonVariant.Ghost,
+                size = ShadcnButtonSize.Icon,
+            ) { icon(HeroIcons.Solid20Mini.xMark) }
+            if (closeClicked) onDismissRequest()
         }
         content(slot)
     }
@@ -162,6 +175,7 @@ fun UiScope.shadcnDialog(
     properties = DialogProperties(
         dismissOnClickOutside = true,
         showScrim = true,
+        scrimColor = themeValues.overlay,
         surface = shadcnDialogSurfaceStyle(themeValues, shadcnMetrics),
     ),
 ) { slot ->

@@ -112,6 +112,8 @@ fun UiScope.canvas(
     modifier: Modifier = Modifier,
     content: HeadlessCanvasScope.() -> Unit,
 ): UiBounds = primitive.primitiveCanvas(modifier = modifier.asPrimitiveModifier()) {
-    primitive.recordSemantic(role = UiSemanticRole.Panel, id = id, bounds = bounds)
+    // Explicit receiver: this@canvas's UiScope and the CanvasScope lambda receiver now share one
+    // @AwakeUiDsl marker (see B7), so an implicit `primitive` here would resolve nowhere.
+    this@canvas.primitive.recordSemantic(role = UiSemanticRole.Panel, id = id, bounds = bounds)
     HeadlessCanvasScope(this, bounds).content()
 }

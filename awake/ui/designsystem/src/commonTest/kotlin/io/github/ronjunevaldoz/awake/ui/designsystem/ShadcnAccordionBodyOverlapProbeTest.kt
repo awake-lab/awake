@@ -42,7 +42,6 @@ class ShadcnAccordionBodyOverlapProbeTest {
 
     @Test
     fun expandedAccordionBodyStaysWithinItsColumnAcrossASelectionSwitch() {
-        ensureShadcnTestIconsInitialized()
         val items = listOf("item-1", "item-2")
         var selectedId: String? = "item-1"
 

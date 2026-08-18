@@ -47,7 +47,11 @@ fun UiScope.shadcnTheme(
     content: UiScope.() -> Unit,
 ) {
     primitive.ProvideTheme(theme.core.asRuntimeTheme()) {
-        primitive.Provide(LocalShadcnTheme, theme) {
+        // Already a UiPrimitiveScope receiver here (ProvideTheme's own content lambda) -- no
+        // need to route back through the outer UiScope's `primitive` property, which is also no
+        // longer implicitly reachable now that UiScope and UiPrimitiveScope share one
+        // @AwakeUiDsl marker (see B7).
+        Provide(LocalShadcnTheme, theme) {
             ProvideTextStyle(TextStyle(size = theme.core.typography.body)) {
                 content(UiScope(this))
             }

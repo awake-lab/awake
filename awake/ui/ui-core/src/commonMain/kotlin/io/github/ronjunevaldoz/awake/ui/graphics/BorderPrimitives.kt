@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
+import io.github.ronjunevaldoz.awake.ui.api.layout.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.toPx
 
 /** Draws a [color] outline of [width] around an already-claimed [slot] as four thin

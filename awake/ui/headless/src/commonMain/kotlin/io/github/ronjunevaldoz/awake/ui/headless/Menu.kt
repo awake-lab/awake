@@ -4,9 +4,6 @@ package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
-import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
-import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
@@ -40,9 +37,7 @@ fun ColumnScope.menuItem(
 /**
  * A menu outcome IS a popup outcome plus the index that was chosen, so it composes
  * [UiPopupResult] rather than re-declaring its fields -- the shape [UiAlertDialogResult] already
- * uses. Flattening them meant [menu] destructured a [UiPopupResult] it was already holding and
- * copied two of its fields into a parallel type, so the same relationship was modelled two
- * different ways depending on which overlay you happened to be reading.
+ * uses.
  *
  * [slot]/[dismissed] stay available directly so call sites read the same as before.
  */
@@ -52,43 +47,4 @@ data class UiMenuResult(
 ) {
     val slot: UiBounds? get() = popup.slot
     val dismissed: Boolean get() = popup.dismissed
-}
-
-/**
- * Composes menu popup behavior without choosing a visual language.
- *
- * The renderer returns whether the item was activated. Headless owns popup placement, outside
- * dismissal, and selection bookkeeping; a design system owns item surfaces, typography, icons,
- * separators, and disabled/selected colors.
- */
-fun UiScope.menu(
-    id: String,
-    anchorSlot: UiBounds,
-    expanded: Boolean,
-    entries: List<UiMenuEntry>,
-    width: Dimension = Dimension.WrapContent,
-    height: Dimension = Dimension.WrapContent,
-    positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
-    properties: UiPopupProperties = UiPopupProperties(),
-    item: ColumnScope.(UiMenuItem) -> Boolean,
-    separator: ColumnScope.() -> Unit = {},
-): UiMenuResult {
-    var selectedIndex: Int? = null
-    val result = popup(
-        id = id,
-        anchorSlot = anchorSlot,
-        expanded = expanded,
-        width = width,
-        height = height,
-        positionProvider = positionProvider,
-        properties = properties,
-    ) {
-        entries.forEach { entry ->
-            when (entry) {
-                UiMenuSeparator -> separator()
-                is UiMenuItem -> if (entry.enabled && item(entry)) selectedIndex = entry.index
-            }
-        }
-    }
-    return UiMenuResult(result, selectedIndex)
 }

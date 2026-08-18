@@ -27,9 +27,10 @@ class UiStateHooksTest {
 
     @Test
     fun rememberStateValueKeepsKeysIndependentWithinOneWidget() {
-        val widgetState = WidgetState()
-        var expanded by widgetState.rememberStateValue("expanded") { false }
-        var clicks by widgetState.rememberStateValue("clicks") { 0 }
+        val ui = UiContext()
+        ui.beginFrame(320f, 200f, testSnapshot())
+        var expanded by ui.rememberStateValue("widget", "expanded") { false }
+        var clicks by ui.rememberStateValue("widget", "clicks") { 0 }
 
         expanded = true
         clicks = 3
@@ -40,8 +41,9 @@ class UiStateHooksTest {
 
     @Test
     fun resetRemovesStoredValueAndRestoresInitial() {
-        val widgetState = WidgetState()
-        val remembered = widgetState.rememberStateValue("mode") { "orbit" }
+        val ui = UiContext()
+        ui.beginFrame(320f, 200f, testSnapshot())
+        val remembered = ui.rememberStateValue("widget", "mode") { "orbit" }
 
         remembered.value = "fly"
         remembered.reset()

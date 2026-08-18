@@ -8,7 +8,13 @@ import io.github.ronjunevaldoz.awake.ui.api.UiIcon
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.icon as primitiveIcon
 
-private fun UiIcon.asVector(): UiImageVector = this as UiImageVector
+private fun UiIcon.asVector(): UiImageVector = when (this) {
+    is UiImageVector -> this
+    else -> error(
+        "Unsupported UiIcon implementation: ${this::class}. " +
+            "Headless only draws UiImageVector icons.",
+    )
+}
 
 fun UiScope.icon(
     icon: UiIcon,

@@ -9,8 +9,7 @@ import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
  * [io.github.ronjunevaldoz.awake.ui.headless.input.dropdown]'s expand indicator) without
  * depending on an external icon font/asset pipeline. Delegates to [io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons] rather than
  * duplicating path data -- this object exists as the plain, unbranded name headless widgets
- * reach for, distinct from [io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnIcons]
- * (the shadcn-facing, *overridable* registry one layer up). */
+ * reach for. */
 object UiIcons {
     val chevronDown: UiImageVector = HeroIcons.Solid20Mini.chevronDown
     val chevronUp: UiImageVector = HeroIcons.Solid20Mini.chevronUp

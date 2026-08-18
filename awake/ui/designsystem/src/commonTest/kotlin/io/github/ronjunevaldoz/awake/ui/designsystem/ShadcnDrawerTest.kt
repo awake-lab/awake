@@ -13,7 +13,6 @@ class ShadcnDrawerTest {
 
     @Test
     fun shadcnDrawerRendersWhenExpanded() {
-        ensureShadcnTestIconsInitialized()
         var dismissed = false
         renderShadcnComponent(width = 400f, height = 600f) {
             shadcnDrawer(
@@ -31,7 +30,6 @@ class ShadcnDrawerTest {
     // atlas) draws nothing; this catches that regression instead of just "something painted".
     @Test
     fun shadcnDrawerCloseButtonDrawsIconPathNotGlyph() {
-        ensureShadcnTestIconsInitialized()
         val frame = renderShadcnComponent(width = 400f, height = 600f) {
             shadcnDrawer(
                 id = "drawer-close",

@@ -164,26 +164,57 @@ package-5 wrap+fill spec), wasmJs test compiles green.
 
 Pure subtraction, ~800 lines, zero design decisions.
 
-Deletions:
-- [ ] 5 dead headless files: `Accordion`, `Field`, `NumberField`, `Tooltip`, `UiEdge` (+6 dead symbols) — E1
-- [ ] 12 zero-caller ui-core publics incl. `shadcnShimmer` (brand name inside core) — E2
-- [ ] `ShadcnIcons` 32-`lateinit` registry + test initializer (cycle it dodged died in `a0b71c93`) — E3
-- [ ] `UiButtonVariant` + `resolveFill` (branded vocab in headless, zero production callers) — E4
-- [ ] `FigmaModeMatrix` — E5 (`ScratchAlertDialogProbeTest` half already gone from the tree)
-- [ ] 3 of 4 `pixelPerfectPixel` copies (2 different rounding rules = 1px seam class) — B4
-- [ ] Duplicate `@DslMarker AwakeUiDsl` in headless (marker leak) — B7
+Deletions (executed 2026-08-17, ~-708 net lines / 93 files / 13 files deleted):
+- [x] Dead headless files/symbols — E1. Also took `MenuItem.kt` whole (incl.
+      `intrinsicMenuWidthPx` — its only "user" was a KDoc link). SKIP: `provideTextStyle`
+      — package 2's fixture migration gave it 6 live designsystem-test callers
+- [x] ui-core zero-caller publics incl. `shadcnShimmer` + `UiApiCompatibility.kt` — E2.
+      SKIP: `neutralSurfaceDefaults` (audit mischaracterized it — `internal` with 4 real
+      callers). `textureQuad` KEPT — headless now delegates to it (user's camera-preview
+      feature); stale TODO replaced with real doc. `UiApiCompatibility` fallout: 24 files
+      (not 1) silently bound to the deprecated same-package aliases — all given real
+      `ui.api` imports
+- [x] `ShadcnIcons` registry + test initializer deleted; `ShadcnComponentContracts.kt`
+      split by owner and deleted; `ShadcnAvatarSize` no longer freezes typography at
+      enum-init; tautological `ShadcnCheckboxRadiusTest` deleted — E3
+- [ ] ~~`UiButtonVariant` + `resolveFill`~~ **RE-PARKED into package 4**: package 2's
+      fixture migration made `UiSnapshotFixtures` render 3 variant scenes through the enum
+      (hash-pinned). Rewrite those scenes Style-based first, then delete — E4
+- [ ] ~~`FigmaModeMatrix`~~ **RE-PARKED**: 3 live fidelity tests call it
+      (Drawer/Select/Tooltip) — contradicts the memory-recorded deletion decision; delete
+      with the Figma-tooling removal pass, after those tests get a neutral mode matrix — E5
+- [x] `pixelPerfectPixel` 4→1 (graphics `UiBounds.kt`, `roundToInt` semantics; all imports
+      fixed) — B4
+- [x] Duplicate `@DslMarker` deleted — the marker mechanism now actually shadows across
+      scopes for the first time; 3 latent implicit-receiver leaks surfaced and fixed — B7
 
 Point fixes:
-- [ ] `shadcnAlertDialog` result never assigned; dialog X icon not wired to dismiss — F1
-- [ ] `shadcnTooltip` `id` default shares one state bucket (the frame-instability root cause) — F2
-- [ ] Hardcoded colliding ids: `"avatar.badge"`, `"field.sep.*"`, unprefixed table cells — F3
-- [ ] `rememberStateValue` missing `isMeasuring` guard (class shipped 3×) — F4
+- [x] `shadcnAlertDialog`: `actions` slot now returns `UiAlertDialogAction?`, convenience
+      buttons report Dismiss/Confirm through `shadcnButton` Outline/Primary; orphaned
+      `shadcnDialogActionButtonStyle` deleted; sheet/drawer X wired to `onDismissRequest` — F1
+- [x] `shadcnTooltip`/`shadcnTooltipText` `id` required-first; 2 call sites fixed — F2
+- [x] Ids threaded: avatar badge/group, field separator, table cells now `"$id."`-prefixed
+      (table scope was `internal` — zero external impact) — F3
+- [x] Unguarded `WidgetState.rememberStateValue` overload deleted; test callers moved to
+      the guarded `UiContext` overload — F4
 - [x] ~~`Skeleton`/`ProgressBar` styled from `theme.components.slider`~~ — gone with
       the defaults tier in `1cc85482` — F5
-- [ ] ResizablePanelGroup grip radius `2f` raw px (half-size at dpr 2) — F6
-- [ ] 8 `shadcnField*` helpers emit siblings with no container — F7
-- [ ] Scrim/shadow color literals + 9 `Sp` literals bypassing typography — F8
-- [ ] `UiIcon.asVector()` unchecked cast — F9
+- [x] Grip radius `2f` → `2f.dp.toPx()` — F6
+- [x] All 8 `shadcnField*` helpers wrap in `shadcnField {}`; `FieldSet`/`FieldGroup` share
+      one container helper (gap literals stayed at call sites — new per-preset `ShadcnMetrics`
+      fields would be a design decision, not a dedup); file-wide suppressions → per-declaration
+      (sized against real detekt output) — F7
+- [x] `shadow`/`overlay` roles added to `ShadcnPalette`; scrim consolidated to one path at
+      0.5 — **fixed a real bug**: drawer/dialog set `showScrim=true` but never `scrimColor`,
+      so their scrim silently never drew. 7/10 `Sp` literals → typography tokens; 4 left
+      commented (no matching token / needs signature change) — F8
+- [x] `UiIcon.asVector()` unchecked cast → checked `when` with clear error — F9
+
+Verification: ui-core/headless/testing suites green; headless wasmJs test-compile green;
+studio + ui-showcase compile green; designsystem 131 run / 2 failed — the known package-5
+spec + `ui-panel-controls` signature drift from F7's intentional container fix
+(re-recorded after render review + user approval, dated note in the test file). F1's
+alert-dialog drift under review at commit time.
 
 ```kotlin
 // before — ShadcnPopupRecipes.kt:139: id defaulted on a STATE key; two tooltips share one bucket
@@ -338,6 +369,8 @@ params remain; designsystem call sites compile against the canonical shapes.
 | Typed pixel space | D7 | `value class Px` at pointer/bounds boundary; the dp-vs-px 2× drag class is unguarded | Wide, mechanical, best after signatures settle |
 | Density/global state | B10 | `UiDensity.scale` + `UiShape.base` mutable globals | Multi-window blocker, not a today problem |
 | Parity features | D3 D4 D6 | Focus ring, popover container panel, checkmark, tooltip arrow, indeterminate visual, input-group weight | Additive; same cost whenever done — cleanest after packages 4–5 |
+| Naming lexicon | P2 | Render path speaks 4 verb dialects (`emit*` dead, `paint*`, `draw*`, `render*`) with no layer rule; twin nouns (`DrawPrimitive`/`UiDrawPrimitive`, `Bounds`/`UiBounds`, `Alignment`/`Insets` aliases); shape drift (`ProvideCacheKey` PascalCase fn vs `provideTextStyle`, `visuals()` vs 47 `*Style()`, `with*` meaning both lambda-scoped and value-returning). Lexicon: `draw*` = UiDrawScope painting members only; `render*` = backends only, banned in ui modules; `emit*` banned; `measure*`/`resolve*`/`claim*` = ui-core pass verbs; `remember*` = state hooks; `with*` = lambda-scoped only, value-returning transforms get participle/noun names (the core-math `normalize()`/`normalized()` contract); one name per concept — twins die with B11's package rename; enforcement via name-pattern bans in the live ownership check | Decide with P1; mechanical renames land inside package 6's sweeps (C-rows already cover `visuals`→`shadcnButtonStyle`, `*Slot` deletion) |
+| Capability-scoped receivers | P1 | "Extension hell" root cause: `UiPrimitiveScope` is one god receiver (frame+layout+draw+input+state+theme), so every capability accretes as a floating extension — painting helpers scatter (`scrollPanel` inlines scrollbars, `Checkbox` inlines its mark), completion shows the whole engine, re-export layers multiply (B6/B9), same-name receivers mis-resolve (C8). Fix: Compose's model — a small member-based `UiDrawScope` (fillRect/roundRect/path/texture/textRun) handed out only by `draw {}`/`paintSurface`, `resolveStyle→paintSurface` as the ONLY widget-chrome path (D3's ring lands there), `UiPrimitiveScope` shrunk to composition (slots/state/locals), and an ownership-check ban on new `UiPrimitiveScope.draw*`/`emit*` extensions outside the draw layer | Architectural; design after B6/B9 delete the re-export layers — most of the "hell" is those plus B7's marker split, so measure again post-package-6 before committing to the split |
 
 ```kotlin
 // before — headless/Layout.kt:34: mirror type whose wall is half-built

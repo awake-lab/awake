@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.ui.designsystem.styles
 
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.sp
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
 import io.github.ronjunevaldoz.awake.ui.style.Style
@@ -28,7 +27,7 @@ internal fun shadcnDropdownItemStyle(values: ShadcnThemeValues, selected: Boolea
     )
     shape(values.shapes.sm)
     contentPadding(horizontal = 8f.dp, vertical = 6f.dp)
-    textSize(14f.sp)
+    textSize(values.typography.label)
     hovered {
         background(if (destructive) values.colors.destructive.withAlpha(0.1f) else values.colors.accent)
         foreground(if (destructive) values.colors.destructive else values.colors.accentForeground)
@@ -39,8 +38,8 @@ internal fun shadcnTooltipStyle(values: ShadcnThemeValues): Style = Style {
     foreground(values.colors.background)
     shape(values.shapes.md)
     contentPadding(horizontal = 12f.dp, vertical = 6f.dp)
-    textSize(12f.sp)
-    lineHeight(16f.sp)
+    textSize(values.typography.caption)
+    lineHeight(values.typography.body)
 }
 internal fun shadcnAlertDialogSurfaceStyle(values: ShadcnThemeValues, metrics: ShadcnMetrics): Style = Style {
     background(values.colors.card)
@@ -51,17 +50,3 @@ internal fun shadcnAlertDialogSurfaceStyle(values: ShadcnThemeValues, metrics: S
 }
 internal fun shadcnDialogTitleStyle(values: ShadcnThemeValues): Style = Style { textSize(values.typography.title) }
 internal fun shadcnDialogBodyStyle(values: ShadcnThemeValues): Style = Style { textSize(values.typography.body) }
-
-/**
- * [shadcnAlertDialog]'s default dismiss/confirm actions -- neither is wired through
- * [io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton], so unlike every other
- * button in this design system they need their own explicit style rather than
- * `variant.visuals(...)`. Reproduces exactly what ui-headless's now-deleted ambient
- * `theme.components.button` default used to resolve to here, not a new/upgraded look.
- */
-internal fun shadcnDialogActionButtonStyle(values: ShadcnThemeValues): Style = Style {
-    background(values.colors.primary, "primary")
-    foreground(values.colors.primaryForeground, "primary-foreground")
-    shape(values.shapes.md)
-    textSize(values.typography.label)
-}

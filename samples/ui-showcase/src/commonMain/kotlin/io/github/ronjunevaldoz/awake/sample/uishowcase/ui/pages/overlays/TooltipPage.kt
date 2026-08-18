@@ -27,7 +27,7 @@ internal val TooltipPage = ShowcasePage(
     title = "Tooltip",
     category = ShowcaseCategory.Overlays,
     description = "A popup that displays information related to an element when it receives focus or hover.",
-    usageCode = """shadcnTooltip(anchorSlot = trigger.slot, visible = true) { shadcnText("Hint") }""",
+    usageCode = """shadcnTooltip(id = "hint", anchorSlot = trigger.slot, visible = true) { shadcnText("Hint") }""",
     referenceExample = "registry/new-york-v4/examples/tooltip-demo.tsx",
     previewHeight = 460,
     notes = listOf("shadcnTooltipText is the text-only convenience wrapper over the same composition."),
@@ -44,6 +44,7 @@ internal val TooltipPage = ShowcasePage(
             ) { trigger ->
                 text("Hover target", centered = true)
                 uiScope().shadcnTooltip(
+                    id = "showcase-tooltip",
                     anchorSlot = trigger,
                     visible = true,
                     width = Dimension.Fixed(260f.dp),

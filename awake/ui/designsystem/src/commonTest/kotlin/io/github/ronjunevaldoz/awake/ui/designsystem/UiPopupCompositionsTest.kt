@@ -29,6 +29,7 @@ class UiPopupCompositionsTest {
         lateinit var result: UiPopupResult
         renderShadcnComponent(width = 240f, height = 160f, input = UiInputState()) { _ ->
             result = shadcnTooltipText(
+                id = "tooltip",
                 anchorSlot = UiBounds(48f, 24f, 96f, 28f),
                 visible = true,
                 text = "Helpful hint",

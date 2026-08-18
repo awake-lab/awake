@@ -9,7 +9,10 @@ import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.claimModifiedSlot
 
 /**
- * TODO revisit what is the usecase??
+ * Draws an offscreen render target into the layout slot [modifier] claims. [material] is typed
+ * [Any] rather than `awake-engine-render-api`'s `Material` interface -- that module already
+ * depends on this one, so a `Material` reference here would create a cycle (see
+ * [io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive.Texture]'s own doc for the full reasoning).
  */
 fun UiPrimitiveScope.textureQuad(material: Any, modifier: UiModifier = Modifier) {
     val slot = claimModifiedSlot(modifier.withSizeFallback(Dimension.FillMax, Dimension.FillMax))

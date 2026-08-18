@@ -99,6 +99,10 @@ private fun UiSnapshotScene.snapshotSignature(): ULong {
 // 2026-08-16: review fixtures now render through renderUiComponent and install Shadcn through
 // rootProvider. The changed scenes previously depended on Core defaults; existing Shadcn scenes
 // remain byte-identical.
+// 2026-08-17 (2): `ui-panel-controls` re-recorded after the shadcnField* helpers were fixed to
+// wrap label+widget in the shadcnField{} container instead of emitting loose siblings into the
+// caller's scope (package 3 / F7 in docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md).
+// Every field group in the scene shifts down; render reviewed by eye before re-pinning.
 // 2026-08-17: re-recorded after UiComponentStyles/theme.components was retired (the ambient
 // theme-fallback registry ui-headless used to read for its own "default style" -- see
 // docs/audits/ for the full removal). `toggle-unchecked`/`toggle-checked`/`button-filled`/
@@ -167,8 +171,8 @@ private val expectedReviewSnapshotSignatures = mapOf(
 private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x6a983a490866bb5buL,
     "ui-shaped-panel" to 0xc53d9ba3cc72f320uL,
-    "ui-panel-controls" to 0x48857545493d9b37uL,
-    "ui-alert-dialog" to 0xd86c496ca1a25736uL,
+    "ui-panel-controls" to 0x1db3974a628bbe07uL,
+    "ui-alert-dialog" to 0x7e805d3ddbe20949uL,
     "ui-component-state-matrix" to 0x9d720517432f7dfeuL,
     "ui-rounded-clip-vector" to 0x0627d9a01bb6098buL,
     "ui-awake-shadcn-showcase" to 0x9900cb4fb67ecb53uL,

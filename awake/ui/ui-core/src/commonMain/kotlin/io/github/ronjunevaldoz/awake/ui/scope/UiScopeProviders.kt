@@ -4,12 +4,10 @@
 
 package io.github.ronjunevaldoz.awake.ui
 
-import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.context.UiLocal
 import io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle
 import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
 import io.github.ronjunevaldoz.awake.ui.context.LocalFont
-import io.github.ronjunevaldoz.awake.ui.context.LocalShapeSpec
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
@@ -20,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.theme.UiTheme
 // helpers, so it has to hold on the failing path too.
 
 /**
- * Scopes any [UiLocal] to [content] -- the general form the four below are now instances of.
+ * Scopes any [UiLocal] to [content] -- the general form the three below are now instances of.
  *
  * Declare the local at file scope with `uiLocalOf(...)`, provide it here, read it anywhere beneath
  * with `context.current(local)`.
@@ -44,12 +42,4 @@ fun UiPrimitiveScope.ProvideTheme(theme: UiTheme, content: UiPrimitiveScope.() -
 
 fun UiPrimitiveScope.ProvideFont(font: UiFont, content: UiPrimitiveScope.() -> Unit) {
     Provide(LocalFont, font, content)
-}
-
-fun UiPrimitiveScope.ProvideShapeSpec(spec: UiShapeSpec?, content: UiPrimitiveScope.() -> Unit) {
-    Provide(LocalShapeSpec, spec, content)
-}
-
-fun UiPrimitiveScope.ProvideCacheKey(key: Any?, content: UiPrimitiveScope.() -> Unit) {
-    Provide(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey, key, content)
 }

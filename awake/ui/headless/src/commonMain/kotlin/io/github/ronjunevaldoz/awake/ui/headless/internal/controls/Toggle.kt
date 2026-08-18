@@ -27,7 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
-/** Result of a [toggle]/[toggleSlot] press: the toggle's new checked state, alongside its slot. */
+/** Result of a [toggle] press: the toggle's new checked state, alongside its slot. */
 private inline fun UiPrimitiveScope.toggleInternal(
     id: String,
     checked: Boolean,
@@ -149,27 +149,3 @@ fun UiPrimitiveScope.toggle(
         )
     }
 }
-
-/**
- * Toggle with a Compose-style Slot API, matching [io.github.ronjunevaldoz.awake.ui.headless.buttonSlot].
- * The [content] lambda receives an [AbsoluteScope], allowing arbitrary layouts (e.g. an icon-only
- * toggle) inside the toggle instead of the fixed [toggle] text label.
- */
-fun UiPrimitiveScope.toggleSlot(
-    id: String,
-    checked: Boolean,
-    modifier: UiModifier = Modifier,
-    style: Style = Style.Empty,
-    enabled: Boolean = true,
-    variant: UiButtonVariant = UiButtonVariant.Filled,
-    onCheckedChange: (Boolean) -> Unit = {},
-    content: AbsoluteScope.(slot: UiBounds) -> Unit,
-): Boolean = toggleInternal(
-    id = id,
-    checked = checked,
-    modifier = modifier,
-    style = style,
-    enabled = enabled,
-    variant = variant,
-    onCheckedChange = onCheckedChange,
-) { contentSlot, _ -> content(contentSlot) }

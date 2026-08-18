@@ -25,6 +25,7 @@ fun shadcnSpinnerStyle(values: UiThemeValues): Style = Style {
     foreground(values.colors.primary)
 }
 
+// 10sp has no matching UiTypography step (12/14/16/20/24/30) -- left as a literal per F8.
 internal fun shadcnKbdStyle(values: ShadcnThemeValues): Style = Style {
     background(values.colors.muted)
     foreground(values.colors.mutedForeground)

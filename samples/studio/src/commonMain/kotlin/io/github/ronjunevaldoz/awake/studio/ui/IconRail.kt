@@ -5,7 +5,6 @@ package io.github.ronjunevaldoz.awake.studio.ui
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnIcons
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -20,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
 private val RailButtonSize = ShadcnButtonSize.Icon.heightDp
 private val RailPadding = 4f.dp
@@ -72,13 +72,13 @@ internal fun RowScope.drawDisplayRail(
         railCard(id = "studio-display-rail-card") {
             railButton(
                 id = "studio-display-wireframe",
-                glyph = ShadcnIcons.squares2x2,
+                glyph = HeroIcons.Solid20Mini.squares2x2,
                 active = wireframe,
                 onClick = { onWireframeChange(!wireframe) },
             )
             railButton(
                 id = "studio-display-shadows",
-                glyph = ShadcnIcons.eye,
+                glyph = HeroIcons.Solid20Mini.eye,
                 active = shadows,
                 onClick = { onShadowsChange(!shadows) },
             )

@@ -18,11 +18,20 @@ import io.github.ronjunevaldoz.awake.ui.headless.surface
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.weight
 
+/** Table column metadata is policy, while row/cell layout is Headless behavior. */
+data class ShadcnTableColumn(
+    val header: String,
+    val weight: Float = 1f,
+    val align: ShadcnTableCellAlign = ShadcnTableCellAlign.Start,
+)
+
+enum class ShadcnTableCellAlign { Start, End }
+
 /** Shadcn table scope backed by neutral row/cell primitives. Cells are intentionally text-only;
  * richer cells can be added
  * by composing a row directly once the neutral table contract grows slots. */
 
-class ShadcnTableScope internal constructor(private val owner: ColumnScope) {
+class ShadcnTableScope internal constructor(private val owner: ColumnScope, private val id: String) {
     private var rowIndex = 0
 
     fun row(content: ShadcnTableRowScope.() -> Unit) {
@@ -35,11 +44,11 @@ class ShadcnTableScope internal constructor(private val owner: ColumnScope) {
                         label = value,
                         modifier = Modifier.weight(1f),
                         style = shadcnTableCellStyle(themeValues),
-                        semanticId = "cell.$rowNumber.$index",
+                        semanticId = "$id.cell.$rowNumber.$index",
                     )
                 }
             }
-            shadcnSeparator(id = "row.$rowNumber.separator")
+            shadcnSeparator(id = "$id.row.$rowNumber.separator")
         }
     }
 }
@@ -80,6 +89,6 @@ fun UiScope.shadcnTable(
         }
     }
     shadcnSeparator()
-    ShadcnTableScope(this).content()
+    ShadcnTableScope(this, id).content()
     caption?.let { text(it, style = shadcnTableCaptionStyle(themeValues)) }
 }

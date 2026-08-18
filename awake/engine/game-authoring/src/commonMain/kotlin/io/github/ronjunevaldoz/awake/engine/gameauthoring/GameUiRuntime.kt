@@ -210,9 +210,9 @@ class GameUiRuntime(
     /**
      * Opens a root-level column directly from the runtime.
      *
-     * Keep this distinct from nested [io.github.ronjunevaldoz.awake.ui.UiScope] `column(...)`
-     * helpers so Kotlin does not silently bind nested layout calls back to the runtime
-     * receiver instead of the current parent scope.
+     * Keep this distinct from nested [io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope]
+     * `column(...)` helpers so Kotlin does not silently bind nested layout calls back to the
+     * runtime receiver instead of the current parent scope.
      */
     fun rootColumn(
         modifier: UiModifier = Modifier,

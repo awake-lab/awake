@@ -11,10 +11,10 @@ import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.intersect
+import io.github.ronjunevaldoz.awake.ui.api.layout.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.shimmerBand
-import io.github.ronjunevaldoz.awake.ui.scope.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
@@ -198,7 +198,7 @@ internal fun UiPrimitiveScope.renderTextBlock(
         // --- Optional Shimmer Sweep ---
         // `shimmer` here is a plain Boolean draw-pass flag; the modifier-level decoupling lives
         // in UiModifier.graphicsLayer / UiGraphicsLayer (see modifier/GraphicsLayer.kt and
-        // shadcnShimmer in modifier/StyleModifiers.kt) -- callers resolve the effect there and
+        // UiShimmerEffect in modifier/StyleModifiers.kt) -- callers resolve the effect there and
         // pass the resulting boolean down into this low-level glyph emitter.
         if (shimmer && semanticId != null) {
             // Phase/band math now lives in the widget-agnostic

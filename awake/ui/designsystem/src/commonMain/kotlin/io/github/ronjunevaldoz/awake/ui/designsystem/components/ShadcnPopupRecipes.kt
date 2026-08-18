@@ -9,8 +9,8 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAlertDialogSurfaceStyle
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogActionButtonStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogBodyStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogTitleStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDropdownItemStyle
@@ -29,7 +29,6 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
-import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.currentFont
 import io.github.ronjunevaldoz.awake.ui.headless.dialog
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -126,6 +125,7 @@ fun UiScope.shadcnDropdownMenu(
 }
 
 fun UiScope.shadcnTooltip(
+    id: String,
     anchorSlot: UiBounds,
     visible: Boolean,
     width: Dimension = Dimension.WrapContent,
@@ -136,7 +136,6 @@ fun UiScope.shadcnTooltip(
         offsetY = 4f.dp,
     ),
     properties: UiPopupProperties = UiPopupProperties(),
-    id: String = "tooltip",
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiPopupResult = popup(
     id = id,
@@ -155,6 +154,7 @@ fun UiScope.shadcnTooltip(
 }
 
 fun UiScope.shadcnTooltipText(
+    id: String,
     anchorSlot: UiBounds,
     visible: Boolean,
     text: String,
@@ -164,13 +164,12 @@ fun UiScope.shadcnTooltipText(
         offsetY = 4f.dp,
     ),
     properties: UiPopupProperties = UiPopupProperties(),
-    id: String = "tooltip",
 ): UiPopupResult = shadcnTooltip(
+    id = id,
     anchorSlot = anchorSlot,
     visible = visible,
     positionProvider = positionProvider,
     properties = properties,
-    id = id,
 ) {
     text(label = text, wrap = UiTextWrap.Word, overflow = UiTextOverflow.Ellipsis)
 }
@@ -181,7 +180,7 @@ fun UiScope.shadcnAlertDialog(
     title: String,
     width: Dimension = Dimension.Fixed(320f.dp),
     properties: DialogProperties = DialogProperties(),
-    actions: ColumnScope.() -> Unit,
+    actions: ColumnScope.() -> UiAlertDialogAction?,
     body: ColumnScope.() -> Unit,
 ): UiAlertDialogResult {
     var action: UiAlertDialogAction? = null
@@ -195,7 +194,7 @@ fun UiScope.shadcnAlertDialog(
     ) {
         text(label = title, style = shadcnDialogTitleStyle(themeValues), wrap = UiTextWrap.Word)
         body()
-        actions()
+        action = actions()
     }
     return UiAlertDialogResult(popup = popup, action = action)
 }
@@ -216,14 +215,16 @@ fun UiScope.shadcnAlertDialog(
     width = width,
     properties = properties,
     actions = {
-        // Explicit style, not a bare button() -- this used to render correctly only because
-        // ui-headless's button() fell back to the ambient `theme.components.button` (a primary-
-        // colored default) when no style was given. Now that ui-headless reads no ambient theme,
-        // this reproduces that exact same look explicitly instead of leaving the buttons unstyled.
+        var picked: UiAlertDialogAction? = null
         dismissLabel?.let { label ->
-            button(id = "$id.dismiss", label = label, style = shadcnDialogActionButtonStyle(themeValues))
+            if (shadcnButton(id = "$id.dismiss", label = label, variant = ShadcnButtonVariant.Outline)) {
+                picked = UiAlertDialogAction.Dismiss
+            }
         }
-        button(id = "$id.confirm", label = confirmLabel, style = shadcnDialogActionButtonStyle(themeValues))
+        if (shadcnButton(id = "$id.confirm", label = confirmLabel, variant = ShadcnButtonVariant.Primary)) {
+            picked = UiAlertDialogAction.Confirm
+        }
+        picked
     },
     body = { text(label = message, style = shadcnDialogBodyStyle(themeValues), wrap = UiTextWrap.Word) },
 )

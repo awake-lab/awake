@@ -41,11 +41,15 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
     state: UiShowcaseRuntimeState,
 ) {
     val showcaseTheme = state.showcaseTheme()
+    // Captured before the nested UiScope block: this@drawUiShowcaseOverlay's GameUiRuntime and
+    // shadcnTheme's UiScope now share one @AwakeUiDsl marker (see B7), so viewportWidth is no
+    // longer implicitly reachable once inside it.
+    val viewportWidthPx = viewportWidth
     headlessFrame {
         shadcnTheme(theme = showcaseTheme) {
             val sidebarScroll = rememberScrollState("ui-showcase-scroll-side")
             val contentScroll = rememberScrollState("ui-showcase-scroll-content")
-            val compact = viewportWidth < 720f
+            val compact = viewportWidthPx < 720f
             val outerPadding = if (compact) 16f.dp else 24f.dp
             val sidebarWidth = 264f.dp
             val railGap = 20f.dp

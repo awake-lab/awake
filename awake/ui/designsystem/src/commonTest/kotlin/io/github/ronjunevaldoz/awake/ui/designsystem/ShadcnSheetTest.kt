@@ -22,7 +22,6 @@ class ShadcnSheetTest {
         width = FRAME_WIDTH,
         height = FRAME_HEIGHT,
     ) {
-        ensureShadcnTestIconsInitialized()
         var output = frame {
             shadcnSheet(
                 id = "sheet-1",
