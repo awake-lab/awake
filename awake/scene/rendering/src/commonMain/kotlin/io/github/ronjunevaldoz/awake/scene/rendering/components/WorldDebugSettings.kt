@@ -13,4 +13,12 @@ data class WorldDebugSettings(
     var showOcclusion: Boolean = false,
     var showLights: Boolean = false,
     var showShadowFrustum: Boolean = false,
+    /** Which entity's [io.github.ronjunevaldoz.awake.scene.rendering.components.Camera]
+     * [showFrustum] draws -- deliberately NOT the world's own primary/viewing camera: drawing
+     * that camera's frustum from inside its own view is geometrically invisible (the near
+     * plane sits behind the eye, the far/side planes align with the screen edges). An editor
+     * sets this to whatever entity is selected each frame; `null` (or an entity with no
+     * `Camera`) draws nothing, same "opt-in, no target = no lines" posture every other field
+     * here already has. */
+    var frustumTargetEntityId: Int? = null,
 )
