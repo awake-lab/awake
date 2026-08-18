@@ -30,6 +30,28 @@ if [[ -n "$STAGED_PROFILES" ]]; then
   done
 fi
 
+
+# Cheap per-commit summary: file/area counts only, mechanically derived from the staged
+# diff -- no new scan, no judgment calls. "Pointers" is deliberately a short, hand-maintained
+# list (below), not auto-derived -- "what's currently open" is exactly the kind of fact that
+# goes stale silently if computed instead of maintained (see this repo's own ui-validation.md
+# incident, 2026-08-17: two tables disagreeing because nobody had to touch both by hand).
+STAGED_ALL="$(git diff --cached --name-only || true)"
+if [[ -n "$STAGED_ALL" ]]; then
+  FILE_COUNT="$(echo "$STAGED_ALL" | wc -l | tr -d ' ')"
+  STAT_TAIL="$(git diff --cached --shortstat | cut -d',' -f2- | sed 's/^ *//')"
+  AREAS="$(echo "$STAGED_ALL" | xargs -n1 dirname | cut -d/ -f1-2 | sort | uniq -c \
+    | sort -rn | awk '{printf "%s (%s), ", $2, $1}' | sed 's/, $//')"
+  echo ""
+  echo "Commit summary"
+  echo "  $FILE_COUNT files changed${STAT_TAIL:+, }$STAT_TAIL"
+  echo "  by area: $AREAS"
+  echo ""
+  echo "  Open pointers (update this list by hand when something opens/closes):"
+  echo "    - docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md (package 6 pending)"
+  echo "    - github.com/ronjunevaldoz/kmp-agent-skills#6 (docs-hygiene consumer-project gap, open)"
+fi
+
 STAGED_KT="$(git diff --cached --name-only | grep -E '\.(kt|kts)$' || true)"
 
 if [[ -z "$STAGED_KT" ]]; then
