@@ -6,25 +6,19 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroupSeparator
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnIcon
-import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
-import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.width
-import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
 /** The group's own height: one button plus the hairline border it now owns. */
@@ -119,15 +113,14 @@ internal data class ViewPillActions(
     val onDebugShadowFrustumChange: (Boolean) -> Unit,
 )
 
-/** Whether the debug popover (below) is open -- module-level, not [ViewPillState], since it's
- * purely this pill's own transient UI state, not something the rest of Studio ever reads. */
-private var debugMenuExpanded = false
-
 /**
  * Three groups, not one long row: view (camera mode/projection), render style (wireframe/
  * shadows/sky -- toggled often while editing, stays always-visible), and debug visualization
- * (frustum/bounds/occlusion/light/shadow-frustum -- dev-only, rarely touched, collapsed behind
- * one "Debug" popover instead of five extra always-on buttons).
+ * (frustum/bounds/occlusion/light/shadow-frustum) -- plain always-on toggles, same as
+ * `ui-showcase`'s own checkboxes, NOT behind a popover: a popover with several sibling
+ * checkboxes inside it doesn't reliably deliver clicks yet (open investigation -- a single
+ * checkbox alone in a popover works, this doesn't). Reverted from the popover version rather
+ * than block on that root cause.
  */
 internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions) {
     row(horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
@@ -171,49 +164,41 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
         }
 
         shadcnButtonGroup(id = "studio-debug-pill") {
+            rowIconButton(
+                id = "studio-view-debug-frustum",
+                glyph = outline.videoCamera,
+                active = state.debugFrustum,
+                onClick = { actions.onDebugFrustumChange(!state.debugFrustum) },
+            )
+            rowIconButton(
+                id = "studio-view-debug-bounds",
+                glyph = outline.cube,
+                active = state.debugBounds,
+                onClick = { actions.onDebugBoundsChange(!state.debugBounds) },
+            )
+            rowIconButton(
+                id = "studio-view-debug-occlusion",
+                glyph = outline.eyeSlash,
+                active = state.debugOcclusion,
+                onClick = { actions.onDebugOcclusionChange(!state.debugOcclusion) },
+            )
+            shadcnButtonGroupSeparator()
             shadcnButton(
-                id = "studio-view-debug-menu",
-                // Explicit width, not WrapContent: a WrapContent trigger's content lambda runs
-                // multiple times per frame for layout trial passes, and interactive controls
-                // nested inside it (the checkboxes below) see those trial invocations as real
-                // clicks -- see PopoverPage.kt's own trigger for the same explicit-width
-                // precedent every other popover-with-a-trigger call site already follows.
-                modifier = Modifier.width(64f.dp),
-                variant = if (debugMenuExpanded) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+                id = "studio-view-debug-lights",
+                label = "Light",
+                variant = if (state.debugLights) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
                 size = ShadcnButtonSize.Xs,
-                onClick = { debugMenuExpanded = !debugMenuExpanded },
-            ) { trigger ->
-                shadcnText("Debug")
-                val popup = uiScope().shadcnPopover(
-                    id = "studio-view-debug-menu-popover",
-                    anchorSlot = trigger,
-                    expanded = debugMenuExpanded,
-                    width = Dimension.Fixed(170f.dp),
-                ) {
-                    debugCheckbox("studio-debug-frustum", "Frustum", state.debugFrustum, actions.onDebugFrustumChange)
-                    debugCheckbox("studio-debug-bounds", "Bounds", state.debugBounds, actions.onDebugBoundsChange)
-                    debugCheckbox(
-                        "studio-debug-occlusion",
-                        "Occlusion",
-                        state.debugOcclusion,
-                        actions.onDebugOcclusionChange,
-                    )
-                    debugCheckbox("studio-debug-lights", "Light gizmo", state.debugLights, actions.onDebugLightsChange)
-                    debugCheckbox(
-                        "studio-debug-shadow-frustum",
-                        "Shadow frustum",
-                        state.debugShadowFrustum,
-                        actions.onDebugShadowFrustumChange,
-                    )
-                }
-                if (popup.dismissed) debugMenuExpanded = false
-            }
+                onClick = { actions.onDebugLightsChange(!state.debugLights) },
+            )
+            shadcnButton(
+                id = "studio-view-debug-shadow-frustum",
+                label = "Shadow",
+                variant = if (state.debugShadowFrustum) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+                size = ShadcnButtonSize.Xs,
+                onClick = { actions.onDebugShadowFrustumChange(!state.debugShadowFrustum) },
+            )
         }
     }
-}
-
-private fun ColumnScope.debugCheckbox(id: String, label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    if (shadcnCheckbox(id = id, checked = checked, label = label)) onChange(!checked)
 }
 
 /** The collapsed console strip: entity count and backend, with the dock a click away. */
