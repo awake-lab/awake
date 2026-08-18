@@ -84,6 +84,12 @@ open class VulkanGameApplication(
      * than always-on: `skybox.wgsl` ships in `awake:asset:shaders`, so only a module that syncs
      * that directory actually has the compiled SPIR-V on its resource path. */
     private val skyboxShaderSet: GameShaderSet? = null,
+    /** Opts into billboard-particle instancing (see `Renderer.instancedPipelinesByFormat`
+     * keyed by [VertexFormat.PositionUv]): builds ONE extra pipeline from this shader set with
+     * `instanced = true, instanceAlpha = true, blendEnabled = true, depthWriteEnabled = false`
+     * -- see `particle.wgsl`. `null` (default) means no such pipeline exists and a
+     * `ParticleEmitter` entity simply doesn't draw. */
+    private val particleShaderSet: GameShaderSet? = null,
 ) : GameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -100,6 +106,7 @@ open class VulkanGameApplication(
         instancedShaderSet: GameShaderSet? = null,
         skinnedInstancedShaderSet: GameShaderSet? = null,
         skyboxShaderSet: GameShaderSet? = null,
+        particleShaderSet: GameShaderSet? = null,
     ) : this(
         vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
@@ -113,6 +120,7 @@ open class VulkanGameApplication(
         instancedShaderSet = instancedShaderSet,
         skinnedInstancedShaderSet = skinnedInstancedShaderSet,
         skyboxShaderSet = skyboxShaderSet,
+        particleShaderSet = particleShaderSet,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -128,6 +136,7 @@ open class VulkanGameApplication(
     private var shadowRenderPipeline: ShadowRenderPipeline? = null
     private var instancedRenderPipeline: RenderPipeline? = null
     private var skinnedInstancedRenderPipeline: RenderPipeline? = null
+    private var particleRenderPipeline: RenderPipeline? = null
 
     /** The `@group(1)` joint-palette set layout `skinnedInstancedRenderPipeline`'s layout is
      * built from -- see `SkinnedInstanceBuffer.createDescriptorSetLayout` for why each pooled
@@ -249,6 +258,24 @@ open class VulkanGameApplication(
                 extraDescriptorSetLayouts = listOf(paletteLayout),
             )
         }
+        particleRenderPipeline = particleShaderSet?.let { shaderSet ->
+            RenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                pipelineDescriptorSetLayout,
+                loadShaderPair(
+                    shaderSet.vulkan.vertexResourcePath,
+                    shaderSet.vulkan.fragmentResourcePath,
+                ),
+                VertexFormat.PositionUv,
+                shaderSet.vulkan.vertexEntryPoint,
+                shaderSet.vulkan.fragmentEntryPoint,
+                instanced = true,
+                instanceAlpha = true,
+                blendEnabled = true,
+                depthWriteEnabled = false,
+            )
+        }
         shadowRenderPipeline = shadowMap?.let { map ->
             val shaderSet = requireNotNull(shadowShaderSet)
             ShadowRenderPipeline(
@@ -319,7 +346,10 @@ open class VulkanGameApplication(
             wireframePipelinesByFormat,
             shadowMap,
             shadowRenderPipeline,
-            instancedRenderPipeline?.let { mapOf(vertexFormat to it) } ?: emptyMap(),
+            buildMap {
+                instancedRenderPipeline?.let { put(vertexFormat, it) }
+                particleRenderPipeline?.let { put(VertexFormat.PositionUv, it) }
+            },
             skinnedInstancedRenderPipeline
                 ?.let { mapOf(VertexFormat.PositionNormalColorSkin to it) }
                 ?: emptyMap(),
@@ -356,6 +386,7 @@ open class VulkanGameApplication(
         wireframeAdditionalRenderPipelines.values.forEach { it.destroy() }
         instancedRenderPipeline?.destroy()
         skinnedInstancedRenderPipeline?.destroy()
+        particleRenderPipeline?.destroy()
         skinnedInstanceDescriptorSetLayout?.let {
             VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, it.handle)
         }

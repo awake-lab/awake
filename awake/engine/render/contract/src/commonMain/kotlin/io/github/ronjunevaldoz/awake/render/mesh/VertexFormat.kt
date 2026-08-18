@@ -71,5 +71,18 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
                 VertexAttribute(VertexSemantic.Uv, GpuDataShape.Vec2, location = 3),
             ),
         )
+
+        /** Position vec3 @ 0, uv vec2 @ 12, stride 20 -- no normal/color, for a shared unit
+         * billboard quad whose per-instance model matrix (location 3+, see the instanced vertex
+         * buffer a particle pipeline binds alongside this) supplies world position/scale and
+         * whose per-instance alpha (a separate small vertex buffer, one f32/instance) supplies
+         * fade -- the quad itself contributes only its local corner position and uv (see
+         * `particle.wgsl`). */
+        val PositionUv = VertexFormat(
+            listOf(
+                VertexAttribute(VertexSemantic.Position, GpuDataShape.Vec3, location = 0),
+                VertexAttribute(VertexSemantic.Uv, GpuDataShape.Vec2, location = 1),
+            ),
+        )
     }
 }

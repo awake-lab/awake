@@ -25,6 +25,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
+import io.github.ronjunevaldoz.awake.vulkan.mesh.AlphaInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.InstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
@@ -179,6 +180,9 @@ internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<Prepa
                 commandBuffer,
                 prepared.pipeline.pipelineLayout,
             )
+            // Binding 2, alongside the mesh's own binding-0 and instance-model binding-1 --
+            // only for a particle draw call.
+            prepared.alphaInstanceBuffer?.bind(prepared.frameIndex, commandBuffer)
             prepared.drawCall.mesh.drawInstanced(commandBuffer, prepared.instanceCount)
         } else {
             prepared.drawCall.mesh.draw(commandBuffer)
@@ -400,6 +404,9 @@ internal data class PreparedDrawCall(
     /** Non-null only for an ANIMATED instanced draw ([DrawCall.instanceJointPalettes]), where it
      * accompanies [instanceBuffer] -- per-instance model matrices still come through that. */
     val jointPaletteBuffer: SkinnedInstanceBuffer? = null,
+    /** Non-null only for a billboard-particle instanced draw ([DrawCall.instanceAlphas]),
+     * bound at binding 2 alongside [instanceBuffer]'s binding 1. */
+    val alphaInstanceBuffer: AlphaInstanceBuffer? = null,
 )
 
 /** Resolves each [drawCalls] entry against [Renderer.pipelinesByFormat] by its
@@ -458,7 +465,7 @@ internal fun Renderer.prepareDrawCalls(
             // format, or nothing to draw) skips the call, same as an unresolved format below.
             val instanced = prepareInstancedDrawCall(
                 drawCall, frameIndex, instancedIndex,
-                viewProjection.data + lightFloats, materialUsage,
+                viewProjection, lightFloats, materialUsage,
             )
             if (instanced != null) {
                 prepared += instanced
@@ -553,15 +560,15 @@ private fun Renderer.prepareInstancedDrawCall(
     drawCall: DrawCall,
     frameIndex: Int,
     instancedIndex: Int,
-    /** Already `viewProjection.data + lightFloats` -- assembled by the caller, which has both. */
-    uniformFloats: FloatArray,
+    viewProjection: Mat4,
+    lightFloats: FloatArray,
     materialUsage: MutableMap<RenderMaterial, Int>,
 ): PreparedDrawCall? {
     val animated = drawCall.instanceJointPalettes != null
-    val pipeline = if (animated) {
-        skinnedInstancedPipelinesByFormat[drawCall.mesh.format]
-    } else {
-        instancedPipelinesByFormat[drawCall.mesh.format]
+    val isParticle = drawCall.mesh.format == VertexFormat.PositionUv
+    val pipeline = when {
+        animated -> skinnedInstancedPipelinesByFormat[drawCall.mesh.format]
+        else -> instancedPipelinesByFormat[drawCall.mesh.format]
     }
     val instanceModels = drawCall.instanceModels.orEmpty()
     if (pipeline == null || instanceModels.isEmpty()) return null
@@ -576,6 +583,21 @@ private fun Renderer.prepareInstancedDrawCall(
     } else {
         null
     }
+    // Particles carry their own camera-right/camera-up basis (particle.wgsl's Uniforms), not
+    // the scene light -- every other instanced format keeps the existing viewProjection+light
+    // block (instanced.wgsl/skinned_instanced.wgsl's Uniforms).
+    val uniformFloats = if (isParticle) {
+        viewProjection.data + drawCall.extraUniformFloats
+    } else {
+        viewProjection.data + lightFloats
+    }
+    val alphaInstanceBuffer = if (isParticle) {
+        alphaInstanceBufferForRun(instancedIndex).also {
+            it.update(frameIndex, drawCall.instanceAlphas.orEmpty())
+        }
+    } else {
+        null
+    }
     material.updateUniformBuffer(frameIndex, uniformSlotIndex, uniformFloats)
     return PreparedDrawCall(
         drawCall = drawCall,
@@ -586,6 +608,7 @@ private fun Renderer.prepareInstancedDrawCall(
         instanceBuffer = instanceBuffer,
         instanceCount = instanceModels.size,
         jointPaletteBuffer = jointPaletteBuffer,
+        alphaInstanceBuffer = alphaInstanceBuffer,
     )
 }
 

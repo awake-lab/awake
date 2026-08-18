@@ -40,6 +40,13 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
  * exclusive in practice (a `DrawCall` is either one plain draw, one static-instanced batch, or
  * one animated-instanced batch), but nothing here enforces that -- it's a backend concern, same
  * as [extraUniformFloats]'s own doc comment already notes for format-specific interpretation.
+ *
+ * [instanceAlphas] is the billboard-particle counterpart to [instanceModels] -- `null` by
+ * default, one alpha per instance, index-for-index, same "only meaningful alongside a
+ * same-size [instanceModels]" contract as [instanceJointPalettes]. One `f32`/instance fits an
+ * ordinary instance-rate vertex attribute (unlike a joint palette), so a backend with a
+ * particle-instanced pipeline for [mesh.format] uploads this into its own small per-frame
+ * vertex buffer rather than a storage buffer.
  */
 data class DrawCall(
     val mesh: Mesh,
@@ -48,6 +55,7 @@ data class DrawCall(
     val extraUniformFloats: FloatArray = EMPTY_UNIFORM_FLOATS,
     val instanceModels: List<Mat4>? = null,
     val instanceJointPalettes: List<FloatArray>? = null,
+    val instanceAlphas: List<Float>? = null,
 )
 
 private val EMPTY_UNIFORM_FLOATS = FloatArray(0)

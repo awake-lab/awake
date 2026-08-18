@@ -33,6 +33,7 @@ import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanImages
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.material.PbrImageViews
+import io.github.ronjunevaldoz.awake.vulkan.mesh.AlphaInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.InstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
@@ -384,6 +385,20 @@ class Renderer(
             )
         }
         return skinnedInstanceBufferPool[index]
+    }
+
+    // Same pool shape as instanceBufferPool above, for the per-particle alphas a billboard
+    // instanced draw call also needs (binding 2, alongside the model matrices at binding 1).
+    private val alphaInstanceBufferPool = mutableListOf<AlphaInstanceBuffer>()
+
+    internal fun alphaInstanceBufferForRun(index: Int): AlphaInstanceBuffer {
+        while (alphaInstanceBufferPool.size <= index) {
+            alphaInstanceBufferPool += AlphaInstanceBuffer(
+                graphicsDevice,
+                framesInFlight = maxFramesInFlight + 1,
+            )
+        }
+        return alphaInstanceBufferPool[index]
     }
 
     // Rewritten every frame by drawDebugLines() (staged before draw(), same pattern as

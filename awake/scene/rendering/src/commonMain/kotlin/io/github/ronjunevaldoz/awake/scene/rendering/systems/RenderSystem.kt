@@ -24,6 +24,7 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.LodGroup
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Occluder
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.rendering.components.SkinnedPose
 
@@ -128,6 +129,35 @@ class RenderSystem(
                     instanceJointPalettes = instanced.instances.map { it.jointPalette },
                 ),
             )
+        }
+        // Billboard particles -- one DrawCall per emitter, instanceModels/instanceAlphas carry
+        // one entry per LIVE particle (dead pool slots are skipped, not drawn as invisible
+        // instances). cameraRight/cameraUp are the same forward/right/up basis Frustum.corners
+        // already computes, just used here to keep every particle facing the camera in the
+        // shader rather than baking a per-instance rotation into its own model matrix -- see
+        // ParticleEmitter's own doc comment for why particles never carry rotation at all.
+        val particleFamily = world.family<ParticleEmitter>()
+        if (particleFamily.size > 0) {
+            val forward = (camera.camera.center - camera.camera.eye).normalized()
+            val right = forward.cross(camera.camera.up).normalized()
+            val cameraUp = right.cross(forward)
+            val cameraBasis = floatArrayOf(right.x, right.y, right.z, 0f, cameraUp.x, cameraUp.y, cameraUp.z, 0f)
+            particleFamily.forEach { _, emitter ->
+                val live = emitter.particles.filter { it.alive }
+                if (live.isEmpty()) return@forEach
+                drawCalls.add(
+                    DrawCall(
+                        mesh = emitter.mesh,
+                        material = emitter.material,
+                        instanceModels = live.map {
+                            Mat4().translate(it.position.x, it.position.y, it.position.z)
+                                .scale(it.scale, it.scale, it.scale)
+                        },
+                        instanceAlphas = live.map { it.currentAlpha() },
+                        extraUniformFloats = cameraBasis,
+                    ),
+                )
+            }
         }
         // LodGroup picks ONE level's mesh/material by distance to the camera eye -- see that
         // component's own doc comment for why an entity carries this instead of MeshRenderer,

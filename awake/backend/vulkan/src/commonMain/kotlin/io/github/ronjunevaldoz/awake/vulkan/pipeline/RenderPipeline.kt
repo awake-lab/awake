@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkAttachmentStoreOp
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkBlendFactor
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkColorComponentFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCullModeFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkDynamicState
@@ -99,6 +100,22 @@ class RenderPipeline(
      * continue past [vertexFormat]'s own highest one, so no format needs its locations
      * renumbered to make room. */
     instanced: Boolean = false,
+    /** Only meaningful alongside [instanced]. Adds a THIRD vertex binding (binding 2,
+     * `VK_VERTEX_INPUT_RATE_INSTANCE`, stride 4, one `R32_SFLOAT` attribute) carrying one
+     * `f32` alpha per instance -- see `particle.wgsl` and `DrawCall.instanceAlphas`' own doc
+     * comment. Purely additive, same as [instanced] itself: `false` (default) leaves the
+     * pipeline byte-for-byte what it always built. */
+    instanceAlpha: Boolean = false,
+    /** `false` (default) is byte-for-byte the opaque pipeline this class always built. `true`
+     * enables standard straight-alpha blending (`SRC_ALPHA`/`ONE_MINUS_SRC_ALPHA`, both color
+     * and alpha) -- the same blend state [io.github.ronjunevaldoz.awake.vulkan.ui
+     * .UiTextureRenderPipeline] already uses for its own alpha-blended textured quads. */
+    blendEnabled: Boolean = false,
+    /** `true` (default) is byte-for-byte what this class always built. `false` disables depth
+     * WRITE only (depth TEST stays on, so blended content still hides behind real geometry) --
+     * for content drawn back-to-front or order-independent, where multiple overlapping
+     * instances writing depth against each other would fight/self-occlude (e.g. particles). */
+    depthWriteEnabled: Boolean = true,
     /** Descriptor set layouts appended AFTER [descriptorSetLayout] (which stays set 0), one per
      * additional set the shader declares. Today's only user is the skinned-instanced pipeline,
      * whose `@group(1)` joint-palette storage buffer is owned per draw call rather than per
@@ -129,6 +146,9 @@ class RenderPipeline(
             fragmentEntryPoint = fragmentEntryPoint,
             polygonMode = polygonMode,
             instanced = instanced,
+            instanceAlpha = instanceAlpha,
+            blendEnabled = blendEnabled,
+            depthWriteEnabled = depthWriteEnabled,
         )
     }
 
@@ -207,6 +227,9 @@ class RenderPipeline(
         fragmentEntryPoint: String,
         polygonMode: VkPolygonMode,
         instanced: Boolean,
+        instanceAlpha: Boolean,
+        blendEnabled: Boolean,
+        depthWriteEnabled: Boolean,
     ) {
         // WARNING: make sure the .spv vulkan version match, this might cause out of memory
         val fragShaderModule = createShaderModule(fragShaderCode.toIntArray())
@@ -255,6 +278,19 @@ class RenderPipeline(
                     offset = row * VEC4_BYTES,
                 )
             }
+            if (instanceAlpha) {
+                vertexBindings += VkVertexInputBindingDescription(
+                    binding = INSTANCE_ALPHA_BINDING,
+                    stride = Float.SIZE_BYTES,
+                    inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_INSTANCE,
+                )
+                vertexAttributes += VkVertexInputAttributeDescription(
+                    location = firstLocation + MATRIX_ROWS,
+                    binding = INSTANCE_ALPHA_BINDING,
+                    format = VkFormat.VK_FORMAT_R32_SFLOAT,
+                    offset = 0,
+                )
+            }
         }
         val vertexInputInfo = arrayOf(
             VkPipelineVertexInputStateCreateInfo(
@@ -290,7 +326,7 @@ class RenderPipeline(
         )
 
         val depthStencil = arrayOf(
-            VkPipelineDepthStencilStateCreateInfo(),
+            VkPipelineDepthStencilStateCreateInfo(depthWriteEnable = depthWriteEnabled),
         )
 
         val multisamplingInfo = arrayOf(
@@ -318,7 +354,11 @@ class RenderPipeline(
         )
 
         val blendAttachment = VkPipelineColorBlendAttachmentState(
-            blendEnable = false,
+            blendEnable = blendEnabled,
+            srcColorBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_SRC_ALPHA,
+            dstColorBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+            srcAlphaBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_SRC_ALPHA,
+            dstAlphaBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
             colorWriteMask = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or
                 VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or
                 VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or
@@ -393,6 +433,10 @@ class RenderPipeline(
         const val MATRIX_ROWS = 4
         const val VEC4_BYTES = 16
         const val INSTANCE_MATRIX_BYTES = MATRIX_ROWS * VEC4_BYTES
+
+        /** See the `instanceAlpha` constructor parameter. Binding 2 -- one binding past the
+         * instance matrix's own binding 1. */
+        const val INSTANCE_ALPHA_BINDING = 2
     }
 }
 
