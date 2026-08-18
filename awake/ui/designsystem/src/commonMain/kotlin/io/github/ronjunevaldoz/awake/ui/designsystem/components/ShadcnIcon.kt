@@ -4,6 +4,7 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.icon
 import io.github.ronjunevaldoz.awake.ui.headless.size
 
@@ -15,7 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.size
  */
 fun io.github.ronjunevaldoz.awake.ui.headless.UiScope.shadcnIcon(
     icon: UiImageVector,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     tint: Color? = null
 ) {
     val insideGroup = currentLocal(LocalShadcnButtonGroup) != null

@@ -5,6 +5,9 @@ package io.github.ronjunevaldoz.awake.ui.headless
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.otpDigitsOnly as primitiveOtpDigitsOnly
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.otpShowsSeparatorBefore as primitiveOtpShowsSeparatorBefore
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /**
@@ -16,8 +19,8 @@ fun UiScope.otpInput(
     id: String,
     value: String,
     length: Int,
-    modifier: Modifier = Modifier,
-    fieldModifier: Modifier = Modifier.width(1f.dp),
+    modifier: UiModifier = Modifier,
+    fieldModifier: UiModifier = Modifier.width(1f.dp),
     enabled: Boolean = true,
     groupSize: Int = 0,
     horizontalArrangement: Arrangement = Arrangement.Start,

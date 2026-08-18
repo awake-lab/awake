@@ -6,11 +6,11 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeSt
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

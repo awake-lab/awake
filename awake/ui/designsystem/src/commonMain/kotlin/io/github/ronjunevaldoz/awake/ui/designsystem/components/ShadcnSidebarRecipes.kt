@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSidebarTitleSt
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.button
@@ -59,7 +60,7 @@ internal object ShadcnSidebarMetrics {
 
 fun UiScope.shadcnSidebar(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     expanded: Boolean = true,
     header: (ColumnScope.() -> Unit)? = null,
     footer: (ColumnScope.() -> Unit)? = null,
@@ -84,7 +85,7 @@ fun UiScope.shadcnSidebarHeaderButton(
     id: String,
     title: String,
     subtitle: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     onClick: () -> Unit = {},
 ): Boolean {
     val clicked = button(
@@ -130,7 +131,7 @@ fun UiScope.shadcnSidebarFooterButton(
     id: String,
     name: String,
     email: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     onClick: () -> Unit = {},
 ): Boolean {
     val clicked = button(
@@ -173,7 +174,7 @@ fun UiScope.shadcnSidebarFooterButton(
 }
 
 fun UiScope.shadcnSidebarGroup(
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     label: String? = null,
     content: ColumnScope.() -> Unit,
 ) {
@@ -192,7 +193,7 @@ fun UiScope.shadcnSidebarGroup(
 }
 
 fun UiScope.shadcnSidebarMenu(
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     // Opt-in cross-frame trial cache (see UiScope.column) -- menus are the deepest static
     // subtrees in a shell, so a stable key here removes their per-frame measure trials.
     id: String? = null,
@@ -211,7 +212,7 @@ fun UiScope.shadcnSidebarMenuItem(
     id: String,
     label: String,
     active: Boolean = false,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     icon: UiImageVector? = null,
     badge: String? = null,
     onClick: () -> Unit = {},
@@ -251,19 +252,26 @@ fun UiScope.shadcnSidebarMenuItem(
 }
 
 fun UiScope.shadcnSidebarMenuSub(
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     id: String? = null,
     cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
 ) {
-    row(modifier = modifier.fillMaxWidth().padding(start = ShadcnSidebarMetrics.submenuIndent)) {
+    row(
+        modifier = modifier.fillMaxWidth().padding(
+            start = ShadcnSidebarMetrics.submenuIndent,
+            top = 0f.dp,
+            end = 0f.dp,
+            bottom = 0f.dp,
+        ),
+    ) {
         separator(
             color = themeValues.colors.border,
             orientation = UiSeparatorOrientation.Vertical,
         )
         column(
             id = id,
-            modifier = Modifier.fillMaxWidth().padding(start = 6f.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 6f.dp, top = 0f.dp, end = 0f.dp, bottom = 0f.dp),
             verticalArrangement = Arrangement.spacedBy(ShadcnSidebarMetrics.submenuGap),
             cacheKey = cacheKey,
         ) {
@@ -276,7 +284,7 @@ fun UiScope.shadcnSidebarMenuSubItem(
     id: String,
     label: String,
     active: Boolean = false,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     icon: UiImageVector? = null,
     onClick: () -> Unit = {},
 ): Boolean {

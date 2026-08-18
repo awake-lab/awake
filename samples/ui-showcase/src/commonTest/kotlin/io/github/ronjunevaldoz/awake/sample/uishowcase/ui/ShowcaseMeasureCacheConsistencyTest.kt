@@ -4,9 +4,9 @@ package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
 import io.github.ronjunevaldoz.awake.ui.context.UiWeightCacheConsistencyCheck
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

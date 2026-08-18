@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnCheckboxStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSwitchStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnToggleStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.checkbox
 import io.github.ronjunevaldoz.awake.ui.headless.switch
@@ -16,7 +17,7 @@ fun UiScope.shadcnCheckbox(
     id: String,
     checked: Boolean,
     label: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     indeterminate: Boolean = false,
     enabled: Boolean = true,
 ): Boolean = checkbox(
@@ -34,7 +35,7 @@ fun UiScope.shadcnSwitch(
     id: String,
     checked: Boolean,
     label: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
 ): Boolean = switch(
     id = id,
@@ -48,7 +49,7 @@ fun UiScope.shadcnSwitch(
 fun UiScope.shadcnToggle(
     id: String,
     checked: Boolean,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit = {},
     label: String? = null,

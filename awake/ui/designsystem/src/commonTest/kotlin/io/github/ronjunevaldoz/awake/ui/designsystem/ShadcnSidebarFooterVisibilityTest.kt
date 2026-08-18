@@ -11,14 +11,14 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHea
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
 import io.github.ronjunevaldoz.awake.ui.headless.surface
-import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

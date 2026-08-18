@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnFieldSeparator
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.UiTextWrap
@@ -31,7 +32,7 @@ import kotlin.math.round
 
 fun UiScope.shadcnField(
     id: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     orientation: ShadcnFieldOrientation = ShadcnFieldOrientation.Vertical,
     content: ColumnScope.() -> Unit,
 ): UiBounds = if (orientation == ShadcnFieldOrientation.Vertical) {
@@ -51,7 +52,7 @@ fun UiScope.shadcnField(
 
 fun UiScope.shadcnFieldLabel(
     text: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     required: Boolean = false,
     disabled: Boolean = false,
 ): UiBounds = text(
@@ -60,7 +61,7 @@ fun UiScope.shadcnFieldLabel(
     style = shadcnFieldLabelStyle(themeValues, disabled),
 )
 
-fun UiScope.shadcnFieldDescription(text: String, modifier: Modifier = Modifier): UiBounds = text(
+fun UiScope.shadcnFieldDescription(text: String, modifier: UiModifier = Modifier): UiBounds = text(
     label = text,
     modifier = modifier,
     style = shadcnFieldDescriptionStyle(themeValues),
@@ -68,7 +69,7 @@ fun UiScope.shadcnFieldDescription(text: String, modifier: Modifier = Modifier):
     overflow = UiTextOverflow.Ellipsis,
 )
 
-fun UiScope.shadcnFieldError(text: String, modifier: Modifier = Modifier): UiBounds = text(
+fun UiScope.shadcnFieldError(text: String, modifier: UiModifier = Modifier): UiBounds = text(
     label = text,
     modifier = modifier,
     style = shadcnFieldErrorStyle(themeValues),
@@ -80,7 +81,7 @@ fun UiScope.shadcnFieldError(text: String, modifier: Modifier = Modifier): UiBou
  * [gap] differs between the two. */
 private fun UiScope.shadcnFieldContainer(
     id: String?,
-    modifier: Modifier,
+    modifier: UiModifier,
     cacheKey: Any?,
     gap: Dp,
     content: ColumnScope.() -> Unit,
@@ -93,23 +94,23 @@ private fun UiScope.shadcnFieldContainer(
 
 fun UiScope.shadcnFieldSet(
     id: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
 ): UiBounds = shadcnFieldContainer(id, modifier, cacheKey, 24f.dp, content)
 
-fun UiScope.shadcnFieldLegend(text: String, modifier: Modifier = Modifier): UiBounds =
+fun UiScope.shadcnFieldLegend(text: String, modifier: UiModifier = Modifier): UiBounds =
     shadcnFieldLabel(text = text, modifier = modifier)
 
 fun UiScope.shadcnFieldGroup(
     id: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
 ): UiBounds = shadcnFieldContainer(id, modifier, cacheKey, 28f.dp, content)
 
 fun UiScope.shadcnFieldSeparator(
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     label: String? = null,
     id: String = "field.sep",
 ): UiBounds = if (label == null) {
@@ -140,7 +141,7 @@ fun UiScope.shadcnFieldTextField(
     label: String,
     value: String,
     placeholder: String = "",
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     errorText: String? = null,
     variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default,
@@ -160,7 +161,7 @@ fun UiScope.shadcnFieldTextarea(
     label: String,
     value: String,
     placeholder: String = "",
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     errorText: String? = null,
     minLines: Int = 3,
@@ -180,7 +181,7 @@ fun UiScope.shadcnFieldDropdown(
     label: String,
     options: List<String>,
     selectedIndex: Int,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
 ): Int? {
     var picked: Int? = null
@@ -195,7 +196,7 @@ fun UiScope.shadcnFieldSwitch(
     id: String,
     label: String,
     checked: Boolean,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
 ): Boolean {
     var next = checked
@@ -211,7 +212,7 @@ fun UiScope.shadcnFieldToggle(
     id: String,
     label: String,
     checked: Boolean,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit = {},
 ): Boolean {
@@ -237,7 +238,7 @@ fun UiScope.shadcnFieldSlider(
     min: Float,
     max: Float,
     value: Float,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
 ): Float {
     var next = value
@@ -256,7 +257,7 @@ fun UiScope.shadcnFieldSliderWithValue(
     min: Float,
     max: Float,
     value: Float,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     valueLabel: (Float, Float, Float) -> String = { current, lower, upper ->
         fun rounded(number: Float): String = (round(number * 10f) / 10f).toString()
@@ -293,7 +294,7 @@ fun UiScope.shadcnFieldRangeSlider(
     max: Float,
     valueStart: Float,
     valueEnd: Float,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
 ): Pair<Float, Float> {
     var next = valueStart to valueEnd

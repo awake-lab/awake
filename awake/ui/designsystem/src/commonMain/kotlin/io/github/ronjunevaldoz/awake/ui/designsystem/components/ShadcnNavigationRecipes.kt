@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTabsTrackStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTabItem
 import io.github.ronjunevaldoz.awake.ui.headless.button
@@ -41,7 +42,7 @@ import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 fun UiScope.shadcnCollapsible(
     id: String,
     expanded: Boolean,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
     trigger: ColumnScope.(Boolean, () -> Unit) -> Unit,
     content: ColumnScope.() -> Unit,
@@ -51,7 +52,7 @@ fun UiScope.shadcnCollapsible(
     id: String,
     title: String,
     expanded: Boolean,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
     bordered: Boolean = false,
     content: ColumnScope.() -> Unit,
@@ -88,7 +89,7 @@ fun UiScope.shadcnCollapsible(
 fun UiScope.shadcnCollapsibleCard(
     id: String,
     expanded: Boolean,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
     header: ColumnScope.(Boolean, () -> Unit) -> Unit,
     content: ColumnScope.() -> Unit,
@@ -116,7 +117,7 @@ fun <T> UiScope.shadcnAccordion(
     onSelectId: (String?) -> Unit,
     idProvider: (T) -> String,
     titleProvider: (T) -> String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     content: ColumnScope.(T) -> Unit,
 ) {
     items.forEach { item ->
@@ -147,7 +148,7 @@ fun UiScope.shadcnTabs(
     id: String,
     items: List<UiTabItem>,
     selected: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     height: Dp = 36f.dp,
     content: ColumnScope.(String) -> Unit = {},
 ): String {
@@ -198,7 +199,7 @@ fun UiScope.shadcnTabs(
     id: String,
     tabs: List<String>,
     selectedIndex: Int,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     height: Dp = 36f.dp,
 ): Int = shadcnTabs(
     id = id,
@@ -211,7 +212,7 @@ fun UiScope.shadcnTabs(
 fun UiScope.shadcnBreadcrumb(
     id: String,
     items: List<String>,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     separator: String = "/",
 ): UiBounds = surface(
     id = id,
@@ -240,7 +241,7 @@ fun UiScope.shadcnBreadcrumb(
 fun UiScope.shadcnBreadcrumbLink(
     id: String,
     label: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     onClick: () -> Unit = {},
 ): Boolean = shadcnButton(
     id = id,
@@ -251,7 +252,7 @@ fun UiScope.shadcnBreadcrumbLink(
     onClick = onClick,
 )
 
-fun UiScope.shadcnBreadcrumbPage(label: String, modifier: Modifier = Modifier): UiBounds = text(
+fun UiScope.shadcnBreadcrumbPage(label: String, modifier: UiModifier = Modifier): UiBounds = text(
     label,
     modifier = modifier,
     style = shadcnBreadcrumbItemStyle(themeValues, current = true),
@@ -259,12 +260,12 @@ fun UiScope.shadcnBreadcrumbPage(label: String, modifier: Modifier = Modifier): 
 
 fun UiScope.shadcnBreadcrumbSeparator(
     label: String = "/",
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
 ): UiBounds = text(
     label,
     modifier = modifier,
     style = shadcnBreadcrumbMutedStyle(themeValues),
 )
 
-fun UiScope.shadcnBreadcrumbEllipsis(modifier: Modifier = Modifier): UiBounds =
+fun UiScope.shadcnBreadcrumbEllipsis(modifier: UiModifier = Modifier): UiBounds =
     shadcnBreadcrumbSeparator("...", modifier)

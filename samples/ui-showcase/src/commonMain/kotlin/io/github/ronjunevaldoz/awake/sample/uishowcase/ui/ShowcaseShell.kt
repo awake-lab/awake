@@ -19,14 +19,14 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.height
-import io.github.ronjunevaldoz.awake.ui.headless.heightIn
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.heightIn
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
-import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 
 /** Floor for a page hero so short samples keep the preview card a consistent size. */
 private val HERO_MIN_HEIGHT = 160f.dp

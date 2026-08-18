@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.ShadcnDrawerPosition
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnDrawer
-import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test

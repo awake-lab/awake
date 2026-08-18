@@ -5,6 +5,8 @@ package io.github.ronjunevaldoz.awake.ui.headless
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** A neutral menu item contract. Visuals and item content belong to the caller's skin. */
@@ -23,7 +25,7 @@ sealed interface UiMenuEntry
 fun ColumnScope.menuItem(
     item: UiMenuItem,
     label: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
 ): Boolean = button(
     id = item.id,

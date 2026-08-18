@@ -18,8 +18,8 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTit
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSmall
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnTextLines
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
 
 internal val TypographyPage = ShowcasePage(

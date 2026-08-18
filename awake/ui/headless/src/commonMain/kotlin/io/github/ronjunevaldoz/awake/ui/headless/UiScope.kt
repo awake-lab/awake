@@ -10,6 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelSize as primitiveWithIntrinsicLabelSize
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.font
@@ -65,14 +67,12 @@ fun UiScope.provideTextStyle(style: TextStyle, content: UiScope.() -> Unit) {
 /** Applies natural label width and font-metric height to surface recipes. */
 fun UiScope.withIntrinsicLabelSize(
     label: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
-): Modifier = HeadlessModifier(
-    primitive.primitiveWithIntrinsicLabelSize(
-        modifier = modifier.asPrimitiveModifier(),
-        label = label,
-        style = style,
-    ),
+): UiModifier = primitive.primitiveWithIntrinsicLabelSize(
+    modifier = modifier,
+    label = label,
+    style = style,
 )
 
 /**

@@ -2,20 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.collapsible as primitiveCollapsible
 
 /** Generic disclosure behavior. The trigger owns its visual and click affordance. */
 fun ColumnScope.collapsible(
     id: String,
     expanded: Boolean,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
     trigger: ColumnScope.(isOpen: Boolean, toggle: () -> Unit) -> Unit,
     content: ColumnScope.() -> Unit,
 ): Boolean = primitive.primitiveCollapsible(
     id = id,
     expanded = expanded,
-    modifier = modifier.asPrimitiveModifier(),
+    modifier = modifier,
     onExpandedChange = onExpandedChange,
     trigger = { open, toggle -> trigger(asHeadlessScope(), open, toggle) },
     content = { content(asHeadlessScope()) },
@@ -28,7 +30,7 @@ fun ColumnScope.collapsible(
 fun UiScope.collapsible(
     id: String,
     expanded: Boolean,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     onExpandedChange: (Boolean) -> Unit = {},
     trigger: ColumnScope.(isOpen: Boolean, toggle: () -> Unit) -> Unit,
     content: ColumnScope.() -> Unit,

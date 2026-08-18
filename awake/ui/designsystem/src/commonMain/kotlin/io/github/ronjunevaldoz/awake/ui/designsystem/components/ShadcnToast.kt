@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnToastStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.toast
 
@@ -11,7 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.toast
 fun UiScope.shadcnToast(
     id: String,
     message: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     durationMs: Float = 3000f,
 ): Boolean = toast(
     id = id,

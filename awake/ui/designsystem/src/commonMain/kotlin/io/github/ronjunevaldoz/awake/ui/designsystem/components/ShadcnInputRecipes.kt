@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextFieldStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextareaStyle
 import io.github.ronjunevaldoz.awake.ui.headless.BoxScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.combobox
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -34,7 +35,7 @@ fun UiScope.shadcnSelect(
     id: String,
     options: List<String>,
     selectedIndex: Int? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     placeholder: String = "",
 ): Int? = select(
@@ -53,7 +54,7 @@ fun UiScope.shadcnCombobox(
     id: String,
     options: List<String>,
     selectedIndex: Int? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     placeholder: String = "Select framework...",
     filterPlaceholder: String = "Search framework...",
@@ -77,7 +78,7 @@ fun UiScope.shadcnInput(
     id: String,
     value: String,
     placeholder: String = "",
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default,
     enabled: Boolean = true,
     isError: Boolean = false,
@@ -101,7 +102,7 @@ fun UiScope.shadcnTextarea(
     id: String,
     value: String,
     placeholder: String = "",
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     variant: ShadcnTextFieldVariant = ShadcnTextFieldVariant.Default,
     enabled: Boolean = true,
     isError: Boolean = false,
@@ -123,7 +124,7 @@ fun UiScope.shadcnSlider(
     max: Float,
     value: Float,
     label: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     showKnob: Boolean = true,
 ): Float = slider(
@@ -145,7 +146,7 @@ fun UiScope.shadcnRangeSlider(
     valueStart: Float,
     valueEnd: Float,
     label: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
 ): Pair<Float, Float> = rangeSlider(
     id = id,
@@ -165,7 +166,7 @@ fun UiScope.shadcnInputGroup(
     placeholder: String = "",
     prefixText: String? = null,
     suffixText: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
 ): String {
     var result = value
@@ -178,7 +179,7 @@ fun UiScope.shadcnInputGroup(
             prefixText?.let { prefix ->
                 surface(
                     id = "$id.prefix",
-                    modifier = Modifier.padding(start = 12f.dp, end = 12f.dp),
+                    modifier = Modifier.padding(start = 12f.dp, top = 0f.dp, end = 12f.dp, bottom = 0f.dp),
                     style = shadcnInputGroupAffixStyle(themeValues),
                 ) {
                     text(label = prefix, style = shadcnInputGroupAffixTextStyle(themeValues))
@@ -194,7 +195,7 @@ fun UiScope.shadcnInputGroup(
             suffixText?.let { suffix ->
                 surface(
                     id = "$id.suffix",
-                    modifier = Modifier.padding(start = 12f.dp, end = 12f.dp),
+                    modifier = Modifier.padding(start = 12f.dp, top = 0f.dp, end = 12f.dp, bottom = 0f.dp),
                     style = shadcnInputGroupAffixStyle(themeValues),
                 ) {
                     text(label = suffix, style = shadcnInputGroupAffixTextStyle(themeValues))

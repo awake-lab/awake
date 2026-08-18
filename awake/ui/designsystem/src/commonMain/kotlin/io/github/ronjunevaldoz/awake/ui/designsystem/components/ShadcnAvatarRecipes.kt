@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAvatarBadgeStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAvatarStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.avatar
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -40,7 +41,7 @@ private fun ShadcnAvatarSize.resolveTextSize(typography: UiTypography): Sp = whe
 fun UiScope.shadcnAvatar(
     id: String,
     initials: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
 ): UiBounds = avatar(
     id = id,
@@ -52,7 +53,7 @@ fun UiScope.shadcnAvatar(
 )
 
 fun UiScope.shadcnAvatarBadge(
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     size: Dp = 10f.dp,
     color: io.github.ronjunevaldoz.awake.core.colors.Color? = null,
     id: String = "avatar.badge",
@@ -64,7 +65,7 @@ fun UiScope.shadcnAvatarBadge(
 
 fun UiScope.shadcnAvatarGroup(
     initials: List<String>,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
     overlap: Dp = 8f.dp,
     id: String = "avatar",

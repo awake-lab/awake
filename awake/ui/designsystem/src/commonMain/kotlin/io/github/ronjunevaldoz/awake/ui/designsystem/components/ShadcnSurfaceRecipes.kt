@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnSurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -28,7 +29,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.surface
 
 fun UiScope.shadcnSurface(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
     cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
@@ -42,7 +43,7 @@ fun UiScope.shadcnSurface(
 
 fun UiScope.shadcnCard(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     variant: ShadcnCardVariant = ShadcnCardVariant.Default,
     size: ShadcnCardSize = ShadcnCardSize.Default,
     cacheKey: Any? = null,

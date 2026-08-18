@@ -7,6 +7,8 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow as PrimitiveTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextWrap as PrimitiveTextWrap
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text as primitiveText
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 enum class UiTextWrap { None, Word }
@@ -26,7 +28,7 @@ private fun UiTextOverflow.asPrimitive(): PrimitiveTextOverflow = when (this) {
 /** Neutral text primitive; typography and color remain caller-provided visual decisions. */
 fun UiScope.text(
     label: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     color: Color? = null,
     centered: Boolean = false,
@@ -36,7 +38,7 @@ fun UiScope.text(
     semanticId: String? = null,
 ): UiBounds = primitive.primitiveText(
     label = label,
-    modifier = modifier.asPrimitiveModifier(),
+    modifier = modifier,
     style = style,
     color = color,
     centered = centered,

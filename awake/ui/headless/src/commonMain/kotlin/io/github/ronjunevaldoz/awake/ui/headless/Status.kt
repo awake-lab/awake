@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.progress as primitiveProgress
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.skeleton as primitiveSkeleton
@@ -12,13 +14,13 @@ import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toast as prim
 fun UiScope.progress(
     id: String,
     value: Float,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
 ) {
     primitive.primitiveProgress(
         id = id,
         value = value,
-        modifier = modifier.asPrimitiveModifier(),
+        modifier = modifier,
         style = style,
     )
 }
@@ -26,13 +28,13 @@ fun UiScope.progress(
 /** Neutral loading placeholder with caller-provided surface visuals. */
 fun UiScope.skeleton(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     shimmer: Boolean = false,
 ) {
     primitive.primitiveSkeleton(
         id = id,
-        modifier = modifier.asPrimitiveModifier(),
+        modifier = modifier,
         style = style,
         shimmer = shimmer,
     )
@@ -41,12 +43,12 @@ fun UiScope.skeleton(
 /** Neutral animated loading indicator with caller-provided foreground visual. */
 fun UiScope.spinner(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
 ) {
     primitive.primitiveSpinner(
         id = id,
-        modifier = modifier.asPrimitiveModifier(),
+        modifier = modifier,
         style = style,
     )
 }
@@ -55,13 +57,13 @@ fun UiScope.spinner(
 fun UiScope.toast(
     id: String,
     message: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     durationMs: Float = 3000f,
     style: Style = Style.Empty,
 ): Boolean = primitive.primitiveToast(
     id = id,
     message = message,
-    modifier = modifier.asPrimitiveModifier(),
+    modifier = modifier,
     durationMs = durationMs,
     style = style,
 )

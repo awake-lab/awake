@@ -10,6 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.UiStroke
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.CanvasScope as PrimitiveCanvasScope
 import io.github.ronjunevaldoz.awake.ui.canvas as primitiveCanvas
@@ -109,9 +111,9 @@ class HeadlessCanvasScope internal constructor(
 
 fun UiScope.canvas(
     id: String = "canvas",
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     content: HeadlessCanvasScope.() -> Unit,
-): UiBounds = primitive.primitiveCanvas(modifier = modifier.asPrimitiveModifier()) {
+): UiBounds = primitive.primitiveCanvas(modifier = modifier) {
     // Explicit receiver: this@canvas's UiScope and the CanvasScope lambda receiver now share one
     // @AwakeUiDsl marker (see B7), so an implicit `primitive` here would resolve nowhere.
     this@canvas.primitive.recordSemantic(role = UiSemanticRole.Panel, id = id, bounds = bounds)

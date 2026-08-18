@@ -15,10 +15,10 @@ import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.button
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement as HeadlessArrangement
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier as HeadlessModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier as HeadlessModifier
 import io.github.ronjunevaldoz.awake.ui.headless.column as headlessColumn
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize as headlessFillMaxSize
-import io.github.ronjunevaldoz.awake.ui.headless.width as headlessWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize as headlessFillMaxSize
+import io.github.ronjunevaldoz.awake.ui.modifier.width as headlessWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.modifier.width

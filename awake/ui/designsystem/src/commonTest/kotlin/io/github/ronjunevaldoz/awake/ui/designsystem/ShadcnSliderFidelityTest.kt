@@ -11,10 +11,10 @@ import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldSliderWithValue
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSlider
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
-import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

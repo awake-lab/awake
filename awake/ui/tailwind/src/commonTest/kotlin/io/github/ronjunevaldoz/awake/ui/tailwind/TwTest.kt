@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.ui.tailwind
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiInsets
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

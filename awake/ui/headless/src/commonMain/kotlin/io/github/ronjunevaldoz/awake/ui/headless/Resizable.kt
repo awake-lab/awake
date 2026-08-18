@@ -3,6 +3,8 @@
 package io.github.ronjunevaldoz.awake.ui.headless
 
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.ResizableDirection as PrimitiveDirection
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.ResizablePanelGroupScope as PrimitiveScope
@@ -17,7 +19,7 @@ class ResizablePanelGroupScope internal constructor(
 fun UiScope.resizablePanelGroup(
     id: String,
     direction: UiResizableDirection = UiResizableDirection.Horizontal,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     content: ResizablePanelGroupScope.() -> Unit,
 ): UiBounds = primitive.primitiveResizablePanelGroup(
     id = id,
@@ -25,7 +27,7 @@ fun UiScope.resizablePanelGroup(
         UiResizableDirection.Horizontal -> PrimitiveDirection.Horizontal
         UiResizableDirection.Vertical -> PrimitiveDirection.Vertical
     },
-    modifier = modifier.asPrimitiveModifier(),
+    modifier = modifier,
 ) { content(ResizablePanelGroupScope(this)) }
 
 fun ResizablePanelGroupScope.panel(

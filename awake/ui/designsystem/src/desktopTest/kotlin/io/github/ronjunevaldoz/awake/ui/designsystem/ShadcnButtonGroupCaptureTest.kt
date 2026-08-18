@@ -12,10 +12,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGrou
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroupSeparator
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
-import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import java.io.File
 import javax.imageio.ImageIO
 import kotlin.test.Test

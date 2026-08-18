@@ -9,11 +9,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsibl
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.headless.height
-import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.padding
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.text

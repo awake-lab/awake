@@ -9,9 +9,9 @@ import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.validateAwakeUiPreview
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.text
-import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 

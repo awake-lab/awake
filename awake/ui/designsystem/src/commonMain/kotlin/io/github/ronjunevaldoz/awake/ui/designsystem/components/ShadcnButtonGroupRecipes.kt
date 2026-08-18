@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.ui.context.uiLocalOf
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -118,7 +119,7 @@ internal fun UiScope.currentLocal(
  */
 fun UiScope.shadcnButtonGroup(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     orientation: ShadcnButtonGroupOrientation = ShadcnButtonGroupOrientation.Horizontal,
     content: UiScope.() -> Unit,
 ): UiBounds = groupSurface(id, orientation, modifier) {
@@ -155,7 +156,7 @@ private val verticalIconGroupMinWidth = 36f.dp
 private fun UiScope.groupSurface(
     id: String,
     orientation: ShadcnButtonGroupOrientation,
-    modifier: Modifier,
+    modifier: UiModifier,
     content: ColumnScope.() -> Unit,
 ): UiBounds = surface(
     id = id,
@@ -180,7 +181,7 @@ private fun UiScope.groupSurface(
  */
 fun UiScope.shadcnButtonGroupSeparator(
     id: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
 ): UiBounds {
     val groupCtx = currentLocal(LocalShadcnButtonGroup)
     val separatorOrientation = when (groupCtx?.orientation) {

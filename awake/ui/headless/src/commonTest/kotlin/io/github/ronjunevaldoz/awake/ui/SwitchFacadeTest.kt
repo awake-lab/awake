@@ -5,10 +5,10 @@ package io.github.ronjunevaldoz.awake.ui
 import io.github.ronjunevaldoz.awake.testing.ui.renderUiComponent
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.api.dp
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.headless.switch
-import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

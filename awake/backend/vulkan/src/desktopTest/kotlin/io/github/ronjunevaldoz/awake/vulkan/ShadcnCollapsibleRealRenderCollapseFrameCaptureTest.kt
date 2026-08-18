@@ -12,12 +12,12 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.headless.height
-import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import java.io.File
 import kotlin.test.Test

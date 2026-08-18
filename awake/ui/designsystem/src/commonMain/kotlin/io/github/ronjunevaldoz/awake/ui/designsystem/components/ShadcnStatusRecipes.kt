@@ -16,6 +16,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnStatusEmptySty
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiSeparatorOrientation
 import io.github.ronjunevaldoz.awake.ui.headless.column
@@ -49,7 +50,7 @@ fun UiScope.shadcnBadge(
 fun UiScope.shadcnKbd(
     id: String,
     label: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
 ): UiBounds {
     val style = shadcnKbdStyle(themeValues)
     return surface(
@@ -63,7 +64,7 @@ fun UiScope.shadcnKbd(
 }
 
 fun UiScope.shadcnSeparator(
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     thickness: io.github.ronjunevaldoz.awake.ui.api.Dp = 1f.dp,
     orientation: UiSeparatorOrientation = UiSeparatorOrientation.Horizontal,
     id: String? = null,
@@ -78,7 +79,7 @@ fun UiScope.shadcnSeparator(
 fun UiScope.shadcnProgress(
     id: String,
     value: Float,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
 ): Unit = progress(
     id = id,
     value = value,
@@ -88,7 +89,7 @@ fun UiScope.shadcnProgress(
 
 fun UiScope.shadcnSkeleton(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     shimmer: Boolean = false,
 ): Unit = skeleton(
     id = id,
@@ -99,7 +100,7 @@ fun UiScope.shadcnSkeleton(
 
 fun UiScope.shadcnSpinner(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
 ): Unit = spinner(
     id = id,
     modifier = modifier,
@@ -108,7 +109,7 @@ fun UiScope.shadcnSpinner(
 
 fun UiScope.shadcnAlert(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     variant: ShadcnAlertVariant = ShadcnAlertVariant.Default,
     content: ColumnScope.() -> Unit,
 ): UiBounds = surface(
@@ -125,7 +126,7 @@ fun UiScope.shadcnAlert(
     id: String,
     title: String,
     description: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     variant: ShadcnAlertVariant = ShadcnAlertVariant.Default,
 ): UiBounds = shadcnAlert(
     id = id,
@@ -142,7 +143,7 @@ fun UiScope.shadcnEmpty(
     id: String,
     title: String,
     description: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     action: (ColumnScope.() -> Unit)? = null,
 ): UiBounds = surface(
     id = id,

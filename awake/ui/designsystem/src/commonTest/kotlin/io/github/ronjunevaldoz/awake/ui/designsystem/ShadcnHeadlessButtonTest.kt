@@ -5,9 +5,9 @@ package io.github.ronjunevaldoz.awake.ui.designsystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

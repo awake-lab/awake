@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 
 /** Direct-context counterpart to [showcaseTestSession] for probes that manage their own frames. */
 internal fun UiContext.showcaseRoot(
@@ -76,7 +76,7 @@ internal fun <T> showcaseTestSession(
 internal fun AwakeUiPreviewMetadata.shadcnComponentStateMatrix(
     theme: ShadcnThemeValues = shadcnThemeValues(),
     font: UiFont = UiFonts.default(),
-    block: ColumnScope.(Modifier) -> Unit,
+    block: ColumnScope.(UiModifier) -> Unit,
 ): List<AwakeUiPreviewSample> = headlessComponentStateMatrix(
     theme = theme,
     font = font,

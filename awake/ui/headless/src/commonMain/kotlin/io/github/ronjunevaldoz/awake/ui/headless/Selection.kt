@@ -7,13 +7,15 @@ import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.checkbox as p
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.switch as primitiveSwitch
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toggle as primitiveToggle
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.toggleGroup as primitiveToggleGroup
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 fun UiScope.checkbox(
     id: String,
     checked: Boolean,
     label: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     boxSize: Dp,
     indeterminate: Boolean = false,
     enabled: Boolean = true,
@@ -22,7 +24,7 @@ fun UiScope.checkbox(
     id = id,
     checked = checked,
     label = label,
-    modifier = modifier.asPrimitiveModifier(),
+    modifier = modifier,
     style = style,
     boxSize = boxSize,
     indeterminate = indeterminate,
@@ -33,14 +35,14 @@ fun UiScope.switch(
     id: String,
     checked: Boolean,
     label: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     style: Style = Style.Empty,
 ): Boolean = primitive.primitiveSwitch(
     id = id,
     checked = checked,
     label = label,
-    modifier = modifier.asPrimitiveModifier(),
+    modifier = modifier,
     style = style,
     enabled = enabled,
 )
@@ -50,7 +52,7 @@ fun UiScope.toggle(
     id: String,
     checked: Boolean,
     label: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit = {},
     style: Style = Style.Empty,
@@ -58,7 +60,7 @@ fun UiScope.toggle(
     id = id,
     checked = checked,
     label = label,
-    modifier = modifier.asPrimitiveModifier(),
+    modifier = modifier,
     style = style,
     enabled = enabled,
     onCheckedChange = onCheckedChange,
@@ -69,7 +71,7 @@ fun UiScope.toggleGroup(
     id: String,
     options: List<String>,
     selectedIndices: Set<Int>,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     onSelectedIndicesChange: (Set<Int>) -> Unit = {},
 ) {
@@ -77,7 +79,7 @@ fun UiScope.toggleGroup(
         id = id,
         options = options,
         selectedIndices = selectedIndices,
-        modifier = modifier.asPrimitiveModifier(),
+        modifier = modifier,
         itemStyle = style,
         onSelectedIndicesChange = onSelectedIndicesChange,
     )
@@ -88,7 +90,7 @@ fun UiScope.toggleGroup(
     id: String,
     options: List<String>,
     selectedIndex: Int,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     onIndexChange: (Int) -> Unit = {},
 ) {
@@ -96,7 +98,7 @@ fun UiScope.toggleGroup(
         id = id,
         options = options,
         selectedIndex = selectedIndex,
-        modifier = modifier.asPrimitiveModifier(),
+        modifier = modifier,
         itemStyle = style,
         onIndexChange = onIndexChange,
     )

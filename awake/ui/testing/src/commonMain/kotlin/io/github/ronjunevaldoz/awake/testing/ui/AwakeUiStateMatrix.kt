@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
-import io.github.ronjunevaldoz.awake.ui.headless.toHeadless
 import io.github.ronjunevaldoz.awake.ui.layouts.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -23,7 +22,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.forceHover
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.theme.asRuntimeTheme
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope as HeadlessColumnScope
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier as HeadlessModifier
 
 /**
  * Automates the rendering of a component in multiple interaction states using forced modifiers.
@@ -77,7 +75,7 @@ fun AwakeUiPreviewMetadata.headlessComponentStateMatrix(
      * know design systems; a caller can provide its own composition boundary here.
      */
     rootProvider: UiTestRootProvider = { content -> content() },
-    block: HeadlessColumnScope.(HeadlessModifier) -> Unit,
+    block: HeadlessColumnScope.(UiModifier) -> Unit,
 ): List<AwakeUiPreviewSample> {
     val states = listOf(
         "default" to Modifier,
@@ -94,7 +92,7 @@ fun AwakeUiPreviewMetadata.headlessComponentStateMatrix(
         ui.pushLocal(LocalTheme, resolvedTheme.asRuntimeTheme())
         ui.createUiScope(UiBounds(0f, 0f, width.toFloat(), height.toFloat())).rootProvider {
             column {
-                block(forcedModifier.toHeadless())
+                block(forcedModifier)
             }
         }
         val frameOutput = ui.finishFrame()

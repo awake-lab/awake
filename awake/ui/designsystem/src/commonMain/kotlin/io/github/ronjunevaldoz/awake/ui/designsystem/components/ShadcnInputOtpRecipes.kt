@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnInputOtpSlotSt
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnLegacyAmbientSurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.box
 import io.github.ronjunevaldoz.awake.ui.headless.clickable
@@ -26,7 +27,7 @@ fun UiScope.shadcnInputOTP(
     id: String,
     value: String,
     length: Int = 6,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     isError: Boolean = false,
     groupSize: Int = 0,

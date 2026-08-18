@@ -7,6 +7,12 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 enum class UiSeparatorOrientation { Horizontal, Vertical }
@@ -20,7 +26,7 @@ enum class UiSeparatorOrientation { Horizontal, Vertical }
  * paints nothing, the same "caller's job to style it" contract [interactiveSurface] documents.
  */
 fun UiScope.separator(
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     thickness: Dp = 1f.dp,
     orientation: UiSeparatorOrientation = UiSeparatorOrientation.Horizontal,
     style: Style = Style.Empty,
@@ -45,7 +51,7 @@ fun UiScope.separator(
 /** Compatibility bridge for callers that have not moved their separator colour into [Style]. */
 @Deprecated("Use style = Style { background(color) }")
 fun UiScope.separator(
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     thickness: Dp = 1f.dp,
     orientation: UiSeparatorOrientation = UiSeparatorOrientation.Horizontal,
     color: Color,

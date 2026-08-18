@@ -7,6 +7,10 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.drawDropdownTriggerContent
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
@@ -20,7 +24,7 @@ fun UiScope.select(
     id: String,
     options: List<String>,
     selectedIndex: Int? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     placeholder: String = "",
     style: Style = Style.Empty,
@@ -30,7 +34,7 @@ fun UiScope.select(
     id = id,
     options = options,
     selectedIndex = selectedIndex ?: -1,
-    modifier = modifier.asPrimitiveModifier(),
+    modifier = modifier,
     style = style,
     selectedStyle = selectedStyle,
     optionStyle = optionStyle,
@@ -43,7 +47,7 @@ fun UiScope.combobox(
     id: String,
     options: List<String>,
     selectedIndex: Int? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     placeholder: String = "",
     filterPlaceholder: String = "Search...",
@@ -58,7 +62,7 @@ fun UiScope.combobox(
     val selectedLabel = options.getOrNull(selectedIndex ?: -1) ?: placeholder
     val trigger = primitive.primitiveButtonSlot(
         id = "$id.trigger",
-        modifier = modifier.asPrimitiveModifier(),
+        modifier = modifier,
         style = style,
         enabled = enabled,
     )

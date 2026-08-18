@@ -7,8 +7,8 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcasePage
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnAlert
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnAlertVariant
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
 
 internal val AlertPage = ShowcasePage(

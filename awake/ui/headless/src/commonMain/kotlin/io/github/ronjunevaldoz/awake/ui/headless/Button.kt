@@ -7,6 +7,11 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.clickable
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
@@ -32,7 +37,7 @@ import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 fun UiScope.button(
     id: String,
     label: String? = null,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     centered: Boolean = true,
     enabled: Boolean = true,
@@ -40,11 +45,11 @@ fun UiScope.button(
 ): Boolean {
     val sizedModifier = if (label != null) {
         primitive.withIntrinsicLabelWidth(
-            modifier = modifier.asPrimitiveModifier(),
+            modifier = modifier,
             label = label,
             style = style,
             defaults = Style { shape(0f.dp) },
-        ).toHeadless()
+        )
     } else {
         modifier
     }
@@ -72,7 +77,7 @@ fun UiScope.button(
     id: String,
     label: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     centered: Boolean = true,
     enabled: Boolean = true,
@@ -129,14 +134,14 @@ fun UiScope.button(
  */
 fun UiScope.button(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     enabled: Boolean = true,
     semanticRole: UiSemanticRole = UiSemanticRole.Button,
     content: RowScope.(slot: UiBounds) -> Unit,
 ): Boolean {
     var clicked = false
-    val hasExplicitWidth = modifier.asPrimitiveModifier().widthDimension != null
+    val hasExplicitWidth = modifier.widthDimension != null
     primitive.withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
         interactiveSurface(
             id = id,

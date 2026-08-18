@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Neutral behavior inputs for a modal [dialog]. Visual style is [dialog]'s own `style` param --

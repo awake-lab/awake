@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTableStyle
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
@@ -69,7 +70,7 @@ fun shadcnTableColumnWidthsPx(columns: List<ShadcnTableColumn>, availableWidthPx
 fun UiScope.shadcnTable(
     id: String,
     columns: List<ShadcnTableColumn>,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     caption: String? = null,
     content: ShadcnTableScope.() -> Unit,
 ): UiBounds = surface(

@@ -9,14 +9,14 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnRadioGroup
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.modifier.height
 import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

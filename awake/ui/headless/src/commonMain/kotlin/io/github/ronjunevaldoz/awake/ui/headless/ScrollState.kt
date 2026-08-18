@@ -5,6 +5,8 @@ package io.github.ronjunevaldoz.awake.ui.headless
 import io.github.ronjunevaldoz.awake.ui.UiScrollConfig
 import io.github.ronjunevaldoz.awake.ui.UiScrollState
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
+import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.horizontalScroll as primitiveHorizontalScroll
 import io.github.ronjunevaldoz.awake.ui.modifier.verticalScroll as primitiveVerticalScroll
 import io.github.ronjunevaldoz.awake.ui.rememberScrollState as rememberPrimitiveScrollState
 
@@ -34,6 +36,11 @@ class ScrollState internal constructor(
     }
 }
 
+fun UiModifier.verticalScroll(
+    state: ScrollState,
+    config: UiScrollConfig = UiScrollConfig.Default,
+): UiModifier = primitiveVerticalScroll(state.primitive, config)
+
 fun UiContext.rememberScrollState(
     id: String,
     initialOffsetX: Float = 0f,
@@ -49,8 +56,3 @@ fun UiScope.rememberScrollState(
         rememberPrimitiveScrollState(id, initialOffsetX, initialOffsetY)
     },
 )
-
-fun Modifier.verticalScroll(
-    state: ScrollState,
-    config: UiScrollConfig = UiScrollConfig.Default,
-): Modifier = HeadlessModifier(asPrimitiveModifier().primitiveVerticalScroll(state.primitive, config))

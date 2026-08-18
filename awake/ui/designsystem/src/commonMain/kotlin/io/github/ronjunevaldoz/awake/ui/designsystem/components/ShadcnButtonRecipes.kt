@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.visuals
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.button
@@ -35,7 +36,7 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 fun UiScope.shadcnButton(
     id: String,
     label: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
     size: ShadcnButtonSize = ShadcnButtonSize.Md,
     centered: Boolean = true,
@@ -68,7 +69,7 @@ fun UiScope.shadcnButton(
 
 fun UiScope.shadcnButton(
     id: String,
-    modifier: Modifier = Modifier,
+    modifier: UiModifier = Modifier,
     variant: ShadcnButtonVariant = ShadcnButtonVariant.Primary,
     size: ShadcnButtonSize = ShadcnButtonSize.Md,
     enabled: Boolean = true,

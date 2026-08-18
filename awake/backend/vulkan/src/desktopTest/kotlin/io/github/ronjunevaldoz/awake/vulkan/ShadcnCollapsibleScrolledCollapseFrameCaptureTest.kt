@@ -14,13 +14,13 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGro
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.ScrollState
 import io.github.ronjunevaldoz.awake.ui.headless.createUiScope
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
 import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
-import io.github.ronjunevaldoz.awake.ui.headless.width
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.toUiInputState
 import java.io.File
 import kotlin.test.Test

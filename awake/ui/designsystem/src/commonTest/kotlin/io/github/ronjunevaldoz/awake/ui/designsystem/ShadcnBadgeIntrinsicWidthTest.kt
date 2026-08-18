@@ -6,9 +6,9 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnBadgeVariant
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
