@@ -80,17 +80,30 @@ modules under `awake:core`, it does not propose moving those two.
     - Logger, Profiler, AssertionEngine, MemoryTracker, CrashReporter.
     - Global leaf dependency, connected across all layers.
 
-## Rendering backend shape (already real, referenced for context)
+## Rendering + physics backend shape (already real, referenced for context)
 
-Rendering itself lives at `awake:engine:render:*` today, not under this proposal, but the
-existing driver-selection shape is worth restating here since any new leaf module above
-should assume the same per-platform factory pattern:
+**Corrected 2026-08-18** -- the previous version of this section named a
+`RenderDriverFactory` class. Verified against source: no such class exists anywhere in the
+tree. Selection is plain KMP `expect`/`actual`, not a runtime factory object.
+
+Rendering and physics live outside this proposal already, at `awake:engine:render:*` and
+`awake:backend:*`, but the shape is worth restating since any new leaf module above should
+assume the same pattern:
 
 ```
-awake:engine:render:contract/commonMain   -- pure interface: Camera, Material, Renderer
-androidMain / desktopMain / wasmJsMain    -- RenderDriverFactory resolves the concrete backend
-                                              (Vulkan direct / Vulkan or WebGPU / WebGPU direct)
+awake:engine:render:contract        -- interface: Camera, Material, Renderer (commonMain)
+  awake:backend:vulkan              -- expect class Renderer : contract.Renderer
+    awake:backend:vulkan:bindings           -- generated Vulkan API bindings
+    awake:backend:vulkan:bindings:android-native
+    awake:backend:vulkan:generator          -- the codegen tool that produces bindings/
+  awake:backend:webgpu              -- expect class Renderer : contract.Renderer (wasmJs)
+  awake:backend:jolt                -- Jolt Physics via JoltC (SecondHalfGames/JoltC),
+                                        prebuilt binary on iOS; not a render backend, physics
 ```
+
+Selection happens at compile time per KMP source set (`expect class Renderer(...)` in
+`awake-vulkan`, an `actual` per platform target) -- there is no runtime factory to route
+through.
 
 ## References
 
