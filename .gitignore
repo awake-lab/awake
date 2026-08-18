@@ -35,3 +35,9 @@ shared/shared.podspec
 .webui_secret_key
 /third_party/
 **/karma.config.d/awake-serve-test-resources.js
+# syncAwakeShaders' compiled output for awake:asset:shaders specifically -- unlike samples/*'s
+# own appMain/wasmJsMain shader binaries (which ARE committed, real runtime assets), nothing
+# consumes this module's own copy; it's a dead byproduct of a task registered on every module
+# that applies awake.shader-pipeline-convention, this one included, regenerated on demand.
+/awake/asset/shaders/src/appMain/
+/awake/asset/shaders/src/wasmJsMain/
