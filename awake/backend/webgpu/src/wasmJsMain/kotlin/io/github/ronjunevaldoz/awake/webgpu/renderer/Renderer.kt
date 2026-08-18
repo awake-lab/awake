@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.webgpu.debug.SkyboxRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
+import io.github.ronjunevaldoz.awake.webgpu.mesh.AlphaInstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.InstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
@@ -129,6 +130,13 @@ class Renderer(
      * instead of [instancedPipelines]; a format with no entry is skipped. Empty (default) for
      * a game that never animates instances. */
     internal val skinnedInstancedPipelines: Map<VertexFormat, RenderPipeline> = emptyMap(),
+    /** Billboard-particle companion, keyed by [VertexFormat.PositionUv] -- built with
+     * `instanced = true, instanceAlpha = true, blendEnabled = true, depthWriteEnabled = false`
+     * (see `particle.wgsl`). Unlike [instancedPipelines]/[skinnedInstancedPipelines], a particle
+     * draw carries a REAL textured material (`DrawCall.material`), so it binds that material's
+     * own bind group rather than a shared Renderer-owned one -- see [performDraw]. Empty
+     * (default) for a game that never opts into `WebGpuGameApplication.particleShaderSet`. */
+    internal val particlePipelines: Map<VertexFormat, RenderPipeline> = emptyMap(),
     /** Non-null only when the app's bootstrap opted into a skybox shader set (see
      * `WebGpuGameApplication.skyboxShaderSet`) -- `null` (default) makes [showEnvironment] an
      * inert flag, same "nothing to switch to, keep rendering as before" posture as
@@ -228,6 +236,17 @@ class Renderer(
             skinnedInstanceBufferPool += SkinnedInstanceBuffer(graphicsDevice)
         }
         return skinnedInstanceBufferPool[index]
+    }
+
+    // Same pool shape, for the per-particle alphas a billboard instanced draw call also needs
+    // (slot 2, alongside the model matrices at slot 1).
+    private val alphaInstanceBufferPool = mutableListOf<AlphaInstanceBuffer>()
+
+    internal fun alphaInstanceBufferForRun(index: Int): AlphaInstanceBuffer {
+        while (alphaInstanceBufferPool.size <= index) {
+            alphaInstanceBufferPool += AlphaInstanceBuffer(graphicsDevice)
+        }
+        return alphaInstanceBufferPool[index]
     }
 
     // Lazily built on the first drawUi() call of any kind (uiRenderPipeline) and on the
@@ -506,6 +525,8 @@ class Renderer(
         skinnedInstanceBufferPool.forEach { it.destroy() }
         skinnedInstanceBufferPool.clear()
         instanceBufferPool.forEach { it.destroy() }
+        alphaInstanceBufferPool.forEach { it.destroy() }
+        alphaInstanceBufferPool.clear()
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
         uiTextureRenderPipeline?.destroy()

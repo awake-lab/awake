@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.webgpu.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.times
+import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
@@ -132,28 +133,41 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                 // pipeline map and additionally binds a per-instance joint-palette storage
                 // buffer at group 1 -- everything else below is shared with static instancing.
                 val palettes = drawCall.instanceJointPalettes
-                val instancedPipeline = if (palettes != null) {
-                    skinnedInstancedPipelines[drawCall.mesh.format]
-                } else {
-                    instancedPipelines[drawCall.mesh.format]
+                val isParticle = drawCall.mesh.format == VertexFormat.PositionUv
+                val instancedPipeline = when {
+                    palettes != null -> skinnedInstancedPipelines[drawCall.mesh.format]
+                    isParticle -> particlePipelines[drawCall.mesh.format]
+                    else -> instancedPipelines[drawCall.mesh.format]
                 }
-                if (instancedPipeline != null && instanceModels.isNotEmpty()) {
+                val particleMaterial = (drawCall.material as? Material)?.takeIf { isParticle && it.hasTexture }
+                if (instancedPipeline != null && instanceModels.isNotEmpty() && (!isParticle || particleMaterial != null)) {
                     val resolved = WebGpuHandles.resolve<GPURenderPipeline>(instancedPipeline.graphicsPipeline[0])
-                    if (palettes != null) {
+                    setPipeline(resolved)
+                    if (particleMaterial != null) {
+                        // Particles carry a real texture, so -- unlike the untextured static/
+                        // skinned instanced paths below -- they bind their own material's bind
+                        // group (uniform + texture + sampler), sized for particle.wgsl's
+                        // viewProjection(16) + cameraRight(4) + cameraUp(4) block, not the
+                        // Renderer-shared viewProjection+light one.
+                        particleMaterial.updateUniformBuffer(viewProjection.data + drawCall.extraUniformFloats)
+                        setBindGroup(0u, particleMaterial.bindGroupFor(resolved))
+                    } else if (palettes != null) {
                         ensureSkinnedInstancedUniformResources(resolved)
+                        device.queue.writeBuffer(
+                            skinnedInstancedUniformBuffer!!,
+                            0uL,
+                            fastArrayBufferOf(viewProjection.data + lightFloats),
+                        )
+                        setBindGroup(0u, skinnedInstancedUniformBindGroup!!)
                     } else {
                         ensureInstancedUniformResources(resolved)
+                        device.queue.writeBuffer(
+                            instancedUniformBuffer!!,
+                            0uL,
+                            fastArrayBufferOf(viewProjection.data + lightFloats),
+                        )
+                        setBindGroup(0u, instancedUniformBindGroup!!)
                     }
-                    val uniforms = if (palettes != null) skinnedInstancedUniformBuffer!! else instancedUniformBuffer!!
-                    val uniformBindGroup =
-                        if (palettes != null) skinnedInstancedUniformBindGroup!! else instancedUniformBindGroup!!
-                    setPipeline(resolved)
-                    device.queue.writeBuffer(
-                        uniforms,
-                        0uL,
-                        fastArrayBufferOf(viewProjection.data + lightFloats),
-                    )
-                    setBindGroup(0u, uniformBindGroup)
                     if (palettes != null) {
                         val paletteBuffer = skinnedInstanceBufferForRun(instancedIndex)
                         paletteBuffer.update(palettes)
@@ -164,6 +178,11 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                     val mesh = drawCall.mesh as Mesh
                     setVertexBuffer(0u, WebGpuHandles.resolve(mesh.vertexBuffer.handle))
                     setVertexBuffer(1u, instanceBuffer.bufferRef())
+                    if (particleMaterial != null) {
+                        val alphaBuffer = alphaInstanceBufferForRun(instancedIndex)
+                        alphaBuffer.update(drawCall.instanceAlphas.orEmpty())
+                        setVertexBuffer(2u, alphaBuffer.bufferRef())
+                    }
                     setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)
                     // Issued here rather than through Mesh.drawInstanced: drawIndexed is a
                     // render-pass-encoder call, which is exactly why this backend's Mesh.draw()
@@ -174,7 +193,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                     println(
                         "Awake (WebGPU): instanced DrawCall skipped -- no ${if (palettes != null) "skinned-" else ""}" +
                             "instanced pipeline registered for mesh format ${drawCall.mesh.format}, " +
-                            "or instanceModels was empty.",
+                            "or instanceModels was empty, or the particle material had no texture.",
                     )
                 }
                 drawIndex += 1

@@ -58,6 +58,12 @@ open class WebGpuGameApplication(
      * doc comment, including why it is opt-in rather than always-on). `null` (default) leaves
      * `Renderer.showEnvironment` an inert flag. */
     private val skyboxShaderSet: GameShaderSet? = null,
+    /** Opts into billboard-particle instancing -- mirrors
+     * `VulkanGameApplication.particleShaderSet` (see its doc comment), built for
+     * [VertexFormat.PositionUv] with `instanced = true, instanceAlpha = true,
+     * blendEnabled = true, depthWriteEnabled = false`. `null` (default) means a
+     * `ParticleEmitter` entity simply doesn't draw. */
+    private val particleShaderSet: GameShaderSet? = null,
 ) : GameApplication(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -73,6 +79,7 @@ open class WebGpuGameApplication(
         instancedShaderSet: GameShaderSet? = null,
         skinnedInstancedShaderSet: GameShaderSet? = null,
         skyboxShaderSet: GameShaderSet? = null,
+        particleShaderSet: GameShaderSet? = null,
     ) : this(
         vertexShaderResourcePath = shaderSet.webGpu.vertexResourcePath,
         fragmentShaderResourcePath = shaderSet.webGpu.fragmentResourcePath,
@@ -85,6 +92,7 @@ open class WebGpuGameApplication(
         instancedShaderSet = instancedShaderSet,
         skinnedInstancedShaderSet = skinnedInstancedShaderSet,
         skyboxShaderSet = skyboxShaderSet,
+        particleShaderSet = particleShaderSet,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -94,6 +102,7 @@ open class WebGpuGameApplication(
     private val additionalRenderPipelines = mutableMapOf<VertexFormat, RenderPipeline>()
     private var instancedRenderPipeline: RenderPipeline? = null
     private var skinnedInstancedRenderPipeline: RenderPipeline? = null
+    private var particleRenderPipeline: RenderPipeline? = null
     private lateinit var lineRenderPipeline: LineRenderPipeline
     private var skyboxRenderPipeline: SkyboxRenderPipeline? = null
 
@@ -170,6 +179,22 @@ open class WebGpuGameApplication(
                 instanced = true,
             )
         }
+        particleRenderPipeline = particleShaderSet?.let { shaderSet ->
+            RenderPipeline(
+                graphicsDevice,
+                swapchainManager,
+                DescriptorSetLayoutHandle(0),
+                readResourceBytes(shaderSet.webGpu.vertexResourcePath),
+                ByteArray(0),
+                VertexFormat.PositionUv,
+                shaderSet.webGpu.vertexEntryPoint,
+                shaderSet.webGpu.fragmentEntryPoint,
+                instanced = true,
+                instanceAlpha = true,
+                blendEnabled = true,
+                depthWriteEnabled = false,
+            )
+        }
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
@@ -200,6 +225,7 @@ open class WebGpuGameApplication(
             skinnedInstancedRenderPipeline
                 ?.let { mapOf(VertexFormat.PositionNormalColorSkin to it) }
                 ?: emptyMap(),
+            particleRenderPipeline?.let { mapOf(VertexFormat.PositionUv to it) } ?: emptyMap(),
             skyboxRenderPipeline,
         )
 
@@ -220,6 +246,7 @@ open class WebGpuGameApplication(
         additionalRenderPipelines.values.forEach { it.destroy() }
         instancedRenderPipeline?.destroy()
         skinnedInstancedRenderPipeline?.destroy()
+        particleRenderPipeline?.destroy()
         lineRenderPipeline.destroy()
         skyboxRenderPipeline?.destroy()
         graphicsDevice.destroy()

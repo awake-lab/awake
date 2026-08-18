@@ -8,9 +8,12 @@ import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
+import io.ygdrasil.webgpu.BlendComponent
+import io.ygdrasil.webgpu.BlendState
 import io.ygdrasil.webgpu.ColorTargetState
 import io.ygdrasil.webgpu.DepthStencilState
 import io.ygdrasil.webgpu.FragmentState
+import io.ygdrasil.webgpu.GPUBlendFactor
 import io.ygdrasil.webgpu.GPUCompareFunction
 import io.ygdrasil.webgpu.GPUCullMode
 import io.ygdrasil.webgpu.GPUFrontFace
@@ -62,6 +65,17 @@ class RenderPipeline(
      * The 4 locations continue past [vertexFormat]'s own highest one, so no format needs
      * renumbering. Mirrors Vulkan's `RenderPipeline.instanced`. */
     instanced: Boolean = false,
+    /** Only meaningful alongside [instanced]. Adds a THIRD, `GPUVertexStepMode.Instance` vertex
+     * buffer layout (stride 4) carrying one `f32` alpha per instance -- see `particle.wgsl` and
+     * `DrawCall.instanceAlphas`. Mirrors Vulkan's `RenderPipeline.instanceAlpha`. */
+    instanceAlpha: Boolean = false,
+    /** `false` (default) is byte-for-byte the opaque pipeline this class always built. `true`
+     * enables standard straight-alpha blending, same factors [io.github.ronjunevaldoz.awake
+     * .webgpu.ui.UiTextureRenderPipeline] already uses. */
+    blendEnabled: Boolean = false,
+    /** `true` (default) is byte-for-byte what this class always built. `false` disables depth
+     * WRITE only (depth TEST stays on) -- for order-independent content like particles. */
+    depthWriteEnabled: Boolean = true,
 ) {
     var renderPass: Long = 0
     var pipelineLayout: Long = 0
@@ -98,6 +112,19 @@ class RenderPipeline(
                     )
                 },
             )
+            if (instanceAlpha) {
+                vertexBuffers += VertexBufferLayout(
+                    arrayStride = Float.SIZE_BYTES.toULong(),
+                    stepMode = GPUVertexStepMode.Instance,
+                    attributes = listOf(
+                        VertexAttribute(
+                            shaderLocation = (firstLocation + MATRIX_ROWS).toUInt(),
+                            offset = 0uL,
+                            format = GPUVertexFormat.Float32,
+                        ),
+                    ),
+                )
+            }
         }
 
         val pipeline = device.createRenderPipeline(
@@ -111,7 +138,23 @@ class RenderPipeline(
                     module = shaderModule,
                     entryPoint = fragmentEntryPoint,
                     targets = listOf(
-                        ColorTargetState(format = swapchainManager.imageFormatWebGpu),
+                        ColorTargetState(
+                            format = swapchainManager.imageFormatWebGpu,
+                            blend = if (blendEnabled) {
+                                BlendState(
+                                    color = BlendComponent(
+                                        srcFactor = GPUBlendFactor.SrcAlpha,
+                                        dstFactor = GPUBlendFactor.OneMinusSrcAlpha,
+                                    ),
+                                    alpha = BlendComponent(
+                                        srcFactor = GPUBlendFactor.SrcAlpha,
+                                        dstFactor = GPUBlendFactor.OneMinusSrcAlpha,
+                                    ),
+                                )
+                            } else {
+                                null
+                            },
+                        ),
                     ),
                 ),
                 primitive = PrimitiveState(
@@ -121,7 +164,7 @@ class RenderPipeline(
                 ),
                 depthStencil = DepthStencilState(
                     format = GPUTextureFormat.Depth32Float,
-                    depthWriteEnabled = true,
+                    depthWriteEnabled = depthWriteEnabled,
                     depthCompare = GPUCompareFunction.Less,
                     stencilFront = StencilFaceState(),
                     stencilBack = StencilFaceState(),
