@@ -61,6 +61,12 @@ data class InputSnapshot(
     val typedText: String,
     val editActions: List<TextEditAction>,
     val secondaryPointerDown: Boolean = false,
+    /** A press happened this frame, even if a matching release also happened before this
+     * snapshot was taken. `pointerDown` alone can miss a sub-frame down+up pair -- it only
+     * reflects the latest event, not whether one occurred. See [Input.setPointer]. */
+    val pointerPressed: Boolean = false,
+    /** A release happened this frame, same caveat as [pointerPressed]. */
+    val pointerReleased: Boolean = false,
 ) {
     fun isDown(k: Key): Boolean = k in keysDown
 
@@ -88,6 +94,13 @@ class Input {
 
     var scrollDeltaX: Float = 0f
     var scrollDeltaY: Float = 0f
+
+    // Accumulated (OR'd), not overwritten, so a down+up pair landing within one frame
+    // interval -- a fast tap, a trackpad tap, any synthetic/automation click -- still
+    // latches both edges instead of the second event silently erasing the first. Cleared
+    // in updateSnapshot(), same lifecycle as pendingEditActions/typedText below.
+    private var pendingPointerPressed = false
+    private var pendingPointerReleased = false
 
     /** Set by the UI pass to signal focus to platform bridges (e.g. soft keyboard). */
     var textInputFocused: Boolean = false
@@ -124,12 +137,16 @@ class Input {
             typedText = typedText.toString(),
             editActions = pendingEditActions.toList(),
             secondaryPointerDown = secondaryPointerDown,
+            pointerPressed = pendingPointerPressed,
+            pointerReleased = pendingPointerReleased,
         )
         // Clear transient buffers
         scrollDeltaX = 0f
         scrollDeltaY = 0f
         typedText.clear()
         pendingEditActions.clear()
+        pendingPointerPressed = false
+        pendingPointerReleased = false
         return currentSnapshot
     }
 
@@ -158,6 +175,8 @@ class Input {
     }
 
     fun setPointer(down: Boolean, x: Float, y: Float) {
+        if (down && !pointerDown) pendingPointerPressed = true
+        if (!down && pointerDown) pendingPointerReleased = true
         pointerDown = down
         pointerX = x
         pointerY = y
