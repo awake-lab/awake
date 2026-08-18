@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childRow
+import io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey
 import io.github.ronjunevaldoz.awake.ui.context.UiMeasuredContent
 import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
 import io.github.ronjunevaldoz.awake.ui.context.resolveMeasuredContentCached
@@ -22,6 +23,81 @@ import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
 
+/**
+ * Shared implementation behind every scope-specific `row()` wrapper below -- each wrapper only
+ * differs by its two [Dimension] defaults (a plain row hugs its own main axis but a
+ * weight()-tagged one must defer to FillMax, mirroring [Column.kt]'s `resolveMeasuredColumn`)
+ * and by how it bounds the trial's cross axis when neither a real value nor a caller default is
+ * available ([availableHeightFallback]).
+ *
+ * Resolves the ambient [LocalCacheKey] once here (not per wrapper) -- previously only
+ * `AbsoluteScope.row()` read it, and even that copy passed the raw, unresolved `cacheKey`
+ * downstream to the real `row()` call instead of this resolved one.
+ */
+private fun UiPrimitiveScope.resolveMeasuredRow(
+    horizontalArrangement: Arrangement,
+    verticalAlignment: UiAlignment.Vertical,
+    modifier: UiModifier,
+    defaultWidth: Dimension,
+    defaultHeight: Dimension,
+    availableHeightFallback: Float,
+    id: String?,
+    cacheKey: Any?,
+    content: RowScope.(slot: UiBounds) -> Unit,
+): UiBounds {
+    val requestedWidth = modifier.widthDimension ?: defaultWidth
+    val requestedHeight = modifier.heightDimension ?: defaultHeight
+    val effectiveArrangement = horizontalArrangement
+    val effectiveCacheKey = cacheKey ?: context.current(LocalCacheKey)
+    val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
+        val availableHeight = when (requestedHeight) {
+            is Dimension.Fixed -> requestedHeight.dp.toPx()
+            Dimension.FillMax, Dimension.WrapContent -> availableHeightFallback
+        }
+        context.resolveMeasuredContentCached(
+            id = id,
+            cacheKey = effectiveCacheKey,
+            availableWidth = availableHeight,
+            gap = effectiveArrangement.baseSpacingPx(),
+        ) {
+            context.measureRowContentInternal(
+                availableHeight,
+                effectiveArrangement.baseSpacingPx(),
+                // This is the row's own WrapContent sizing trial (not the hasWeightedChild-
+                // detection or plannedSlots trials in UiPrimitiveScope.row(), which measure
+                // against the real, resolved slot) -- see UiContext.wrapContentPass.
+                wrapContentPass = true,
+                content = content,
+            )
+        }
+    } else {
+        null
+    }
+
+    val resolvedWidth = when (requestedWidth) {
+        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
+        else -> requestedWidth
+    }
+    val resolvedHeight = when (requestedHeight) {
+        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
+        else -> requestedHeight
+    }
+    val effectiveStyle = modifier.styleable ?: Style.Empty
+    return row(
+        horizontalArrangement = effectiveArrangement,
+        verticalAlignment = verticalAlignment,
+        modifier = modifier.width(resolvedWidth).height(resolvedHeight),
+        style = effectiveStyle,
+        // See the matching comment in resolveMeasuredColumn()/UiPrimitiveScope.column() -- reuse this
+        // WrapContent trial's already-known weighted-child answer instead of paying for a
+        // second, identical trial of [content] inside UiPrimitiveScope.row()'s own unconditional pass.
+        precomputedMeasured = measured,
+        id = id,
+        cacheKey = effectiveCacheKey,
+        content = content,
+    )
+}
+
 fun ColumnScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
     verticalAlignment: UiAlignment.Vertical = UiAlignment.Vertical.Top,
@@ -31,59 +107,20 @@ fun ColumnScope.row(
     id: String? = null,
     cacheKey: Any? = null,
     content: RowScope.(slot: UiBounds) -> Unit,
-): UiBounds {
-    val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
+): UiBounds = (this as UiPrimitiveScope).resolveMeasuredRow(
+    horizontalArrangement = horizontalArrangement,
+    verticalAlignment = verticalAlignment,
+    modifier = modifier,
+    defaultWidth = Dimension.FillMax,
     // Height is this row's main axis when it's hosted in a column -- a weight()-tagged row must
     // default to FillMax here (deferred to the column's own weight-distribution pass), not
-    // WrapContent, the same reasoning as RowScope.column()'s width fallback above.
-    val requestedHeight = modifier.heightDimension
-        ?: (if (modifier.layoutWeight != null) Dimension.FillMax else Dimension.WrapContent)
-    val effectiveArrangement = horizontalArrangement
-    val measured =
-        if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
-            val availableHeight = when (requestedHeight) {
-                is Dimension.Fixed -> requestedHeight.dp.toPx()
-                Dimension.FillMax, Dimension.WrapContent -> 4096f
-            }
-            context.resolveMeasuredContentCached(
-                id = id,
-                cacheKey = cacheKey,
-                availableWidth = availableHeight,
-                gap = effectiveArrangement.baseSpacingPx(),
-            ) {
-                context.measureRowContentInternal(
-                    availableHeight,
-                    effectiveArrangement.baseSpacingPx(),
-                    content = content,
-                )
-            }
-        } else {
-            null
-        }
-
-    val resolvedWidth = when (requestedWidth) {
-        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
-        else -> requestedWidth
-    }
-    val resolvedHeight = when (requestedHeight) {
-        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
-        else -> requestedHeight
-    }
-    val effectiveStyle = modifier.styleable ?: Style.Empty
-    return (this as UiPrimitiveScope).row(
-        horizontalArrangement = effectiveArrangement,
-        verticalAlignment = verticalAlignment,
-        modifier = modifier.width(resolvedWidth).height(resolvedHeight),
-        style = effectiveStyle,
-        // See the matching comment in resolveMeasuredColumn()/UiPrimitiveScope.column() -- reuse this
-        // WrapContent trial's already-known weighted-child answer instead of paying for a
-        // second, identical trial of [content] inside UiPrimitiveScope.row()'s own unconditional pass.
-        precomputedMeasured = measured,
-        id = id,
-        cacheKey = cacheKey,
-        content = content,
-    )
-}
+    // WrapContent, the same reasoning as RowScope.column()'s width fallback.
+    defaultHeight = if (modifier.layoutWeight != null) Dimension.FillMax else Dimension.WrapContent,
+    availableHeightFallback = 4096f,
+    id = id,
+    cacheKey = cacheKey,
+    content = content,
+)
 
 fun RowScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
@@ -93,55 +130,17 @@ fun RowScope.row(
     id: String? = null,
     cacheKey: Any? = null,
     content: RowScope.(slot: UiBounds) -> Unit,
-): UiBounds {
-    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
-    val requestedHeight = modifier.heightDimension ?: Dimension.FillMax
-    val effectiveArrangement = horizontalArrangement
-    val measured =
-        if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
-            val availableHeight = when (requestedHeight) {
-                is Dimension.Fixed -> requestedHeight.dp.toPx()
-                Dimension.FillMax, Dimension.WrapContent -> fillHeightOrNull() ?: 4096f
-            }
-            context.resolveMeasuredContentCached(
-                id = id,
-                cacheKey = cacheKey,
-                availableWidth = availableHeight,
-                gap = effectiveArrangement.baseSpacingPx(),
-            ) {
-                context.measureRowContentInternal(
-                    availableHeight,
-                    effectiveArrangement.baseSpacingPx(),
-                    content = content,
-                )
-            }
-        } else {
-            null
-        }
-
-    val resolvedWidth = when (requestedWidth) {
-        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
-        else -> requestedWidth
-    }
-    val resolvedHeight = when (requestedHeight) {
-        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
-        else -> requestedHeight
-    }
-    val effectiveStyle = modifier.styleable ?: Style.Empty
-    return (this as UiPrimitiveScope).row(
-        horizontalArrangement = effectiveArrangement,
-        verticalAlignment = verticalAlignment,
-        modifier = modifier.width(resolvedWidth).height(resolvedHeight),
-        style = effectiveStyle,
-        // See the matching comment in resolveMeasuredColumn()/UiPrimitiveScope.column() -- reuse this
-        // WrapContent trial's already-known weighted-child answer instead of paying for a
-        // second, identical trial of [content] inside UiPrimitiveScope.row()'s own unconditional pass.
-        precomputedMeasured = measured,
-        id = id,
-        cacheKey = cacheKey,
-        content = content,
-    )
-}
+): UiBounds = (this as UiPrimitiveScope).resolveMeasuredRow(
+    horizontalArrangement = horizontalArrangement,
+    verticalAlignment = verticalAlignment,
+    modifier = modifier,
+    defaultWidth = Dimension.WrapContent,
+    defaultHeight = Dimension.FillMax,
+    availableHeightFallback = fillHeightOrNull() ?: 4096f,
+    id = id,
+    cacheKey = cacheKey,
+    content = content,
+)
 
 fun AbsoluteScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
@@ -151,56 +150,17 @@ fun AbsoluteScope.row(
     id: String? = null,
     cacheKey: Any? = null,
     content: RowScope.(slot: UiBounds) -> Unit,
-): UiBounds {
-    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
-    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
-    val effectiveArrangement = horizontalArrangement
-    val measured =
-        if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
-            val availableHeight = when (requestedHeight) {
-                is Dimension.Fixed -> requestedHeight.dp.toPx()
-                Dimension.FillMax, Dimension.WrapContent -> 4096f
-            }
-            val effectiveCacheKey = cacheKey ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey)
-            context.resolveMeasuredContentCached(
-                id = id,
-                cacheKey = effectiveCacheKey,
-                availableWidth = availableHeight,
-                gap = effectiveArrangement.baseSpacingPx(),
-            ) {
-                context.measureRowContentInternal(
-                    availableHeight,
-                    effectiveArrangement.baseSpacingPx(),
-                    content = content,
-                )
-            }
-        } else {
-            null
-        }
-
-    val resolvedWidth = when (requestedWidth) {
-        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
-        else -> requestedWidth
-    }
-    val resolvedHeight = when (requestedHeight) {
-        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
-        else -> requestedHeight
-    }
-    val effectiveStyle = modifier.styleable ?: Style.Empty
-    return (this as UiPrimitiveScope).row(
-        horizontalArrangement = effectiveArrangement,
-        verticalAlignment = verticalAlignment,
-        modifier = modifier.width(resolvedWidth).height(resolvedHeight),
-        style = effectiveStyle,
-        // See the matching comment in resolveMeasuredColumn()/UiPrimitiveScope.column() -- reuse this
-        // WrapContent trial's already-known weighted-child answer instead of paying for a
-        // second, identical trial of [content] inside UiPrimitiveScope.row()'s own unconditional pass.
-        precomputedMeasured = measured,
-        id = id,
-        cacheKey = cacheKey,
-        content = content,
-    )
-}
+): UiBounds = (this as UiPrimitiveScope).resolveMeasuredRow(
+    horizontalArrangement = horizontalArrangement,
+    verticalAlignment = verticalAlignment,
+    modifier = modifier,
+    defaultWidth = Dimension.WrapContent,
+    defaultHeight = Dimension.WrapContent,
+    availableHeightFallback = 4096f,
+    id = id,
+    cacheKey = cacheKey,
+    content = content,
+)
 
 fun BoxScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
@@ -210,55 +170,17 @@ fun BoxScope.row(
     id: String? = null,
     cacheKey: Any? = null,
     content: RowScope.(slot: UiBounds) -> Unit,
-): UiBounds {
-    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
-    val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
-    val effectiveArrangement = horizontalArrangement
-    val measured =
-        if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
-            val availableHeight = when (requestedHeight) {
-                is Dimension.Fixed -> requestedHeight.dp.toPx()
-                Dimension.FillMax, Dimension.WrapContent -> fillHeightOrNull() ?: 4096f
-            }
-            context.resolveMeasuredContentCached(
-                id = id,
-                cacheKey = cacheKey,
-                availableWidth = availableHeight,
-                gap = effectiveArrangement.baseSpacingPx(),
-            ) {
-                context.measureRowContentInternal(
-                    availableHeight,
-                    effectiveArrangement.baseSpacingPx(),
-                    content = content,
-                )
-            }
-        } else {
-            null
-        }
-
-    val resolvedWidth = when (requestedWidth) {
-        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
-        else -> requestedWidth
-    }
-    val resolvedHeight = when (requestedHeight) {
-        Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
-        else -> requestedHeight
-    }
-    val effectiveStyle = modifier.styleable ?: Style.Empty
-    return (this as UiPrimitiveScope).row(
-        horizontalArrangement = effectiveArrangement,
-        verticalAlignment = verticalAlignment,
-        modifier = modifier.width(resolvedWidth).height(resolvedHeight),
-        style = effectiveStyle,
-        // See the matching comment in resolveMeasuredColumn()/UiPrimitiveScope.column() -- reuse this
-        // WrapContent trial's already-known weighted-child answer instead of paying for a
-        // second, identical trial of [content] inside UiPrimitiveScope.row()'s own unconditional pass.
-        precomputedMeasured = measured,
-        id = id,
-        cacheKey = cacheKey,
-        content = content,
-    )
-}
+): UiBounds = (this as UiPrimitiveScope).resolveMeasuredRow(
+    horizontalArrangement = horizontalArrangement,
+    verticalAlignment = verticalAlignment,
+    modifier = modifier,
+    defaultWidth = Dimension.WrapContent,
+    defaultHeight = Dimension.WrapContent,
+    availableHeightFallback = fillHeightOrNull() ?: 4096f,
+    id = id,
+    cacheKey = cacheKey,
+    content = content,
+)
 
 fun UiPrimitiveScope.row(
     horizontalArrangement: Arrangement = defaultArrangement(),
@@ -288,43 +210,13 @@ fun UiPrimitiveScope.row(
         modifier.widthDimension != Dimension.WrapContent &&
         modifier.heightDimension != Dimension.WrapContent
     if (precomputedMeasured == null && !hasExplicitFixedDimensions) {
-        val requestedWidth = modifier.widthDimension ?: Dimension.FillMax
-        val requestedHeight = modifier.heightDimension ?: Dimension.WrapContent
-        val measured = if (requestedWidth == Dimension.WrapContent || requestedHeight == Dimension.WrapContent) {
-            val availableHeight = when (requestedHeight) {
-                is Dimension.Fixed -> requestedHeight.dp.toPx()
-                Dimension.FillMax, Dimension.WrapContent -> 4096f
-            }
-            context.resolveMeasuredContentCached(
-                id = id,
-                cacheKey = cacheKey,
-                availableWidth = availableHeight,
-                gap = horizontalArrangement.baseSpacingPx(),
-            ) {
-                context.measureRowContentInternal(
-                    availableHeight,
-                    horizontalArrangement.baseSpacingPx(),
-                    content = content,
-                )
-            }
-        } else {
-            null
-        }
-        val resolvedWidth = when (requestedWidth) {
-            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).width).px)
-            else -> requestedWidth
-        }
-        val resolvedHeight = when (requestedHeight) {
-            Dimension.WrapContent -> Dimension.Fixed((requireNotNull(measured).height).px)
-            else -> requestedHeight
-        }
-        return row(
+        return resolveMeasuredRow(
             horizontalArrangement = horizontalArrangement,
             verticalAlignment = verticalAlignment,
-            testTag = testTag,
-            modifier = modifier.width(resolvedWidth).height(resolvedHeight),
-            style = style,
-            precomputedMeasured = measured,
+            modifier = modifier,
+            defaultWidth = Dimension.FillMax,
+            defaultHeight = Dimension.WrapContent,
+            availableHeightFallback = 4096f,
             id = id,
             cacheKey = cacheKey,
             content = content,
