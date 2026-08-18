@@ -1,8 +1,13 @@
 // GPU-instanced camera-facing billboard, for VertexFormat.PositionUv (a shared unit quad --
-// position/uv only, no normal/color). Each instance's own model matrix (locations 3-6, same
-// column-major instance buffer instanced.wgsl already documents) supplies world position and
-// uniform scale; a SEPARATE per-instance alpha (location 7, its own small instance-rate
-// buffer -- see DrawCall.instanceAlphas' own doc comment) supplies independent fade. No
+// position/uv only, no normal/color). Locations continue right after PositionUv's own 2
+// attributes (0/1) -- unlike instanced.wgsl's 3-attribute vertex format, PositionUv has no
+// location 2, so the instance matrix starts there instead of at 3 (RenderPipeline's
+// vertexInputState computes this same firstLocation dynamically from the vertex format, so
+// this shader's literal locations must match that arithmetic, not instanced.wgsl's). Each
+// instance's own model matrix (locations 2-5, same column-major instance buffer instanced.wgsl
+// already documents) supplies world position and uniform scale; a SEPARATE per-instance alpha
+// (location 6, its own small instance-rate buffer -- see DrawCall.instanceAlphas' own doc
+// comment) supplies independent fade. No
 // per-instance rotation: the quad always faces the camera, built from cameraRight/cameraUp
 // rather than the instance matrix's own basis vectors.
 struct Uniforms {
@@ -28,11 +33,11 @@ struct VertexOutput {
 fn vertexMain(
   @location(0) inPosition : vec3f,
   @location(1) inUv : vec2f,
-  @location(3) model0 : vec4f,
-  @location(4) model1 : vec4f,
-  @location(5) model2 : vec4f,
-  @location(6) model3 : vec4f,
-  @location(7) inAlpha : f32,
+  @location(2) model0 : vec4f,
+  @location(3) model1 : vec4f,
+  @location(4) model2 : vec4f,
+  @location(5) model3 : vec4f,
+  @location(6) inAlpha : f32,
 ) -> VertexOutput {
   let model = mat4x4<f32>(model0, model1, model2, model3);
   // Translation-only read: this system never writes rotation into an instance's model matrix
