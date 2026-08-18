@@ -14,6 +14,7 @@ private val StudioShadowShaders = gameShaderSet("shadow_depth")
 private val StudioInstancedShaders = gameShaderSet("instanced")
 private val StudioSkinnedInstancedShaders = gameShaderSet("skinned_instanced")
 private val StudioSkyboxShaders = gameShaderSet("skybox")
+private val StudioParticleShaders = gameShaderSet("particle")
 
 fun createStudioVulkanApplication(
     game: AwakeGame = studioGame(),
@@ -36,4 +37,7 @@ fun createStudioVulkanApplication(
     // Powers Renderer.showEnvironment; without it that flag draws nothing (no skybox
     // pipeline built).
     skyboxShaderSet = StudioSkyboxShaders,
+    // Powers the "Particles" example; without it that example's ParticleEmitter DrawCall is
+    // skipped entirely (no particle pipeline registered for its format).
+    particleShaderSet = StudioParticleShaders,
 )

@@ -18,12 +18,14 @@ import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.core.systems.SpinSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
+import io.github.ronjunevaldoz.awake.scene.rendering.systems.ParticleSystem
 import io.github.ronjunevaldoz.awake.scene.runtime.defaultInfrastructureSystems
 import io.github.ronjunevaldoz.awake.studio.app.platformBackendPreference
 import io.github.ronjunevaldoz.awake.studio.app.writeSceneDocument
 import io.github.ronjunevaldoz.awake.studio.examples.ExampleLoader
 import io.github.ronjunevaldoz.awake.studio.examples.GltfViewerAssets
 import io.github.ronjunevaldoz.awake.studio.examples.InstancedSkinnedExampleDriver
+import io.github.ronjunevaldoz.awake.studio.examples.ParticleEmitterExampleDriver
 import io.github.ronjunevaldoz.awake.studio.examples.SkinnedExampleDriver
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import io.github.ronjunevaldoz.awake.studio.examples.StudioMeshBounds
@@ -93,6 +95,8 @@ internal fun studioModule(
                 material("skinned-material") { SkinnedExampleDriver.createMaterial(this) }
                 mesh("instanced-skinned-mesh") { InstancedSkinnedExampleDriver.createMesh(this) }
                 material("instanced-skinned-material") { InstancedSkinnedExampleDriver.createMaterial(this) }
+                mesh("particle-quad") { ParticleEmitterExampleDriver.createMesh(this) }
+                material("particle") { ParticleEmitterExampleDriver.createMaterial(this) }
             }
             // The input system writes engine CameraMode hotkeys before the studio bridge syncs
             // them into UI state; CameraSystem then applies the pose after that bridge has
@@ -117,6 +121,11 @@ internal fun studioModule(
             // leaves that to whoever owns the spin rate. In an editor, that owner is play mode.
             frameSystem("spin-clock") { PlayModeSystem(SpinClockSystem(), store) }
             frameSystem("spin") { PlayModeSystem(SpinSystem(), store) }
+            // Unconditional (not PlayModeSystem-gated like spin above) -- particles are a
+            // passive visual demo, meant to keep animating while orbiting/inspecting in Edit
+            // mode too, same reasoning the camera preview/orientation gizmo already animate
+            // regardless of mode.
+            frameSystem("particles") { ParticleSystem() }
             frameSystem("example-driver") {
                 StudioExampleDriverSystem(this, store, loader, writeScene, editorCamera)
             }

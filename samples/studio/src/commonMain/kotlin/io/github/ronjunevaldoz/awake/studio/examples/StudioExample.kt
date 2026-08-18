@@ -52,4 +52,10 @@ internal val StudioExamples: List<StudioExample> = listOf(
         driver = { delta -> InstancedSkinnedExampleDriver.advance(this, delta) },
         onActivated = { instance, runtime -> InstancedSkinnedExampleDriver.attach(instance, runtime) },
     ),
+    StudioExample(
+        id = "particles",
+        title = "Particles",
+        scenePath = "assets/examples/particles.scene.json",
+        onActivated = { instance, runtime -> ParticleEmitterExampleDriver.attach(instance, runtime) },
+    ),
 )

@@ -11,6 +11,7 @@ private val StudioTexturedShaders = gameShaderSet("textured")
 private val StudioInstancedShaders = gameShaderSet("instanced")
 private val StudioSkinnedInstancedShaders = gameShaderSet("skinned_instanced")
 private val StudioSkyboxShaders = gameShaderSet("skybox")
+private val StudioParticleShaders = gameShaderSet("particle")
 
 fun createStudioWebGpuApplication(): WebGpuGameApplication = WebGpuGameApplication(
     shaderSet = StudioShaders,
@@ -29,4 +30,7 @@ fun createStudioWebGpuApplication(): WebGpuGameApplication = WebGpuGameApplicati
     // Powers Renderer.showEnvironment; without it that flag draws nothing (no skybox
     // pipeline built).
     skyboxShaderSet = StudioSkyboxShaders,
+    // Powers the "Particles" example; without it that example's ParticleEmitter DrawCall is
+    // skipped entirely (no particle pipeline registered for its format).
+    particleShaderSet = StudioParticleShaders,
 )
