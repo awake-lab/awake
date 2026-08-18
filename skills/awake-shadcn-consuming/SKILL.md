@@ -11,9 +11,19 @@ description: >
 # Consuming Awake Shadcn UI
 
 Use this skill at call sites: games, samples, tools, and feature UI that consume Awake's
-in-repository `awake:engine:ui:ui-designsystem` module. For implementation inside the design
-system, use `awake-shadcn-styling` instead; for choosing the ownership layer of a new behavior,
-use `awake-ui-authoring`.
+in-repository `:awake:ui:designsystem` module. For implementation inside the design system,
+use `awake-shadcn-styling` instead; for choosing the ownership layer of a new behavior, use
+`awake-ui-authoring`.
+
+**The rule in one line, checked against real Compose module boundaries:** render visible UI
+only through `shadcn*` recipes; `ui-headless` layout/state (`column`, `row`, `box`,
+`Modifier`, `Arrangement`, `remember*`) stays fine to import for structure; `ui-core` is never
+imported by consumer code. `Column`/`Row`/`Box`/`Arrangement` live in Compose's
+`compose-foundation` artifact — the same module as unstyled interaction behavior — not split
+into their own module, and not owned by Material. Awake's `ui-core`/`ui-headless`/
+`ui-designsystem` map to `compose-ui`/`compose-foundation`/Material in that order. Full
+rationale: `docs/reference/ui-ownership.md`'s "Consuming From A Sample, Game, Or Tool"
+section.
 
 ## Start with the named design-system theme
 

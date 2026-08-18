@@ -11,14 +11,14 @@ sample-specific adapters.
 
 These are placement rules, not style preferences.
 
-1. `awake:engine:ui:ui-core` may expose only runtime mechanics: geometry resolution, drawing,
+1. `:awake:ui:ui-core` may expose only runtime mechanics: geometry resolution, drawing,
    anchoring, clipping, slots, input, focus, state, and a neutral fallback implementation. It
    must not expose component recipes, variants, or branded policy.
-2. `awake:engine:ui:ui-headless` owns generic leaf-widget behavior and generic visual-state
+2. `:awake:ui:headless` owns generic leaf-widget behavior and generic visual-state
    contracts built on `ui-core`. It must not own property-form, inspector, tooling-shell, or
    other multi-widget composition; those belong in `ui-dsl` (when that focused composition layer
    is present). It also must not own named variants or a design language.
-3. `awake:engine:ui:ui-designsystem` owns branded or strongly opinionated recipes and every
+3. `:awake:ui:designsystem` owns branded or strongly opinionated recipes and every
    named authored theme intended for direct app/sample use.
 4. `samples:*` and future game modules own runtime-bound adapters, authored overlays,
    debug HUD wiring, and sample-specific compositions.
@@ -78,11 +78,11 @@ out of Headless rather than letting a temporary exception become an ownership le
 
 | Module | Responsibility | Examples |
 |---|---|---|
-| `awake:engine:ui:ui-api` | Immutable cross-layer values and theme-value contracts | `UiBounds`, `Dimension`, `Dp`, `Sp`, color/shape/typography contracts |
-| `awake:engine:ui:ui-core` | Runtime layout, drawing, input, state, and neutral component-style fallback | low-level layout, clipping, slots, pixel resolution, `CoreUiComponentStyles` |
-| `awake:engine:ui:ui-headless` | Reusable leaf-widget behavior and neutral `Style` application | button mechanics, checkbox, text field, slider, primitive panels |
-| `awake:engine:ui:ui-dsl` | Neutral multi-widget and tooling composition when needed | property rows/lists, inspector scaffolds, tooling shells |
-| `awake:engine:ui:ui-designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
+| `ui-api` *(role, not a Gradle module — see rule 5)* | Immutable cross-layer values and theme-value contracts | `UiBounds`, `Dimension`, `Dp`, `Sp`, color/shape/typography contracts |
+| `:awake:ui:ui-core` | Runtime layout, drawing, input, state, and neutral component-style fallback | low-level layout, clipping, slots, pixel resolution, `CoreUiComponentStyles` |
+| `:awake:ui:headless` | Reusable leaf-widget behavior and neutral `Style` application | button mechanics, checkbox, text field, slider, primitive panels |
+| `ui-dsl` *(does not currently exist — deleted 2026-07-24, see "headless/Designsystem Content Pairing" above)* | Neutral multi-widget and tooling composition, if reintroduced | property rows/lists, inspector scaffolds, tooling shells |
+| `:awake:ui:designsystem` | Branded or strongly opinionated recipes | shadcn-style skins, `ShadcnDefaultTheme`, `DarkUiTheme`, `LightUiTheme`, branded presets |
 | `samples:*` or game modules | Sample/game adapters and authored usage | scene inspector bindings, demo-specific overlays, debug HUD wiring |
 
 ## Primitive Vs Composition
@@ -150,6 +150,31 @@ Theme *values* and component visual policy are deliberately separate:
   individual component files.
 - `samples:*` select a named design-system theme and must not hardcode `Color(...)` for anything
   a supplied theme or visual recipe already covers.
+
+## Consuming From A Sample, Game, Or Tool
+
+Not limited to `samples:studio` — this applies to every consumer: games, tools, demos.
+
+**Rule: consumer code renders visible UI only through `ui-designsystem` (`shadcn*` recipes).
+It must never import `ui-core` directly, and must never author its own `Style { ... }` to
+restyle a component.** `ui-headless` layout and state APIs (`column`, `row`, `box`,
+`Modifier`, `Arrangement`, `weight`, `padding`, `remember*`) remain fine to import directly for
+structure — they carry no branded visual policy, so importing them isn't a styling escape
+hatch. See `awake-shadcn-consuming` for the full skill.
+
+This mirrors Jetpack Compose's own layering, checked directly against Compose's real module
+boundaries (not by analogy): `Column`/`Row`/`Box`/`Arrangement` live in
+`androidx.compose.foundation.layout`, inside the *same* `compose-foundation` artifact that
+also owns unstyled interaction behavior (`clickable`, `BasicText`) — Compose does not split
+layout into a module separate from unstyled widget behavior. Only `Modifier` (the interface)
+sits one layer below, in `compose-ui`. A Compose app that uses Material still imports
+Foundation's `Column`/`Row` directly — Material doesn't re-wrap them — while never touching
+`compose-ui` internals or building its own low-level draw calls to fake a Material look.
+Awake's `ui-core` ≈ `compose-ui`, `ui-headless` ≈ `compose-foundation`, `ui-designsystem` ≈
+Material (or any concrete design system built on Foundation). The consumer rule above is that
+same shape: reach into the Foundation-equivalent layer (`ui-headless`) freely for structure,
+never into the `compose-ui`-equivalent layer (`ui-core`), and get all visible styling from the
+design-system layer.
 
 ## Concrete Placement Examples
 
