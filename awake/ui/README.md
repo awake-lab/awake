@@ -1,7 +1,10 @@
 ### Awake Graphical User Interface (GUI)
 
+Status: **refactor in progress** — see [docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md](../../docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md).
+
 Awake UI is an immediate-mode UI framework for the Awake engine, modeled after modern declarative UI
-architecture patterns (Jetpack Compose / Base UI).
+architecture patterns (Jetpack Compose / Base UI). Placement rules for these modules live in
+[docs/reference/ui-ownership.md](../../docs/reference/ui-ownership.md).
 
 ### Module Architecture
 
@@ -23,64 +26,26 @@ include(":awake:ui:tailwind-generator")
 
 ### Module Descriptions
 
-- `awake:ui:graphics`:
-    - Drawing primitives (`DrawPrimitive` / `UiDrawPrimitive`), shape painters, vector paths (
-      `UiPath`, `UiImageVector`), linear/radial gradients (`Gradient` / `LinearGradient`), geometry
-      bounds (`Bounds` / `UiBounds`), density (`Dp`, `Sp`, `UiDensity`), and icons (`UiIcon`).
+One line each — the public API and its class names are KDoc'd in the source itself
+(generated via Dokka), not duplicated here.
 
-- `awake:ui:text`:
-    - SDF/MSDF font rendering (`MsdfFont`, `BitmapFont`, `PackedUiFont`), font atlas source
-      integration (`GlyphAtlasSource`), typography styles (`TextStyle`), font weights (
-      `FontWeight`), and text scale snapping.
-
-- `awake:ui:animation`:
-    - Frame-clock driven animation engine (`animateFloat`, `AnimatedVisibility`, `Transition`),
-      layout transition scopes (`AnimatedLayoutScopes`), popup position providers (
-      `UiPopupPositionProvider`), and shimmer sweep primitives (`ShimmerPrimitives`).
-
-- `awake:ui:ui-core`:
-    - Core frame loop, `UiContext` runtime state, layout engine (`Column`, `Row`, `Box`, `Spacer`,
-      `LazyList`), layout sizing/padding (`Dimension`, `Alignment`, `Insets`), `UiModifier`, state
-      hooks (`WidgetState`, `UiScrollState`), and neutral theme/text local mechanics
-      (`UiThemeValues`, `CoreUiTheme`) plus `UiPrimitiveScope`. There are no ambient per-component
-      style defaults (`CoreUiComponentStyles` was retired 2026-08-17); recipes pass explicit
-      `Style`. Branded theme entry points belong in `designsystem`. (Retains `ui-core` to
-      disambiguate from engine root `:awake:core`).
-
-- `awake:ui:headless`:
-    - Unstyled, accessible leaf widgets (buttons, selection controls, input fields, popups,
-      `TabItem` contracts) for building custom design systems. Public leaf APIs receive generic
-      `Style`; they do not expose branded or theme-provider APIs. (Composite widgets such as
-      accordion/tabs are being retired here — the design system owns those compositions; see
-      `docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md` rows E1/C10.)
-
-- `awake:ui:tailwind`:
-    - Standalone Tailwind CSS design tokens (spacing, radius, color, typography scales).
-
-- `awake:ui:designsystem`:
-    - Styled component library following the [shadcn/ui](https://ui.shadcn.com/) design language,
-      built on top of `headless` using `tailwind` tokens. It owns named themes and the lower-case
-      `UiScope.shadcnTheme(...)` composition entry point.
-      `ShadcnThemeValues` provides a complete root-scoped theme, including named-role
-      customization; public recipes expose semantic options instead of a generic `Style` override.
-      Use `shadcnThemeValues(...)` for an unscoped immutable `ShadcnThemeValues` value.
-
-- `awake:ui:heroicons`:
-    - Integration and vector path definitions for the Heroicons icon set.
-
-- `awake:ui:testing`:
-    - Utilities, snapshot test runners, and test harnesses for UI components. Use
-      `renderUiComponent(...)` for a one-frame Headless/design-system test and
-      `uiTestSession(...)` for persistent multi-frame interaction tests. Both own the
-      `UiContext` lifecycle; direct context setup is reserved for Core, renderer, and backend
-      probes. `UiTestSession` provides `hover`, `click`, `doubleClick`, `longPress`,
-      `rightClick`, and `drag`; use exact `UiInputState` frames only for wheel/keyboard probes.
-
-- `awake:ui:font-atlas-generator`:
-    - Tooling for generating signed distance field (MSDF/SDF) font atlases.
-
-- `awake:ui:tailwind-generator`:
-    - Tooling to generate UI styles and themes based on Tailwind CSS patterns.
+- `awake:ui:graphics` — drawing primitives, shape painters, vector paths, gradients, bounds,
+  density, icons.
+- `awake:ui:text` — SDF/MSDF font rendering, font atlas integration, typography styles.
+- `awake:ui:animation` — frame-clock driven animation, layout transitions, popup positioning,
+  shimmer sweep primitives.
+- `awake:ui:ui-core` — frame loop, runtime state, layout engine, modifiers, state hooks,
+  neutral theme mechanics. No ambient per-component style defaults; recipes pass explicit
+  `Style`. (Named `ui-core` to disambiguate from engine root `:awake:core`.)
+- `awake:ui:headless` — unstyled, accessible leaf widgets for building custom design systems.
+  Public APIs receive generic `Style`; no branded or theme-provider vocabulary.
+- `awake:ui:tailwind` — standalone Tailwind CSS design tokens.
+- `awake:ui:designsystem` — [shadcn/ui](https://ui.shadcn.com/)-styled component library
+  built on `headless` + `tailwind`. Owns named themes and branded recipes.
+- `awake:ui:heroicons` — Heroicons icon set integration.
+- `awake:ui:testing` — snapshot test runners and interaction-test harnesses for UI components.
+- `awake:ui:font-atlas-generator` — SDF/MSDF font atlas generation tooling.
+- `awake:ui:tailwind-generator` — Tailwind-pattern style/theme generation tooling.
 
 ### Dependency Flow
 
@@ -106,11 +71,8 @@ graph TD
     CORE -. "internal infrastructure" .-> DS
 ```
 
-### Guide & Tools
+### Known gaps
 
-- TODO: formalize our testing tool and remove stale/redundant ones?
-- TODO: debug in frontend side using debugging wireframe or sheet
-- TODO: tool to verify diff against official shadcn components styles, avoid using stale images,
-  hardcoded tokens, must be dynamically retrieve from the source
-- TODO: finalize which is the real source of truth for parity, currently i'm seeing screenshot of
-  text in a wavy compare to the rendered one is already fixed
+Tracked in [docs/reference/ui-validation.md](../../docs/reference/ui-validation.md)'s
+component coverage matrix and [docs/reference/ui-status.md](../../docs/reference/ui-status.md),
+not duplicated here.
