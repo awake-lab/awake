@@ -30,7 +30,9 @@ import io.github.ronjunevaldoz.awake.ui.scope.fillWidthOrNull
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
+import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.theme.UiDefaultTheme
 import io.github.ronjunevaldoz.awake.ui.toPx
 
@@ -195,7 +197,19 @@ internal fun UiPrimitiveScope.surfaceCore(
     defaults: Style = neutralSurfaceDefaults,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
-    val width = modifier.widthDimension ?: Dimension.WrapContent
+    val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
+    // A FillMax width is "no opinion, fill whatever's available" -- it has no real intrinsic
+    // width of its own for a bounded/real layout pass, but an ancestor sizing ITSELF from
+    // WrapContent (see UiContext.wrapContentPass) needs exactly this surface's own natural
+    // content width to hug around (e.g. a vertical shadcnButtonGroup's members are all
+    // fillMaxWidth(), and the group must still wrap to the widest one). Report it for that one
+    // trial only, by measuring content the same way a real WrapContent width already does below
+    // -- a real Fixed width, or FillMax outside a wrap trial, is never touched. Mirrors
+    // ui-headless's withIntrinsicLabelWidth, which applies the identical exception to a button's
+    // label-only sizing pass -- see that function's doc.
+    val reportsNaturalWidthDuringWrapTrial =
+        resolvedSlot == null && requestedWidth == Dimension.FillMax && context.isWrapContentPassInternal()
+    val width = if (reportsNaturalWidthDuringWrapTrial) Dimension.WrapContent else requestedWidth
     val height = modifier.heightDimension ?: Dimension.WrapContent
     val gap = verticalArrangement.baseSpacingPx()
     val effectiveStyle = modifier.styleable ?: Style.Empty
@@ -214,20 +228,6 @@ internal fun UiPrimitiveScope.surfaceCore(
         else -> null to false
     }
 
-    val styleState = MutableStyleState(
-        hovered = modifier.forceHover ?: initialHovered,
-        active = modifier.forceActive ?: isActive(id),
-        focused = modifier.forceFocus ?: context.isFocusedInternal(id),
-    )
-    val resolved = resolveStyle(
-        style = effectiveStyle,
-        defaults = defaults,
-        state = styleState,
-    )
-    // The surface text style participates in measurement as well as painting. Without this,
-    // compact surfaces such as badges are measured with the parent text metrics and then drawn
-    // with their own caption metrics, producing clipped pills and a border that collapses into
-    // a line. Keep the same resolved foreground propagation for both passes.
     // A surface's `foreground` IS its content colour (shadcn's bg-*/text-* pairing), so it has to
     // beat whatever colour was merely inherited. Style.resolve() seeds its builder FROM
     // LocalTextStyle, so `resolved.textStyle.color` is non-null the moment any ancestor
@@ -237,13 +237,39 @@ internal fun UiPrimitiveScope.surfaceCore(
     // inherited value distinguishes "declared on this surface" from "merely inherited", so an
     // explicit per-call text colour still wins.
     val inheritedTextColor = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).color
-    val declaresOwnTextColor =
-        resolved.textStyle.color != null && resolved.textStyle.color != inheritedTextColor
-    val contentTextStyle = if (!declaresOwnTextColor && resolved.foreground != null) {
-        resolved.textStyle.copy(color = resolved.foreground)
-    } else {
-        resolved.textStyle
+    fun resolveVisuals(hovered: Boolean): Pair<ResolvedStyle, TextStyle> {
+        val styleState = MutableStyleState(
+            hovered = modifier.forceHover ?: hovered,
+            active = modifier.forceActive ?: isActive(id),
+            focused = modifier.forceFocus ?: context.isFocusedInternal(id),
+        )
+        val resolved = resolveStyle(
+            style = effectiveStyle,
+            defaults = defaults,
+            state = styleState,
+        )
+        // The surface text style participates in measurement as well as painting. Without this,
+        // compact surfaces such as badges are measured with the parent text metrics and then
+        // drawn with their own caption metrics, producing clipped pills and a border that
+        // collapses into a line. Keep the same resolved foreground propagation for both passes.
+        val declaresOwnTextColor =
+            resolved.textStyle.color != null && resolved.textStyle.color != inheritedTextColor
+        val contentTextStyle = if (!declaresOwnTextColor && resolved.foreground != null) {
+            resolved.textStyle.copy(color = resolved.foreground)
+        } else {
+            resolved.textStyle
+        }
+        return resolved to contentTextStyle
     }
+
+    // hasWrapContent means no real slot exists yet -- initialHovered is a placeholder (always
+    // false) rather than a real hit test, so resolving hover/active/focused against it here would
+    // always paint the resting state (e.g. a hovered shadcn primary button never picking up its
+    // `primary/90` hover fill). Good enough for sizing purposes (padding/border/text metrics
+    // essentially never vary by hover), but not for the visuals actually painted below -- those
+    // get re-resolved against the real slot once it exists. Mirrors
+    // resolveInteractiveSurface/interact()'s claim-slot-then-hit-test order in ui-headless.
+    var (resolved, contentTextStyle) = resolveVisuals(initialHovered)
     val paddingWidth = resolved.contentPadding.horizontalPx()
     val paddingHeight = resolved.contentPadding.verticalPx()
     val effectiveCacheKey = cacheKey ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey)
@@ -284,6 +310,14 @@ internal fun UiPrimitiveScope.surfaceCore(
         else -> height
     }
     val slot = initialSlot ?: claimModifiedSlot(modifier.width(resolvedWidth).height(resolvedHeight))
+    if (initialSlot == null) {
+        // The slot above didn't exist when resolveVisuals(initialHovered) ran -- redo it now
+        // against the real bounds so the painted/recorded state reflects the actual pointer
+        // position instead of the sizing-pass placeholder.
+        val (finalResolved, finalContentTextStyle) = resolveVisuals(hitTest(slot))
+        resolved = finalResolved
+        contentTextStyle = finalContentTextStyle
+    }
     resolveClickable(id = id, slot = slot, modifier = modifier)
     resolved.shadow?.let { shadow ->
         emit(
