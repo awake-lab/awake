@@ -687,6 +687,7 @@ class Renderer(
         uiTextureMeshPool.forEach { it.destroy() }
         instanceBufferPool.forEach { it.destroy() }
         skinnedInstanceBufferPool.forEach { it.destroy() }
+        alphaInstanceBufferPool.forEach { it.destroy() }
         lineMesh.destroy()
         destroyDepthResources()
     }
