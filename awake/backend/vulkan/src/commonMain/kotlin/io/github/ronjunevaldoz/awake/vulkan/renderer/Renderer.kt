@@ -7,7 +7,10 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_FOG_COLOR
+import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_HORIZON_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
+import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_ZENITH_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
@@ -22,6 +25,7 @@ import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.debug.SkyboxRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
@@ -146,6 +150,12 @@ class Renderer(
      * for every game that never animates instances -- appended last so existing positional
      * call sites are unaffected. */
     internal val skinnedInstancedPipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
+    /** Non-null only when the app's bootstrap opted into a skybox shader set (see
+     * `VulkanGameApplication.skyboxShaderSet`) -- `null` (default) makes [showEnvironment] an
+     * inert flag, same "nothing to switch to, keep rendering as before" posture as
+     * [wireframe] with no wireframe pipeline. Appended last so existing positional call sites
+     * are unaffected. */
+    internal val skyboxRenderPipeline: SkyboxRenderPipeline? = null,
 ) : RenderRenderer {
     override val clipSpace: ClipSpace = ClipSpace.Vulkan
 
@@ -162,6 +172,16 @@ class Renderer(
 
     /** See this class's own `wireframePipelinesByFormat` constructor parameter doc comment. */
     override var wireframe: Boolean = false
+
+    /** Real storage overriding the interface's no-op defaults -- see the interface's own doc
+     * comments. [showEnvironment] additionally needs [skyboxRenderPipeline] to be non-null
+     * (the app's bootstrap must have opted into a skybox shader set); with none built it stays
+     * a no-op flag, same shape as [wireframe] with no wireframe pipeline. */
+    override var showEnvironment: Boolean = false
+    override var horizonColor: FloatArray = DEFAULT_HORIZON_COLOR.copyOf()
+    override var zenithColor: FloatArray = DEFAULT_ZENITH_COLOR.copyOf()
+    override var fogColor: FloatArray = DEFAULT_FOG_COLOR.copyOf()
+    override var fogDensity: Float = 0f
 
     /** Applied to the 3D pass only (viewport + scissor + projection aspect); the UI pass keeps
      * the full swapchain extent. See the interface's own doc comment. */

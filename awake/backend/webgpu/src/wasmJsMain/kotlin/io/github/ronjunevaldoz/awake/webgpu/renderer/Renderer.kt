@@ -7,7 +7,10 @@ import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_FOG_COLOR
+import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_HORIZON_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
+import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_ZENITH_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
@@ -20,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
+import io.github.ronjunevaldoz.awake.webgpu.debug.SkyboxRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
@@ -125,6 +129,12 @@ class Renderer(
      * instead of [instancedPipelines]; a format with no entry is skipped. Empty (default) for
      * a game that never animates instances. */
     internal val skinnedInstancedPipelines: Map<VertexFormat, RenderPipeline> = emptyMap(),
+    /** Non-null only when the app's bootstrap opted into a skybox shader set (see
+     * `WebGpuGameApplication.skyboxShaderSet`) -- `null` (default) makes [showEnvironment] an
+     * inert flag, same "nothing to switch to, keep rendering as before" posture as
+     * [wireframe] with no [wireframeRenderPipeline]. Appended last so existing positional call
+     * sites are unaffected. */
+    internal val skyboxRenderPipeline: SkyboxRenderPipeline? = null,
 ) : RenderRenderer {
     // WebGPU's NDC has +Y up -- confirmed by this module's own ui_quad.wgsl comment
     // ("pixel-space is Y-down, NDC is Y-up") -- so unlike Vulkan (+Y down NDC) no flip is
@@ -144,6 +154,16 @@ class Renderer(
      * would need every mesh re-authored with a duplicated, non-indexed vertex buffer just to
      * carry a per-vertex barycentric attribute. */
     override var wireframe: Boolean = false
+
+    /** Real storage overriding the interface's no-op defaults -- see the interface's own doc
+     * comments. [showEnvironment] additionally needs [skyboxRenderPipeline] to be non-null
+     * (the app's bootstrap must have opted into a skybox shader set); with none built it stays
+     * a no-op flag, same shape as [wireframe] with no [wireframeRenderPipeline]. */
+    override var showEnvironment: Boolean = false
+    override var horizonColor: FloatArray = DEFAULT_HORIZON_COLOR.copyOf()
+    override var zenithColor: FloatArray = DEFAULT_ZENITH_COLOR.copyOf()
+    override var fogColor: FloatArray = DEFAULT_FOG_COLOR.copyOf()
+    override var fogDensity: Float = 0f
 
     // This backend has no shadow-map implementation yet (see docs/MVP_PLAN.md) -- a stored,
     // otherwise-unused property purely to satisfy the shared interface, same "compile-only

@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.ManualTimeController
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
+import io.github.ronjunevaldoz.awake.render.renderer.LitShadowUniformLayout
 import io.github.ronjunevaldoz.awake.sample.scene3d.Scene3DDemo
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.core.components.SpinControl
@@ -233,6 +234,6 @@ internal object RotatingCubeDemo {
     private const val HOURS_TO_DEGREES = 360f / 24f
 }
 
-/** mvp(16) + lightDirection(4) + lightColor(4) + lightMvp(16) + model(16) + cameraPosition(4)
- * + material(4). Must match `lit_shadow.wgsl`'s Uniforms field order. */
-internal const val LIT_SHADOW_UNIFORM_FLOAT_COUNT = 64
+/** `lit_shadow.wgsl`'s Uniforms size -- taken from the shared layout rather than re-summed
+ * here, so adding a field to that shader can't leave this call site silently short. */
+internal val LIT_SHADOW_UNIFORM_FLOAT_COUNT = LitShadowUniformLayout.total

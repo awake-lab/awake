@@ -14,7 +14,9 @@ import io.github.ronjunevaldoz.awake.render.renderer.SHADOW_FAR
 import io.github.ronjunevaldoz.awake.render.renderer.SHADOW_NEAR
 import io.github.ronjunevaldoz.awake.render.renderer.SHADOW_ORTHO_HALF_SIZE
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
+import io.github.ronjunevaldoz.awake.render.renderer.UniformFields
 import io.github.ronjunevaldoz.awake.render.renderer.directionalShadowBox
+import io.github.ronjunevaldoz.awake.render.renderer.skyboxUniformFloats
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkCommandBufferLevel
@@ -71,6 +73,10 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     // Debug lines are already in world space (no per-line model matrix), so their MVP
     // is exactly this frame's viewProjection.
     lineRenderPipeline.writeMvp(currentFrame, viewProjection.data)
+    // Reuses this frame's already-built viewProjection: the sky needs its inverse to turn each
+    // pixel back into a world-space ray. Written before recording, like every other uniform.
+    skyboxUniforms(viewProjection, camera.eye, light)
+        ?.let { skyboxRenderPipeline?.writeUniforms(currentFrame, it) }
     val lightViewProjection = if (shadowMap != null) lightViewProjection(light) else null
     val materialUsage = mutableMapOf<RenderMaterial, Int>()
     val preparedDrawCalls =
@@ -227,6 +233,15 @@ internal fun Renderer.recordCommandBuffer(
     val sceneRect = resolvedSceneViewport()
     Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(sceneRect?.toVkViewport() ?: viewport))
     Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(sceneRect?.toVkScissor() ?: scissor))
+
+    // The sky goes FIRST, before any geometry, with depth test/write off -- see
+    // SkyboxRenderPipeline's own doc comment. Rebinds the primary pipeline afterwards, since
+    // the draw-call loop below assumes the bind above is still in effect.
+    val skybox = skyboxRenderPipeline
+    if (showEnvironment && skybox != null) {
+        skybox.draw(commandBuffer, frameIndex)
+        primaryPipeline.bind(commandBuffer)
+    }
     recordDrawCalls(commandBuffer, groupedDrawCalls[primaryPipeline] ?: emptyList())
 
     // Debug lines (e.g. a frustum wireframe), same render pass/depth attachment as
@@ -486,7 +501,8 @@ internal fun Renderer.prepareDrawCalls(
                                     cameraPosition.z,
                                     0f
                                 ) +
-                                pbrMaterialFloats(drawCall)
+                                pbrMaterialFloats(drawCall) +
+                                fogFloats()
                     } else {
                         lightFloats
                     }
@@ -498,7 +514,8 @@ internal fun Renderer.prepareDrawCalls(
                     lightFloats +
                             drawCall.model.data +
                             floatArrayOf(cameraPosition.x, cameraPosition.y, cameraPosition.z, 0f) +
-                            pbrTexturedMaterialFloats(drawCall)
+                            pbrTexturedMaterialFloats(drawCall) +
+                            fogFloats()
                 } else {
                     drawCall.extraUniformFloats
                 }
@@ -593,6 +610,19 @@ private fun pbrMaterialFloats(drawCall: DrawCall): FloatArray {
     if (supplied.size >= PBR_MATERIAL_FLOATS) return supplied.copyOf(PBR_MATERIAL_FLOATS)
     return floatArrayOf(DEFAULT_METALLIC, DEFAULT_ROUGHNESS, 0f, 0f)
 }
+
+/** This frame's `skybox.wgsl` uniform block, or `null` when the sky isn't being drawn (nothing
+ * opted in, or no skybox pipeline was built) or [viewProjection] can't be inverted. */
+private fun Renderer.skyboxUniforms(viewProjection: Mat4, cameraEye: Vec3, light: SceneLight): FloatArray? {
+    if (!showEnvironment || skyboxRenderPipeline == null) return null
+    return skyboxUniformFloats(viewProjection, cameraEye, light.direction, horizonColor, zenithColor)
+}
+
+/** `[fogColor.rgb, fogDensity]` -- density rides in the 4th component, matching both lit
+ * shaders' `fogColor : vec4f` (see [UniformFields.Fog]). Scene-wide, so it comes off the
+ * [Renderer] rather than off a [DrawCall]. */
+private fun Renderer.fogFloats(): FloatArray =
+    floatArrayOf(fogColor[0], fogColor[1], fogColor[2], fogDensity)
 
 private const val PBR_MATERIAL_FLOATS = 4
 private const val DEFAULT_METALLIC = 0f
