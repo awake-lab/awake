@@ -343,23 +343,35 @@ Compiler-driven sweeps. Boring by design.
       and design-system snapshot fixtures across dozens of call sites. Internal-forwarding
       them breaks cross-module compilation; rerouting every call site overlaps C3–C6's
       signature sweep. Deferred to that pass — C1
-- [ ] `button()` label form becomes a wrapper over the slot form (after package 4 — the
+- [x] `button()` label form becomes a wrapper over the slot form (after package 4 — the
       prior attempt's regression was a B2 symptom) — C2
-      **blocked, re-attempted and reverted cleanly (no diff left)**. Real root cause found:
-      `ui-headless` has two independent, drifted interactive-surface/style-resolution
-      implementations — the label form's own `resolveInteractiveSurface`/
-      `buttonSlotInternal` (which carries the package-5 `isWrapContentPass`/
-      `withIntrinsicLabelWidth` exception) vs. the slot form's path through ui-core's
-      generic `interactiveSurface`/`surfaceCore` (which has no such exception and resolves
-      hover state differently). Making the label form a thin wrapper over the slot form
-      silently swaps every themed button (`shadcnButton`) onto the surface implementation
-      that regresses `ShadcnButtonGroupTest`'s vertical wrap-content case (the exact bug
-      package 5 fixed) and drops hover-state color (`ShadcnButtonStateColorTest` ×2) plus a
-      snapshot-signature drift. C2 as scoped ("thin wrapper") isn't safe until the two
-      surface implementations are unified first — either port the intrinsic-width/hover
-      exceptions into `surfaceCore`'s generic path, or make the slot form call through the
-      same internal `buttonSlotInternal` machinery. That unification is bigger than C2 and
-      not yet scoped as its own row.
+      **done, third attempt**. Prereq work (commit `f6fb7cde`, same day) ported the
+      package-5 `isWrapContentPass`/`withIntrinsicLabelWidth` exception and the hover-state
+      resolution fix into `surfaceCore`, unifying the two previously-drifted
+      interactive-surface implementations `resolveInteractiveSurface`/`buttonSlotInternal`
+      (label form) and `interactiveSurface`/`surfaceCore` (slot form) called out in the
+      prior attempt below. `headless/Button.kt`'s label-form `button()` now delegates to
+      the slot-form `button(content: RowScope.(slot) -> Unit)` with a content lambda that
+      just renders `text(label, ...)`, no `primitiveButton`/`buttonSlotInternal` call left
+      in the label form. Two things had to be preserved explicitly, not "for free" from a
+      naive delegation, since the slot form's own row hardcodes
+      `Arrangement.Center`/`Vertical.Center` regardless of any per-call alignment request:
+      (1) the button's own width is resolved up front via the same `withIntrinsicLabelWidth`
+      helper `buttonSlotInternal` used (a real caller width wins unchanged, an unset width
+      becomes the label's measured natural width, a `fillMaxWidth()` caught mid an
+      ancestor's own WrapContent trial reports that natural width for the trial only) so the
+      button is never `WrapContent` by the time the row/text render; (2) the label's own
+      `text()` call then claims the button's full resolved content width
+      (`Modifier.fillMaxSize()`), so its own `centered` param — not the row's fixed
+      `Arrangement.Center` — decides left-vs-centered placement. Verified: targeted
+      `UiSemanticWidgetsTest` (`labelButtonHugsIntrinsicWidthWithoutExplicitWidth`,
+      `labelButtonRespectsCenteredForRepositioning`) green; full `:awake:ui:headless:desktopTest`,
+      `:awake:ui:ui-core:desktopTest`, `:awake:ui:designsystem:desktopTest` green, including
+      `ShadcnButtonGroupTest.verticalButtonGroupWrapsContentWidthAndButtonsFillMaxWidth`,
+      `ShadcnButtonStateColorTest` (both hover cases), and `UiSnapshotSignatureTest`.
+      `:samples:studio:desktopTest` not verified — pre-existing unrelated compile break in
+      `StudioShell.kt` (`Unresolved reference 'CAMERA_PREVIEW_CARD_PADDING'`) from
+      concurrent in-progress work in that file, out of this pass's scope.
 - [x] One style-fn shape: `internal fun shadcnXStyle(values: ShadcnThemeValues, …): Style`;
       merge the 14 `foreground+textSize` re-implementations and twin surface styles — B8
       **done**. `shadcnTextStyle(foreground, size, weight: FontWeight? = null)` in
@@ -408,7 +420,7 @@ Compiler-driven sweeps. Boring by design.
       3. C3/C4/C5/C6 signature sweep (canonical param order, required `id`, kill rule-6
          params, overlay `modifier`)
       4. C1 `column`/`row` rename + single-factory internal forwards
-      5. C2 `button()` label-form-as-wrapper (post package 4)
+      5. C2 `button()` label-form-as-wrapper (post package 4) — **done, see C2's own row above**
       6. B8/D5/C7 designsystem-facing (style-fn shape, `shadcnEmpty` merge, `shadcnTabs`
          recreate, `scrollPanel` split) — routed to `awake-design-system-engineer`
       7. B12 spacing-vocab sweep (per-site, no bulk rename)
