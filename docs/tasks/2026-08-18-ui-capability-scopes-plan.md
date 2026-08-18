@@ -72,6 +72,58 @@ fun UiPrimitiveScope.emitRadioDot(slot: UiBounds, color: Color)
 So `paintSurface` (the intended single widget-chrome path) still reaches
 `UiPrimitiveScope`'s raw draw primitives directly, not through `CanvasScope`.
 
+`emit*` is also the wrong verb — the audit's naming-lexicon decision (P2,
+`docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md`) already settled
+`draw*` as the reserved verb for painting members on a draw-capable scope, with
+`emit*` banned outright. That decision was explicitly deferred with "decide
+with P1" — this migration is that moment, since these functions are moving onto
+`CanvasScope` (the draw scope) anyway.
+
+## Final shape — before and after, together
+
+Everything above lands as one coherent change, not three separate half-steps:
+
+```kotlin
+// BEFORE — awake/ui/ui-core/.../graphics/ShapePainter.kt, today
+fun UiPrimitiveScope.emitFillAndBorder(fill: Color, border: Color, ...) {
+    // draws directly against the raw scope; caller had no choice but
+    // to already be holding a UiPrimitiveScope, not a CanvasScope
+}
+fun UiPrimitiveScope.emitCheckmark(slot: UiBounds) { ... }
+fun UiPrimitiveScope.emitRadioDot(slot: UiBounds, color: Color) { ... }
+
+// awake/ui/headless/.../internal/controls/Surface.kt, today
+fun paintSurface(scope: UiPrimitiveScope, style: Style, slot: UiBounds) {
+    val fill = style.foreground ?: scope.context.current(LocalTheme).colors.foreground
+    scope.emitFillAndBorder(fill, border, ...)   // raw scope, emit* verb
+}
+```
+
+```kotlin
+// AFTER — awake/ui/ui-core/.../graphics/ShapePainter.kt
+fun CanvasScope.drawFillAndBorder(fill: Color, border: Color, ...) {
+    // draws through CanvasScope's own public API (drawRect/fillPath/etc);
+    // fill/border are always caller-resolved, this function never touches theme
+}
+fun CanvasScope.drawCheckmark(slot: UiBounds) { ... }
+fun CanvasScope.drawRadioDot(slot: UiBounds, color: Color) { ... }
+
+// awake/ui/headless/.../internal/controls/Surface.kt
+fun UiScope.paintSurface(style: Style, slot: UiBounds) {
+    val fill = style.foreground ?: LocalTheme.current.colors.foreground   // resolved here, once
+    canvas {                          // hands out CanvasScope
+        drawFillAndBorder(fill, border, ...)   // draw* verb, no theme access needed
+    }
+}
+```
+
+Net result: `CanvasScope.context` has no remaining caller once this lands, so it
+gets deleted — the leak this whole slice exists to close is actually closed, not
+just relocated. `UiPrimitiveScope.emit`/`emitOverlay` (the lower-level interface
+members `CanvasScope`'s own `drawRect`/etc. call internally) are a separate,
+legitimate case and are NOT renamed — they're the raw primitive-emission path
+underneath the draw scope, not a widget-facing verb the lexicon rule targets.
+
 ## The blocking decision
 
 `ShapePainter`'s helpers read default colors off `UiPrimitiveScope.context` (theme
