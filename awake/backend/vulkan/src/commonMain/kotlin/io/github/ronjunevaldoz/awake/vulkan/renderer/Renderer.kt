@@ -509,7 +509,22 @@ class Renderer(
             lightViewProjection = if (shadowMap != null) lightViewProjection(DEFAULT_SCENE_LIGHT) else null,
             cameraPosition = camera.eye,
         )
-        performShadowPass(preparedDrawCalls)
+        // Deliberately NOT performShadowPass(preparedDrawCalls) here -- shadowMap is one shared
+        // resource, also written by performDraw's own shadow pass every real frame. Calling it
+        // again here (as this used to) let an offscreen renderToTexture caller (the camera
+        // preview / orientation gizmo, both called from Studio's overlay BEFORE the frame's real
+        // draw()) overwrite that shared map with ITS OWN tiny/unrelated geometry -- and because
+        // this offscreen pass and the main swapchain draw are separate command-buffer
+        // submissions with no fence/semaphore ordering guarantee between them, the main pass's
+        // shadow sample could occasionally read the wrong write, an intermittent "gizmo-shaped
+        // shadow" in the real scene. The shared map already holds the real scene's shadow data
+        // from the last real draw() call by the time any renderToTexture caller runs -- correct
+        // for this offscreen pass's own light-lit geometry too, just not freshly regenerated.
+        // ponytail: lightViewProjection above is computed for DEFAULT_SCENE_LIGHT specifically,
+        // which can disagree with whatever light direction actually produced the shared map's
+        // content (a scene authoring its own Light entity) -- a latent, pre-existing mismatch,
+        // cosmetic-only for this offscreen output; fix if an offscreen shadow sample ever needs
+        // to be pixel-correct rather than "close enough for a small preview/widget".
 
         runOffscreenCommands { commandBuffer ->
             val renderPassInfo = VkRenderPassBeginInfo(
@@ -523,7 +538,6 @@ class Renderer(
                 renderPassInfo,
                 VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE
             )
-            renderPipeline.bind(commandBuffer)
             val viewport = sceneRect?.toVkViewport()
                 ?: VkViewport(
                     width = offscreen.width.toFloat(),
@@ -537,7 +551,18 @@ class Renderer(
                 )
             )
             Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
-            recordDrawCalls(commandBuffer, preparedDrawCalls)
+            // Grouped by resolved pipeline, same as recordCommandBuffer's own primary/non-primary
+            // split -- recordDrawCalls never binds a pipeline itself (by design: its real caller
+            // is expected to group and bind first, see recordCommandBuffer). A single fixed
+            // `renderPipeline.bind` here (as this used to be) left every OTHER format's draw
+            // calls (a textured mesh needing a different pipeline than the primary/lit one) drawn
+            // through the wrong pipeline -- wrong vertex layout, wrong descriptor set, garbage
+            // output. Worked by coincidence for single-pipeline scenes (rotating-cube) and broke
+            // for anything textured (the glTF viewer's duck).
+            preparedDrawCalls.groupBy { it.pipeline }.forEach { (pipeline, group) ->
+                pipeline.bind(commandBuffer)
+                recordDrawCalls(commandBuffer, group)
+            }
             Vulkan.vkCmdEndRenderPass(commandBuffer)
             offscreen.transitionToShaderReadOnly(commandBuffer)
         }
