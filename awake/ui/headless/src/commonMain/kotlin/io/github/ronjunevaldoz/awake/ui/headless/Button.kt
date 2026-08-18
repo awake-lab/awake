@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
-import io.github.ronjunevaldoz.awake.ui.headless.button as primitiveButton
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.button as primitiveButton
 
 /**
  * Style-native button API. State rules belong in [style], not in a parallel visual DTO.

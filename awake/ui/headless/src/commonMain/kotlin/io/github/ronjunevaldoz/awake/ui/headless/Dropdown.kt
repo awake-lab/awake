@@ -13,7 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.contextMenuTrigger as primitiveContextMenuTrigger
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.filterOptionsByQuery as primitiveFilterOptionsByQuery
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.select as primitiveSelect
-import io.github.ronjunevaldoz.awake.ui.headless.buttonSlot as primitiveButtonSlot
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.buttonSlot as primitiveButtonSlot
 
 /** Generic select behavior with a stable Headless receiver. */
 fun UiScope.select(

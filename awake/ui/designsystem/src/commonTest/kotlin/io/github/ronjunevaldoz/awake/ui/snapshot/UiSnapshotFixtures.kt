@@ -34,8 +34,9 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
-import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.button
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.button
 import io.github.ronjunevaldoz.awake.ui.headless.checkbox
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxSize

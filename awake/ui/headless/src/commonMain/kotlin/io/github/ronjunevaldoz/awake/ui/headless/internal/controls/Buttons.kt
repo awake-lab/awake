@@ -1,6 +1,6 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.ui.headless
+package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
@@ -15,8 +15,6 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.compositeContent
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.paintSurface
-import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text

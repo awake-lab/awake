@@ -12,7 +12,6 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.childAbsolute
 import io.github.ronjunevaldoz.awake.ui.compositeContent
-import io.github.ronjunevaldoz.awake.ui.headless.UiButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.interact

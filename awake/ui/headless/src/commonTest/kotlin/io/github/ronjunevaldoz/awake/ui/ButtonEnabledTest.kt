@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.testing.ui.uiTestSession
 import io.github.ronjunevaldoz.awake.ui.headless.button
+import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.button
 import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.height
