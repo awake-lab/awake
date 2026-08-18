@@ -51,6 +51,61 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBi
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 
 /**
+ * The pipeline-variant shapes [RenderPipeline] builds on top of its otherwise-fixed vertex/
+ * render-pass setup -- a closed set of named presets, not 4 independent booleans, so a caller
+ * can't write a combo nobody means (e.g. [instanceAlpha] without [instanced]). A new pipeline
+ * shape (the next particle-style variant) adds one named object here instead of growing
+ * [RenderPipeline]'s constructor and its private `createGraphicsPipeline`'s parameter list
+ * again.
+ */
+sealed interface PipelineVariant {
+    /** Adds a SECOND vertex binding (binding 1, `VK_VERTEX_INPUT_RATE_INSTANCE`, stride 64)
+     * carrying one `mat4` model matrix per instance -- see `instanced.wgsl`. */
+    val instanced: Boolean
+
+    /** Only meaningful alongside [instanced]. Adds a THIRD vertex binding (binding 2, stride 4)
+     * carrying one `f32` alpha per instance -- see `particle.wgsl` and
+     * `DrawCall.instanceAlphas`. */
+    val instanceAlpha: Boolean
+
+    /** `true` enables standard straight-alpha blending (`SRC_ALPHA`/`ONE_MINUS_SRC_ALPHA`, both
+     * color and alpha) -- the same blend state [io.github.ronjunevaldoz.awake.vulkan.ui
+     * .UiTextureRenderPipeline] already uses. */
+    val blendEnabled: Boolean
+
+    /** `false` disables depth WRITE only (depth TEST stays on) -- for order-independent content
+     * that shouldn't self-occlude (e.g. particles). */
+    val depthWriteEnabled: Boolean
+
+    /** Byte-for-byte the pipeline this class always built before any variant existed -- the
+     * default for every non-instanced draw (primary/wireframe/textured/skinned/shadow). */
+    data object Opaque : PipelineVariant {
+        override val instanced = false
+        override val instanceAlpha = false
+        override val blendEnabled = false
+        override val depthWriteEnabled = true
+    }
+
+    /** Plain GPU instancing (`InstancedMeshRenderer`/`InstancedSkinnedMeshRenderer`) -- one
+     * model matrix per instance, opaque depth behavior unchanged. */
+    data object Instanced : PipelineVariant {
+        override val instanced = true
+        override val instanceAlpha = false
+        override val blendEnabled = false
+        override val depthWriteEnabled = true
+    }
+
+    /** Billboard particles -- instanced + per-instance alpha + straight-alpha blend + no depth
+     * write (order-independent draws don't self-occlude). See `particle.wgsl`. */
+    data object AlphaBlendedParticle : PipelineVariant {
+        override val instanced = true
+        override val instanceAlpha = true
+        override val blendEnabled = true
+        override val depthWriteEnabled = false
+    }
+}
+
+/**
  * Phase 2 (renderer abstraction): owns the render pass + graphics pipeline -- extracted
  * verbatim from `VulkanApplication`'s `createRenderPass`/`createGraphicsPipeline`/
  * `createShaderModule` functions and their backing fields (`renderPass`, `pipelineLayout`,
@@ -92,30 +147,9 @@ class RenderPipeline(
      * so this is already on whenever the GPU supports it -- confirmed by reading that
      * function, not assumed. */
     polygonMode: VkPolygonMode = VkPolygonMode.VK_POLYGON_MODE_FILL,
-    /** Adds a SECOND vertex binding (binding 1, `VK_VERTEX_INPUT_RATE_INSTANCE`, stride 64)
-     * carrying one `mat4` model matrix per instance as 4 consecutive `R32G32B32A32_SFLOAT`
-     * attributes -- see `instanced.wgsl`, which declares exactly those. Purely additive:
-     * binding 0 and [vertexFormat]'s own attributes are untouched, so a `false` (default)
-     * pipeline is byte-for-byte the one this class always built. The 4 attribute locations
-     * continue past [vertexFormat]'s own highest one, so no format needs its locations
-     * renumbered to make room. */
-    instanced: Boolean = false,
-    /** Only meaningful alongside [instanced]. Adds a THIRD vertex binding (binding 2,
-     * `VK_VERTEX_INPUT_RATE_INSTANCE`, stride 4, one `R32_SFLOAT` attribute) carrying one
-     * `f32` alpha per instance -- see `particle.wgsl` and `DrawCall.instanceAlphas`' own doc
-     * comment. Purely additive, same as [instanced] itself: `false` (default) leaves the
-     * pipeline byte-for-byte what it always built. */
-    instanceAlpha: Boolean = false,
-    /** `false` (default) is byte-for-byte the opaque pipeline this class always built. `true`
-     * enables standard straight-alpha blending (`SRC_ALPHA`/`ONE_MINUS_SRC_ALPHA`, both color
-     * and alpha) -- the same blend state [io.github.ronjunevaldoz.awake.vulkan.ui
-     * .UiTextureRenderPipeline] already uses for its own alpha-blended textured quads. */
-    blendEnabled: Boolean = false,
-    /** `true` (default) is byte-for-byte what this class always built. `false` disables depth
-     * WRITE only (depth TEST stays on, so blended content still hides behind real geometry) --
-     * for content drawn back-to-front or order-independent, where multiple overlapping
-     * instances writing depth against each other would fight/self-occlude (e.g. particles). */
-    depthWriteEnabled: Boolean = true,
+    /** See [PipelineVariant]'s own doc comment. Defaults to [PipelineVariant.Opaque] -- the
+     * pipeline this class always built before any variant existed. */
+    variant: PipelineVariant = PipelineVariant.Opaque,
     /** Descriptor set layouts appended AFTER [descriptorSetLayout] (which stays set 0), one per
      * additional set the shader declares. Today's only user is the skinned-instanced pipeline,
      * whose `@group(1)` joint-palette storage buffer is owned per draw call rather than per
@@ -123,8 +157,9 @@ class RenderPipeline(
      * layout exactly the single-set one this class always built. */
     extraDescriptorSetLayouts: List<DescriptorSetLayoutHandle> = emptyList(),
 ) {
-    // Read by createGraphicsPipeline through the field rather than passed to it: that function
-    // is already at detekt's parameter ceiling.
+    // Read by the create* builders through the field rather than passed as a param: that's
+    // exactly the parameter-count pressure this class's own doc comment on createPipelineLayout
+    // exists to avoid growing further.
     private val extraDescriptorSetLayouts = extraDescriptorSetLayouts
     private val graphicsDevice = graphicsDevice
     private val swapchainManager = swapchainManager
@@ -139,16 +174,12 @@ class RenderPipeline(
         renderPass = createRenderPass()
         createGraphicsPipeline(
             descriptorSetLayout = descriptorSetLayout,
-            vertShaderCode = shaders.vertex,
-            fragShaderCode = shaders.fragment,
+            shaders = shaders,
             vertexFormat = vertexFormat,
             vertexEntryPoint = vertexEntryPoint,
             fragmentEntryPoint = fragmentEntryPoint,
             polygonMode = polygonMode,
-            instanced = instanced,
-            instanceAlpha = instanceAlpha,
-            blendEnabled = blendEnabled,
-            depthWriteEnabled = depthWriteEnabled,
+            variant = variant,
         )
     }
 
@@ -220,177 +251,42 @@ class RenderPipeline(
 
     private fun createGraphicsPipeline(
         descriptorSetLayout: DescriptorSetLayoutHandle,
-        vertShaderCode: ByteArray,
-        fragShaderCode: ByteArray,
+        shaders: ShaderPair,
         vertexFormat: VertexFormat,
         vertexEntryPoint: String,
         fragmentEntryPoint: String,
         polygonMode: VkPolygonMode,
-        instanced: Boolean,
-        instanceAlpha: Boolean,
-        blendEnabled: Boolean,
-        depthWriteEnabled: Boolean,
+        variant: PipelineVariant,
     ) {
         // WARNING: make sure the .spv vulkan version match, this might cause out of memory
-        val fragShaderModule = createShaderModule(fragShaderCode.toIntArray())
-        val vertShaderModule = createShaderModule(vertShaderCode.toIntArray())
-
-        // process shader
-        val fragShaderStageInfo = VkPipelineShaderStageCreateInfo(
-            stage = VkShaderStageFlagBits.FRAGMENT,
-            module = fragShaderModule,
-            pName = fragmentEntryPoint,
-        )
-        val vertShaderStageInfo = VkPipelineShaderStageCreateInfo(
-            stage = VkShaderStageFlagBits.VERTEX,
-            module = vertShaderModule,
-            pName = vertexEntryPoint,
-        )
-        val shaderStages = arrayOf(fragShaderStageInfo, vertShaderStageInfo)
-
-        val vertexBindings = mutableListOf(
-            VkVertexInputBindingDescription(
-                binding = 0,
-                stride = vertexFormat.strideBytes,
-                inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX,
+        val fragShaderModule = createShaderModule(shaders.fragment.toIntArray())
+        val vertShaderModule = createShaderModule(shaders.vertex.toIntArray())
+        val shaderStages = arrayOf(
+            VkPipelineShaderStageCreateInfo(
+                stage = VkShaderStageFlagBits.FRAGMENT,
+                module = fragShaderModule,
+                pName = fragmentEntryPoint,
             ),
-        )
-        val vertexAttributes = vertexFormat.entries.mapTo(mutableListOf()) { entry ->
-            VkVertexInputAttributeDescription(
-                location = entry.attribute.location,
-                binding = 0,
-                format = entry.attribute.format.toVkFormat(),
-                offset = entry.offsetBytes,
-            )
-        }
-        if (instanced) {
-            vertexBindings += VkVertexInputBindingDescription(
-                binding = INSTANCE_BINDING,
-                stride = INSTANCE_MATRIX_BYTES,
-                inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_INSTANCE,
-            )
-            val firstLocation = vertexFormat.attributes.maxOf { it.location } + 1
-            repeat(MATRIX_ROWS) { row ->
-                vertexAttributes += VkVertexInputAttributeDescription(
-                    location = firstLocation + row,
-                    binding = INSTANCE_BINDING,
-                    format = VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT,
-                    offset = row * VEC4_BYTES,
-                )
-            }
-            if (instanceAlpha) {
-                vertexBindings += VkVertexInputBindingDescription(
-                    binding = INSTANCE_ALPHA_BINDING,
-                    stride = Float.SIZE_BYTES,
-                    inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_INSTANCE,
-                )
-                vertexAttributes += VkVertexInputAttributeDescription(
-                    location = firstLocation + MATRIX_ROWS,
-                    binding = INSTANCE_ALPHA_BINDING,
-                    format = VkFormat.VK_FORMAT_R32_SFLOAT,
-                    offset = 0,
-                )
-            }
-        }
-        val vertexInputInfo = arrayOf(
-            VkPipelineVertexInputStateCreateInfo(
-                pVertexBindingDescriptions = vertexBindings.toTypedArray(),
-                pVertexAttributeDescriptions = vertexAttributes.toTypedArray(),
+            VkPipelineShaderStageCreateInfo(
+                stage = VkShaderStageFlagBits.VERTEX,
+                module = vertShaderModule,
+                pName = vertexEntryPoint,
             ),
         )
 
-        val dynamicInfo = arrayOf(
-            VkPipelineDynamicStateCreateInfo(
-                pDynamicStates = arrayOf(
-                    VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT,
-                    VkDynamicState.VK_DYNAMIC_STATE_SCISSOR,
-                ),
-            ),
-        )
-
-        val viewportInfo = arrayOf(
-            VkPipelineViewportStateCreateInfo(
-                pViewports = arrayOf(
-                    VkViewport(
-                        width = swapchainManager.extent.width.toFloat(),
-                        height = swapchainManager.extent.height.toFloat(),
-                    ),
-                ),
-                pScissors = arrayOf(
-                    VkRect2D(
-                        offset = VkOffset2D(),
-                        extent = swapchainManager.extent,
-                    ),
-                ),
-            ),
-        )
-
-        val depthStencil = arrayOf(
-            VkPipelineDepthStencilStateCreateInfo(depthWriteEnable = depthWriteEnabled),
-        )
-
-        val multisamplingInfo = arrayOf(
-            VkPipelineMultisampleStateCreateInfo(),
-        )
-        // Specify we will use triangle lists to draw geometry.
-        val inputAssemblyInfo = arrayOf(
-            VkPipelineInputAssemblyStateCreateInfo(
-                topology = VkPrimitiveTopology.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                primitiveRestartEnable = false,
-            ),
-        )
-        // Specify rasterization state.
-        val rasterizationInfo = arrayOf(
-            VkPipelineRasterizationStateCreateInfo(
-                // NONE, deliberately: the demo cube's index winding isn't guaranteed
-                // outward-consistent per face -- depth testing alone resolves correct
-                // occlusion regardless of triangle winding. Revisit once per-face vertex
-                // duplication makes winding order meaningful.
-                cullMode = VkCullModeFlagBits.VK_CULL_MODE_NONE.value,
-                frontFace = VkFrontFace.VK_FRONT_FACE_CLOCKWISE,
-                polygonMode = polygonMode,
-                lineWidth = 1f,
-            ),
-        )
-
-        val blendAttachment = VkPipelineColorBlendAttachmentState(
-            blendEnable = blendEnabled,
-            srcColorBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_SRC_ALPHA,
-            dstColorBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-            srcAlphaBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_SRC_ALPHA,
-            dstAlphaBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-            colorWriteMask = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or
-                VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or
-                VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or
-                VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value,
-        )
-
-        val colorBlendInfo = arrayOf(
-            VkPipelineColorBlendStateCreateInfo(
-                pAttachments = arrayOf(blendAttachment),
-            ),
-        )
-
-        pipelineLayout = Vulkan.vkCreatePipelineLayout(
-            device,
-            VkPipelineLayoutCreateInfo(
-                pSetLayouts = (
-                    listOf(descriptorSetLayout.handle) + extraDescriptorSetLayouts.map { it.handle }
-                    ).toTypedArray(),
-            ),
-        )
+        pipelineLayout = createPipelineLayout(device, descriptorSetLayout, extraDescriptorSetLayouts)
 
         val createInfos = arrayOf(
             VkGraphicsPipelineCreateInfo(
                 pStages = shaderStages,
-                pVertexInputState = vertexInputInfo,
-                pInputAssemblyState = inputAssemblyInfo,
-                pViewportState = viewportInfo,
-                pRasterizationState = rasterizationInfo,
-                pMultisampleState = multisamplingInfo,
-                pColorBlendState = colorBlendInfo,
-                pDepthStencilState = depthStencil,
-                pDynamicState = dynamicInfo,
+                pVertexInputState = vertexInputState(vertexFormat, variant),
+                pInputAssemblyState = INPUT_ASSEMBLY_STATE,
+                pViewportState = viewportState(swapchainManager),
+                pRasterizationState = rasterizationState(polygonMode),
+                pMultisampleState = MULTISAMPLE_STATE,
+                pColorBlendState = colorBlendState(variant.blendEnabled),
+                pDepthStencilState = depthStencilState(variant.depthWriteEnabled),
+                pDynamicState = DYNAMIC_STATE,
                 layout = pipelineLayout,
                 renderPass = renderPass,
                 subpass = 0,
@@ -424,21 +320,179 @@ class RenderPipeline(
         Vulkan.vkDestroyPipelineCache(device, pipelineCache)
     }
 
-    private companion object {
-        const val DEFAULT_SHADER_ENTRY_POINT = "main"
-
-        /** See the `instanced` constructor parameter. Binding 1 (binding 0 is the mesh's own
-         * per-vertex buffer); one `mat4` = 4 `vec4` rows = 64 bytes per instance. */
-        const val INSTANCE_BINDING = 1
-        const val MATRIX_ROWS = 4
-        const val VEC4_BYTES = 16
-        const val INSTANCE_MATRIX_BYTES = MATRIX_ROWS * VEC4_BYTES
-
-        /** See the `instanceAlpha` constructor parameter. Binding 2 -- one binding past the
-         * instance matrix's own binding 1. */
-        const val INSTANCE_ALPHA_BINDING = 2
-    }
 }
+
+private const val DEFAULT_SHADER_ENTRY_POINT = "main"
+
+/** See [PipelineVariant.instanced]. Binding 1 (binding 0 is the mesh's own per-vertex buffer);
+ * one `mat4` = 4 `vec4` rows = 64 bytes per instance. */
+private const val INSTANCE_BINDING = 1
+private const val MATRIX_ROWS = 4
+private const val VEC4_BYTES = 16
+private const val INSTANCE_MATRIX_BYTES = MATRIX_ROWS * VEC4_BYTES
+
+/** See [PipelineVariant.instanceAlpha]. Binding 2 -- one binding past the instance matrix's own
+ * binding 1. */
+private const val INSTANCE_ALPHA_BINDING = 2
+
+/** Fixed structs that never vary per pipeline -- built once instead of reconstructed on every
+ * `RenderPipeline`'s own `createGraphicsPipeline` call. */
+private val DYNAMIC_STATE = arrayOf(
+    VkPipelineDynamicStateCreateInfo(
+        pDynamicStates = arrayOf(
+            VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT,
+            VkDynamicState.VK_DYNAMIC_STATE_SCISSOR,
+        ),
+    ),
+)
+private val MULTISAMPLE_STATE = arrayOf(VkPipelineMultisampleStateCreateInfo())
+
+// Specify we will use triangle lists to draw geometry.
+private val INPUT_ASSEMBLY_STATE = arrayOf(
+    VkPipelineInputAssemblyStateCreateInfo(
+        topology = VkPrimitiveTopology.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+        primitiveRestartEnable = false,
+    ),
+)
+
+/** One `VK_VERTEX_INPUT_RATE_INSTANCE` binding plus its attribute(s) -- [attributes] is
+ * `(offsetBytes, format)` per attribute, at consecutive locations starting at [firstLocation].
+ * Both the model-matrix binding (4 attributes, one per row) and the alpha binding (1
+ * attribute) are this same shape, just different attribute counts/formats. Top-level, not a
+ * [RenderPipeline] member: it's a pure function of its params, and every member here that
+ * doesn't need instance state stays out of the class to keep it under detekt's
+ * `TooManyFunctions` threshold. */
+private fun instanceRateBinding(
+    binding: Int,
+    strideBytes: Int,
+    firstLocation: Int,
+    attributes: List<Pair<Int, VkFormat>>,
+): Pair<VkVertexInputBindingDescription, List<VkVertexInputAttributeDescription>> {
+    val bindingDescription = VkVertexInputBindingDescription(
+        binding = binding,
+        stride = strideBytes,
+        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_INSTANCE,
+    )
+    val attributeDescriptions = attributes.mapIndexed { index, (offset, format) ->
+        VkVertexInputAttributeDescription(
+            location = firstLocation + index,
+            binding = binding,
+            format = format,
+            offset = offset,
+        )
+    }
+    return bindingDescription to attributeDescriptions
+}
+
+private fun vertexInputState(
+    vertexFormat: VertexFormat,
+    variant: PipelineVariant,
+): Array<VkPipelineVertexInputStateCreateInfo> {
+    val bindings = mutableListOf(
+        VkVertexInputBindingDescription(
+            binding = 0,
+            stride = vertexFormat.strideBytes,
+            inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX,
+        ),
+    )
+    val attributes = vertexFormat.entries.mapTo(mutableListOf()) { entry ->
+        VkVertexInputAttributeDescription(
+            location = entry.attribute.location,
+            binding = 0,
+            format = entry.attribute.format.toVkFormat(),
+            offset = entry.offsetBytes,
+        )
+    }
+    if (variant.instanced) {
+        val firstLocation = vertexFormat.attributes.maxOf { it.location } + 1
+        val (matrixBinding, matrixAttributes) = instanceRateBinding(
+            INSTANCE_BINDING,
+            INSTANCE_MATRIX_BYTES,
+            firstLocation,
+            (0 until MATRIX_ROWS).map { it * VEC4_BYTES to VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT },
+        )
+        bindings += matrixBinding
+        attributes += matrixAttributes
+        if (variant.instanceAlpha) {
+            val (alphaBinding, alphaAttributes) = instanceRateBinding(
+                INSTANCE_ALPHA_BINDING,
+                Float.SIZE_BYTES,
+                firstLocation + MATRIX_ROWS,
+                listOf(0 to VkFormat.VK_FORMAT_R32_SFLOAT),
+            )
+            bindings += alphaBinding
+            attributes += alphaAttributes
+        }
+    }
+    return arrayOf(
+        VkPipelineVertexInputStateCreateInfo(
+            pVertexBindingDescriptions = bindings.toTypedArray(),
+            pVertexAttributeDescriptions = attributes.toTypedArray(),
+        ),
+    )
+}
+
+private fun viewportState(swapchainManager: SwapchainManager): Array<VkPipelineViewportStateCreateInfo> = arrayOf(
+    VkPipelineViewportStateCreateInfo(
+        pViewports = arrayOf(
+            VkViewport(
+                width = swapchainManager.extent.width.toFloat(),
+                height = swapchainManager.extent.height.toFloat(),
+            ),
+        ),
+        pScissors = arrayOf(
+            VkRect2D(
+                offset = VkOffset2D(),
+                extent = swapchainManager.extent,
+            ),
+        ),
+    ),
+)
+
+private fun depthStencilState(depthWriteEnabled: Boolean): Array<VkPipelineDepthStencilStateCreateInfo> = arrayOf(
+    VkPipelineDepthStencilStateCreateInfo(depthWriteEnable = depthWriteEnabled),
+)
+
+private fun rasterizationState(polygonMode: VkPolygonMode): Array<VkPipelineRasterizationStateCreateInfo> = arrayOf(
+    VkPipelineRasterizationStateCreateInfo(
+        // NONE, deliberately: the demo cube's index winding isn't guaranteed
+        // outward-consistent per face -- depth testing alone resolves correct
+        // occlusion regardless of triangle winding. Revisit once per-face vertex
+        // duplication makes winding order meaningful.
+        cullMode = VkCullModeFlagBits.VK_CULL_MODE_NONE.value,
+        frontFace = VkFrontFace.VK_FRONT_FACE_CLOCKWISE,
+        polygonMode = polygonMode,
+        lineWidth = 1f,
+    ),
+)
+
+private fun colorBlendState(blendEnabled: Boolean): Array<VkPipelineColorBlendStateCreateInfo> {
+    val blendAttachment = VkPipelineColorBlendAttachmentState(
+        blendEnable = blendEnabled,
+        srcColorBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_SRC_ALPHA,
+        dstColorBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+        srcAlphaBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_SRC_ALPHA,
+        dstAlphaBlendFactor = VkBlendFactor.VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+        colorWriteMask = VkColorComponentFlagBits.VK_COLOR_COMPONENT_R_BIT.value or
+            VkColorComponentFlagBits.VK_COLOR_COMPONENT_G_BIT.value or
+            VkColorComponentFlagBits.VK_COLOR_COMPONENT_B_BIT.value or
+            VkColorComponentFlagBits.VK_COLOR_COMPONENT_A_BIT.value,
+    )
+    return arrayOf(VkPipelineColorBlendStateCreateInfo(pAttachments = arrayOf(blendAttachment)))
+}
+
+private fun createPipelineLayout(
+    device: Long,
+    descriptorSetLayout: DescriptorSetLayoutHandle,
+    extraDescriptorSetLayouts: List<DescriptorSetLayoutHandle>,
+): Long = Vulkan.vkCreatePipelineLayout(
+    device,
+    VkPipelineLayoutCreateInfo(
+        pSetLayouts = (
+            listOf(descriptorSetLayout.handle) + extraDescriptorSetLayouts.map { it.handle }
+            ).toTypedArray(),
+    ),
+)
 
 private fun GpuDataShape.toVkFormat(): VkFormat = when (this) {
     GpuDataShape.Float -> VkFormat.VK_FORMAT_R32_SFLOAT

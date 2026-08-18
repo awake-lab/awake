@@ -17,6 +17,7 @@ import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineVariant
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowRenderPipeline
@@ -237,7 +238,7 @@ open class VulkanGameApplication(
                 vertexFormat,
                 shaderSet.vulkan.vertexEntryPoint,
                 shaderSet.vulkan.fragmentEntryPoint,
-                instanced = true,
+                variant = PipelineVariant.Instanced,
             )
         }
         skinnedInstancedRenderPipeline = skinnedInstancedShaderSet?.let { shaderSet ->
@@ -254,7 +255,7 @@ open class VulkanGameApplication(
                 VertexFormat.PositionNormalColorSkin,
                 shaderSet.vulkan.vertexEntryPoint,
                 shaderSet.vulkan.fragmentEntryPoint,
-                instanced = true,
+                variant = PipelineVariant.Instanced,
                 extraDescriptorSetLayouts = listOf(paletteLayout),
             )
         }
@@ -270,10 +271,7 @@ open class VulkanGameApplication(
                 VertexFormat.PositionUv,
                 shaderSet.vulkan.vertexEntryPoint,
                 shaderSet.vulkan.fragmentEntryPoint,
-                instanced = true,
-                instanceAlpha = true,
-                blendEnabled = true,
-                depthWriteEnabled = false,
+                variant = PipelineVariant.AlphaBlendedParticle,
             )
         }
         shadowRenderPipeline = shadowMap?.let { map ->

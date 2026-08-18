@@ -463,9 +463,18 @@ internal fun Renderer.prepareDrawCalls(
             // A separate path entirely: one uniform write and one GPU call for every transform,
             // instead of this loop's per-draw-call MVP. Null (no instanced pipeline for this
             // format, or nothing to draw) skips the call, same as an unresolved format below.
+            // Particles carry their own camera-right/camera-up basis (particle.wgsl's
+            // Uniforms) instead of the scene light -- every other instanced format keeps the
+            // viewProjection+light block (instanced.wgsl/skinned_instanced.wgsl's Uniforms).
+            val isParticle = drawCall.mesh.format == VertexFormat.PositionUv
+            val instancedUniformFloats = if (isParticle) {
+                viewProjection.data + drawCall.extraUniformFloats
+            } else {
+                viewProjection.data + lightFloats
+            }
             val instanced = prepareInstancedDrawCall(
                 drawCall, frameIndex, instancedIndex,
-                viewProjection, lightFloats, materialUsage,
+                instancedUniformFloats, materialUsage,
             )
             if (instanced != null) {
                 prepared += instanced
@@ -549,7 +558,9 @@ internal fun Renderer.prepareDrawCalls(
  * model matrices and none of them can be folded in on the CPU. It's still written into
  * [DrawCall.material]'s own frame/draw slot (not a pipeline-owned buffer): the block is the same
  * 24 floats the non-shadow lit path already writes there, so no second uniform/descriptor scheme
- * is needed for it.
+ * is needed for it. [uniformFloats] is already the caller's fully-assembled block (particle vs.
+ * light-based content decided by the caller, which already branches on [DrawCall.mesh]'s
+ * format) -- this function just writes it, it doesn't need to know which case it is.
  *
  * A call that also carries [DrawCall.instanceJointPalettes] resolves against
  * [Renderer.skinnedInstancedPipelinesByFormat] instead and also
@@ -560,8 +571,7 @@ private fun Renderer.prepareInstancedDrawCall(
     drawCall: DrawCall,
     frameIndex: Int,
     instancedIndex: Int,
-    viewProjection: Mat4,
-    lightFloats: FloatArray,
+    uniformFloats: FloatArray,
     materialUsage: MutableMap<RenderMaterial, Int>,
 ): PreparedDrawCall? {
     val animated = drawCall.instanceJointPalettes != null
@@ -582,14 +592,6 @@ private fun Renderer.prepareInstancedDrawCall(
         }
     } else {
         null
-    }
-    // Particles carry their own camera-right/camera-up basis (particle.wgsl's Uniforms), not
-    // the scene light -- every other instanced format keeps the existing viewProjection+light
-    // block (instanced.wgsl/skinned_instanced.wgsl's Uniforms).
-    val uniformFloats = if (isParticle) {
-        viewProjection.data + drawCall.extraUniformFloats
-    } else {
-        viewProjection.data + lightFloats
     }
     val alphaInstanceBuffer = if (isParticle) {
         alphaInstanceBufferForRun(instancedIndex).also {
