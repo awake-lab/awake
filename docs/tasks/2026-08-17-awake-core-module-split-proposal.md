@@ -6,6 +6,15 @@ extracted from `awake:core` this same day, see `awake/core/README.md`), move its
 out of here and into the real module's own README in that commit. Don't let this file drift
 into describing modules as "proposed" after they exist.
 
+**Future agent needed:** none of the proposed modules below have a dedicated
+`skills/awake/agents/*.md` agent today, correctly -- an agent needs a real module to own
+(see `docs/reference/agent-catalog.md`'s discipline: don't scaffold ownership for code that
+doesn't exist). The one with a real, dated roadmap commitment is **audio**
+(`docs/MVP_PLAN.md`, post-MVP, OpenAL Soft, 1-2wk) -- when `awake:core:audio` (or wherever
+it lands) actually gets built, give it a real agent in the same commit, same discipline as
+the README rule above. VFX/particles, HUD, and music have zero code and zero roadmap
+mention as of 2026-08-18 -- don't create agents (or modules) for those speculatively.
+
 ## Goal
 
 Split `awake:core` (currently one module holding `math`/`input`/`utils`/`colors`/

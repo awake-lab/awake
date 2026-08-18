@@ -26,7 +26,10 @@ failure mode.
 ## Owns
 
 - `:awake:backend:vulkan`
-- `:awake:backend:jolt` only when the task is about native bridge mechanics, not physics API design
+- `:awake:backend:webgpu`
+- `:awake:backend:jolt` — native physics bridge mechanics
+- `:awake:physics:api` — the physics contract module itself (small, 6 files today); owned
+  here so physics has one home instead of a gap between bridge mechanics and API design
 - renderer extraction from sample-local Vulkan/OpenGL code into reusable backend modules
 - GPU resource lifetime and cleanup symmetry
 - backend-facing JNI/cinterop bridge correctness
@@ -45,6 +48,15 @@ failure mode.
 - prefer extraction over behavior change unless the task explicitly asks for new rendering behavior
 - keep backend modules API-agnostic where possible; backend-specific details belong behind the backend surface
 - never hand-edit generated JNI accessor or mutator outputs; regenerate them
+- `awake:backend:vulkan:bindings` mixes ~126 generated files (`models/`, `enums/`) with 6
+  hand-authored ones (`Vulkan.kt`, `Common.kt`, `Annotations.kt`, `Flags.kt`,
+  `VulkanSurface.kt`, `Version.kt`) at its package root, with no in-file marker — see
+  [`bindings/README.md`](../../../../awake/backend/vulkan/README.md) before assuming a
+  file is safe (or unsafe) to hand-edit
+- authored *content* (skybox, debug overlays, post-processing) added to a `Renderer`
+  must be a nullable, opt-in constructor param, off by default; *capabilities* (draw
+  primitives) may be non-null/always-present but must never carry backend-authored
+  content — see [docs/reference/render-extensibility.md](../../../../docs/reference/render-extensibility.md)
 
 ## Validation
 

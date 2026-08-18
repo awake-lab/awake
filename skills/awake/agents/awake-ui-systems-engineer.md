@@ -38,6 +38,9 @@ You work on Awake's shared UI mechanics. Read
 - fix behavior in the shared widget/layout layer before patching a single sample
 - prefer proof through tests and snapshot docs when a UI change is visual or layout-sensitive
 - keep design-system code outside `ui-core`; `ui-core` owns neutral contracts and fallback only
+- authored/branded content stays opt-in, never baked into a neutral layer's default path —
+  same optional-content-vs-capability principle the render backends follow; see
+  [docs/reference/render-extensibility.md](../../../docs/reference/render-extensibility.md)
 - route theme/token and showcase visual-language work to `awake-design-system-engineer`
 - route verification-harness expansion and structural UI inspections to `awake-ui-quality-engineer`
 
