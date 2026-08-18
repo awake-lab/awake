@@ -18,6 +18,8 @@ import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.core.systems.TransformSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
+import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedMeshRenderer
+import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedSkinnedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.DebugVisualizationSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
@@ -195,6 +197,13 @@ class SceneGameRuntime internal constructor(
         }
     }
 
+    /** Every drawable entity, generic across ordinary/instanced/skinned-instanced content --
+     * mirrors [RenderSystem.update]'s own draw-call assembly (minus its LOD/culling/frustum
+     * concerns, not needed for an offscreen preview pass). Originally only queried plain
+     * [MeshRenderer] entities, which left [InstancedMeshRenderer]/[InstancedSkinnedMeshRenderer]
+     * content (instanced-cubes, instanced-skinned) invisible to any caller of this function
+     * (the camera preview / orientation gizmo's offscreen passes) even though the real
+     * viewport renders them fine via [RenderSystem]. */
     fun collectDrawCalls(): List<DrawCall> {
         val family = world.family<Transform, MeshRenderer>()
         val transforms = family.componentsA()
@@ -210,6 +219,25 @@ class SceneGameRuntime internal constructor(
                     ),
                 )
                 index += 1
+            }
+            world.family<InstancedMeshRenderer>().forEach { _, instanced ->
+                add(
+                    DrawCall(
+                        mesh = instanced.mesh,
+                        material = instanced.material,
+                        instanceModels = instanced.transforms,
+                    ),
+                )
+            }
+            world.family<InstancedSkinnedMeshRenderer>().forEach { _, instanced ->
+                add(
+                    DrawCall(
+                        mesh = instanced.mesh,
+                        material = instanced.material,
+                        instanceModels = instanced.instances.map { it.transform },
+                        instanceJointPalettes = instanced.instances.map { it.jointPalette },
+                    ),
+                )
             }
         }
     }
