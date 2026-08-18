@@ -169,31 +169,38 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
             )
         }
 
-        shadcnButton(
-            id = "studio-view-debug-menu",
-            variant = if (debugMenuExpanded) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
-            size = ShadcnButtonSize.Xs,
-            onClick = { debugMenuExpanded = !debugMenuExpanded },
-        ) { trigger ->
-            shadcnText("Debug")
-            val popup = uiScope().shadcnPopover(
-                id = "studio-view-debug-menu-popover",
-                anchorSlot = trigger,
-                expanded = debugMenuExpanded,
-                width = Dimension.Fixed(170f.dp),
-            ) {
-                debugCheckbox("studio-debug-frustum", "Frustum", state.debugFrustum, actions.onDebugFrustumChange)
-                debugCheckbox("studio-debug-bounds", "Bounds", state.debugBounds, actions.onDebugBoundsChange)
-                debugCheckbox("studio-debug-occlusion", "Occlusion", state.debugOcclusion, actions.onDebugOcclusionChange)
-                debugCheckbox("studio-debug-lights", "Light gizmo", state.debugLights, actions.onDebugLightsChange)
-                debugCheckbox(
-                    "studio-debug-shadow-frustum",
-                    "Shadow frustum",
-                    state.debugShadowFrustum,
-                    actions.onDebugShadowFrustumChange,
-                )
+        shadcnButtonGroup(id = "studio-debug-pill") {
+            shadcnButton(
+                id = "studio-view-debug-menu",
+                variant = if (debugMenuExpanded) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+                size = ShadcnButtonSize.Xs,
+                onClick = { debugMenuExpanded = !debugMenuExpanded },
+            ) { trigger ->
+                shadcnText("Debug")
+                val popup = uiScope().shadcnPopover(
+                    id = "studio-view-debug-menu-popover",
+                    anchorSlot = trigger,
+                    expanded = debugMenuExpanded,
+                    width = Dimension.Fixed(170f.dp),
+                ) {
+                    debugCheckbox("studio-debug-frustum", "Frustum", state.debugFrustum, actions.onDebugFrustumChange)
+                    debugCheckbox("studio-debug-bounds", "Bounds", state.debugBounds, actions.onDebugBoundsChange)
+                    debugCheckbox(
+                        "studio-debug-occlusion",
+                        "Occlusion",
+                        state.debugOcclusion,
+                        actions.onDebugOcclusionChange,
+                    )
+                    debugCheckbox("studio-debug-lights", "Light gizmo", state.debugLights, actions.onDebugLightsChange)
+                    debugCheckbox(
+                        "studio-debug-shadow-frustum",
+                        "Shadow frustum",
+                        state.debugShadowFrustum,
+                        actions.onDebugShadowFrustumChange,
+                    )
+                }
+                if (popup.dismissed) debugMenuExpanded = false
             }
-            if (popup.dismissed) debugMenuExpanded = false
         }
     }
 }
