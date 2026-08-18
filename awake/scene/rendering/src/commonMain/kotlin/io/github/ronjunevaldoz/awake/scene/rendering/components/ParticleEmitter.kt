@@ -57,6 +57,12 @@ internal class Particle : Poolable {
  * [maxParticles] bounds the pool -- [spawnRate] particles/second spawn into dead slots until
  * every slot is live, at which point spawning silently stops until a slot frees up (no
  * queueing, no overflow allocation).
+ *
+ * [tintColor] multiplies the whole emitter's sampled texture color (`particle.wgsl`'s
+ * fragment stage) -- one color per EMITTER, not per particle (every particle in a burst is
+ * the same effect, e.g. all orange for fire), which is why it rides in [RenderSystem
+ * .kt][io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem]'s per-DrawCall
+ * `extraUniformFloats` alongside the camera basis, not in a per-instance buffer.
  */
 class ParticleEmitter(
     val mesh: Mesh,
@@ -69,6 +75,7 @@ class ParticleEmitter(
     val baseVelocity: Vec3,
     val velocityJitter: Float,
     val scale: Float,
+    val tintColor: Vec3 = Vec3(1f, 1f, 1f),
 ) {
     internal val particles: Array<Particle> = Array(maxParticles) { Particle() }
 

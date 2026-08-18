@@ -154,7 +154,15 @@ class RenderSystem(
                                 .scale(it.scale, it.scale, it.scale)
                         },
                         instanceAlphas = live.map { it.currentAlpha() },
-                        extraUniformFloats = cameraBasis,
+                        // Camera basis (shared, every emitter this frame) + this emitter's own
+                        // tint (one per DrawCall, not per instance) -- see ParticleEmitter
+                        // .tintColor's own doc comment.
+                        extraUniformFloats = cameraBasis + floatArrayOf(
+                            emitter.tintColor.x,
+                            emitter.tintColor.y,
+                            emitter.tintColor.z,
+                            0f,
+                        ),
                     ),
                 )
             }

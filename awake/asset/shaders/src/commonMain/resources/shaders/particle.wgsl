@@ -18,6 +18,9 @@ struct Uniforms {
   // recomputed per vertex.
   cameraRight : vec4f,
   cameraUp : vec4f,
+  // One color per EMITTER (not per particle/instance) -- every particle in one DrawCall shares
+  // it, see ParticleEmitter.tintColor's own doc comment.
+  tintColor : vec4f,
 }
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
 @binding(1) @group(0) var particleTexture : texture_2d<f32>;
@@ -59,5 +62,5 @@ fn vertexMain(
 @fragment
 fn fragmentMain(@location(0) uv : vec2f, @location(1) alpha : f32) -> @location(0) vec4f {
   let sampled = textureSample(particleTexture, particleSampler, uv);
-  return vec4f(sampled.rgb, sampled.a * alpha);
+  return vec4f(sampled.rgb * uniforms.tintColor.rgb, sampled.a * alpha);
 }
