@@ -212,6 +212,10 @@ private fun UiPrimitiveScope.resolveMeasuredColumn(
                 width = trialWidth,
                 gap = trialGap,
                 insets = insets,
+                // This is the column's own WrapContent sizing trial (not the hasWeightedChild-
+                // detection or plannedSlots trials below, which measure against the real,
+                // resolved slot) -- see UiContext.wrapContentPass.
+                wrapContentPass = true,
                 content = content,
             )
         }

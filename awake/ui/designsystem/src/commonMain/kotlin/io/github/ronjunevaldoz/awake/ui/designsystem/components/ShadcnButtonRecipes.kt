@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
-import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
@@ -44,7 +43,7 @@ fun UiScope.shadcnButton(
     onClick: (() -> Unit)? = null,
 ): Boolean {
     val groupCtx = currentLocal(LocalShadcnButtonGroup)
-    val groupStyle = if (groupCtx != null) Style { shape(0f.dp) } else Style.Empty
+    val groupStyle = groupCtx?.let { cornerStyle(it) } ?: Style.Empty
     // Only vertical groups stretch members -- the group's resolved width isn't a real bound
     // until every member's intrinsic width is known, so an explicit fillMaxWidth() is needed to
     // make them share it. Horizontal groups don't need the height equivalent: every member
@@ -77,7 +76,7 @@ fun UiScope.shadcnButton(
     content: RowScope.(slot: UiBounds) -> Unit,
 ): Boolean {
     val groupCtx = currentLocal(LocalShadcnButtonGroup)
-    val groupStyle = if (groupCtx != null) Style { shape(0f.dp) } else Style.Empty
+    val groupStyle = groupCtx?.let { cornerStyle(it) } ?: Style.Empty
     // Content-lambda buttons (icons, in practice) have no label to derive an intrinsic width
     // from, so buttonSlotInternal's own fallback resolves straight to FillMax -- an icon button
     // dropped into a row without an explicit width stretched to fill it. shadcn's `size="icon"`

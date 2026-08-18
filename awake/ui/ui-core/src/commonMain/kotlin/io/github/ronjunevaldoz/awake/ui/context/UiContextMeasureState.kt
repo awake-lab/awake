@@ -111,6 +111,7 @@ internal class UiContextMeasureState {
         insets: UiInsets,
         sourceContext: UiContext,
         height: Float = UNBOUNDED_MAIN_AXIS,
+        wrapContentPass: Boolean = false,
         content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent {
         val measureContext = createMeasureContext(sourceContext)
@@ -130,7 +131,9 @@ internal class UiContextMeasureState {
             // the sentinel as a real size.
             hasBoundedFillHeight = height != UNBOUNDED_MAIN_AXIS,
         )
-        UiMeasureTrialStats.record { measureScope.content(outerSlot) }
+        measureContext.withWrapContentPass(wrapContentPass) {
+            UiMeasureTrialStats.record { measureScope.content(outerSlot) }
+        }
         return measureContext.measuredContentSnapshot()
     }
 
@@ -140,6 +143,7 @@ internal class UiContextMeasureState {
         insets: UiInsets,
         sourceContext: UiContext,
         width: Float = UNBOUNDED_MAIN_AXIS,
+        wrapContentPass: Boolean = false,
         content: RowScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent {
         val measureContext = createMeasureContext(sourceContext)
@@ -152,7 +156,9 @@ internal class UiContextMeasureState {
             insets = insets,
             hasBoundedFillWidth = width != UNBOUNDED_MAIN_AXIS,
         )
-        UiMeasureTrialStats.record { measureScope.content(outerSlot) }
+        measureContext.withWrapContentPass(wrapContentPass) {
+            UiMeasureTrialStats.record { measureScope.content(outerSlot) }
+        }
         return measureContext.measuredContentSnapshot()
     }
 

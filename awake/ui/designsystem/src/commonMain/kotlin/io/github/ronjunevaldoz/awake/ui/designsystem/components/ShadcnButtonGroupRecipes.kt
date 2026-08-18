@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
@@ -25,11 +26,70 @@ enum class ShadcnButtonGroupOrientation {
     Vertical,
 }
 
-internal data class ShadcnButtonGroupContext(
-    val orientation: ShadcnButtonGroupOrientation,
-)
+/**
+ * Threads orientation and per-member corner-rounding position down to [shadcnButton] and
+ * [shadcnButtonGroupSeparator] -- an ambient local, not an explicit `content` parameter, because
+ * the group's `content: UiScope.() -> Unit` shape (a bare composition block, matching every
+ * other headless container) has no per-child slot for a caller to pass an index through.
+ *
+ * [memberCount]/[nextIndex] are populated across the SAME frame's own trial-then-real dispatch
+ * (see [io.github.ronjunevaldoz.awake.ui.context.UiContext.wrapContentPass]) -- `content` always
+ * runs once as a WrapContent sizing trial before the real render, so the trial pass alone already
+ * knows how many members exist by the time the real pass needs to color the first/last corners.
+ * Never a count remembered from a PRIOR frame -- this instance is constructed fresh inside
+ * [shadcnButtonGroup] every call, so a structural change (a caller adding/removing a button)
+ * can never leave a stale corner behind.
+ */
+internal class ShadcnButtonGroupContext(val orientation: ShadcnButtonGroupOrientation) {
+    private var memberCount: Int = 0
+    private var nextIndex: Int = 0
+
+    /** Called once per [shadcnButton]/[shadcnIcon] claim. Returns this member's 0-based
+     * position during the real pass, or -1 during the counting trial (nothing paints then, so
+     * the corner shape computed from it is never observed). */
+    fun registerMember(isWrapContentPass: Boolean): Int {
+        if (isWrapContentPass) {
+            memberCount++
+            return -1
+        }
+        return nextIndex++
+    }
+
+    /** [radius] on the group's own outer corner(s) for a member at [index], `0.dp` on every
+     * edge that meets a neighbour -- shadcn's `[&>*:not(:first-child)]:rounded-l-none` etc.,
+     * ported to explicit index math since this engine has no CSS-style structural selectors. */
+    fun cornerShape(index: Int, radius: Dp): UiShapeSpec {
+        val isFirst = index == 0
+        val isLast = index == memberCount - 1
+        val none = 0f.dp
+        return when (orientation) {
+            ShadcnButtonGroupOrientation.Horizontal -> UiShapeSpec.RoundedCorners(
+                topLeft = if (isFirst) radius else none,
+                topRight = if (isLast) radius else none,
+                bottomRight = if (isLast) radius else none,
+                bottomLeft = if (isFirst) radius else none,
+            )
+
+            ShadcnButtonGroupOrientation.Vertical -> UiShapeSpec.RoundedCorners(
+                topLeft = if (isFirst) radius else none,
+                topRight = if (isFirst) radius else none,
+                bottomRight = if (isLast) radius else none,
+                bottomLeft = if (isLast) radius else none,
+            )
+        }
+    }
+}
 
 internal val LocalShadcnButtonGroup: UiLocal<ShadcnButtonGroupContext?> = uiLocalOf(null)
+
+/** Registers the calling [shadcnButton]/[shadcnIcon] as the next member of [groupCtx] and
+ * returns the per-corner [Style] it should paint -- `Style.Empty` during the counting trial
+ * (see [ShadcnButtonGroupContext.registerMember]), where nothing observes it anyway. */
+internal fun UiScope.cornerStyle(groupCtx: ShadcnButtonGroupContext): Style {
+    val index = groupCtx.registerMember(primitive.context.isWrapContentPassInternal())
+    if (index < 0) return Style.Empty
+    return Style { shape(groupCtx.cornerShape(index, themeValues.shapes.md)) }
+}
 
 internal fun UiScope.pushLocal(
     local: UiLocal<ShadcnButtonGroupContext?>,
@@ -60,50 +120,55 @@ fun UiScope.shadcnButtonGroup(
     id: String,
     modifier: Modifier = Modifier,
     orientation: ShadcnButtonGroupOrientation = ShadcnButtonGroupOrientation.Horizontal,
-    minWidth: Dp? = if (orientation == ShadcnButtonGroupOrientation.Vertical) 36f.dp else null,
     content: UiScope.() -> Unit,
-): UiBounds {
-    val effectiveModifier = if (minWidth != null) modifier.widthIn(min = minWidth) else modifier
-    return groupSurface(id, effectiveModifier) {
-        pushLocal(LocalShadcnButtonGroup, ShadcnButtonGroupContext(orientation)) {
-            when (orientation) {
-                ShadcnButtonGroupOrientation.Horizontal -> row(
-                    horizontalArrangement = Arrangement.spacedBy(0f.dp),
-                    verticalAlignment = UiAlignment.Vertical.Center,
-                    modifier = Modifier.wrapContentWidthOrDefault(),
-                ) { content() }
+): UiBounds = groupSurface(id, orientation, modifier) {
+    pushLocal(LocalShadcnButtonGroup, ShadcnButtonGroupContext(orientation)) {
+        // wrapContentWidthOrDefault() is load-bearing, not decorative: this row/column is nested
+        // inside a ColumnScope receiver, so it resolves through ColumnScope.row()/column()'s own
+        // ui-core wrapper (Column.kt/Row.kt), whose width DEFAULT for a child hosted in a column
+        // is FillMax (the cross axis fills its parent unless the child opts out) -- exactly the
+        // opposite of what a wrap-content group needs. This explicitly opts back out to
+        // WrapContent, the same override withIntrinsicLabelWidth's own reportsNaturalWidthDuringWrapTrial
+        // branch (see IntrinsicSizing.kt) relies on to see FillMax on the *members* specifically,
+        // not the group's own outer container.
+        when (orientation) {
+            ShadcnButtonGroupOrientation.Horizontal -> row(
+                horizontalArrangement = Arrangement.spacedBy(0f.dp),
+                verticalAlignment = UiAlignment.Vertical.Center,
+                modifier = Modifier.wrapContentWidthOrDefault(),
+            ) { content() }
 
-                ShadcnButtonGroupOrientation.Vertical -> column(
-                    verticalArrangement = Arrangement.spacedBy(0f.dp),
-                    modifier = Modifier.wrapContentWidthOrDefault(),
-                ) { content() }
-            }
+            ShadcnButtonGroupOrientation.Vertical -> column(
+                verticalArrangement = Arrangement.spacedBy(0f.dp),
+                modifier = Modifier.wrapContentWidthOrDefault(),
+            ) { content() }
         }
     }
 }
 
+/** Vertical icon-only groups (shadcn's zoom controls, the reference this ports from) have no
+ * label to give the group a real tap-target width -- shadcn's own CSS sets a baseline `size-9`
+ * (36dp) member width for exactly this case. Applied unconditionally here (not a caller-tunable
+ * param -- ownership rule 6, `Modifier.widthIn(min=)` already expresses a caller override). */
+private val verticalIconGroupMinWidth = 36f.dp
+
 private fun UiScope.groupSurface(
     id: String,
+    orientation: ShadcnButtonGroupOrientation,
     modifier: Modifier,
     content: ColumnScope.() -> Unit,
 ): UiBounds = surface(
     id = id,
-    modifier = modifier.wrapContentWidthOrDefault(),
+    modifier = modifier,
     style = Style {
         background(themeValues.colors.card)
         foreground(themeValues.colors.cardForeground)
         border(1f.dp, themeValues.colors.border)
         shape(themeValues.shapes.md)
-        // Zero, as in shadcn: the children ARE the control's edges.
-        //
-        // Known limit: a filled end segment (Primary, active, hover) is a square rect whose
-        // corners overhang the group's rounded arc. shadcn strips the adjacent corners per child
-        // (`[&>*:not(:first-child)]:rounded-l-none`), which this engine cannot express --
-        // UiShapeSpec.RoundedRectangle carries one uniform radius, and the clip that would
-        // otherwise mask it is a rectangular scissor in both backends (vkCmdSetScissor /
-        // setScissorRect). A hairline inset hides it, but padding here makes the vertical group
-        // expand instead of wrapping its content (ShadcnButtonGroupTest covers that), so the
-        // overhang stays until the shape stack grows per-corner radii.
+        // Zero, as in shadcn: the children ARE the control's edges. Each member now carries its
+        // own per-corner shape (see ShadcnButtonGroupContext.cornerShape) instead of the group
+        // itself painting one uniform radius, so this container never needs its own visible
+        // rounding -- a filled end member's real corner already matches the group's outer arc.
         contentPadding(0f.dp)
     },
 ) { content() }

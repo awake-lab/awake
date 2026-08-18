@@ -374,6 +374,35 @@ class UiContext internal constructor(
 
     fun isMeasuringInternal(): Boolean = measuring
 
+    // Set only around a WrapContent container's own sizing trial (resolveMeasuredColumn's/
+    // resolveMeasuredRow's measureColumnContentInternal/measureRowContentInternal call, via
+    // wrapContentPass below) -- NOT the separate hasWeightedChild-detection or plannedSlots
+    // trials that also run through this same trial-context machinery, which measure against a
+    // real, final bound and must not have a child's reported size swapped out from under them.
+    // A FillMax child has no real intrinsic size of its own to place, but during THIS specific
+    // trial it may still have a natural content size worth reporting upward (e.g. a button's
+    // label width) -- see withIntrinsicLabelWidth, the one place that currently reads this.
+    private var wrapContentPass = false
+
+    // Not module-internal despite the name -- like isFocusedInternal above, widget-layer code
+    // in other modules (e.g. headless's withIntrinsicLabelWidth) reads this off a raw UiContext.
+    fun isWrapContentPassInternal(): Boolean = wrapContentPass
+
+    /** Brackets [block] as this context's own WrapContent sizing trial -- see [wrapContentPass].
+     * Restores the previous value rather than unconditionally clearing it, since a trial
+     * context is reused across nested/sequential calls (see
+     * [UiContextMeasureState.createMeasureContext]) and one trial's content can itself trigger
+     * another (a nested WrapContent child). */
+    internal inline fun <T> withWrapContentPass(value: Boolean, block: () -> T): T {
+        val previous = wrapContentPass
+        wrapContentPass = value
+        try {
+            return block()
+        } finally {
+            wrapContentPass = previous
+        }
+    }
+
     /** The real, persisted widget-state store this context reads/writes through
      * [rememberStateValue][io.github.ronjunevaldoz.awake.ui.rememberStateValue] et al. --
      * exposed so a trial/measurement [UiContext] (see [UiContextMeasureState]) can share it
@@ -586,6 +615,9 @@ class UiContext internal constructor(
         gap: Float = UiSpacing.sm.toPx(),
         insets: UiInsets = UiInsets.Zero,
         height: Float = UNBOUNDED_MAIN_AXIS,
+        // See [wrapContentPass] -- true only for the WrapContent-sizing trial (resolveMeasuredColumn),
+        // never for the hasWeightedChild-detection or plannedSlots trials.
+        wrapContentPass: Boolean = false,
         content: ColumnScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = withOwnMeasurementScope {
         measurement.measureColumnContent(
@@ -594,6 +626,7 @@ class UiContext internal constructor(
             insets = insets,
             height = height,
             sourceContext = this,
+            wrapContentPass = wrapContentPass,
             content = content,
         )
     }
@@ -627,6 +660,9 @@ class UiContext internal constructor(
         gap: Float,
         insets: UiInsets = UiInsets.Zero,
         width: Float = UNBOUNDED_MAIN_AXIS,
+        // See measureColumnContentInternal's matching param -- true only for the WrapContent-sizing
+        // trial (resolveMeasuredRow), never for the hasWeightedChild-detection or plannedSlots trials.
+        wrapContentPass: Boolean = false,
         content: RowScope.(slot: UiBounds) -> Unit,
     ): UiMeasuredContent = measurement.measureRowContent(
         height = height,
@@ -634,6 +670,7 @@ class UiContext internal constructor(
         insets = insets,
         width = width,
         sourceContext = this,
+        wrapContentPass = wrapContentPass,
         content = content,
     )
 

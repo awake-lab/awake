@@ -23,6 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import io.github.ronjunevaldoz.awake.ui.layouts.AbsoluteScope
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
+import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
@@ -59,9 +60,23 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
             borderWidth(1f.dp)
         }
     }
+    // intrinsicWidth is only ever a real Dimension.Fixed when withIntrinsicLabelWidth actually
+    // computed one -- either the modifier had no width at all, or (see that function's doc) this
+    // claim is happening inside an ancestor's WrapContent sizing trial, where a fillMaxWidth()
+    // button (e.g. every member of a vertical shadcnButtonGroup) must still report its natural
+    // label width upward instead of the trial's placeholder bound. Force it in both cases --
+    // when the modifier's own width was already Fixed, this is a same-value no-op (see that
+    // function's early-return, which passes the original Fixed value straight through as
+    // intrinsicWidth). withSizeFallback below still handles every other case (no label, a
+    // weighted child, or a real FillMax placement outside a wrap trial) exactly as before.
+    val sizedModifier = if (intrinsicWidth is Dimension.Fixed) {
+        modifier.width(intrinsicWidth)
+    } else {
+        modifier
+    }.withSizeFallback(intrinsicWidth ?: Dimension.FillMax, Dimension.Fixed(40f.dp))
     val surface = resolveInteractiveSurface(
         id = id,
-        modifier = modifier.withSizeFallback(intrinsicWidth ?: Dimension.FillMax, Dimension.Fixed(40f.dp)),
+        modifier = sizedModifier,
         style = style,
         defaults = defaults,
         selected = false,

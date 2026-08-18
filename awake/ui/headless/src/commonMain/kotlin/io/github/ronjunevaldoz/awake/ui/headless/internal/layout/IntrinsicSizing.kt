@@ -37,7 +37,17 @@ internal fun UiPrimitiveScope.withIntrinsicLabelWidth(
     defaults: Style = Style.Empty,
     extraWidth: Dp = 0f.dp,
 ): UiModifier {
-    if (modifier.widthDimension != null || modifier.layoutWeight != null) return modifier
+    // A FillMax width is "no opinion, fill whatever's available" -- it has no real intrinsic
+    // width of its own for a bounded/real layout pass, but an ancestor sizing ITSELF from
+    // WrapContent (see UiContext.wrapContentPass) needs exactly this control's natural content
+    // width to hug around (e.g. a vertical shadcnButtonGroup's members are all fillMaxWidth(),
+    // and the group must still wrap to the widest label). Report it for that one trial only --
+    // a real Fixed width from the caller is a genuine override and is never touched.
+    val reportsNaturalWidthDuringWrapTrial =
+        modifier.widthDimension == Dimension.FillMax && context.isWrapContentPassInternal()
+    if ((modifier.widthDimension != null && !reportsNaturalWidthDuringWrapTrial) || modifier.layoutWeight != null) {
+        return modifier
+    }
 
     val resolved = resolveStyle(
         style = style,
