@@ -423,8 +423,12 @@ Compiler-driven sweeps. Boring by design.
       positional-`Dp`-args readability complaint is separately real but out of this pass's
       scope (would be a signature change to `ShadcnMetrics`'s constructor, not a
       park-or-delete).
-- [ ] Spacing-vocab sweep per the recorded decision (`Tw` in designsystem, `UiSpacing` in
-      core/headless, delete `ShadcnSpacing`) — per-site, no bulk rename — B12
+- [ ] Spacing-vocab sweep — **decision revised 2026-08-18**: ui-core/ui-headless own no
+      spacing scale at all, matching Compose Foundation's layering (zero built-in spacing
+      tokens; only a design-system layer like Material owns a named scale). `UiSpacing` is
+      deleted, not relocated to headless — every `UiSpacing.xs/.sm/.md/.lg/.xl` call site
+      in core/headless gets its literal `Dp` value inlined. `ShadcnSpacing` is also deleted.
+      Only `Tw` (designsystem) keeps a named scale. Per-site, no bulk rename — B12
 
 ```kotlin
 // before — shadcnTabs models only the track; content panel not expressible;

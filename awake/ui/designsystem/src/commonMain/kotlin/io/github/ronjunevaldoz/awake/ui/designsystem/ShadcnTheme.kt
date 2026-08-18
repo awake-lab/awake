@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnPalette
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
-import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnSpacing
 
 /**
  * A neutral-first, shadcn-inspired design-system theme that lives OUTSIDE the engine core.
@@ -142,7 +141,6 @@ interface ShadcnResolvedTheme : UiThemeValues {
     val palette: ShadcnPalette
     val radii: ShadcnRadiusScale
     val metrics: ShadcnMetrics
-    val spacing: ShadcnSpacing get() = ShadcnSpacing
     override val typography: UiTypography
     override val shapes: UiShapeTokens get() = radii
 

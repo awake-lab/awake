@@ -6,7 +6,6 @@ import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.theme.UiShapeTokens
-import io.github.ronjunevaldoz.awake.ui.tailwind.Tw
 
 data class ShadcnRadiusScale(
     override val xs: Dp,
@@ -37,22 +36,6 @@ data class ShadcnRadiusScale(
             full = 9999f.dp,
         )
     }
-}
-
-/** shadcn-matching spacing names, wrapping [UiSpacing]'s dp values instead of duplicating them --
- * ui-core owns the raw scale, this just renames/extends it for shadcn call sites (e.g. `theme.spacing.xxl`).
- *
- * This object is the ONE spacing vocabulary `ui-designsystem` components should speak. Reaching
- * past it to [Tw.Spacing] directly inside a component is what splits the module into two competing
- * vocabularies for the same concept -- add the missing step here instead, the way [smd]/[lgx] were.
- * `Tw` is this object's source of truth, not a parallel API for call sites. */
-object ShadcnSpacing {
-    val xs: Dp = Tw.Spacing.s1
-    val sm: Dp = Tw.Spacing.s2
-    val md: Dp = Tw.Spacing.s4
-    val lg: Dp = Tw.Spacing.s6
-    val xl: Dp = Tw.Spacing.s8
-    val xxl: Dp = Tw.Spacing.s12
 }
 
 data class ShadcnMetrics(
