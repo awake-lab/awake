@@ -98,10 +98,9 @@ Keeps `CanvasScope` a pure draw surface (closer to real `DrawScope`, which also
 never resolves theme values itself — the caller passes a `Color`). More call
 sites touched, but each change is mechanical.
 
-Not decided. Recommend **Option B** — it's what real `DrawScope` does, and it's
-the one that actually removes the `context` leak (`CanvasScope.context` currently
-exists ONLY because `ShapePainter`'s helpers need theme access; remove that need
-and `context` has no reason to stay public).
+**Decided 2026-08-18: Option B.** Callers pre-resolve colors; `CanvasScope`
+stays a pure draw surface, matching real `DrawScope`, and removes the reason
+`CanvasScope.context` exists at all.
 
 ## Sequence
 
