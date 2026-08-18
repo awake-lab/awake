@@ -220,6 +220,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   benefit — behaviorally identical, but any code importing
   `io.github.ronjunevaldoz.awake.ui.headless.Modifier` directly by fully-qualified name (rare)
   should re-check that the symbol still resolves; the star/named import form is unaffected.
+- `ShapePainter.kt`'s widget-chrome helpers move from `UiPrimitiveScope` extensions to
+  `CanvasScope` extensions and are renamed to match: `emitFillAndBorder` → `drawFillAndBorder`,
+  `emitCheckmark` → `drawCheckmark`, `emitRadioDot` → `drawRadioDot`, `emitInsetDash` →
+  `drawInsetDash`. They now take resolved `Color` params instead of reading theme defaults
+  internally — `CanvasScope` never touches theme, matching how Compose's `DrawScope` works.
+  `CanvasScope.context` is fully removed, no longer just relocated.
 
 ### Fixed
 
