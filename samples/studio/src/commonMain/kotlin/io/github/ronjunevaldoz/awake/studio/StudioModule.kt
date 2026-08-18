@@ -242,7 +242,15 @@ private class StudioGizmoSystem(
                 store.dispatch(StudioContract.Intent.SelectEntity(pick.entityId))
             }
         }
-        runtime.renderer.drawDebugLines(gizmo.handleLines(world, selected, tool))
+        // Only when there's actually a gizmo to show -- Renderer.drawDebugLines REPLACES the
+        // whole line buffer rather than appending, and this system now runs after
+        // DebugVisualizationSystem (see infrastructureSystems' own comment) specifically so a
+        // real gizmo isn't wiped by it. But that ordering flips the failure the other way on
+        // every frame nothing is selected: an unconditional call here with an empty list would
+        // silently wipe whatever DebugVisualizationSystem just drew (frustum/bounds/light/
+        // shadow lines), which is exactly why none of those toggles showed anything.
+        val handleLines = gizmo.handleLines(world, selected, tool)
+        if (handleLines.isNotEmpty()) runtime.renderer.drawDebugLines(handleLines)
     }
 
     /** Mapped rather than shared: the gizmo does not depend on studio's store, and a UI enum
