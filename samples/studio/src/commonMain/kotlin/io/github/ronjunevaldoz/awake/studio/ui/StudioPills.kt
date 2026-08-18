@@ -6,19 +6,24 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.ui.UiImageVector
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroupSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnIcon
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnPopover
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
+import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.uiScope
 import io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons
 
 /** The group's own height: one button plus the hairline border it now owns. */
@@ -113,78 +118,88 @@ internal data class ViewPillActions(
     val onDebugShadowFrustumChange: (Boolean) -> Unit,
 )
 
-internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions) {
-    shadcnButtonGroup(id = "studio-view-pill") {
-        rowIconButton(
-            id = "studio-view-mode",
-            glyph = state.mode.glyph(),
-            active = false,
-            onClick = actions.onCycleMode,
-        )
+/** Whether the debug popover (below) is open -- module-level, not [ViewPillState], since it's
+ * purely this pill's own transient UI state, not something the rest of Studio ever reads. */
+private var debugMenuExpanded = false
 
-        shadcnButtonGroupSeparator()
+/**
+ * Three groups, not one long row: view (camera mode/projection), render style (wireframe/
+ * shadows/sky -- toggled often while editing, stays always-visible), and debug visualization
+ * (frustum/bounds/occlusion/light/shadow-frustum -- dev-only, rarely touched, collapsed behind
+ * one "Debug" popover instead of five extra always-on buttons).
+ */
+internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions) {
+    row(horizontalArrangement = Arrangement.spacedBy(8f.dp)) {
+        shadcnButtonGroup(id = "studio-view-pill") {
+            rowIconButton(
+                id = "studio-view-mode",
+                glyph = state.mode.glyph(),
+                active = false,
+                onClick = actions.onCycleMode,
+            )
+            shadcnButtonGroupSeparator()
+            shadcnButton(
+                id = "studio-view-projection",
+                label = if (state.projection == StudioContract.Projection.Perspective) "Persp" else "Ortho",
+                variant = ShadcnButtonVariant.Ghost,
+                size = ShadcnButtonSize.Xs,
+                onClick = actions.onToggleProjection,
+            )
+        }
+
+        shadcnButtonGroup(id = "studio-style-pill") {
+            rowIconButton(
+                id = "studio-view-wireframe",
+                glyph = outline.squares2x2,
+                active = state.wireframe,
+                onClick = { actions.onWireframeChange(!state.wireframe) },
+            )
+            rowIconButton(
+                id = "studio-view-shadows",
+                glyph = outline.sun,
+                active = state.shadows,
+                onClick = { actions.onShadowsChange(!state.shadows) },
+            )
+            shadcnButton(
+                id = "studio-view-environment",
+                label = "Sky",
+                variant = if (state.environment) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+                size = ShadcnButtonSize.Xs,
+                onClick = { actions.onEnvironmentChange(!state.environment) },
+            )
+        }
+
         shadcnButton(
-            id = "studio-view-projection",
-            label = if (state.projection == StudioContract.Projection.Perspective) "Persp" else "Ortho",
-            variant = ShadcnButtonVariant.Ghost,
+            id = "studio-view-debug-menu",
+            variant = if (debugMenuExpanded) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
             size = ShadcnButtonSize.Xs,
-            onClick = actions.onToggleProjection,
-        )
-        shadcnButtonGroupSeparator()
-        rowIconButton(
-            id = "studio-view-wireframe",
-            glyph = outline.squares2x2,
-            active = state.wireframe,
-            onClick = { actions.onWireframeChange(!state.wireframe) },
-        )
-        rowIconButton(
-            id = "studio-view-shadows",
-            glyph = outline.sun,
-            active = state.shadows,
-            onClick = { actions.onShadowsChange(!state.shadows) },
-        )
-        shadcnButton(
-            id = "studio-view-environment",
-            label = "Sky",
-            variant = if (state.environment) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
-            size = ShadcnButtonSize.Xs,
-            onClick = { actions.onEnvironmentChange(!state.environment) },
-        )
-        shadcnButtonGroupSeparator()
-        rowIconButton(
-            id = "studio-view-debug-frustum",
-            glyph = outline.videoCamera,
-            active = state.debugFrustum,
-            onClick = { actions.onDebugFrustumChange(!state.debugFrustum) },
-        )
-        rowIconButton(
-            id = "studio-view-debug-bounds",
-            glyph = outline.cube,
-            active = state.debugBounds,
-            onClick = { actions.onDebugBoundsChange(!state.debugBounds) },
-        )
-        rowIconButton(
-            id = "studio-view-debug-occlusion",
-            glyph = outline.eyeSlash,
-            active = state.debugOcclusion,
-            onClick = { actions.onDebugOcclusionChange(!state.debugOcclusion) },
-        )
-        shadcnButtonGroupSeparator()
-        shadcnButton(
-            id = "studio-view-debug-lights",
-            label = "Light",
-            variant = if (state.debugLights) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
-            size = ShadcnButtonSize.Xs,
-            onClick = { actions.onDebugLightsChange(!state.debugLights) },
-        )
-        shadcnButton(
-            id = "studio-view-debug-shadow-frustum",
-            label = "Shadow",
-            variant = if (state.debugShadowFrustum) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
-            size = ShadcnButtonSize.Xs,
-            onClick = { actions.onDebugShadowFrustumChange(!state.debugShadowFrustum) },
-        )
+            onClick = { debugMenuExpanded = !debugMenuExpanded },
+        ) { trigger ->
+            shadcnText("Debug")
+            val popup = uiScope().shadcnPopover(
+                id = "studio-view-debug-menu-popover",
+                anchorSlot = trigger,
+                expanded = debugMenuExpanded,
+                width = Dimension.Fixed(170f.dp),
+            ) {
+                debugCheckbox("studio-debug-frustum", "Frustum", state.debugFrustum, actions.onDebugFrustumChange)
+                debugCheckbox("studio-debug-bounds", "Bounds", state.debugBounds, actions.onDebugBoundsChange)
+                debugCheckbox("studio-debug-occlusion", "Occlusion", state.debugOcclusion, actions.onDebugOcclusionChange)
+                debugCheckbox("studio-debug-lights", "Light gizmo", state.debugLights, actions.onDebugLightsChange)
+                debugCheckbox(
+                    "studio-debug-shadow-frustum",
+                    "Shadow frustum",
+                    state.debugShadowFrustum,
+                    actions.onDebugShadowFrustumChange,
+                )
+            }
+            if (popup.dismissed) debugMenuExpanded = false
+        }
     }
+}
+
+private fun ColumnScope.debugCheckbox(id: String, label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    if (shadcnCheckbox(id = id, checked = checked, label = label)) onChange(!checked)
 }
 
 /** The collapsed console strip: entity count and backend, with the dock a click away. */
