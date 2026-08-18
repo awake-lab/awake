@@ -19,6 +19,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
+import io.github.ronjunevaldoz.awake.ui.headless.UiTabItem
 import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
@@ -51,15 +52,16 @@ internal fun UiScope.drawStudioBottomDock(store: StudioStore) {
     ) {
         val requestedTab = shadcnTabs(
             id = "studio-bottom-dock",
-            tabs = BOTTOM_DOCK_TABS,
-            selectedIndex = renderedTab,
-        )
-        when (renderedTab) {
-            0 -> drawStudioConsole(store)
-            1 -> drawStudioTimelinePlaceholder()
-            2 -> drawStudioAssetsPlaceholder()
+            items = BOTTOM_DOCK_TABS.map { UiTabItem(it, it) },
+            selected = BOTTOM_DOCK_TABS[renderedTab],
+        ) { selectedLabel ->
+            when (selectedLabel) {
+                "Console" -> drawStudioConsole(store)
+                "Timeline" -> drawStudioTimelinePlaceholder()
+                "Assets" -> drawStudioAssetsPlaceholder()
+            }
         }
-        selectedTab = requestedTab
+        selectedTab = BOTTOM_DOCK_TABS.indexOf(requestedTab).takeIf { it >= 0 } ?: renderedTab
     }
 }
 

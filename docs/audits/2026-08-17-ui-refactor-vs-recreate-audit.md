@@ -360,11 +360,42 @@ Compiler-driven sweeps. Boring by design.
       exceptions into `surfaceCore`'s generic path, or make the slot form call through the
       same internal `buttonSlotInternal` machinery. That unification is bigger than C2 and
       not yet scoped as its own row.
-- [ ] One style-fn shape: `internal fun shadcnXStyle(values: ShadcnThemeValues, …): Style`;
+- [x] One style-fn shape: `internal fun shadcnXStyle(values: ShadcnThemeValues, …): Style`;
       merge the 14 `foreground+textSize` re-implementations and twin surface styles — B8
-- [ ] Merge the two `shadcnEmpty` implementations *(recreate unit)* — B8
-- [ ] Recreate `shadcnTabs` with a content slot *(recreate unit, below)* — D5
-- [ ] Split `scrollPanel` god function; enum axis instead of `"width"`/`"height"` strings — C7
+      **done**. `shadcnTextStyle(foreground, size, weight: FontWeight? = null)` in
+      `ShadcnTypographyStyles.kt` is now the one canonical foreground+textSize(+weight) shape;
+      the 8 pure re-implementations across `ShadcnTableStyles.kt`, `ShadcnFieldStyles.kt`,
+      `ShadcnNavigationStyles.kt`, `ShadcnSidebarStyles.kt` route through it (composite ones
+      that also set background/border/padding/hover were left as-is -- routing those through
+      `shadcnTextStyle then Style {...}` was judged not worth the added indirection for the
+      remaining ~6 sites). The byte-identical `shadcnDialogSurfaceStyle`/
+      `shadcnAlertDialogSurfaceStyle` twins are merged (`ShadcnPopupRecipes.kt`'s one caller now
+      uses `shadcnDialogSurfaceStyle`). `FieldSet`/`FieldGroup` (`ShadcnFieldRecipes.kt`) were
+      already sharing `shadcnFieldContainer`, and the "45-line sidebar pair"
+      (`shadcnSidebarHeaderButton`/`shadcnSidebarFooterButton`) is a widget-recipe duplication,
+      not a style-fn one -- left for a future pass, not attempted here.
+- [x] Merge the two `shadcnEmpty` implementations *(recreate unit)* — B8
+      **already done** pre-pass -- only `ShadcnStatusRecipes.kt`'s `shadcnEmpty` exists now,
+      `ShadcnEmptyRecipes.kt` no longer exists.
+- [x] Recreate `shadcnTabs` with a content slot *(recreate unit, below)* — D5
+      **done**. The `items`/`selected`-keyed overload in `ShadcnNavigationRecipes.kt` now takes
+      `content: ColumnScope.(String) -> Unit = {}` and wraps track+panel in one `column(id)`
+      (default empty content preserves the old track-only render for existing callers/goldens).
+      Content renders against the frame-stable `selected` input, not the click-mutated
+      `resolved` value -- the first draft used `resolved` and hit the exact
+      `ColumnScope.claimSlot()` index-mismatch crash `StudioBottomDock`'s own comments warn
+      about (branch selection differing between a call's measure and paint pass). Migrated
+      `StudioBottomDock.kt`'s dock tabs off its external `when (renderedTab)` onto the new
+      content slot as the real-world proof. The label/`selectedIndex: Int` overload is
+      unchanged and stays track-only (documented: duplicate labels collapse to the same trigger
+      id, use the `items` overload for that case).
+- [x] Split `scrollPanel` god function; enum axis instead of `"width"`/`"height"` strings — C7
+      **done**. Private `ScrollAxis { Width, Height }` replaces the `"width"`/`"height"`
+      strings; `requireBoundedAxis` extracted to a top-level `requireBoundedScrollAxis`, and the
+      hand-duplicated vertical/horizontal scrollbar geometry+paint block extracted to one
+      axis-parameterized `paintScrollThumb`. `scrollPanel`'s own body shrank from the full
+      ~285 lines to the measure/layout/hit-test orchestration; `awake:ui:ui-core` desktopTest
+      green (no golden/behavior change intended).
 - [x] Repackage `internal/controls/Buttons.kt` (declares the public package from `internal/`) — C8
       **done**, commit `5ced67ae`. Package fixed to `.headless.internal.controls`; surfaced
       same-package implicit resolution in 6 test files + `Button.kt`/`Dropdown.kt`/
@@ -381,10 +412,17 @@ Compiler-driven sweeps. Boring by design.
       6. B8/D5/C7 designsystem-facing (style-fn shape, `shadcnEmpty` merge, `shadcnTabs`
          recreate, `scrollPanel` split) — routed to `awake-design-system-engineer`
       7. B12 spacing-vocab sweep (per-site, no bulk rename)
-- [ ] Park or delete the 7 speculative presets (49 unverifiable positional Dp args) — E6
-      **declined by the package-6 agent** — presets are live, consumed by ui-showcase's
-      theming picker; this is a design-system curation call, not ui-core/headless's
-      ownership. Routed to `awake-design-system-engineer`.
+- [x] Park or delete the 7 speculative presets (49 unverifiable positional Dp args) — E6
+      **verified load-bearing, kept as-is, no code change**. The package-6 agent's claim holds:
+      `ShadcnStylePreset.entries` (all 8 presets, `Vega` plus the 7 flagged as speculative) is
+      consumed by `samples/ui-showcase`'s theming picker --
+      `GettingStartedContent.kt:229` maps `entries` to labels for the picker UI, and
+      `UiShowcaseRuntimeState.kt:114-115` indexes back into `entries` from the picker's
+      selection. Deleting or parking any of the 7 would visibly break that picker. The audit's
+      "park or delete" assumption is stale; corrected here instead of acted on. The 49
+      positional-`Dp`-args readability complaint is separately real but out of this pass's
+      scope (would be a signature change to `ShadcnMetrics`'s constructor, not a
+      park-or-delete).
 - [ ] Spacing-vocab sweep per the recorded decision (`Tw` in designsystem, `UiSpacing` in
       core/headless, delete `ShadcnSpacing`) — per-site, no bulk rename — B12
 

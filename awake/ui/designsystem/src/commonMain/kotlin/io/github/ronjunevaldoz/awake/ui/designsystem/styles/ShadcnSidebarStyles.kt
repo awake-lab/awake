@@ -40,25 +40,18 @@ internal fun shadcnSidebarAvatarStyle(values: ShadcnThemeValues): Style = Style 
     contentPadding(6f.dp)
 }
 
-internal fun shadcnSidebarTitleStyle(values: ShadcnThemeValues): Style = Style {
-    textSize(values.typography.label)
-    fontWeight(FontWeight.SemiBold)
-    foreground(values.colors.foreground)
-}
+internal fun shadcnSidebarTitleStyle(values: ShadcnThemeValues): Style =
+    shadcnTextStyle(values.colors.foreground, values.typography.label, FontWeight.SemiBold)
 
 // 11sp has no matching io.github.ronjunevaldoz.awake.ui.api.theme.UiTypography step (12/14/16/
 // 20/24/30) -- left as a literal per docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md's F8.
-internal fun shadcnSidebarSupportingTextStyle(values: ShadcnThemeValues): Style = Style {
-    textSize(11f.sp)
-    foreground(values.colors.mutedForeground)
-}
+internal fun shadcnSidebarSupportingTextStyle(values: ShadcnThemeValues): Style =
+    shadcnTextStyle(values.colors.mutedForeground, 11f.sp)
 
-internal fun shadcnSidebarGroupLabelStyle(values: ShadcnThemeValues): Style = Style {
-    foreground(values.colors.mutedForeground)
-    textSize(values.typography.caption)
-    fontWeight(FontWeight.Medium)
-    contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
-}
+internal fun shadcnSidebarGroupLabelStyle(values: ShadcnThemeValues): Style =
+    shadcnTextStyle(values.colors.mutedForeground, values.typography.caption, FontWeight.Medium) then Style {
+        contentPadding(horizontal = 8f.dp, vertical = 0f.dp)
+    }
 
 internal fun shadcnSidebarMenuItemStyle(values: ShadcnThemeValues, active: Boolean): Style = Style {
     background(if (active) values.colors.secondary else Color.Transparent)

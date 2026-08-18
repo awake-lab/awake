@@ -10,8 +10,8 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
-import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnAlertDialogSurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogBodyStyle
+import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogSurfaceStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDialogTitleStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDropdownItemStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnDropdownSurfaceStyle
@@ -190,7 +190,7 @@ fun UiScope.shadcnAlertDialog(
         id = id,
         expanded = expanded,
         width = width,
-        style = shadcnAlertDialogSurfaceStyle(themeValues, shadcnMetrics) then style,
+        style = shadcnDialogSurfaceStyle(themeValues, shadcnMetrics) then style,
         properties = properties,
     ) {
         text(label = title, style = shadcnDialogTitleStyle(themeValues), wrap = UiTextWrap.Word)

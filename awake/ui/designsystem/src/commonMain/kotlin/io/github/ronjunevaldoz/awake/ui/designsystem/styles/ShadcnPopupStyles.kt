@@ -41,12 +41,5 @@ internal fun shadcnTooltipStyle(values: ShadcnThemeValues): Style = Style {
     textSize(values.typography.caption)
     lineHeight(values.typography.body)
 }
-internal fun shadcnAlertDialogSurfaceStyle(values: ShadcnThemeValues, metrics: ShadcnMetrics): Style = Style {
-    background(values.colors.card)
-    foreground(values.colors.cardForeground)
-    border(1f.dp, values.colors.border)
-    shape(values.shapes.lg)
-    contentPadding(metrics.panelPadding)
-}
 internal fun shadcnDialogTitleStyle(values: ShadcnThemeValues): Style = Style { textSize(values.typography.title) }
 internal fun shadcnDialogBodyStyle(values: ShadcnThemeValues): Style = Style { textSize(values.typography.body) }

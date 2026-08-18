@@ -26,6 +26,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiTabItem
 import io.github.ronjunevaldoz.awake.ui.headless.button
 import io.github.ronjunevaldoz.awake.ui.headless.collapsible
+import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.height
@@ -136,36 +137,63 @@ fun <T> UiScope.shadcnAccordion(
     }
 }
 
+/**
+ * Tab track plus its content panel -- the track alone (`content = {}`, the default) renders the
+ * old track-only look for previews that don't need a panel; real usages should supply [content]
+ * instead of switching on the returned value outside the call, which is what every prior caller
+ * had to do because no panel slot existed here.
+ */
 fun UiScope.shadcnTabs(
     id: String,
     items: List<UiTabItem>,
     selected: String,
     modifier: Modifier = Modifier,
     height: Dp = 36f.dp,
+    content: ColumnScope.(String) -> Unit = {},
 ): String {
     val track = shadcnTabsTrackStyle(themeValues)
     var resolved = selected
-    surface(id = "$id.track", modifier = modifier.wrapContentWidth().height(height), style = track) {
-        row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = UiAlignment.Vertical.Center,
-            modifier = Modifier.wrapContentWidth().height(height - 6f.dp),
-        ) {
-            items.forEach { item ->
-                val active = item.value == selected
-                val clicked = button(
-                    id = "$id.${item.value}",
-                    label = item.label,
-                    modifier = Modifier.height(height - 6f.dp),
-                    style = shadcnTabStyle(themeValues, active),
-                )
-                if (clicked) resolved = item.value
+    // [modifier] stays on the track surface, exactly as it did before this had a content slot --
+    // existing track-only callers (and their goldens) keep sizing the track itself, not a new
+    // wrapping node. The panel column below only wraps to group track + content under one id.
+    column(id = id) {
+        surface(id = "$id.track", modifier = modifier.wrapContentWidth().height(height), style = track) {
+            row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = UiAlignment.Vertical.Center,
+                modifier = Modifier.wrapContentWidth().height(height - 6f.dp),
+            ) {
+                items.forEach { item ->
+                    val active = item.value == selected
+                    val clicked = button(
+                        id = "$id.${item.value}",
+                        label = item.label,
+                        modifier = Modifier.height(height - 6f.dp),
+                        style = shadcnTabStyle(themeValues, active),
+                    )
+                    if (clicked) resolved = item.value
+                }
             }
         }
+        // Panel renders against [selected] -- this frame's stable input -- not [resolved]. A
+        // click flips [resolved] mid-frame, and content() can pick a structurally different
+        // branch (a different child count) per selection; rendering it from a value that can
+        // change between this same call's measure and paint pass is exactly the
+        // claimSlot()-index-mismatch crash class this module has shipped before (see
+        // StudioBottomDock's drawStudioBottomDock comment). [resolved] is still returned so the
+        // caller applies the click starting next frame, same contract every other immediate-mode
+        // widget here already follows.
+        content(selected)
     }
     return resolved
 }
 
+/**
+ * Convenience overload keyed by label instead of a stable [UiTabItem.value] -- duplicate labels
+ * collapse to the same trigger id and the same round-tripped index, so callers with
+ * non-unique tab names must use the [items]-based overload above instead. No content slot: a
+ * label list can't express per-tab panel content, so this stays track-only.
+ */
 fun UiScope.shadcnTabs(
     id: String,
     tabs: List<String>,
