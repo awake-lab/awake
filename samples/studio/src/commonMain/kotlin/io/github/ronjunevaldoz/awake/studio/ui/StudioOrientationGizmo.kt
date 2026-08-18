@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.render.renderer.LitShadowUniformLayout
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.studio.gizmo.GizmoAxis
@@ -54,7 +55,13 @@ internal class StudioOrientationGizmo {
         val target = renderTarget
             ?: renderer.createRenderTarget(GIZMO_SIZE, GIZMO_SIZE).also { renderTarget = it }
         if (material == null) material = renderer.createMaterial(renderTarget = target)
-        val flatMaterial = axisMaterial ?: renderer.createMaterial().also { axisMaterial = it }
+        // Not the default 24-float buffer: this mesh's PositionNormalColor format resolves to
+        // the same primary/lit pipeline RotatingCubeDemo's cube uses, which writes the FULL
+        // lit-shadow uniform layout (not just mvp+light) whenever shadowsEnabled is on -- a
+        // smaller buffer here is a real vkMapMemory-oversteps-allocation error, not just wasted
+        // space. Matches how every other PositionNormalColor material in Studio sizes itself.
+        val flatMaterial = axisMaterial
+            ?: renderer.createMaterial(uniformFloatCount = LitShadowUniformLayout.total).also { axisMaterial = it }
         val axisMeshes = meshes ?: buildAxisMeshes(renderer).also { meshes = it }
 
         val direction = (mainCamera.center - mainCamera.eye).normalized()
