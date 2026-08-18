@@ -333,10 +333,33 @@ Compiler-driven sweeps. Boring by design.
       `minWidth`, `gap`, …); delete `Modifier.margin()` (silently drops end/bottom) — C5
 - [ ] `modifier` on all 8 overlay components; kill `Dimension` params + `FillMax` leak;
       replace hand-rolled text measurement with `withIntrinsicLabelSize` — C6
-- [ ] Rename raw-slot `column`/`row` overloads to `columnAt`/`rowAt`; single 21-param
-      factory, `UiContext.create*` become internal forwards — C1
+- [x] Rename raw-slot `column`/`row` overloads to `columnAt`/`rowAt` — **partial, done**,
+      commit `4ad43d45`. `UiContext.columnAt`/`rowAt` (member) and `UiPrimitiveScope`
+      (extension) renamed; root-authoring `UiContext.column`/`row` left as-is (it's the
+      primary entry point, not the raw form). The single-21-param-factory /
+      `UiContext.create*`-become-internal-forwards half is **not done** — those factories
+      are public API consumed directly (not just via `column`/`row`) by ui/headless test
+      infra, ui/animation, ui/testing, ui/benchmark, scene/runtime, engine/game-authoring,
+      and design-system snapshot fixtures across dozens of call sites. Internal-forwarding
+      them breaks cross-module compilation; rerouting every call site overlaps C3–C6's
+      signature sweep. Deferred to that pass — C1
 - [ ] `button()` label form becomes a wrapper over the slot form (after package 4 — the
       prior attempt's regression was a B2 symptom) — C2
+      **blocked, re-attempted and reverted cleanly (no diff left)**. Real root cause found:
+      `ui-headless` has two independent, drifted interactive-surface/style-resolution
+      implementations — the label form's own `resolveInteractiveSurface`/
+      `buttonSlotInternal` (which carries the package-5 `isWrapContentPass`/
+      `withIntrinsicLabelWidth` exception) vs. the slot form's path through ui-core's
+      generic `interactiveSurface`/`surfaceCore` (which has no such exception and resolves
+      hover state differently). Making the label form a thin wrapper over the slot form
+      silently swaps every themed button (`shadcnButton`) onto the surface implementation
+      that regresses `ShadcnButtonGroupTest`'s vertical wrap-content case (the exact bug
+      package 5 fixed) and drops hover-state color (`ShadcnButtonStateColorTest` ×2) plus a
+      snapshot-signature drift. C2 as scoped ("thin wrapper") isn't safe until the two
+      surface implementations are unified first — either port the intrinsic-width/hover
+      exceptions into `surfaceCore`'s generic path, or make the slot form call through the
+      same internal `buttonSlotInternal` machinery. That unification is bigger than C2 and
+      not yet scoped as its own row.
 - [ ] One style-fn shape: `internal fun shadcnXStyle(values: ShadcnThemeValues, …): Style`;
       merge the 14 `foreground+textSize` re-implementations and twin surface styles — B8
 - [ ] Merge the two `shadcnEmpty` implementations *(recreate unit)* — B8
