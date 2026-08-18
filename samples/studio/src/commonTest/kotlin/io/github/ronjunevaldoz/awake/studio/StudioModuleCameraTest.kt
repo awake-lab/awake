@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
+import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
@@ -26,6 +27,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Reproduces the "picking a camera mode does nothing" report end to end: real
@@ -98,6 +100,39 @@ class StudioModuleCameraTest {
         assertEquals(0f, worldEye.x, TOLERANCE)
         assertEquals(5f, worldEye.y, TOLERANCE)
         assertEquals(10f, worldEye.z, TOLERANCE)
+    }
+
+    /**
+     * End-to-end reproduction of the "frustum toggle draws nothing" report: real [studioModule],
+     * real [StudioStore], real scene load -- flips [WorldDebugSettings.showFrustum] on with
+     * NOTHING selected, then asserts the renderer actually received a non-empty debug-line
+     * buffer. `frustumTargetEntityId` used to be sourced from `state.inspector.selectedEntityId`,
+     * which meant Frustum silently drew nothing unless the camera entity specifically was
+     * selected first -- Light/Shadow never had that requirement, and this asserts Frustum
+     * doesn't either: it always targets the scene's own authored (non-primary) camera.
+     */
+    @Test
+    fun togglingFrustumWithNothingSelectedStillProducesDebugLines() = runTest {
+        val renderer = RecordingCameraRenderer()
+        val store = StudioStore()
+        val game = game { module(studioModule(store)) }
+
+        game.ready(renderer)
+        val runtime = game.requireService<SceneGameRuntime>()
+        game.render(1f / 60f, 800f, 600f)
+
+        val settings = assertNotNull(
+            runtime.world.family<WorldDebugSettings>().components().firstOrNull(),
+            "onReady must create one WorldDebugSettings entity",
+        )
+        settings.showFrustum = true
+
+        game.render(1f / 60f, 800f, 600f)
+
+        assertTrue(
+            renderer.debugLines.isNotEmpty(),
+            "expected frustum wireframe lines after enabling showFrustum with no selection, got none",
+        )
     }
 
     @Test

@@ -97,6 +97,14 @@ private fun nonPrimaryCamera(world: World): Camera? {
     return found
 }
 
+/** Same lookup as [nonPrimaryCamera], but the entity id -- what [WorldDebugSettings
+ * .frustumTargetEntityId] actually stores. */
+private fun nonPrimaryCameraEntityId(world: World): Int? {
+    var found: Int? = null
+    world.family<Camera>().forEach { entity, camera -> if (!camera.isPrimary) found = entity.id }
+    return found
+}
+
 // Sum to exactly 1f -- shadcnResizablePanelGroup lays each panel out independently at
 // fraction * availableWidth (see ResizablePanelGroupScope.panel), not "last panel fills the
 // remainder", so a sum under/over 1 leaves a gap or overlap on first mount.
@@ -291,10 +299,14 @@ private fun UiScope.drawStudioViewportPanel(
 ) {
     val state = store.state.value
     val debugSettings = world.family<WorldDebugSettings>().components().firstOrNull()
-    // Kept live every frame, not just on selection change: the debug system reads it fresh
-    // each update, same "system reads whatever's currently set" contract every other field on
+    // Always the scene's own authored camera -- same "no selection required" call as the camera
+    // preview above (see nonPrimaryCamera's own doc comment). Used to be `state.inspector
+    // .selectedEntityId`, which meant the Frustum toggle silently drew nothing unless the camera
+    // entity specifically was selected first -- Light/Shadow never had that requirement, and
+    // Frustum shouldn't either. Kept live every frame: the debug system reads it fresh each
+    // update, same "system reads whatever's currently set" contract every other field on
     // WorldDebugSettings already has.
-    debugSettings?.frustumTargetEntityId = state.inspector.selectedEntityId
+    debugSettings?.frustumTargetEntityId = nonPrimaryCameraEntityId(world)
     column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
         row(
             horizontalArrangement = Arrangement.spacedBy(PILL_INSET),
