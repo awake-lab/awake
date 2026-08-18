@@ -5,19 +5,19 @@ package io.github.ronjunevaldoz.awake.render.renderer
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.inverse
+import io.github.ronjunevaldoz.awake.render.mesh.GpuDataShape
 
-/** `skybox.wgsl`'s uniform block: inverseViewProjection(16) + cameraEye(4) + sunDirection(4) +
- * horizonColor/zenithColor/sunColor/moonColor(4 each). Same "one number, not N hand-copied
- * literals" reason as [UniformLayout]. */
-@Suppress("MagicNumber") // Field float counts, spelled out to mirror skybox.wgsl.
+/** `skybox.wgsl`'s uniform block, field for field: inverseViewProjection (mat4x4), cameraEye/
+ * sunDirection/horizonColor/zenithColor/sunColor/moonColor (each a `vec4f`). Same "one number,
+ * not N hand-copied literals" reason as [UniformLayout]. */
 val SkyboxUniformLayout = UniformLayout(
-    UniformField("inverseViewProjection", 16),
-    UniformField("cameraEye", 4),
-    UniformField("sunDirection", 4),
-    UniformField("horizonColor", 4),
-    UniformField("zenithColor", 4),
-    UniformField("sunColor", 4),
-    UniformField("moonColor", 4),
+    UniformField("inverseViewProjection", GpuDataShape.Mat4),
+    UniformField("cameraEye", GpuDataShape.Vec4),
+    UniformField("sunDirection", GpuDataShape.Vec4),
+    UniformField("horizonColor", GpuDataShape.Vec4),
+    UniformField("zenithColor", GpuDataShape.Vec4),
+    UniformField("sunColor", GpuDataShape.Vec4),
+    UniformField("moonColor", GpuDataShape.Vec4),
 )
 
 /** Warm sun, cooler and dimmer moon. Not [Renderer] fields: they are derived decoration, and

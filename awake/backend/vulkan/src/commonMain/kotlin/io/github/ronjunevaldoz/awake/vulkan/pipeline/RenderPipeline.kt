@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.vulkan.pipeline
 
-import io.github.ronjunevaldoz.awake.render.mesh.VertexAttributeFormat
+import io.github.ronjunevaldoz.awake.render.mesh.GpuDataShape
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.VK_SUBPASS_EXTERNAL
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
@@ -396,9 +396,11 @@ class RenderPipeline(
     }
 }
 
-private fun VertexAttributeFormat.toVkFormat(): VkFormat = when (this) {
-    VertexAttributeFormat.Float2 -> VkFormat.VK_FORMAT_R32G32_SFLOAT
-    VertexAttributeFormat.Float3 -> VkFormat.VK_FORMAT_R32G32B32_SFLOAT
-    VertexAttributeFormat.Float4 -> VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT
-    VertexAttributeFormat.UInt4 -> VkFormat.VK_FORMAT_R32G32B32A32_UINT
+private fun GpuDataShape.toVkFormat(): VkFormat = when (this) {
+    GpuDataShape.Float -> VkFormat.VK_FORMAT_R32_SFLOAT
+    GpuDataShape.Vec2 -> VkFormat.VK_FORMAT_R32G32_SFLOAT
+    GpuDataShape.Vec3 -> VkFormat.VK_FORMAT_R32G32B32_SFLOAT
+    GpuDataShape.Vec4 -> VkFormat.VK_FORMAT_R32G32B32A32_SFLOAT
+    GpuDataShape.UInt4 -> VkFormat.VK_FORMAT_R32G32B32A32_UINT
+    GpuDataShape.Mat4 -> error("Mat4 is not a valid vertex-attribute format.")
 }

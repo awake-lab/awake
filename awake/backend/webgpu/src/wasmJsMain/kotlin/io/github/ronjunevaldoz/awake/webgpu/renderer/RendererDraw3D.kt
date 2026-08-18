@@ -382,7 +382,7 @@ private fun pbrTexturedMaterialFloats(drawCall: DrawCall): FloatArray {
 }
 
 /** `[fogColor.rgb, fogDensity]` -- density rides in the 4th component, matching
- * `textured.wgsl`'s `fogColor : vec4f` (see `UniformFields.Fog`). Same packing as Vulkan's own
+ * `textured.wgsl`'s `fogColor : vec4f` (see `UniformFields.FogColor`). Same packing as Vulkan's own
  * `RendererDraw3D.fogFloats`. The primary path here is `triangle.wgsl`, which has no worldPos/
  * cameraPosition to fog against, so only the textured path gets this. */
 private fun Renderer.fogFloats(): FloatArray =

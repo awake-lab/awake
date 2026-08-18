@@ -13,9 +13,9 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
     data class Entry(val attribute: VertexAttribute, val offsetBytes: Int)
 
     val entries: List<Entry> = attributes
-        .runningFold(0) { offset, attribute -> offset + attribute.format.byteSize }
+        .runningFold(0) { offset, attribute -> offset + attribute.format.vertexByteSize }
         .zip(attributes) { offset, attribute -> Entry(attribute, offset) }
-    val strideBytes: Int = attributes.sumOf { it.format.byteSize }
+    val strideBytes: Int = attributes.sumOf { it.format.vertexByteSize }
 
     companion object {
         /** Position vec3 @ 0, color vec3 @ 12, uv vec2 @ 24, stride 32 -- the exact layout every
@@ -24,9 +24,9 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
          * mesh/shader pair keeps working unchanged. */
         val PositionColorUv = VertexFormat(
             listOf(
-                VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
-                VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 1),
-                VertexAttribute(VertexSemantic.Uv, VertexAttributeFormat.Float2, location = 2),
+                VertexAttribute(VertexSemantic.Position, GpuDataShape.Vec3, location = 0),
+                VertexAttribute(VertexSemantic.Color, GpuDataShape.Vec3, location = 1),
+                VertexAttribute(VertexSemantic.Uv, GpuDataShape.Vec2, location = 2),
             ),
         )
 
@@ -39,9 +39,9 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
          * not just one. */
         val PositionNormalColor = VertexFormat(
             listOf(
-                VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
-                VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
-                VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2),
+                VertexAttribute(VertexSemantic.Position, GpuDataShape.Vec3, location = 0),
+                VertexAttribute(VertexSemantic.Normal, GpuDataShape.Vec3, location = 1),
+                VertexAttribute(VertexSemantic.Color, GpuDataShape.Vec3, location = 2),
             ),
         )
 
@@ -51,11 +51,11 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
          * [io.github.ronjunevaldoz.awake.asset.gltf.GltfMesh.toInterleavedSkinned]'s layout. */
         val PositionNormalColorSkin = VertexFormat(
             listOf(
-                VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
-                VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
-                VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2),
-                VertexAttribute(VertexSemantic.JointIndices, VertexAttributeFormat.UInt4, location = 3),
-                VertexAttribute(VertexSemantic.JointWeights, VertexAttributeFormat.Float4, location = 4),
+                VertexAttribute(VertexSemantic.Position, GpuDataShape.Vec3, location = 0),
+                VertexAttribute(VertexSemantic.Normal, GpuDataShape.Vec3, location = 1),
+                VertexAttribute(VertexSemantic.Color, GpuDataShape.Vec3, location = 2),
+                VertexAttribute(VertexSemantic.JointIndices, GpuDataShape.UInt4, location = 3),
+                VertexAttribute(VertexSemantic.JointWeights, GpuDataShape.Vec4, location = 4),
             ),
         )
 
@@ -65,10 +65,10 @@ data class VertexFormat(val attributes: List<VertexAttribute>) {
          * layout. */
         val PositionNormalColorUv = VertexFormat(
             listOf(
-                VertexAttribute(VertexSemantic.Position, VertexAttributeFormat.Float3, location = 0),
-                VertexAttribute(VertexSemantic.Normal, VertexAttributeFormat.Float3, location = 1),
-                VertexAttribute(VertexSemantic.Color, VertexAttributeFormat.Float3, location = 2),
-                VertexAttribute(VertexSemantic.Uv, VertexAttributeFormat.Float2, location = 3),
+                VertexAttribute(VertexSemantic.Position, GpuDataShape.Vec3, location = 0),
+                VertexAttribute(VertexSemantic.Normal, GpuDataShape.Vec3, location = 1),
+                VertexAttribute(VertexSemantic.Color, GpuDataShape.Vec3, location = 2),
+                VertexAttribute(VertexSemantic.Uv, GpuDataShape.Vec2, location = 3),
             ),
         )
     }

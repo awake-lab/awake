@@ -97,6 +97,9 @@ kotlin {
             implementation(project(":awake:core"))
             implementation(project(":awake:core:animation"))
             implementation(project(":awake:asset:gltf"))
+            // TexturedUniformLayout/LitShadowUniformLayout -- code, not just the shared shader
+            // text this module's syncAwakeShaders already references as a static file path.
+            implementation(project(":awake:asset:shaders"))
             implementation(project(":awake:ecs"))
             implementation(project(":awake:scene"))
             implementation(project(":awake:scene:authoring"))
