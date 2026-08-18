@@ -342,8 +342,26 @@ Compiler-driven sweeps. Boring by design.
 - [ ] Merge the two `shadcnEmpty` implementations *(recreate unit)* — B8
 - [ ] Recreate `shadcnTabs` with a content slot *(recreate unit, below)* — D5
 - [ ] Split `scrollPanel` god function; enum axis instead of `"width"`/`"height"` strings — C7
-- [ ] Repackage `internal/controls/Buttons.kt` (declares the public package from `internal/`) — C8
+- [x] Repackage `internal/controls/Buttons.kt` (declares the public package from `internal/`) — C8
+      **done**, commit `5ced67ae`. Package fixed to `.headless.internal.controls`; surfaced
+      same-package implicit resolution in 6 test files + `Button.kt`/`Dropdown.kt`/
+      `internal/controls/Toggle.kt`, all fixed with an explicit import, no behavior change.
+      `desktopTest` green. The other 12 rows in this package were deliberately not
+      attempted in the same pass — genuinely the "touches nearly every widget signature"
+      work the package intro warns about. Proposed split for follow-up, not yet scheduled:
+      1. C9 return-value idiom (buttons/checkbox/slider callback → return value)
+      2. C9 gesture contract (`UiInteraction`, `interactiveSurface` recognizer)
+      3. C3/C4/C5/C6 signature sweep (canonical param order, required `id`, kill rule-6
+         params, overlay `modifier`)
+      4. C1 `column`/`row` rename + single-factory internal forwards
+      5. C2 `button()` label-form-as-wrapper (post package 4)
+      6. B8/D5/C7 designsystem-facing (style-fn shape, `shadcnEmpty` merge, `shadcnTabs`
+         recreate, `scrollPanel` split) — routed to `awake-design-system-engineer`
+      7. B12 spacing-vocab sweep (per-site, no bulk rename)
 - [ ] Park or delete the 7 speculative presets (49 unverifiable positional Dp args) — E6
+      **declined by the package-6 agent** — presets are live, consumed by ui-showcase's
+      theming picker; this is a design-system curation call, not ui-core/headless's
+      ownership. Routed to `awake-design-system-engineer`.
 - [ ] Spacing-vocab sweep per the recorded decision (`Tw` in designsystem, `UiSpacing` in
       core/headless, delete `ShadcnSpacing`) — per-site, no bulk rename — B12
 
