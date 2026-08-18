@@ -201,7 +201,7 @@ class UiContext internal constructor(
         tracking = UiLayoutTracking(testTag, hasBoundedFillWidth, hasBoundedFillHeight, overlayOnly),
     )
 
-    fun column(
+    fun columnAt(
         slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         verticalArrangement: Arrangement = defaultArrangement(),
@@ -216,7 +216,7 @@ class UiContext internal constructor(
         ).content()
     }
 
-    fun row(
+    fun rowAt(
         slot: UiBounds,
         insets: UiInsets = UiInsets.Zero,
         horizontalArrangement: Arrangement = defaultArrangement(),

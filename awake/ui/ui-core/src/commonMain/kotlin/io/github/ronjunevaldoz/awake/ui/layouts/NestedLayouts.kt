@@ -18,7 +18,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
  * These keep nested authored code on the current receiver and avoid escaping back to an outer
  * runtime or needing `this@column` noise at call sites.
  */
-fun UiPrimitiveScope.column(
+fun UiPrimitiveScope.columnAt(
     slot: UiBounds,
     verticalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,
@@ -31,7 +31,7 @@ fun UiPrimitiveScope.column(
     ).block()
 }
 
-fun UiPrimitiveScope.row(
+fun UiPrimitiveScope.rowAt(
     slot: UiBounds,
     horizontalArrangement: Arrangement = defaultArrangement(),
     modifier: UiModifier = Modifier,

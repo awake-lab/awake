@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.column
+import io.github.ronjunevaldoz.awake.ui.layouts.columnAt
 import io.github.ronjunevaldoz.awake.ui.layouts.row
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -338,7 +339,7 @@ class LayoutTest {
         val box = ui.createBox(x = 0f, y = 0f, width = 240f, height = 120f)
         var nestedChild: UiBounds? = null
 
-        box.column(slot = UiBounds(20f, 30f, 100f, 60f)) {
+        box.columnAt(slot = UiBounds(20f, 30f, 100f, 60f)) {
             nestedChild = claimSlot(Dimension.FillMax, Dimension.Fixed(18f.px))
         }
 

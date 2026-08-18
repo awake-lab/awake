@@ -27,6 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.font.UiFonts
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
+import io.github.ronjunevaldoz.awake.ui.layouts.columnAt
 import io.github.ronjunevaldoz.awake.ui.layouts.column
 import io.github.ronjunevaldoz.awake.ui.layouts.surface
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -228,7 +229,7 @@ class GameUiDslTest {
                     background(panelColor)
                 },
             ) { panelSlot ->
-                column(
+                columnAt(
                     slot = UiBounds(
                         x = panelSlot.x + 12f,
                         y = panelSlot.y + 12f,
