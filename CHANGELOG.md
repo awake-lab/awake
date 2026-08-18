@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- A pointer down+up pair landing within one frame interval (fast taps, synthetic/automation
+  clicks) could have its down edge silently erased by the up event, on every platform. See
+  commit `42a3180e`.
+
 ### Known issues
 
 - **`UiContext.measuring` is dead** — declared, read by click-suppression guards, never
