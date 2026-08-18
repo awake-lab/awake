@@ -234,17 +234,24 @@ The core cleanup. One visual property gets exactly one place to live: `Style`.
 
 - [x] ~~Delete the `UiComponentStyles`/`theme.components.*` defaults tier~~ — done by
       HEAD `1cc85482` before this plan started; survivors are comments — B1
-- [ ] Sweep the unconditional theme-token picks in headless to selected-state
-      resolution with token fallback (verified live post-`1cc85482`, e.g.
-      `Switch.kt:121 theme.colors.primary`; the retire commit leaned harder on this
-      pattern, re-count sites first) — B2
-- [ ] Delete `resolveFill` + `UiButtonVariant` (verified live: `Buttons.kt:41,58,73,124`) — E4
-- [ ] Rewrite `ShadcnComponentStyles` as token-only base values + shared
-      `shadcnFocusRing()` fragment (currently a competing definition of 9 recipes and
-      owner of the module's only `focused {}` rule) — B3 *(recreate unit)*
-- [ ] Collapse designsystem's remaining style-delivery paths to `style =` alone: add
-      `style` to `button(content=)`, strip the Style field from `DialogProperties`,
-      make omission impossible (explicit `Style.Empty`) — B1
+- [x] Swept the unconditional theme-token picks in headless — most sites (Toggle,
+      Dropdown, Textarea, ProgressBar) were already compliant from packages 1–3; real
+      fixes landed in Checkbox/Switch/Slider/RangeSlider (resolved-first, token as
+      fallback), TextField's focused-border, and `ResizablePanelGroup.handle()` (had
+      no `style` param at all — added one) — B2, commit `451d2254`
+- [ ] ~~Delete `resolveFill` + `UiButtonVariant`~~ — still re-parked: `UiSnapshotFixtures`
+      renders 3 variant scenes through the enum, hash-pinned; unblocks once those
+      scenes render Style-based — E4
+- [x] `ShadcnComponentStyles` — confirmed already deleted by an earlier package. Its
+      one real unmet goal, a canonical focus ring, didn't exist anywhere (zero
+      `focused{}` rules in designsystem); added `shadcnFocusRing()` to
+      `ShadcnInputStyles.kt`, composed into `shadcnTextFieldStyle`/`shadcnTextareaStyle`
+      via `then` — B3, commit `a48be373`
+- [x] Collapsed to `style =` alone: `button(content=)` already had it; deleted
+      `DialogProperties.surface`, gave `dialog()` its own `style` param, threaded
+      through `shadcnDrawer`/`shadcnDialog`/`shadcnAlertDialog` (both overloads);
+      deleted `Radio.kt`'s dead implicit `Style{shape(9999f.dp)}` default (primitive
+      already hardcodes the circle unconditionally) — B1, commit `a48be373`
 
 ```kotlin
 // before — headless/Switch.kt:117 (same shape ×30 across 12 files)
