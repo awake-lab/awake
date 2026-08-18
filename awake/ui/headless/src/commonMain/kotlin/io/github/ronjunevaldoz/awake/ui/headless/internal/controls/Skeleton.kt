@@ -8,7 +8,8 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.canvas
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.emitShimmerOverlay
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
@@ -61,13 +62,15 @@ fun UiPrimitiveScope.skeleton(
             )
     val baseColor = resolved.background ?: theme.colors.muted
     val radiusPx = resolved.shape.toPx()
-    emitFillAndBorder(
-        slot = slot,
-        fillColor = baseColor.withAlpha(baseColor.a * pulse),
-        radiusPx = radiusPx,
-        borderWidth = UiShape.none,
-        borderColor = Color.Transparent,
-    )
+    canvas(slot) {
+        drawFillAndBorder(
+            slot = slot,
+            fillColor = baseColor.withAlpha(baseColor.a * pulse),
+            radiusPx = radiusPx,
+            borderWidth = UiShape.none,
+            borderColor = Color.Transparent,
+        )
+    }
     if (shimmer) {
         emitShimmerOverlay(id = id, slot = slot, radiusPx = radiusPx)
     }

@@ -12,7 +12,8 @@ import io.github.ronjunevaldoz.awake.ui.animateFloat
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.canvas
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
@@ -50,19 +51,22 @@ fun UiPrimitiveScope.progress(
     val animatedFraction = animateFloat(id = "$id.progress", target = fraction, initial = 0f)
     val fillWidth = (surface.slot.width * animatedFraction).coerceAtLeast(0f)
     if (fillWidth > 0f) {
-        emitFillAndBorder(
-            slot = UiBounds(
-                surface.slot.x,
-                surface.slot.y,
-                fillWidth,
-                surface.slot.height,
-            ),
-            fillColor = surface.resolved.foreground ?: theme.colors.primary,
-            radiusPx = 0f,
-            borderWidth = UiShape.none,
-            borderColor = Color.Transparent,
-            shapeSpec = UiShapeSpec.Pill,
+        val fillSlot = UiBounds(
+            surface.slot.x,
+            surface.slot.y,
+            fillWidth,
+            surface.slot.height,
         )
+        canvas(fillSlot) {
+            drawFillAndBorder(
+                slot = fillSlot,
+                fillColor = surface.resolved.foreground ?: theme.colors.primary,
+                radiusPx = 0f,
+                borderWidth = UiShape.none,
+                borderColor = Color.Transparent,
+                shapeSpec = UiShapeSpec.Pill,
+            )
+        }
     }
     recordSemantic(
         role = UiSemanticRole.Progress,

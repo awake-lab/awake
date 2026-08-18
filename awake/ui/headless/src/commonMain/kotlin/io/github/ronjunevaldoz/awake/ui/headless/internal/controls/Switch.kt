@@ -12,8 +12,9 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.UiTextOverflow
@@ -139,19 +140,22 @@ fun UiPrimitiveScope.switch(
         } else {
             trackSlot.x
         }
-        emitFillAndBorder(
-            slot = UiBounds(
-                knobX,
-                knobY,
-                knobDiameter,
-                knobDiameter,
-            ),
-            fillColor = theme.colors.background,
-            radiusPx = 0f,
-            borderWidth = UiShape.none,
-            borderColor = Color.Transparent,
-            shapeSpec = UiShapeSpec.Pill,
+        val knobSlot = UiBounds(
+            knobX,
+            knobY,
+            knobDiameter,
+            knobDiameter,
         )
+        canvas(knobSlot) {
+            drawFillAndBorder(
+                slot = knobSlot,
+                fillColor = theme.colors.background,
+                radiusPx = 0f,
+                borderWidth = UiShape.none,
+                borderColor = Color.Transparent,
+                shapeSpec = UiShapeSpec.Pill,
+            )
+        }
         if (label != null) {
             val trackWidthPx = TOGGLE_WIDTH.toPx()
             // Slot width is already claimed as track+gap+measured label (see fallbackWidthPx

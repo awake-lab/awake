@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
@@ -61,12 +61,14 @@ class UiOverlayLayerTest {
         // A fill/border call from an overlay scope with no explicit `overlay` argument -- this
         // is exactly how surface()/paintSurface() call it.
         val overlayColumn = ui.createColumn(x = 0f, y = 0f, width = 100f, overlayOnly = true)
-        overlayColumn.emitFillAndBorder(
-            slot = UiBounds(0f, 0f, 10f, 10f),
-            fillColor = Color(0f, 0f, 1f, 1f),
-            radiusPx = 0f,
-            borderWidth = 0f.dp,
-        )
+        overlayColumn.canvas(UiBounds(0f, 0f, 10f, 10f)) {
+            drawFillAndBorder(
+                slot = UiBounds(0f, 0f, 10f, 10f),
+                fillColor = Color(0f, 0f, 1f, 1f),
+                radiusPx = 0f,
+                borderWidth = 0f.dp,
+            )
+        }
 
         val primitives = ui.finishFrame().primitives
         assertEquals(

@@ -11,8 +11,9 @@ import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
@@ -55,16 +56,18 @@ internal fun UiPrimitiveScope.drawResolvedText(
         resolvedStyle.shapeSpec != null ||
         resolvedStyle.shape.toPx() > 0f
     ) {
-        emitFillAndBorder(
-            slot = slot,
-            fillColor = resolvedStyle.background ?: Color.Transparent,
-            radiusPx = resolvedStyle.shape.toPx(),
-            borderWidth = resolvedStyle.borderWidth,
-            borderColor = resolvedStyle.borderColor ?: theme.colors.border,
-            shapeSpec = resolvedStyle.shapeSpec,
-            fillTokenId = resolvedStyle.backgroundToken,
-            borderTokenId = resolvedStyle.borderColorToken,
-        )
+        canvas(slot) {
+            drawFillAndBorder(
+                slot = slot,
+                fillColor = resolvedStyle.background ?: Color.Transparent,
+                radiusPx = resolvedStyle.shape.toPx(),
+                borderWidth = resolvedStyle.borderWidth,
+                borderColor = resolvedStyle.borderColor ?: theme.colors.border,
+                shapeSpec = resolvedStyle.shapeSpec,
+                fillTokenId = resolvedStyle.backgroundToken,
+                borderTokenId = resolvedStyle.borderColorToken,
+            )
+        }
     }
     renderTextBlock(
         label = label,

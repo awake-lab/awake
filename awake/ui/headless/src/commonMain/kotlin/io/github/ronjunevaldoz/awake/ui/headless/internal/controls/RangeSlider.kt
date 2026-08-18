@@ -10,8 +10,9 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.context.sliderValueFromPointerX
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.UiInteraction
@@ -180,17 +181,21 @@ fun UiPrimitiveScope.rangeSlider(
                 resolved = surface.resolved.copy(shapeSpec = UiShapeSpec.Pill),
             )
             if (fillWidth > 0f) {
-                emitFillAndBorder(
-                    slot = UiBounds(fillX, trackSlot.y, fillWidth, trackSlot.height),
-                    // resolved.foreground is the caller's accent color (shares shadcnSliderStyle
-                    // with slider()) -- the token is only a fallback for a bare Style.Empty
-                    // caller, not a hardcoded override.
-                    fillColor = surface.resolved.foreground ?: theme.colors.primary,
-                    radiusPx = 0f,
-                    borderWidth = UiShape.none,
-                    borderColor = Color.Transparent,
-                    shapeSpec = UiShapeSpec.Pill,
-                )
+                val fillSlot = UiBounds(fillX, trackSlot.y, fillWidth, trackSlot.height)
+                // resolved.foreground is the caller's accent color (shares shadcnSliderStyle
+                // with slider()) -- the token is only a fallback for a bare Style.Empty
+                // caller, not a hardcoded override.
+                val fillColor = surface.resolved.foreground ?: theme.colors.primary
+                canvas(fillSlot) {
+                    drawFillAndBorder(
+                        slot = fillSlot,
+                        fillColor = fillColor,
+                        radiusPx = 0f,
+                        borderWidth = UiShape.none,
+                        borderColor = Color.Transparent,
+                        shapeSpec = UiShapeSpec.Pill,
+                    )
+                }
             }
             for (knobCenterX in listOf(newStartKnobX, newEndKnobX)) {
                 paintSurface(

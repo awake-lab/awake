@@ -164,8 +164,53 @@ stays a pure draw surface, matching real `DrawScope`, and removes the reason
    `ResizablePanelGroup.kt`, `Overlay.kt`, `Dropdown.kt`, `Icon.kt`,
    `BasicText.kt`) — each already its own canonical function, not scattered
    duplication.
+
+   **Landed 2026-08-19.** `ShapePainter.kt`'s four helpers moved onto
+   `CanvasScope` and were renamed per the naming-lexicon decision above:
+   `emitFillAndBorder`→`drawFillAndBorder`, `emitCheckmark`→`drawCheckmark`,
+   `emitRadioDot`→`drawRadioDot`, `emitInsetDash`→`drawInsetDash`. The private
+   dispatch helper (`fun UiPrimitiveScope.emitPrimitive` → renamed
+   `dispatchPrimitive`, kept on `UiPrimitiveScope`, NOT `draw*`-named — it's
+   the raw emit/emitOverlay router `CanvasScope`'s own `draw*` members and
+   `BorderPrimitives.kt`/`GradientFillPrimitives.kt` call underneath, one
+   layer below the draw scope, not a widget-facing verb). `border()` /
+   `gradientRect()` / `gradientBorder()` were left on `UiPrimitiveScope`
+   untouched — out of this step's real scope (only `ShapePainter.kt`'s own 4
+   functions), each still resolves its own theme default internally and has
+   exactly one real caller relying on that default, not worth touching here.
+
+   Real call-site count was bigger than the "9 files" estimate above (that
+   estimate was raw `emit`/`emitOverlay` call sites, a different count from
+   `emitFillAndBorder`'s own callers): 13 real production call sites plus 2
+   test call sites needed a `canvas { }` wrap and, in 6 of them, hoisting a
+   `theme.colors.X` lookup out of the `canvas {}` lambda into a local `val`
+   first (`CanvasScope` has no ambient `theme`/`context` access, so any
+   caller-side default has to be resolved *before* entering the block, not
+   inside it) — `ScrollContainers.kt` (×2), `layouts/Surface.kt`,
+   `headless/internal/controls/Surface.kt` (`paintSurface`), `Checkbox.kt`
+   (×3), `Slider.kt`, `ProgressBar.kt`, `RangeSlider.kt`, `Spinner.kt`,
+   `Switch.kt`, `Skeleton.kt`, `Text.kt`, `TextField.kt`, `Textarea.kt` (×2),
+   plus `UiOverlayLayerTest.kt` and `ReusableCompositionTest.kt`. Still
+   mechanical (each fix was "wrap in `canvas{}`, hoist the color lookup
+   above it"), just wider than the original estimate — did not need a
+   further split. `graphics/ShapePainter.kt`'s naming-lexicon exemption
+   (`build-logic/.../awake.ui-ownership-convention.gradle.kts`) is removed;
+   `verifyUiOwnership` passes on the file with zero exemptions now.
 3. **Drop `CanvasScope.context`** once nothing inside `ui-core` needs it anymore
    (only possible after step 2, if Option B was chosen).
+
+   **Landed 2026-08-19.** The public `val context get() = scope.context`
+   accessor is deleted from `CanvasScope`; the backing `scope` field changed
+   from `private` to `internal` so `ShapePainter.kt` (same module, different
+   package) can still route through `scope.dispatchPrimitive`/`scope.border`/
+   `scope.emitsToOverlay`. `drawText`'s own pre-existing default
+   `color`/`font`/`textStyle` parameters (an existing `CanvasScope`
+   capability, not part of the `ShapePainter` migration) still needed
+   `UiContext` internally — fixed by reading `scope.context.current(...)`
+   directly inside the class body instead of through the now-removed public
+   property; nothing outside `CanvasScope` ever reached `.context` on a
+   `CanvasScope` instance (verified by grep), so the leak this row exists to
+   close is actually closed, not relocated.
 4. **Shrink `UiPrimitiveScope`** — once draw is fully behind `CanvasScope`, drop
    `emit`/`emitOverlay`/`context` from the interface. What remains:
    ```kotlin

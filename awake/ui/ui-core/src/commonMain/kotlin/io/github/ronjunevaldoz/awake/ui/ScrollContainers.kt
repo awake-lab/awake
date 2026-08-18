@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UNBOUNDED_MAIN_AXIS
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
@@ -190,14 +190,16 @@ fun UiPrimitiveScope.scrollPanel(
     }
 
     val slot = claimModifiedSlot(modifier.withSizeFallback(resolvedWidth, resolvedHeight))
-    emitFillAndBorder(
-        slot = slot,
-        fillColor = resolved.background ?: Color.Transparent,
-        radiusPx = resolved.shape.toPx(),
-        borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: currentTheme.colors.border,
-        shapeSpec = resolved.shapeSpec,
-    )
+    canvas(slot) {
+        drawFillAndBorder(
+            slot = slot,
+            fillColor = resolved.background ?: Color.Transparent,
+            radiusPx = resolved.shape.toPx(),
+            borderWidth = resolved.borderWidth,
+            borderColor = resolved.borderColor ?: currentTheme.colors.border,
+            shapeSpec = resolved.shapeSpec,
+        )
+    }
 
     val innerSlot = slot.inset(resolved.contentPadding)
     // Overlay scrollbar: the viewport is the full inner slot -- the scrollbar paints on top of
@@ -356,13 +358,15 @@ private fun UiPrimitiveScope.paintScrollThumb(
     if (custom != null) {
         childAbsolute(thumb.track).custom(thumb)
     } else {
-        emitFillAndBorder(
-            slot = thumb.thumb,
-            fillColor = currentTheme.colors.border,
-            radiusPx = scrollbarWidthPx / 2f,
-            borderWidth = UiShape.none,
-            borderColor = Color.Transparent,
-        )
+        canvas(thumb.thumb) {
+            drawFillAndBorder(
+                slot = thumb.thumb,
+                fillColor = currentTheme.colors.border,
+                radiusPx = scrollbarWidthPx / 2f,
+                borderWidth = UiShape.none,
+                borderColor = Color.Transparent,
+            )
+        }
     }
     return thumb
 }

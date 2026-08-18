@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.ui.graphics
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.ui.CanvasScope
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
@@ -29,7 +30,10 @@ private fun UiBounds.pixelSnapped(): UiBounds = UiBounds(
     pixelPerfectPixel(height).coerceAtLeast(1f),
 )
 
-fun UiPrimitiveScope.emitPrimitive(primitive: UiDrawPrimitive, overlay: Boolean) {
+/** Routes a raw primitive to the normal or overlay layer. Deliberately not `draw*`-named: this
+ * operates on the raw [UiPrimitiveScope], one layer below [CanvasScope] -- [CanvasScope]'s own
+ * `draw*` members (and the helpers below) call through this, not the other way around. */
+fun UiPrimitiveScope.dispatchPrimitive(primitive: UiDrawPrimitive, overlay: Boolean) {
     if (overlay) emitOverlay(primitive) else emit(primitive)
 }
 
@@ -50,7 +54,8 @@ private fun roundedRadiusFor(slot: UiBounds, radiusPx: Float, shapeSpec: UiShape
         is UiShapeSpec.RoundedCorners -> 0f
     }
 
-private fun UiPrimitiveScope.pathOnlyShape(slot: UiBounds, shapeSpec: UiShapeSpec?): UiShapeSpec? =
+// No receiver -- doesn't read draw or layout state, purely a shapeSpec classifier.
+private fun pathOnlyShape(slot: UiBounds, shapeSpec: UiShapeSpec?): UiShapeSpec? =
     when (shapeSpec) {
         null, UiShapeSpec.Rectangle, UiShapeSpec.Pill, is UiShapeSpec.RoundedRectangle -> null
         UiShapeSpec.Circle -> if (slot.width == slot.height) null else shapeSpec
@@ -59,18 +64,18 @@ private fun UiPrimitiveScope.pathOnlyShape(slot: UiBounds, shapeSpec: UiShapeSpe
         is UiShapeSpec.RoundedCorners -> shapeSpec
     }
 
-private fun UiPrimitiveScope.emitFillShape(
+private fun CanvasScope.drawFillShape(
     slot: UiBounds,
     color: Color,
     radiusPx: Float,
     shapeSpec: UiShapeSpec?,
-    overlay: Boolean = emitsToOverlay,
+    overlay: Boolean = scope.emitsToOverlay,
     tokenId: String? = null,
 ) {
     if (color.isTransparent()) return
     val pathShape = pathOnlyShape(slot, shapeSpec)
     if (pathShape != null) {
-        emitPrimitive(UiDrawPrimitive.FilledPath(pathShape.toPath(slot), color, tokenId = tokenId), overlay)
+        scope.dispatchPrimitive(UiDrawPrimitive.FilledPath(pathShape.toPath(slot), color, tokenId = tokenId), overlay)
         return
     }
     val resolvedRadius = roundedRadiusFor(slot, radiusPx, shapeSpec)
@@ -80,18 +85,22 @@ private fun UiPrimitiveScope.emitFillShape(
     } else {
         UiDrawPrimitive.Quad(snapped.x, snapped.y, snapped.width, snapped.height, color, tokenId = tokenId)
     }
-    emitPrimitive(primitive, overlay)
+    scope.dispatchPrimitive(primitive, overlay)
 }
 
-/** Fill + border for one widget slot, sharing the corner radius correctly between the two. */
-fun UiPrimitiveScope.emitFillAndBorder(
+/** Fill + border for one widget slot, sharing the corner radius correctly between the two.
+ *
+ * [borderColor] has no theme-resolved default -- [CanvasScope] is a pure draw surface with no
+ * theme/context access (Option B, docs/tasks/2026-08-18-ui-capability-scopes-plan.md); callers
+ * that want a themed border resolve it themselves before calling. */
+fun CanvasScope.drawFillAndBorder(
     slot: UiBounds,
     fillColor: Color,
     radiusPx: Float,
     borderWidth: Dp,
-    borderColor: Color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.border,
+    borderColor: Color = Color.Transparent,
     shapeSpec: UiShapeSpec? = null,
-    overlay: Boolean = emitsToOverlay,
+    overlay: Boolean = scope.emitsToOverlay,
     fillTokenId: String? = null,
     borderTokenId: String? = null,
 ) {
@@ -106,9 +115,9 @@ fun UiPrimitiveScope.emitFillAndBorder(
     val pathShape = pathOnlyShape(slot, shapeSpec)
     if (pathShape != null) {
         val path = pathShape.toPath(slot)
-        if (hasFill) emitPrimitive(UiDrawPrimitive.FilledPath(path, fillColor, tokenId = fillTokenId), overlay)
+        if (hasFill) scope.dispatchPrimitive(UiDrawPrimitive.FilledPath(path, fillColor, tokenId = fillTokenId), overlay)
         if (hasBorder) {
-            emitPrimitive(
+            scope.dispatchPrimitive(
                 UiDrawPrimitive.StrokedPath(
                     path,
                     UiStroke(borderWidth),
@@ -134,7 +143,7 @@ fun UiPrimitiveScope.emitFillAndBorder(
             // pixel-identical to the border color, not a bordered/transparent button.
             // Stroking the actual ring path avoids ever drawing a solid interior.
             val ringShape = shapeSpec ?: UiShapeSpec.RoundedRectangle(resolvedRadius.px)
-            emitPrimitive(
+            scope.dispatchPrimitive(
                 UiDrawPrimitive.StrokedPath(
                     ringShape.toPath(slot),
                     UiStroke(borderWidth),
@@ -146,7 +155,7 @@ fun UiPrimitiveScope.emitFillAndBorder(
             return
         }
         val snapped = slot.pixelSnapped()
-        emitPrimitive(
+        scope.dispatchPrimitive(
             UiDrawPrimitive.RoundedQuad(
                 snapped.x,
                 snapped.y,
@@ -165,7 +174,7 @@ fun UiPrimitiveScope.emitFillAndBorder(
             slot.width - 2 * borderPx,
             slot.height - 2 * borderPx,
         ).pixelSnapped()
-        emitPrimitive(
+        scope.dispatchPrimitive(
             UiDrawPrimitive.RoundedQuad(
                 innerSnapped.x,
                 innerSnapped.y,
@@ -179,34 +188,36 @@ fun UiPrimitiveScope.emitFillAndBorder(
         )
         return
     }
-    if (hasFill) emitFillShape(slot, fillColor, resolvedRadius, shapeSpec, overlay, tokenId = fillTokenId)
-    if (hasBorder) border(slot, borderWidth, borderColor, overlay, tokenId = borderTokenId)
+    if (hasFill) drawFillShape(slot, fillColor, resolvedRadius, shapeSpec, overlay, tokenId = fillTokenId)
+    if (hasBorder) scope.border(slot, borderWidth, borderColor, overlay, tokenId = borderTokenId)
 }
 
-/** The shadcn checkbox indicator is a check icon, not a filled inset square. */
-fun UiPrimitiveScope.emitCheckmark(slot: UiBounds) {
+/** The shadcn checkbox indicator is a check icon, not a filled inset square. [color] is the
+ * caller's already-resolved theme color (typically `theme.colors.primaryForeground`) -- see
+ * [drawFillAndBorder]'s doc comment for why [CanvasScope] never resolves this itself. */
+fun CanvasScope.drawCheckmark(slot: UiBounds, color: Color) {
     val path = uiPath {
         moveTo(slot.x + slot.width * 0.25f, slot.y + slot.height * 0.52f)
         lineTo(slot.x + slot.width * 0.44f, slot.y + slot.height * 0.72f)
         lineTo(slot.x + slot.width * 0.76f, slot.y + slot.height * 0.30f)
     }
-    emitPrimitive(
+    scope.dispatchPrimitive(
         UiDrawPrimitive.StrokedPath(
             path = path,
             stroke = UiStroke(1.75f.px, UiStrokeCap.Round, UiStrokeJoin.Round),
-            color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.primaryForeground,
+            color = color,
         ),
         overlay = false,
     )
 }
 
 /** Paints the centered selected dot used by a radio indicator. */
-fun UiPrimitiveScope.emitRadioDot(slot: UiBounds, color: Color) {
+fun CanvasScope.drawRadioDot(slot: UiBounds, color: Color) {
     // shadcn's `RadioGroupItem` uses `size-4` for the ring and `size-2` for the indicator:
     // the inner dot is exactly half the outer diameter. The old 30% inset produced a 6.4px
     // dot inside a 16px radio instead of the reference's 8px dot.
     val inset = minOf(slot.width, slot.height) * 0.25f
-    emitFillShape(
+    drawFillShape(
         slot = UiBounds(slot.x + inset, slot.y + inset, slot.width - inset * 2f, slot.height - inset * 2f),
         color = color,
         radiusPx = minOf(slot.width, slot.height) / 2f,
@@ -216,22 +227,24 @@ fun UiPrimitiveScope.emitRadioDot(slot: UiBounds, color: Color) {
 
 /** Tri-state checkbox's "indeterminate" mark: a horizontal dash -- mirrors real shadcn's
  * checkbox drawing a horizontal line (not a checkmark) when its ToggleableState is
- * Indeterminate. */
-fun UiPrimitiveScope.emitInsetDash(
+ * Indeterminate. [color] is the caller's already-resolved theme color (typically
+ * `theme.colors.primary`). */
+fun CanvasScope.drawInsetDash(
     slot: UiBounds,
     inset: Float,
+    color: Color,
 ) {
     val innerW = slot.width - inset * 2
     val innerH = slot.height - inset * 2
     val thickness = (minOf(innerW, innerH) * 0.22f).coerceAtLeast(1f)
-    emitFillShape(
+    drawFillShape(
         slot = UiBounds(
             slot.x + inset,
             slot.y + inset + (innerH - thickness) / 2f,
             innerW,
             thickness,
         ),
-        color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.primary,
+        color = color,
         radiusPx = thickness / 2f,
         shapeSpec = null,
     )

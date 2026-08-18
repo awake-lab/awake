@@ -7,7 +7,8 @@ import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.canvas
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.UiInteraction
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.interact
 import io.github.ronjunevaldoz.awake.ui.layout.inset
@@ -146,14 +147,16 @@ internal fun UiPrimitiveScope.paintSurface(
     shapeSpec: UiShapeSpec? = resolved.shapeSpec,
 ) {
     val theme = theme
-    emitFillAndBorder(
-        slot = slot,
-        fillColor = fillColor ?: resolved.background ?: theme.colors.background,
-        radiusPx = resolved.shape.toPx(),
-        borderWidth = resolved.borderWidth,
-        borderColor = borderColor ?: resolved.borderColor ?: theme.colors.border,
-        shapeSpec = shapeSpec,
-        fillTokenId = resolved.backgroundToken,
-        borderTokenId = resolved.borderColorToken,
-    )
+    canvas(slot) {
+        drawFillAndBorder(
+            slot = slot,
+            fillColor = fillColor ?: resolved.background ?: theme.colors.background,
+            radiusPx = resolved.shape.toPx(),
+            borderWidth = resolved.borderWidth,
+            borderColor = borderColor ?: resolved.borderColor ?: theme.colors.border,
+            shapeSpec = shapeSpec,
+            fillTokenId = resolved.backgroundToken,
+            borderTokenId = resolved.borderColorToken,
+        )
+    }
 }

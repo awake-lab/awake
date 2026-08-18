@@ -11,10 +11,11 @@ import io.github.ronjunevaldoz.awake.ui.UiShapeSpec
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.context.resolveMeasuredContentCached
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.layout.verticalPx
@@ -336,17 +337,23 @@ internal fun UiPrimitiveScope.surfaceCore(
             ),
         )
     }
-    emitFillAndBorder(
-        slot = slot,
-        fillColor = resolved.background ?: Color.Transparent,
-        radiusPx = resolved.shape.toPx(),
-        borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor
-            ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.border,
-        shapeSpec = resolved.shapeSpec,
-        fillTokenId = resolved.backgroundToken,
-        borderTokenId = resolved.borderColorToken,
-    )
+    // Resolved here, on the surrounding UiPrimitiveScope, not inside canvas{} -- CanvasScope is
+    // a pure draw surface with no theme/context access (Option B,
+    // docs/tasks/2026-08-18-ui-capability-scopes-plan.md).
+    val resolvedBorderColor = resolved.borderColor
+        ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.border
+    canvas(slot) {
+        drawFillAndBorder(
+            slot = slot,
+            fillColor = resolved.background ?: Color.Transparent,
+            radiusPx = resolved.shape.toPx(),
+            borderWidth = resolved.borderWidth,
+            borderColor = resolvedBorderColor,
+            shapeSpec = resolved.shapeSpec,
+            fillTokenId = resolved.backgroundToken,
+            borderTokenId = resolved.borderColorToken,
+        )
+    }
     recordSemantic(
         role = semanticRole,
         id = id,

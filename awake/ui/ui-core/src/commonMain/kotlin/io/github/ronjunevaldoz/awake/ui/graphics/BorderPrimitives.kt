@@ -30,13 +30,13 @@ fun UiPrimitiveScope.border(
     val snappedWidth = pixelPerfectPixel(slot.width).coerceAtLeast(1f)
     val snappedHeight = pixelPerfectPixel(slot.height).coerceAtLeast(1f)
     val strokeWidth = pixelPerfectPixel(w).coerceAtLeast(1f)
-    emitPrimitive(UiDrawPrimitive.Quad(x, y, snappedWidth, strokeWidth, strokeColor, tokenId = tokenId), overlay)
-    emitPrimitive(
+    dispatchPrimitive(UiDrawPrimitive.Quad(x, y, snappedWidth, strokeWidth, strokeColor, tokenId = tokenId), overlay)
+    dispatchPrimitive(
         UiDrawPrimitive.Quad(x, y + snappedHeight - strokeWidth, snappedWidth, strokeWidth, strokeColor, tokenId = tokenId),
         overlay,
     )
-    emitPrimitive(UiDrawPrimitive.Quad(x, y, strokeWidth, snappedHeight, strokeColor, tokenId = tokenId), overlay)
-    emitPrimitive(
+    dispatchPrimitive(UiDrawPrimitive.Quad(x, y, strokeWidth, snappedHeight, strokeColor, tokenId = tokenId), overlay)
+    dispatchPrimitive(
         UiDrawPrimitive.Quad(x + snappedWidth - strokeWidth, y, strokeWidth, snappedHeight, strokeColor, tokenId = tokenId),
         overlay,
     )

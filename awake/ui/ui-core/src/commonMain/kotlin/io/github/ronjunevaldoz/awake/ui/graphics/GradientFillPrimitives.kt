@@ -12,7 +12,7 @@ fun UiPrimitiveScope.gradientRect(
     gradient: UiLinearGradient,
     overlay: Boolean = false,
 ) {
-    emitPrimitive(
+    dispatchPrimitive(
         UiDrawPrimitive.GradientQuad(
             x = slot.x,
             y = slot.y,

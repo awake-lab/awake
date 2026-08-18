@@ -11,11 +11,12 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.childBox
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.interact
@@ -296,18 +297,22 @@ fun UiPrimitiveScope.textField(
                             cursor,
                         )
                     val caretY = textContentSlot.y + (textContentSlot.height - glyphPx) / 2f
-                    emitFillAndBorder(
-                        slot = UiBounds(
-                            caretX,
-                            caretY,
-                            TEXT_FIELD_CARET_WIDTH.toPx(),
-                            glyphPx,
-                        ),
-                        fillColor = surface.resolved.foreground ?: theme.colors.foreground,
-                        radiusPx = 0f,
-                        borderWidth = UiShape.none,
-                        borderColor = Color.Transparent,
+                    val caretSlot = UiBounds(
+                        caretX,
+                        caretY,
+                        TEXT_FIELD_CARET_WIDTH.toPx(),
+                        glyphPx,
                     )
+                    val caretColor = surface.resolved.foreground ?: theme.colors.foreground
+                    canvas(caretSlot) {
+                        drawFillAndBorder(
+                            slot = caretSlot,
+                            fillColor = caretColor,
+                            radiusPx = 0f,
+                            borderWidth = UiShape.none,
+                            borderColor = Color.Transparent,
+                        )
+                    }
                 }
             }
         }

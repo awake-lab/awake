@@ -94,10 +94,10 @@ val forbiddenUiSourcePatterns = when (project.path) {
 // Shrink this list — never grow it without an audit row.
 val exemptUiSourcePatternFiles = when (project.path) {
     ":awake:ui:ui-core" -> listOf(
-        // emit* painter family — becomes UiDrawScope draw* members in the P1 receiver split.
-        "graphics/ShapePainter.kt",
         // paintScrollThumb — same P1 fate as ShapePainter's emit family (row C7's scrollPanel
-        // split, commit 32abbefd, landed the naming-lexicon violation uncaught).
+        // split, commit 32abbefd, landed the naming-lexicon violation uncaught). ShapePainter.kt
+        // itself is no longer exempt: its emit* family moved to CanvasScope's draw* members
+        // 2026-08-19 (docs/tasks/2026-08-18-ui-capability-scopes-plan.md step 2).
         "ScrollContainers.kt",
     )
     ":awake:ui:headless" -> listOf(

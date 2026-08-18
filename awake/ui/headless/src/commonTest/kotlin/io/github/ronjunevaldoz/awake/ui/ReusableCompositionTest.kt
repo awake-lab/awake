@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.LocalTheme
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.font.BitmapFont
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.buttonSlot
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import io.github.ronjunevaldoz.awake.ui.layout.toDimension
@@ -151,13 +151,16 @@ private fun UiPrimitiveScope.badge(
         },
         state = MutableStyleState(hovered = hovered, active = active).set(BadgeToneKey, emphasized),
     )
-    emitFillAndBorder(
-        slot = slot,
-        fillColor = resolved.background ?: Color.Transparent,
-        radiusPx = resolved.shape.toPx(),
-        borderWidth = resolved.borderWidth,
-        borderColor = resolved.borderColor ?: theme.colors.border,
-    )
+    val resolvedBorderColor = resolved.borderColor ?: theme.colors.border
+    canvas(slot) {
+        drawFillAndBorder(
+            slot = slot,
+            fillColor = resolved.background ?: Color.Transparent,
+            radiusPx = resolved.shape.toPx(),
+            borderWidth = resolved.borderWidth,
+            borderColor = resolvedBorderColor,
+        )
+    }
     if (font != null) {
         text(
             label,

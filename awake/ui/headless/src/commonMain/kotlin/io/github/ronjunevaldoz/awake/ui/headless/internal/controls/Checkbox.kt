@@ -11,9 +11,10 @@ import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
-import io.github.ronjunevaldoz.awake.ui.graphics.emitCheckmark
-import io.github.ronjunevaldoz.awake.ui.graphics.emitInsetDash
-import io.github.ronjunevaldoz.awake.ui.graphics.emitRadioDot
+import io.github.ronjunevaldoz.awake.ui.canvas
+import io.github.ronjunevaldoz.awake.ui.graphics.drawCheckmark
+import io.github.ronjunevaldoz.awake.ui.graphics.drawInsetDash
+import io.github.ronjunevaldoz.awake.ui.graphics.drawRadioDot
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.paintSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.resolveInteractiveSurface
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.withIntrinsicLabelWidth
@@ -112,9 +113,9 @@ fun UiPrimitiveScope.checkbox(
         }
         val inset = boxPx * 0.25f
         if (indeterminate) {
-            emitInsetDash(boxSlot, inset)
+            canvas(boxSlot) { drawInsetDash(boxSlot, inset, theme.colors.primary) }
         } else if (newChecked) {
-            emitCheckmark(boxSlot)
+            canvas(boxSlot) { drawCheckmark(boxSlot, theme.colors.primaryForeground) }
         }
         val resolvedFont = font
         if (label != null) {
@@ -198,7 +199,7 @@ fun UiPrimitiveScope.radio(
             shapeSpec = io.github.ronjunevaldoz.awake.ui.UiShapeSpec.Circle,
         )
         if (selected) {
-            emitRadioDot(boxSlot, theme.colors.primary)
+            canvas(boxSlot) { drawRadioDot(boxSlot, theme.colors.primary) }
         }
         val next = if (surface.interaction.clicked && enabled) true else selected
         recordSemantic(

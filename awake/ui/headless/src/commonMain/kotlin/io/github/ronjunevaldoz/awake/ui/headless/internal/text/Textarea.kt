@@ -12,8 +12,9 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.headless.internal.layout.interact
 import io.github.ronjunevaldoz.awake.ui.layout.inset
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -106,15 +107,18 @@ fun UiPrimitiveScope.textarea(
     // Reference's `disabled:opacity-50` treatment, same single group-alpha shape as
     // `Buttons.kt`'s `buttonSlotInternal` -- covers the fill/border paint and the typed
     // text/caret as one composited unit so nothing drawn on top of the fill gets double-dimmed.
+    val fillColor = resolvedWithInteraction.background ?: theme.colors.background
     return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
-        emitFillAndBorder(
-            slot = interaction.slot,
-            fillColor = resolvedWithInteraction.background ?: theme.colors.background,
-            radiusPx = resolvedWithInteraction.shape.toPx(),
-            borderWidth = if (focused || isError) 1.5f.dp else resolvedWithInteraction.borderWidth,
-            borderColor = borderColor,
-            shapeSpec = resolvedWithInteraction.shapeSpec,
-        )
+        canvas(interaction.slot) {
+            drawFillAndBorder(
+                slot = interaction.slot,
+                fillColor = fillColor,
+                radiusPx = resolvedWithInteraction.shape.toPx(),
+                borderWidth = if (focused || isError) 1.5f.dp else resolvedWithInteraction.borderWidth,
+                borderColor = borderColor,
+                shapeSpec = resolvedWithInteraction.shapeSpec,
+            )
+        }
 
         val resolvedFont = font
         val glyphPx = fontHeight
@@ -308,18 +312,22 @@ fun UiPrimitiveScope.textarea(
                         drawSlot,
                         cursor,
                     )
-                    emitFillAndBorder(
-                        slot = UiBounds(
-                            caretPos.first,
-                            caretPos.second,
-                            TEXT_FIELD_CARET_WIDTH_PX,
-                            glyphPx,
-                        ),
-                        fillColor = resolvedWithInteraction.foreground ?: theme.colors.foreground,
-                        radiusPx = 0f,
-                        borderWidth = UiShape.none,
-                        borderColor = Color.Transparent,
+                    val caretSlot = UiBounds(
+                        caretPos.first,
+                        caretPos.second,
+                        TEXT_FIELD_CARET_WIDTH_PX,
+                        glyphPx,
                     )
+                    val caretColor = resolvedWithInteraction.foreground ?: theme.colors.foreground
+                    canvas(caretSlot) {
+                        drawFillAndBorder(
+                            slot = caretSlot,
+                            fillColor = caretColor,
+                            radiusPx = 0f,
+                            borderWidth = UiShape.none,
+                            borderColor = Color.Transparent,
+                        )
+                    }
                 }
             }
         }

@@ -9,8 +9,8 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
-import io.github.ronjunevaldoz.awake.ui.graphics.emitFillAndBorder
-import io.github.ronjunevaldoz.awake.ui.graphics.emitPrimitive
+import io.github.ronjunevaldoz.awake.ui.graphics.dispatchPrimitive
+import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.gradientBorder
 import io.github.ronjunevaldoz.awake.ui.graphics.gradientRect
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
@@ -22,11 +22,9 @@ import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 
 @AwakeUiDsl
 class CanvasScope internal constructor(
-    private val scope: UiPrimitiveScope,
+    internal val scope: UiPrimitiveScope,
     val bounds: UiBounds,
 ) {
-    val context get() = scope.context
-
     fun nested(
         x: Float,
         y: Float,
@@ -50,7 +48,7 @@ class CanvasScope internal constructor(
         overlay: Boolean = false,
     ) {
         if (width <= 0f || height <= 0f) return
-        scope.emitPrimitive(
+        scope.dispatchPrimitive(
             UiDrawPrimitive.Quad(
                 x = bounds.x + x,
                 y = bounds.y + y,
@@ -109,7 +107,7 @@ class CanvasScope internal constructor(
         overlay: Boolean = false,
     ) {
         if (width <= 0f || height <= 0f) return
-        scope.emitFillAndBorder(
+        drawFillAndBorder(
             slot = UiBounds(bounds.x + x, bounds.y + y, width, height),
             fillColor = color,
             radiusPx = radius.toPx(),
@@ -137,7 +135,7 @@ class CanvasScope internal constructor(
             is UiShapeSpec.RoundedRectangle -> shape.radius.toPx()
             else -> 0f
         }
-        scope.emitFillAndBorder(
+        drawFillAndBorder(
             slot = slot,
             fillColor = color,
             radiusPx = radius,
@@ -189,7 +187,7 @@ class CanvasScope internal constructor(
     }
 
     fun fillPath(path: UiPath, color: Color, overlay: Boolean = false) {
-        scope.emitPrimitive(
+        scope.dispatchPrimitive(
             UiDrawPrimitive.FilledPath(
                 path = path.transform(translateX = bounds.x, translateY = bounds.y),
                 color = color,
@@ -204,7 +202,7 @@ class CanvasScope internal constructor(
         stroke: UiStroke = UiStroke(),
         overlay: Boolean = false,
     ) {
-        scope.emitPrimitive(
+        scope.dispatchPrimitive(
             UiDrawPrimitive.StrokedPath(
                 path = path.transform(translateX = bounds.x, translateY = bounds.y),
                 stroke = stroke,
@@ -218,10 +216,14 @@ class CanvasScope internal constructor(
         text: String,
         x: Float,
         y: Float,
-        color: Color = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).color
-            ?: context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.foreground,
-        font: UiFont = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
-        textStyle: TextStyle = context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle),
+        // Reads scope.context directly (not a public CanvasScope.context accessor -- removed,
+        // see docs/tasks/2026-08-18-ui-capability-scopes-plan.md step 3): these are drawText's
+        // own convenience defaults, an existing CanvasScope capability untouched by the
+        // ShapePainter/Option B migration, not a new external theme dependency.
+        color: Color = scope.context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle).color
+            ?: scope.context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTheme).colors.foreground,
+        font: UiFont = scope.context.current(io.github.ronjunevaldoz.awake.ui.context.LocalFont),
+        textStyle: TextStyle = scope.context.current(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle),
         overlay: Boolean = false,
     ) {
         if (text.isEmpty()) return
@@ -234,7 +236,7 @@ class CanvasScope internal constructor(
             if (glyph != null) {
                 val glyphWidth = glyph.widthEm * glyphPx
                 val glyphHeight = glyph.heightEm * glyphPx
-                scope.emitPrimitive(
+                scope.dispatchPrimitive(
                     UiDrawPrimitive.Glyph(
                         x = cursorX + glyph.offsetXEm * glyphPx,
                         y = baselineY + glyph.offsetYEm * glyphPx,
@@ -262,7 +264,7 @@ class CanvasScope internal constructor(
         overlay: Boolean = false,
     ) {
         if (width <= 0f || height <= 0f) return
-        scope.emitPrimitive(
+        scope.dispatchPrimitive(
             UiDrawPrimitive.Texture(
                 x = bounds.x + x,
                 y = bounds.y + y,
