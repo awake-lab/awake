@@ -12,6 +12,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.asset.shaders.TexturedUniformLayout
+import io.github.ronjunevaldoz.awake.render.renderer.createMaterial
 import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
@@ -19,10 +20,6 @@ import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
 
 private const val TEXTURED_VERTEX_STRIDE_COMPONENTS = 11
-
-/** `textured.wgsl`'s Uniforms size -- taken from the shared layout rather than re-summed
- * here, so adding a field to that shader can't leave this call site silently short. */
-private val TEXTURED_UNIFORM_FLOAT_COUNT = TexturedUniformLayout.total
 
 /** Duck.gltf, parsed once and exposed to the `assets { }` DSL as named mesh/material
  * factories -- the same real parsing `GltfViewerDemo.preload()` does, repackaged so the scene
@@ -99,5 +96,9 @@ internal object GltfViewerAssets {
     )
 
     fun createMaterial(runtime: SceneGameRuntime): Material =
-        runtime.renderer.createMaterial(texture = requireNotNull(texture))
+        runtime.renderer.createMaterial(
+            TexturedUniformLayout,
+            texture = requireNotNull(texture),
+            pbrTextures = pbrTextures,
+        )
 }
