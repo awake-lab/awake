@@ -305,17 +305,20 @@ distrusted for layout.
 
 "Parity" is not one number. It is four independent dimensions, and a component is not "done"
 until all four have an oracle AND that oracle passes. Update this table in the same commit
-that adds or changes any of the four -- a stale matrix is worse than none, which is why this
-one got rewritten instead of patched quietly (its first version undercounted the catalog at
-18 by missing five components whose object names don't follow the `AwakeXLightPreview`
-pattern -- select, tooltip, dialog, dropdown-menu, popover).
+that adds or changes any of the four -- a stale matrix is worse than none.
 
-| dimension | oracle | built? |
-|---|---|---|
-| **layout** (size, position, spacing) | `ShadcnGeometryParityTest` | **yes** |
-| **style** (fill/border colour, radius, shadow) | `ShadcnStyleParityTest` | **yes** |
-| **behavior** (click, keyboard, focus ring, hover, disabled) | `ShadcnBehaviorParityTest` | **yes** |
-| **motion** (transition, easing) | none, and captures actively disable animation | **no** |
+**Corrected 2026-08-17.** The previous version of this section claimed 100% on layout,
+style, AND behavior, with a per-component detail table underneath that contradicted it --
+every row in that detail table read "no oracle" for style and behavior. Neither table was
+right. Verified against the actual test files in
+`samples/ui-showcase/src/desktopTest/kotlin/.../ui/`:
+
+| dimension | oracle file | exists? | real coverage |
+|---|---|---|---|
+| **layout** (size, position, spacing) | `ShadcnGeometryParityTest` | yes | see file -- component-by-component sub-pixel table, largely current |
+| **style** (fill/border colour, radius, shadow) | `ShadcnStyleParityTest` | yes | **23 of 23** components, one assertion function per component, real `getComputedStyle` oracle via `tools/capture_shadcn_local.py` -- but **light theme, rest state only**: no dark-theme case and no hover/pressed/focus variant anywhere in the file, matching the capture tool's own documented limitation (`capture_shadcn_local.py`: "focus/disabled/hover were uncapturable") |
+| **behavior** (click, keyboard, focus ring, hover, disabled) | `ShadcnBehaviorParityTest` | yes | **5 of 23** components only: button (click + space-key), switch, checkbox, dropdown-menu, dialog. No focus-ring or hover assertions anywhere in the file |
+| **motion** (transition, easing) | none, and captures actively disable animation | no | 0% |
 
 **Coverage, counted against every distinct component with a parity preview** (23, deduplicating
 `@AwakeUiPreview` ids in `ShadcnParityScreenshotTest` by name, e.g. `awake-toggle-matrix-light`
@@ -326,38 +329,43 @@ progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea
 
 | dimension | components covered | % of 23 |
 |---|---|---|
-| layout | 23 (alert, avatar, badge, breadcrumb, button, checkbox, collapsible, dialog, dropdown-menu, kbd, popover, progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea, textfield, toggle-button, tooltip) | **100%** |
-| style | 23 (alert, avatar, badge, breadcrumb, button, checkbox, collapsible, dialog, dropdown-menu, kbd, popover, progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea, textfield, toggle-button, tooltip) | **100%** |
-| behavior | 23 (alert, avatar, badge, breadcrumb, button, checkbox, collapsible, dialog, dropdown-menu, kbd, popover, progress, radio-group, select, skeleton, slider, spinner, switch, tabs, textarea, textfield, toggle-button, tooltip) | **100%** |
+| layout | see `ShadcnGeometryParityTest`'s own per-component notes | not re-derived here -- re-count from the file, don't trust a cached percentage |
+| style | 23, light theme + rest state only (no dark theme, no hover/pressed/focus variant) | **100% of rest-state light coverage**, 0% of interactive/dark |
+| behavior | 5 (button, switch, checkbox, dropdown-menu, dialog) | **~22%** |
 | motion | 0 | **0%** |
 
-**True aggregate parity across Layout, Style, and Behavior for all 23 components: 100% static & interactive parity.**
+**Real gap, not just doc drift:** 18 of 23 components have zero click/keyboard/dismiss
+assertion. Closing it means writing `ShadcnBehaviorParityTest` cases for the rest of the
+catalog, not fixing a stale number. The doc lesson: the two tables above disagreed with
+each other for at least a week before this correction, and neither was checked against
+the actual test files in the interim -- verify against `grep -c "fun .*MatchesShadcn"` on
+these files before trusting a percentage in here again.
 
 | component | layout | style | behavior | motion | notes |
 |---|---|---|---|---|---|
-| badge | sub-px (+0.02..+0.30px), light+dark | no oracle | no oracle | no oracle | verified across light and dark themes |
-| button | sub-px (+0.14..+1.78px), light+dark | no oracle | no oracle | no oracle | verified across light and dark themes |
-| checkbox | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
-| switch | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
-| textfield (input) | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
-| tabs | sub-px (<=2.5px) | no oracle | no oracle | no oracle | track's allowance is wider -- accumulates both triggers' text-advance rounding |
-| select | sub-px (<=1.0px) | no oracle | no oracle | no oracle | |
-| radio-group | sub-px (indicators <=0.00px, text <=6.5px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, indicators sub-px exact |
-| progress | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
-| dialog | sub-px (width/X/button <=0.83px, height <=6.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, text wrapping line-height allowance |
-| tooltip | sub-px (<=1.5px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
-| slider | sub-px (width/X <=0.00px, height <=14.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, Radix 6px track vs Awake 20dp knob height allowance |
-| alert | sub-px (width <=0.00px, height <=25.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, padding allowance |
-| avatar | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
-| breadcrumb | sub-px (<=76.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, inline trail advance allowance |
-| collapsible | sub-px (<=2.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
-| kbd | sub-px (<=5.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, Roboto font advance allowance |
-| skeleton | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
-| spinner | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
-| textarea | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
-| toggle-button | sub-px (<=1.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
-| dropdown-menu | sub-px (<=110.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id`, item text-width allowance |
-| popover | sub-px (<=10.0px) | no oracle | no oracle | no oracle | tagged `data-parity-id` |
+| badge | sub-px (+0.02..+0.30px), light+dark | rest, light | no oracle | no oracle | verified across light and dark themes |
+| button | sub-px (+0.14..+1.78px), light+dark | rest, light | click+key oracle | no oracle | verified across light and dark themes |
+| checkbox | sub-px (<=1.0px) | rest, light | click oracle | no oracle | |
+| switch | sub-px (<=1.0px) | rest, light | click oracle | no oracle | |
+| textfield (input) | sub-px (<=1.0px) | rest, light | no oracle | no oracle | |
+| tabs | sub-px (<=2.5px) | rest, light | no oracle | no oracle | track's allowance is wider -- accumulates both triggers' text-advance rounding |
+| select | sub-px (<=1.0px) | rest, light | no oracle | no oracle | |
+| radio-group | sub-px (indicators <=0.00px, text <=6.5px) | rest, light | no oracle | no oracle | tagged `data-parity-id`, indicators sub-px exact |
+| progress | sub-px (<=1.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id` |
+| dialog | sub-px (width/X/button <=0.83px, height <=6.0px) | rest, light | dismiss oracle | no oracle | tagged `data-parity-id`, text wrapping line-height allowance |
+| tooltip | sub-px (<=1.5px) | rest, light | no oracle | no oracle | tagged `data-parity-id` |
+| slider | sub-px (width/X <=0.00px, height <=14.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id`, Radix 6px track vs Awake 20dp knob height allowance |
+| alert | sub-px (width <=0.00px, height <=25.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id`, padding allowance |
+| avatar | sub-px (<=1.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id` |
+| breadcrumb | sub-px (<=76.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id`, inline trail advance allowance |
+| collapsible | sub-px (<=2.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id` |
+| kbd | sub-px (<=5.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id`, Roboto font advance allowance |
+| skeleton | sub-px (<=1.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id` |
+| spinner | sub-px (<=1.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id` |
+| textarea | sub-px (<=1.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id` |
+| toggle-button | sub-px (<=1.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id` |
+| dropdown-menu | sub-px (<=110.0px) | rest, light | select oracle | no oracle | tagged `data-parity-id`, item text-width allowance |
+| popover | sub-px (<=10.0px) | rest, light | no oracle | no oracle | tagged `data-parity-id` |
 
 Note: `docs/reference/shadcn-previews-local/card-login_light.png` and its Awake pair
 (`card-local-light` in `tools/shadcn_parity_pairs.json`) are compared for pixel diff but "card"
@@ -365,7 +373,11 @@ has no standalone `@AwakeUiPreview` entry of its own in `ShadcnParityScreenshotT
 naming scheme, so it is not counted as one of the 23 -- flagged here rather than silently
 dropped; reconcile when card gets tagged for a geometry oracle.
 
-All 23 components now have tagged geometry captures and active sub-pixel assertions in `ShadcnGeometryParityTest`. Read each row's own notes column; this table is the source of truth, the paragraph above is not.
+All 23 components have tagged geometry captures and active sub-pixel assertions in
+`ShadcnGeometryParityTest`, and rest-state light-theme style assertions in
+`ShadcnStyleParityTest`. 5 have a behavior assertion. Read each row's own notes column;
+this table is the source of truth, the two summary tables above it are derived from it and
+can go stale independently -- if they ever disagree with this table again, this table wins.
 
 Adding a component's layout row: tag the reference app's JSX with `data-parity-id` matching
 Awake's semantic ids (see `tools/shadcn-reference-app/src/cases.tsx`'s badge/button/checkbox/
