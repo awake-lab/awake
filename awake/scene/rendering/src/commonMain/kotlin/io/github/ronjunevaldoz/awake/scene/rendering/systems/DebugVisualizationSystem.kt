@@ -23,6 +23,8 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.Light
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Occluder
 import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
+import kotlin.math.min
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 
 /**
  * Draws the camera frustum and/or [MeshBounds] boxes as world-space wireframes, gated by
@@ -78,7 +80,7 @@ fun debugVisualizationLines(world: World, renderer: Renderer, settings: WorldDeb
         val aspect = renderer.sceneViewport?.aspect ?: CONSERVATIVE_ASPECT
         settings.frustumTargetEntityId
             ?.let { targetId -> world.cameraOf(targetId) }
-            ?.let { lines += frustumDebugLines(it.camera, aspect, FRUSTUM_COLOR) }
+            ?.let { lines += frustumDebugLines(it.camera.visualizedFarClamped(), aspect, FRUSTUM_COLOR) }
     }
     if (settings.showBounds) {
         world.family<Transform, MeshBounds>().forEach { _, transform, bounds ->
@@ -122,6 +124,23 @@ private fun World.cameraOf(entityId: Int): Camera? {
     family<Camera>().forEach { entity, camera -> if (entity.id == entityId) found = camera }
     return found
 }
+
+/** A frustum's own authored `far` is a clip plane, not a "camera scope of view" distance -- it's
+ * routinely far larger than the scene it's looking at (rotating-cube's own camera authors 100
+ * units against a ~10-20 unit scene), which draws a far quad that reads as "shooting off to
+ * infinity" rather than a legible box. Visualization-only cap; the real far still governs actual
+ * rendering (this only affects the debug wireframe's own far edge). */
+private const val MAX_VISUALIZED_FRUSTUM_DISTANCE = 30f
+
+private fun CoreCamera.visualizedFarClamped(): CoreCamera =
+    CoreCamera(
+        eye = eye,
+        center = center,
+        up = up,
+        fovYRadians = fovYRadians,
+        near = near,
+        far = min(far, MAX_VISUALIZED_FRUSTUM_DISTANCE),
+    ).also { it.projection = projection }
 
 private val FRUSTUM_COLOR = floatArrayOf(1f, 1f, 0f, 1f)
 private val BOUNDS_COLOR = floatArrayOf(0f, 1f, 0f, 1f)
