@@ -47,6 +47,7 @@ import io.github.ronjunevaldoz.awake.studio.gizmo.ViewportProjection
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.studio.ui.StudioCameraPreview
+import io.github.ronjunevaldoz.awake.studio.ui.StudioOrientationGizmo
 import io.github.ronjunevaldoz.awake.studio.ui.drawStudioShell
 import kotlin.math.asin
 import kotlin.math.atan2
@@ -74,6 +75,7 @@ internal fun studioModule(
     // Owned here, like the gizmo: it holds GPU resources, and the shell's draw functions run
     // every frame and can own nothing that needs destroying.
     val cameraPreview = StudioCameraPreview()
+    val orientationGizmo = StudioOrientationGizmo()
     return gameModule {
         scene("studio") {
             assets {
@@ -137,9 +139,13 @@ internal fun studioModule(
                     viewportHeight,
                     viewportRect,
                     cameraPreview,
+                    orientationGizmo,
                 )
             }
-            onDispose { cameraPreview.dispose() }
+            onDispose {
+                cameraPreview.dispose()
+                orientationGizmo.dispose()
+            }
         }
     }
 }

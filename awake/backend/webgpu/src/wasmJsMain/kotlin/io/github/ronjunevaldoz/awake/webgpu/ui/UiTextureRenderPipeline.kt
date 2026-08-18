@@ -8,9 +8,12 @@ import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
 import io.ygdrasil.webgpu.BindGroupDescriptor
 import io.ygdrasil.webgpu.BindGroupEntry
+import io.ygdrasil.webgpu.BlendComponent
+import io.ygdrasil.webgpu.BlendState
 import io.ygdrasil.webgpu.BufferBinding
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.ColorTargetState
+import io.ygdrasil.webgpu.GPUBlendFactor
 import io.ygdrasil.webgpu.FragmentState
 import io.ygdrasil.webgpu.GPUBindGroup
 import io.ygdrasil.webgpu.GPUBuffer
@@ -88,7 +91,26 @@ class UiTextureRenderPipeline(
                 fragment = FragmentState(
                     module = shaderModule,
                     entryPoint = "fragmentMain",
-                    targets = listOf(ColorTargetState(format = swapchainManager.imageFormatWebGpu)),
+                    // Straight (non-premultiplied) alpha, matching Vulkan's UiTextureRenderPipeline
+                    // and this file's own UiGlyphRenderPipeline sibling -- without this a
+                    // RenderTarget-backed texture with a transparent background (e.g.
+                    // StudioOrientationGizmo's) composited opaquely, replacing whatever the
+                    // panel already drew instead of blending over it.
+                    targets = listOf(
+                        ColorTargetState(
+                            format = swapchainManager.imageFormatWebGpu,
+                            blend = BlendState(
+                                color = BlendComponent(
+                                    srcFactor = GPUBlendFactor.SrcAlpha,
+                                    dstFactor = GPUBlendFactor.OneMinusSrcAlpha,
+                                ),
+                                alpha = BlendComponent(
+                                    srcFactor = GPUBlendFactor.SrcAlpha,
+                                    dstFactor = GPUBlendFactor.OneMinusSrcAlpha,
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
                 primitive = PrimitiveState(topology = GPUPrimitiveTopology.TriangleList),
             ),
