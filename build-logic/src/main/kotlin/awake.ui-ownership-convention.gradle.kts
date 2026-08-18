@@ -96,6 +96,9 @@ val exemptUiSourcePatternFiles = when (project.path) {
     ":awake:ui:ui-core" -> listOf(
         // emit* painter family — becomes UiDrawScope draw* members in the P1 receiver split.
         "graphics/ShapePainter.kt",
+        // paintScrollThumb — same P1 fate as ShapePainter's emit family (row C7's scrollPanel
+        // split, commit 32abbefd, landed the naming-lexicon violation uncaught).
+        "ScrollContainers.kt",
     )
     ":awake:ui:headless" -> listOf(
         // paintSurface / renderTextBlock — same P1 fate as ShapePainter's emit family.
