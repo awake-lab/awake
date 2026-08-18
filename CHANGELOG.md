@@ -9,23 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known issues
 
-- **`UiContext.measuring` is declared but never toggled true during a trial measurement
-  pass.** `UiContext.kt`'s hit-test/click-claim suppression guards (`!measuring` on
-  `tryClaimActive`/`releaseActiveIfMatches`/`hitTest`) and `isMeasuringInternal()` all
-  assume this flag goes true during a wrap-content trial pass; it's hardcoded `false` and
-  never set anywhere. Confirmed real by instrumentation: a wrap-content trigger's content
-  lambda genuinely runs 30 times per frame during a click/release (`ShadcnPopoverCheckboxClickProbeTest`,
-  `awake/ui/designsystem/src/commonTest/.../ShadcnPopoverCheckboxClickProbeTest.kt`), and
-  every one of those 30 invocations processes the click as real, unsuppressed. Despite
-  that, the probe's exact shape (one interactive control alone in a wrap-content trigger's
-  popover) has NOT reproduced a swallowed click across 3 independent runs, including after
-  package 5's wrap-content measure-pass changes. The originally reported symptom
-  (`samples/studio/.../StudioPills.kt`'s worked-around "Debug" menu) has *multiple* sibling
-  interactive controls sharing one button group's `activeId` — that contention is the
-  likely missing ingredient this probe doesn't reproduce alone. Fix direction if
-  revisited: toggle `measuring = true` for the duration of a trial-pass content
-  invocation in `measureColumnContentInternal`/`measureRowContentInternal`, restoring the
-  suppression the existing guards already assume.
+- **`UiContext.measuring` is dead** — declared, read by click-suppression guards, never
+  set true. A wrap-content trigger's content lambda runs unsuppressed during trial
+  passes as a result. Not yet reproduced as an actual swallowed click (see
+  `ShadcnPopoverCheckboxClickProbeTest`); full investigation in commit `7c3f54ba`.
 
 - **A wrap-height `shadcnToggleGroup` creates a 100,000px hit rectangle.** Its internal
   `fillMaxHeight()` resolves against the trial-measurement sentinel, so a viewport header pushes
