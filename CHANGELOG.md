@@ -60,6 +60,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `shadcnTabs`' `items`/`selected` overload takes a `content: ColumnScope.(String) -> Unit`
+  slot, rendering a real content panel below the track instead of modeling the track only.
+  Defaults to empty, so existing track-only callers are unaffected.
 - GPU-based 3D Camera System: a single `CameraComponent` carrying a `CameraMode` enum
   (`FirstPerson`, `ThirdPerson`, `Cinematic`, `TopDown`) plus an `ActiveCamera` tag
   component. One `CameraSystem` drives every mode and only processes entities tagged with
