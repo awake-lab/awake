@@ -92,6 +92,7 @@ internal data class ViewPillState(
     val projection: StudioContract.Projection,
     val wireframe: Boolean,
     val shadows: Boolean,
+    val environment: Boolean,
     val debugFrustum: Boolean,
     val debugBounds: Boolean,
     val debugOcclusion: Boolean,
@@ -104,6 +105,7 @@ internal data class ViewPillActions(
     val onToggleProjection: () -> Unit,
     val onWireframeChange: (Boolean) -> Unit,
     val onShadowsChange: (Boolean) -> Unit,
+    val onEnvironmentChange: (Boolean) -> Unit,
     val onDebugFrustumChange: (Boolean) -> Unit,
     val onDebugBoundsChange: (Boolean) -> Unit,
     val onDebugOcclusionChange: (Boolean) -> Unit,
@@ -140,6 +142,13 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
             glyph = outline.sun,
             active = state.shadows,
             onClick = { actions.onShadowsChange(!state.shadows) },
+        )
+        shadcnButton(
+            id = "studio-view-environment",
+            label = "Sky",
+            variant = if (state.environment) ShadcnButtonVariant.Secondary else ShadcnButtonVariant.Ghost,
+            size = ShadcnButtonSize.Xs,
+            onClick = { actions.onEnvironmentChange(!state.environment) },
         )
         shadcnButtonGroupSeparator()
         rowIconButton(
