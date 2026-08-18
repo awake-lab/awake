@@ -9,13 +9,13 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
-/** Neutral behavior and visual inputs for a modal [dialog]. */
+/** Neutral behavior inputs for a modal [dialog]. Visual style is [dialog]'s own `style` param --
+ * not a second Style-typed field here, see skills/awake-ui-authoring's one-style-channel rule. */
 data class DialogProperties(
     val dismissOnClickOutside: Boolean = true,
     val showScrim: Boolean = false,
     val scrimColor: Color? = null,
     val popupProperties: UiPopupProperties = UiPopupProperties(),
-    val surface: Style = Style.Empty,
 )
 
 /** Result/action contracts for a branded alert-dialog recipe. */
@@ -40,6 +40,7 @@ fun UiScope.dialog(
     expanded: Boolean,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
+    style: Style = Style.Empty,
     properties: DialogProperties = DialogProperties(),
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiPopupResult {
@@ -64,7 +65,7 @@ fun UiScope.dialog(
         surface(
             id = id,
             modifier = Modifier,
-            style = properties.surface,
+            style = style,
             content = content,
         )
     }

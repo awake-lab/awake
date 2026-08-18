@@ -11,7 +11,10 @@ fun UiScope.radio(
     selected: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    style: Style = Style { shape(9999f.dp) },
+    // No implicit fallback -- the primitive already paints radio's indicator circular
+    // unconditionally (UiShapeSpec.Circle), so this shape rule was dead weight, not a real
+    // default; omission resolves to Style.Empty like every other widget.
+    style: Style = Style.Empty,
     onClick: () -> Unit = {},
 ): Boolean {
     val next = primitive.primitiveRadio(
