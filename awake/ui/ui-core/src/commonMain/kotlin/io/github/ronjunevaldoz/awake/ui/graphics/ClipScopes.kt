@@ -13,10 +13,10 @@ import io.github.ronjunevaldoz.awake.ui.toPath
 
 fun UiPrimitiveScope.clip(rect: UiBounds, content: UiPrimitiveScope.() -> Unit) {
     val resolved = context.pushClipInternal(rect, overlay = emitsToOverlay)
-    emit(UiDrawPrimitive.ClipPush(resolved))
+    dispatchPrimitive(UiDrawPrimitive.ClipPush(resolved), overlay = false)
     content()
     val restore = context.popClipInternal(overlay = emitsToOverlay)
-    emit(UiDrawPrimitive.ClipPop(restore))
+    dispatchPrimitive(UiDrawPrimitive.ClipPop(restore), overlay = false)
 }
 
 fun UiPrimitiveScope.clip(path: UiPath, content: UiPrimitiveScope.() -> Unit) = clipPath(path, safeInteriorRect = null, content)
@@ -34,8 +34,8 @@ fun UiPrimitiveScope.clip(shape: UiShapeSpec, rect: UiBounds, content: UiPrimiti
 
 private fun UiPrimitiveScope.clipPath(path: UiPath, safeInteriorRect: UiBounds?, content: UiPrimitiveScope.() -> Unit) {
     val resolvedBounds = context.pushClipInternal(path.bounds(), overlay = emitsToOverlay)
-    emit(UiDrawPrimitive.ClipPathPush(path, resolvedBounds, safeInteriorRect))
+    dispatchPrimitive(UiDrawPrimitive.ClipPathPush(path, resolvedBounds, safeInteriorRect), overlay = false)
     content()
     val restore = context.popClipInternal(overlay = emitsToOverlay)
-    emit(UiDrawPrimitive.ClipPop(restore))
+    dispatchPrimitive(UiDrawPrimitive.ClipPop(restore), overlay = false)
 }

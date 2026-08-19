@@ -223,6 +223,65 @@ stays a pure draw surface, matching real `DrawScope`, and removes the reason
        fun widgetState(id): WidgetState
    }
    ```
+
+   **Landed 2026-08-19, partial: `emit`/`emitOverlay` removed, `context` kept.**
+   Grepped every real call site of `.emit(`/`.emitOverlay(`/`.context` on a
+   `UiPrimitiveScope`-typed receiver outside `Canvas.kt`, across `ui-core`,
+   `headless`, `designsystem`, and `samples/*`.
+
+   `emit`/`emitOverlay`'s real footprint outside `Canvas.kt` was small and
+   entirely mechanical, once the implicit-receiver call sites inside other
+   `UiPrimitiveScope` extension functions were grepped too (bare `emit(...)`,
+   not just `.emit(...)` — the draw-path estimate in step 2 missed these
+   because they don't use CanvasScope's helpers at all, they emit raw
+   primitives directly): `TextureQuad.kt`, `graphics/ClipScopes.kt` (×4, the
+   clip push/pop primitives), `layouts/Surface.kt` (the shadow primitive) in
+   `ui-core`; `headless/internal/controls/Dropdown.kt` (chevron icon),
+   `Icon.kt` (×2, fill/overlay variants), `internal/layout/Overlay.kt` (the
+   scrim), `internal/text/BasicText.kt` (per-glyph emission, the one case
+   with no existing `CanvasScope` equivalent) in `headless`; and one test,
+   `UiOverlayLayerTest.kt` (×3). All migrated onto `canvas{}`/`CanvasScope`.
+   `CanvasScope` gained one new member, `drawGlyph`, for `BasicText.kt`'s
+   case: unlike every other `draw*` member, it takes an already-absolute
+   destination rect (BasicText resolves glyph position against its own
+   line/pen metrics, which `CanvasScope` has no visibility into), so callers
+   wrap it in `canvas(UiBounds(0f, 0f, 0f, 0f))` — a zero-size, zero-origin
+   slot keeps `drawGlyph`'s (and `Icon.kt`/`Dropdown.kt`'s `fillPath`, whose
+   paths `fitTo(slot)` already resolved to absolute coordinates) implicit
+   `CanvasScope` bounds-translate a no-op.
+
+   `emit`/`emitOverlay` moved off the public `UiPrimitiveScope` onto a new
+   internal-only `UiPrimitiveEmitter` interface declared next to
+   `UiPrimitiveScope` (`AbstractUiScope` is the one real implementer of
+   both). `graphics/ShapePainter.kt`'s `dispatchPrimitive` -- the raw
+   primitive router underneath `CanvasScope`'s own `draw*` members --
+   narrowed from public to `internal` and now casts its `UiPrimitiveScope`
+   receiver to `UiPrimitiveEmitter` before routing.
+
+   `context`, by contrast, turned out to have a real footprint the "9
+   files" draw-path estimate never covered, because it was never a
+   draw-only concern to begin with: production theme/local push-pop in
+   `ui-designsystem` (`ShadcnButtonGroupRecipes.kt`'s `registerMember`/
+   `pushLocal`/`popLocal`/`current`, `ShadcnThemeLocals.kt`'s `current`) and
+   `ui-headless` (`ScrollState.kt`'s `with(primitive.context) { ... }`,
+   `UiScope.kt`'s `requestFocus`), plus hundreds of
+   `primitive.context.createAbsolute/createColumn/createBox(...)`
+   test-scope-factory call sites spread across all three modules' test
+   suites. This is a different capability than the draw-default-lookup use
+   `CanvasScope.context` closed in step 3 (spawning a *new child scope* from
+   a `UiContext`, not resolving a theme default for the current draw call) --
+   `CanvasScope`/`canvas{}` doesn't address it at all, and migrating
+   hundreds of test call sites plus 4 production files onto some other
+   entry point is an order of magnitude bigger than this step's real scope.
+   Per this doc's own "if the real scope turns out larger, stop and report"
+   guidance, did not force it through: `context` stays on `UiPrimitiveScope`
+   for now, documented in place with the file list above and in the audit's
+   P1 row. A further split (if ever revisited) needs its own scoped plan,
+   not a continuation of this one.
+
+   Verification: `ui-core`/`headless`/`designsystem` `desktopTest` green,
+   all three `verifyUiOwnership` green, `UiSnapshotSignatureTest` zero
+   drift, `samples:ui-showcase`/`samples:studio` compile.
 5. **`UiScope`'s `.primitive` escape hatch** — once `UiPrimitiveScope` no longer
    exposes anything dangerous, decide whether `UiScope` still needs a wrapper
    field at all, or can just extend the (now-safe) `UiPrimitiveScope` directly:

@@ -3,13 +3,13 @@
 package io.github.ronjunevaldoz.awake.ui.headless.internal.text
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
-import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiLinearGradient
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.UiSemanticRole
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.api.layout.intersect
 import io.github.ronjunevaldoz.awake.ui.api.layout.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -171,8 +171,12 @@ internal fun UiPrimitiveScope.renderTextBlock(
                     // equal offsetYEm+heightEm values stay equal -- no waviness without rounding
                     // to independently perturb them (see git history for the rounding this
                     // replaces, which fixed waviness only by coupling two roundings together).
-                    emit(
-                        UiDrawPrimitive.Glyph(
+                    // glyphX/glyphY are already resolved against this function's own line/pen
+                    // metrics -- canvas() at a zero-size, zero-origin slot is just the entry
+                    // point into CanvasScope.drawGlyph, which (unlike every other draw* member)
+                    // takes an already-absolute destination rect for exactly this caller.
+                    canvas(UiBounds(0f, 0f, 0f, 0f)) {
+                        drawGlyph(
                             glyphX,
                             glyphY,
                             glyphW,
@@ -183,8 +187,8 @@ internal fun UiPrimitiveScope.renderTextBlock(
                             glyph.v1,
                             finalColor,
                             tokenId = textStyleToken,
-                        ),
-                    )
+                        )
+                    }
                 }
                 penX += advance
             }

@@ -29,14 +29,15 @@ class UiOverlayLayerTest {
 
         // A base-layer marker, emitted first -- e.g. ordinary page content behind a popup.
         ui.createColumn(x = 0f, y = 0f, width = 100f)
-            .emit(UiDrawPrimitive.Quad(0f, 0f, 10f, 10f, Color(1f, 0f, 0f, 1f)))
+            .canvas(UiBounds(0f, 0f, 10f, 10f)) { drawRect(0f, 0f, 10f, 10f, Color(1f, 0f, 0f, 1f)) }
 
         // buttonSlot's content-lambda overload (used by dropdown menu items, among others)
         // routes its content through UiPrimitiveScope.childAbsolute(...) -- this must inherit the
         // overlay flag from whatever scope is doing the popup rendering.
         val overlayColumn = ui.createColumn(x = 0f, y = 0f, width = 100f, overlayOnly = true)
         val overlayMarker = UiDrawPrimitive.Quad(0f, 0f, 10f, 10f, Color(0f, 0f, 1f, 1f))
-        overlayColumn.childAbsolute(UiBounds(0f, 0f, 10f, 10f)).emit(overlayMarker)
+        overlayColumn.childAbsolute(UiBounds(0f, 0f, 10f, 10f))
+            .canvas(UiBounds(0f, 0f, 10f, 10f)) { drawRect(0f, 0f, 10f, 10f, Color(0f, 0f, 1f, 1f)) }
 
         val primitives = ui.finishFrame().primitives
         assertEquals(
@@ -111,7 +112,9 @@ class UiOverlayLayerTest {
             // real, correctly-measured wrap height).
             val overlayColumn = ui.createColumn(x = 0f, y = 0f, width = 100f, overlayOnly = true)
             overlayColumn.clip(UiBounds(0f, 0f, 100f, 80f)) {
-                overlayColumn.emit(UiDrawPrimitive.Quad(0f, 60f, 10f, 10f, Color(0f, 0f, 1f, 1f)))
+                overlayColumn.canvas(UiBounds(0f, 0f, 10f, 10f)) {
+                    drawRect(0f, 60f, 10f, 10f, Color(0f, 0f, 1f, 1f))
+                }
             }
         }
 

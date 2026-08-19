@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless.internal.controls
 
-import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.font
 import io.github.ronjunevaldoz.awake.ui.theme
@@ -11,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
+import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.fitTo
 import io.github.ronjunevaldoz.awake.ui.headless.UiPopupDefaults
 import io.github.ronjunevaldoz.awake.ui.headless.button
@@ -216,6 +216,11 @@ fun UiPrimitiveScope.drawDropdownTriggerContent(
     )
     val chevronColor = textColor.withAlpha(0.5f)
     UiIcons.chevronDown.fitTo(chevronSlot).forEach { vectorPath ->
-        emit(UiDrawPrimitive.FilledPath(vectorPath.path, vectorPath.fill ?: chevronColor))
+        // fitTo(chevronSlot) already resolved vectorPath.path to absolute coordinates -- see
+        // Icon.kt's identical canvas(UiBounds(0f, 0f, 0f, 0f)) pattern for why the zero-size slot
+        // keeps CanvasScope.fillPath's own bounds-translate a no-op.
+        canvas(UiBounds(0f, 0f, 0f, 0f)) {
+            fillPath(vectorPath.path, vectorPath.fill ?: chevronColor)
+        }
     }
 }

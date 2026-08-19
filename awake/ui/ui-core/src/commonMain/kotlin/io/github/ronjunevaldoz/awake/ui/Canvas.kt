@@ -255,6 +255,33 @@ class CanvasScope internal constructor(
         }
     }
 
+    /**
+     * Draws one pre-shaped glyph quad at its own already-resolved destination/UV rect --
+     * the escape hatch for a caller (BasicText's own multi-line/shimmer layout) that computes
+     * per-glyph positioning itself instead of going through [drawText]'s single-line-run
+     * pen-advance loop. [x]/[y] are absolute (already includes this scope's own [bounds] offset,
+     * unlike every other `draw*` member here) because the caller already resolved them against
+     * real line/pen metrics this scope has no visibility into.
+     */
+    fun drawGlyph(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        u0: Float,
+        v0: Float,
+        u1: Float,
+        v1: Float,
+        color: Color,
+        tokenId: String? = null,
+        overlay: Boolean = false,
+    ) {
+        scope.dispatchPrimitive(
+            UiDrawPrimitive.Glyph(x, y, width, height, u0, v0, u1, v1, color, tokenId = tokenId),
+            overlay = overlay,
+        )
+    }
+
     fun drawImage(
         x: Float,
         y: Float,

@@ -32,9 +32,15 @@ private fun UiBounds.pixelSnapped(): UiBounds = UiBounds(
 
 /** Routes a raw primitive to the normal or overlay layer. Deliberately not `draw*`-named: this
  * operates on the raw [UiPrimitiveScope], one layer below [CanvasScope] -- [CanvasScope]'s own
- * `draw*` members (and the helpers below) call through this, not the other way around. */
-fun UiPrimitiveScope.dispatchPrimitive(primitive: UiDrawPrimitive, overlay: Boolean) {
-    if (overlay) emitOverlay(primitive) else emit(primitive)
+ * `draw*` members (and the helpers below) call through this, not the other way around.
+ *
+ * `emit`/`emitOverlay` live on the internal-only [io.github.ronjunevaldoz.awake.ui.UiPrimitiveEmitter],
+ * not on [UiPrimitiveScope] itself -- [io.github.ronjunevaldoz.awake.ui.layouts.AbstractUiScope] is the
+ * one real implementer of both, so this cast never fails for a scope built by ui-core's own layout
+ * factories (`createAbsolute`/`createColumn`/`createRow`/`createBox`, `childAbsolute`, etc.). */
+internal fun UiPrimitiveScope.dispatchPrimitive(primitive: UiDrawPrimitive, overlay: Boolean) {
+    val emitter = this as io.github.ronjunevaldoz.awake.ui.UiPrimitiveEmitter
+    if (overlay) emitter.emitOverlay(primitive) else emitter.emit(primitive)
 }
 
 private fun roundedRadiusFor(slot: UiBounds, radiusPx: Float, shapeSpec: UiShapeSpec?): Float =

@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.childColumn
 import io.github.ronjunevaldoz.awake.ui.context.resolveMeasuredContentCached
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
+import io.github.ronjunevaldoz.awake.ui.graphics.dispatchPrimitive
 import io.github.ronjunevaldoz.awake.ui.graphics.drawFillAndBorder
 import io.github.ronjunevaldoz.awake.ui.layout.horizontalPx
 import io.github.ronjunevaldoz.awake.ui.layout.inset
@@ -321,7 +322,7 @@ internal fun UiPrimitiveScope.surfaceCore(
     }
     resolveClickable(id = id, slot = slot, modifier = modifier)
     resolved.shadow?.let { shadow ->
-        emit(
+        dispatchPrimitive(
             UiDrawPrimitive.ShadowQuad(
                 x = slot.x,
                 y = slot.y,
@@ -335,6 +336,7 @@ internal fun UiPrimitiveScope.surfaceCore(
                 color = shadow.color,
                 tokenId = shadow.tokenId,
             ),
+            overlay = false,
         )
     }
     // Resolved here, on the surrounding UiPrimitiveScope, not inside canvas{} -- CanvasScope is

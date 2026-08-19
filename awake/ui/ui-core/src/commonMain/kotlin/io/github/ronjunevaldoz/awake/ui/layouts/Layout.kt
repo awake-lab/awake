@@ -19,7 +19,8 @@ import io.github.ronjunevaldoz.awake.ui.toPx
 abstract class AbstractUiScope(
     final override val context: UiContext,
     private val emitToOverlay: Boolean = false,
-) : io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope {
+) : io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope,
+    io.github.ronjunevaldoz.awake.ui.UiPrimitiveEmitter {
     final override val emitsToOverlay: Boolean = emitToOverlay
     final override fun hitTest(slot: UiBounds) =
         context.hitTestInternal(slot)
