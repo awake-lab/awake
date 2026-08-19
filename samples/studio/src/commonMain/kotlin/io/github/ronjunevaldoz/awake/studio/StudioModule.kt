@@ -149,6 +149,7 @@ internal fun studioModule(
                 GltfViewerAssets.preload()
                 SkinnedExampleDriver.preload()
                 InstancedSkinnedExampleDriver.preload()
+                ParticleEmitterExampleDriver.preload()
                 loader.preload()
                 // Persistent entity surviving scene reloads to preserve debug visualization toggles.
                 world.create().also { world.add(it, WorldDebugSettings()) }

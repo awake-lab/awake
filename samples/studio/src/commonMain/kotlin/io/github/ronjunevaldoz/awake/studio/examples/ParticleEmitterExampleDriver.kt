@@ -4,8 +4,11 @@
 
 package io.github.ronjunevaldoz.awake.studio.examples
 
+import io.github.ronjunevaldoz.awake.core.graphics.createBitmap
+import io.github.ronjunevaldoz.awake.core.graphics.toRgba8Bytes
 import io.github.ronjunevaldoz.awake.core.math.Aabb
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
@@ -20,7 +23,6 @@ import io.github.ronjunevaldoz.awake.scene.runtime.Scene
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import kotlin.math.sin
 
-private const val PARTICLE_TEXTURE_SIZE = 16
 private const val FLICKER_FRAME_COUNT = 4
 private const val SPARKLE_FRAME_COUNT = 4
 private const val MAX_PARTICLES_PER_EMITTER = 200
@@ -250,6 +252,28 @@ private var simulatedSpeed = 0f
  *   own on-screen fall direction instead of staying a plain camera-facing square.
  */
 internal object ParticleEmitterExampleDriver {
+    private var dotTexture: TextureAsset? = null
+    private var flickerTexture: TextureAsset? = null
+    private var sparkleTexture: TextureAsset? = null
+
+    /** Decodes the 3 real particle textures once at load time (same "parse ahead, `createMaterial`
+     * just wraps the result" shape [GltfViewerAssets.preload] already established) -- CC0
+     * (public domain) art from Kenney's Particle Pack (kenney.nl/assets/particle-pack), see
+     * `assets/textures/particles-LICENSE.txt`. [flickerTexture]/[sparkleTexture] are pre-composited
+     * 4-frame horizontal strips (not decoded from 4 separate files here) -- the strip layout
+     * `particle.wgsl`'s frame-atlas UV math expects is baked into the PNG itself. */
+    suspend fun preload() {
+        if (dotTexture != null) return
+        dotTexture = loadTexture("assets/textures/particle-dot.png")
+        flickerTexture = loadTexture("assets/textures/particle-flicker-strip.png")
+        sparkleTexture = loadTexture("assets/textures/particle-sparkle-strip.png")
+    }
+
+    private suspend fun loadTexture(path: String): TextureAsset {
+        val bitmap = createBitmap(readResourceBytes(path))
+        return TextureAsset(bitmap.toRgba8Bytes(), bitmap.width, bitmap.height)
+    }
+
     fun attach(instance: Scene, runtime: SceneAppLifecycleRuntime) {
         simulatedSpeedElapsed = 0f
         simulatedSpeed = 0f
@@ -468,128 +492,36 @@ internal object ParticleEmitterExampleDriver {
     fun createMesh(runtime: SceneAppLifecycleRuntime) =
         runtime.renderer.createMesh(particleQuadGeometry)
 
-    /** A soft white dot, radial alpha falloff from center to edge -- no image asset needed for
-     * a first-slice demo; a real particle texture (sprite sheet, glow) is a later swap, same
-     * [TextureAsset] shape either way. Tinted per-particle in the shader, not here -- this stays
-     * one shared white texture for every non-flickering variant. */
+    /** A real CC0 glow texture (see [preload]'s own doc comment) -- tinted per-particle in the
+     * shader, not here, so this stays one shared texture for every non-flickering variant. */
     fun createMaterial(runtime: SceneAppLifecycleRuntime) =
         runtime.renderer.createMaterial(
-            texture = softDotTexture(),
-            uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT
+            texture = requireNotNull(dotTexture),
+            uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT,
         )
 
-    /** [FLICKER_FRAME_COUNT]-frame horizontal sprite strip, each frame a soft dot at a
-     * different size/brightness -- proves `particle.wgsl`'s frame-atlas UV math cycles frames,
-     * not just a static image. Its own material (not the shared "particle" one) since
-     * `ParticleVisual.frameCount` is per-emitter but the TEXTURE it slices is shared by
-     * whatever material the emitter uses -- a `frameCount = 1` emitter sharing this multi-frame
-     * texture would sample the whole strip as one squished frame. */
+    /** [FLICKER_FRAME_COUNT]-frame horizontal sprite strip (real CC0 spark art, see [preload])
+     * -- proves `particle.wgsl`'s frame-atlas UV math cycles frames, not just a static image.
+     * Its own material (not the shared "particle" one) since `ParticleVisual.frameCount` is
+     * per-emitter but the TEXTURE it slices is shared by whatever material the emitter uses --
+     * a `frameCount = 1` emitter sharing this multi-frame texture would sample the whole strip
+     * as one squished frame. */
     fun createFlickerMaterial(runtime: SceneAppLifecycleRuntime) =
         runtime.renderer.createMaterial(
-            texture = flickerStripTexture(),
-            uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT
+            texture = requireNotNull(flickerTexture),
+            uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT,
         )
 
-    /** [SPARKLE_FRAME_COUNT]-frame horizontal strip of 4-point stars (not a dot) -- proves a
-     * real per-emitter TEXTURE (not just tint) reads through `particle.wgsl`, and each frame's
-     * own size/brightness variance is what [Particle.frameOffset]'s desync makes visible as
-     * independent twinkling instead of a uniform strobe. */
+    /** [SPARKLE_FRAME_COUNT]-frame horizontal strip of stars (real CC0 art, see [preload]) --
+     * proves a real per-emitter TEXTURE (not just tint) reads through `particle.wgsl`, and each
+     * frame's own size/brightness variance is what [Particle.frameOffset]'s desync makes visible
+     * as independent twinkling instead of a uniform strobe. */
     fun createLevelupMaterial(runtime: SceneAppLifecycleRuntime) =
         runtime.renderer.createMaterial(
-            texture = sparkleStripTexture(),
-            uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT
+            texture = requireNotNull(sparkleTexture),
+            uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT,
         )
 }
 
 /** particle.wgsl's Uniforms: viewProjection(16) + cameraRight(4) + cameraUp(4) + frameInfo(4). */
 private const val PARTICLE_UNIFORM_FLOAT_COUNT = 28
-
-private fun softDotTexture(): TextureAsset =
-    dotTexture(PARTICLE_TEXTURE_SIZE, brightness = 1f, sizeFactor = 1f)
-
-private fun flickerStripTexture(): TextureAsset {
-    val frameSize = PARTICLE_TEXTURE_SIZE
-    val stripWidth = frameSize * FLICKER_FRAME_COUNT
-    val data = ByteArray(stripWidth * frameSize * 4)
-    for (frame in 0 until FLICKER_FRAME_COUNT) {
-        // Alternates brightness/size per frame for a simple ember flicker -- not a real
-        // hand-authored sprite sheet, just enough variation to prove frame-cycling works.
-        val brightness = 0.6f + 0.4f * (frame % 2)
-        val sizeFactor = 0.7f + 0.3f * ((frame + 1) % 2)
-        val frameTexture = dotTexture(frameSize, brightness, sizeFactor)
-        for (y in 0 until frameSize) {
-            for (x in 0 until frameSize) {
-                val srcIndex = (y * frameSize + x) * 4
-                val dstIndex = (y * stripWidth + frame * frameSize + x) * 4
-                frameTexture.data.copyInto(data, dstIndex, srcIndex, srcIndex + 4)
-            }
-        }
-    }
-    return TextureAsset(data, stripWidth, frameSize)
-}
-
-private fun sparkleStripTexture(): TextureAsset {
-    val frameSize = PARTICLE_TEXTURE_SIZE
-    val stripWidth = frameSize * SPARKLE_FRAME_COUNT
-    val data = ByteArray(stripWidth * frameSize * 4)
-    for (frame in 0 until SPARKLE_FRAME_COUNT) {
-        // Each frame twinkles a different size/brightness -- same "just enough variation to
-        // prove frame-cycling" spirit as flickerStripTexture, star-shaped instead of a dot.
-        val brightness = 0.7f + 0.3f * (frame % 2)
-        val sizeFactor = 0.6f + 0.4f * ((frame + 2) % 4) / 3f
-        val frameTexture = starTexture(frameSize, brightness, sizeFactor)
-        for (y in 0 until frameSize) {
-            for (x in 0 until frameSize) {
-                val srcIndex = (y * frameSize + x) * 4
-                val dstIndex = (y * stripWidth + frame * frameSize + x) * 4
-                frameTexture.data.copyInto(data, dstIndex, srcIndex, srcIndex + 4)
-            }
-        }
-    }
-    return TextureAsset(data, stripWidth, frameSize)
-}
-
-/** A simple 4-point star (diamond core + soft cross arms), not a dot -- reads distinctly from
- * every other demo's shared soft-dot texture at a glance. Analytic alpha mask, no image asset. */
-private fun starTexture(size: Int, brightness: Float, sizeFactor: Float): TextureAsset {
-    val center = (size - 1) / 2f
-    val radius = (size / 2f) * sizeFactor
-    val data = ByteArray(size * size * 4)
-    for (y in 0 until size) {
-        for (x in 0 until size) {
-            val dx = x - center
-            val dy = y - center
-            val diamond = (kotlin.math.abs(dx) + kotlin.math.abs(dy)) / radius
-            val cross = kotlin.math.min(kotlin.math.abs(dx), kotlin.math.abs(dy)) / (radius * 0.35f)
-            val mask = kotlin.math.max(1f - diamond, 1f - cross)
-            val alpha = (mask.coerceIn(0f, 1f) * 255f * brightness).toInt().coerceIn(0, 255)
-            val index = (y * size + x) * 4
-            data[index] = 255.toByte()
-            data[index + 1] = 255.toByte()
-            data[index + 2] = 255.toByte()
-            data[index + 3] = alpha.toByte()
-        }
-    }
-    return TextureAsset(data, size, size)
-}
-
-private fun dotTexture(size: Int, brightness: Float, sizeFactor: Float): TextureAsset {
-    val center = (size - 1) / 2f
-    val radius = (size / 2f) * sizeFactor
-    val data = ByteArray(size * size * 4)
-    for (y in 0 until size) {
-        for (x in 0 until size) {
-            val dx = x - center
-            val dy = y - center
-            val distance = kotlin.math.sqrt(dx * dx + dy * dy)
-            val alpha = ((1f - (distance / radius)).coerceIn(0f, 1f) * 255f * brightness).toInt()
-                .coerceIn(0, 255)
-            val index = (y * size + x) * 4
-            data[index] = 255.toByte()
-            data[index + 1] = 255.toByte()
-            data[index + 2] = 255.toByte()
-            data[index + 3] = alpha.toByte()
-        }
-    }
-    return TextureAsset(data, size, size)
-}
