@@ -7,7 +7,7 @@ moves a row — it is meant to remove the need to re-audit (or re-ask) each time
 Last verified: **2026-08-10**, against pinned reference `third_party/shadcn-ui-ref` @ `6261bd89…`.
 
 Companion docs: `ui-component-coverage.md` (per-component inventory + missing list),
-`skills/awake-shadcn-styling/SKILL.md` (how to read Tailwind, source-of-truth rule).
+`skills/awake-ui-shadcn-styling/SKILL.md` (how to read Tailwind, source-of-truth rule).
 
 ---
 

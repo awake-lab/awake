@@ -85,7 +85,7 @@ content-hugging width measurement, so a differently-skinned tab strip can't reus
 **Caveat that limits all of the above:** fidelity tests construct `BitmapFont()`, while the app
 runs `PackedUiFont(RobotoRegularUiFontData)`. The two disagree on `visibleTopEm`/`visibleBottomEm`
 /`lineHeightEm`, which are exactly the inputs to vertical text centering — so text-alignment bugs
-can pass every test and still ship. See `skills/awake-shadcn-styling/SKILL.md`.
+can pass every test and still ship. See `skills/awake-ui-shadcn-styling/SKILL.md`.
 
 ## Re-deriving these numbers
 

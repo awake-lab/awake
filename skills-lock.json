@@ -53,7 +53,7 @@
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-code-quality/SKILL.md",
-      "computedHash": "3ce8e60a45499cb1655f8a2e6d8c47d3f3e15466a649d3b4c8a92f37c933b661"
+      "computedHash": "a146daaa5e5c3865989c18230c973ace83d78fdbc4ec34b2e6aefc945bd701d3"
     },
     "kmp-compose-accessibility": {
       "source": "ronjunevaldoz/kmp-agent-skills",
@@ -121,6 +121,12 @@
       "skillPath": "skills/kmp-compose-web-performance/SKILL.md",
       "computedHash": "5f45da10c57c39d243aa96283650e0d6ab991f6d10b38a54beaec6d6b77c743c"
     },
+    "kmp-coroutines-flow-patterns": {
+      "source": "ronjunevaldoz/kmp-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kmp-coroutines-flow-patterns/SKILL.md",
+      "computedHash": "3e6db1ee0696751cbb4af411148f4aa059d179c5cc4a9cab352a8efd6e4432d0"
+    },
     "kmp-crash-reporting": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
@@ -167,7 +173,7 @@
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-expert/SKILL.md",
-      "computedHash": "56c05fd02b4d6fb6f9cdedc634be3f06516038688d218bb6b0ee438cccff943e"
+      "computedHash": "3ffcf16dce84b70905e034947be35e8976738030165bdf659df6e33d0fd58847"
     },
     "kmp-feature-flags": {
       "source": "ronjunevaldoz/kmp-agent-skills",
