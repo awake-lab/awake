@@ -23,9 +23,9 @@ private const val FULL_TURN_RADIANS = 2f * kotlin.math.PI.toFloat()
  * [InstancedMeshRenderer]/[LodGroup] already established. `RenderSystem` reads the pool's
  * current live particles fresh each frame; this system owns writing to it.
  *
- * Also owns [ParticleEmitter.burstCount] cleanup: a one-shot emitter's entity is destroyed once
- * every particle it will ever spawn has died, so [io.github.ronjunevaldoz.awake.scene.rendering
- * .components.spawnParticleBurst] callers never need their own bookkeeping.
+ * Also owns [ParticleEmitter.lifecycle]'s `burstCount` cleanup: a one-shot emitter's entity is
+ * destroyed once every particle it will ever spawn has died, so [io.github.ronjunevaldoz.awake
+ * .scene.rendering.components.spawnParticleBurst] callers never need their own bookkeeping.
  */
 class ParticleSystem : System {
     private val spentEntities = ArrayList<Entity>()
@@ -42,29 +42,30 @@ class ParticleSystem : System {
         spentEntities.forEach { world.destroy(it) }
     }
 
-    /** Re-anchors [ParticleEmitter.origin] to [ParticleEmitter.followEntity]'s current
-     * [Transform] position, if set -- the lightweight "sub-emitter" trailing-effect path (see
-     * [ParticleEmitter.followEntity]'s own doc comment). A no-op when the followed entity has
-     * no [Transform] (already destroyed, or was never one) -- the emitter just keeps spawning
-     * from wherever [origin] last was, rather than crashing. */
+    /** Re-anchors [ParticleEmitter.origin] to [ParticleEmitter.dynamics]' `followEntity`'s
+     * current [Transform] position, if set -- the lightweight "sub-emitter" trailing-effect
+     * path (see [io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleDynamics]'s
+     * own doc comment). A no-op when the followed entity has no [Transform] (already destroyed,
+     * or was never one) -- the emitter just keeps spawning from wherever [origin] last was,
+     * rather than crashing. */
     private fun followOrigin(world: World, emitter: ParticleEmitter) {
-        val target = emitter.followEntity ?: return
+        val target = emitter.dynamics.followEntity ?: return
         val transform = world.get<Transform>(target) ?: return
         emitter.origin.set(transform.position)
     }
 
     private fun isSpent(emitter: ParticleEmitter): Boolean {
-        val burstCount = emitter.burstCount ?: return false
+        val burstCount = emitter.lifecycle.burstCount ?: return false
         return emitter.spawnedTotal >= burstCount && emitter.particles.none { it.alive }
     }
 
     private fun spawn(emitter: ParticleEmitter, delta: Float) {
-        val burstCount = emitter.burstCount
+        val burstCount = emitter.lifecycle.burstCount
         if (burstCount != null && emitter.spawnedTotal >= burstCount) return
         // Context-driven emission: a caller-supplied rate read fresh every frame (player speed,
         // distance to a target, ...) overrides the static spawnRate when set -- see
-        // ParticleEmitter.dynamicSpawnRate's own doc comment.
-        val spawnRate = emitter.dynamicSpawnRate?.invoke() ?: emitter.spawnRate
+        // ParticleDynamics.dynamicSpawnRate's own doc comment.
+        val spawnRate = emitter.dynamics.dynamicSpawnRate?.invoke() ?: emitter.spawnRate
         emitter.spawnAccumulator += spawnRate * delta
         // ponytail: clamps the worst case to "refill the whole pool in one frame" rather than
         // true unbounded growth -- a pool that stays completely full for a long stretch would
@@ -78,8 +79,9 @@ class ParticleSystem : System {
             emitter.spawnAccumulator -= 1f
             emitter.spawnedTotal += 1
             slot.alive = true
-            slot.position.set(emitter.origin.x, emitter.origin.y, emitter.origin.z)
-            slot.velocity.set(spawnVelocity(emitter))
+            val spawnPosition = spawnPosition(emitter)
+            slot.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z)
+            slot.velocity.set(spawnVelocity(emitter, spawnPosition))
             slot.age = 0f
             slot.lifetime = emitter.lifetime
             slot.startAlpha = emitter.startAlpha
@@ -88,20 +90,40 @@ class ParticleSystem : System {
         }
     }
 
-    /** [ParticleEmitter.coneHalfAngleDegrees] set (and [ParticleEmitter.baseVelocity] non-zero)
-     * randomizes DIRECTION within that half-angle around `baseVelocity`'s own direction, at
-     * `baseVelocity`'s own speed -- a cone/fan burst. Otherwise falls back to the default
-     * per-axis-independent jitter (a soft cloud), same as before cone spread existed. */
-    private fun spawnVelocity(emitter: ParticleEmitter): Vec3 {
-        val coneHalfAngleDegrees = emitter.coneHalfAngleDegrees
-        val speed = emitter.baseVelocity.length3()
+    /** [ParticleMotion.spawnRadius] > 0 spawns on a random point around a flat horizontal ring
+     * of that radius centered on [ParticleEmitter.origin], instead of exactly at `origin` (the
+     * `0f` default) -- the "charging circle" cast-VFX spawn shape, meant to pair with
+     * [ParticleMotion.convergeToOrigin]. */
+    private fun spawnPosition(emitter: ParticleEmitter): Vec3 {
+        val radius = emitter.motion.spawnRadius
+        if (radius <= 0f) return emitter.origin
+        val angle = Random.nextFloat() * FULL_TURN_RADIANS
+        return Vec3(
+            emitter.origin.x + cos(angle) * radius,
+            emitter.origin.y,
+            emitter.origin.z + sin(angle) * radius,
+        )
+    }
+
+    /** Velocity resolution, in priority order -- see [io.github.ronjunevaldoz.awake.scene
+     * .rendering.components.ParticleMotion]'s own doc comment for the full 3-case breakdown
+     * (converge-to-origin, cone burst, per-axis jitter). */
+    private fun spawnVelocity(emitter: ParticleEmitter, spawnPosition: Vec3): Vec3 {
+        val motion = emitter.motion
+        if (motion.convergeToOrigin) {
+            val toOrigin = emitter.origin - spawnPosition
+            val direction = if (toOrigin.length3() > 0f) toOrigin.normalized() else Vec3(0f, 1f, 0f)
+            return direction * motion.baseVelocity.length3()
+        }
+        val coneHalfAngleDegrees = motion.coneHalfAngleDegrees
+        val speed = motion.baseVelocity.length3()
         if (coneHalfAngleDegrees != null && speed > 0f) {
-            return coneDirection(emitter.baseVelocity.normalized(), coneHalfAngleDegrees) * speed
+            return coneDirection(motion.baseVelocity.normalized(), coneHalfAngleDegrees) * speed
         }
         return Vec3(
-            emitter.baseVelocity.x + jitter(emitter.velocityJitter),
-            emitter.baseVelocity.y + jitter(emitter.velocityJitter),
-            emitter.baseVelocity.z + jitter(emitter.velocityJitter),
+            motion.baseVelocity.x + jitter(motion.velocityJitter),
+            motion.baseVelocity.y + jitter(motion.velocityJitter),
+            motion.baseVelocity.z + jitter(motion.velocityJitter),
         )
     }
 
@@ -128,26 +150,27 @@ class ParticleSystem : System {
             particle.age += delta
             if (particle.age >= particle.lifetime) {
                 // Sub-emitter chaining: fires BEFORE reset() clears position, so the callback
-                // sees exactly where this particle died -- see ParticleEmitter.onParticleDeath's
+                // sees exactly where this particle died -- see ParticleLifecycle.onParticleDeath's
                 // own doc comment.
-                emitter.onParticleDeath?.invoke(world, particle.position)
+                emitter.lifecycle.onParticleDeath?.invoke(world, particle.position)
                 particle.reset()
                 return@forEach
             }
             if (particle.settled) return@forEach
-            if (emitter.turbulence != 0f) {
-                val flow = turbulenceOffset(particle.position, emitter.elapsedTime, emitter.turbulenceFrequency)
-                particle.velocity.x += flow.x * emitter.turbulence * delta
-                particle.velocity.y += flow.y * emitter.turbulence * delta
-                particle.velocity.z += flow.z * emitter.turbulence * delta
+            val turbulence = emitter.motion.turbulence
+            if (turbulence != 0f) {
+                val flow = turbulenceOffset(particle.position, emitter.elapsedTime, emitter.motion.turbulenceFrequency)
+                particle.velocity.x += flow.x * turbulence * delta
+                particle.velocity.y += flow.y * turbulence * delta
+                particle.velocity.z += flow.z * turbulence * delta
             }
             particle.position.x += particle.velocity.x * delta
             particle.position.y += particle.velocity.y * delta
             particle.position.z += particle.velocity.z * delta
             // groundHeightProvider (real terrain) takes priority over the flat groundY plane --
-            // see ParticleEmitter.groundHeightProvider's own doc comment.
-            val groundHeight = emitter.groundHeightProvider?.invoke(particle.position.x, particle.position.z)
-                ?: emitter.groundY
+            // see ParticleGround's own doc comment.
+            val groundHeight = emitter.ground.groundHeightProvider?.invoke(particle.position.x, particle.position.z)
+                ?: emitter.ground.groundY
             if (groundHeight != null && particle.position.y <= groundHeight) {
                 particle.position.y = groundHeight
                 particle.velocity.set(0f, 0f, 0f)
@@ -165,25 +188,27 @@ class ParticleSystem : System {
  * .age]/`lifetime`/`startAlpha`, not independent state. */
 internal fun Particle.currentAlpha(): Float = startAlpha * (1f - (age / lifetime).coerceIn(0f, 1f))
 
-/** This particle's current tint -- linearly interpolated from [ParticleEmitter.startColor] to
- * [ParticleEmitter.endColor] over its life (constant when the two are equal, the common case).
+/** This particle's current tint -- linearly interpolated from [ParticleEmitter.visual]'s
+ * `startColor` to `endColor` over its life (constant when the two are equal, the common case).
  * Per-particle, not per-emitter: every particle ages independently, so a burst's later-spawned
  * particles show an earlier point in the gradient than its first-spawned ones at any given
  * frame -- exactly what "fire fades orange to yellow within one burst" needs. */
 internal fun Particle.currentColor(emitter: ParticleEmitter): Vec3 {
     val t = (age / lifetime).coerceIn(0f, 1f)
+    val visual = emitter.visual
     return Vec3(
-        emitter.startColor.x + (emitter.endColor.x - emitter.startColor.x) * t,
-        emitter.startColor.y + (emitter.endColor.y - emitter.startColor.y) * t,
-        emitter.startColor.z + (emitter.endColor.z - emitter.startColor.z) * t,
+        visual.startColor.x + (visual.endColor.x - visual.startColor.x) * t,
+        visual.startColor.y + (visual.endColor.y - visual.startColor.y) * t,
+        visual.startColor.z + (visual.endColor.z - visual.startColor.z) * t,
     )
 }
 
 /** A smooth, deterministic flow-field velocity offset at [position]/[time] -- see
- * [ParticleEmitter.turbulence]'s own doc comment for why this is a cheap sine-based
- * approximation, not true Perlin/simplex/curl noise. Each axis samples a different phase-shifted
- * combination of the other two spatial axes plus time, so the field varies smoothly in space
- * and animates smoothly over time without an explicit noise table/library. */
+ * [io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleMotion]'s own doc comment
+ * for why this is a cheap sine-based approximation, not true Perlin/simplex/curl noise. Each
+ * axis samples a different phase-shifted combination of the other two spatial axes plus time,
+ * so the field varies smoothly in space and animates smoothly over time without an explicit
+ * noise table/library. */
 internal fun turbulenceOffset(position: Vec3, time: Float, frequency: Float): Vec3 {
     val x = position.x * frequency
     val y = position.y * frequency

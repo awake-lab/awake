@@ -29,8 +29,8 @@ internal class Particle : Poolable {
     var lifetime: Float = 0f
     var startAlpha: Float = 0f
     var scale: Float = 1f
-    /** `true` once this particle has hit [ParticleEmitter.groundY] and stopped moving -- still
-     * fades out over its remaining lifetime, it just no longer integrates [velocity]. */
+    /** `true` once this particle has hit its ground height and stopped moving -- still fades
+     * out over its remaining lifetime, it just no longer integrates [velocity]. */
     var settled: Boolean = false
 
     override fun reset() {
@@ -46,82 +46,121 @@ internal class Particle : Poolable {
 }
 
 /**
- * A fixed-capacity pool of camera-facing billboard particles, spawned/advanced by
- * [io.github.ronjunevaldoz.awake.scene.rendering.systems.ParticleSystem] and drawn via GPU
- * instancing by [io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem] --
- * mirrors [InstancedMeshRenderer]'s own "N copies of one mesh/material in one draw call"
- * shape, with the same "no `Transform`/entity-hierarchy requirement" independence, plus
- * per-instance color+alpha ([io.github.ronjunevaldoz.awake.render.renderer.DrawCall
- * .instanceColors]) for independent per-particle fade/tint -- something static instancing has
- * no use for.
+ * How particles move once spawned -- everything about direction/spread/turbulence lives here,
+ * grouped separately from [ParticleVisual]/[ParticleGround]/[ParticleLifecycle]/
+ * [ParticleDynamics] because these are independent, freely-COMBINABLE dimensions (unlike
+ * `RenderPipeline`'s `PipelineVariant`, these aren't a closed set of named shapes -- a real
+ * effect wants turbulence AND a cone burst AND ground-stop together, so a sealed preset would
+ * either explode combinatorially or block real combos; small grouped value classes fix the
+ * param-count bloat without that trade-off).
  *
- * [origin] is the emitter's own spawn point (world space, not entity-relative -- same "no
- * `Transform` composition" independence [InstancedMeshRenderer] already has), MUTATED in place
- * (`origin.set(...)`) rather than reassigned to move an emitter -- e.g. tracking [followEntity]'s
- * position every frame, or gameplay code calling `emitter.origin.set(...)` directly for a spell
- * that follows its caster. Every particle spawns at [origin] with a velocity either randomized
- * within [velocityJitter] of [baseVelocity] (the default, independent per-axis jitter -- reads
- * as a soft cloud) or, when [coneHalfAngleDegrees] is set, randomized in DIRECTION within that
- * half-angle around [baseVelocity]'s own direction at [baseVelocity]'s own speed (reads as a
- * cone/fan burst -- [velocityJitter] is ignored in this mode, the cone already controls spread).
- * A particle lives for [lifetime] seconds, fades linearly from [startAlpha] to 0 over its life,
- * and tints from [startColor] to [endColor] over the same span (constant color when
- * [endColor] equals [startColor], the default) -- no rotation is ever written into a particle's
- * own model matrix (billboarding is camera-facing math done entirely in `particle.wgsl`'s
- * vertex stage), so `ParticleSystem` only ever needs to build a translation+uniform-scale
- * matrix per particle, never a rotation.
+ * Every particle spawns [spawnRadius] units from [ParticleEmitter.origin], on a random point
+ * around a flat horizontal ring (`0f`, the default, spawns exactly at `origin`, unchanged from
+ * before this field existed).
  *
- * [maxParticles] bounds the pool -- [spawnRate] particles/second spawn into dead slots until
- * every slot is live, at which point spawning silently stops until a slot frees up (no
- * queueing, no overflow allocation). [burstCount] caps the LIFETIME total instead of the
+ * Velocity resolution, in priority order:
+ * 1. [convergeToOrigin] `true`: direction points from the spawn point back toward `origin`, at
+ *    [baseVelocity]'s own speed -- combined with [spawnRadius] > 0, this is a "charging circle"
+ *    (particles appear on a ring and converge inward), the classic cast/channel-spell VFX.
+ * 2. [coneHalfAngleDegrees] set (and [baseVelocity] non-zero): direction randomized within that
+ *    half-angle around [baseVelocity]'s own direction, at [baseVelocity]'s own speed -- a
+ *    cone/fan burst. [velocityJitter] is ignored in this mode.
+ * 3. Otherwise: [baseVelocity] plus independent per-axis [velocityJitter] -- a soft cloud.
+ *
+ * [turbulence] adds a smooth flow-field offset to velocity every frame, scaled by this strength
+ * and sampled at [turbulenceFrequency] -- see [io.github.ronjunevaldoz.awake.scene.rendering
+ * .systems.turbulenceOffset]. `0f` (default) is a no-op. ponytail: a cheap sine-based flow
+ * field, not true Perlin/simplex/curl noise.
+ */
+data class ParticleMotion(
+    val baseVelocity: Vec3 = Vec3(0f, 1f, 0f),
+    val velocityJitter: Float = 0f,
+    val coneHalfAngleDegrees: Float? = null,
+    val spawnRadius: Float = 0f,
+    val convergeToOrigin: Boolean = false,
+    val turbulence: Float = 0f,
+    val turbulenceFrequency: Float = 1f,
+)
+
+/** How a particle looks over its life. [startColor]/[endColor] linearly interpolate per
+ * particle over its own age (constant color when equal, the default). [frameCount] treats the
+ * material's texture as a horizontal sprite strip of that many equal-width frames, cycling at
+ * [frameRate] frames/second -- `1` (default) is a no-op. ponytail: the whole EMITTER shows one
+ * shared frame at a time, not a per-particle-desynced animation -- see `ParticleEmitter`'s own
+ * former doc comment history for the upgrade path (a per-instance attribute), not repeated here
+ * to avoid drift between two copies of the same caveat. */
+data class ParticleVisual(
+    val startColor: Vec3 = Vec3(1f, 1f, 1f),
+    val endColor: Vec3 = startColor,
+    val frameCount: Int = 1,
+    val frameRate: Float = 8f,
+)
+
+/** How (and whether) a particle interacts with the ground. [groundHeightProvider], when set,
+ * OVERRIDES [groundY] with a per-position height function `(x, z) -> groundHeight` -- for
+ * settling on real (non-flat) terrain instead of one flat plane. Both `null` (default) means a
+ * particle never clamps and simply fades out mid-air/mid-fall. */
+data class ParticleGround(
+    val groundY: Float? = null,
+    val groundHeightProvider: ((x: Float, z: Float) -> Float)? = null,
+)
+
+/** Spawn/death lifecycle hooks. [burstCount] caps the LIFETIME total spawn count instead of the
  * per-frame rate -- `null` (default) spawns forever; a non-null value stops spawning once that
  * many particles have ever been spawned, and [io.github.ronjunevaldoz.awake.scene.rendering
  * .systems.ParticleSystem] destroys this emitter's own entity once every spawned particle has
  * also died, so a one-shot burst cleans itself up with no caller bookkeeping -- see
- * [spawnParticleBurst].
+ * [spawnParticleBurst]. [onParticleDeath], when set, is called with (world, death position)
+ * every time a particle dies of old age (not one that's still settled/fading) -- the chained-
+ * effect hook for a real sub-emitter tree without composing emitters directly: e.g. a
+ * projectile's dying particles each spawn their own impact burst via [spawnParticleBurst].
+ * `null` (default) does nothing extra on death. */
+data class ParticleLifecycle(
+    val burstCount: Int? = null,
+    val onParticleDeath: ((world: World, position: Vec3) -> Unit)? = null,
+)
+
+/** Live, per-frame-reactive knobs. [followEntity], when set, re-anchors
+ * [ParticleEmitter.origin] to that entity's [io.github.ronjunevaldoz.awake.scene.core
+ * .components.Transform] position every frame -- a lightweight "sub-emitter" for a trailing
+ * effect (smoke behind a moving fireball) without a real parent/child emitter tree. `var`
+ * because gameplay code re-targets it (e.g. handing an emitter off between two casters).
+ * [dynamicSpawnRate], when set, is called once per [io.github.ronjunevaldoz.awake.scene
+ * .rendering.systems.ParticleSystem.update] and OVERRIDES [ParticleEmitter.spawnRate] for that
+ * frame -- the context-driven emission hook: gameplay code can read live state (player speed,
+ * distance to a target) and return a rate that reacts to it. `null` (default) always uses the
+ * static `spawnRate`. */
+data class ParticleDynamics(
+    var followEntity: Entity? = null,
+    val dynamicSpawnRate: (() -> Float)? = null,
+)
+
+/**
+ * A fixed-capacity pool of camera-facing billboard particles, spawned/advanced by
+ * [io.github.ronjunevaldoz.awake.scene.rendering.systems.ParticleSystem] and drawn via GPU
+ * instancing by [io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem] --
+ * mirrors [InstancedMeshRenderer]'s own "N copies of one mesh/material in one draw call" shape,
+ * with the same "no `Transform`/entity-hierarchy requirement" independence, plus per-instance
+ * color+alpha ([io.github.ronjunevaldoz.awake.render.renderer.DrawCall.instanceColors]) for
+ * independent per-particle fade/tint -- something static instancing has no use for.
  *
- * [followEntity] re-anchors [origin] to that entity's [io.github.ronjunevaldoz.awake.scene.core
- * .components.Transform] position every frame (read, not composed -- this emitter still has no
- * `Transform` of its own) -- a lightweight "sub-emitter" for a trailing effect (smoke behind a
- * moving fireball) without a real parent/child emitter tree. `null` (default) leaves [origin]
- * exactly where the caller last set it.
+ * [origin] is the emitter's own spawn point (world space, not entity-relative), MUTATED in
+ * place (`origin.set(...)`) rather than reassigned to move an emitter -- e.g. tracking
+ * [ParticleDynamics.followEntity]'s position every frame, or gameplay code calling
+ * `emitter.origin.set(...)` directly for a spell that follows its caster.
  *
- * [groundY] stops a particle's downward fall the instant `position.y` reaches it (velocity
- * zeroed, position clamped, [Particle.settled] set) instead of letting it pass through -- for
- * "leaves settle on the ground" rather than fading out mid-air. `null` (default) never clamps.
+ * [maxParticles] bounds the pool -- [spawnRate] particles/second spawn into dead slots until
+ * every slot is live, at which point spawning silently stops until a slot frees up (no
+ * queueing, no overflow allocation). A particle lives for [lifetime] seconds, fades linearly
+ * from [startAlpha] to 0 over its life -- no rotation is ever written into a particle's own
+ * model matrix (billboarding is camera-facing math done entirely in `particle.wgsl`'s vertex
+ * stage), so `ParticleSystem` only ever needs to build a translation+uniform-scale matrix per
+ * particle, never a rotation.
  *
- * [frameCount] treats [material]'s texture as a horizontal sprite strip of that many equal-width
- * frames, cycling at [frameRate] frames/second -- for ember flicker or a rotating rune glyph
- * without a static dot. `1` (the default) is a no-op: the texture is sampled unchanged. ponytail:
- * the whole EMITTER shows one shared frame at a time (every particle in this emitter's DrawCall
- * is the same frame simultaneously), not a per-particle-desynced animation -- a real per-particle
- * phase offset would need its own per-instance attribute, not just this one emitter-wide uniform;
- * upgrade path if a demo ever needs particles visibly out of sync with each other.
- *
- * [turbulence] adds a smooth flow-field offset to each particle's velocity every frame, scaled
- * by this strength and sampled at [turbulenceFrequency] (higher = faster spatial variation) --
- * see [io.github.ronjunevaldoz.awake.scene.rendering.systems.turbulenceOffset] for the actual
- * field. `0f` (default) is a no-op. ponytail: a cheap sine-based flow field, not true Perlin/
- * simplex/curl noise -- smooth and non-repeating enough for a demo, not a physically accurate
- * turbulence model; swap `turbulenceOffset`'s implementation for a real noise library if a demo
- * ever needs one.
- *
- * [dynamicSpawnRate], when set, is called once per [io.github.ronjunevaldoz.awake.scene.rendering
- * .systems.ParticleSystem.update] and OVERRIDES [spawnRate] for that frame -- the context-driven
- * emission hook: gameplay code can read live state (player speed, distance to a target, terrain
- * under the emitter) and return a rate that reacts to it, e.g. `{ 20f + playerSpeed() * 5f }` for
- * dust that kicks up harder the faster a character runs. `null` (default) always uses the static
- * [spawnRate].
- *
- * [groundHeightProvider], when set, OVERRIDES [groundY] with a per-position height function
- * `(x, z) -> groundHeight` -- for settling on real (non-flat) terrain instead of one flat plane.
- * `null` (default) falls back to [groundY] (or never clamps, if that's also `null`).
- *
- * [onParticleDeath], when set, is called with (world, this particle's death position) every time
- * a particle dies of old age (not one that's still [Particle.settled] and fading) -- the
- * chained-effect hook for a real sub-emitter tree without composing emitters directly: e.g. a
- * projectile emitter's `onParticleDeath` calls [spawnParticleBurst] to spawn an impact burst
- * wherever each of its own particles expires. `null` (default) does nothing extra on death.
+ * [motion]/[visual]/[ground]/[lifecycle]/[dynamics] group every optional capability by concern
+ * -- see each type's own doc comment. All default to their own no-op shape, so a caller that
+ * only needs the 8 required params above gets exactly the plain-jitter-cloud emitter this class
+ * always built.
  */
 class ParticleEmitter(
     val mesh: Mesh,
@@ -131,22 +170,12 @@ class ParticleEmitter(
     val spawnRate: Float,
     val lifetime: Float,
     val startAlpha: Float,
-    val baseVelocity: Vec3,
-    val velocityJitter: Float,
     val scale: Float,
-    val startColor: Vec3 = Vec3(1f, 1f, 1f),
-    val endColor: Vec3 = startColor,
-    val burstCount: Int? = null,
-    val coneHalfAngleDegrees: Float? = null,
-    var followEntity: Entity? = null,
-    val groundY: Float? = null,
-    val frameCount: Int = 1,
-    val frameRate: Float = 8f,
-    val turbulence: Float = 0f,
-    val turbulenceFrequency: Float = 1f,
-    val dynamicSpawnRate: (() -> Float)? = null,
-    val groundHeightProvider: ((x: Float, z: Float) -> Float)? = null,
-    val onParticleDeath: ((world: World, position: Vec3) -> Unit)? = null,
+    val motion: ParticleMotion = ParticleMotion(),
+    val visual: ParticleVisual = ParticleVisual(),
+    val ground: ParticleGround = ParticleGround(),
+    val lifecycle: ParticleLifecycle = ParticleLifecycle(),
+    val dynamics: ParticleDynamics = ParticleDynamics(),
 ) {
     internal val particles: Array<Particle> = Array(maxParticles) { Particle() }
 
@@ -157,12 +186,12 @@ class ParticleEmitter(
     internal var spawnAccumulator: Float = 0f
 
     /** Total particles spawned across this emitter's whole life -- compared against
-     * [burstCount], not reset per frame (unlike [spawnAccumulator]). Unused when [burstCount]
-     * is `null`. */
+     * [ParticleLifecycle.burstCount], not reset per frame (unlike [spawnAccumulator]). Unused
+     * when `burstCount` is `null`. */
     internal var spawnedTotal: Int = 0
 
-    /** Seconds this emitter has been alive -- drives [frameCount]'s sprite-strip cycling.
-     * Unused (stays 0, `frameInfo`'s `currentFrame` stays 0) when [frameCount] is 1. */
+    /** Seconds this emitter has been alive -- drives [ParticleVisual.frameCount]'s sprite-strip
+     * cycling. Unused (stays 0, `frameInfo`'s `currentFrame` stays 0) when `frameCount` is 1. */
     internal var elapsedTime: Float = 0f
 
     /** Reused every frame by [io.github.ronjunevaldoz.awake.scene.rendering.systems
@@ -190,8 +219,12 @@ internal const val EXTRA_UNIFORM_FLOAT_COUNT = 12
  * Creates a fresh entity carrying a one-shot [ParticleEmitter] (`burstCount = count`) at
  * [position] and returns it -- the convenience path for gameplay code that wants "play this
  * effect right here, right now" (a spell impact, a hit spark) without hand-rolling entity
- * creation or worrying about cleanup: [io.github.ronjunevaldoz.awake.scene.rendering.systems
- * .ParticleSystem] destroys the returned entity once every spawned particle has died. Example:
+ * creation, worrying about cleanup, or constructing [ParticleMotion]/[ParticleGround] wrappers
+ * for the common case: [io.github.ronjunevaldoz.awake.scene.rendering.systems.ParticleSystem]
+ * destroys the returned entity once every spawned particle has died. Stays a flat parameter
+ * list on purpose -- advanced capabilities (turbulence, sprite frames, sub-emitter chaining,
+ * a charging-circle spawn shape) go through [ParticleEmitter]'s own grouped constructor
+ * directly. Example:
  * ```
  * fun onFireballImpact(world: World, mesh: Mesh, material: Material, hitPosition: Vec3) {
  *     spawnParticleBurst(
@@ -232,15 +265,16 @@ fun spawnParticleBurst(
             spawnRate = spawnRate,
             lifetime = lifetime,
             startAlpha = startAlpha,
-            baseVelocity = baseVelocity,
-            velocityJitter = velocityJitter,
             scale = scale,
-            startColor = startColor,
-            endColor = endColor,
-            burstCount = count,
-            coneHalfAngleDegrees = coneHalfAngleDegrees,
-            followEntity = followEntity,
-            groundY = groundY,
+            motion = ParticleMotion(
+                baseVelocity = baseVelocity,
+                velocityJitter = velocityJitter,
+                coneHalfAngleDegrees = coneHalfAngleDegrees,
+            ),
+            visual = ParticleVisual(startColor = startColor, endColor = endColor),
+            ground = ParticleGround(groundY = groundY),
+            lifecycle = ParticleLifecycle(burstCount = count),
+            dynamics = ParticleDynamics(followEntity = followEntity),
         ),
     )
     return entity

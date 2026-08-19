@@ -8,7 +8,12 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleDynamics
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleGround
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleLifecycle
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleMotion
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleVisual
 import io.github.ronjunevaldoz.awake.scene.rendering.components.spawnParticleBurst
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
@@ -51,24 +56,30 @@ private data class ParticleVariant(
     val frameCount: Int = 1,
     val turbulence: Float = 0f,
     val turbulenceFrequency: Float = 1f,
+    val spawnRadius: Float = 0f,
+    val convergeToOrigin: Boolean = false,
 )
 
 private val PARTICLE_VARIANTS = listOf(
-    // Cast & aura: a slow, coherent rising stream that cools from violet to pink as it ages.
+    // Cast & aura, a real "charging circle": particles spawn on a ring around origin and
+    // converge inward (ParticleMotion.spawnRadius + convergeToOrigin), cooling from violet to
+    // pink as they close in -- the classic channeling-spell VFX, not just a rising stream.
     ParticleVariant(
         nodeName = "particles-aura",
         materialName = "particle",
-        origin = Vec3(-4.5f, 0f, 0f),
-        baseVelocity = Vec3(0f, 1.2f, 0f),
-        velocityJitter = 0.15f,
+        origin = Vec3(-4.5f, 1f, 0f),
+        baseVelocity = Vec3(0f, 1.5f, 0f), // magnitude only -- direction is overridden by convergeToOrigin
+        velocityJitter = 0f,
         coneHalfAngleDegrees = null,
         groundY = null,
-        spawnRate = 25f,
-        lifetime = 2.5f,
-        startAlpha = 0.7f,
-        scale = 0.25f,
+        spawnRate = 30f,
+        lifetime = 1f,
+        startAlpha = 0.8f,
+        scale = 0.2f,
         startColor = Vec3(0.7f, 0.3f, 1f),
         endColor = Vec3(1f, 0.5f, 0.9f),
+        spawnRadius = 1.2f,
+        convergeToOrigin = true,
     ),
     // Impact/hit: a real 70-degree cone burst (not just jitter), orange fading to red, and a
     // flickering 4-frame sprite strip for an ember look -- its own material/texture (the strip
@@ -109,7 +120,7 @@ private val PARTICLE_VARIANTS = listOf(
         endColor = Vec3(0.4f, 0.8f, 0.3f),
     ),
     // Turbulence: a smoke/mist column -- weak upward drift, strong flow-field perturbation
-    // (ParticleEmitter.turbulence), so motion swirls instead of reading as pure random jitter.
+    // (ParticleMotion.turbulence), so motion swirls instead of reading as pure random jitter.
     ParticleVariant(
         nodeName = "particles-turbulence",
         materialName = "particle",
@@ -140,14 +151,15 @@ private var simulatedSpeed = 0f
  * placeholder nodes instead, same "author a named node, attach the state a scene document
  * can't express in `onActivated`" shape [InstancedCubesExampleDriver] already uses. Covers
  * every [ParticleEmitter] capability:
- * - `particles-aura`/`particles-impact`/`particles-environment`/`particles-turbulence`: the 4
- *   [ParticleVariant]s above (gradient color, cone burst, sprite-strip flicker, flat ground-stop,
- *   turbulence flow field).
- * - `particles-context`: [ParticleEmitter.dynamicSpawnRate] reads [simulatedSpeed] every frame
+ * - `particles-aura`: a charging circle -- ring spawn + inward convergence
+ *   ([ParticleMotion.spawnRadius]/`convergeToOrigin`).
+ * - `particles-impact`/`particles-environment`/`particles-turbulence`: the other 3
+ *   [ParticleVariant]s above (cone burst, sprite-strip flicker, flat ground-stop, turbulence).
+ * - `particles-context`: [ParticleDynamics.dynamicSpawnRate] reads [simulatedSpeed] every frame
  *   -- dust that kicks up harder as the (simulated) player moves faster.
- * - `particles-terrain`: [ParticleEmitter.groundHeightProvider] settles on undulating terrain
+ * - `particles-terrain`: [ParticleGround.groundHeightProvider] settles on undulating terrain
  *   instead of one flat plane.
- * - `particles-projectile`: [ParticleEmitter.onParticleDeath] spawns a small burst
+ * - `particles-projectile`: [ParticleLifecycle.onParticleDeath] spawns a small burst
  *   ([spawnParticleBurst]) wherever each of its own trail particles expires -- real sub-emitter
  *   chaining, not just a trailing stream.
  */
@@ -171,16 +183,22 @@ internal object ParticleEmitterExampleDriver {
                     spawnRate = variant.spawnRate,
                     lifetime = variant.lifetime,
                     startAlpha = variant.startAlpha,
-                    baseVelocity = variant.baseVelocity,
-                    velocityJitter = variant.velocityJitter,
                     scale = variant.scale,
-                    startColor = variant.startColor,
-                    endColor = variant.endColor,
-                    coneHalfAngleDegrees = variant.coneHalfAngleDegrees,
-                    groundY = variant.groundY,
-                    frameCount = variant.frameCount,
-                    turbulence = variant.turbulence,
-                    turbulenceFrequency = variant.turbulenceFrequency,
+                    motion = ParticleMotion(
+                        baseVelocity = variant.baseVelocity,
+                        velocityJitter = variant.velocityJitter,
+                        coneHalfAngleDegrees = variant.coneHalfAngleDegrees,
+                        spawnRadius = variant.spawnRadius,
+                        convergeToOrigin = variant.convergeToOrigin,
+                        turbulence = variant.turbulence,
+                        turbulenceFrequency = variant.turbulenceFrequency,
+                    ),
+                    visual = ParticleVisual(
+                        startColor = variant.startColor,
+                        endColor = variant.endColor,
+                        frameCount = variant.frameCount,
+                    ),
+                    ground = ParticleGround(groundY = variant.groundY),
                 ),
             )
         }
@@ -196,12 +214,10 @@ internal object ParticleEmitterExampleDriver {
                     spawnRate = 5f, // only used if dynamicSpawnRate is somehow unset; it isn't
                     lifetime = 1f,
                     startAlpha = 0.6f,
-                    baseVelocity = Vec3(0f, 0.3f, 0f),
-                    velocityJitter = 0.5f,
                     scale = 0.15f,
-                    startColor = Vec3(0.6f, 0.5f, 0.3f),
-                    endColor = Vec3(0.6f, 0.5f, 0.3f),
-                    dynamicSpawnRate = { 5f + simulatedSpeed * 8f },
+                    motion = ParticleMotion(baseVelocity = Vec3(0f, 0.3f, 0f), velocityJitter = 0.5f),
+                    visual = ParticleVisual(startColor = Vec3(0.6f, 0.5f, 0.3f), endColor = Vec3(0.6f, 0.5f, 0.3f)),
+                    dynamics = ParticleDynamics(dynamicSpawnRate = { 5f + simulatedSpeed * 8f }),
                 ),
             )
         }
@@ -217,13 +233,14 @@ internal object ParticleEmitterExampleDriver {
                     spawnRate = 8f,
                     lifetime = 6f,
                     startAlpha = 0.7f,
-                    baseVelocity = Vec3(0.3f, -1.5f, 0f), // drifts sideways while falling, to
-                    // visibly cross the undulating ground below
-                    velocityJitter = 0.2f,
                     scale = 0.22f,
-                    startColor = Vec3(0.9f, 0.85f, 0.6f),
-                    endColor = Vec3(0.9f, 0.85f, 0.6f),
-                    groundHeightProvider = { x, _ -> sin(x * 0.5f) * 1f - 3f },
+                    motion = ParticleMotion(
+                        // Drifts sideways while falling, to visibly cross the undulating ground.
+                        baseVelocity = Vec3(0.3f, -1.5f, 0f),
+                        velocityJitter = 0.2f,
+                    ),
+                    visual = ParticleVisual(startColor = Vec3(0.9f, 0.85f, 0.6f), endColor = Vec3(0.9f, 0.85f, 0.6f)),
+                    ground = ParticleGround(groundHeightProvider = { x, _ -> sin(x * 0.5f) * 1f - 3f }),
                 ),
             )
         }
@@ -239,19 +256,19 @@ internal object ParticleEmitterExampleDriver {
                     spawnRate = 80f,
                     lifetime = 0.6f,
                     startAlpha = 0.9f,
-                    baseVelocity = Vec3(-3f, 0f, 0f),
-                    velocityJitter = 0.05f,
                     scale = 0.18f,
-                    startColor = Vec3(1f, 0.2f, 0.1f),
-                    endColor = Vec3(1f, 0.2f, 0.1f),
-                    onParticleDeath = { world, position ->
-                        spawnParticleBurst(
-                            world, mesh, material, position,
-                            count = 6, spawnRate = 1000f, lifetime = 0.2f, startAlpha = 0.8f,
-                            baseVelocity = Vec3(0f, 0.5f, 0f), velocityJitter = 1.5f, scale = 0.1f,
-                            startColor = Vec3(1f, 0.6f, 0.2f), endColor = Vec3(1f, 0.1f, 0f),
-                        )
-                    },
+                    motion = ParticleMotion(baseVelocity = Vec3(-3f, 0f, 0f), velocityJitter = 0.05f),
+                    visual = ParticleVisual(startColor = Vec3(1f, 0.2f, 0.1f), endColor = Vec3(1f, 0.2f, 0.1f)),
+                    lifecycle = ParticleLifecycle(
+                        onParticleDeath = { world, position ->
+                            spawnParticleBurst(
+                                world, mesh, material, position,
+                                count = 6, spawnRate = 1000f, lifetime = 0.2f, startAlpha = 0.8f,
+                                baseVelocity = Vec3(0f, 0.5f, 0f), velocityJitter = 1.5f, scale = 0.1f,
+                                startColor = Vec3(1f, 0.6f, 0.2f), endColor = Vec3(1f, 0.1f, 0f),
+                            )
+                        },
+                    ),
                 ),
             )
         }
@@ -276,7 +293,7 @@ internal object ParticleEmitterExampleDriver {
     /** [FLICKER_FRAME_COUNT]-frame horizontal sprite strip, each frame a soft dot at a
      * different size/brightness -- proves `particle.wgsl`'s frame-atlas UV math cycles frames,
      * not just a static image. Its own material (not the shared "particle" one) since
-     * `ParticleEmitter.frameCount` is per-emitter but the TEXTURE it slices is shared by
+     * `ParticleVisual.frameCount` is per-emitter but the TEXTURE it slices is shared by
      * whatever material the emitter uses -- a `frameCount = 1` emitter sharing this multi-frame
      * texture would sample the whole strip as one squished frame. */
     fun createFlickerMaterial(runtime: SceneGameRuntime) =

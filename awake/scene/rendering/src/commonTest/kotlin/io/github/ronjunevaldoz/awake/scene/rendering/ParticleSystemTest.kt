@@ -8,7 +8,12 @@ import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleDynamics
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleGround
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleLifecycle
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleMotion
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleVisual
 import io.github.ronjunevaldoz.awake.scene.rendering.components.spawnParticleBurst
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.ParticleSystem
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.currentAlpha
@@ -37,9 +42,8 @@ class ParticleSystemTest {
         spawnRate = spawnRate,
         lifetime = lifetime,
         startAlpha = startAlpha,
-        baseVelocity = Vec3(0f, 1f, 0f),
-        velocityJitter = 0f,
         scale = 1f,
+        motion = ParticleMotion(baseVelocity = Vec3(0f, 1f, 0f), velocityJitter = 0f),
     )
 
     @Test
@@ -127,9 +131,9 @@ class ParticleSystemTest {
             entity,
             ParticleEmitter(
                 mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
-                maxParticles = 5, spawnRate = 1000f, lifetime = 0.2f, startAlpha = 1f,
-                baseVelocity = Vec3(0f, 1f, 0f), velocityJitter = 0f, scale = 1f,
-                burstCount = 5,
+                maxParticles = 5, spawnRate = 1000f, lifetime = 0.2f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, 1f, 0f)),
+                lifecycle = ParticleLifecycle(burstCount = 5),
             ),
         )
         val system = ParticleSystem()
@@ -160,7 +164,7 @@ class ParticleSystemTest {
             baseVelocity = Vec3(0f, 0f, 0f),
         )
         val emitter = requireNotNull(world.get<ParticleEmitter>(entity))
-        assertEquals(4, emitter.burstCount)
+        assertEquals(4, emitter.lifecycle.burstCount)
         assertEquals(Vec3(3f, 2f, 1f), emitter.origin)
     }
 
@@ -172,9 +176,8 @@ class ParticleSystemTest {
             world.create(),
             ParticleEmitter(
                 mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
-                maxParticles = 50, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f,
-                baseVelocity = baseVelocity, velocityJitter = 0f, scale = 1f,
-                coneHalfAngleDegrees = 30f,
+                maxParticles = 50, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = baseVelocity, coneHalfAngleDegrees = 30f),
             ),
         )
         val system = ParticleSystem()
@@ -194,15 +197,52 @@ class ParticleSystemTest {
     }
 
     @Test
+    fun chargingCircleSpawnsOnARingAndConvergesInward() {
+        val world = World()
+        val origin = Vec3(0f, 0f, 0f)
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = origin,
+                maxParticles = 50, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(
+                    baseVelocity = Vec3(0f, 2f, 0f), // magnitude only -- direction is overridden
+                    spawnRadius = 3f,
+                    convergeToOrigin = true,
+                ),
+            ),
+        )
+        val system = ParticleSystem()
+        // A small delta -- spawn() and advance() share it within one update() call, so a large
+        // delta (e.g. 1f) would both spawn every particle AND move them 2 units/sec * 1s toward
+        // origin before this test ever inspects a spawn position. 0.01s of drift at speed 2 is
+        // ~0.02 units, well inside the tolerances below.
+        system.update(world, 0.01f)
+
+        val emitter = world.family<ParticleEmitter>().components().first()
+        emitter.particles.filter { it.alive }.forEach { particle ->
+            // Spawned on the ring: distance from origin must be ~spawnRadius (y unchanged).
+            val spawnDistance = kotlin.math.sqrt(particle.position.x * particle.position.x + particle.position.z * particle.position.z)
+            assertEquals(3f, spawnDistance, 0.05f, "must spawn ~spawnRadius from origin")
+            // Converging: velocity must point back toward origin, at baseVelocity's own speed.
+            val towardOrigin = (origin - particle.position).normalized()
+            val velocityDirection = particle.velocity.normalized()
+            val dot = towardOrigin.x * velocityDirection.x + towardOrigin.y * velocityDirection.y + towardOrigin.z * velocityDirection.z
+            assertTrue(dot > 0.99f, "velocity must point toward origin, not baseVelocity's own direction")
+            assertEquals(2f, particle.velocity.length3(), 0.01f, "speed must match baseVelocity's magnitude")
+        }
+    }
+
+    @Test
     fun aFallingParticleSettlesAtGroundYInsteadOfPassingThrough() {
         val world = World()
         world.add(
             world.create(),
             ParticleEmitter(
                 mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 5f, 0f),
-                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f,
-                baseVelocity = Vec3(0f, -10f, 0f), velocityJitter = 0f, scale = 1f,
-                groundY = 0f,
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, -10f, 0f)),
+                ground = ParticleGround(groundY = 0f),
             ),
         )
         val system = ParticleSystem()
@@ -226,9 +266,9 @@ class ParticleSystemTest {
             emitterEntity,
             ParticleEmitter(
                 mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
-                maxParticles = 1, spawnRate = 0f, lifetime = 1f, startAlpha = 1f,
-                baseVelocity = Vec3(0f, 0f, 0f), velocityJitter = 0f, scale = 1f,
-                followEntity = target,
+                maxParticles = 1, spawnRate = 0f, lifetime = 1f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, 0f, 0f)),
+                dynamics = ParticleDynamics(followEntity = target),
             ),
         )
         val system = ParticleSystem()
@@ -249,9 +289,9 @@ class ParticleSystemTest {
             world.create(),
             ParticleEmitter(
                 mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
-                maxParticles = 1, spawnRate = 1000f, lifetime = 1f, startAlpha = 1f,
-                baseVelocity = Vec3(0f, 0f, 0f), velocityJitter = 0f, scale = 1f,
-                startColor = Vec3(1f, 0f, 0f), endColor = Vec3(0f, 0f, 1f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 1f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, 0f, 0f)),
+                visual = ParticleVisual(startColor = Vec3(1f, 0f, 0f), endColor = Vec3(0f, 0f, 1f)),
             ),
         )
         val system = ParticleSystem()
@@ -276,9 +316,9 @@ class ParticleSystemTest {
             world.create(),
             ParticleEmitter(
                 mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
-                maxParticles = 100, spawnRate = 999f, lifetime = 10f, startAlpha = 1f,
-                baseVelocity = Vec3(0f, 0f, 0f), velocityJitter = 0f, scale = 1f,
-                dynamicSpawnRate = { liveRate },
+                maxParticles = 100, spawnRate = 999f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, 0f, 0f)),
+                dynamics = ParticleDynamics(dynamicSpawnRate = { liveRate }),
             ),
         )
         val system = ParticleSystem()
@@ -299,10 +339,10 @@ class ParticleSystemTest {
             world.create(),
             ParticleEmitter(
                 mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 5f, 0f),
-                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f,
-                baseVelocity = Vec3(0f, -10f, 0f), velocityJitter = 0f, scale = 1f,
-                groundY = 0f, // would settle at 0 if the provider below didn't win
-                groundHeightProvider = { _, _ -> 2f },
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, -10f, 0f)),
+                // groundY would settle at 0 if groundHeightProvider below didn't win.
+                ground = ParticleGround(groundY = 0f, groundHeightProvider = { _, _ -> 2f }),
             ),
         )
         val system = ParticleSystem()
@@ -321,9 +361,8 @@ class ParticleSystemTest {
             world.create(),
             ParticleEmitter(
                 mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(1f, 1f, 1f),
-                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f,
-                baseVelocity = Vec3(0f, 1f, 0f), velocityJitter = 0f, scale = 1f,
-                turbulence = 5f, turbulenceFrequency = 1f,
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, 1f, 0f), turbulence = 5f, turbulenceFrequency = 1f),
             ),
         )
         val system = ParticleSystem()
@@ -349,9 +388,11 @@ class ParticleSystemTest {
             world.create(),
             ParticleEmitter(
                 mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(2f, 0f, 0f),
-                maxParticles = 1, spawnRate = 1000f, lifetime = 0.2f, startAlpha = 1f,
-                baseVelocity = Vec3(0f, 0f, 0f), velocityJitter = 0f, scale = 1f,
-                onParticleDeath = { _, position -> callCount += 1; deathPosition = Vec3(position.x, position.y, position.z) },
+                maxParticles = 1, spawnRate = 1000f, lifetime = 0.2f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, 0f, 0f)),
+                lifecycle = ParticleLifecycle(
+                    onParticleDeath = { _, position -> callCount += 1; deathPosition = Vec3(position.x, position.y, position.z) },
+                ),
             ),
         )
         val system = ParticleSystem()

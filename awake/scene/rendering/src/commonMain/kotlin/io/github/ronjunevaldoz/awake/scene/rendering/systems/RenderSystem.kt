@@ -165,10 +165,10 @@ class RenderSystem(
                 }
                 if (instanceModels.isEmpty()) return@forEach
                 // Camera basis (shared, every emitter this frame) + this emitter's own
-                // sprite-strip frame index -- see ParticleEmitter.frameCount's own doc comment.
+                // sprite-strip frame index -- see ParticleVisual.frameCount's own doc comment.
                 val uniformFloats = emitter.uniformFloatsBuffer
                 cameraBasis.copyInto(uniformFloats)
-                uniformFloats[8] = emitter.frameCount.toFloat()
+                uniformFloats[8] = emitter.visual.frameCount.toFloat()
                 uniformFloats[9] = currentFrame(emitter)
                 uniformFloats[10] = 0f
                 uniformFloats[11] = 0f
@@ -237,4 +237,4 @@ private val EMPTY_EXTRAS = FloatArray(0)
  * mod frameCount`. Always `0` when `frameCount == 1` (the no-op default), so `particle.wgsl`'s
  * `uv.x + 0 / 1` reduces to plain `uv.x`. */
 private fun currentFrame(emitter: ParticleEmitter): Float =
-    ((emitter.elapsedTime * emitter.frameRate).toInt() % emitter.frameCount).toFloat()
+    ((emitter.elapsedTime * emitter.visual.frameRate).toInt() % emitter.visual.frameCount).toFloat()
