@@ -13,7 +13,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.clickable
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
 import io.github.ronjunevaldoz.awake.ui.style.Style
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 
 /**
  * Style-native button API. State rules belong in [style], not in a parallel visual DTO.
@@ -142,7 +141,7 @@ fun UiScope.button(
 ): Boolean {
     var clicked = false
     val hasExplicitWidth = modifier.widthDimension != null
-    primitive.withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+    primitive.withDisabledAlpha(enabled) {
         interactiveSurface(
             id = id,
             modifier = modifier

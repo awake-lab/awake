@@ -26,7 +26,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.withSizeFallback
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.headless.withDisabledAlpha
 
 // Dp, not raw px: every coordinate it is added to below (`boxPx`, `surface.interaction.slot`)
 // already went through `.dp.toPx()`, so a raw literal here would stay 8 physical pixels while
@@ -84,7 +84,7 @@ fun UiPrimitiveScope.checkbox(
     // `Buttons.kt`'s `buttonSlotInternal` -- covers the box fill/border, the check/dash mark,
     // and the label as one composited unit so the label drawn on top of the box's own paint
     // never gets double-dimmed.
-    return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+    return withDisabledAlpha(enabled) {
         paintSurface(
             slot = boxSlot,
             resolved = if (checked || indeterminate) {
@@ -190,7 +190,7 @@ fun UiPrimitiveScope.radio(
         boxPx,
         boxPx,
     )
-    return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+    return withDisabledAlpha(enabled) {
         paintSurface(
             slot = boxSlot,
             resolved = surface.resolved.copy(shapeSpec = io.github.ronjunevaldoz.awake.ui.UiShapeSpec.Circle),

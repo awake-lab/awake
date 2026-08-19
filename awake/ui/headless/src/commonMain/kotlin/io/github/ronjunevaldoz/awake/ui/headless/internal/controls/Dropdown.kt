@@ -30,7 +30,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.headless.withDisabledAlpha
 
 // Real shadcn/ui slider shape: a thin track (not a full-height button-like bar) with a
 // circular knob straddling it at the current value -- the claimed slot stays the full
@@ -87,7 +87,7 @@ fun UiPrimitiveScope.select(
     // buttonSlotInternal); this widget's label/chevron paint on top of that fill separately
     // below, so they need their own matching group-alpha rather than sharing buttonSlot's
     // (that would compound into a double dim, `disabled` becoming ~0.25 opacity not 0.5).
-    withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+    withDisabledAlpha(enabled) {
         drawDropdownTriggerContent(
             slot = slot,
             label = selectedLabel,

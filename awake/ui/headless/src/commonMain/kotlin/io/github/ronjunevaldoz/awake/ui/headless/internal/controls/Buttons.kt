@@ -28,7 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.style.ResolvedStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme.TextStyle
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.headless.withDisabledAlpha
 
 /** [button] with the resolved [UiBounds] alongside the click result. */
 data class UiButtonResult(val clicked: Boolean, val slot: UiBounds)
@@ -89,7 +89,7 @@ private inline fun UiPrimitiveScope.buttonSlotInternal(
     // content lambda's own text/graphics, the same "one flat composited result, dimmed once"
     // shape `ShadcnSlider.kt` in the reference repo settled on -- not a per-color alpha tweak,
     // which double-dims anything the content draws on top of the fill.
-    withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+    withDisabledAlpha(enabled) {
         paintSurface(
             slot = surface.interaction.slot,
             resolved = surface.resolved,

@@ -110,7 +110,7 @@ class HeadlessCanvasScope internal constructor(
 }
 
 fun UiScope.canvas(
-    id: String = "canvas",
+    id: String,
     modifier: UiModifier = Modifier,
     content: HeadlessCanvasScope.() -> Unit,
 ): UiBounds = primitive.primitiveCanvas(modifier = modifier) {

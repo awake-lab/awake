@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.headless
 
+import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.UiShape
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
+import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier as PrimitiveModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.clickable as primitiveClickable
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight as primitiveFillMaxHeight
@@ -52,3 +54,10 @@ fun UiModifier.padding(
 
 fun UiModifier.styleable(style: Style): UiModifier = primitiveStyleable(style)
 fun UiModifier.weight(weight: Float, fill: Boolean = true): UiModifier = primitiveWeight(weight, fill)
+
+/** Reference's `disabled:opacity-50`. The one shared dimming rule every interactive widget uses. */
+private const val DISABLED_ALPHA = 0.5f
+
+/** Runs [block] under the widget's disabled-state alpha; `enabled` draws at full opacity. */
+fun <T> UiPrimitiveScope.withDisabledAlpha(enabled: Boolean, block: () -> T): T =
+    withGraphicsLayerAlpha(if (enabled) 1f else DISABLED_ALPHA, block)

@@ -266,6 +266,7 @@ fun UiScope.shadcnSidebarMenuSub(
         ),
     ) {
         separator(
+            id = "${id ?: "sidebarMenuSub"}.separator",
             color = themeValues.colors.border,
             orientation = UiSeparatorOrientation.Vertical,
         )

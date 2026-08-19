@@ -28,7 +28,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.scope.resolveStyle
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.headless.withDisabledAlpha
 import kotlin.math.ceil
 
 // shadcn's Switch track is w-8 h-[1.15rem] (32dp x 18.4dp at 1rem=16dp), not a 44x24 Material
@@ -122,7 +122,7 @@ fun UiPrimitiveScope.switch(
         ?: if (newChecked) theme.colors.primary else theme.colors.muted
     // See `ShadcnButtons.kt`'s `buttonSlotInternal` doc for why this is one group alpha
     // around the whole painted widget, not a per-color tweak.
-    withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+    withDisabledAlpha(enabled) {
         // The track is always a true stadium/pill regardless of what shape the caller's style
         // resolves to -- same reasoning as the color above, and consistent with the knob below,
         // which already hardcodes UiShapeSpec.Pill instead of trusting the resolved style.

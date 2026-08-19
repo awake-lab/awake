@@ -327,10 +327,41 @@ Compiler-driven sweeps. Boring by design.
 - [ ] One canonical order everywhere:
       `(id, <state>, modifier, style, enabled, content): UiBounds` (callbacks gone per
       C9; continuous-gesture exceptions documented individually) — C3 C4
-- [ ] `id: String` required on every stateful widget (kill `canvas` default, `separator`
+- [x] `id: String` required on every stateful widget (kill `canvas` default, `separator`
       nullable-last, tooltip default); fold `semanticId` into `testTag` — C3
-- [ ] Remove the 16 rule-6 params (`size`, `textSize`, `boxSize`, `thickness`, `radius`,
+      **partial, 2026-08-20**. Investigated against real current source first: C1/C2/C8's
+      earlier work already made `id: String` required on nearly every headless widget (button,
+      checkbox, switch, textField, dialog, collapsible, resizablePanelGroup, all of Status.kt/
+      State.kt, …) — only `canvas` (defaulted `"canvas"`, zero real callers used the default)
+      and `separator`'s two overloads (nullable-last, the in-code collision comment the audit
+      cites) were still non-required. Both fixed; call sites updated (`Dropdown.kt`'s bare
+      `separator()`, `SeparatorWidgetsTest.kt`, and the two designsystem callers that reach the
+      headless `separator()` directly — `ShadcnSidebarRecipes.kt`, `ShadcnStatusRecipes.kt`'s
+      `shadcnSeparator`, which keeps its OWN nullable `id` with an orientation-derived fallback
+      rather than becoming required, since making it required cascades into
+      `samples/studio`/`samples/ui-showcase` callers that were out of scope this pass). Also
+      confirmed the audit's `disabled`-polarity-inverted-on-`field` finding is stale (no `field`
+      widget exists; every widget already uses `enabled: Boolean`) and landed the disabled-alpha
+      consolidation: one `UiPrimitiveScope.withDisabledAlpha(enabled) { }` helper in
+      `headless/ModifierExports.kt`, replacing 9 (not ~6) open-coded
+      `withGraphicsLayerAlpha(if (enabled) 1f else 0.5f)` sites. **Not done**: the canonical
+      param-order sweep (`style` position varies 3rd through last across ~10 widgets; `row`'s
+      raw-slot `id` sits 4th vs `column`'s 1st) and the `semanticId`-into-`testTag` fold —
+      both genuinely touch every widget signature plus every designsystem recipe that mirrors
+      one, which is the audit's own flagged highest-risk shape; re-scope as a dedicated pass
+      once C4/C6 (designsystem-side signatures) lands, since the two overlap at every recipe
+      call site.
+- [x] Remove the 16 rule-6 params (`size`, `textSize`, `boxSize`, `thickness`, `radius`,
       `minWidth`, `gap`, …); delete `Modifier.margin()` (silently drops end/bottom) — C5
+      **partial, 2026-08-20**. `Modifier.margin()` deleted — confirmed zero callers repo-wide and
+      confirmed the drop-end/bottom bug (`= offset(start, top)`, ignored `end`/`bottom` params)
+      before deleting. The 16 sizing/spacing params themselves (`avatar`'s `size`/`textSize`,
+      `checkbox`'s `boxSize`, `separator`'s `thickness`, etc.) are NOT dead weight — each has a
+      real designsystem-recipe caller passing a concrete value today. Removing them means
+      rewriting those recipe call sites to route the same value through `Modifier.width()`/
+      `height()` instead, i.e. touching `ShadcnAvatarRecipes.kt`, `ShadcnSelectionRecipes.kt`,
+      `ShadcnSidebarRecipes.kt` — the exact designsystem-recipe surface C4/C6 owns. Re-scope to
+      land alongside that pass rather than as a separate headless-only sweep.
 - [ ] `modifier` on all 8 overlay components; kill `Dimension` params + `FillMax` leak;
       replace hand-rolled text measurement with `withIntrinsicLabelSize` — C6
 - [x] Rename raw-slot `column`/`row` overloads to `columnAt`/`rowAt` — **partial, done**,
@@ -547,9 +578,9 @@ found). Verdict `recreate` = that unit is cheaper rewritten than patched.
 |---|---|---|---|---|---|
 | C1 | `column` ×12 entry points incl. 20/21-param twins; silent-wrong-overload trap documented in-tree ("infinite trial / OOM") | `UiContext.kt:125,148,257`, `UiLayoutFactory.kt:33`, `NestedLayouts.kt:21`, `Column.kt:282-395`, `UiScopeNesting.kt:19` | `columnAt`/`rowAt` renames; internal factory forwards | refactor | 2 |
 | C2 | `button()` label vs slot form: opposite sizing (wrap vs fill) and opposite theming (reads theme vs reads nothing), one name | `headless/Button.kt:25-42` vs `:85-114` | Label form wraps slot form (after B2) | refactor | 2 |
-| C3 | Headless signatures: `style` position ×8 variants; `id` ×5 conventions (canvas default, separator nullable-last with in-code collision note); `semanticId` = 4th identity param; `disabled` polarity inverted on `field`; disabled alpha open-coded ×6 | headless-wide; `Text.kt:36`, `Canvas.kt:111`, `Separator.kt:21-23` | Canonical order; id required; one `disabledAlpha{}` | refactor | 3 |
+| C3 | Headless signatures: `style` position varies across ~10 widgets (3rd/4th/5th/6th/7th/last); `id` mostly already required (C1/C2/C8 work landed this), but `canvas` still defaulted (`id: String = "canvas"`, zero real callers used the default) and `separator` (both overloads) still nullable-last with an in-code collision comment; `row`'s raw-slot `id` sits 4th while `column`'s sits 1st (same-shape inconsistency, left alone per C1's note — overlaps the deferred factory-forwarding work); no widget named `field` exists anymore, no inverted-polarity `disabled` param found (already `enabled: Boolean` everywhere) — that finding is stale; disabled-alpha was open-coded `withGraphicsLayerAlpha(if (enabled) 1f else 0.5f)` 9× (not ~6) across `Button.kt` + 8 internal files | headless-wide; `Text.kt:36`; `Canvas.kt:113` (fixed); `Separator.kt` (fixed) | **Landed**: `canvas`'s `id` made required (dead default, zero callers); `separator`'s `id` (both overloads) made required, deprecated-fallback design-system callers updated (`ShadcnStatusRecipes.kt`, `ShadcnSidebarRecipes.kt`) to synthesize a stable id instead of relying on the headless default; one shared `UiPrimitiveScope.withDisabledAlpha(enabled) { }` helper added in `headless/ModifierExports.kt`, all 9 open-coded call sites migrated. **Not landed** (see Package 6 checklist note): full canonical param-order sweep across every widget (`style` position, `row`'s id slot) — genuinely touches every widget file plus every designsystem recipe wrapper that mirrors a headless widget's param shape (e.g. `shadcnSeparator`'s own nullable `id ?: ...` fallback, kept as-is to avoid touching `samples/studio` which was out of scope this pass), which is C4/C6 territory; `semanticId`-into-`testTag` fold not attempted (crosses into `ui-core`'s `Modifier`/`UiModifier` shape, a bigger change than this row's budget) | refactor | 3 (partially landed; remainder re-scoped to ride with C4/C6) |
 | C4 | Designsystem signatures: `id` absent ~20 / optional 7 / defaulted 2; 9 `Unit` returns (can't anchor popups); 9 rule-6 params; FQNs in signatures; 8 unexplained `public` style fns | designsystem-wide | One mechanical pass | refactor | 2 |
-| C5 | Headless param bloat: 16 sizing/spacing params duplicating Modifier/Style; `Modifier.margin()` silently discards `end`+`bottom`, zero callers | `Avatar.kt:15-30`, `Selection.kt:17`, `Separator.kt:18`, `Buttons.kt:43-216`, `Layout.kt:113-124` | Delete/move to modifier (~20 call sites move) | refactor | 2 |
+| C5 | Headless param bloat: `Modifier.margin()` confirmed zero callers repo-wide and confirmed still silently drops `end`/`bottom` (returns `offset(start, top)` only) — deleted. The other cited sizing/spacing params (`avatar`'s `size`/`textSize`, `checkbox`'s `boxSize`, `separator`'s `thickness`) are real, load-bearing, and each has direct designsystem-recipe callers passing a concrete value (`ShadcnAvatarRecipes.kt`, `ShadcnSelectionRecipes.kt`, `ShadcnSidebarRecipes.kt`/`ShadcnStatusRecipes.kt`) — removing them requires rewriting those recipe call sites to route the same value through `Modifier.width()/height()` instead, which is the C4/C6 designsystem-recipe pass, explicitly held back this round to avoid file collisions | `Avatar.kt:18-53`, `Selection.kt:14-32`, `Separator.kt:28-47`, `Layout.kt:41-46` (margin, deleted) | **Landed**: `Modifier.margin()` deleted. **Not landed**: the 16 sizing/spacing params themselves — re-scope as its own pass once C4/C6 lands, since it's the same designsystem call sites | refactor | 2 (margin-deletion sliver landed; param removal re-scoped to ride with C4/C6) |
 | C6 | 8 overlays take `Dimension`/`Dp`, none has `modifier`; `Dimension.FillMax` in public API (banned); hand-rolled text measurement with magic 40/80/128 | `ShadcnPopupRecipes.kt:63-64,131-132,182-185`, `ShadcnOverlayRecipes.kt:82,128,133-134` | `modifier` on all 8; `withIntrinsicLabelSize`; also fix `popup()` min/max bounds (ui-status risk 7) | refactor | 3 |
 | C7 | `scrollPanel` 285-line god function; stringly axis `"width"`/`"height"` beside real enums | `ui-core/ScrollContainers.kt:49-333` | Split axis fns; extract scrollbar paint + viewport geometry | refactor | 2 |
 | C8 | `internal/controls/Buttons.kt` declares the public package from `internal/`; `internal.*` packages not Kotlin-`internal` | `headless/internal/controls/Buttons.kt:3` | Repackage; real `internal` after F10 | refactor | 1 |

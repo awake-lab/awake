@@ -108,7 +108,7 @@ fun UiScope.combobox(
             enabled = enabled,
         )
         filterState.value = query
-        separator()
+        separator(id = "$id.filterSeparator")
         val filtered = primitiveFilterOptionsByQuery(options, query)
         if (filtered.isEmpty()) {
             text(emptyLabel, modifier = Modifier.fillMaxWidth(), style = optionStyle)

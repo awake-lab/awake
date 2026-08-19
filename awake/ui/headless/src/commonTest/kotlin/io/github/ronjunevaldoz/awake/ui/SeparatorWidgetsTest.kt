@@ -19,7 +19,11 @@ class SeparatorWidgetsTest {
         // explicit style here stands in for what a real caller (e.g. shadcnSeparator) always
         // supplies.
         val frame = renderUiComponent(width = 200f, height = 100f) {
-            separator(thickness = 1f.dp, style = Style { background(Color(0.4f, 0.4f, 0.45f, 0.9f)) })
+            separator(
+                id = "separator",
+                thickness = 1f.dp,
+                style = Style { background(Color(0.4f, 0.4f, 0.45f, 0.9f)) },
+            )
         }
 
         val quad = frame.primitives.filterIsInstance<UiDrawPrimitive.Quad>().first()
@@ -33,6 +37,7 @@ class SeparatorWidgetsTest {
     fun verticalSeparatorSpansFullHeightWithCustomColor() {
         val frame = renderUiComponent(width = 200f, height = 100f) {
             separator(
+                id = "separator",
                 thickness = 2f.dp,
                 orientation = UiSeparatorOrientation.Vertical,
                 style = Style { background(Color(1f, 0f, 0f, 1f)); shape(UiShape.none) },

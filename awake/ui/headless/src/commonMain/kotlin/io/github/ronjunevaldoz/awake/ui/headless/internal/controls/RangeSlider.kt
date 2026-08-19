@@ -27,7 +27,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.pointerX
 import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.headless.withDisabledAlpha
 import kotlin.math.abs
 
 private const val RANGE_SLIDER_TRACK_HEIGHT_PX = 6f
@@ -175,7 +175,7 @@ fun UiPrimitiveScope.rangeSlider(
         val newStartKnobX = trackSlot.x + trackSlot.width * lowFraction
         val newEndKnobX = trackSlot.x + trackSlot.width * highFraction
 
-        withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+        withDisabledAlpha(enabled) {
             paintSurface(
                 slot = trackSlot,
                 resolved = surface.resolved.copy(shapeSpec = UiShapeSpec.Pill),

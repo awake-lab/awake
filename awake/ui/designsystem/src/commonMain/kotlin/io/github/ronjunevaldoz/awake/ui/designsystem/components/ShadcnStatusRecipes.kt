@@ -69,11 +69,15 @@ fun UiScope.shadcnSeparator(
     orientation: UiSeparatorOrientation = UiSeparatorOrientation.Horizontal,
     id: String? = null,
 ): UiBounds = separator(
+    // separator()'s own id is required now (see the awake-ui-authoring skill's id-consistency
+    // rule); shadcnSeparator keeps its nullable id -- and this orientation-derived fallback,
+    // same collision risk as before -- for its many existing callers until a dedicated
+    // designsystem-side pass (Package 6 C4/C6) revisits nullable ids up this stack.
+    id = id ?: "separator.${orientation.name}",
     modifier = modifier,
     thickness = thickness,
     orientation = orientation,
     color = themeValues.colors.border,
-    id = id,
 )
 
 fun UiScope.shadcnProgress(

@@ -25,7 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.recordSemantic
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.headless.withDisabledAlpha
 
 // Dp, not raw px: added to/subtracted from `slot`/`trackSlot` coordinates that are already
 // density-scaled, so a raw literal would render half-size at 2x.
@@ -100,7 +100,7 @@ fun UiPrimitiveScope.slider(
     val knobCenterX = trackSlot.x + handleWidth
     // See `ShadcnButtons.kt`'s `buttonSlotInternal` doc for why this is one group alpha
     // around the whole painted widget (track/fill/knob/label), not a per-color tweak.
-    withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+    withDisabledAlpha(enabled) {
         paintSurface(
             slot = trackSlot,
             resolved = surface.resolved.copy(shapeSpec = UiShapeSpec.Pill),

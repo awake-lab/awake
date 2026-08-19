@@ -34,7 +34,7 @@ import io.github.ronjunevaldoz.awake.ui.style.MutableStyleState
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.headless.withDisabledAlpha
 
 private const val TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS = 1f
 private const val TEXT_FIELD_CARET_WIDTH_PX = 1.5f
@@ -108,7 +108,7 @@ fun UiPrimitiveScope.textarea(
     // `Buttons.kt`'s `buttonSlotInternal` -- covers the fill/border paint and the typed
     // text/caret as one composited unit so nothing drawn on top of the fill gets double-dimmed.
     val fillColor = resolvedWithInteraction.background ?: theme.colors.background
-    return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+    return withDisabledAlpha(enabled) {
         canvas(interaction.slot) {
             drawFillAndBorder(
                 slot = interaction.slot,

@@ -10,7 +10,6 @@ import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
 import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.width
 import io.github.ronjunevaldoz.awake.ui.layouts.Arrangement as PrimitiveArrangement
 import io.github.ronjunevaldoz.awake.ui.layouts.box as primitiveBox
@@ -37,13 +36,6 @@ fun UiModifier.heightOrDefault(height: Dp): UiModifier =
  */
 fun UiModifier.fillMaxWidthOrDefault(): UiModifier =
     if (widthDimension == null) fillMaxWidth() else this
-
-fun UiModifier.margin(
-    start: Dp = Dp(0f),
-    top: Dp = Dp(0f),
-    end: Dp = Dp(0f),
-    bottom: Dp = Dp(0f),
-): UiModifier = offset(start, top) // Margin not yet in Core, approximating with offset
 
 fun UiModifier.size(size: Dp): UiModifier = width(size).height(size)
 

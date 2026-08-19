@@ -35,7 +35,7 @@ import io.github.ronjunevaldoz.awake.ui.scope.resolveGlyphPx
 import io.github.ronjunevaldoz.awake.ui.style.Style
 import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.toPx
-import io.github.ronjunevaldoz.awake.ui.withGraphicsLayerAlpha
+import io.github.ronjunevaldoz.awake.ui.headless.withDisabledAlpha
 
 private const val TEXT_FIELD_CARET_BLINK_PERIOD_SECONDS = 1f
 
@@ -106,7 +106,7 @@ fun UiPrimitiveScope.textField(
     // Reference's `disabled:opacity-50` treatment, same single group-alpha shape as
     // `Buttons.kt`'s `buttonSlotInternal` -- covers the fill/border paint, icons, and typed
     // text/caret as one composited unit so nothing drawn on top of the fill gets double-dimmed.
-    return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
+    return withDisabledAlpha(enabled) {
         paintSurface(
             slot = surface.interaction.slot,
             resolved = surface.resolved,
