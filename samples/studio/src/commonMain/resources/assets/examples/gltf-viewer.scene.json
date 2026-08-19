@@ -21,6 +21,10 @@
       "components": [
         { "component": "meshRenderer", "mesh": "duck", "material": "duck-material" }
       ]
+    },
+    {
+      "name": "duck-frost-aura",
+      "components": []
     }
   ]
 }

@@ -4,6 +4,7 @@
 
 package io.github.ronjunevaldoz.awake.studio.examples
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
@@ -204,8 +205,13 @@ private var simulatedSpeed = 0f
  * - `particles-terrain`: [ParticleGround.groundHeightProvider] settles on undulating terrain
  *   instead of one flat plane.
  * - `particles-projectile`: [ParticleLifecycle.onParticleDeath] spawns a small burst
- *   ([spawnParticleBurst]) wherever each of its own trail particles expires -- real sub-emitter
- *   chaining, not just a trailing stream.
+ *   ([spawnParticleBurst]) wherever each of its own trail particles expires -- a one-shot death
+ *   chain, not [ParticleEmitter.children] itself.
+ * - `particles-torch`: [ParticleEmitter.children] -- a real sub-emitter tree, a flame with an
+ *   ember-spark child riding at a fixed local offset above the flame's own origin.
+ * - `particles-collider`: [ParticleGround.colliders] -- falls onto the authored
+ *   `particles-collider-platform` box (a real [io.github.ronjunevaldoz.awake.core.math.Aabb]
+ *   collision, not a flat groundY plane).
  */
 internal object ParticleEmitterExampleDriver {
     fun attach(instance: SceneInstance, runtime: SceneGameRuntime) {
@@ -313,6 +319,63 @@ internal object ParticleEmitterExampleDriver {
                             )
                         },
                     ),
+                ),
+            )
+        }
+        instance.roots.find { it.name == "particles-torch" }?.let { node ->
+            // Real sub-emitter tree (ParticleEmitter.children): a warm flame column, with a
+            // bright ember-spark child riding at a fixed offset above the flame's own origin --
+            // one emitter tree, not two separately-tracked entities.
+            val emberChild = ParticleEmitter(
+                mesh = mesh,
+                material = material,
+                origin = Vec3(0f, 1.1f, 0f), // local offset above the parent's own origin
+                maxParticles = MAX_PARTICLES_PER_EMITTER,
+                spawnRate = 15f,
+                lifetime = 0.5f,
+                startAlpha = 0.9f,
+                scale = 0.08f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, 1.5f, 0f), velocityJitter = 1.2f),
+                visual = ParticleVisual(startColor = Vec3(1f, 0.9f, 0.5f), endColor = Vec3(1f, 0.4f, 0.1f)),
+            )
+            runtime.world.add(
+                node.entity,
+                ParticleEmitter(
+                    mesh = mesh,
+                    material = material,
+                    origin = Vec3(14.5f, 0f, -4f),
+                    maxParticles = MAX_PARTICLES_PER_EMITTER,
+                    spawnRate = 25f,
+                    lifetime = 1f,
+                    startAlpha = 0.8f,
+                    scale = 0.2f,
+                    motion = ParticleMotion(baseVelocity = Vec3(0f, 1.2f, 0f), velocityJitter = 0.15f),
+                    visual = ParticleVisual(startColor = Vec3(1f, 0.5f, 0.1f), endColor = Vec3(0.6f, 0.1f, 0.1f)),
+                    children = listOf(emberChild),
+                ),
+            )
+        }
+
+        instance.roots.find { it.name == "particles-collider" }?.let { node ->
+            // Physical ground collision (ParticleGround.colliders): falls straight onto the
+            // authored "particles-collider-platform" box instead of a flat groundY plane --
+            // the Aabb below matches that node's own authored transform (position (14.5,1,0),
+            // scale (2,0.3,2) against a -0.5..0.5 unit cube).
+            val platformTop = Aabb(Vec3(13.5f, 0.85f, -1f), Vec3(15.5f, 1.15f, 1f))
+            runtime.world.add(
+                node.entity,
+                ParticleEmitter(
+                    mesh = mesh,
+                    material = material,
+                    origin = Vec3(14.5f, 5f, 0f),
+                    maxParticles = MAX_PARTICLES_PER_EMITTER,
+                    spawnRate = 12f,
+                    lifetime = 3f,
+                    startAlpha = 0.8f,
+                    scale = 0.18f,
+                    motion = ParticleMotion(baseVelocity = Vec3(0f, -2f, 0f), velocityJitter = 0.4f),
+                    visual = ParticleVisual(startColor = Vec3(0.3f, 0.7f, 1f), endColor = Vec3(0.3f, 0.7f, 1f)),
+                    ground = ParticleGround(colliders = listOf(platformTop)),
                 ),
             )
         }

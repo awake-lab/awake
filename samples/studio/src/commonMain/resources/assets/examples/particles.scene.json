@@ -57,6 +57,24 @@
     {
       "name": "particles-spawn",
       "components": []
+    },
+    {
+      "name": "particles-torch",
+      "components": []
+    },
+    {
+      "name": "particles-collider-platform",
+      "transform": {
+        "position": { "x": 14.5, "y": 1.0, "z": 0.0 },
+        "scale": { "x": 2.0, "y": 0.3, "z": 2.0 }
+      },
+      "components": [
+        { "component": "meshRenderer", "mesh": "cube", "material": "lit-shadow" }
+      ]
+    },
+    {
+      "name": "particles-collider",
+      "components": []
     }
   ]
 }

@@ -5,8 +5,10 @@ package io.github.ronjunevaldoz.awake.studio.examples
 import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser
 import io.github.ronjunevaldoz.awake.core.graphics.createBitmap
 import io.github.ronjunevaldoz.awake.core.graphics.toRgba8Bytes
+import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.boundingRadius
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
+import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -15,6 +17,10 @@ import io.github.ronjunevaldoz.awake.asset.shaders.TexturedUniformLayout
 import io.github.ronjunevaldoz.awake.render.renderer.createMaterial
 import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleDynamics
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleMotion
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleVisual
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
@@ -73,6 +79,40 @@ internal object GltfViewerAssets {
     fun attach(instance: SceneInstance, runtime: SceneGameRuntime) {
         val node = instance.roots.find { it.name == "duck" } ?: return
         runtime.world.add(node.entity, requireNotNull(pbrMaterial))
+        attachFrostAura(instance, runtime, followEntity = node.entity)
+    }
+
+    /** A status-effect particle aura around the duck -- [ParticleDynamics.followEntity]
+     * re-anchors the emitter's origin to the duck's own [io.github.ronjunevaldoz.awake.scene
+     * .core.components.Transform] position every frame, so the effect would track the model if
+     * it ever moved (fixed in this v1 viewer, but the wiring is real, not a static offset).
+     * Frost/ice read: a ring of cyan particles ([ParticleMotion.spawnRadius], no convergence so
+     * the ring hovers rather than collapsing to a point) swirled by [ParticleMotion.turbulence],
+     * cooling from icy cyan to white as each particle ages -- reuses the shared "particle-quad"/
+     * "particle" assets every other particle demo already uses, no new mesh/material needed. */
+    private fun attachFrostAura(instance: SceneInstance, runtime: SceneGameRuntime, followEntity: Entity) {
+        val auraNode = instance.roots.find { it.name == "duck-frost-aura" } ?: return
+        runtime.world.add(
+            auraNode.entity,
+            ParticleEmitter(
+                mesh = runtime.requireMesh("particle-quad"),
+                material = runtime.requireMaterial("particle"),
+                origin = Vec3(0f, 0f, 0f),
+                maxParticles = 80,
+                spawnRate = 20f,
+                lifetime = 1.2f,
+                startAlpha = 0.7f,
+                scale = 0.06f,
+                motion = ParticleMotion(
+                    baseVelocity = Vec3(0f, 0.1f, 0f),
+                    spawnRadius = 0.85f,
+                    turbulence = 1.5f,
+                    turbulenceFrequency = 1.5f,
+                ),
+                visual = ParticleVisual(startColor = Vec3(0.4f, 0.9f, 1f), endColor = Vec3(1f, 1f, 1f)),
+                dynamics = ParticleDynamics(followEntity = followEntity),
+            ),
+        )
     }
 
     private fun scalePositions(source: FloatArray, factor: Float): FloatArray {
