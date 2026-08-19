@@ -208,15 +208,15 @@ class ParticleEmitter(
     val material: Material,
     val origin: Vec3,
     val maxParticles: Int,
-    val spawnRate: Float,
-    val lifetime: Float,
-    val startAlpha: Float,
-    val scale: Float,
-    val motion: ParticleMotion = ParticleMotion(),
-    val visual: ParticleVisual = ParticleVisual(),
-    val ground: ParticleGround = ParticleGround(),
-    val lifecycle: ParticleLifecycle = ParticleLifecycle(),
-    val dynamics: ParticleDynamics = ParticleDynamics(),
+    var spawnRate: Float,
+    var lifetime: Float,
+    var startAlpha: Float,
+    var scale: Float,
+    var motion: ParticleMotion = ParticleMotion(),
+    var visual: ParticleVisual = ParticleVisual(),
+    var ground: ParticleGround = ParticleGround(),
+    var lifecycle: ParticleLifecycle = ParticleLifecycle(),
+    var dynamics: ParticleDynamics = ParticleDynamics(),
     val children: List<ParticleEmitter> = emptyList(),
 ) {
     internal val particles: Array<Particle> = Array(maxParticles) { Particle() }
@@ -244,6 +244,14 @@ class ParticleEmitter(
      * `age`/[Particle.frameOffset]), kept for anything else that wants an emitter-wide clock. */
     internal var elapsedTime: Float = 0f
 
+    /** `true` once this emitter has come from [BurstEmitterPool.obtain] -- the marker
+     * [io.github.ronjunevaldoz.awake.scene.rendering.systems.ParticleSystem] checks before
+     * returning a spent emitter to that pool, so a hand-attached (non-burst) emitter that
+     * happens to also set [ParticleLifecycle.burstCount] is never mistakenly pooled. Stays
+     * `true` for this object's whole life once set -- pooling is a one-way opt-in per instance,
+     * not something [reconfigure] needs to touch. */
+    internal var pooledForBurst: Boolean = false
+
     /** Reused every frame by [io.github.ronjunevaldoz.awake.scene.rendering.systems
      * .RenderSystem] to build this emitter's `DrawCall.instanceModels`/`.instanceColors`/
      * `.instanceFrames` -- `clear()`+refill instead of a fresh `list.filter{}.map{}` per frame,
@@ -267,6 +275,42 @@ class ParticleEmitter(
      * written in place instead of `cameraBasis + floatArrayOf(...)`, which allocates a new
      * array via concatenation every frame. */
     internal val uniformFloatsBuffer: FloatArray = FloatArray(EXTRA_UNIFORM_FLOAT_COUNT)
+
+    /** Rewrites every field a fresh burst config supplies, and resets simulation state (spawn
+     * accounting, elapsed time, every pool slot) back to a clean start -- what
+     * [io.github.ronjunevaldoz.awake.scene.rendering.components.BurstEmitterPool] calls on an
+     * emitter it's handing out for reuse, pooled or freshly constructed either way, so there's
+     * exactly one place this class considers "reset to a new burst," not one implicit
+     * (`Poolable.reset`) and one explicit path fighting over the same fields. [mesh]/[material]/
+     * [maxParticles] are NOT touched here -- they're the pool's own key, an emitter is only ever
+     * handed back for a burst that already matches that shape. */
+    internal fun reconfigure(
+        newOrigin: Vec3,
+        newSpawnRate: Float,
+        newLifetime: Float,
+        newStartAlpha: Float,
+        newScale: Float,
+        newMotion: ParticleMotion,
+        newVisual: ParticleVisual,
+        newGround: ParticleGround,
+        newLifecycle: ParticleLifecycle,
+        newDynamics: ParticleDynamics,
+    ) {
+        origin.set(newOrigin.x, newOrigin.y, newOrigin.z)
+        spawnRate = newSpawnRate
+        lifetime = newLifetime
+        startAlpha = newStartAlpha
+        scale = newScale
+        motion = newMotion
+        visual = newVisual
+        ground = newGround
+        lifecycle = newLifecycle
+        dynamics = newDynamics
+        spawnAccumulator = 0f
+        spawnedTotal = 0
+        elapsedTime = 0f
+        particles.forEach { it.reset() }
+    }
 }
 
 /** [ParticleEmitter.uniformFloatsBuffer]'s fixed size: cameraRight(4) + cameraUp(4) +
@@ -317,27 +361,25 @@ fun spawnParticleBurst(
     groundY: Float? = null,
 ): Entity {
     val entity = world.create()
-    world.add(
-        entity,
-        ParticleEmitter(
-            mesh = mesh,
-            material = material,
-            origin = Vec3(position.x, position.y, position.z),
-            maxParticles = count,
-            spawnRate = spawnRate,
-            lifetime = lifetime,
-            startAlpha = startAlpha,
-            scale = scale,
-            motion = ParticleMotion(
-                baseVelocity = baseVelocity,
-                velocityJitter = velocityJitter,
-                coneHalfAngleDegrees = coneHalfAngleDegrees,
-            ),
-            visual = ParticleVisual(startColor = startColor, endColor = endColor),
-            ground = ParticleGround(groundY = groundY),
-            lifecycle = ParticleLifecycle(burstCount = count),
-            dynamics = ParticleDynamics(followEntity = followEntity),
+    val emitter = BurstEmitterPool.obtain(
+        mesh = mesh,
+        material = material,
+        maxParticles = count,
+        origin = position,
+        spawnRate = spawnRate,
+        lifetime = lifetime,
+        startAlpha = startAlpha,
+        scale = scale,
+        motion = ParticleMotion(
+            baseVelocity = baseVelocity,
+            velocityJitter = velocityJitter,
+            coneHalfAngleDegrees = coneHalfAngleDegrees,
         ),
+        visual = ParticleVisual(startColor = startColor, endColor = endColor),
+        ground = ParticleGround(groundY = groundY),
+        lifecycle = ParticleLifecycle(burstCount = count),
+        dynamics = ParticleDynamics(followEntity = followEntity),
     )
+    world.add(entity, emitter)
     return entity
 }

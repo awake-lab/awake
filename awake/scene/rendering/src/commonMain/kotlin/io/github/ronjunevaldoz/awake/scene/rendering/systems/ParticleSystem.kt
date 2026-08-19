@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.BOUNCE_STOP_VELOCITY
+import io.github.ronjunevaldoz.awake.scene.rendering.components.BurstEmitterPool
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Particle
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleGround
@@ -39,7 +40,14 @@ class ParticleSystem : System {
             followOrigin(world, emitter)
             simulate(world, entity, emitter, delta)
         }
-        spentEntities.forEach { world.destroy(it) }
+        spentEntities.forEach { entity ->
+            // Only ever return an emitter that actually came from BurstEmitterPool.obtain -- a
+            // hand-attached emitter that happens to also set burstCount is destroyed normally,
+            // never pooled (see ParticleEmitter.pooledForBurst's own doc comment).
+            val emitter = world.get<ParticleEmitter>(entity)
+            if (emitter != null && emitter.pooledForBurst) BurstEmitterPool.release(emitter)
+            world.destroy(entity)
+        }
     }
 
     /** Advances [emitter] itself, then every entry in [ParticleEmitter.children] -- each child's

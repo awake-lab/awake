@@ -23,6 +23,7 @@ import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 /** Pure CPU simulation logic -- no GPU/[io.github.ronjunevaldoz.awake.render.renderer.Renderer]
@@ -600,6 +601,60 @@ class ParticleSystemTest {
         val particle = world.family<ParticleEmitter>().components().first().particles[0]
         assertTrue(particle.settled, "restitution's default (0f) must keep the original settle-on-impact behavior")
         assertEquals(0f, particle.velocity.y)
+    }
+
+    @Test
+    fun aSecondBurstOfTheSameShapeReusesTheFirstsSpentEmitterObject() {
+        val world = World()
+        val mesh = fakeMesh()
+        val material = fakeMaterial()
+        val system = ParticleSystem()
+
+        val firstEntity = spawnParticleBurst(
+            world, mesh, material, position = Vec3(0f, 0f, 0f),
+            count = 2, spawnRate = 1000f, lifetime = 0.1f, startAlpha = 1f,
+            baseVelocity = Vec3(0f, 0f, 0f),
+        )
+        val firstEmitter = requireNotNull(world.get<ParticleEmitter>(firstEntity))
+        system.update(world, 0.01f) // spawns
+        system.update(world, 1f) // dies, entity destroyed, emitter returned to the pool
+
+        val secondEntity = spawnParticleBurst(
+            world, mesh, material, position = Vec3(5f, 5f, 5f),
+            count = 2, spawnRate = 1000f, lifetime = 0.1f, startAlpha = 1f,
+            baseVelocity = Vec3(0f, 0f, 0f),
+        )
+        val secondEmitter = requireNotNull(world.get<ParticleEmitter>(secondEntity))
+
+        assertSame(firstEmitter, secondEmitter, "same mesh/material/maxParticles shape must reuse the pooled emitter object")
+        assertEquals(Vec3(5f, 5f, 5f), secondEmitter.origin, "reconfigure must apply the NEW burst's own origin, not the old one")
+    }
+
+    @Test
+    fun aBurstOfADifferentShapeDoesNotReuseAnUnrelatedPooledEmitter() {
+        val world = World()
+        val mesh = fakeMesh()
+        val material = fakeMaterial()
+        val system = ParticleSystem()
+
+        val firstEntity = spawnParticleBurst(
+            world, mesh, material, position = Vec3(0f, 0f, 0f),
+            count = 2, spawnRate = 1000f, lifetime = 0.1f, startAlpha = 1f,
+            baseVelocity = Vec3(0f, 0f, 0f),
+        )
+        val firstEmitter = requireNotNull(world.get<ParticleEmitter>(firstEntity))
+        system.update(world, 0.01f)
+        system.update(world, 1f)
+
+        // Different count (maxParticles) -- a different pool key, must not reuse count=2's emitter.
+        val secondEntity = spawnParticleBurst(
+            world, mesh, material, position = Vec3(0f, 0f, 0f),
+            count = 9, spawnRate = 1000f, lifetime = 0.1f, startAlpha = 1f,
+            baseVelocity = Vec3(0f, 0f, 0f),
+        )
+        val secondEmitter = requireNotNull(world.get<ParticleEmitter>(secondEntity))
+
+        assertTrue(firstEmitter !== secondEmitter, "a differently-shaped burst must not reuse another shape's pooled emitter")
     }
 
     private fun fakeMesh(): Mesh = object : Mesh {
