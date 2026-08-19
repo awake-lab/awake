@@ -23,7 +23,7 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleMotion
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleVisual
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
+import io.github.ronjunevaldoz.awake.scene.runtime.Scene
 
 private const val TEXTURED_VERTEX_STRIDE_COMPONENTS = 11
 
@@ -76,7 +76,7 @@ internal object GltfViewerAssets {
      * `.createMaterial` feed the `assets { }` DSL, but a component this specific to one loaded
      * model isn't authorable in a scene document either, same reasoning
      * [SkinnedExampleDriver.attachPose] documents. */
-    fun attach(instance: SceneInstance, runtime: SceneGameRuntime) {
+    fun attach(instance: Scene, runtime: SceneGameRuntime) {
         val node = instance.roots.find { it.name == "duck" } ?: return
         runtime.world.add(node.entity, requireNotNull(pbrMaterial))
         attachFrostAura(instance, runtime, followEntity = node.entity)
@@ -90,7 +90,7 @@ internal object GltfViewerAssets {
      * the ring hovers rather than collapsing to a point) swirled by [ParticleMotion.turbulence],
      * cooling from icy cyan to white as each particle ages -- reuses the shared "particle-quad"/
      * "particle" assets every other particle demo already uses, no new mesh/material needed. */
-    private fun attachFrostAura(instance: SceneInstance, runtime: SceneGameRuntime, followEntity: Entity) {
+    private fun attachFrostAura(instance: Scene, runtime: SceneGameRuntime, followEntity: Entity) {
         val auraNode = instance.roots.find { it.name == "duck-frost-aura" } ?: return
         runtime.world.add(
             auraNode.entity,

@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import kotlinx.serialization.json.Json
 
-data class SceneInstance(
+data class Scene(
     val world: World,
     val roots: List<SceneNodeInstance>,
     val renderableRequests: List<SceneRenderableRequest>,
@@ -24,6 +24,19 @@ data class SceneRenderableRequest(
     val entity: Entity,
     val meshRenderer: SceneMeshRenderer,
 )
+
+/** Destroys every entity this [Scene] instantiated, including nested children -- a scene
+ * document's nodes can nest, and a live [Scene] owns every entity that came from it, not just
+ * its top-level [Scene.roots]. Children destroyed before parents, so nothing in the walk ever
+ * references an already-destroyed entity. */
+fun Scene.destroy() {
+    roots.forEach { it.destroyRecursively(world) }
+}
+
+private fun SceneNodeInstance.destroyRecursively(world: World) {
+    children.forEach { it.destroyRecursively(world) }
+    world.destroy(entity)
+}
 
 /** Thrown rather than silently degrading: a scene from a newer build may reference components
  * this loader can't construct, and dropping them would produce a plausible-looking but wrong
@@ -57,7 +70,7 @@ object SceneLoader {
     suspend fun loadFromResource(path: String, json: Json = SceneJson): SceneDocument =
         decode(readResourceBytes(path).decodeToString(), json)
 
-    fun instantiate(document: SceneDocument, world: World = World()): SceneInstance =
+    fun instantiate(document: SceneDocument, world: World = World()): Scene =
         instantiate(document, AwakeWorldSceneAdapter(world))
 
     /** Adapter-driven instantiation path: the scene DSL/model stays Awake-owned, while the
@@ -101,10 +114,10 @@ object SceneLoader {
     }
 }
 
-fun SceneDocument.instantiate(world: World = World()): SceneInstance =
+fun SceneDocument.instantiate(world: World = World()): Scene =
     SceneLoader.instantiate(this, world)
 
-fun SceneInstance.attachRenderableComponents(
+fun Scene.attachRenderableComponents(
     factory: (SceneRenderableRequest) -> MeshRenderer,
 ) {
     renderableRequests.forEach { request ->

@@ -17,7 +17,7 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleMotion
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleVisual
 import io.github.ronjunevaldoz.awake.scene.rendering.components.spawnParticleBurst
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
+import io.github.ronjunevaldoz.awake.scene.runtime.Scene
 import kotlin.math.sin
 
 private const val PARTICLE_TEXTURE_SIZE = 16
@@ -220,7 +220,7 @@ private var simulatedSpeed = 0f
  *   collision, not a flat groundY plane).
  */
 internal object ParticleEmitterExampleDriver {
-    fun attach(instance: SceneInstance, runtime: SceneGameRuntime) {
+    fun attach(instance: Scene, runtime: SceneGameRuntime) {
         simulatedSpeedElapsed = 0f
         simulatedSpeed = 0f
         val mesh = runtime.requireMesh("particle-quad")

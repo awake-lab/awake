@@ -16,7 +16,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedSkinnedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.SkinnedInstance
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
+import io.github.ronjunevaldoz.awake.scene.runtime.Scene
 
 private const val GRID_SIDE = 3
 private const val SPACING = 1.2f
@@ -56,7 +56,7 @@ internal object InstancedSkinnedExampleDriver {
     fun createMaterial(runtime: SceneGameRuntime): Material =
         runtime.renderer.createMaterial(uniformFloatCount = INSTANCED_UNIFORM_FLOAT_COUNT)
 
-    fun attach(instance: SceneInstance, runtime: SceneGameRuntime) {
+    fun attach(instance: Scene, runtime: SceneGameRuntime) {
         val node = instance.roots.find { it.name == "instanced-skinned" } ?: return
         val mesh = runtime.requireMesh("instanced-skinned-mesh")
         val material = runtime.requireMaterial("instanced-skinned-material")

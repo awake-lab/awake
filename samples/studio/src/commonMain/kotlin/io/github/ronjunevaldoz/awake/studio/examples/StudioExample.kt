@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.studio.examples
 
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
+import io.github.ronjunevaldoz.awake.scene.runtime.Scene
 
 internal data class StudioExample(
     val id: String,
@@ -17,7 +17,7 @@ internal data class StudioExample(
     // SceneComponent at all yet. ExampleLoader stays generic; this is where the small number of
     // real exceptions live. Takes the full [SceneGameRuntime] (not just `World`) since building
     // a mesh/material needs [SceneGameRuntime.requireAssetLibrary]/`.renderer`.
-    val onActivated: ((instance: SceneInstance, runtime: SceneGameRuntime) -> Unit)? = null,
+    val onActivated: ((instance: Scene, runtime: SceneGameRuntime) -> Unit)? = null,
 )
 
 internal val StudioExamples: List<StudioExample> = listOf(

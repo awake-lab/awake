@@ -14,7 +14,7 @@ import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.scene.rendering.components.SkinnedPose
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
+import io.github.ronjunevaldoz.awake.scene.runtime.Scene
 
 private const val SKINNED_UNIFORM_FLOAT_COUNT = 16 + 64 * 16
 
@@ -55,7 +55,7 @@ internal object SkinnedExampleDriver {
     /** The joint palette's initial value is sized/valued from the parsed skin, which no static
      * scene document can author -- called once right after instantiate, same shape the
      * original demo used (`world.add(skinnedEntity, SkinnedPose(currentPose.jointPalette(...)))`. */
-    fun attachPose(instance: SceneInstance, runtime: SceneGameRuntime) {
+    fun attachPose(instance: Scene, runtime: SceneGameRuntime) {
         val currentPose = requireNotNull(pose)
         val currentSkin = requireNotNull(skin)
         val node = instance.roots.find { it.name == "skinned-mesh" } ?: return

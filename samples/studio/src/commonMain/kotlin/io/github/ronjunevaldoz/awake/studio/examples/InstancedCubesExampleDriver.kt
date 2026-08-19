@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.studio.examples
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
+import io.github.ronjunevaldoz.awake.scene.runtime.Scene
 
 private const val GRID_SIDE = 10
 private const val SPACING = 1.5f
@@ -19,7 +19,7 @@ private const val CUBE_Y = 0.5f
  * `"cube"`/`"lit-shadow"` named assets (same mesh/material [samples.studio.StudioModule]
  * already registers for the rotating-cube example) -- one GPU draw call for the whole grid. */
 internal object InstancedCubesExampleDriver {
-    fun attach(instance: SceneInstance, runtime: SceneGameRuntime) {
+    fun attach(instance: Scene, runtime: SceneGameRuntime) {
         val node = instance.roots.find { it.name == "instanced-cubes" } ?: return
         val mesh = runtime.requireMesh("cube")
         val material = runtime.requireMaterial("lit-shadow")

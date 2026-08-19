@@ -30,7 +30,7 @@ interface SceneInstantiationAdapter<Node, Instance> {
 
 class AwakeWorldSceneAdapter(
     private val world: World = World(),
-) : SceneInstantiationAdapter<Entity, SceneInstance> {
+) : SceneInstantiationAdapter<Entity, Scene> {
     private val renderableRequests = ArrayList<SceneRenderableRequest>()
 
     override fun createNode(node: SceneNode, parent: Entity?): Entity = world.create()
@@ -59,7 +59,7 @@ class AwakeWorldSceneAdapter(
         }
     }
 
-    override fun complete(roots: List<SceneNodeHandle<Entity>>): SceneInstance = SceneInstance(
+    override fun complete(roots: List<SceneNodeHandle<Entity>>): Scene = Scene(
         world = world,
         roots = roots.map { it.toSceneNodeInstance() },
         renderableRequests = renderableRequests.toList(),

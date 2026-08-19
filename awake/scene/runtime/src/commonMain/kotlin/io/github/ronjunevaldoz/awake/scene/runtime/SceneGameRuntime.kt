@@ -54,6 +54,12 @@ class SceneGameRuntime internal constructor(
     lateinit var renderer: Renderer
         private set
 
+    /** The single owner of "what scene is currently loaded" -- see [SceneManager]'s own doc
+     * comment. Lazy, not eager: [world] is `lateinit`, set later than this property's
+     * declaration, and lazy defers construction until first access instead of at field-init
+     * time. */
+    val sceneManager: SceneManager by lazy { SceneManager(world) }
+
     private var assetLibrary: SceneAssetLibrary? = null
 
     /** Mandatory, not user-configurable -- see [SceneGameSpec.infrastructureSystemsFactory]. */
@@ -169,6 +175,7 @@ class SceneGameRuntime internal constructor(
 
     override fun dispose() {
         spec.onDisposeBlock(this)
+        sceneManager.close()
         assetLibrary?.dispose()
         assetLibrary = null
         registeredSystems.clear()

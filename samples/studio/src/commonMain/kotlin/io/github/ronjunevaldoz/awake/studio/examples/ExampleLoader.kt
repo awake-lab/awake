@@ -20,7 +20,6 @@ import io.github.ronjunevaldoz.awake.scene.runtime.fromWorld
  */
 internal class ExampleLoader {
     private val documents = mutableMapOf<String, SceneDocument>()
-    private var activeRoots: List<Entity> = emptyList()
 
     /**
      * The authored mesh/material asset IDs of every renderable in the active scene.
@@ -62,10 +61,10 @@ internal class ExampleLoader {
     }
 
     fun activate(exampleId: String, runtime: SceneGameRuntime) {
-        teardown(runtime.world)
+        teardown(runtime)
         val example = requireNotNull(StudioExamples.find { it.id == exampleId }) { "Unknown example '$exampleId'." }
         val document = requireNotNull(documents[exampleId]) { "Example '$exampleId' was not preloaded." }
-        val instance = SceneLoader.instantiate(document, runtime.world)
+        val instance = runtime.sceneManager.switchTo(document)
         val library = runtime.requireAssetLibrary()
         authoredRenderables.clear()
         boundsByEntity.clear()
@@ -75,12 +74,14 @@ internal class ExampleLoader {
             StudioMeshBounds[request.meshRenderer.mesh]?.let { boundsByEntity[request.entity.id] = it }
         }
         example.onActivated?.invoke(instance, runtime)
-        activeRoots = instance.roots.map { it.entity }
     }
 
-    fun teardown(world: World) {
-        activeRoots.forEach { world.destroy(it) }
-        activeRoots = emptyList()
+    /** Delegates the actual scene teardown to [SceneGameRuntime.sceneManager] -- the single
+     * owner of "what's currently loaded," shared by every consumer of [SceneGameRuntime], not
+     * just this loader. Recurses into every node's children, not just top-level roots -- see
+     * [io.github.ronjunevaldoz.awake.scene.runtime.SceneManager]'s own doc comment. */
+    fun teardown(runtime: SceneGameRuntime) {
+        runtime.sceneManager.close()
         authoredRenderables.clear()
         boundsByEntity.clear()
     }
