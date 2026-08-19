@@ -27,8 +27,8 @@ Split out of `awake:core` as they grew independent test surfaces and target-spec
 
 - [`awake:core:geometry`](geometry/README.md) — portable mesh geometry math (simplification,
   quantized vertex decoding), no file I/O.
-- `awake:core:animation` — skeletal animation runtime (`Skeleton`/`Skin`/`AnimationClip`/
-  `AnimationPose`, crossfade blending). No README yet — flag if you need one written.
+- [`awake:core:animation`](animation/README.md) — skeletal animation runtime (`Skeleton`/`Skin`/`AnimationClip`/
+  `AnimationPose`, crossfade blending).
 
 ## Proposed future modules
 

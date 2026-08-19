@@ -32,6 +32,7 @@ Read [docs/architecture.md](../../../docs/architecture.md), [docs/reference/ai-c
 2. **Promote Reusable Logic**: If a sample implements a generic pattern (e.g. cameras, input mappers, state bridges) for the third time, plan its extraction into engine modules.
 3. **Guard Against API Leakage**: Ensure low-level backend types (`VkDevice`, JNI handles) never leak into the public engine facade or scene DSL.
 4. **Single Source of Truth**: Keep canonical architecture in `docs/*` and operational guidance in `skills/*`.
+5. **Core Module Split Proposal**: When reviewing module splits or refactors touching `awake:core`, enforce alignment with [docs/tasks/2026-08-17-awake-core-module-split-proposal.md](../../../docs/tasks/2026-08-17-awake-core-module-split-proposal.md) to preserve clean unidirectional dependency flow.
 
 ## Validation
 

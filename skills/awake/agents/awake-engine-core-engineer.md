@@ -42,6 +42,7 @@ Read [docs/architecture.md](../../../docs/architecture.md), [docs/reference/ai-c
 4. **Foundation Math Stability**: `awake:core` math has zero dependencies; signature changes affect every downstream module. Always grep all callers before changing public shapes.
 5. **Asset Spec Compliance**: Keep `awake:asset:gltf` format-focused and backend-agnostic. Backend-specific vertex packing belongs behind backend adapters.
 6. **Benchmark Validation**: When modifying ECS storage or hierarchy propagation, run `:awake:ecs:benchmark` and update `docs/ecs-benchmark-scorecard.md`.
+7. **Core Module Split Proposal**: Whenever refactoring or extracting code from `awake:core` (`math`, `input`, `time`), strictly follow the proposed dependency graph and module shapes in [docs/tasks/2026-08-17-awake-core-module-split-proposal.md](../../../docs/tasks/2026-08-17-awake-core-module-split-proposal.md). When a new module is built, create its dedicated `README.md` and update the proposal doc in the same commit.
 
 ## Validation
 

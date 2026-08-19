@@ -1,27 +1,26 @@
 # 2026-08-17: awake:core module split proposal
 
-Status: research & analysis, not yet built. This is a snapshot of one day's thinking, not a
-living doc -- when a module described here actually gets built (the way `animation` was
-extracted from `awake:core` this same day, see `awake/core/README.md`), move its description
-out of here and into the real module's own README in that commit. Don't let this file drift
-into describing modules as "proposed" after they exist.
+Status: Active architecture guideline. This document defines the modular roadmap for splitting `awake:core` packages into focused leaf modules.
 
-**Future agent needed:** none of the proposed modules below have a dedicated
-`skills/awake/agents/*.md` agent today, correctly -- an agent needs a real module to own
-(see `docs/reference/agent-catalog.md`'s discipline: don't scaffold ownership for code that
-doesn't exist). The one with a real, dated roadmap commitment is **audio**
-(`docs/MVP_PLAN.md`, post-MVP, OpenAL Soft, 1-2wk) -- when `awake:core:audio` (or wherever
-it lands) actually gets built, give it a real agent in the same commit, same discipline as
-the README rule above. VFX/particles, HUD, and music have zero code and zero roadmap
-mention as of 2026-08-18 -- don't create agents (or modules) for those speculatively.
+**Rule for Agents & Contributors**:
+Whenever performing refactors, adding new foundation features, or extracting code from `awake:core` (`math`, `input`, `time`), **always follow the proposed dependency graph and module shapes defined in this document**.
+When a module described here is built, create its dedicated `README.md` (matching `geometry` and `animation`) and update this document in the same commit.
 
-## Goal
+---
 
-Split `awake:core` (currently one module holding `math`/`input`/`utils`/`colors`/
-`application`/`graphics` as packages) into focused leaf modules with a strict, unidirectional
-dependency flow, eliminating circular dependencies as the engine grows.
+## 1. Modules Already Extracted / Built
 
-## Proposed dependency graph
+The following modules have been successfully extracted from `awake:core`:
+- [`:awake:core:geometry`](../../awake/core/geometry/README.md) — portable mesh geometry algorithms (`MeshSimplifier`, Garland-Heckbert quadric error, `NormalizedInt`).
+- [`:awake:core:animation`](../../awake/core/animation/README.md) — skeletal animation runtime (`Skeleton`, `Skin`, `AnimationClip`, `AnimationPose`, `AnimationCrossfade`).
+- Subsystems partitioned outside `core/`:
+  - **Physics**: Implemented as pure Kotlin contract in `:awake:physics:api` and native bridge in `:awake:backend:jolt`.
+  - **Assets**: Partitioned under `:awake:asset:gltf`, `:awake:asset:mesh-optimizer`, and `:awake:asset:shaders`.
+  - **Rendering**: Partitioned under `:awake:engine:render:contract` and `:awake:backend:*`.
+
+---
+
+## 2. Proposed Dependency Graph for Remaining Splits
 
 ```
                   ┌──────────────────────┐
@@ -32,88 +31,48 @@ dependency flow, eliminating circular dependencies as the engine grows.
                   │ awake:core:geometry  │◄──────────┐             │
                   └──────────▲───────────┘           │             │
                              │ References            │             │ Used By
-       ┌─────────────────────┼────────────────────┐  │ Used By     │
-       │                     │                    │  │             │
-┌──────┴─────────────┐┌──────┴─────────────┐┌─────┴───────┐┌──────┴──────┐
-│ awake:core:physics ││awake:core:rendering││ awake:core: ││ awake:core: │
-│                    ││                    ││   assets    ││    audio    │
-└──────▲─────────────┘└──────▲─────────────┘└─────▲───────┘└──────▲──────┘
-       │                     │                    │               │
-       └─────────────────────┼────────────────────┴───────────────┘
+        ┌────────────────────┴───────────────┐       │ Used By     │
+        │                                    │       │             │
+┌───────┴────────────┐              ┌────────┴───────┴┐   ┌────────┴──────┐
+│  awake:core:time   │              │awake:core:input │   │awake:core:    │
+│  (loop/ticker)     │              │(events/mapping) │   │audio (future) │
+└───────▲────────────┘              └────────▲────────┘   └────────▲──────┘
+        │                                    │                     │
+        └────────────────────┬───────────────┴─────────────────────┘
                              │ Managed & Driven By
                   ┌──────────┴───────────┐
-                  │       awake:ecs      │
+                  │      awake:engine    │
                   └──────────────────────┘
 ```
 
-Note: ECS is already a real, separate module today at `:awake:ecs` (not `:awake:core:ecs`
-as an earlier draft of this proposal had it), and rendering already exists at
-`:awake:engine:render:*` (not `:awake:core:rendering`) -- this diagram proposes new leaf
-modules under `awake:core`, it does not propose moving those two.
+---
 
-## Proposed modules
+## 3. Remaining Proposed Modules
 
-- `awake:core:math` (foundation)
-    - Pure mathematical primitives and linear algebra. No dependencies.
-    - Vector3, Matrix4, Quaternion, Ray, fixed-point math, trig lookup tables.
-    - Already exists as a **package** inside `awake:core` today
-      (`io.github.ronjunevaldoz.awake.core.math`); this proposes extracting it to its own
-      module, the same move already made for `geometry` and `animation`.
-- `awake:core:assets` (resource management)
-    - File I/O, deserialization, memory lifecycle of engine assets.
-    - Depends on: `awake:core:geometry`, `awake:core:math`.
-    - AssetManager, Loader, Serializer, ResourceCache.
-- `awake:core:physics` (simulation)
-    - Real-time rigid body dynamics, collision detection, cinematic constraints.
-    - Depends on: `awake:core:geometry`, `awake:core:math`.
-    - RigidBody, CollisionDetection, Constraints, Solvers, ForceGenerators.
-- `awake:core:audio` (sound engine)
-    - Spatial audio propagation, playback state, decoding.
-    - Depends on: `awake:core:math` (3D spatial calculations).
-    - AudioSource, AudioListener, AudioClip, AudioEngine.
-- `awake:core:platform` (the OS bridge)
-    - WindowContext, ApplicationLifecycle, FileSystemAbstraction, DisplaySettings, platform
-      capability detection.
-    - Sits directly above math, parallel to geometry.
-- `awake:core:input` (the human interface)
-    - Remappable action structures decoupled from rendering/physics loops.
-    - InputManager, keyboard/mouse listeners, GamepadState, TouchGestures, action mapping.
-    - Already exists as a **package** inside `awake:core` today; this proposes extraction.
-    - Sits directly above platform, feeding event metrics to `awake:ecs`.
-- `awake:core:time` (the engine heartbeat)
-    - Delta time, tick steps, and cross-device simulation synchronization.
-    - GameLoop, Clock, DeltaTimeEstimator, FixedUpdateTicker, ProfileTimer.
-    - Base leaf module, parallel to math and platform.
-- `awake:core:diagnostics` (the dev sandbox)
-    - Memory allocation monitoring, secure cross-platform logging, performance profiling.
-    - Logger, Profiler, AssertionEngine, MemoryTracker, CrashReporter.
-    - Global leaf dependency, connected across all layers.
+### 1. `awake:core:math` (Foundation — Priority 1)
+- **Scope**: Pure mathematical primitives and linear algebra. Zero dependencies.
+- **Types**: `Vector3`, `Matrix4`, `Quaternion`, `Ray`, `Transform`, `MathUtils`, fixed-point math, trig tables.
+- **Current Home**: `io.github.ronjunevaldoz.awake.core.math` inside `awake:core`.
+- **Target**: Extract to `:awake:core:math` subproject.
 
-## Rendering + physics backend shape (already real, referenced for context)
+### 2. `awake:core:input` (Input Events — Priority 2)
+- **Scope**: Remappable action structures, pointer state, and key events decoupled from rendering or physics loops.
+- **Types**: `InputEvent`, `KeyCode`, `MouseEvent`, `TouchEvent`, `PointerState`.
+- **Current Home**: `io.github.ronjunevaldoz.awake.core.input` inside `awake:core`.
+- **Target**: Extract to `:awake:core:input` subproject.
 
-**Corrected 2026-08-18** -- the previous version of this section named a
-`RenderDriverFactory` class. Verified against source: no such class exists anywhere in the
-tree. Selection is plain KMP `expect`/`actual`, not a runtime factory object.
+### 3. `awake:core:time` (Engine Heartbeat — Priority 3)
+- **Scope**: Delta time estimation, fixed-timestep loop, and simulation clock synchronization.
+- **Types**: `GameLoop`, `Clock`, `DeltaTimeEstimator`, `FixedTimestepLoop`.
+- **Current Home**: `io.github.ronjunevaldoz.awake.core.application` inside `awake:core`.
+- **Target**: Extract to `:awake:core:time` subproject.
 
-Rendering and physics live outside this proposal already, at `awake:engine:render:*` and
-`awake:backend:*`, but the shape is worth restating since any new leaf module above should
-assume the same pattern:
+### 4. `awake:core:diagnostics` (Dev Sandbox)
+- **Scope**: Memory allocation tracking, performance profiling, and assertion instrumentation.
+- **Types**: `Profiler`, `MemoryTracker`, `AssertionEngine`.
+- **Target**: Leaf module connected across layers.
 
-```
-awake:engine:render:contract        -- interface: Camera, Material, Renderer (commonMain)
-  awake:backend:vulkan              -- expect class Renderer : contract.Renderer
-    awake:backend:vulkan:bindings           -- generated Vulkan API bindings
-    awake:backend:vulkan:bindings:android-native
-    awake:backend:vulkan:generator          -- the codegen tool that produces bindings/
-  awake:backend:webgpu              -- expect class Renderer : contract.Renderer (wasmJs)
-  awake:backend:jolt                -- Jolt Physics via JoltC (SecondHalfGames/JoltC),
-                                        prebuilt binary on iOS; not a render backend, physics
-```
-
-Selection happens at compile time per KMP source set (`expect class Renderer(...)` in
-`awake-vulkan`, an `actual` per platform target) -- there is no runtime factory to route
-through.
-
-## References
-
-- https://github.com/github/awesome-copilot/blob/main/skills/game-engine/references/game-engine-core-principles.md
+### 5. `awake:core:audio` (Sound Engine — Post-MVP Roadmap)
+- **Scope**: Spatial audio propagation, playback state, and decoding.
+- **Dependencies**: `:awake:core:math` (3D spatial vectors).
+- **Target**: Dedicated audio runtime module when audio milestone begins.
