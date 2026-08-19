@@ -24,11 +24,43 @@ Target: a `RenderFeature` interface every pass implements, held as an ordered
 `List<RenderFeature>` on `Renderer`. Adding a feature (e.g. post-process blur) means adding
 a class to that list, not touching `recordCommandBuffer`.
 
+**`RenderFeature` depends on a `RenderFrameContext` port, never on `Renderer` directly.**
+An extension function shaped `fun Renderer.recordCommands(...)` (matching the sibling-file
+`internal fun Renderer.xxx(...)` convention `RendererDraw3D.kt`/`RendererUiPipelines.kt`
+already use) looks natural but isn't real Strategy — every feature would still see the whole
+`Renderer` surface, so the god class doesn't actually shrink. Use a narrow interface instead:
+
 ```kotlin
+interface RenderFrameContext {
+    val commandBuffer: Long
+    val frameIndex: Int
+    val groupedDrawCalls: Map<RenderPipeline, List<PreparedDrawCall>>
+    val primaryPipeline: RenderPipeline
+    fun recordDrawCalls(drawCalls: List<PreparedDrawCall>)
+    // + narrow, purpose-built accessors for anything else a feature needs (e.g. lazily
+    // built UI pipelines, a pooled mesh allocator) -- never the whole Renderer.
+}
+
 interface RenderFeature {
-    fun recordCommands(commandBuffer: CommandBufferHandle, frameIndex: Int, scene: SceneFrame)
+    fun recordCommands(context: RenderFrameContext)
+    fun destroy()
 }
 ```
+
+Only one small adapter class implements `RenderFrameContext` by delegating into `Renderer`'s
+real internals; every feature depends on the interface, not that adapter or `Renderer`
+itself.
+
+**Shadow is not a `RenderFeature`.** It already owns its own render pass today
+(`performShadowPass` is a wholly separate function from `recordCommandBuffer`, since the
+shadow map's render pass is not the scene pass), so `RenderFeature` only covers the 3
+features that genuinely share a pass (`Opaque`, `Skybox`, `UI`). `ShadowFeature` stays its
+own class with its own signature. Don't generalize this into a shared pass-ownership
+interface until a second standalone-pass feature (e.g. a future post-process blur) actually
+exists — building that abstraction for a hypothetical is speculative generality. See
+[docs/audits/2026-08-19-render-feature-strategy-plan.md](../../docs/audits/2026-08-19-render-feature-strategy-plan.md)
+for the full worked design, including why the receiver-on-`Renderer` shortcut and an earlier
+3-way sealed hierarchy were both rejected.
 
 Rules when doing this refactor:
 

@@ -17,14 +17,18 @@ import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.OpaqueRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineKey
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineRequest
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineTable
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineVariant
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowRenderPipeline
-import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowResources
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.SkyboxRenderFeature
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiShaderPairs
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.buildRequestedPipelines
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.createSceneRenderPass
@@ -134,18 +138,17 @@ open class VulkanGameApplication(
     private lateinit var graphicsDevice: GraphicsDevice
     private lateinit var swapchainManager: SwapchainManager
 
-    /** Shared by every [RenderPipeline] this app builds (and by [lineRenderPipeline]/
-     * [skyboxRenderPipeline], which reuse the existing 3D pass) -- see [createSceneRenderPass]'s
+    /** Shared by every [RenderPipeline] this app builds (and by the debug-line/skybox
+     * pipelines, which reuse the existing 3D pass) -- see [createSceneRenderPass]'s
      * own doc comment for why one shared handle replaces what used to be one render pass per
      * pipeline. Owned here, not by any individual pipeline; destroyed exactly once in
      * [destroyBackend]. */
     private var sceneRenderPass: Long = 0
     private lateinit var requestedPipelines: Map<PipelineKey, Pair<RenderPipeline, RenderPipeline?>>
-    private lateinit var lineRenderPipeline: LineRenderPipeline
-    private var skyboxRenderPipeline: SkyboxRenderPipeline? = null
     private lateinit var transferContext: TransferContext
+    /** Kept as a field only because [Material]'s descriptor set layout is built from it long
+     * before the [ShadowFeature] that owns (and destroys) it exists. */
     private var shadowMap: ShadowMap? = null
-    private var shadowRenderPipeline: ShadowRenderPipeline? = null
 
     /** The `@group(1)` joint-palette set layout `skinnedInstancedRenderPipeline`'s layout is
      * built from -- see `SkinnedInstanceBuffer.createDescriptorSetLayout` for why each pooled
@@ -257,9 +260,9 @@ open class VulkanGameApplication(
         )
         val (primaryPipeline, primaryWireframePipeline) = requestedPipelines.getValue(PipelineKey.Primary)
 
-        shadowRenderPipeline = shadowMap?.let { map ->
+        val shadowFeature = shadowMap?.let { map ->
             val shaderSet = requireNotNull(shadowShaderSet)
-            ShadowRenderPipeline(
+            val shadowPipeline = ShadowRenderPipeline(
                 graphicsDevice,
                 map.renderPass,
                 pipelineDescriptorSetLayout,
@@ -273,8 +276,9 @@ open class VulkanGameApplication(
                 shaderSet.vulkan.vertexEntryPoint,
                 shaderSet.vulkan.fragmentEntryPoint,
             )
+            ShadowFeature(map, shadowPipeline)
         }
-        lineRenderPipeline = LineRenderPipeline(
+        val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
             sceneRenderPass,
@@ -284,7 +288,7 @@ open class VulkanGameApplication(
             ),
             MAX_FRAMES_IN_FLIGHT,
         )
-        skyboxRenderPipeline = skyboxShaderSet?.let { shaderSet ->
+        val skyboxRenderPipeline = skyboxShaderSet?.let { shaderSet ->
             SkyboxRenderPipeline(
                 graphicsDevice,
                 swapchainManager,
@@ -298,6 +302,16 @@ open class VulkanGameApplication(
             )
         }
         transferContext = TransferContext(graphicsDevice)
+        // Registration order is paint order: the sky draws with depth test/write off, so it
+        // must precede opaque geometry; the UI pass draws on top of both. Content features
+        // (sky) exist only when their shader set was supplied; capability features (opaque
+        // geometry + debug lines, UI) are always present -- see
+        // docs/reference/render-extensibility.md.
+        val renderFeatures: List<RenderFeature> = buildList {
+            skyboxRenderPipeline?.let { add(SkyboxRenderFeature(it)) }
+            add(OpaqueRenderFeature(lineRenderPipeline))
+            add(UiRenderFeature())
+        }
         val renderer = Renderer(
             graphicsDevice = graphicsDevice,
             swapchainManager = swapchainManager,
@@ -329,7 +343,7 @@ open class VulkanGameApplication(
                 skinnedInstancedByFormat = requestedPipelines[PipelineKey.SkinnedInstanced]?.first
                     ?.let { mapOf(VertexFormat.PositionNormalColorSkin to it) } ?: emptyMap(),
             ),
-            lineRenderPipeline = lineRenderPipeline,
+            renderFeatures = renderFeatures,
             transferContext = transferContext,
             uiShaderPairs = UiShaderPairs(
                 quad = loadShaderPair(
@@ -350,15 +364,7 @@ open class VulkanGameApplication(
                 ),
             ),
             maxFramesInFlight = MAX_FRAMES_IN_FLIGHT,
-            shadow = shadowMap?.let { map ->
-                shadowRenderPipeline?.let { pipeline ->
-                    ShadowResources(
-                        map,
-                        pipeline
-                    )
-                }
-            },
-            skyboxRenderPipeline = skyboxRenderPipeline,
+            shadowFeature = shadowFeature,
         )
         swapchainManager.createSyncObjects()
 
@@ -392,10 +398,10 @@ open class VulkanGameApplication(
         skinnedInstanceDescriptorSetLayout?.let {
             VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, it.handle)
         }
-        shadowRenderPipeline?.destroy()
-        shadowMap?.destroy()
-        lineRenderPipeline.destroy()
-        skyboxRenderPipeline?.destroy()
+        // shadowMap/shadowRenderPipeline/lineRenderPipeline/skyboxRenderPipeline are NOT
+        // destroyed here: renderer.destroy() above tears down every RenderFeature (and the
+        // ShadowFeature) it was handed, which owns all four. Destroying them again is a
+        // double-free of live Vulkan handles.
         Vulkan.vkDestroyRenderPass(graphicsDevice.device, sceneRenderPass)
         graphicsDevice.destroy()
     }

@@ -3,7 +3,6 @@
 package io.github.ronjunevaldoz.awake.vulkan.pipeline
 
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
-import io.github.ronjunevaldoz.awake.vulkan.texture.ShadowMap
 
 /** Every 3D [RenderPipeline] a [io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer] can draw
  * with -- replaces that class's own `renderPipeline`/`additionalPipelinesByFormat`/
@@ -29,9 +28,3 @@ data class UiShaderPairs(
     val texture: ShaderPair,
     val roundedQuad: ShaderPair,
 )
-
-/** [map] and [pipeline] are always built together, never independently (see
- * `VulkanGameApplication`'s own `shadowShaderSet` doc comment) -- bundling them replaces
- * `Renderer`'s separate `shadowMap`/`shadowRenderPipeline` nullable params (2 -> 1) and removes
- * the invalid "one set, one null" state two independent nullable params silently allowed. */
-class ShadowResources(val map: ShadowMap, val pipeline: ShadowRenderPipeline)

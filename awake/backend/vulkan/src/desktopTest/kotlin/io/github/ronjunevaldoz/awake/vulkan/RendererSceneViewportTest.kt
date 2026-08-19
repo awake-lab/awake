@@ -14,7 +14,9 @@ import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.OpaqueRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineTable
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiShaderPairs
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.createSceneRenderPass
@@ -142,7 +144,7 @@ class RendererSceneViewportTest {
             graphicsDevice = graphicsDevice,
             swapchainManager = swapchainManager,
             pipelines = PipelineTable(primary = renderPipeline),
-            lineRenderPipeline = lineRenderPipeline,
+            renderFeatures = listOf(OpaqueRenderFeature(lineRenderPipeline), UiRenderFeature()),
             transferContext = transferContext,
             uiShaderPairs = UiShaderPairs(
                 quad = runBlocking { shaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") },
@@ -160,7 +162,6 @@ class RendererSceneViewportTest {
             block(renderer)
         } finally {
             renderer.destroy()
-            lineRenderPipeline.destroy()
             renderPipeline.destroy()
             // Only the layout was ever used (to build renderPipeline's pipeline layout), so only
             // the layout is destroyed -- same teardown RendererHeadlessPixelBaselineTest documents.

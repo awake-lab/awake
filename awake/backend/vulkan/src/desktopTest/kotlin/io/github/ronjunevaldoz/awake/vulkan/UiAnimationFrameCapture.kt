@@ -12,7 +12,9 @@ import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.OpaqueRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineTable
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiShaderPairs
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.createSceneRenderPass
@@ -97,7 +99,6 @@ class HeadlessUiRendererFixture(
 ) {
     fun destroy() {
         renderer.destroy()
-        lineRenderPipeline.destroy()
         renderPipeline.destroy()
         VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)
         transferContext.destroy()
@@ -144,7 +145,7 @@ fun buildHeadlessUiRendererFixture(width: Int, height: Int): HeadlessUiRendererF
         graphicsDevice = graphicsDevice,
         swapchainManager = swapchainManager,
         pipelines = PipelineTable(primary = renderPipeline),
-        lineRenderPipeline = lineRenderPipeline,
+        renderFeatures = listOf(OpaqueRenderFeature(lineRenderPipeline), UiRenderFeature()),
         transferContext = transferContext,
         uiShaderPairs = UiShaderPairs(
             quad = runBlocking {

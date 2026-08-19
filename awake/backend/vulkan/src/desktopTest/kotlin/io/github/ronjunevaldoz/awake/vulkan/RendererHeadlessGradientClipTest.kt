@@ -16,7 +16,9 @@ import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.OpaqueRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineTable
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiShaderPairs
@@ -120,7 +122,6 @@ class RendererHeadlessGradientClipTest {
     ) {
         fun destroy() {
             renderer.destroy()
-            lineRenderPipeline.destroy()
             renderPipeline.destroy()
             VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, pipelineLayoutMaterial.descriptorSetLayout.handle)
             transferContext.destroy()
@@ -161,7 +162,7 @@ class RendererHeadlessGradientClipTest {
             graphicsDevice = graphicsDevice,
             swapchainManager = swapchainManager,
             pipelines = PipelineTable(primary = renderPipeline),
-            lineRenderPipeline = lineRenderPipeline,
+            renderFeatures = listOf(OpaqueRenderFeature(lineRenderPipeline), UiRenderFeature()),
             transferContext = transferContext,
             uiShaderPairs = UiShaderPairs(
                 quad = runBlocking { loadShaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") },

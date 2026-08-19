@@ -24,8 +24,6 @@ import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
-import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
-import io.github.ronjunevaldoz.awake.vulkan.debug.SkyboxRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkSubpassContents
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
@@ -49,10 +47,12 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageLayout2
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineTable
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderFeature
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderFrameContext
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPassSlot
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
-import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowResources
-import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowRenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiShaderPairs
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.texture.OffscreenRenderTarget
@@ -98,7 +98,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
  * extension files -- `internal` stays module-scoped (`awake:backend:vulkan` only), so this is
  * not a real encapsulation loss.
  */
-class Renderer(
+class Renderer internal constructor(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
     /** Every 3D [RenderPipeline] this renderer can draw with -- see [pipelinesByFormat]'s doc
@@ -112,27 +112,24 @@ class Renderer(
      * ([RendererDraw3D.kt], [RendererUiPipelines.kt], etc.) keeps reading `renderPipeline`/
      * `shadowMap`/... exactly as before -- this is a constructor-shape change only. */
     pipelines: PipelineTable,
-    internal val lineRenderPipeline: LineRenderPipeline,
+    /** Every feature sharing a pass this renderer begins, in paint order within its own
+     * [RenderPassSlot]: sky before opaque geometry (the sky draws with depth test/write off),
+     * scene before UI (UI draws on top). Each feature owns and destroys its own pipelines --
+     * see [destroy]. Shadow is not in this list: it owns its own pass, see [shadowFeature]. */
+    private val renderFeatures: List<RenderFeature>,
     internal val transferContext: TransferContext,
     /** The 4 UI shader pairs this renderer lazily builds pipelines from -- replaces the old
      * `uiShaders`/`uiGlyphShaders`/`uiTextureShaders`/`uiRoundedQuadShaders` flat params. */
     uiShaderPairs: UiShaderPairs,
     internal val maxFramesInFlight: Int,
-    /** Non-null only when the app's bootstrap opted into shadows (see
-     * `VulkanGameApplication`'s own `shadowShaderSet` doc comment) -- both [ShadowResources.map]
-     * and [ShadowResources.pipeline] are built once, before this `Renderer`, by whoever
-     * constructs it. `null` (default) is the "shadows never existed" path: every material built
-     * by this instance keeps its original 3-binding descriptor set layout, and
-     * [prepareDrawCalls] keeps writing the exact same 8-float light block it always did --
-     * zero behavior change for every caller that doesn't opt in. Replaces the old separate
-     * `shadowMap`/`shadowRenderPipeline` nullable params, which silently allowed an invalid
-     * "one set, one null" state. */
-    shadow: ShadowResources? = null,
-    /** Non-null only when the app's bootstrap opted into a skybox shader set (see
-     * `VulkanGameApplication.skyboxShaderSet`) -- `null` (default) makes [showEnvironment] an
-     * inert flag, same "nothing to switch to, keep rendering as before" posture as
-     * [wireframe] with no wireframe pipeline. */
-    internal val skyboxRenderPipeline: SkyboxRenderPipeline? = null,
+    /** Not part of [renderFeatures] -- it owns its own render pass and runs before the scene
+     * pass is even recorded. Non-null only when the app's bootstrap opted into shadows (see
+     * `VulkanGameApplication`'s own `shadowShaderSet` doc comment). `null` (default) is the
+     * "shadows never existed" path: every material built by this instance keeps its original
+     * 3-binding descriptor set layout, and [prepareDrawCalls] keeps writing the exact same
+     * 8-float light block it always did -- zero behavior change for every caller that doesn't
+     * opt in. */
+    private val shadowFeature: ShadowFeature? = null,
 ) : RenderRenderer {
     override val clipSpace: ClipSpace = ClipSpace.Vulkan
 
@@ -176,8 +173,10 @@ class Renderer(
     internal val graphicsDevice = graphicsDevice
     internal val swapchainManager = swapchainManager
     internal val renderPipeline = pipelines.primary
-    internal val shadowMap: ShadowMap? = shadow?.map
-    internal val shadowRenderPipeline: ShadowRenderPipeline? = shadow?.pipeline
+
+    /** Non-null exactly when [shadowFeature] is -- read by [createMaterial] (its descriptor set
+     * layout gains the shadow bindings) and by the uniform-writing paths, never for drawing. */
+    internal val shadowMap: ShadowMap? = shadowFeature?.shadowMap
     internal val uiShaders: ShaderPair = uiShaderPairs.quad
     internal val uiGlyphShaders: ShaderPair = uiShaderPairs.glyph
     internal val uiTextureShaders: ShaderPair = uiShaderPairs.texture
@@ -644,7 +643,35 @@ class Renderer(
      * comment for why. */
     override fun drawDebugLines(lines: List<LineSegment>) = performDrawDebugLines(lines)
 
+    /** Records every feature registered for [slot], in registration order, into the pass
+     * [recordCommandBuffer] has already begun. */
+    internal fun recordSharedPassFeatures(slot: RenderPassSlot, context: RenderFrameContext) {
+        var index = 0
+        while (index < renderFeatures.size) {
+            val feature = renderFeatures[index]
+            if (feature.pass == slot) feature.recordCommands(context)
+            index += 1
+        }
+    }
+
+    /** The shadow depth pre-pass, on its own render pass and its own one-time command buffer.
+     * Must run before the swapchain command buffer records: the main pass's fragment shader
+     * samples this frame's shadow map, so its depth content must already be complete. A no-op
+     * when shadows were never opted into ([shadowFeature] is null) or are runtime-disabled
+     * ([shadowsEnabled]). */
+    internal fun recordShadowPass(drawCalls: List<PreparedDrawCall>) {
+        val feature = shadowFeature ?: return
+        if (!shadowsEnabled) return
+        runOffscreenCommands { commandBuffer ->
+            feature.recordCommands(commandBuffer, drawCalls, renderPipeline.vertexFormat)
+        }
+    }
+
     override fun destroy() {
+        // "Whoever holds the list destroys it": these were constructor-injected, but this class
+        // is the only thing that knows the list's full membership.
+        renderFeatures.forEach { it.destroy() }
+        shadowFeature?.destroy()
         var index = 0
         val count = framebuffers.size
         while (index < count) {
