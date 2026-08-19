@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.rendering.components
 
+import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.Vec4
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.Poolable
 import io.github.ronjunevaldoz.awake.ecs.World
@@ -162,7 +164,27 @@ class ParticleEmitter(
     /** Seconds this emitter has been alive -- drives [frameCount]'s sprite-strip cycling.
      * Unused (stays 0, `frameInfo`'s `currentFrame` stays 0) when [frameCount] is 1. */
     internal var elapsedTime: Float = 0f
+
+    /** Reused every frame by [io.github.ronjunevaldoz.awake.scene.rendering.systems
+     * .RenderSystem] to build this emitter's `DrawCall.instanceModels`/`.instanceColors` --
+     * `clear()`+refill instead of a fresh `list.filter{}.map{}` per frame, the same "resize
+     * only when the count actually changes" no-per-frame-allocation rule every other instanced
+     * buffer in this codebase already follows (see `skills/awake-core-math/SKILL.md`). Still
+     * allocates one `Mat4`/`Vec4` per LIVE particle each frame (not per emitter) -- fully
+     * eliminating that needs pooling those per particle slot and mutating them in place, a
+     * larger follow-up, not done here. */
+    internal val instanceModelsBuffer: MutableList<Mat4> = ArrayList(maxParticles)
+    internal val instanceColorsBuffer: MutableList<Vec4> = ArrayList(maxParticles)
+
+    /** Reused every frame for `DrawCall.extraUniformFloats` (camera basis + frame info) --
+     * written in place instead of `cameraBasis + floatArrayOf(...)`, which allocates a new
+     * array via concatenation every frame. */
+    internal val uniformFloatsBuffer: FloatArray = FloatArray(EXTRA_UNIFORM_FLOAT_COUNT)
 }
+
+/** [ParticleEmitter.uniformFloatsBuffer]'s fixed size: cameraRight(4) + cameraUp(4) +
+ * frameInfo(4), matching `particle.wgsl`'s own `Uniforms` layout past `viewProjection`. */
+internal const val EXTRA_UNIFORM_FLOAT_COUNT = 12
 
 /**
  * Creates a fresh entity carrying a one-shot [ParticleEmitter] (`burstCount = count`) at
