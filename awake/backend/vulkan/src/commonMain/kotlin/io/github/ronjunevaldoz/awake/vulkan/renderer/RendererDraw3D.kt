@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
+import io.github.ronjunevaldoz.awake.render.command.PreparedDraw
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
@@ -27,6 +28,7 @@ import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.AlphaInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.FrameInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.InstanceBuffer
+import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
@@ -40,6 +42,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubmitInfo
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPassSlot
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.VulkanMaterialBinding
 import io.github.ronjunevaldoz.awake.vulkan.utils.VkResultException
 import kotlin.math.ceil
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
@@ -113,7 +116,7 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     Vulkan.vkQueueSubmit(
         graphicsQueue,
         arrayOf(submitInfo),
-        swapchainManager.inFlightFences[currentFrame]
+        swapchainManager.inFlightFences[currentFrame],
     )
 
     val presentInfo = VkPresentInfoKHR(
@@ -135,11 +138,6 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     swapchainManager.currentFrame = (currentFrame + 1) % commandBuffers.size
 }
 
-/** Binds+draws each [drawCalls] entry against its own resolved [PreparedDrawCall.pipeline]'s
- * layout -- shared by [recordCommandBuffer] (the swapchain frame, which groups by pipeline
- * and binds each group's pipeline before calling this) and [Renderer.renderToTexture] (an
- * offscreen frame, which only ever resolves the primary pipeline, already bound before this
- * is called there), so neither duplicates this loop. */
 /** [Renderer.sceneViewport] trimmed to this frame's swapchain extent -- see
  * [RenderViewport.clampedTo] for why a caller's rect can outlive the surface it was measured
  * against. */
@@ -157,40 +155,13 @@ internal fun RenderViewport.toVkScissor(): VkRect2D = VkRect2D(
     extent = VkExtent2D(ceil(width).toInt(), ceil(height).toInt()),
 )
 
+/** Binds+draws each [drawCalls] entry through the shared per-draw recording loop, against
+ * whatever pipeline the caller already bound -- [Renderer.renderToTexture]'s offscreen path,
+ * which groups by pipeline and binds each group itself. The swapchain frame reaches the same
+ * loop through `SharedOpaqueRenderFeature.recordCommands` instead. */
 internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<PreparedDrawCall>) {
-    var drawIndex = 0
-    val drawCount = drawCalls.size
-    while (drawIndex < drawCount) {
-        val prepared = drawCalls[drawIndex]
-        prepared.drawCall.mesh.bind(commandBuffer)
-        prepared.material.bind(
-            commandBuffer,
-            prepared.pipeline.pipelineLayout,
-            prepared.frameIndex,
-            prepared.uniformSlotIndex,
-        )
-        val instanceBuffer = prepared.instanceBuffer
-        if (instanceBuffer != null) {
-            // Binding 1, alongside the mesh's own binding-0 vertex buffer bound just above.
-            instanceBuffer.bind(prepared.frameIndex, commandBuffer)
-            // Descriptor set 1 (the material bound set 0 just above) -- only for the animated
-            // variant; a static instanced draw has no palettes.
-            prepared.jointPaletteBuffer?.bind(
-                prepared.frameIndex,
-                commandBuffer,
-                prepared.pipeline.pipelineLayout,
-            )
-            // Binding 2, alongside the mesh's own binding-0 and instance-model binding-1 --
-            // only for a particle draw call.
-            prepared.alphaInstanceBuffer?.bind(prepared.frameIndex, commandBuffer)
-            // Binding 3, alongside binding 2's color/alpha -- only for a particle draw call.
-            prepared.frameInstanceBuffer?.bind(prepared.frameIndex, commandBuffer)
-            prepared.drawCall.mesh.drawInstanced(commandBuffer, prepared.instanceCount)
-        } else {
-            prepared.drawCall.mesh.draw(commandBuffer)
-        }
-        drawIndex += 1
-    }
+    commandRecorder.commandBuffer = commandBuffer
+    sharedOpaqueFeature.recordDraws(commandRecorder, drawCalls)
 }
 
 /** Records the frame's two passes: the 3D scene pass, then either the UI overlay pass or the
@@ -275,7 +246,7 @@ internal fun Renderer.recordCommandBuffer(
         Vulkan.vkCmdBeginRenderPass(
             commandBuffer,
             uiRenderPassInfo,
-            VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE
+            VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE,
         )
         Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
         Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
@@ -310,12 +281,21 @@ internal fun Renderer.waitForCurrentFrameResourceSlot() {
     Vulkan.vkWaitForFences(device, longArrayOf(fence), true, Long.MAX_VALUE)
 }
 
+/**
+ * Also this backend's [PreparedDraw]: the port's members are computed off the fields already
+ * here, so the shared opaque feature iterates these directly instead of a second per-draw object
+ * being built for it every frame. Every getter resolves to an object created at
+ * resource-creation time (a material's uniform slot, a mesh's buffer binding), so reading one
+ * allocates nothing.
+ */
 internal data class PreparedDrawCall(
     val drawCall: DrawCall,
-    val pipeline: RenderPipeline,
+    override val pipeline: RenderPipeline,
     val material: Material,
     val frameIndex: Int,
     val uniformSlotIndex: Int,
+    /** The descriptor set `prepareDrawCalls` just wrote this draw's uniforms into. */
+    override val materialBinding: VulkanMaterialBinding,
     /** Non-null only for a [DrawCall.instanceModels] draw resolved to an instanced pipeline --
      * [recordDrawCalls] then binds it and issues one `drawInstanced` instead of `draw`. */
     val instanceBuffer: InstanceBuffer? = null,
@@ -329,7 +309,23 @@ internal data class PreparedDrawCall(
     /** Non-null only for a billboard-particle instanced draw ([DrawCall.instanceFrames]), bound
      * at binding 3 alongside [alphaInstanceBuffer]'s binding 2. */
     val frameInstanceBuffer: FrameInstanceBuffer? = null,
-)
+) : PreparedDraw {
+    /** Safe for the same reason `prepareDrawCalls`' own `drawCall.material as Material` is: a
+     * `Renderer` only ever draws meshes it created itself. */
+    private val vulkanMesh: Mesh get() = drawCall.mesh as Mesh
+
+    override val vertexBuffer get() = vulkanMesh.vertexBinding
+    override val indexBuffer get() = vulkanMesh.indexBinding
+    override val elementCount get() = vulkanMesh.indexCount
+
+    /** [instanceCount] is 0 for a non-instanced draw; the port's count is the real one Vulkan
+     * issues, which is 1 there. */
+    override val instances get() = if (instanceBuffer == null) 1 else instanceCount
+    override val instanceVertexBuffer get() = instanceBuffer?.binding(frameIndex)
+    override val jointPaletteBinding get() = jointPaletteBuffer?.binding(frameIndex)
+    override val instanceColorBuffer get() = alphaInstanceBuffer?.binding(frameIndex)
+    override val instanceFrameBuffer get() = frameInstanceBuffer?.binding(frameIndex)
+}
 
 /** Resolves each [drawCalls] entry against [Renderer.pipelinesByFormat] by its
  * [DrawCall.mesh]'s own [io.github.ronjunevaldoz.awake.render.mesh.Mesh.format] and writes
@@ -395,8 +391,11 @@ internal fun Renderer.prepareDrawCalls(
                 viewProjection.data + lightFloats
             }
             val instanced = prepareInstancedDrawCall(
-                drawCall, frameIndex, instancedIndex,
-                instancedUniformFloats, materialUsage,
+                drawCall,
+                frameIndex,
+                instancedIndex,
+                instancedUniformFloats,
+                materialUsage,
             )
             if (instanced != null) {
                 prepared += instanced
@@ -405,8 +404,8 @@ internal fun Renderer.prepareDrawCalls(
                 val animated = drawCall.instanceJointPalettes != null
                 println(
                     "Awake (Vulkan): instanced DrawCall skipped -- no ${if (animated) "skinned-" else ""}" +
-                            "instanced pipeline registered for mesh format ${drawCall.mesh.format}, " +
-                            "or instanceModels was empty.",
+                        "instanced pipeline registered for mesh format ${drawCall.mesh.format}, " +
+                        "or instanceModels was empty.",
                 )
             }
             drawIndex += 1
@@ -431,16 +430,16 @@ internal fun Renderer.prepareDrawCalls(
                     if (lightViewProjection != null) {
                         // Order matches lit_shadow.wgsl's Uniforms field order exactly.
                         lightFloats +
-                                (drawCall.model * lightViewProjection).data +
-                                drawCall.model.data +
-                                floatArrayOf(
-                                    cameraPosition.x,
-                                    cameraPosition.y,
-                                    cameraPosition.z,
-                                    0f
-                                ) +
-                                pbrMaterialFloats(drawCall) +
-                                fogFloats()
+                            (drawCall.model * lightViewProjection).data +
+                            drawCall.model.data +
+                            floatArrayOf(
+                                cameraPosition.x,
+                                cameraPosition.y,
+                                cameraPosition.z,
+                                0f,
+                            ) +
+                            pbrMaterialFloats(drawCall) +
+                            fogFloats()
                     } else {
                         lightFloats
                     }
@@ -450,19 +449,27 @@ internal fun Renderer.prepareDrawCalls(
                     // material factors. Keyed by format rather than by pipeline identity for
                     // the same reason the branch above is.
                     lightFloats +
-                            drawCall.model.data +
-                            floatArrayOf(cameraPosition.x, cameraPosition.y, cameraPosition.z, 0f) +
-                            pbrTexturedMaterialFloats(drawCall) +
-                            fogFloats()
+                        drawCall.model.data +
+                        floatArrayOf(cameraPosition.x, cameraPosition.y, cameraPosition.z, 0f) +
+                        pbrTexturedMaterialFloats(drawCall) +
+                        fogFloats()
                 } else {
                     drawCall.extraUniformFloats
                 }
-            material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + extraFloats)
-            prepared += PreparedDrawCall(drawCall, pipeline, material, frameIndex, uniformSlotIndex)
+            val binding =
+                material.updateUniformBuffer(frameIndex, uniformSlotIndex, mvp.data + extraFloats)
+            prepared += PreparedDrawCall(
+                drawCall,
+                pipeline,
+                material,
+                frameIndex,
+                uniformSlotIndex,
+                binding,
+            )
         } else if (debugMode) {
             println(
                 "Awake (Vulkan): DrawCall skipped -- no pipeline registered for mesh format " +
-                        "${drawCall.mesh.format}.",
+                    "${drawCall.mesh.format}.",
             )
         }
         drawIndex += 1
@@ -529,13 +536,14 @@ private fun Renderer.prepareInstancedDrawCall(
     } else {
         null
     }
-    material.updateUniformBuffer(frameIndex, uniformSlotIndex, uniformFloats)
+    val binding = material.updateUniformBuffer(frameIndex, uniformSlotIndex, uniformFloats)
     return PreparedDrawCall(
         drawCall = drawCall,
         pipeline = pipeline,
         material = material,
         frameIndex = frameIndex,
         uniformSlotIndex = uniformSlotIndex,
+        materialBinding = binding,
         instanceBuffer = instanceBuffer,
         instanceCount = instanceModels.size,
         jointPaletteBuffer = jointPaletteBuffer,
@@ -554,7 +562,6 @@ private fun Renderer.shadowTexelDepthScale(): Float {
     val map = shadowMap ?: return 0f
     return (2f * SHADOW_ORTHO_HALF_SIZE / map.size) / (SHADOW_FAR - SHADOW_NEAR)
 }
-
 
 /** `[metallic, roughness, 0, 0]`, reusing [DrawCall.extraUniformFloats] -- the primary lit
  * format otherwise ignores that field, and a dedicated pair of DrawCall properties would have
@@ -584,9 +591,11 @@ private const val DEFAULT_ROUGHNESS = 0.5f
  * [pbrMaterialFloats] reads its first 4 from -- one packing serves both pipelines. */
 private fun pbrTexturedMaterialFloats(drawCall: DrawCall): FloatArray {
     val supplied = drawCall.extraUniformFloats
-    if (supplied.size >= PBR_TEXTURED_MATERIAL_FLOATS) return supplied.copyOf(
-        PBR_TEXTURED_MATERIAL_FLOATS
-    )
+    if (supplied.size >= PBR_TEXTURED_MATERIAL_FLOATS) {
+        return supplied.copyOf(
+            PBR_TEXTURED_MATERIAL_FLOATS,
+        )
+    }
     return floatArrayOf(
         DEFAULT_METALLIC_FACTOR, DEFAULT_ROUGHNESS_FACTOR, 0f, 0f,
         1f, 1f, 1f, 1f,

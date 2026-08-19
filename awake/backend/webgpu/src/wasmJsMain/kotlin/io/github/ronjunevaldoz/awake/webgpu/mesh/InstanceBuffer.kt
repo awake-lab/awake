@@ -5,6 +5,7 @@ package io.github.ronjunevaldoz.awake.webgpu.mesh
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuBufferHandle
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
@@ -56,6 +57,9 @@ class InstanceBuffer(
     }
 
     fun bufferRef(): GPUBuffer = buffer
+
+    /** This buffer as the shared render layer's opaque handle -- built once, not per draw. */
+    val binding: WebGpuBufferHandle by lazy { WebGpuBufferHandle(buffer) }
 
     fun destroy() {
         buffer.close()

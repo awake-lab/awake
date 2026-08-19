@@ -22,6 +22,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutBin
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.VulkanMaterialBinding
 import io.github.ronjunevaldoz.awake.vulkan.texture.ShadowMap
 import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
@@ -154,7 +155,14 @@ class Material(
         updateUniformBuffer(frameIndex = 0, drawSlotIndex = 0, values = mvp)
     }
 
-    fun updateUniformBuffer(frameIndex: Int, drawSlotIndex: Int, values: FloatArray) {
+    /** Returns the slot it wrote into, as the shared render layer's opaque binding handle -- the
+     * caller (`prepareDrawCalls`) needs exactly that to record the draw, and resolving it here
+     * costs nothing extra (the slot was already looked up to write). */
+    fun updateUniformBuffer(
+        frameIndex: Int,
+        drawSlotIndex: Int,
+        values: FloatArray,
+    ): VulkanMaterialBinding {
         // Catches an oversized write here, in Kotlin, with the actual float counts involved --
         // the alternative is vkMapMemory rejecting it deep in native code as a bare
         // VUID-vkMapMemory-size-00681 with no indication of which Material/DrawCall was at
@@ -166,6 +174,7 @@ class Material(
         }
         val slot = uniformSlot(frameIndex, drawSlotIndex)
         VulkanBuffers.writeBufferMemoryFloats(device, slot.uniformBufferMemory.handle, 0, values)
+        return slot
     }
 
     override fun bind(commandBuffer: Long, pipelineLayout: Long) {
@@ -197,7 +206,9 @@ class Material(
         val descriptorSet: DescriptorSetHandle,
         val uniformBuffer: BufferHandle,
         val uniformBufferMemory: DeviceMemoryHandle,
-    )
+    ) : VulkanMaterialBinding {
+        override val descriptorSetHandle: Long get() = descriptorSet.handle
+    }
 
     companion object {
         /** A bare MVP matrix -- every material before skinning existed. A skinned material

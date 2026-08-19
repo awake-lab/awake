@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.handles.BufferHandle
 import io.github.ronjunevaldoz.awake.webgpu.handles.DeviceMemoryHandle
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuBufferHandle
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
@@ -50,6 +51,12 @@ class Mesh(
     var lineIndexBuffer: BufferHandle
     val lineIndexCount: Int
 
+    /** The same three buffers above, as the shared render layer's opaque handle type -- built
+     * once here so the per-draw recording path allocates nothing per frame. */
+    val vertexBinding: WebGpuBufferHandle
+    val indexBinding: WebGpuBufferHandle
+    val lineIndexBinding: WebGpuBufferHandle
+
     init {
         val device = graphicsDevice.wgpuContext.device
 
@@ -85,6 +92,10 @@ class Mesh(
         )
         device.queue.writeBuffer(rawLineIndexBuffer, 0uL, fastArrayBufferOf(lineIndices))
         lineIndexBuffer = BufferHandle(WebGpuHandles.register(rawLineIndexBuffer))
+
+        vertexBinding = WebGpuBufferHandle(rawVertexBuffer)
+        indexBinding = WebGpuBufferHandle(rawIndexBuffer)
+        lineIndexBinding = WebGpuBufferHandle(rawLineIndexBuffer)
     }
 
     override fun bind(commandBuffer: Long) {

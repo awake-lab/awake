@@ -1,6 +1,6 @@
 # Awake Render Passes
 
-Status: **phase 0** -- the types exist, nothing calls them yet.
+Status: **phase 1** -- the opaque pass runs from here on both backends.
 
 Backend-neutral render-pass logic, shared by [`awake:backend:vulkan`](../../../backend/vulkan/README.md)
 and [`awake:backend:webgpu`](../../../backend/webgpu/README.md). Sibling to
@@ -32,8 +32,14 @@ to compile means the missing capability belongs on `CommandRecorder`, not in a b
 
 - `command/CommandRecorder.kt` -- `CommandRecorder` plus the three opaque backend-defined
   handles it passes through (`MaterialBinding`, `PipelineHandle`, `BufferHandle`).
+- `command/PreparedDraw.kt` -- one draw with every handle already resolved. `CommandRecorder`
+  says *how* to issue a bind; this says *what* to bind. A backend implements it on whatever
+  per-draw type it already builds.
+- `passes/SharedOpaqueRenderFeature.kt` -- the one implementation of "record every opaque draw,
+  grouped by pipeline", called by Vulkan's `OpaqueRenderFeature` and by WebGPU's frame function.
 
 Planned, per
 [docs/audits/2026-08-19-vulkan-webgpu-common-backend-plan.md](../../../../docs/audits/2026-08-19-vulkan-webgpu-common-backend-plan.md):
-the `SharedXRenderFeature` classes, and the uniform packers (`SkyboxUniforms.kt` moving over from
-`render:contract`, plus `MaterialUniforms.kt`/`LightUniforms.kt`).
+the remaining `SharedXRenderFeature` classes (UI, skybox, shadow -- phases 2-4), and the uniform
+packers (`SkyboxUniforms.kt` moving over from `render:contract`, plus
+`MaterialUniforms.kt`/`LightUniforms.kt`).

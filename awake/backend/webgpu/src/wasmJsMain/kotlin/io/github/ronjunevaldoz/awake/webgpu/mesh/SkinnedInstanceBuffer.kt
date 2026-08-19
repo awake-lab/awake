@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.webgpu.mesh
 
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuBindGroupHandle
 import io.ygdrasil.webgpu.BindGroupDescriptor
 import io.ygdrasil.webgpu.BindGroupEntry
 import io.ygdrasil.webgpu.BufferBinding
@@ -82,8 +83,17 @@ class SkinnedInstanceBuffer(
         )
         bindGroup = created
         bindGroupPipeline = pipeline
+        bindGroupHandle = null
         return created
     }
+
+    /** [bindGroupFor] as the shared render layer's opaque handle, cached the same way. */
+    fun bindingFor(pipeline: GPURenderPipeline): WebGpuBindGroupHandle {
+        val group = bindGroupFor(pipeline)
+        return bindGroupHandle ?: WebGpuBindGroupHandle(group).also { bindGroupHandle = it }
+    }
+
+    private var bindGroupHandle: WebGpuBindGroupHandle? = null
 
     fun destroy() {
         buffer.close()

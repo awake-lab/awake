@@ -15,6 +15,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutBin
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.VulkanMaterialBinding
 
 /** One `VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER` binding (binding 0, one descriptor set layout) with
  * one buffer/descriptor-set pair per frame in flight -- was hand-rolled identically in both
@@ -27,7 +28,14 @@ internal class PerFrameUniformSlots(
     stageFlags: Int,
     framesInFlight: Int,
 ) {
-    class Slot(val descriptorPool: Long, val descriptorSet: Long, val buffer: Long, val bufferMemory: Long)
+    class Slot(
+        val descriptorPool: Long,
+        val descriptorSet: Long,
+        val buffer: Long,
+        val bufferMemory: Long,
+    ) : VulkanMaterialBinding {
+        override val descriptorSetHandle: Long get() = descriptorSet
+    }
 
     private val device get() = graphicsDevice.device
 

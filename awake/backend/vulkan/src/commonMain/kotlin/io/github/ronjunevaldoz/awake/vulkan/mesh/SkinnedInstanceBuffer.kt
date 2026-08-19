@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutBin
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.VulkanMaterialBinding
 
 /**
  * The per-instance JOINT PALETTES behind one animated instanced draw call -- [InstanceBuffer]'s
@@ -61,7 +62,9 @@ class SkinnedInstanceBuffer(
         val memory: DeviceMemoryHandle,
         val descriptorPool: DescriptorPoolHandle,
         val descriptorSet: DescriptorSetHandle,
-    )
+    ) : VulkanMaterialBinding {
+        override val descriptorSetHandle: Long get() = descriptorSet.handle
+    }
 
     private val byteSize = (maxInstances.toLong() * FLOATS_PER_INSTANCE * Float.SIZE_BYTES)
 
@@ -114,6 +117,10 @@ class SkinnedInstanceBuffer(
 
     /** Binds this frame slot's palette descriptor set as [PALETTE_SET]. The material's own set 0
      * is bound separately (see `RendererDraw3D.recordDrawCalls`). */
+    /** This frame slot's palette descriptor set, for the shared opaque feature to bind at
+     * [PALETTE_SET]. */
+    fun binding(frameIndex: Int): VulkanMaterialBinding = resourcesFor(frameIndex)
+
     fun bind(frameIndex: Int, commandBuffer: Long, pipelineLayout: Long) {
         VulkanDescriptors.vkCmdBindDescriptorSet(
             commandBuffer,

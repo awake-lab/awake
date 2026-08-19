@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.vulkan.handles.DeviceMemoryHandle
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.VulkanBufferBinding
 
 /**
  * The per-instance model matrices behind one instanced draw call -- an instance-rate vertex
@@ -36,7 +37,10 @@ class InstanceBuffer(
     private data class FrameResources(
         val buffer: BufferHandle,
         val memory: DeviceMemoryHandle,
-    )
+    ) {
+        /** This slot's buffer as the port's opaque handle -- built once, not per draw. */
+        val binding = VulkanBufferBinding(buffer.handle)
+    }
 
     private val frameResources: Array<FrameResources> = Array(framesInFlight) {
         val (buffer, memory) = allocateHostVisibleBuffer(
@@ -69,6 +73,9 @@ class InstanceBuffer(
         }
         VulkanBuffers.writeBufferMemoryFloats(device, resourcesFor(frameIndex).memory.handle, 0, packed)
     }
+
+    /** This frame slot's buffer, for the shared opaque feature to bind at binding 1. */
+    fun binding(frameIndex: Int): VulkanBufferBinding = resourcesFor(frameIndex).binding
 
     fun bind(frameIndex: Int, commandBuffer: Long) {
         VulkanBuffers.vkCmdBindVertexBuffers(

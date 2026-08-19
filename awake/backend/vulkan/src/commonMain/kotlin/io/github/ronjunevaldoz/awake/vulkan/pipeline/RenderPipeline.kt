@@ -32,7 +32,6 @@ import io.github.ronjunevaldoz.awake.vulkan.models.VkSubpassDependency
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkGraphicsPipelineCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkShaderModuleCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkSubpassDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendAttachmentState
@@ -143,7 +142,10 @@ class RenderPipeline(
     /** Extra descriptor set layouts appended after [descriptorSetLayout] (set 0). Today's only
      * user: the skinned-instanced pipeline's `@group(1)` joint-palette buffer. */
     extraDescriptorSetLayouts: List<DescriptorSetLayoutHandle> = emptyList(),
-) {
+) : VulkanPipelineHandle {
+    override val pipelineHandle: Long get() = graphicsPipeline[0]
+    override val pipelineLayoutHandle: Long get() = pipelineLayout
+
     // Read by the create* builders through the field rather than passed as a param: that's
     // exactly the parameter-count pressure this class's own doc comment on createPipelineLayout
     // exists to avoid growing further.
@@ -244,7 +246,6 @@ class RenderPipeline(
         Vulkan.vkDestroyPipelineLayout(device, pipelineLayout)
         Vulkan.vkDestroyPipelineCache(device, pipelineCache)
     }
-
 }
 
 private const val DEFAULT_SHADER_ENTRY_POINT = "main"

@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.render.command.CommandRecorder
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderFrameContext
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
@@ -32,8 +33,10 @@ internal class RendererFrameContext(
     override val surfaceWidth get() = renderer.swapchainManager.extent.width
     override val surfaceHeight get() = renderer.swapchainManager.extent.height
 
-    override fun recordDrawCalls(drawCalls: List<PreparedDrawCall>) =
-        renderer.recordDrawCalls(commandBuffer, drawCalls)
+    /** Aimed at [commandBuffer] here, once per frame, rather than at every record site. */
+    override val recorder: CommandRecorder = renderer.commandRecorder.apply {
+        commandBuffer = this@RendererFrameContext.commandBuffer
+    }
 
     override fun uiPipelines(): UiPipelineSet? {
         val quad = renderer.uiRenderPipeline ?: return null

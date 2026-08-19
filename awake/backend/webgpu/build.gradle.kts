@@ -49,6 +49,10 @@ kotlin {
             // Mesh/Material/Renderer implement the same narrow backend-neutral interfaces
             // awake-backend-vulkan's do -- see awake-engine-render-api's module doc.
             api(project(":awake:engine:render:contract"))
+            // The shared render-pass layer (SharedOpaqueRenderFeature + the CommandRecorder
+            // port). `api`, not `implementation`: this module's public pipeline/mesh/material
+            // types implement the port's handle interfaces, so consumers see them.
+            api(project(":awake:engine:render:passes"))
             // Reusable-Application gap fix (see docs/MVP_PLAN.md's Decision Log): same
             // reasoning as awake-backend-vulkan's VulkanGameApplication -- see that
             // module's build.gradle.kts comment.

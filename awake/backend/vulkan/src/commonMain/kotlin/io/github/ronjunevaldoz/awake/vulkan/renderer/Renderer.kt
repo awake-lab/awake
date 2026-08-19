@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.render.passes.SharedOpaqueRenderFeature
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_FOG_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_HORIZON_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
@@ -55,6 +56,7 @@ import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiShaderPairs
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.VulkanCommandRecorder
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.texture.OffscreenRenderTarget
 import io.github.ronjunevaldoz.awake.vulkan.texture.ShadowMap
@@ -134,6 +136,16 @@ class Renderer internal constructor(
 ) : RenderRenderer {
     override val clipSpace: ClipSpace = ClipSpace.Vulkan
 
+    /** This backend's half of the shared draw-recording port -- retargeted at whichever command
+     * buffer is being recorded (see [VulkanCommandRecorder.commandBuffer]) rather than rebuilt,
+     * so a frame allocates no recorder at all. */
+    internal val commandRecorder = VulkanCommandRecorder()
+
+    /** Stateless; held here so the offscreen [renderToTexture] path reaches the same per-draw
+     * recording loop the scene pass does (through `OpaqueRenderFeature`) without either side
+     * duplicating it. */
+    internal val sharedOpaqueFeature = SharedOpaqueRenderFeature()
+
     /** Whether the shadow depth pre-pass actually runs this frame -- only meaningful when
      * [shadowMap] is non-null. Toggling this off leaves the shadow map holding whatever depth
      * it last rendered (or its cleared default of 1.0, "nothing occludes", if never rendered)
@@ -204,8 +216,12 @@ class Renderer internal constructor(
      * is on but this format has no wireframe variant": falls back to filled rather than being
      * dropped). */
     internal fun pipelineFor(format: VertexFormat): RenderPipeline? =
-        if (wireframe) wireframePipelinesByFormat[format]
-            ?: pipelinesByFormat[format] else pipelinesByFormat[format]
+        if (wireframe) {
+            wireframePipelinesByFormat[format]
+                ?: pipelinesByFormat[format]
+        } else {
+            pipelinesByFormat[format]
+        }
 
     internal val device get() = graphicsDevice.device
     internal val physicalDevice get() = graphicsDevice.physicalDevice
@@ -298,7 +314,7 @@ class Renderer internal constructor(
             uiQuadMeshPool += DynamicMesh(
                 graphicsDevice,
                 MAX_UI_QUADS,
-                framesInFlight = maxFramesInFlight
+                framesInFlight = maxFramesInFlight,
             )
         }
         return uiQuadMeshPool[index]
@@ -424,7 +440,7 @@ class Renderer internal constructor(
             transferContext::runOneTimeCommands,
             geometry.vertices,
             geometry.indices,
-            geometry.format
+            geometry.format,
         )
 
     /** Builds a [Material] bound to this [renderPipeline] with [uniformFloatCount] uniform
@@ -443,7 +459,7 @@ class Renderer internal constructor(
         val pbr = PbrImageViews(
             metallicRoughness = pbrImageView(
                 pbrTextures?.metallicRoughness,
-                NEUTRAL_METALLIC_ROUGHNESS
+                NEUTRAL_METALLIC_ROUGHNESS,
             ),
             normal = pbrImageView(pbrTextures?.normal, NEUTRAL_NORMAL),
             occlusion = pbrImageView(pbrTextures?.occlusion, NEUTRAL_OCCLUSION),
@@ -454,7 +470,7 @@ class Renderer internal constructor(
             material.createResourcesFromRenderTarget(
                 offscreen.sampler,
                 offscreen.colorImageView,
-                pbr
+                pbr,
             )
         } else {
             material.createResources(uploadTexture(texture ?: PLACEHOLDER_TEXTURE), pbr)
@@ -552,19 +568,19 @@ class Renderer internal constructor(
             Vulkan.vkCmdBeginRenderPass(
                 commandBuffer,
                 renderPassInfo,
-                VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE
+                VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE,
             )
             val viewport = sceneRect?.toVkViewport()
                 ?: VkViewport(
                     width = offscreen.width.toFloat(),
-                    height = offscreen.height.toFloat()
+                    height = offscreen.height.toFloat(),
                 )
             Vulkan.vkCmdSetViewport(commandBuffer, 0, arrayOf(viewport))
             val scissor = sceneRect?.toVkScissor() ?: VkRect2D(
                 extent = VkExtent2D(
                     offscreen.width,
-                    offscreen.height
-                )
+                    offscreen.height,
+                ),
             )
             Vulkan.vkCmdSetScissor(commandBuffer, 0, arrayOf(scissor))
             // Grouped by resolved pipeline, same as recordCommandBuffer's own primary/non-primary
@@ -575,8 +591,11 @@ class Renderer internal constructor(
             // through the wrong pipeline -- wrong vertex layout, wrong descriptor set, garbage
             // output. Worked by coincidence for single-pipeline scenes (rotating-cube) and broke
             // for anything textured (the glTF viewer's duck).
+            commandRecorder.commandBuffer = commandBuffer
             preparedDrawCalls.groupBy { it.pipeline }.forEach { (pipeline, group) ->
-                pipeline.bind(commandBuffer)
+                // Through the recorder, not pipeline.bind(commandBuffer): the recorder tracks the
+                // bound pipeline's layout, which is what the following descriptor-set binds use.
+                commandRecorder.bindPipeline(pipeline)
                 recordDrawCalls(commandBuffer, group)
             }
             Vulkan.vkCmdEndRenderPass(commandBuffer)
@@ -596,7 +615,7 @@ class Renderer internal constructor(
             device,
             VkBufferCreateInfo(
                 size = byteSize,
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT
+                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             ),
         )
         val stagingRequirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, stagingBuffer)
@@ -604,13 +623,13 @@ class Renderer internal constructor(
             physicalDevice,
             stagingRequirements.memoryTypeBits,
             VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                    VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         )
         val stagingMemory = VulkanBuffers.vkAllocateMemory(
             device,
             VkMemoryAllocateInfo(
                 allocationSize = stagingRequirements.size,
-                memoryTypeIndex = stagingMemoryTypeIndex
+                memoryTypeIndex = stagingMemoryTypeIndex,
             ),
         )
         VulkanBuffers.vkBindBufferMemory(device, stagingBuffer, stagingMemory, 0)

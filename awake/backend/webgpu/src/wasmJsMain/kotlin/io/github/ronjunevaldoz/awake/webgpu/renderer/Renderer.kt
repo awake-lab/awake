@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.render.passes.SharedOpaqueRenderFeature
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_FOG_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_HORIZON_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
@@ -30,10 +31,11 @@ import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.mesh.AlphaInstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.FrameInstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.InstanceBuffer
-import io.github.ronjunevaldoz.awake.webgpu.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
+import io.github.ronjunevaldoz.awake.webgpu.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.RenderPipeline
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuBindGroupHandle
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.webgpu.texture.OffscreenRenderTarget
 import io.github.ronjunevaldoz.awake.webgpu.texture.Texture
@@ -194,6 +196,18 @@ class Renderer(
 
     internal var uniformBuffer: GPUBuffer? = null
     internal var uniformBindGroup: GPUBindGroup? = null
+
+    /** Stateless; the one implementation of "record all opaque draws, grouped by pipeline",
+     * shared verbatim with the Vulkan backend through [WebGpuCommandRecorder]. */
+    internal val sharedOpaqueFeature = SharedOpaqueRenderFeature()
+
+    /** Each of the four bind groups below, as the shared render layer's opaque handle. Cached
+     * next to the group it wraps (set by the matching `ensure*UniformResources`) rather than
+     * rebuilt per draw. */
+    internal var uniformBinding: WebGpuBindGroupHandle? = null
+    internal var wireframeUniformBinding: WebGpuBindGroupHandle? = null
+    internal var instancedUniformBinding: WebGpuBindGroupHandle? = null
+    internal var skinnedInstancedUniformBinding: WebGpuBindGroupHandle? = null
 
     /** [wireframeRenderPipeline]'s own uniform buffer/bind group -- kept separate from
      * [uniformBuffer]/[uniformBindGroup], not shared: WebGPU's "auto" pipeline layout derives
@@ -534,15 +548,19 @@ class Renderer(
         uniformBuffer?.close()
         uniformBuffer = null
         uniformBindGroup = null
+        uniformBinding = null
         wireframeUniformBuffer?.close()
         wireframeUniformBuffer = null
         wireframeUniformBindGroup = null
+        wireframeUniformBinding = null
         instancedUniformBuffer?.close()
         instancedUniformBuffer = null
         instancedUniformBindGroup = null
+        instancedUniformBinding = null
         skinnedInstancedUniformBuffer?.close()
         skinnedInstancedUniformBuffer = null
         skinnedInstancedUniformBindGroup = null
+        skinnedInstancedUniformBinding = null
         skinnedInstanceBufferPool.forEach { it.destroy() }
         skinnedInstanceBufferPool.clear()
         instanceBufferPool.forEach { it.destroy() }

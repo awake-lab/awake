@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.webgpu.material
 
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuBindGroupHandle
 import io.github.ronjunevaldoz.awake.webgpu.texture.Texture
 import io.ygdrasil.webgpu.BindGroupDescriptor
 import io.ygdrasil.webgpu.BindGroupEntry
@@ -85,6 +86,12 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
         ),
     ).also { bindGroup = it }
 
+    /** [bindGroupFor] as the shared render layer's opaque handle, cached the same way. */
+    fun bindingFor(pipeline: GPURenderPipeline): WebGpuBindGroupHandle =
+        bindGroupHandle ?: WebGpuBindGroupHandle(bindGroupFor(pipeline)).also { bindGroupHandle = it }
+
+    private var bindGroupHandle: WebGpuBindGroupHandle? = null
+
     /** Writes `textured.wgsl`'s `Uniforms.mvp`. Like every other `queue.writeBuffer` on this
      * backend this is queue-scheduled, not interleaved into the encoder -- so two draw calls
      * sharing ONE material within a frame would both see the last write (see `Renderer`'s own
@@ -115,6 +122,7 @@ class Material(graphicsDevice: GraphicsDevice, private val uniformFloatCount: In
         uniformBuffer?.close()
         uniformBuffer = null
         bindGroup = null
+        bindGroupHandle = null
         texture = null
         pbrTextures = emptyList()
     }

@@ -54,6 +54,10 @@ kotlin {
             // `implementation`, since consumers reaching these types through awake-backend-vulkan
             // (e.g. VulkanApplication.kt) need them visible too.
             api(project(":awake:engine:render:contract"))
+            // The shared render-pass layer (SharedOpaqueRenderFeature + the CommandRecorder
+            // port). `api`, not `implementation`: this module's public pipeline/mesh/material
+            // types implement the port's handle interfaces, so consumers see them.
+            api(project(":awake:engine:render:passes"))
             // Raw generated Vulkan API (see docs/tasks/2026-08-09-application-seam-and-module-
             // naming-plan.md, Part 3) -- gen/handles/models/enums/Vulkan.kt/VulkanSurface.kt.
             // `api`, not `implementation`: Renderer/GraphicsDevice/etc.'s own public signatures

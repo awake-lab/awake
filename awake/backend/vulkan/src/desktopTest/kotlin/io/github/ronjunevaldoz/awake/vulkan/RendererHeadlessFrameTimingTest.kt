@@ -9,6 +9,8 @@ import io.github.ronjunevaldoz.awake.engine.game.FrameStats
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.testing.FrameSpans
+import io.github.ronjunevaldoz.awake.testing.formatTimingBaseline
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
@@ -16,9 +18,9 @@ import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.OpaqueRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineTable
-import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiRenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiShaderPairs
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.createSceneRenderPass
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
@@ -165,6 +167,27 @@ class RendererHeadlessFrameTimingTest {
             )
 
             check(totalNanos > 0) { "headless frame timing measured zero time -- instrumentation broken" }
+
+            // Second measurement, same scene geometry but [BATCH_DRAW_CALLS] draw calls per
+            // frame instead of one. The one-cube number above is dominated by submit/fence/
+            // readback and can't resolve a change in per-draw-call recording cost at all; this
+            // one multiplies exactly that path by BATCH_DRAW_CALLS while leaving everything
+            // else identical, which is what makes a before/after of the draw path readable.
+            // readPixels is deliberately outside the span: it is the same cost either way.
+            val batchDrawCalls = List(BATCH_DRAW_CALLS) { DrawCall(createdMesh, createdMaterial) }
+            repeat(WARMUP_FRAMES) { renderer.renderToTexture(target, camera, batchDrawCalls) }
+            val spans = FrameSpans()
+            repeat(FRAME_COUNT) {
+                spans.span(BATCH_SPAN) { renderer.renderToTexture(target, camera, batchDrawCalls) }
+            }
+            spans.requireAllSpansClosed()
+            println(
+                "Headless $BATCH_DRAW_CALLS-draw-call frame timing over $FRAME_COUNT frames:\n" +
+                    formatTimingBaseline(
+                        spans.meansMs(),
+                        note = "mean ms per frame, prepare+record+submit+fence, no readback",
+                    ),
+            )
         } finally {
             // Same teardown order/reasoning as RendererHeadlessPixelBaselineTest.
             mesh?.destroy()
@@ -186,6 +209,11 @@ class RendererHeadlessFrameTimingTest {
         const val MAX_FRAMES_IN_FLIGHT = 1
         const val WARMUP_FRAMES = 5
         const val FRAME_COUNT = 100
+
+        /** Enough draw calls that per-draw-call recording cost is above the noise floor of a
+         * single submit+fence round trip, without making the measurement GPU-bound. */
+        const val BATCH_DRAW_CALLS = 64
+        const val BATCH_SPAN = "opaque-batch-frame"
 
         val cubeVertices = floatArrayOf(
             -0.5f, -0.5f, -0.5f, 0f, 0f, 0f, 0f, 0f, // v0

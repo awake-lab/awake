@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.webgpu.renderer
 
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuBindGroupHandle
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRoundedQuadRenderPipeline
@@ -82,6 +83,7 @@ internal fun Renderer.ensureUniformResources(pipeline: GPURenderPipeline) {
             ),
         ),
     )
+    uniformBinding = WebGpuBindGroupHandle(uniformBindGroup!!)
 }
 
 /** [Renderer.wireframeRenderPipeline]'s own uniform buffer/bind group -- a near-duplicate of
@@ -109,6 +111,7 @@ internal fun Renderer.ensureWireframeUniformResources(pipeline: GPURenderPipelin
             ),
         ),
     )
+    wireframeUniformBinding = WebGpuBindGroupHandle(wireframeUniformBindGroup!!)
 }
 
 /** [Renderer.instancedPipelines]' own uniform buffer/bind group -- a third near-duplicate, for
@@ -134,6 +137,7 @@ internal fun Renderer.ensureInstancedUniformResources(pipeline: GPURenderPipelin
             ),
         ),
     )
+    instancedUniformBinding = WebGpuBindGroupHandle(instancedUniformBindGroup!!)
 }
 
 /** [Renderer.skinnedInstancedPipelines]' own pair of the same -- a separate one from
@@ -158,4 +162,5 @@ internal fun Renderer.ensureSkinnedInstancedUniformResources(pipeline: GPURender
             ),
         ),
     )
+    skinnedInstancedUniformBinding = WebGpuBindGroupHandle(skinnedInstancedUniformBindGroup!!)
 }

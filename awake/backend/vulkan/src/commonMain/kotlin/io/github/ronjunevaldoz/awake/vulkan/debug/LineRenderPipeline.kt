@@ -31,6 +31,8 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineViewp
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputAttributeDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBindingDescription
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.VulkanMaterialBinding
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.VulkanPipelineHandle
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.createShaderModule
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.toShaderIntArray
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
@@ -50,7 +52,7 @@ class LineRenderPipeline(
     private val renderPass: Long,
     shaders: ShaderPair,
     private val framesInFlight: Int = 1,
-) {
+) : VulkanPipelineHandle {
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
 
@@ -60,12 +62,22 @@ class LineRenderPipeline(
     private lateinit var uniformSlots: PerFrameUniformSlots
     private val descriptorSetLayout get() = uniformSlots.descriptorSetLayout
 
+    override val pipelineHandle: Long get() = graphicsPipeline[0]
+    override val pipelineLayoutHandle: Long get() = pipelineLayout
+
+    /** This frame slot's already-allocated uniform descriptor set, for the shared opaque feature
+     * to bind at set 0 -- the same set [bind] binds directly. */
+    fun uniformBinding(frameIndex: Int): VulkanMaterialBinding = uniformSlots[frameIndex]
+
     // See RenderPipeline's own init doc comment -- same partial-creation-leak guard.
     init {
         require(framesInFlight > 0) { "framesInFlight must be positive." }
         try {
             uniformSlots = PerFrameUniformSlots(
-                graphicsDevice, MVP_UNIFORM_BYTES, VkShaderStageFlagBits.VERTEX.value, framesInFlight,
+                graphicsDevice,
+                MVP_UNIFORM_BYTES,
+                VkShaderStageFlagBits.VERTEX.value,
+                framesInFlight,
             )
             createGraphicsPipeline(shaders.vertex, shaders.fragment)
         } catch (e: Throwable) {

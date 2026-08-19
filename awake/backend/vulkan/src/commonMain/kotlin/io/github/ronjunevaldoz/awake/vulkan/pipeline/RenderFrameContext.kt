@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.vulkan.pipeline
 
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.render.command.CommandRecorder
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineMesh
 import io.github.ronjunevaldoz.awake.vulkan.renderer.PreparedDrawCall
@@ -50,7 +51,9 @@ internal interface RenderFrameContext {
     val surfaceWidth: Int
     val surfaceHeight: Int
 
-    fun recordDrawCalls(drawCalls: List<PreparedDrawCall>)
+    /** Already aimed at [commandBuffer] -- a feature records through this rather than issuing
+     * Vulkan calls itself, so its body is the one that also runs on WebGPU. */
+    val recorder: CommandRecorder
 
     /** This frame's UI pipeline set, or `null` when nothing has ever called `drawUi` (the quad
      * pipeline is built lazily there, and rebuilt on resize) -- a method, not a field, because

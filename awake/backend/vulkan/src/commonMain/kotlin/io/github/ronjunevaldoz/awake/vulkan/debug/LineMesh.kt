@@ -11,6 +11,7 @@ import io.github.ronjunevaldoz.awake.vulkan.handles.DeviceMemoryHandle
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.VulkanBufferBinding
 
 /**
  * A world-space `LINE_LIST` vertex buffer rewritten every frame -- same HOST_VISIBLE
@@ -32,7 +33,10 @@ class LineMesh(
         val vertexBuffer: BufferHandle,
         val vertexBufferMemory: DeviceMemoryHandle,
         var vertexCount: Int = 0,
-    )
+    ) {
+        /** This slot's buffer as the port's opaque handle -- built once, not per frame. */
+        val binding = VulkanBufferBinding(vertexBuffer.handle)
+    }
 
     private val frameResources: Array<FrameResources>
     private var activeFrameIndex: Int = 0
@@ -92,6 +96,13 @@ class LineMesh(
         if (vertices.isEmpty()) return
         VulkanBuffers.writeBufferMemoryFloats(device, frame.vertexBufferMemory.handle, 0, vertices)
     }
+
+    /** This frame slot's vertex buffer, for the shared opaque feature to bind at binding 0. */
+    fun binding(frameIndex: Int): VulkanBufferBinding = resourcesFor(frameIndex).binding
+
+    /** [vertexCount] for an explicit frame slot -- the active-slot property reads whichever slot
+     * [update] last wrote, which is not necessarily the slot being recorded. */
+    fun vertexCount(frameIndex: Int): Int = resourcesFor(frameIndex).vertexCount
 
     fun bind(commandBuffer: Long) = bind(activeFrameIndex, commandBuffer)
 

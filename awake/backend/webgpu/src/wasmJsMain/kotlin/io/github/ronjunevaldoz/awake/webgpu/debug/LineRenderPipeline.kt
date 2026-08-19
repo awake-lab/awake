@@ -4,6 +4,8 @@ package io.github.ronjunevaldoz.awake.webgpu.debug
 
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuBindGroupHandle
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuPipelineHandle
 import io.github.ronjunevaldoz.awake.webgpu.swapchain.SwapchainManager
 import io.ygdrasil.webgpu.BindGroupDescriptor
 import io.ygdrasil.webgpu.BindGroupEntry
@@ -47,6 +49,10 @@ class LineRenderPipeline(graphicsDevice: GraphicsDevice, swapchainManager: Swapc
     val pipeline: GPURenderPipeline
     private val mvpBuffer: GPUBuffer
     val bindGroup: GPUBindGroup
+
+    /** [pipeline]/[bindGroup] as the shared render layer's opaque handles -- built once. */
+    val handle: WebGpuPipelineHandle by lazy { WebGpuPipelineHandle(pipeline) }
+    val bindGroupHandle: WebGpuBindGroupHandle by lazy { WebGpuBindGroupHandle(bindGroup) }
 
     init {
         val wgslSource = shaderCode.decodeToString()

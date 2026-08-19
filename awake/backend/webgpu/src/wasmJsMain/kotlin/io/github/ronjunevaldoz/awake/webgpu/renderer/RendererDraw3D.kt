@@ -3,23 +3,21 @@
 package io.github.ronjunevaldoz.awake.webgpu.renderer
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
-import io.github.ronjunevaldoz.awake.core.math.times
-import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.render.command.BufferHandle
+import io.github.ronjunevaldoz.awake.render.command.MaterialBinding
+import io.github.ronjunevaldoz.awake.render.command.PipelineHandle
+import io.github.ronjunevaldoz.awake.render.command.PreparedDraw
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.render.renderer.skyboxUniformFloats
-import io.github.ronjunevaldoz.awake.webgpu.WebGpuHandles
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
+import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.debug.SkyboxRenderPipeline
-import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
-import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
-import io.github.ronjunevaldoz.awake.webgpu.mesh.SkinnedInstanceBuffer
-import io.github.ronjunevaldoz.awake.webgpu.mesh.meshIndexFormat
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuCommandRecorder
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
 import io.ygdrasil.webgpu.GPULoadOp
-import io.ygdrasil.webgpu.GPURenderPipeline
 import io.ygdrasil.webgpu.GPUStoreOp
 import io.ygdrasil.webgpu.RenderPassColorAttachment
 import io.ygdrasil.webgpu.RenderPassDepthStencilAttachment
@@ -47,12 +45,20 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     // .pipelineFor fallback, not a hard requirement to opt in.
     val useWireframe = wireframe && wireframeRenderPipeline != null
     val activeRenderPipeline = if (useWireframe) wireframeRenderPipeline!! else renderPipeline
-    val pipeline = WebGpuHandles.resolve<GPURenderPipeline>(activeRenderPipeline.graphicsPipeline[0])
+    val primaryHandle = activeRenderPipeline.handle
     // Separate uniform-resource sets per pipeline object -- see ensureWireframeUniformResources'
     // own doc comment for why a bind group can't be shared across two "auto"-layout pipelines.
-    if (useWireframe) ensureWireframeUniformResources(pipeline) else ensureUniformResources(pipeline)
-    val activeUniformBuffer = if (useWireframe) wireframeUniformBuffer!! else uniformBuffer!!
-    val activeUniformBindGroup = if (useWireframe) wireframeUniformBindGroup!! else uniformBindGroup!!
+    if (useWireframe) {
+        ensureWireframeUniformResources(primaryHandle.pipeline)
+    } else {
+        ensureUniformResources(primaryHandle.pipeline)
+    }
+    val primary = PrimaryPipelineBinding(
+        pipeline = primaryHandle,
+        uniformBuffer = if (useWireframe) wireframeUniformBuffer!! else uniformBuffer!!,
+        binding = if (useWireframe) wireframeUniformBinding!! else uniformBinding!!,
+        wireframe = useWireframe,
+    )
 
     // Trimmed to the canvas: WebGPU rejects an out-of-bounds viewport/scissor outright,
     // invalidating the whole command buffer (same reason this file's UI ClipRun clamps).
@@ -84,6 +90,11 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
         light.color.z,
         0f,
     )
+
+    // Prepared before the pass opens: pipeline resolution, uniform writes, instance-buffer
+    // fills. See prepareOpaqueDraws' own doc comment for why hoisting those out of the encoder
+    // changes nothing (queue writes never interleaved with encoding to begin with).
+    val opaqueDraws = prepareOpaqueDraws(drawCalls, camera.eye, viewProjection, lightFloats, primary)
 
     val encoder = device.createCommandEncoder()
     val colorView = renderingContext.getCurrentTexture().createView()
@@ -119,158 +130,18 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
             setBindGroup(0u, skybox.bindGroup)
             draw(SkyboxRenderPipeline.FULLSCREEN_TRIANGLE_VERTICES)
         }
-        var drawIndex = 0
-        var instancedIndex = 0
-        while (drawIndex < drawCalls.size) {
-            val drawCall = drawCalls[drawIndex]
-            val instanceModels = drawCall.instanceModels
-            if (instanceModels != null) {
-                // A separate path entirely: one uniform write (viewProjection + light, no
-                // per-draw mvp -- see instanced.wgsl) and one drawIndexed for every transform.
-                // No instanced pipeline for this format, or nothing to draw, skips the call --
-                // same skip-on-mismatch posture as the format guard below.
-                // Animated instancing (skinned_instanced.wgsl) resolves against its own
-                // pipeline map and additionally binds a per-instance joint-palette storage
-                // buffer at group 1 -- everything else below is shared with static instancing.
-                val palettes = drawCall.instanceJointPalettes
-                val isParticle = drawCall.mesh.format == VertexFormat.PositionUv
-                val instancedPipeline = when {
-                    palettes != null -> skinnedInstancedPipelines[drawCall.mesh.format]
-                    isParticle -> particlePipelines[drawCall.mesh.format]
-                    else -> instancedPipelines[drawCall.mesh.format]
-                }
-                val particleMaterial = (drawCall.material as? Material)?.takeIf { isParticle && it.hasTexture }
-                if (instancedPipeline != null && instanceModels.isNotEmpty() && (!isParticle || particleMaterial != null)) {
-                    val resolved = WebGpuHandles.resolve<GPURenderPipeline>(instancedPipeline.graphicsPipeline[0])
-                    setPipeline(resolved)
-                    if (particleMaterial != null) {
-                        // Particles carry a real texture, so -- unlike the untextured static/
-                        // skinned instanced paths below -- they bind their own material's bind
-                        // group (uniform + texture + sampler), sized for particle.wgsl's
-                        // viewProjection(16) + cameraRight(4) + cameraUp(4) block, not the
-                        // Renderer-shared viewProjection+light one.
-                        particleMaterial.updateUniformBuffer(viewProjection.data + drawCall.extraUniformFloats)
-                        setBindGroup(0u, particleMaterial.bindGroupFor(resolved))
-                    } else if (palettes != null) {
-                        ensureSkinnedInstancedUniformResources(resolved)
-                        device.queue.writeBuffer(
-                            skinnedInstancedUniformBuffer!!,
-                            0uL,
-                            fastArrayBufferOf(viewProjection.data + lightFloats),
-                        )
-                        setBindGroup(0u, skinnedInstancedUniformBindGroup!!)
-                    } else {
-                        ensureInstancedUniformResources(resolved)
-                        device.queue.writeBuffer(
-                            instancedUniformBuffer!!,
-                            0uL,
-                            fastArrayBufferOf(viewProjection.data + lightFloats),
-                        )
-                        setBindGroup(0u, instancedUniformBindGroup!!)
-                    }
-                    if (palettes != null) {
-                        val paletteBuffer = skinnedInstanceBufferForRun(instancedIndex)
-                        paletteBuffer.update(palettes)
-                        setBindGroup(SkinnedInstanceBuffer.PALETTE_GROUP, paletteBuffer.bindGroupFor(resolved))
-                    }
-                    val instanceBuffer = instanceBufferForRun(instancedIndex)
-                    instanceBuffer.update(instanceModels)
-                    val mesh = drawCall.mesh as Mesh
-                    setVertexBuffer(0u, WebGpuHandles.resolve(mesh.vertexBuffer.handle))
-                    setVertexBuffer(1u, instanceBuffer.bufferRef())
-                    if (particleMaterial != null) {
-                        val alphaBuffer = alphaInstanceBufferForRun(instancedIndex)
-                        alphaBuffer.update(drawCall.instanceColors.orEmpty())
-                        setVertexBuffer(2u, alphaBuffer.bufferRef())
-                        val frameBuffer = frameInstanceBufferForRun(instancedIndex)
-                        frameBuffer.update(drawCall.instanceFrames.orEmpty())
-                        setVertexBuffer(3u, frameBuffer.bufferRef())
-                    }
-                    setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)
-                    // Issued here rather than through Mesh.drawInstanced: drawIndexed is a
-                    // render-pass-encoder call, which is exactly why this backend's Mesh.draw()
-                    // is a TODO too. Only Vulkan's Mesh overrides drawInstanced.
-                    drawIndexed(mesh.indexCount.toUInt(), instanceModels.size.toUInt())
-                    instancedIndex += 1
-                } else if (debugMode) {
-                    println(
-                        "Awake (WebGPU): instanced DrawCall skipped -- no ${if (palettes != null) "skinned-" else ""}" +
-                            "instanced pipeline registered for mesh format ${drawCall.mesh.format}, " +
-                            "or instanceModels was empty, or the particle material had no texture.",
-                    )
-                }
-                drawIndex += 1
-            } else {
-                // A mesh whose format has neither the primary pipeline nor an additionalPipelines
-                // entry is skipped rather than drawn through a pipeline that expects a different
-                // vertex layout, matching Vulkan's Renderer.pipelinesByFormat skip-on-mismatch
-                // guard (see that class's doc comment).
-                val isPrimaryFormat = drawCall.mesh.format == primaryVertexFormat
-                val extraPipeline = if (isPrimaryFormat) null else additionalPipelines[drawCall.mesh.format]
-                val extraMaterial = (drawCall.material as? Material)?.takeIf { it.hasTexture }
-                if (!isPrimaryFormat && (extraPipeline == null || extraMaterial == null)) {
-                    if (debugMode) {
-                        println(
-                            "Awake (WebGPU): DrawCall skipped -- no pipeline registered for mesh format " +
-                                "${drawCall.mesh.format}.",
-                        )
-                    }
-                    drawIndex += 1
-                    continue
-                }
-                // Kotlin's `A * B` computes the conventional `B * A` (see Mat4.times/
-                // Camera.viewProjectionMatrix's docs), matching vulkanMain's Renderer.
-                val mvp = drawCall.model * viewProjection
-                if (extraPipeline != null && extraMaterial != null) {
-                    // Textured path: the material owns its uniform buffer + bind group. Its
-                    // Uniforms is mvp + light + model + cameraPosition (textured.wgsl's PBR
-                    // specular needs a world-space position and view vector) -- the same 44 floats
-                    // vulkanMain's prepareDrawCalls writes for this format. Wireframe has no
-                    // companion pipeline per additional format, so these stay filled (same
-                    // fallback as Vulkan's pipelineFor).
-                    val texturedPipeline = WebGpuHandles.resolve<GPURenderPipeline>(extraPipeline.graphicsPipeline[0])
-                    setPipeline(texturedPipeline)
-                    extraMaterial.updateUniformBuffer(
-                        mvp.data + lightFloats + drawCall.model.data +
-                            floatArrayOf(camera.eye.x, camera.eye.y, camera.eye.z, 0f) +
-                            pbrTexturedMaterialFloats(drawCall) + fogFloats(),
-                    )
-                    setBindGroup(0u, extraMaterial.bindGroupFor(texturedPipeline))
-                } else {
-                    setPipeline(pipeline)
-                    device.queue.writeBuffer(activeUniformBuffer, 0uL, fastArrayBufferOf(mvp.data + lightFloats))
-                    setBindGroup(0u, activeUniformBindGroup)
-                }
-                // drawCall.mesh is the render-api interface (only bind()/draw()/destroy()) --
-                // cast to this backend's own concrete Mesh for vertexBuffer/indexBuffer/
-                // indexCount, safe since this Renderer only ever runs against this module's
-                // own Mesh instances (never a different backend's).
-                val mesh = drawCall.mesh as Mesh
-                setVertexBuffer(0u, WebGpuHandles.resolve(mesh.vertexBuffer.handle))
-                // `extraPipeline == null`: an additional pipeline has no LineList companion, so a
-                // line index buffer would be fed to a TriangleList pipeline.
-                if (useWireframe && extraPipeline == null) {
-                    // Same vertex buffer, a different (LineList-shaped) index buffer derived
-                    // from this mesh's own triangle indices -- see Mesh's lineIndexBuffer doc
-                    // comment.
-                    setIndexBuffer(WebGpuHandles.resolve(mesh.lineIndexBuffer.handle), meshIndexFormat)
-                    drawIndexed(mesh.lineIndexCount.toUInt())
-                } else {
-                    setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)
-                    drawIndexed(mesh.indexCount.toUInt())
-                }
-                drawIndex += 1
-            }
-        }
-
-        // Debug lines share this render pass; lineRenderPipeline's depthCompare = Always keeps
-        // them never depth-tested against scene geometry.
-        if (lineMesh.vertexCount > 0) {
-            setPipeline(lineRenderPipeline.pipeline)
-            setBindGroup(0u, lineRenderPipeline.bindGroup)
-            setVertexBuffer(0u, lineMesh.vertexBufferRef())
-            draw(lineMesh.vertexCount.toUInt())
-        }
+        // Every opaque draw, grouped by pipeline -- one implementation, shared verbatim with
+        // the Vulkan backend, reached through this backend's own CommandRecorder.
+        sharedOpaqueFeature.recordCommands(
+            recorder = WebGpuCommandRecorder(this),
+            primaryPipeline = primary.pipeline,
+            grouped = opaqueDraws,
+            // Debug lines used to be recorded last, after every group; the shared order puts
+            // them between the primary group and the rest, matching Vulkan. Harmless for depth
+            // (lineRenderPipeline is depthCompare = Always, depthWriteEnabled = false), but a
+            // line under a later-drawn textured mesh is now painted over rather than on top.
+            lines = LineDraw(lineRenderPipeline, lineMesh),
+        )
         end()
     }
 
@@ -368,6 +239,21 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     device.queue.submit(listOf(encoder.finish()))
 }
 
+/** This frame's staged debug lines as one non-indexed [PreparedDraw] -- the shared opaque
+ * feature draws it between the primary pipeline's group and the rest. No index buffer at all:
+ * consecutive vertex pairs are the segments under `LineList`, so [elementCount] is a vertex
+ * count, and 0 vertices means the feature skips the whole thing (bind included). */
+private class LineDraw(
+    private val linePipeline: LineRenderPipeline,
+    private val lineMesh: LineMesh,
+) : PreparedDraw {
+    override val pipeline: PipelineHandle get() = linePipeline.handle
+    override val materialBinding: MaterialBinding get() = linePipeline.bindGroupHandle
+    override val vertexBuffer: BufferHandle get() = lineMesh.vertexBinding
+    override val indexBuffer: BufferHandle? get() = null
+    override val elementCount: Int get() = lineMesh.vertexCount
+}
+
 /** Stages this frame's world-space debug lines (e.g. a frustum wireframe) -- rewrites
  * [Renderer.lineMesh]'s buffer but issues no GPU commands itself, same "stage now, consume
  * on next draw" pattern as `performDrawUi`. Call before [performDraw] each frame. Named
@@ -393,7 +279,7 @@ internal fun Renderer.performDrawDebugLines(lines: List<LineSegment>) {
  * and defaults as Vulkan's own `RendererDraw3D.pbrTexturedMaterialFloats`. Defaults to
  * factor = 1 / emissive = 0 (a no-op multiply), matching this pipeline's behavior before these
  * fields existed. */
-private fun pbrTexturedMaterialFloats(drawCall: DrawCall): FloatArray {
+internal fun pbrTexturedMaterialFloats(drawCall: DrawCall): FloatArray {
     val supplied = drawCall.extraUniformFloats
     if (supplied.size >= PBR_TEXTURED_MATERIAL_FLOATS) return supplied.copyOf(PBR_TEXTURED_MATERIAL_FLOATS)
     return floatArrayOf(
@@ -407,7 +293,7 @@ private fun pbrTexturedMaterialFloats(drawCall: DrawCall): FloatArray {
  * `textured.wgsl`'s `fogColor : vec4f` (see `UniformFields.FogColor`). Same packing as Vulkan's own
  * `RendererDraw3D.fogFloats`. The primary path here is `triangle.wgsl`, which has no worldPos/
  * cameraPosition to fog against, so only the textured path gets this. */
-private fun Renderer.fogFloats(): FloatArray =
+internal fun Renderer.fogFloats(): FloatArray =
     floatArrayOf(fogColor[0], fogColor[1], fogColor[2], fogDensity)
 
 private const val PBR_TEXTURED_MATERIAL_FLOATS = 12

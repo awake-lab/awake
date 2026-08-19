@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.webgpu.debug
 
 import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuBufferHandle
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.GPUBuffer
 import io.ygdrasil.webgpu.GPUBufferUsage
@@ -48,6 +49,9 @@ class LineMesh(
     }
 
     fun vertexBufferRef(): GPUBuffer = vertexBuffer
+
+    /** This buffer as the shared render layer's opaque handle -- built once, not per frame. */
+    val vertexBinding: WebGpuBufferHandle by lazy { WebGpuBufferHandle(vertexBuffer) }
 
     fun destroy() {
         vertexBuffer.close()

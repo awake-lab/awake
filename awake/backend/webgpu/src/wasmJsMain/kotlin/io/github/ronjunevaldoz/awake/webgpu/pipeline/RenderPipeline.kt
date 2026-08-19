@@ -88,6 +88,12 @@ class RenderPipeline(
     var pipelineCache: Long = 0
     var graphicsPipeline: LongArray
 
+    /** This pipeline as the shared render layer's opaque handle. One per pipeline object and
+     * stable across frames, which is what lets the shared feature group draws by identity. */
+    val handle: WebGpuPipelineHandle by lazy {
+        WebGpuPipelineHandle(WebGpuHandles.resolve(graphicsPipeline[0]))
+    }
+
     init {
         val device = graphicsDevice.wgpuContext.device
         val wgslSource = vertShaderCode.decodeToString()
