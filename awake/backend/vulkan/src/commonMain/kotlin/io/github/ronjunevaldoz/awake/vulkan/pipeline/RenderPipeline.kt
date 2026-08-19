@@ -134,6 +134,10 @@ sealed interface PipelineVariant {
 class RenderPipeline(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
+    /** Shared across every [RenderPipeline] a caller builds against the same swapchain --
+     * see the top-level [createSceneRenderPass] this class no longer creates itself. Not
+     * owned/destroyed by this class; the caller that created it destroys it exactly once. */
+    val renderPass: Long,
     descriptorSetLayout: DescriptorSetLayoutHandle,
     shaders: ShaderPair,
     val vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
@@ -165,88 +169,31 @@ class RenderPipeline(
     private val swapchainManager = swapchainManager
     private val device get() = graphicsDevice.device
 
-    var renderPass: Long = 0
     var pipelineLayout: Long = 0
     var pipelineCache: Long = 0
     var graphicsPipeline: LongArray = longArrayOf()
 
+    // If creation throws partway through (see createGraphicsPipeline's own ".spv version
+    // mismatch" warning), whatever was already created here (shader modules, pipeline layout)
+    // would otherwise leak -- nothing holds a half-constructed RenderPipeline to call destroy()
+    // on. destroy() is already zero-handle tolerant (every Vulkan destroy call is a documented
+    // no-op on a null/0 handle), so it's safe to call on partial state. renderPass is NOT
+    // touched here -- it's caller-owned (see this class's own renderPass doc comment).
     init {
-        renderPass = createRenderPass()
-        createGraphicsPipeline(
-            descriptorSetLayout = descriptorSetLayout,
-            shaders = shaders,
-            vertexFormat = vertexFormat,
-            vertexEntryPoint = vertexEntryPoint,
-            fragmentEntryPoint = fragmentEntryPoint,
-            polygonMode = polygonMode,
-            variant = variant,
-        )
-    }
-
-    private fun createRenderPass(): Long = Vulkan.vkCreateRenderPass(
-        device,
-        VkRenderPassCreateInfo(
-            pAttachments = arrayOf(
-                VkAttachmentDescription(
-                    format = swapchainManager.imageFormat,
-                    initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
-                    // COLOR_ATTACHMENT_OPTIMAL, not PRESENT_SRC_KHR: the UI overlay pass
-                    // (UiRenderPipeline) draws on top of this pass's output before the
-                    // final present-layout transition happens, at the end of that pass
-                    // instead. See docs/MVP_PLAN.md's custom-UI decision log entry.
-                    finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                ),
-                VkAttachmentDescription(
-                    format = VkFormat.VK_FORMAT_D32_SFLOAT,
-                    storeOp = VkAttachmentStoreOp.DONT_CARE,
-                    initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
-                    finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                ),
-            ),
-            pSubpasses = arrayOf(
-                VkSubpassDescription(
-                    pipelineBindPoint = VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    pColorAttachments = arrayOf(
-                        VkAttachmentReference(
-                            attachment = 0,
-                            layout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                        ),
-                    ),
-                    pDepthStencilAttachment = arrayOf(
-                        VkAttachmentReference(
-                            attachment = 1,
-                            layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                        ),
-                    ),
-                ),
-            ),
-            pDependencies = arrayOf(
-                VkSubpassDependency(
-                    srcSubpass = VK_SUBPASS_EXTERNAL,
-                    dstSubpass = 0,
-                    srcStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value or
-                        VkPipelineStageFlagBits.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT.value,
-                    srcAccessMask = 0,
-                    dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value or
-                        VkPipelineStageFlagBits.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT.value,
-                    dstAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.value or
-                        VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value or
-                        VkAccessFlagBits.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT.value,
-                ),
-            ),
-        ),
-    )
-
-    private fun createShaderModule(code: IntArray): Long {
-        val createInfo = VkShaderModuleCreateInfo(pCode = code)
-        return Vulkan.vkCreateShaderModule(device, createInfo)
-    }
-
-    private fun ByteArray.toIntArray(): IntArray = IntArray(this.size / 4) { i ->
-        (this[i * 4].toInt() and 0xFF) or
-            ((this[i * 4 + 1].toInt() and 0xFF) shl 8) or
-            ((this[i * 4 + 2].toInt() and 0xFF) shl 16) or
-            ((this[i * 4 + 3].toInt() and 0xFF) shl 24)
+        try {
+            createGraphicsPipeline(
+                descriptorSetLayout = descriptorSetLayout,
+                shaders = shaders,
+                vertexFormat = vertexFormat,
+                vertexEntryPoint = vertexEntryPoint,
+                fragmentEntryPoint = fragmentEntryPoint,
+                polygonMode = polygonMode,
+                variant = variant,
+            )
+        } catch (e: Throwable) {
+            destroy()
+            throw e
+        }
     }
 
     private fun createGraphicsPipeline(
@@ -259,8 +206,8 @@ class RenderPipeline(
         variant: PipelineVariant,
     ) {
         // WARNING: make sure the .spv vulkan version match, this might cause out of memory
-        val fragShaderModule = createShaderModule(shaders.fragment.toIntArray())
-        val vertShaderModule = createShaderModule(shaders.vertex.toIntArray())
+        val fragShaderModule = createShaderModule(device, shaders.fragment.toShaderIntArray())
+        val vertShaderModule = createShaderModule(device, shaders.vertex.toShaderIntArray())
         val shaderStages = arrayOf(
             VkPipelineShaderStageCreateInfo(
                 stage = VkShaderStageFlagBits.FRAGMENT,
@@ -316,13 +263,76 @@ class RenderPipeline(
             Vulkan.vkDestroyPipeline(device, pipeline)
         }
         Vulkan.vkDestroyPipelineLayout(device, pipelineLayout)
-        Vulkan.vkDestroyRenderPass(device, renderPass)
         Vulkan.vkDestroyPipelineCache(device, pipelineCache)
     }
 
 }
 
 private const val DEFAULT_SHADER_ENTRY_POINT = "main"
+
+/** The single render pass shared by every [RenderPipeline] (and, via [RenderPipeline.renderPass],
+ * every sibling pipeline that reuses it -- see `LineRenderPipeline`/`SkyboxRenderPipeline`/
+ * `UiGlyphRenderPipeline`'s own `renderPass`/`externalRenderPass` constructor params) built
+ * against the same [swapchainManager]. Was [RenderPipeline]'s own private `createRenderPass`
+ * before every additional/instanced/skinned/particle [RenderPipeline] a caller builds created
+ * its OWN structurally-identical render pass -- N pipelines meant N near-identical render
+ * passes, each a separate handle for the same fixed two-attachment (color+depth) shape. Callers
+ * that build multiple [RenderPipeline]s call this ONCE and pass the same [Long] to each. Not
+ * owned by any single [RenderPipeline] -- the caller destroys it exactly once. */
+fun createSceneRenderPass(graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager): Long =
+    Vulkan.vkCreateRenderPass(
+        graphicsDevice.device,
+        VkRenderPassCreateInfo(
+            pAttachments = arrayOf(
+                VkAttachmentDescription(
+                    format = swapchainManager.imageFormat,
+                    initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
+                    // COLOR_ATTACHMENT_OPTIMAL, not PRESENT_SRC_KHR: the UI overlay pass
+                    // (UiRenderPipeline) draws on top of this pass's output before the
+                    // final present-layout transition happens, at the end of that pass
+                    // instead. See docs/MVP_PLAN.md's custom-UI decision log entry.
+                    finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                ),
+                VkAttachmentDescription(
+                    format = VkFormat.VK_FORMAT_D32_SFLOAT,
+                    storeOp = VkAttachmentStoreOp.DONT_CARE,
+                    initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED,
+                    finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                ),
+            ),
+            pSubpasses = arrayOf(
+                VkSubpassDescription(
+                    pipelineBindPoint = VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    pColorAttachments = arrayOf(
+                        VkAttachmentReference(
+                            attachment = 0,
+                            layout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                        ),
+                    ),
+                    pDepthStencilAttachment = arrayOf(
+                        VkAttachmentReference(
+                            attachment = 1,
+                            layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                        ),
+                    ),
+                ),
+            ),
+            pDependencies = arrayOf(
+                VkSubpassDependency(
+                    srcSubpass = VK_SUBPASS_EXTERNAL,
+                    dstSubpass = 0,
+                    srcStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value or
+                        VkPipelineStageFlagBits.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT.value,
+                    srcAccessMask = 0,
+                    dstStageMask = VkPipelineStageFlagBits.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.value or
+                        VkPipelineStageFlagBits.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT.value,
+                    dstAccessMask = VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT.value or
+                        VkAccessFlagBits.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.value or
+                        VkAccessFlagBits.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT.value,
+                ),
+            ),
+        ),
+    )
 
 /** See [PipelineVariant.instanced]. Binding 1 (binding 0 is the mesh's own per-vertex buffer);
  * one `mat4` = 4 `vec4` rows = 64 bytes per instance. */

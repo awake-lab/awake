@@ -14,7 +14,10 @@ import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineTable
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiShaderPairs
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.createSceneRenderPass
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
@@ -116,9 +119,11 @@ class RendererSceneViewportTest {
         val swapchainManager = SwapchainManager(graphicsDevice, MAX_FRAMES_IN_FLIGHT)
         swapchainManager.createHeadless(TARGET_SIZE, TARGET_SIZE)
         val pipelineLayoutMaterial = Material(graphicsDevice)
+        val sceneRenderPass = createSceneRenderPass(graphicsDevice, swapchainManager)
         val renderPipeline = RenderPipeline(
             graphicsDevice,
             swapchainManager,
+            sceneRenderPass,
             pipelineLayoutMaterial.descriptorSetLayout,
             runBlocking { shaderPair("assets/shader/vulkan/triangle.vert.spv", "assets/shader/vulkan/triangle.frag.spv") },
             VertexFormat.PositionColorUv,
@@ -128,25 +133,28 @@ class RendererSceneViewportTest {
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
-            renderPipeline.renderPass,
+            sceneRenderPass,
             runBlocking { shaderPair("assets/shader/vulkan/debug_line.vert.spv", "assets/shader/vulkan/debug_line.frag.spv") },
             MAX_FRAMES_IN_FLIGHT,
         )
         val transferContext = TransferContext(graphicsDevice)
         val renderer = Renderer(
-            graphicsDevice,
-            swapchainManager,
-            renderPipeline,
-            emptyMap(),
-            lineRenderPipeline,
-            transferContext,
-            runBlocking { shaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") },
-            runBlocking { shaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") },
-            runBlocking { shaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv") },
-            runBlocking {
-                shaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
-            },
-            MAX_FRAMES_IN_FLIGHT,
+            graphicsDevice = graphicsDevice,
+            swapchainManager = swapchainManager,
+            pipelines = PipelineTable(primary = renderPipeline),
+            lineRenderPipeline = lineRenderPipeline,
+            transferContext = transferContext,
+            uiShaderPairs = UiShaderPairs(
+                quad = runBlocking { shaderPair("assets/shader/vulkan/ui_quad.vert.spv", "assets/shader/vulkan/ui_quad.frag.spv") },
+                glyph = runBlocking { shaderPair("assets/shader/vulkan/ui_glyph.vert.spv", "assets/shader/vulkan/ui_glyph.frag.spv") },
+                texture = runBlocking {
+                    shaderPair("assets/shader/vulkan/ui_texture.vert.spv", "assets/shader/vulkan/ui_texture.frag.spv")
+                },
+                roundedQuad = runBlocking {
+                    shaderPair("assets/shader/vulkan/ui_rounded_quad.vert.spv", "assets/shader/vulkan/ui_rounded_quad.frag.spv")
+                },
+            ),
+            maxFramesInFlight = MAX_FRAMES_IN_FLIGHT,
         )
         try {
             block(renderer)
@@ -161,6 +169,7 @@ class RendererSceneViewportTest {
                 pipelineLayoutMaterial.descriptorSetLayout.handle,
             )
             transferContext.destroy()
+            Vulkan.vkDestroyRenderPass(graphicsDevice.device, sceneRenderPass)
             graphicsDevice.destroy()
         }
     }

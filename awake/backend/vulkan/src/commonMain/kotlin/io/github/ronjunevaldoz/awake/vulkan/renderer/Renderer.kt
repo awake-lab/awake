@@ -48,9 +48,12 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkImageLayout2
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkRenderPassBeginInfo
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineTable
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowResources
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowRenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiShaderPairs
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 import io.github.ronjunevaldoz.awake.vulkan.texture.OffscreenRenderTarget
 import io.github.ronjunevaldoz.awake.vulkan.texture.ShadowMap
@@ -98,64 +101,37 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer as RenderRenderer
 class Renderer(
     graphicsDevice: GraphicsDevice,
     swapchainManager: SwapchainManager,
-    renderPipeline: RenderPipeline,
-    /** Extra 3D pipelines beyond [renderPipeline], keyed by the [VertexFormat] each one was
-     * built for -- see [pipelinesByFormat]'s doc comment for how a [DrawCall] picks one.
-     * Empty (default) for every game that only ever draws [renderPipeline]'s format (most of
-     * them) -- built eagerly, same as [renderPipeline] itself, by whichever `GameApplication`
-     * bootstrap opts into extra formats (shader loading is `suspend`, so this can't be built
-     * lazily on first draw the way the UI pipelines below are). */
-    additionalPipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
+    /** Every 3D [RenderPipeline] this renderer can draw with -- see [pipelinesByFormat]'s doc
+     * comment for how a [DrawCall] picks one. Replaces what used to be 5 separate flat
+     * constructor params (`renderPipeline`/`additionalPipelinesByFormat`/
+     * `wireframePipelinesByFormat`/`instancedPipelinesByFormat`/
+     * `skinnedInstancedPipelinesByFormat`) -- grouped because they always travel together and
+     * two of the old params shared the exact same `Map<VertexFormat, RenderPipeline>` type,
+     * a real risk when passed positionally. Each field below is unpacked into this class's own
+     * same-named `internal val` in the constructor body, so every sibling extension file
+     * ([RendererDraw3D.kt], [RendererUiPipelines.kt], etc.) keeps reading `renderPipeline`/
+     * `shadowMap`/... exactly as before -- this is a constructor-shape change only. */
+    pipelines: PipelineTable,
     internal val lineRenderPipeline: LineRenderPipeline,
     internal val transferContext: TransferContext,
-    internal val uiShaders: ShaderPair,
-    internal val uiGlyphShaders: ShaderPair,
-    internal val uiTextureShaders: ShaderPair,
-    internal val uiRoundedQuadShaders: ShaderPair,
+    /** The 4 UI shader pairs this renderer lazily builds pipelines from -- replaces the old
+     * `uiShaders`/`uiGlyphShaders`/`uiTextureShaders`/`uiRoundedQuadShaders` flat params. */
+    uiShaderPairs: UiShaderPairs,
     internal val maxFramesInFlight: Int,
-    /** `VK_POLYGON_MODE_LINE` companions of [renderPipeline]/[additionalPipelinesByFormat],
-     * keyed the same way -- see [wireframe]'s doc comment for how these get selected. Empty
-     * (default) for every game that doesn't opt into `VulkanGameApplication`'s
-     * `wireframeSupport`, same "skip building it" shape as [additionalPipelinesByFormat].
-     * Appended as the last (defaulted) constructor parameter, not inserted alongside
-     * [additionalPipelinesByFormat], so every existing positional-argument call site (this
-     * repo has several, across `VulkanGameApplication` and desktopTest) keeps compiling
-     * unchanged. A format with no wireframe entry here just keeps drawing filled even with
-     * [wireframe] on (see [pipelineFor]) -- it is never skipped the way an unknown-format
-     * mesh is. */
-    wireframePipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
     /** Non-null only when the app's bootstrap opted into shadows (see
-     * `VulkanGameApplication`'s own `shadowShaderSet` doc comment) -- both this and
-     * [shadowRenderPipeline] are built once, before this `Renderer`, by whoever constructs it
-     * (mirrors how [renderPipeline] itself is built externally). `null` (default) is the
-     * "shadows never existed" path: every material built by this instance keeps its original
-     * 3-binding descriptor set layout, and [prepareDrawCalls] keeps writing the exact same
-     * 8-float light block it always did -- zero behavior change for every caller that doesn't
-     * opt in. */
-    internal val shadowMap: ShadowMap? = null,
-    internal val shadowRenderPipeline: ShadowRenderPipeline? = null,
-    /** Instanced companions of [pipelinesByFormat], keyed the same way -- built with
-     * `RenderPipeline(instanced = true)` and a shader whose uniform block holds `viewProjection`
-     * (not a baked per-draw `mvp`), because one instanced draw covers many model matrices. A
-     * [DrawCall] with a non-null [DrawCall.instanceModels] whose format has an entry here draws
-     * every transform in one GPU call; a format with NO entry here is skipped entirely, same
-     * "unknown format, skip" behavior [pipelinesByFormat] already has. Empty (default) for every
-     * game that never instances -- appended last so existing positional call sites are
-     * unaffected. */
-    internal val instancedPipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
-    /** Animated companions of [instancedPipelinesByFormat] -- built with
-     * `RenderPipeline(instanced = true, extraDescriptorSetLayouts = [the joint-palette set])`
-     * and `skinned_instanced.wgsl`. A [DrawCall] carrying BOTH [DrawCall.instanceModels] and
-     * [DrawCall.instanceJointPalettes] resolves here instead of [instancedPipelinesByFormat];
-     * a format with no entry is skipped, same as any other unresolved format. Empty (default)
-     * for every game that never animates instances -- appended last so existing positional
-     * call sites are unaffected. */
-    internal val skinnedInstancedPipelinesByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
+     * `VulkanGameApplication`'s own `shadowShaderSet` doc comment) -- both [ShadowResources.map]
+     * and [ShadowResources.pipeline] are built once, before this `Renderer`, by whoever
+     * constructs it. `null` (default) is the "shadows never existed" path: every material built
+     * by this instance keeps its original 3-binding descriptor set layout, and
+     * [prepareDrawCalls] keeps writing the exact same 8-float light block it always did --
+     * zero behavior change for every caller that doesn't opt in. Replaces the old separate
+     * `shadowMap`/`shadowRenderPipeline` nullable params, which silently allowed an invalid
+     * "one set, one null" state. */
+    shadow: ShadowResources? = null,
     /** Non-null only when the app's bootstrap opted into a skybox shader set (see
      * `VulkanGameApplication.skyboxShaderSet`) -- `null` (default) makes [showEnvironment] an
      * inert flag, same "nothing to switch to, keep rendering as before" posture as
-     * [wireframe] with no wireframe pipeline. Appended last so existing positional call sites
-     * are unaffected. */
+     * [wireframe] with no wireframe pipeline. */
     internal val skyboxRenderPipeline: SkyboxRenderPipeline? = null,
 ) : RenderRenderer {
     override val clipSpace: ClipSpace = ClipSpace.Vulkan
@@ -199,7 +175,13 @@ class Renderer(
 
     internal val graphicsDevice = graphicsDevice
     internal val swapchainManager = swapchainManager
-    internal val renderPipeline = renderPipeline
+    internal val renderPipeline = pipelines.primary
+    internal val shadowMap: ShadowMap? = shadow?.map
+    internal val shadowRenderPipeline: ShadowRenderPipeline? = shadow?.pipeline
+    internal val uiShaders: ShaderPair = uiShaderPairs.quad
+    internal val uiGlyphShaders: ShaderPair = uiShaderPairs.glyph
+    internal val uiTextureShaders: ShaderPair = uiShaderPairs.texture
+    internal val uiRoundedQuadShaders: ShaderPair = uiShaderPairs.roundedQuad
 
     /** Every 3D pipeline this renderer can draw with, keyed by the [VertexFormat] it expects
      * -- [prepareDrawCalls] resolves each [DrawCall] against this table via
@@ -208,9 +190,13 @@ class Renderer(
      * see [prepareDrawCalls]'s own doc comment for why silently rendering wrong-format vertex
      * data through the wrong pipeline would be worse than not drawing it at all. */
     internal val pipelinesByFormat: Map<VertexFormat, RenderPipeline> =
-        mapOf(renderPipeline.vertexFormat to renderPipeline) + additionalPipelinesByFormat
+        mapOf(pipelines.primary.vertexFormat to pipelines.primary) + pipelines.byFormat
     internal val wireframePipelinesByFormat: Map<VertexFormat, RenderPipeline> =
-        wireframePipelinesByFormat
+        pipelines.wireframeByFormat
+    internal val instancedPipelinesByFormat: Map<VertexFormat, RenderPipeline> =
+        pipelines.instancedByFormat
+    internal val skinnedInstancedPipelinesByFormat: Map<VertexFormat, RenderPipeline> =
+        pipelines.skinnedInstancedByFormat
 
     /** Resolves [format] to the pipeline that should actually draw it this frame -- the
      * [wireframePipelinesByFormat] entry when [wireframe] is on and one was built for

@@ -11,23 +11,11 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.VkPipelineBindPoint
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPrimitiveTopology
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkShaderStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkVertexInputRate
-import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkMemoryPropertyFlagBits
-import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D
 import io.github.ronjunevaldoz.awake.vulkan.models.VkViewport
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkBufferUsageFlagBits
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorBufferInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorPoolCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorPoolSize
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutBinding
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorSetLayoutCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkDescriptorType
 import io.github.ronjunevaldoz.awake.vulkan.models.info.VkGraphicsPipelineCreateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkMemoryAllocateInfo
-import io.github.ronjunevaldoz.awake.vulkan.models.info.VkShaderModuleCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineCacheCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendAttachmentState
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineColorBlendStateCreateInfo
@@ -43,6 +31,8 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineViewp
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputAttributeDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBindingDescription
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.createShaderModule
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.toShaderIntArray
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 
 /**
@@ -64,106 +54,35 @@ class LineRenderPipeline(
     private val graphicsDevice = graphicsDevice
     private val device get() = graphicsDevice.device
 
-    private var descriptorSetLayout: Long = 0
     private var pipelineLayout: Long = 0
     private var pipelineCache: Long = 0
     private var graphicsPipeline: LongArray = longArrayOf()
-    private val uniformSlots = mutableListOf<UniformSlot>()
+    private lateinit var uniformSlots: PerFrameUniformSlots
+    private val descriptorSetLayout get() = uniformSlots.descriptorSetLayout
 
-    private data class UniformSlot(
-        val descriptorPool: Long,
-        val descriptorSet: Long,
-        val mvpBuffer: Long,
-        val mvpBufferMemory: Long,
-    )
-
+    // See RenderPipeline's own init doc comment -- same partial-creation-leak guard.
     init {
         require(framesInFlight > 0) { "framesInFlight must be positive." }
-        descriptorSetLayout = createDescriptorSetLayout()
-        repeat(framesInFlight) { uniformSlots += createUniformSlot() }
-        createGraphicsPipeline(shaders.vertex, shaders.fragment)
-    }
-
-    private fun createDescriptorSetLayout(): Long = VulkanDescriptors.vkCreateDescriptorSetLayout(
-        device,
-        VkDescriptorSetLayoutCreateInfo(
-            pBindings = arrayOf(
-                VkDescriptorSetLayoutBinding(
-                    binding = 0,
-                    descriptorType = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    stageFlags = VkShaderStageFlagBits.VERTEX.value,
-                ),
-            ),
-        ),
-    )
-
-    private fun createMvpUniformBuffer(): Pair<Long, Long> {
-        val buffer = VulkanBuffers.vkCreateBuffer(
-            device,
-            VkBufferCreateInfo(
-                size = MVP_UNIFORM_BYTES.toLong(),
-                usage = VkBufferUsageFlagBits.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            ),
-        )
-        val requirements = VulkanBuffers.vkGetBufferMemoryRequirements(device, buffer)
-        val memoryTypeIndex = VulkanBuffers.findMemoryType(
-            graphicsDevice.physicalDevice,
-            requirements.memoryTypeBits,
-            VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT or
-                VkMemoryPropertyFlagBits.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        )
-        val memory = VulkanBuffers.vkAllocateMemory(
-            device,
-            VkMemoryAllocateInfo(allocationSize = requirements.size, memoryTypeIndex = memoryTypeIndex),
-        )
-        VulkanBuffers.vkBindBufferMemory(device, buffer, memory, 0)
-        return buffer to memory
-    }
-
-    private fun createUniformSlot(): UniformSlot {
-        val (mvpBuffer, mvpBufferMemory) = createMvpUniformBuffer()
-        val descriptorPool = VulkanDescriptors.vkCreateDescriptorPool(
-            device,
-            VkDescriptorPoolCreateInfo(
-                maxSets = 1,
-                pPoolSizes = arrayOf(
-                    VkDescriptorPoolSize(type = VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, descriptorCount = 1),
-                ),
-            ),
-        )
-        val descriptorSet = VulkanDescriptors.vkAllocateDescriptorSet(device, descriptorPool, descriptorSetLayout)
-        VulkanDescriptors.vkUpdateDescriptorSetBuffer(
-            device,
-            descriptorSet,
-            0,
-            VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-            VkDescriptorBufferInfo(buffer = mvpBuffer, range = MVP_UNIFORM_BYTES.toLong()),
-        )
-        return UniformSlot(descriptorPool, descriptorSet, mvpBuffer, mvpBufferMemory)
+        try {
+            uniformSlots = PerFrameUniformSlots(
+                graphicsDevice, MVP_UNIFORM_BYTES, VkShaderStageFlagBits.VERTEX.value, framesInFlight,
+            )
+            createGraphicsPipeline(shaders.vertex, shaders.fragment)
+        } catch (e: Throwable) {
+            destroy()
+            throw e
+        }
     }
 
     /** Writes this frame's view-projection matrix (lines are already in world space, so
      * model is implicitly identity -- mvp == viewProjection). */
     fun writeMvp(mvp: FloatArray) = writeMvp(frameIndex = 0, mvp = mvp)
 
-    fun writeMvp(frameIndex: Int, mvp: FloatArray) {
-        val slot = uniformSlot(frameIndex)
-        VulkanBuffers.writeBufferMemoryFloats(device, slot.mvpBufferMemory, 0, mvp)
-    }
-
-    private fun createShaderModule(code: IntArray): Long =
-        Vulkan.vkCreateShaderModule(device, VkShaderModuleCreateInfo(pCode = code))
-
-    private fun ByteArray.toIntArray(): IntArray = IntArray(size / 4) { i ->
-        (this[i * 4].toInt() and 0xFF) or
-            ((this[i * 4 + 1].toInt() and 0xFF) shl 8) or
-            ((this[i * 4 + 2].toInt() and 0xFF) shl 16) or
-            ((this[i * 4 + 3].toInt() and 0xFF) shl 24)
-    }
+    fun writeMvp(frameIndex: Int, mvp: FloatArray) = uniformSlots.write(frameIndex, mvp)
 
     private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray) {
-        val fragShaderModule = createShaderModule(fragShaderCode.toIntArray())
-        val vertShaderModule = createShaderModule(vertShaderCode.toIntArray())
+        val fragShaderModule = createShaderModule(device, fragShaderCode.toShaderIntArray())
+        val vertShaderModule = createShaderModule(device, vertShaderCode.toShaderIntArray())
 
         val shaderStages = arrayOf(
             VkPipelineShaderStageCreateInfo(
@@ -278,7 +197,7 @@ class LineRenderPipeline(
     fun bind(commandBuffer: Long) = bind(commandBuffer, frameIndex = 0)
 
     fun bind(commandBuffer: Long, frameIndex: Int) {
-        val slot = uniformSlot(frameIndex)
+        val slot = uniformSlots[frameIndex]
         Vulkan.vkCmdBindPipeline(
             commandBuffer,
             VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -291,19 +210,7 @@ class LineRenderPipeline(
         graphicsPipeline.forEach { Vulkan.vkDestroyPipeline(device, it) }
         Vulkan.vkDestroyPipelineLayout(device, pipelineLayout)
         Vulkan.vkDestroyPipelineCache(device, pipelineCache)
-        uniformSlots.forEach { slot ->
-            VulkanBuffers.vkDestroyBuffer(device, slot.mvpBuffer)
-            VulkanBuffers.vkFreeMemory(device, slot.mvpBufferMemory)
-            VulkanDescriptors.vkDestroyDescriptorPool(device, slot.descriptorPool)
-        }
-        VulkanDescriptors.vkDestroyDescriptorSetLayout(device, descriptorSetLayout)
-    }
-
-    private fun uniformSlot(frameIndex: Int): UniformSlot {
-        require(frameIndex in uniformSlots.indices) {
-            "LineRenderPipeline frame index $frameIndex is outside 0..${uniformSlots.lastIndex}."
-        }
-        return uniformSlots[frameIndex]
+        if (::uniformSlots.isInitialized) uniformSlots.destroy()
     }
 
     private companion object {

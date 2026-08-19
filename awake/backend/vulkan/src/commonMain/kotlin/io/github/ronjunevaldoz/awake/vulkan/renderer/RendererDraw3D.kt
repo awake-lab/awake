@@ -691,12 +691,20 @@ private fun MutableMap<RenderMaterial, Int>.nextSlot(material: RenderMaterial): 
 internal fun Renderer.lightViewProjection(light: SceneLight): Mat4 =
     directionalShadowBox(light.direction, clipSpace).viewProjection
 
-/** The shadow depth pre-pass -- renders every [drawCalls] entry resolved to
- * [Renderer.renderPipeline] (the primary/lit format; nothing else casts a shadow today) from
- * the light's own point of view into [Renderer.shadowMap], reusing [runOffscreenCommands]
- * (the same one-time-command path [Renderer.renderToTexture] already uses) rather than a
- * second command-buffer/fence scheme. A no-op whenever shadows aren't supported
- * ([Renderer.shadowMap] is `null`) or are runtime-disabled ([Renderer.shadowsEnabled]).
+/** The shadow depth pre-pass -- renders every [drawCalls] entry whose resolved pipeline shares
+ * [Renderer.renderPipeline]'s own [RenderPipeline.vertexFormat] (not just the literal primary
+ * pipeline object) from the light's own point of view into [Renderer.shadowMap], reusing
+ * [runOffscreenCommands] (the same one-time-command path [Renderer.renderToTexture] already
+ * uses) rather than a second command-buffer/fence scheme. This also covers
+ * [Renderer.instancedPipelinesByFormat]'s primary-format entry (same vertex layout, just
+ * instanced) -- an instanced crowd now casts a shadow like its non-instanced counterpart would.
+ * Still does NOT cover [Renderer.skinnedInstancedPipelinesByFormat] or the particle pipeline:
+ * [Renderer.shadowRenderPipeline] is built with ONE fixed vertex layout (the primary format,
+ * see `VulkanGameApplication`'s `shadowShaderSet` doc comment), and skinned/particle draws use a
+ * genuinely different vertex format it cannot correctly bind -- extending shadow coverage to
+ * them needs a shadow pipeline per format, not a wider check here. A no-op whenever shadows
+ * aren't supported ([Renderer.shadowMap] is `null`) or are runtime-disabled
+ * ([Renderer.shadowsEnabled]).
  *
  * Binds each [PreparedDrawCall.material]'s own descriptor set (already written with
  * `lightMvp` by [prepareDrawCalls]) against [Renderer.shadowRenderPipeline]'s layout instead
@@ -726,7 +734,7 @@ internal fun Renderer.performShadowPass(drawCalls: List<PreparedDrawCall>) {
         var drawIndex = 0
         while (drawIndex < drawCalls.size) {
             val prepared = drawCalls[drawIndex]
-            if (prepared.pipeline === renderPipeline) {
+            if (prepared.pipeline.vertexFormat == renderPipeline.vertexFormat) {
                 prepared.drawCall.mesh.bind(commandBuffer)
                 prepared.material.bind(
                     commandBuffer,

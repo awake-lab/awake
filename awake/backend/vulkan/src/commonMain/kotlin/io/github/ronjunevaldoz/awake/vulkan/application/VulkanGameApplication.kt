@@ -7,20 +7,27 @@ import io.github.ronjunevaldoz.awake.engine.game.Game
 import io.github.ronjunevaldoz.awake.engine.game.GameApplication
 import io.github.ronjunevaldoz.awake.engine.game.GameShaderSet
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.vulkan.Vulkan
 import io.github.ronjunevaldoz.awake.vulkan.commands.TransferContext
 import io.github.ronjunevaldoz.awake.vulkan.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.debug.SkyboxRenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
-import io.github.ronjunevaldoz.awake.vulkan.enums.VkPolygonMode
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanBuffers
 import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanDescriptors
 import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineKey
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineRequest
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineTable
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineVariant
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowRenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowResources
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.UiShaderPairs
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.buildRequestedPipelines
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.createSceneRenderPass
 import io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer
 import io.github.ronjunevaldoz.awake.vulkan.surfaceFramebufferExtent
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
@@ -126,18 +133,19 @@ open class VulkanGameApplication(
 
     private lateinit var graphicsDevice: GraphicsDevice
     private lateinit var swapchainManager: SwapchainManager
-    private lateinit var renderPipeline: RenderPipeline
-    private var wireframeRenderPipeline: RenderPipeline? = null
-    private val additionalRenderPipelines = mutableMapOf<VertexFormat, RenderPipeline>()
-    private val wireframeAdditionalRenderPipelines = mutableMapOf<VertexFormat, RenderPipeline>()
+
+    /** Shared by every [RenderPipeline] this app builds (and by [lineRenderPipeline]/
+     * [skyboxRenderPipeline], which reuse the existing 3D pass) -- see [createSceneRenderPass]'s
+     * own doc comment for why one shared handle replaces what used to be one render pass per
+     * pipeline. Owned here, not by any individual pipeline; destroyed exactly once in
+     * [destroyBackend]. */
+    private var sceneRenderPass: Long = 0
+    private lateinit var requestedPipelines: Map<PipelineKey, Pair<RenderPipeline, RenderPipeline?>>
     private lateinit var lineRenderPipeline: LineRenderPipeline
     private var skyboxRenderPipeline: SkyboxRenderPipeline? = null
     private lateinit var transferContext: TransferContext
     private var shadowMap: ShadowMap? = null
     private var shadowRenderPipeline: ShadowRenderPipeline? = null
-    private var instancedRenderPipeline: RenderPipeline? = null
-    private var skinnedInstancedRenderPipeline: RenderPipeline? = null
-    private var particleRenderPipeline: RenderPipeline? = null
 
     /** The `@group(1)` joint-palette set layout `skinnedInstancedRenderPipeline`'s layout is
      * built from -- see `SkinnedInstanceBuffer.createDescriptorSetLayout` for why each pooled
@@ -164,116 +172,91 @@ open class VulkanGameApplication(
         shadowMap = shadowShaderSet?.let { ShadowMap(graphicsDevice) }
         pipelineDescriptorSetLayout =
             Material.createDescriptorSetLayout(graphicsDevice, shadowMap = shadowMap)
+        sceneRenderPass = createSceneRenderPass(graphicsDevice, swapchainManager)
 
-        // fillPipeline(shaders, format) builds the normal pipeline plus, when wireframeSupport
-        // is on, a VK_POLYGON_MODE_LINE companion sharing the exact same loaded ShaderPair --
-        // one resource read instead of two, and the pair this app's own field assignments
-        // below destructure.
-        suspend fun fillAndWireframePipeline(
-            vertexPath: String,
-            fragmentPath: String,
-            format: VertexFormat,
-            vertexEntryPoint: String,
-            fragmentEntryPoint: String,
-        ): Pair<RenderPipeline, RenderPipeline?> {
-            val shaders = loadShaderPair(vertexPath, fragmentPath)
-            val fill = RenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                pipelineDescriptorSetLayout,
-                shaders,
-                format,
-                vertexEntryPoint,
-                fragmentEntryPoint,
+        val requests = buildList {
+            add(
+                PipelineRequest(
+                    key = PipelineKey.Primary,
+                    vertexShaderResourcePath = vertexShaderResourcePath,
+                    fragmentShaderResourcePath = fragmentShaderResourcePath,
+                    vertexFormat = vertexFormat,
+                    vertexEntryPoint = vertexShaderEntryPoint,
+                    fragmentEntryPoint = fragmentShaderEntryPoint,
+                    buildWireframe = wireframeSupport,
+                ),
             )
-            val wireframe = if (wireframeSupport) {
-                RenderPipeline(
-                    graphicsDevice,
-                    swapchainManager,
-                    pipelineDescriptorSetLayout,
-                    shaders,
-                    format,
-                    vertexEntryPoint,
-                    fragmentEntryPoint,
-                    polygonMode = VkPolygonMode.VK_POLYGON_MODE_LINE,
+            additionalPipelines.forEach { (format, shaderSet) ->
+                add(
+                    PipelineRequest(
+                        key = PipelineKey.Format(format),
+                        vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
+                        fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
+                        vertexFormat = format,
+                        vertexEntryPoint = shaderSet.vulkan.vertexEntryPoint,
+                        fragmentEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
+                        buildWireframe = wireframeSupport,
+                    ),
                 )
-            } else {
-                null
             }
-            return fill to wireframe
+            instancedShaderSet?.let { shaderSet ->
+                add(
+                    PipelineRequest(
+                        key = PipelineKey.Instanced,
+                        vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
+                        fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
+                        // Same vertex layout as the primary pipeline -- it draws the same
+                        // meshes, just many copies of them; `instanced` only ADDS binding 1.
+                        vertexFormat = vertexFormat,
+                        vertexEntryPoint = shaderSet.vulkan.vertexEntryPoint,
+                        fragmentEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
+                        variant = PipelineVariant.Instanced,
+                    ),
+                )
+            }
+            skinnedInstancedShaderSet?.let { shaderSet ->
+                // Built BEFORE the request: the request needs the layout handle itself, and
+                // this field assignment must happen regardless of what buildRequestedPipelines
+                // does later (destroyBackend's cleanup reads this field independently).
+                val paletteLayout = SkinnedInstanceBuffer.createDescriptorSetLayout(graphicsDevice)
+                skinnedInstanceDescriptorSetLayout = paletteLayout
+                add(
+                    PipelineRequest(
+                        key = PipelineKey.SkinnedInstanced,
+                        vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
+                        fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
+                        vertexFormat = VertexFormat.PositionNormalColorSkin,
+                        vertexEntryPoint = shaderSet.vulkan.vertexEntryPoint,
+                        fragmentEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
+                        variant = PipelineVariant.Instanced,
+                        extraDescriptorSetLayouts = listOf(paletteLayout),
+                    ),
+                )
+            }
+            particleShaderSet?.let { shaderSet ->
+                add(
+                    PipelineRequest(
+                        key = PipelineKey.Particle,
+                        vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
+                        fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
+                        vertexFormat = VertexFormat.PositionUv,
+                        vertexEntryPoint = shaderSet.vulkan.vertexEntryPoint,
+                        fragmentEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
+                        variant = PipelineVariant.AlphaBlendedParticle,
+                    ),
+                )
+            }
         }
-
-        val (fill, wireframe) = fillAndWireframePipeline(
-            vertexShaderResourcePath,
-            fragmentShaderResourcePath,
-            vertexFormat,
-            vertexShaderEntryPoint,
-            fragmentShaderEntryPoint,
+        requestedPipelines = buildRequestedPipelines(
+            graphicsDevice,
+            swapchainManager,
+            sceneRenderPass,
+            pipelineDescriptorSetLayout,
+            requests,
+            ::loadShaderPair,
         )
-        renderPipeline = fill
-        wireframeRenderPipeline = wireframe
+        val (primaryPipeline, primaryWireframePipeline) = requestedPipelines.getValue(PipelineKey.Primary)
 
-        additionalPipelines.forEach { (format, shaderSet) ->
-            val (additionalFill, additionalWireframe) = fillAndWireframePipeline(
-                shaderSet.vulkan.vertexResourcePath,
-                shaderSet.vulkan.fragmentResourcePath,
-                format,
-                shaderSet.vulkan.vertexEntryPoint,
-                shaderSet.vulkan.fragmentEntryPoint,
-            )
-            additionalRenderPipelines[format] = additionalFill
-            additionalWireframe?.let { wireframeAdditionalRenderPipelines[format] = it }
-        }
-        instancedRenderPipeline = instancedShaderSet?.let { shaderSet ->
-            RenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                pipelineDescriptorSetLayout,
-                loadShaderPair(
-                    shaderSet.vulkan.vertexResourcePath,
-                    shaderSet.vulkan.fragmentResourcePath,
-                ),
-                // Same vertex layout as the primary pipeline -- it draws the same meshes, just
-                // many copies of them; `instanced` only ADDS binding 1 on top of it.
-                vertexFormat,
-                shaderSet.vulkan.vertexEntryPoint,
-                shaderSet.vulkan.fragmentEntryPoint,
-                variant = PipelineVariant.Instanced,
-            )
-        }
-        skinnedInstancedRenderPipeline = skinnedInstancedShaderSet?.let { shaderSet ->
-            val paletteLayout = SkinnedInstanceBuffer.createDescriptorSetLayout(graphicsDevice)
-            skinnedInstanceDescriptorSetLayout = paletteLayout
-            RenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                pipelineDescriptorSetLayout,
-                loadShaderPair(
-                    shaderSet.vulkan.vertexResourcePath,
-                    shaderSet.vulkan.fragmentResourcePath,
-                ),
-                VertexFormat.PositionNormalColorSkin,
-                shaderSet.vulkan.vertexEntryPoint,
-                shaderSet.vulkan.fragmentEntryPoint,
-                variant = PipelineVariant.Instanced,
-                extraDescriptorSetLayouts = listOf(paletteLayout),
-            )
-        }
-        particleRenderPipeline = particleShaderSet?.let { shaderSet ->
-            RenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                pipelineDescriptorSetLayout,
-                loadShaderPair(
-                    shaderSet.vulkan.vertexResourcePath,
-                    shaderSet.vulkan.fragmentResourcePath,
-                ),
-                VertexFormat.PositionUv,
-                shaderSet.vulkan.vertexEntryPoint,
-                shaderSet.vulkan.fragmentEntryPoint,
-                variant = PipelineVariant.AlphaBlendedParticle,
-            )
-        }
         shadowRenderPipeline = shadowMap?.let { map ->
             val shaderSet = requireNotNull(shadowShaderSet)
             ShadowRenderPipeline(
@@ -294,7 +277,7 @@ open class VulkanGameApplication(
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
             swapchainManager,
-            renderPipeline.renderPass,
+            sceneRenderPass,
             loadShaderPair(
                 DEBUG_LINE_VERTEX_SHADER_RESOURCE_PATH,
                 DEBUG_LINE_FRAGMENT_SHADER_RESOURCE_PATH,
@@ -306,7 +289,7 @@ open class VulkanGameApplication(
                 graphicsDevice,
                 swapchainManager,
                 // The EXISTING 3D pass, same reuse lineRenderPipeline above does.
-                renderPipeline.renderPass,
+                sceneRenderPass,
                 loadShaderPair(
                     shaderSet.vulkan.vertexResourcePath,
                     shaderSet.vulkan.fragmentResourcePath,
@@ -315,43 +298,67 @@ open class VulkanGameApplication(
             )
         }
         transferContext = TransferContext(graphicsDevice)
-        val additionalPipelinesByFormat = additionalRenderPipelines.toMap()
-        val wireframePipelinesByFormat = buildMap {
-            wireframeRenderPipeline?.let { put(vertexFormat, it) }
-            putAll(wireframeAdditionalRenderPipelines)
-        }
         val renderer = Renderer(
-            graphicsDevice,
-            swapchainManager,
-            renderPipeline,
-            additionalPipelinesByFormat,
-            lineRenderPipeline,
-            transferContext,
-            loadShaderPair(UI_VERTEX_SHADER_RESOURCE_PATH, UI_FRAGMENT_SHADER_RESOURCE_PATH),
-            loadShaderPair(
-                UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH,
-                UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH,
+            graphicsDevice = graphicsDevice,
+            swapchainManager = swapchainManager,
+            pipelines = PipelineTable(
+                primary = primaryPipeline,
+                byFormat = requestedPipelines
+                    .mapNotNull { (key, pair) -> (key as? PipelineKey.Format)?.let { it.vertexFormat to pair.first } }
+                    .toMap(),
+                wireframeByFormat = buildMap {
+                    primaryWireframePipeline?.let { put(vertexFormat, it) }
+                    requestedPipelines.forEach { (key, pair) ->
+                        if (key is PipelineKey.Format) pair.second?.let {
+                            put(
+                                key.vertexFormat,
+                                it
+                            )
+                        }
+                    }
+                },
+                instancedByFormat = buildMap {
+                    requestedPipelines[PipelineKey.Instanced]?.first?.let { put(vertexFormat, it) }
+                    requestedPipelines[PipelineKey.Particle]?.first?.let {
+                        put(
+                            VertexFormat.PositionUv,
+                            it
+                        )
+                    }
+                },
+                skinnedInstancedByFormat = requestedPipelines[PipelineKey.SkinnedInstanced]?.first
+                    ?.let { mapOf(VertexFormat.PositionNormalColorSkin to it) } ?: emptyMap(),
             ),
-            loadShaderPair(
-                UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH,
-                UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH,
+            lineRenderPipeline = lineRenderPipeline,
+            transferContext = transferContext,
+            uiShaderPairs = UiShaderPairs(
+                quad = loadShaderPair(
+                    UI_VERTEX_SHADER_RESOURCE_PATH,
+                    UI_FRAGMENT_SHADER_RESOURCE_PATH
+                ),
+                glyph = loadShaderPair(
+                    UI_GLYPH_VERTEX_SHADER_RESOURCE_PATH,
+                    UI_GLYPH_FRAGMENT_SHADER_RESOURCE_PATH,
+                ),
+                texture = loadShaderPair(
+                    UI_TEXTURE_VERTEX_SHADER_RESOURCE_PATH,
+                    UI_TEXTURE_FRAGMENT_SHADER_RESOURCE_PATH,
+                ),
+                roundedQuad = loadShaderPair(
+                    UI_ROUNDED_QUAD_VERTEX_SHADER_RESOURCE_PATH,
+                    UI_ROUNDED_QUAD_FRAGMENT_SHADER_RESOURCE_PATH,
+                ),
             ),
-            loadShaderPair(
-                UI_ROUNDED_QUAD_VERTEX_SHADER_RESOURCE_PATH,
-                UI_ROUNDED_QUAD_FRAGMENT_SHADER_RESOURCE_PATH,
-            ),
-            MAX_FRAMES_IN_FLIGHT,
-            wireframePipelinesByFormat,
-            shadowMap,
-            shadowRenderPipeline,
-            buildMap {
-                instancedRenderPipeline?.let { put(vertexFormat, it) }
-                particleRenderPipeline?.let { put(VertexFormat.PositionUv, it) }
+            maxFramesInFlight = MAX_FRAMES_IN_FLIGHT,
+            shadow = shadowMap?.let { map ->
+                shadowRenderPipeline?.let { pipeline ->
+                    ShadowResources(
+                        map,
+                        pipeline
+                    )
+                }
             },
-            skinnedInstancedRenderPipeline
-                ?.let { mapOf(VertexFormat.PositionNormalColorSkin to it) }
-                ?: emptyMap(),
-            skyboxRenderPipeline,
+            skyboxRenderPipeline = skyboxRenderPipeline,
         )
         swapchainManager.createSyncObjects()
 
@@ -378,13 +385,10 @@ open class VulkanGameApplication(
             graphicsDevice.device,
             pipelineDescriptorSetLayout.handle,
         )
-        renderPipeline.destroy()
-        additionalRenderPipelines.values.forEach { it.destroy() }
-        wireframeRenderPipeline?.destroy()
-        wireframeAdditionalRenderPipelines.values.forEach { it.destroy() }
-        instancedRenderPipeline?.destroy()
-        skinnedInstancedRenderPipeline?.destroy()
-        particleRenderPipeline?.destroy()
+        requestedPipelines.values.forEach { (fill, wireframe) ->
+            fill.destroy()
+            wireframe?.destroy()
+        }
         skinnedInstanceDescriptorSetLayout?.let {
             VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, it.handle)
         }
@@ -392,6 +396,7 @@ open class VulkanGameApplication(
         shadowMap?.destroy()
         lineRenderPipeline.destroy()
         skyboxRenderPipeline?.destroy()
+        Vulkan.vkDestroyRenderPass(graphicsDevice.device, sceneRenderPass)
         graphicsDevice.destroy()
     }
 

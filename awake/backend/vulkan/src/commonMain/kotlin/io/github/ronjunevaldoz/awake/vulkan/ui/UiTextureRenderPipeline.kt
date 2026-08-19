@@ -45,6 +45,8 @@ import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineVerte
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkPipelineViewportStateCreateInfo
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputAttributeDescription
 import io.github.ronjunevaldoz.awake.vulkan.models.info.pipeline.VkVertexInputBindingDescription
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.createShaderModule
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.toShaderIntArray
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
 
 /**
@@ -90,12 +92,18 @@ class UiTextureRenderPipeline(
         val descriptorSet: Long,
     )
 
+    // See RenderPipeline's own init doc comment -- same partial-creation-leak guard.
     init {
         require(framesInFlight > 0) { "framesInFlight must be positive." }
-        descriptorSetLayout = createDescriptorSetLayout()
-        createScreenSizeUniformBuffer()
-        createGraphicsPipeline(vertShaderCode, fragShaderCode)
-        writeScreenSize(swapchainManager.extent.width.toFloat(), swapchainManager.extent.height.toFloat())
+        try {
+            descriptorSetLayout = createDescriptorSetLayout()
+            createScreenSizeUniformBuffer()
+            createGraphicsPipeline(vertShaderCode, fragShaderCode)
+            writeScreenSize(swapchainManager.extent.width.toFloat(), swapchainManager.extent.height.toFloat())
+        } catch (e: Throwable) {
+            destroy()
+            throw e
+        }
     }
 
     private fun createDescriptorSetLayout(): Long = VulkanDescriptors.vkCreateDescriptorSetLayout(
@@ -213,19 +221,9 @@ class UiTextureRenderPipeline(
         VulkanDescriptors.vkCmdBindDescriptorSet(commandBuffer, pipelineLayout, 0, slot.descriptorSet)
     }
 
-    private fun createShaderModule(code: IntArray): Long =
-        Vulkan.vkCreateShaderModule(device, VkShaderModuleCreateInfo(pCode = code))
-
-    private fun ByteArray.toIntArray(): IntArray = IntArray(size / 4) { i ->
-        (this[i * 4].toInt() and 0xFF) or
-            ((this[i * 4 + 1].toInt() and 0xFF) shl 8) or
-            ((this[i * 4 + 2].toInt() and 0xFF) shl 16) or
-            ((this[i * 4 + 3].toInt() and 0xFF) shl 24)
-    }
-
     private fun createGraphicsPipeline(vertShaderCode: ByteArray, fragShaderCode: ByteArray) {
-        val fragShaderModule = createShaderModule(fragShaderCode.toIntArray())
-        val vertShaderModule = createShaderModule(vertShaderCode.toIntArray())
+        val fragShaderModule = createShaderModule(device, fragShaderCode.toShaderIntArray())
+        val vertShaderModule = createShaderModule(device, vertShaderCode.toShaderIntArray())
 
         val shaderStages = arrayOf(
             VkPipelineShaderStageCreateInfo(stage = VkShaderStageFlagBits.FRAGMENT, module = fragShaderModule, pName = "main"),
