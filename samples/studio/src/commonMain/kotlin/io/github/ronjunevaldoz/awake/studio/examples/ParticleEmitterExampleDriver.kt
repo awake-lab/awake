@@ -22,6 +22,7 @@ import kotlin.math.sin
 
 private const val PARTICLE_TEXTURE_SIZE = 16
 private const val FLICKER_FRAME_COUNT = 4
+private const val SPARKLE_FRAME_COUNT = 4
 private const val MAX_PARTICLES_PER_EMITTER = 200
 
 /** Unit billboard quad (-0.5..0.5 on x/y, z=0) -- `particle.wgsl`'s vertex shader offsets these
@@ -143,9 +144,13 @@ private val PARTICLE_VARIANTS = listOf(
     // unlike aura/spawn-in below), gold cooling into near-white as it rises, like light
     // intensifying toward the top. A real level-up would use ParticleLifecycle.burstCount for
     // one-shot-then-gone; kept continuous here so it stays visible in this side-by-side gallery.
+    // Its own textured sparkle-strip material (not the shared soft-dot "particle" one) --
+    // 4-point stars, twinkling via per-particle desynced frames (frameCount + Particle
+    // .frameOffset), so every sparkle in the pillar twinkles on its own beat instead of
+    // flickering in lockstep.
     ParticleVariant(
         nodeName = "particles-levelup",
-        materialName = "particle",
+        materialName = "particle-levelup",
         origin = Vec3(10.5f, 0f, 0f),
         baseVelocity = Vec3(0f, 3f, 0f),
         velocityJitter = 0f,
@@ -154,10 +159,11 @@ private val PARTICLE_VARIANTS = listOf(
         spawnRate = 40f,
         lifetime = 1.2f,
         startAlpha = 0.9f,
-        scale = 0.22f,
+        scale = 0.3f,
         startColor = Vec3(1f, 0.85f, 0.3f),
         endColor = Vec3(1f, 1f, 0.9f),
         spawnRadius = 0.8f,
+        frameCount = SPARKLE_FRAME_COUNT,
     ),
     // Spawn/teleport-in: the inverse of aura's charging circle -- a wider ring, faster
     // convergence, and a cool blue->cyan-white gradient (energy building toward a flash) instead
@@ -405,6 +411,13 @@ internal object ParticleEmitterExampleDriver {
      * texture would sample the whole strip as one squished frame. */
     fun createFlickerMaterial(runtime: SceneGameRuntime) =
         runtime.renderer.createMaterial(texture = flickerStripTexture(), uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT)
+
+    /** [SPARKLE_FRAME_COUNT]-frame horizontal strip of 4-point stars (not a dot) -- proves a
+     * real per-emitter TEXTURE (not just tint) reads through `particle.wgsl`, and each frame's
+     * own size/brightness variance is what [Particle.frameOffset]'s desync makes visible as
+     * independent twinkling instead of a uniform strobe. */
+    fun createLevelupMaterial(runtime: SceneGameRuntime) =
+        runtime.renderer.createMaterial(texture = sparkleStripTexture(), uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT)
 }
 
 /** particle.wgsl's Uniforms: viewProjection(16) + cameraRight(4) + cameraUp(4) + frameInfo(4). */
@@ -431,6 +444,51 @@ private fun flickerStripTexture(): TextureAsset {
         }
     }
     return TextureAsset(data, stripWidth, frameSize)
+}
+
+private fun sparkleStripTexture(): TextureAsset {
+    val frameSize = PARTICLE_TEXTURE_SIZE
+    val stripWidth = frameSize * SPARKLE_FRAME_COUNT
+    val data = ByteArray(stripWidth * frameSize * 4)
+    for (frame in 0 until SPARKLE_FRAME_COUNT) {
+        // Each frame twinkles a different size/brightness -- same "just enough variation to
+        // prove frame-cycling" spirit as flickerStripTexture, star-shaped instead of a dot.
+        val brightness = 0.7f + 0.3f * (frame % 2)
+        val sizeFactor = 0.6f + 0.4f * ((frame + 2) % 4) / 3f
+        val frameTexture = starTexture(frameSize, brightness, sizeFactor)
+        for (y in 0 until frameSize) {
+            for (x in 0 until frameSize) {
+                val srcIndex = (y * frameSize + x) * 4
+                val dstIndex = (y * stripWidth + frame * frameSize + x) * 4
+                frameTexture.data.copyInto(data, dstIndex, srcIndex, srcIndex + 4)
+            }
+        }
+    }
+    return TextureAsset(data, stripWidth, frameSize)
+}
+
+/** A simple 4-point star (diamond core + soft cross arms), not a dot -- reads distinctly from
+ * every other demo's shared soft-dot texture at a glance. Analytic alpha mask, no image asset. */
+private fun starTexture(size: Int, brightness: Float, sizeFactor: Float): TextureAsset {
+    val center = (size - 1) / 2f
+    val radius = (size / 2f) * sizeFactor
+    val data = ByteArray(size * size * 4)
+    for (y in 0 until size) {
+        for (x in 0 until size) {
+            val dx = x - center
+            val dy = y - center
+            val diamond = (kotlin.math.abs(dx) + kotlin.math.abs(dy)) / radius
+            val cross = kotlin.math.min(kotlin.math.abs(dx), kotlin.math.abs(dy)) / (radius * 0.35f)
+            val mask = kotlin.math.max(1f - diamond, 1f - cross)
+            val alpha = (mask.coerceIn(0f, 1f) * 255f * brightness).toInt().coerceIn(0, 255)
+            val index = (y * size + x) * 4
+            data[index] = 255.toByte()
+            data[index + 1] = 255.toByte()
+            data[index + 2] = 255.toByte()
+            data[index + 3] = alpha.toByte()
+        }
+    }
+    return TextureAsset(data, size, size)
 }
 
 private fun dotTexture(size: Int, brightness: Float, sizeFactor: Float): TextureAsset {
