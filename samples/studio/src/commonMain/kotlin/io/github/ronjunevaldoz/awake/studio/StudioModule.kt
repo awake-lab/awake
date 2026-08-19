@@ -100,33 +100,17 @@ internal fun studioModule(
                 material("particle-flicker") { ParticleEmitterExampleDriver.createFlickerMaterial(this) }
                 material("particle-levelup") { ParticleEmitterExampleDriver.createLevelupMaterial(this) }
             }
-            // The input system writes engine CameraMode hotkeys before the studio bridge syncs
-            // them into UI state; CameraSystem then applies the pose after that bridge has
-            // handled a header/menu selection for this frame.
-            //
-            // Direct construction, not the `cameraInputSystem()`/`cameraSystem()` DSL helpers --
-            // both need `isCaptured` to also cover a gizmo handle drag, not just real UI widgets,
-            // otherwise dragging a handle ALSO orbits the camera underneath it (the same raw
-            // pointer drag read twice, with no mutual exclusion). `gizmoCapturedOwnership` is the
-            // one place that OR's the two together; everything else about these systems is
-            // unchanged from what the DSL helpers themselves construct.
+            // Direct construction: merges UI and gizmo handle drag ownership to prevent double-orbiting.
             frameSystem("cameraInput") {
                 CameraInputSystem(
                     inputProvider = { requireService(Input::class).currentSnapshot },
                     uiResultProvider = { uiContext.finishFrame().ownership.gizmoCapturedOwnership(gizmo) },
                 )
             }
-            // Registered here rather than left out: the rotating-cube scene authors a
-            // SpinControl that nothing was ticking, so studio's "rotating cube" never rotated.
-            // Two systems because SpinControl is a "control carries state, system only composes"
-            // component (see SpinSystem): something has to advance the angle, and the engine
-            // leaves that to whoever owns the spin rate. In an editor, that owner is play mode.
+            // Advance rotating cube SpinControl only during Play mode.
             frameSystem("spin-clock") { PlayModeSystem(SpinClockSystem(), store) }
             frameSystem("spin") { PlayModeSystem(SpinSystem(), store) }
-            // Unconditional (not PlayModeSystem-gated like spin above) -- particles are a
-            // passive visual demo, meant to keep animating while orbiting/inspecting in Edit
-            // mode too, same reasoning the camera preview/orientation gizmo already animate
-            // regardless of mode.
+            // Particles remain active across both Edit and Play modes.
             frameSystem("particles") { ParticleSystem() }
             frameSystem("example-driver") {
                 StudioExampleDriverSystem(this, store, loader, writeScene, editorCamera)
@@ -137,12 +121,7 @@ internal fun studioModule(
                     uiResultProvider = { uiContext.finishFrame().ownership.gizmoCapturedOwnership(gizmo) },
                 )
             }
-            // Runs after the default infrastructure systems (Transform/Render/Debug), not as a
-            // frameSystem -- Renderer.drawDebugLines replaces the whole line buffer each call
-            // rather than appending, so whichever system calls it last wins. DebugVisualization
-            // System is one of the default infra systems; drawing the gizmo before it (the old
-            // frameSystem ordering) meant its handle lines got wiped out any frame a debug
-            // toggle (frustum/bounds/occlusion/light/shadow) was on.
+            // Runs after default infrastructure systems so gizmo lines are not cleared by debug visualization passes.
             infrastructureSystems {
                 defaultInfrastructureSystems() +
                     StudioGizmoSystem(this, store, gizmo, viewportRect, loader::boundsOf)
@@ -152,15 +131,9 @@ internal fun studioModule(
                 SkinnedExampleDriver.preload()
                 InstancedSkinnedExampleDriver.preload()
                 loader.preload()
-                // One entity, created once (not per-example -- ExampleLoader.teardown only
-                // destroys instantiated scene roots), so the frustum/bounds toggle survives
-                // switching examples instead of resetting to off each time.
+                // Persistent entity surviving scene reloads to preserve debug visualization toggles.
                 world.create().also { world.add(it, WorldDebugSettings()) }
-                // Same "created once, survives every LoadExample" shape -- the editor's own
-                // Scene-view camera, distinct from whatever camera a loaded example authors (see
-                // StudioEditorCamera's own doc comment). No Name: not a selectable/deletable
-                // scene object, same reasoning WorldDebugSettings' entity is invisible in the
-                // hierarchy.
+                // Persistent scene-view editor camera surviving scene reloads (unnamed to stay hidden in hierarchy).
                 editorCamera.entity = world.create().also { entity ->
                     world.add(
                         entity,
@@ -178,22 +151,13 @@ internal fun studioModule(
                     world.add(entity, Transform())
                     world.add(entity, CameraComponent().also {
                         it.targetEntity = entity
-                        // An editor's own free-look zoom range is a different concern than a
-                        // gameplay orbit rig's -- the engine default (CameraComponent
-                        // .DEFAULT_MAX_DISTANCE, 20f) is a character-camera range, not enough to
-                        // pull back and see a whole scene laid out. seedFromAuthoredPose only
-                        // WIDENS this if a scene's authored eye sits farther out, it never
-                        // shrinks it -- so this floor is a permanent editor-camera property, not
-                        // overwritten per scene load.
+                        // Widen editor max zoom distance beyond default gameplay character-orbit limits.
                         it.maxDistance = EDITOR_CAMERA_MAX_DISTANCE
                     })
                     world.add(entity, ActiveCamera())
                 }
-                // dispatch, not activate() directly: only Intent.SelectExample queues the
-                // LoadExample effect the driver system acts on. Without this, the store's
-                // default activeExampleId sits "active" in the rail but nothing ever loads,
-                // since dispatch only otherwise fires from a click.
-                store.dispatch(StudioContract.Intent.SelectExample(StudioExamples.first().id))
+                // Dispatch intent to trigger initial example loading effect on startup.
+                store.dispatch(StudioContract.Intent.SelectExample(store.state.value.examples.activeExampleId))
             }
             overlay { viewportWidth, viewportHeight ->
                 drawStudioShell(

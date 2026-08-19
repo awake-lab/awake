@@ -86,11 +86,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                 shadcnSidebar(
                     id = "ui-showcase-sidebar",
                     modifier = Modifier.width(sidebarWidth).fillMaxHeight(),
-                    // The team switcher belongs in the `header` slot, not here. Putting it there
-                    // collapses the sidebar's weighted body to 0 and the whole menu stops
-                    // painting -- see ShowcaseShellSidebarTest. A plain 48dp surface in the same
-                    // slot behaves; shadcnSidebarHeaderButton specifically does not. Until that
-                    // is fixed the switcher scrolls with the menu instead of staying pinned.
+                    // Team switcher in menu body to prevent weighted body collapse (see ShowcaseShellSidebarTest).
                     footer = {
                         shadcnSidebarFooterButton(
                             id = "ui-showcase-user-profile",

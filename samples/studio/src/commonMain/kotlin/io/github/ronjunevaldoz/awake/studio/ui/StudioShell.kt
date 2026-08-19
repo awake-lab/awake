@@ -66,13 +66,7 @@ internal fun SceneGameRuntime.drawStudioShell(
     cameraPreview: StudioCameraPreview = StudioCameraPreview(),
     orientationGizmo: StudioOrientationGizmo = StudioOrientationGizmo(),
 ) {
-    renderer.clearColor = ViewportClearColor
-    // Before the shell body, not inside the inspector's own draw: the offscreen pass has to run
-    // exactly once per frame (see StudioCameraPreview.render), and the texture it produces has to
-    // exist by the time the shell stages a quad sampling it. Always the scene's own authored
-    // camera (whichever Camera entity ISN'T the viewport's own primary one, i.e. the editor
-    // camera in Edit mode) -- no selection required, same "always-on Game view" a Unity/Godot
-    // editor already gives you next to its Scene view.
+    // Run offscreen pass before shell body so the camera preview texture exists when sampled.
     if (cameraPreview.enabled) {
         nonPrimaryCamera(world)?.let { cameraPreview.render(renderer, it.camera, collectDrawCalls()) }
     }
@@ -323,13 +317,7 @@ private fun UiScope.drawStudioViewportPanel(
 ) {
     val state = store.state.value
     val debugSettings = world.family<WorldDebugSettings>().components().firstOrNull()
-    // Always the scene's own authored camera -- same "no selection required" call as the camera
-    // preview above (see nonPrimaryCamera's own doc comment). Used to be `state.inspector
-    // .selectedEntityId`, which meant the Frustum toggle silently drew nothing unless the camera
-    // entity specifically was selected first -- Light/Shadow never had that requirement, and
-    // Frustum shouldn't either. Kept live every frame: the debug system reads it fresh each
-    // update, same "system reads whatever's currently set" contract every other field on
-    // WorldDebugSettings already has.
+    // Target frustum visualization to the authored non-primary scene camera.
     debugSettings?.frustumTargetEntityId = nonPrimaryCameraEntityId(world)
     column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
         row(
@@ -387,12 +375,7 @@ private fun UiScope.drawStudioViewportPanel(
         ) {
             val viewportBounds = column(
                 modifier = Modifier.weight(1f).fillMaxHeight().padding(PILL_INSET),
-                // Pushes the first and last child to opposite ends using this column's OWN
-                // measured content size -- not a `Modifier.weight(1f)` spacer, which measured
-                // zero height here (this column already sits inside an outer `row(weight(1f))`'s
-                // own trial-measurement pass, and a second, nested weight() resolution is exactly
-                // the class of weight-distribution bug this codebase has hit before -- parked the
-                // preview right under the gizmo instead of the bottom-right corner).
+                // SpaceBetween places orientation gizmo at top and camera preview at bottom.
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 orientationGizmo.material?.let { gizmoTexture ->
@@ -400,17 +383,10 @@ private fun UiScope.drawStudioViewportPanel(
                         textureQuad(gizmoTexture, Modifier.size(ORIENTATION_GIZMO_SIZE))
                     }
                 }
-                // Always on once a scene's own camera exists to preview -- no selection required
-                // (see drawStudioShell's own render() call site). `material` is null only before
-                // the first frame that had a non-primary camera to render.
+                // Camera preview thumbnail HUD.
                 cameraPreview.material?.let { previewTexture ->
                     row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                        // shadcnCard's own body padding is real shadcn Card p-6 (24dp) -- fine for
-                        // a page card, way too much chrome around a small 220x124 HUD thumbnail.
-                        // Reuses shadcnCardStyle (same border/shape/elevation) with just its
-                        // panelPadding swapped for a compact one, via `surface()` directly rather
-                        // than the `shadcnCard()` wrapper, which has no padding override of its
-                        // own.
+                        // Compact card surface reusing shadcnCardStyle with reduced padding for HUD thumbnail.
                         surface(
                             id = "studio-camera-preview-card",
                             modifier = Modifier.width(CAMERA_PREVIEW_WIDTH),

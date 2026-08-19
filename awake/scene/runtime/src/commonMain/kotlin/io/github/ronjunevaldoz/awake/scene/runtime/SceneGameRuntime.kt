@@ -116,10 +116,7 @@ class SceneGameRuntime internal constructor(
         // 2. RUN THE SCENE BUILDER BLUEPRINT (Delayed Execution)
         spec.scenePopulationBlock(this)
 
-        // 3. Asset loading BEFORE the first system tick. onReady is where suspend resource
-        // loads live, and a system's first update can already need them -- a demo that
-        // activates on frame 0 and reads a scene document or a parsed model would otherwise
-        // see null. GltfViewerDemo used to paper over this by re-checking every frame.
+        // 3. Asset loading before first system tick so initial frame update has resources available.
         spec.onReadyBlock(this)
 
         // 4. Initial sync pass for all frame-rate systems, infrastructure (transform

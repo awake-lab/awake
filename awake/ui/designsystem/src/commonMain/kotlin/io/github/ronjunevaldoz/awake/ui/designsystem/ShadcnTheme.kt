@@ -25,11 +25,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnRadiusScale
 object ShadcnTheme : ShadcnResolvedTheme by shadcnThemeData()
 
 enum class ShadcnStylePreset(val label: String, internal val baseRadius: Dp, internal val metrics: ShadcnMetrics, internal val ringAlphaMultiplier: Float) {
-    // Vega is the real-shadcn-mapped preset (new-york-v4, --radius: 0.625rem = 10dp, card/dialog
-    // p-6 = 24dp, popover p-4 = 16dp, badge px-2 py-0.5 = 8/2dp) -- every other preset below is
-    // an Awake-original density variant with no upstream shadcn equivalent, so their numbers are
-    // deliberately untouched by the wave-2a value-fix pass that brought Vega in line with the
-    // pinned reference.
+    // Vega maps to upstream shadcn new-york-v4 metrics (radius: 10dp, card p-6: 24dp, badge: px-2 py-0.5).
     Vega(
         label = "Vega",
         baseRadius = 10f.dp,
@@ -298,12 +294,7 @@ private fun createPalette(config: ShadcnThemeConfig): ShadcnPalette {
         popoverForeground = popoverForeground,
         sidebar = sidebar,
         sidebarForeground = sidebarForeground,
-        // Real shadcn's dark sidebar-primary is a fixed distinct blue (oklch(0.488 0.243
-        // 264.376)), not a reuse of the page's own `primary` -- verified identical across every
-        // base color in the pinned themes.ts (neutral AND stone dark both emit this same value),
-        // so it is not hue-derived like the rest of this palette. Light mode's sidebar-primary
-        // genuinely does equal `primary` in the reference (both oklch(0.205 0 0) for neutral),
-        // so only the dark branch needs its own literal here.
+        // Upstream dark sidebar-primary is fixed blue oklch(0.488 0.243 264.376) across all base themes.
         sidebarPrimary = if (dark) oklch(0.488f, 0.243f, 264.376f) else primary,
         sidebarPrimaryForeground = if (dark) oklch(0.985f, 0f, 0f) else primaryForeground,
         sidebarAccent = secondary,
