@@ -32,6 +32,12 @@ Mandatory for the domain you are touching — each encodes a bug this repo actua
   reflective component construction breaks on iOS/wasmJs, structural-change churn, entity
   ownership on teardown, and `@DslMarker` on nested builders.
 - `skills/awake-ecs-scene-runtime/SKILL.md` — consuming the scene runtime from a sample/demo.
+- `skills/awake-render-pipeline-architecture/SKILL.md` — before adding a render feature/pass,
+  wiring a new `RenderPipeline`, touching draw-call sorting in `RendererDraw3D`, or changing
+  `GameApplication`/`Game` wiring. Covers the Strategy (`RenderFeature`), data-driven
+  Material/Pipeline split, state-batching, and Mediator (`GameApplication`) patterns, plus a
+  subsystem/pattern map that flags where a generic engine-pattern diagram does not match
+  Awake's actual ECS-based structure.
 - `skills/awake-ui-authoring/SKILL.md` — before adding or changing any UI widget, adding a
   size/spacing constant, or naming a primitive. Covers which of `ui-core`/`ui-headless`/
   `ui-designsystem` owns what, the derivable-size rule (an headless default becomes the spec),
