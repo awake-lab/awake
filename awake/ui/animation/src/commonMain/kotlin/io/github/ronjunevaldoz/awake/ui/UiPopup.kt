@@ -157,14 +157,18 @@ fun UiPrimitiveScope.popup(
         placedSlot
     }
 
+    if (!isMeasuring()) {
+        registerOverlayOcclusion(popupSlot)
+    }
+
     // Outside-click dismissal only makes sense while genuinely expanded -- during the exit fade
     // window (expanded already false, still visuallyActive) the caller already decided to close
     // it, so this must not re-report a dismiss every frame of the fade.
     val dismissed = expanded &&
         properties.dismissOnClickOutside &&
         pointerDown() &&
-        !hitTest(anchorBoundsSlot) &&
-        !hitTest(popupSlot)
+        !context.hitTest(anchorBoundsSlot) &&
+        !context.hitTest(popupSlot)
 
     if (dismissed) {
         return UiPopupResult(slot = popupSlot, dismissed = true)

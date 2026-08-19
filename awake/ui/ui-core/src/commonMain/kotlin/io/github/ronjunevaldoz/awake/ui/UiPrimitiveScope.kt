@@ -34,6 +34,7 @@ interface UiPrimitiveScope {
 
     fun claimSlot(width: Dimension, height: Dimension, weight: LayoutWeight? = null): UiBounds
 
+    fun registerOverlayOcclusion(bounds: UiBounds, isModal: Boolean = false)
     fun hitTest(slot: UiBounds): Boolean
     fun isActive(id: String): Boolean
     fun tryClaimActive(id: String, hovered: Boolean)

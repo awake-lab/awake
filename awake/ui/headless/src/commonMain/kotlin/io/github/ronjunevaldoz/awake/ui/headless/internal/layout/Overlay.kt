@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.canvas
 
-/** Draws a full overlay-layer scrim over [slot]. The caller chooses its visual token/color. */
 fun UiPrimitiveScope.overlayScrim(slot: UiBounds, color: Color) {
+    registerOverlayOcclusion(slot, isModal = true)
     canvas(slot) { drawRect(0f, 0f, slot.width, slot.height, color, overlay = true) }
 }

@@ -269,8 +269,15 @@ class UiContext internal constructor(
         if (!measuring) runtime.onScrollConsumed()
     }
 
-    internal fun hitTestInternal(slot: UiBounds): Boolean =
-        !measuring && runtime.hitTest(slot)
+    fun hitTest(slot: UiBounds, overlay: Boolean = true): Boolean =
+        !measuring && runtime.hitTest(slot, overlay)
+
+    internal fun hitTestInternal(slot: UiBounds, overlay: Boolean = false): Boolean =
+        hitTest(slot, overlay)
+
+    fun registerOverlayOcclusion(bounds: UiBounds, isModal: Boolean = false) {
+        if (!measuring) runtime.registerOverlayOcclusion(bounds, isModal)
+    }
 
     internal fun isActiveInternal(id: String): Boolean = runtime.isActive(id)
 

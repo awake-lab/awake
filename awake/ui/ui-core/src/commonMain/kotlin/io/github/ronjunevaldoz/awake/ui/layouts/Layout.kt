@@ -22,8 +22,11 @@ abstract class AbstractUiScope(
 ) : io.github.ronjunevaldoz.awake.ui.UiPrimitiveScope,
     io.github.ronjunevaldoz.awake.ui.UiPrimitiveEmitter {
     final override val emitsToOverlay: Boolean = emitToOverlay
+    final override fun registerOverlayOcclusion(bounds: UiBounds, isModal: Boolean) {
+        context.registerOverlayOcclusion(bounds, isModal)
+    }
     final override fun hitTest(slot: UiBounds) =
-        context.hitTestInternal(slot)
+        context.hitTestInternal(slot, overlay = emitToOverlay)
 
     final override fun isActive(id: String) = context.isActiveInternal(id)
     final override fun tryClaimActive(id: String, hovered: Boolean) =

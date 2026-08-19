@@ -62,8 +62,12 @@ internal class UiRuntimeCoordinator(
 
     fun semanticNodes(): List<UiSemanticNode> = finalizedFrameOutput?.semantics ?: frameState.semanticNodes()
 
-    fun hitTest(slot: UiBounds): Boolean =
-        interaction.hitTest(slot, frameState.inputState)
+    fun hitTest(slot: UiBounds, overlay: Boolean = false): Boolean =
+        interaction.hitTest(slot, frameState.inputState, overlay)
+
+    fun registerOverlayOcclusion(bounds: UiBounds, isModal: Boolean = false) {
+        interaction.registerOverlayOcclusion(bounds, isModal)
+    }
 
     fun isActive(id: String): Boolean = interaction.isActive(id)
 
