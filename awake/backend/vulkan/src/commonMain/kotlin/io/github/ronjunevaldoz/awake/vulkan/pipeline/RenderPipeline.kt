@@ -106,30 +106,11 @@ sealed interface PipelineVariant {
 }
 
 /**
- * Phase 2 (renderer abstraction): owns the render pass + graphics pipeline -- extracted
- * verbatim from `VulkanApplication`'s `createRenderPass`/`createGraphicsPipeline`/
- * `createShaderModule` functions and their backing fields (`renderPass`, `pipelineLayout`,
- * `pipelineCache`, `graphicsPipeline`). Same two color/depth attachments, same fixed
- * position/color vertex attribute layout, same `NONE` cull mode (see the rasterization state's
- * comment for why) -- this is a structural move, not a behavior change.
- *
- * Takes compiled SPIR-V bytecode directly (a [ShaderPair]) rather than loading it itself:
- * reading a shader asset off disk is a platform/resource concern
- * (`readResourceBytes`), not a pipeline concern, matching how [Mesh][io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh]
- * takes raw vertex/index data instead of loading a model file itself.
- *
- * Takes [Material]'s [DescriptorSetLayoutHandle] (not the whole [Material] instance) because
- * that's the only thing the pipeline layout actually needs from it -- a real
- * `Material`/`Shader` system with more than one descriptor set layout would change this
- * signature, but there's only one material in this demo today.
- *
- * The vertex attribute layout is driven by [vertexFormat]
- * ([io.github.ronjunevaldoz.awake.render.mesh.VertexFormat]) -- each of its entries becomes one
- * [VkVertexInputAttributeDescription], location/offset/format read straight off the entry
- * instead of a hand-written table. Defaults to
- * [VertexFormat.PositionColorUv][io.github.ronjunevaldoz.awake.render.mesh.VertexFormat.PositionColorUv],
- * bit-for-bit the layout this class hardcoded before the abstraction existed, so every
- * pre-existing caller/shader pair keeps working unchanged.
+ * Owns a render pass + graphics pipeline. Takes compiled SPIR-V ([ShaderPair]) rather than a
+ * shader asset path -- loading shaders is a platform/resource concern, not a pipeline one.
+ * Takes [Material]'s [DescriptorSetLayoutHandle], not the whole [Material] instance -- the
+ * pipeline layout only needs the layout handle. Vertex attribute layout is driven by
+ * [vertexFormat]; each entry becomes one [VkVertexInputAttributeDescription].
  */
 class RenderPipeline(
     graphicsDevice: GraphicsDevice,
@@ -143,22 +124,15 @@ class RenderPipeline(
     val vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
     vertexEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
     fragmentEntryPoint: String = DEFAULT_SHADER_ENTRY_POINT,
-    /** `VK_POLYGON_MODE_LINE` builds a wireframe companion of an otherwise-identical pipeline
-     * (same shaders/vertex layout/render pass) -- see `Renderer.wireframe`'s doc comment.
-     * Requires the device's `fillModeNonSolid` feature; not requested separately here because
-     * `GraphicsDevice.createLogicalDevice` already enables every feature the physical device
-     * reports as available (`pEnabledFeatures = arrayOf(features)`, not a hand-picked subset),
-     * so this is already on whenever the GPU supports it -- confirmed by reading that
-     * function, not assumed. */
+    /** `VK_POLYGON_MODE_LINE` builds a wireframe companion pipeline (see `Renderer.wireframe`).
+     * Requires `fillModeNonSolid` -- already enabled, since `GraphicsDevice.createLogicalDevice`
+     * enables every feature the device reports. */
     polygonMode: VkPolygonMode = VkPolygonMode.VK_POLYGON_MODE_FILL,
     /** See [PipelineVariant]'s own doc comment. Defaults to [PipelineVariant.Opaque] -- the
      * pipeline this class always built before any variant existed. */
     variant: PipelineVariant = PipelineVariant.Opaque,
-    /** Descriptor set layouts appended AFTER [descriptorSetLayout] (which stays set 0), one per
-     * additional set the shader declares. Today's only user is the skinned-instanced pipeline,
-     * whose `@group(1)` joint-palette storage buffer is owned per draw call rather than per
-     * material -- see `SkinnedInstanceBuffer`'s doc comment. Empty (default) leaves the pipeline
-     * layout exactly the single-set one this class always built. */
+    /** Extra descriptor set layouts appended after [descriptorSetLayout] (set 0). Today's only
+     * user: the skinned-instanced pipeline's `@group(1)` joint-palette buffer. */
     extraDescriptorSetLayouts: List<DescriptorSetLayoutHandle> = emptyList(),
 ) {
     // Read by the create* builders through the field rather than passed as a param: that's
@@ -173,12 +147,8 @@ class RenderPipeline(
     var pipelineCache: Long = 0
     var graphicsPipeline: LongArray = longArrayOf()
 
-    // If creation throws partway through (see createGraphicsPipeline's own ".spv version
-    // mismatch" warning), whatever was already created here (shader modules, pipeline layout)
-    // would otherwise leak -- nothing holds a half-constructed RenderPipeline to call destroy()
-    // on. destroy() is already zero-handle tolerant (every Vulkan destroy call is a documented
-    // no-op on a null/0 handle), so it's safe to call on partial state. renderPass is NOT
-    // touched here -- it's caller-owned (see this class's own renderPass doc comment).
+    // destroy() is zero-handle-tolerant, so calling it on a partial-construction failure is
+    // safe and avoids a leak. renderPass isn't touched -- it's caller-owned.
     init {
         try {
             createGraphicsPipeline(
@@ -270,15 +240,9 @@ class RenderPipeline(
 
 private const val DEFAULT_SHADER_ENTRY_POINT = "main"
 
-/** The single render pass shared by every [RenderPipeline] (and, via [RenderPipeline.renderPass],
- * every sibling pipeline that reuses it -- see `LineRenderPipeline`/`SkyboxRenderPipeline`/
- * `UiGlyphRenderPipeline`'s own `renderPass`/`externalRenderPass` constructor params) built
- * against the same [swapchainManager]. Was [RenderPipeline]'s own private `createRenderPass`
- * before every additional/instanced/skinned/particle [RenderPipeline] a caller builds created
- * its OWN structurally-identical render pass -- N pipelines meant N near-identical render
- * passes, each a separate handle for the same fixed two-attachment (color+depth) shape. Callers
- * that build multiple [RenderPipeline]s call this ONCE and pass the same [Long] to each. Not
- * owned by any single [RenderPipeline] -- the caller destroys it exactly once. */
+/** Render pass shared by every [RenderPipeline] built against the same [swapchainManager] --
+ * avoids one near-identical render pass per pipeline. Not owned by any pipeline; caller
+ * destroys it exactly once. */
 fun createSceneRenderPass(graphicsDevice: GraphicsDevice, swapchainManager: SwapchainManager): Long =
     Vulkan.vkCreateRenderPass(
         graphicsDevice.device,

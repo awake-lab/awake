@@ -16,9 +16,12 @@ import io.github.ronjunevaldoz.awake.vulkan.ui.UiTextureRenderPipeline
 
 /**
  * Everything a [RenderFeature] is allowed to see of the frame being recorded -- deliberately
- * narrow, and deliberately free of any reference to `Renderer` itself, so a feature can be read
- * and tested without knowing that class exists. `Renderer` supplies one of these per frame
- * through the single adapter that bridges the two (`RendererFrameContext`).
+ * narrow, and carrying no `Renderer` *behavior*: nothing here can drive a frame, only read what
+ * this one already staged. The single exception is [uiRuns]'s element type, `Renderer.UiRun`,
+ * a plain staged-geometry data class that happens to be nested there; hoisting it to a
+ * top-level type would make this port literally `Renderer`-free but buys nothing else.
+ * `Renderer` supplies one of these per frame through the single adapter that bridges the two
+ * (`RendererFrameContext`).
  */
 internal interface RenderFrameContext {
     val commandBuffer: Long

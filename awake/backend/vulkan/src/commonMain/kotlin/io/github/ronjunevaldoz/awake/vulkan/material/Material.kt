@@ -27,32 +27,20 @@ import io.github.ronjunevaldoz.awake.vulkan.texture.Texture
 import io.github.ronjunevaldoz.awake.render.material.Material as RenderMaterial
 
 /**
- * Phase 2 (renderer abstraction): owns the MVP-matrix uniform buffer and the descriptor
- * set that binds it (plus a [Texture]'s sampler/view) to the pipeline -- extracted verbatim
- * from `VulkanApplication`'s `createDescriptorSetLayout`/`createUniformBuffer`/
- * `createDescriptorPool`/`createDescriptorSet`/`updateUniformBuffer` functions and their
- * backing fields.
- *
- * Split into two phases like [Mesh][io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh]/[Texture]
- * are lazily constructed relative to `VulkanApplication`'s other eager state, but for a
- * different reason here: [descriptorSetLayout] must exist *before* the graphics pipeline is
- * created (the pipeline layout references it), while the descriptor set itself can't be
- * written until a real [Texture] exists to read `sampler`/`imageView` from. So the
- * constructor only creates the layout; [createResources] (called once the texture is ready)
- * stores the texture binding. Per-frame/per-draw uniform buffers and descriptor sets are
- * then created lazily when the renderer knows which frame-in-flight slot and draw occurrence
- * this material is being used for.
+ * Owns the MVP-matrix uniform buffer and the descriptor set that binds it (plus a [Texture]'s
+ * sampler/view) to the pipeline. Construction is split in two: the constructor only creates
+ * [descriptorSetLayout], since a graphics pipeline needs that layout to exist before it's
+ * built; [createResources] (called once a real [Texture] exists) stores the texture binding.
+ * Per-frame/per-draw uniform buffers and descriptor sets are created lazily as the renderer
+ * requests specific frame/draw slots.
  */
 class Material(
     graphicsDevice: GraphicsDevice,
     private val uniformFloatCount: Int = DEFAULT_UNIFORM_FLOAT_COUNT,
-    /** Non-null only for a [io.github.ronjunevaldoz.awake.vulkan.renderer.Renderer] built with
-     * shadow support (see that class's own `shadowMap` doc comment) -- when present, every
-     * material gets 2 extra descriptor bindings (3: shadow depth image, 4: its sampler) bound
-     * to this SAME shared [ShadowMap], same "every material gets it whether or not its own
-     * shader samples it" reasoning the base-color texture bindings (1/2) already use. `null`
-     * (default) keeps every existing Material caller's descriptor-set layout/uniform buffer
-     * exactly as it was before shadows existed. */
+    /** Non-null only when the renderer has shadow support -- every material then gets 2 extra
+     * descriptor bindings (3: shadow depth image, 4: sampler) bound to this shared [ShadowMap],
+     * same "every material gets it regardless of whether its shader samples it" pattern the
+     * base-color bindings (1/2) already use. */
     private val shadowMap: ShadowMap? = null,
 ) : RenderMaterial {
     private val graphicsDevice = graphicsDevice
