@@ -226,6 +226,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `drawInsetDash`. They now take resolved `Color` params instead of reading theme defaults
   internally — `CanvasScope` never touches theme, matching how Compose's `DrawScope` works.
   `CanvasScope.context` is fully removed, no longer just relocated.
+- `UiPrimitiveScope.emit`/`emitOverlay` are gone — `CanvasScope` (via `canvas { }`) is now the
+  only way to submit a draw primitive. Code drawing straight from `UiPrimitiveScope` needs to
+  move behind `canvas { }`, same shape as `ShapePainter.kt`'s widget-chrome helpers above.
+  `UiPrimitiveScope.context` is unaffected — still there, real usage outside `ui-core`'s draw
+  path is much larger and out of scope for this pass.
 
 ### Fixed
 
