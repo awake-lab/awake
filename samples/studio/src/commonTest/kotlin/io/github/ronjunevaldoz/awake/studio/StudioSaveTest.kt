@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio
 
-import io.github.ronjunevaldoz.awake.engine.game.requireService
+import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
@@ -32,8 +32,8 @@ class StudioSaveTest {
             )
         }
         game.ready(RecordingCameraRenderer())
-        val runtime = game.requireService<SceneGameRuntime>()
-        game.render(1f / 60f, 1440f, 900f)
+        val runtime = game.requireService<SceneAppLifecycleRuntime>()
+        game.update(1f / 60f, 1440f, 900f)
 
         val cube = assertNotNull(
             runtime.world.namedEntity("cube"),
@@ -42,7 +42,7 @@ class StudioSaveTest {
         assertNotNull(runtime.world.get<Transform>(cube)).position.x = 4f
 
         store.dispatch(StudioContract.Intent.SaveScene)
-        game.render(1f / 60f, 1440f, 900f)
+        game.update(1f / 60f, 1440f, 900f)
 
         val (fileName, json) = assertNotNull(written, "save must reach the writer")
         assertEquals("rotating-cube.scene.json", fileName)
@@ -51,7 +51,11 @@ class StudioSaveTest {
             document.nodes.firstOrNull { it.name == "cube" },
             "exported document must contain the cube: $json",
         )
-        assertEquals(4f, savedCube.transform.position.x, "the edited position must be what gets saved")
+        assertEquals(
+            4f,
+            savedCube.transform.position.x,
+            "the edited position must be what gets saved"
+        )
         assertTrue(
             savedCube.components.any { it is io.github.ronjunevaldoz.awake.scene.runtime.SceneMeshRenderer },
             "the cube's authored mesh/material IDs must survive the round trip",

@@ -2,26 +2,26 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.app
 
-import io.github.ronjunevaldoz.awake.engine.game.AwakeGame
-import io.github.ronjunevaldoz.awake.engine.game.gameShaderSet
+import io.github.ronjunevaldoz.awake.asset.shaders.shaderSet
+import io.github.ronjunevaldoz.awake.engine.app.lifecycle.AwakeAppLifecycle
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
-import io.github.ronjunevaldoz.awake.vulkan.application.VulkanGameApplication
+import io.github.ronjunevaldoz.awake.vulkan.application.VulkanEngine
 
-private val StudioShaders = gameShaderSet("lit_shadow")
-private val StudioSkinnedShaders = gameShaderSet("skinned")
-private val StudioTexturedShaders = gameShaderSet("textured")
-private val StudioShadowShaders = gameShaderSet("shadow_depth")
-private val StudioInstancedShaders = gameShaderSet("instanced")
-private val StudioSkinnedInstancedShaders = gameShaderSet("skinned_instanced")
-private val StudioSkyboxShaders = gameShaderSet("skybox")
-private val StudioParticleShaders = gameShaderSet("particle")
+private val StudioShaders = shaderSet("lit_shadow")
+private val StudioSkinnedShaders = shaderSet("skinned")
+private val StudioTexturedShaders = shaderSet("textured")
+private val StudioShadowShaders = shaderSet("shadow_depth")
+private val StudioInstancedShaders = shaderSet("instanced")
+private val StudioSkinnedInstancedShaders = shaderSet("skinned_instanced")
+private val StudioSkyboxShaders = shaderSet("skybox")
+private val StudioParticleShaders = shaderSet("particle")
 
 fun createStudioVulkanApplication(
-    game: AwakeGame = studioGame(),
-): VulkanGameApplication = VulkanGameApplication(
+    game: AwakeAppLifecycle = studioGame(),
+): VulkanEngine = VulkanEngine(
     shaderSet = StudioShaders,
     vertexFormat = VertexFormat.PositionNormalColor,
-    game = game,
+    appLifecycle = game,
     additionalPipelines = mapOf(
         VertexFormat.PositionNormalColorSkin to StudioSkinnedShaders,
         VertexFormat.PositionNormalColorUv to StudioTexturedShaders,

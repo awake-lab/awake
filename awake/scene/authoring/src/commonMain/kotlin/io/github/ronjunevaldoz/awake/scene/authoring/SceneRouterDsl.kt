@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.scene.authoring
 
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.GameSpecDsl
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameSpec
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppSpec
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRoute
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterSpec
 
@@ -28,7 +28,7 @@ class SceneFlowDsl internal constructor() {
     fun route(
         id: String,
         label: String = id,
-        spec: SceneGameSpec,
+        spec: SceneAppSpec,
     ) {
         require(routes.none { it.id == id }) { "Scene route '$id' is already registered." }
         routes += SceneRoute(id = id, label = label, spec = spec)
@@ -40,7 +40,7 @@ class SceneFlowDsl internal constructor() {
     fun scene(
         id: String,
         label: String = id,
-        spec: SceneGameSpec,
+        spec: SceneAppSpec,
     ) {
         route(id = id, label = label, spec = spec)
     }

@@ -73,7 +73,8 @@ kotlin {
             // docs/MVP_PLAN.md's decision log for the duplication this replaces). `api`,
             // not `implementation`: it's a supertype of VulkanGameApplication, so consumers
             // (sample-hello-cube, awake-demo) need it resolvable on their own classpath too.
-            api(project(":awake:engine:game"))
+            api(project(":awake:engine:platform"))
+            api(project(":awake:asset:shaders"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

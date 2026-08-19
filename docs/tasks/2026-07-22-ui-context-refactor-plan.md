@@ -33,7 +33,7 @@ Validation snapshot:
 
 - `:awake:ui:ui-core:compileKotlinDesktop` passes
 - `:awake:ui:ui-headless:compileKotlinDesktop` passes
-- `:awake:engine:game-authoring:compileKotlinDesktop` passes
+- `:awake:engine:platform-authoring:compileKotlinDesktop` passes
 - `:awake:scene:compileKotlinDesktop` passes
 - `:awake:scene:authoring:compileTestKotlinDesktop` still fails, but the remaining failures are
   in older `SceneDslTest` API drift rather than in the `UiContext` split itself
@@ -58,7 +58,8 @@ That is still workable for an MVP, but it is no longer a clean long-term boundar
 
 ## Current State
 
-The split has already started in `awake/engine/ui/ui-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/context/`.
+The split has already started in
+`awake/engine/ui/ui-core/src/commonMain/kotlin/io/github/ronjunevaldoz/awake/ui/context/`.
 
 Current extracted pieces already include:
 
@@ -156,9 +157,9 @@ Recommended future direction:
 
 - rename to `UiInputFrame`, or
 - split into:
-  - `UiPointerSnapshot`
-  - `UiScrollDelta`
-  - `UiTextInputFrame`
+    - `UiPointerSnapshot`
+    - `UiScrollDelta`
+    - `UiTextInputFrame`
 
 That would make the API read closer to what it actually represents: one frame's UI-facing
 input payload.
@@ -234,10 +235,10 @@ learn more runtime wiring than they need.
 - add `UiFrameOutput`
 - add `finishFrame()`
 - internally compute:
-  - draw primitives
-  - semantic nodes
-  - input ownership
-  - platform effects
+    - draw primitives
+    - semantic nodes
+    - input ownership
+    - platform effects
 - keep `inputResult()` and `endFrame()` temporarily as compatibility shims if needed
 
 ### Phase 4: Move runtime/platform seams out of `ui-core`
@@ -297,7 +298,7 @@ competing split.
 - `:awake:ui:ui-headless:commonTest`
 - `:awake:ui-dsl:commonTest`
 - `:awake:ui:ui-designsystem:commonTest`
-- `:awake:engine:game-authoring:commonTest`
+- `:awake:engine:platform-authoring:commonTest`
 - `:samples:ui-showcase:commonTest`
 - targeted `desktopTest` where frame output or text-input focus behavior changes
 

@@ -42,6 +42,7 @@ kotlin {
             dependsOn(commonMain.get())
             dependencies {
                 api(project(":awake:backend:vulkan"))
+                api(project(":awake:asset:shaders"))
             }
         }
         named("androidMain") { dependsOn(vulkanMain) }
@@ -50,7 +51,8 @@ kotlin {
         named("iosSimulatorArm64Main") { dependsOn(vulkanMain) }
 
         commonMain.dependencies {
-            api(project(":awake:engine:game"))
+            api(project(":awake:engine:platform"))
+            api(project(":awake:asset:shaders"))
             api(project(":awake:engine:render:contract"))
         }
         named("wasmJsMain") {

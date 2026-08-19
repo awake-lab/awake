@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.studio.examples
 
 import io.github.ronjunevaldoz.awake.asset.gltf.GltfParser
+import io.github.ronjunevaldoz.awake.asset.shaders.TexturedUniformLayout
 import io.github.ronjunevaldoz.awake.core.graphics.createBitmap
 import io.github.ronjunevaldoz.awake.core.graphics.toRgba8Bytes
 import io.github.ronjunevaldoz.awake.core.math.Vec3
@@ -13,7 +14,6 @@ import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
-import io.github.ronjunevaldoz.awake.asset.shaders.TexturedUniformLayout
 import io.github.ronjunevaldoz.awake.render.renderer.createMaterial
 import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
@@ -22,8 +22,8 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleMotion
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleVisual
 import io.github.ronjunevaldoz.awake.scene.rendering.components.PbrMaterial
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.Scene
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 
 private const val TEXTURED_VERTEX_STRIDE_COMPONENTS = 11
 
@@ -48,7 +48,8 @@ internal object GltfViewerAssets {
         val bytes = readResourceBytes("assets/models/Duck.gltf")
         val gltfMesh = GltfParser.parse(bytes.decodeToString())
         val modelRadius = boundingRadius(gltfMesh.positions)
-        interleaved = scalePositions(gltfMesh.toInterleavedPositionNormalColorUv(), 1f / modelRadius)
+        interleaved =
+            scalePositions(gltfMesh.toInterleavedPositionNormalColorUv(), 1f / modelRadius)
         indices = gltfMesh.indices
         val imageBytes = requireNotNull(gltfMesh.baseColorImageBytes)
         val bitmap = createBitmap(imageBytes)
@@ -76,7 +77,7 @@ internal object GltfViewerAssets {
      * `.createMaterial` feed the `assets { }` DSL, but a component this specific to one loaded
      * model isn't authorable in a scene document either, same reasoning
      * [SkinnedExampleDriver.attachPose] documents. */
-    fun attach(instance: Scene, runtime: SceneGameRuntime) {
+    fun attach(instance: Scene, runtime: SceneAppLifecycleRuntime) {
         val node = instance.roots.find { it.name == "duck" } ?: return
         runtime.world.add(node.entity, requireNotNull(pbrMaterial))
         attachFrostAura(instance, runtime, followEntity = node.entity)
@@ -90,7 +91,11 @@ internal object GltfViewerAssets {
      * the ring hovers rather than collapsing to a point) swirled by [ParticleMotion.turbulence],
      * cooling from icy cyan to white as each particle ages -- reuses the shared "particle-quad"/
      * "particle" assets every other particle demo already uses, no new mesh/material needed. */
-    private fun attachFrostAura(instance: Scene, runtime: SceneGameRuntime, followEntity: Entity) {
+    private fun attachFrostAura(
+        instance: Scene,
+        runtime: SceneAppLifecycleRuntime,
+        followEntity: Entity
+    ) {
         val auraNode = instance.roots.find { it.name == "duck-frost-aura" } ?: return
         runtime.world.add(
             auraNode.entity,
@@ -109,7 +114,10 @@ internal object GltfViewerAssets {
                     turbulence = 1.5f,
                     turbulenceFrequency = 1.5f,
                 ),
-                visual = ParticleVisual(startColor = Vec3(0.4f, 0.9f, 1f), endColor = Vec3(1f, 1f, 1f)),
+                visual = ParticleVisual(
+                    startColor = Vec3(0.4f, 0.9f, 1f),
+                    endColor = Vec3(1f, 1f, 1f)
+                ),
                 dynamics = ParticleDynamics(followEntity = followEntity),
             ),
         )
@@ -127,7 +135,7 @@ internal object GltfViewerAssets {
         return result
     }
 
-    fun createMesh(runtime: SceneGameRuntime): Mesh = runtime.renderer.createMesh(
+    fun createMesh(runtime: SceneAppLifecycleRuntime): Mesh = runtime.renderer.createMesh(
         MeshGeometry(
             requireNotNull(interleaved),
             requireNotNull(indices),
@@ -135,7 +143,7 @@ internal object GltfViewerAssets {
         ),
     )
 
-    fun createMaterial(runtime: SceneGameRuntime): Material =
+    fun createMaterial(runtime: SceneAppLifecycleRuntime): Material =
         runtime.renderer.createMaterial(
             TexturedUniformLayout,
             texture = requireNotNull(texture),

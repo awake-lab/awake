@@ -1,0 +1,205 @@
+// Copyright (c) Ron June Valdoz
+// SPDX-License-Identifier: Apache-2.0
+package io.github.ronjunevaldoz.awake.engine.gameauthoring
+
+import io.github.ronjunevaldoz.awake.core.math.Camera
+import io.github.ronjunevaldoz.awake.core.math.ClipSpace
+import io.github.ronjunevaldoz.awake.render.material.Material
+import io.github.ronjunevaldoz.awake.render.mesh.Mesh
+import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
+import io.github.ronjunevaldoz.awake.render.renderer.Renderer
+import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
+import io.github.ronjunevaldoz.awake.render.texture.PbrTextureSet
+import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
+import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
+import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
+import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class AppLifecycleDslTutorialDocsTest {
+
+    @Test
+    fun reusableModuleOwnsTheGameContent() = runTest {
+        val feature = gameModule {
+            service(String::class, "hello-cube")
+        }
+
+        val game = feature.createGame {
+            title = "Hello Cube"
+            size(1600, 900)
+            backend.vulkan()
+        }
+
+        assertEquals("Hello Cube", game.windowConfig.title)
+        assertEquals(1600, game.windowConfig.width)
+        assertEquals(900, game.windowConfig.height)
+        assertEquals("hello-cube", game.requireService(String::class))
+
+        recordGameDslTutorial(
+            name = "game-dsl-module-shell",
+            title = "Game Shell Around A Reusable Module",
+            summary = "A sample or game can keep its authored content in a reusable gameModule while the root shell only owns window and platform concerns.",
+            snippet = """
+                val feature = gameModule {
+                    service(String::class, "hello-cube")
+                }
+
+                val game = feature.createGame {
+                    title = "Hello Cube"
+                    size(1600, 900)
+                    backend.vulkan()
+                }
+            """,
+        )
+    }
+
+    @Test
+    fun modulesCanComposeOtherModulesAndStillBuildSpecs() = runTest {
+        val events = mutableListOf<String>()
+        val debugModule = gameModule {
+            service(String::class, "debug")
+            ready { events += "debug-ready" }
+        }
+        val hudModule = gameModule {
+            service(Int::class, 2)
+            ready { events += "hud-ready" }
+        }
+        val feature = gameModule {
+            module(debugModule)
+            module(hudModule)
+        }
+
+        val spec = feature.createGameSpec {
+            title = "Composable"
+            size(960, 540)
+            backend.webGpu()
+        }
+        val game = spec.createLifecycle()
+        game.ready(TutorialRenderer)
+
+        assertEquals("Composable", spec.windowConfig.title)
+        assertEquals("debug", game.requireService(String::class))
+        assertEquals(2, game.requireService(Int::class))
+        assertEquals(listOf("debug-ready", "hud-ready"), events)
+
+        recordGameDslTutorial(
+            name = "game-dsl-composed-modules",
+            title = "Modules Compose Into Larger Features",
+            summary = "Reusable modules can stack other modules before they are wrapped in a root GameSpec, which keeps authored content split without reintroducing sample-local bootstrap glue.",
+            snippet = """
+                val debugModule = gameModule {
+                    service(String::class, "debug")
+                }
+                val hudModule = gameModule {
+                    service(Int::class, 2)
+                }
+                val feature = gameModule {
+                    module(debugModule)
+                    module(hudModule)
+                }
+
+                val spec = feature.createGameSpec {
+                    title = "Composable"
+                    size(960, 540)
+                    backend.webGpu()
+                }
+            """,
+        )
+    }
+
+    @Test
+    fun statefulDefinitionKeepsSamplesOnOneRootPattern() = runTest {
+        val definition = gameDefinition(createState = { mutableListOf("boot") }) {
+            window {
+                title = "Starter Pattern"
+                size(1600, 900)
+                backend.vulkan()
+            }
+            module { state ->
+                gameModule {
+                    ready { state += "ready" }
+                    service(List::class, state)
+                }
+            }
+        }
+
+        val game = definition.createGame()
+        game.ready(TutorialRenderer)
+
+        assertEquals("Starter Pattern", game.windowConfig.title)
+        assertEquals(listOf("boot", "ready"), game.requireService(List::class))
+
+        recordGameDslTutorial(
+            name = "game-dsl-stateful-definition",
+            title = "Stateful Game Definitions Stay Reusable",
+            summary = "A reusable authored game can own its runtime state factory, window configuration, and module factory in one engine-level definition instead of teaching every sample its own wrapper pattern.",
+            snippet = """
+                val definition = gameDefinition(createState = ::RuntimeState) {
+                    window {
+                        title = "Starter Pattern"
+                        size(1600, 900)
+                        backend.vulkan()
+                    }
+                    module { state ->
+                        gameModule {
+                            service(RuntimeState::class, state)
+                        }
+                    }
+                }
+
+                val game = definition.createGame()
+            """,
+        )
+    }
+}
+
+private object TutorialRenderer : Renderer {
+    override val clipSpace: ClipSpace = ClipSpace.WebGpu
+    override var clearColor: FloatArray = floatArrayOf(0f, 0f, 0f, 1f)
+    override var wireframe: Boolean = false
+    override var shadowsEnabled: Boolean = true
+
+    override fun createMesh(geometry: MeshGeometry): Mesh = object : Mesh {
+        override val format: io.github.ronjunevaldoz.awake.render.mesh.VertexFormat =
+            geometry.format
+
+        override fun bind(commandBuffer: Long) = Unit
+        override fun draw(commandBuffer: Long) = Unit
+        override fun destroy() = Unit
+    }
+
+    override fun createMaterial(
+        texture: TextureAsset?,
+        renderTarget: RenderTarget?,
+        uniformFloatCount: Int,
+        pbrTextures: PbrTextureSet?,
+    ): Material = object : Material {
+        override fun updateUniformBuffer(mvp: FloatArray) = Unit
+        override fun bind(commandBuffer: Long, pipelineLayout: Long) = Unit
+        override fun destroy() = Unit
+    }
+
+    override fun createRenderTarget(width: Int, height: Int): RenderTarget = object : RenderTarget {
+        override val width: Int = width
+        override val height: Int = height
+        override fun destroy() = Unit
+    }
+
+    override fun draw(camera: Camera, drawCalls: List<DrawCall>, light: SceneLight) = Unit
+
+    override fun renderToTexture(target: RenderTarget, camera: Camera, drawCalls: List<DrawCall>) =
+        Unit
+
+    override suspend fun readPixels(target: RenderTarget): TextureAsset =
+        TextureAsset(ByteArray(target.width * target.height * 4), target.width, target.height)
+
+    override fun drawUi(primitives: List<UiDrawPrimitive>, font: UiFont?) = Unit
+
+    override fun drawDebugLines(lines: List<LineSegment>) = Unit
+
+    override fun destroy() = Unit
+}

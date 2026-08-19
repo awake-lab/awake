@@ -9,10 +9,10 @@ import platform.UIKit.UIScreen
 import platform.UIKit.UIViewController
 
 /**
- * Wraps a [VulkanGameApplication] in a plain UIKit view controller.
+ * Wraps a [VulkanEngine] in a plain UIKit view controller.
  */
 fun makeVulkanGameViewController(
-    application: VulkanGameApplication,
+    application: VulkanEngine,
 ): UIViewController {
     val controller = UIViewController()
     controller.view = VulkanMetalView(

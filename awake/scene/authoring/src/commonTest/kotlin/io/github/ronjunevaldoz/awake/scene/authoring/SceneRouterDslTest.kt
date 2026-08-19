@@ -4,7 +4,7 @@ package io.github.ronjunevaldoz.awake.scene.authoring
 
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
-import io.github.ronjunevaldoz.awake.engine.game.requireService
+import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.GameUiRuntime
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.ui
@@ -58,14 +58,14 @@ class SceneRouterDslTest {
         }
 
         game.ready(renderer)
-        game.render(0.016f, 640f, 480f)
+        game.update(0.016f, 640f, 480f)
 
         val router = game.requireService<SceneRouterRuntime>()
         assertEquals("overview", router.activeSceneId)
         assertEquals("overview", router.sceneRuntime.sceneName)
 
         router.switchTo("editor")
-        game.render(0.016f, 640f, 480f)
+        game.update(0.016f, 640f, 480f)
 
         assertEquals("editor", router.activeSceneId)
         assertEquals("editor", router.sceneRuntime.sceneName)
@@ -95,7 +95,7 @@ class SceneRouterDslTest {
         }
 
         game.ready(renderer)
-        game.render(0.016f, 320f, 240f)
+        game.update(0.016f, 320f, 240f)
 
         assertEquals("overview", game.requireService<SceneRouterRuntime>().activeSceneLabel)
         assertEquals(GameUiRuntime::class, game.requireService<GameUiRuntime>()::class)

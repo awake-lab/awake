@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.ecs.World
  * against [world]. A caller that instantiates a [Scene] directly and never registers it here
  * has opted out of safe switching, same as bypassing any other single-owner resource.
  *
- * Tied to one [World] for its whole lifetime by design: a [SceneGameRuntime] never reassigns
+ * Tied to one [World] for its whole lifetime by design: a [SceneAppLifecycleRuntime] never reassigns
  * its own `world` after setup, so there is no real case where a single [SceneManager] needs to
  * switch which [World] it targets.
  */

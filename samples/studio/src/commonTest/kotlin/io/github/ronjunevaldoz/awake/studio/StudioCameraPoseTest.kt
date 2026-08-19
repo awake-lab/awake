@@ -23,10 +23,11 @@ class StudioCameraPoseTest {
         val renderer = RecordingCameraRenderer()
         val game = game { module(studioModule(StudioStore())) }
         game.ready(renderer)
-        repeat(3) { game.render(1f / 60f, 1440f, 900f) }
+        repeat(3) { game.update(1f / 60f, 1440f, 900f) }
 
         val eye = assertNotNull(renderer.lastEye)
-        val distance = kotlin.math.sqrt(eye.x * eye.x + (eye.y - 0.5f) * (eye.y - 0.5f) + eye.z * eye.z)
+        val distance =
+            kotlin.math.sqrt(eye.x * eye.x + (eye.y - 0.5f) * (eye.y - 0.5f) + eye.z * eye.z)
         assertTrue(
             distance > 8f,
             "the authored camera sits ~11 units from its target; the rendered one was at $distance ($eye)",
@@ -46,10 +47,10 @@ class StudioCameraPoseTest {
         val store = StudioStore()
         val game = game { module(studioModule(store)) }
         game.ready(renderer)
-        game.render(1f / 60f, 1440f, 900f)
+        game.update(1f / 60f, 1440f, 900f)
 
         store.dispatch(StudioContract.Intent.SetCameraMode(CameraMode.FirstPerson))
-        repeat(3) { game.render(1f / 60f, 1440f, 900f) }
+        repeat(3) { game.update(1f / 60f, 1440f, 900f) }
 
         val eye = assertNotNull(renderer.lastEye)
         assertTrue(eye.y > 1.5f, "first person must stand above the aim point, was $eye")

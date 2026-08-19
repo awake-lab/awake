@@ -83,7 +83,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":awake:engine:game-authoring"))
+            implementation(project(":awake:engine:platform-authoring"))
             implementation(project(":awake:scene:authoring"))
             implementation(project(":awake:ui:designsystem"))
             implementation(libs.kotlinx.coroutines.core)
@@ -166,7 +166,8 @@ tasks.register<JavaExec>("run") {
 }
 
 tasks.withType<Test>().configureEach {
-    val record = System.getenv("AWAKE_RECORD_SNAPSHOTS") ?: System.getProperty("AWAKE_RECORD_SNAPSHOTS")
+    val record =
+        System.getenv("AWAKE_RECORD_SNAPSHOTS") ?: System.getProperty("AWAKE_RECORD_SNAPSHOTS")
     if (record != null) {
         systemProperty("AWAKE_RECORD_SNAPSHOTS", record)
     }

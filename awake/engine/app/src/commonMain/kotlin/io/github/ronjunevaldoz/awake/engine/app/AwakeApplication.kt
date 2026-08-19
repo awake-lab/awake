@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.engine.app
 
-import io.github.ronjunevaldoz.awake.engine.game.Game
-import io.github.ronjunevaldoz.awake.engine.game.GameShaderSet
+import io.github.ronjunevaldoz.awake.engine.app.lifecycle.AppLifecycle
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 
 /**
@@ -17,10 +16,10 @@ import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
  * rather than failing a `commonMain` call site that also targets Vulkan.
  */
 expect class AwakeApplication(
-    shaderSet: GameShaderSet,
+    shaderSet: ShaderSet,
     vertexFormat: VertexFormat = VertexFormat.PositionColorUv,
-    game: Game,
-    additionalPipelines: Map<VertexFormat, GameShaderSet> = emptyMap(),
+    appLifecycle: AppLifecycle,
+    additionalPipelines: Map<VertexFormat, ShaderSet> = emptyMap(),
     wireframeSupport: Boolean = false,
-    shadowShaderSet: GameShaderSet? = null,
+    shadowShaderSet: ShaderSet? = null,
 )

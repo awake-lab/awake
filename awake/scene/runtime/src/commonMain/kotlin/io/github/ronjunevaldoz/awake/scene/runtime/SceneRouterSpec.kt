@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.runtime
 
-import io.github.ronjunevaldoz.awake.engine.game.Game
-import io.github.ronjunevaldoz.awake.engine.game.GameInstaller
-import io.github.ronjunevaldoz.awake.engine.game.GameServiceLookup
-import io.github.ronjunevaldoz.awake.engine.game.GameSpecBuilder
+import io.github.ronjunevaldoz.awake.engine.app.dsl.AppServiceLookup
+import io.github.ronjunevaldoz.awake.engine.app.dsl.AppSpecBuilder
+import io.github.ronjunevaldoz.awake.engine.app.lifecycle.AppInstaller
+import io.github.ronjunevaldoz.awake.engine.app.lifecycle.AppLifecycle
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.EmptyCoroutineContext
@@ -14,7 +14,7 @@ import kotlin.coroutines.startCoroutine
 data class SceneRoute(
     val id: String,
     val label: String,
-    val spec: SceneGameSpec,
+    val spec: SceneAppSpec,
 )
 
 data class SceneRouteInfo(
@@ -25,7 +25,7 @@ data class SceneRouteInfo(
 class SceneRouterSpec(
     routes: List<SceneRoute>,
     private val initialRouteId: String,
-) : GameInstaller {
+) : AppInstaller {
     internal val routes: List<SceneRoute> = routes.toList()
 
     init {
@@ -35,12 +35,12 @@ class SceneRouterSpec(
         }
     }
 
-    override fun install(into: GameSpecBuilder) {
+    override fun install(into: AppSpecBuilder) {
         val runtime = SceneRouterRuntime(routes, initialRouteId, into.serviceLookup())
         into.service(SceneRouterRuntime::class, runtime)
         into.ready { renderer -> runtime.ready(renderer) }
         into.render { delta, viewportWidth, viewportHeight ->
-            runtime.render(
+            runtime.update(
                 delta,
                 viewportWidth,
                 viewportHeight,
@@ -56,15 +56,15 @@ class SceneRouterSpec(
 class SceneRouterRuntime internal constructor(
     routes: List<SceneRoute>,
     initialRouteId: String,
-    private val services: GameServiceLookup,
-) : Game {
+    private val services: AppServiceLookup,
+) : AppLifecycle {
     private val routesById = routes.associateBy(SceneRoute::id)
     val scenes: List<SceneRouteInfo> = routes.map { SceneRouteInfo(id = it.id, label = it.label) }
 
     private val initialRoute = routesById.getValue(initialRouteId)
     private var pendingRouteId: String? = null
     private var currentRoute: SceneRoute = initialRoute
-    private var currentRuntime: SceneGameRuntime? = null
+    private var currentRuntime: SceneAppLifecycleRuntime? = null
     private var renderer: Renderer? = null
 
     val activeSceneId: String
@@ -73,7 +73,7 @@ class SceneRouterRuntime internal constructor(
     val activeSceneLabel: String
         get() = currentRoute.label
 
-    val sceneRuntime: SceneGameRuntime
+    val sceneRuntime: SceneAppLifecycleRuntime
         get() = checkNotNull(currentRuntime) { "Scene router is not ready yet." }
 
     override suspend fun ready(renderer: Renderer) {
@@ -81,9 +81,9 @@ class SceneRouterRuntime internal constructor(
         activate(initialRoute.id)
     }
 
-    override fun render(delta: Float, viewportWidth: Float, viewportHeight: Float) {
+    override fun update(delta: Float, viewportWidth: Float, viewportHeight: Float) {
         applyPendingRouteIfNeeded()
-        sceneRuntime.render(delta, viewportWidth, viewportHeight)
+        sceneRuntime.update(delta, viewportWidth, viewportHeight)
     }
 
     override fun resize(width: Float, height: Float) {
@@ -125,7 +125,7 @@ class SceneRouterRuntime internal constructor(
             checkNotNull(renderer) { "Scene router cannot activate '$sceneId' before ready()." }
         currentRuntime?.dispose()
         currentRoute = route
-        currentRuntime = SceneGameRuntime(route.spec).also { runtime ->
+        currentRuntime = SceneAppLifecycleRuntime(route.spec).also { runtime ->
             runtime.initialize(services)
             runImmediateReady {
                 runtime.ready(activeRenderer)

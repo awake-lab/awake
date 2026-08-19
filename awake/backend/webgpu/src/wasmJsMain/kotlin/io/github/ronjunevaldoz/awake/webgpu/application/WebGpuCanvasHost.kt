@@ -24,7 +24,7 @@ import web.html.HTMLCanvasElement
  */
 fun launchWebGpuGame(
     canvasId: String = "awake-canvas",
-    applicationFactory: () -> WebGpuGameApplication,
+    applicationFactory: () -> WebGpuEngine,
 ) {
     val canvas = document.getElementById(ElementId(canvasId)) as? HTMLCanvasElement
         ?: error("No canvas found with id '$canvasId'.")
@@ -33,7 +33,7 @@ fun launchWebGpuGame(
 
 fun launchWebGpuGame(
     canvas: HTMLCanvasElement,
-    applicationFactory: () -> WebGpuGameApplication,
+    applicationFactory: () -> WebGpuEngine,
 ) {
     syncUiDensityFromWindow()
     val resolvedApplication = applicationFactory()
@@ -46,7 +46,7 @@ fun launchWebGpuGame(
     val initialSize = currentCanvasSize()
     syncCanvasSize(canvas, initialSize.first, initialSize.second)
     var wgpuContext: WGPUContext? = null
-    var application: WebGpuGameApplication? = resolvedApplication
+    var application: WebGpuEngine? = resolvedApplication
 
     window.addEventListener("resize") {
         val (width, height) = currentCanvasSize()
@@ -65,7 +65,12 @@ fun launchWebGpuGame(
         wgpuContext = resolvedContext
         configureSurface(resolvedContext)
 
-        resolvedApplication.resize(x = 0, y = 0, width = initialSize.first, height = initialSize.second)
+        resolvedApplication.resize(
+            x = 0,
+            y = 0,
+            width = initialSize.first,
+            height = initialSize.second
+        )
         resolvedApplication.create(resolvedContext)
 
         var lastFrameTime = window.performance.now()
@@ -165,7 +170,8 @@ fun bindWindowKeyboardInput(
     input: Input,
     keys: Map<String, io.github.ronjunevaldoz.awake.core.input.Key> = DefaultDomGameplayKeys,
 ) {
-    fun resolveKey(event: KeyboardEvent): io.github.ronjunevaldoz.awake.core.input.Key? = keys[event.key.lowercase()]
+    fun resolveKey(event: KeyboardEvent): io.github.ronjunevaldoz.awake.core.input.Key? =
+        keys[event.key.lowercase()]
 
     window.addEventListener("keydown") { event ->
         val key = resolveKey(event as KeyboardEvent) ?: return@addEventListener
@@ -182,17 +188,18 @@ fun bindWindowKeyboardInput(
 
 /** `KeyboardEvent.key` -> [TextEditAction] for the same discrete edit set
  * [GlfwTextInputBridge]/[AwakeUIKitTextInputBridge] push on desktop/iOS. */
-private val DomEditKeys: Map<String, io.github.ronjunevaldoz.awake.core.input.TextEditAction> = mapOf(
-    "Backspace" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Backspace,
-    "Delete" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Delete,
-    "Enter" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Enter,
-    "ArrowLeft" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowLeft,
-    "ArrowRight" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowRight,
-    "ArrowUp" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowUp,
-    "ArrowDown" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowDown,
-    "Home" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Home,
-    "End" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.End,
-)
+private val DomEditKeys: Map<String, io.github.ronjunevaldoz.awake.core.input.TextEditAction> =
+    mapOf(
+        "Backspace" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Backspace,
+        "Delete" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Delete,
+        "Enter" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Enter,
+        "ArrowLeft" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowLeft,
+        "ArrowRight" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowRight,
+        "ArrowUp" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowUp,
+        "ArrowDown" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.ArrowDown,
+        "Home" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.Home,
+        "End" to io.github.ronjunevaldoz.awake.core.input.TextEditAction.End,
+    )
 
 /** Feeds Awake's shared text-input API ([Input.pushTypedText]/[Input.pushEditAction]) from DOM
  * `keydown` -- the wasmJs sibling of [GlfwTextInputBridge]'s polling loop, but far simpler:
@@ -215,7 +222,8 @@ fun bindWindowTextInput(input: Input) {
             input.pushEditAction(action)
             return@addEventListener
         }
-        val isPrintable = key.length == 1 && !keyboardEvent.ctrlKey && !keyboardEvent.metaKey && !keyboardEvent.altKey
+        val isPrintable =
+            key.length == 1 && !keyboardEvent.ctrlKey && !keyboardEvent.metaKey && !keyboardEvent.altKey
         if (isPrintable) {
             input.pushTypedText(key)
         }

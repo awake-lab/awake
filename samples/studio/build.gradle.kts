@@ -13,7 +13,8 @@ plugins {
 // awake:asset:shaders, not duplicated here -- see that module's own build.gradle.kts doc
 // comment. A static directory reference, not a project dependency: that module produces no
 // artifact this one consumes.
-val sharedShaderDirectory = project(":awake:asset:shaders").layout.projectDirectory.dir("src/commonMain/resources/shaders")
+val sharedShaderDirectory =
+    project(":awake:asset:shaders").layout.projectDirectory.dir("src/commonMain/resources/shaders")
 tasks.named<SyncWgslShaderPipelineTask>("syncAwakeShaders") {
     additionalSourceDirectories.from(sharedShaderDirectory)
 }
@@ -41,7 +42,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":awake:engine:game-authoring"))
+            implementation(project(":awake:engine:platform-authoring"))
             implementation(project(":awake:engine:render:contract"))
             implementation(project(":awake:core"))
             implementation(project(":awake:core:animation"))

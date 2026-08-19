@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio
 
+import io.github.ronjunevaldoz.awake.asset.shaders.LitShadowUniformLayout
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.engine.game.GameModule
-import io.github.ronjunevaldoz.awake.engine.game.GameWindowBackend
+import io.github.ronjunevaldoz.awake.engine.app.core.AppModule
+import io.github.ronjunevaldoz.awake.engine.app.dsl.AppWindowBackend
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
-import io.github.ronjunevaldoz.awake.asset.shaders.LitShadowUniformLayout
 import io.github.ronjunevaldoz.awake.scene.authoring.scene
 import io.github.ronjunevaldoz.awake.scene.controls.components.ActiveCamera
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
@@ -27,7 +27,6 @@ import io.github.ronjunevaldoz.awake.studio.examples.GltfViewerAssets
 import io.github.ronjunevaldoz.awake.studio.examples.InstancedSkinnedExampleDriver
 import io.github.ronjunevaldoz.awake.studio.examples.ParticleEmitterExampleDriver
 import io.github.ronjunevaldoz.awake.studio.examples.SkinnedExampleDriver
-import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
 import io.github.ronjunevaldoz.awake.studio.examples.StudioMeshBounds
 import io.github.ronjunevaldoz.awake.studio.examples.studioCubeGeometry
 import io.github.ronjunevaldoz.awake.studio.examples.studioGroundGeometry
@@ -67,11 +66,11 @@ private const val EDITOR_CAMERA_MAX_DISTANCE = 100f
  * identity of its own. */
 internal fun studioModule(
     store: StudioStore = StudioStore(),
-    backend: GameWindowBackend = platformBackendPreference(),
+    backend: AppWindowBackend = platformBackendPreference(),
     // Injectable so a test can assert what a save produced without writing to the real home
     // directory. Defaulted, so production wiring stays a one-liner.
     writeScene: (fileName: String, json: String) -> String = ::writeSceneDocument,
-): GameModule {
+): AppModule {
     val loader = ExampleLoader()
     val backendLabel = backend.label()
     val gizmo = StudioGizmo()
@@ -94,17 +93,33 @@ internal fun studioModule(
                 mesh("skinned-mesh") { SkinnedExampleDriver.createMesh(this) }
                 material("skinned-material") { SkinnedExampleDriver.createMaterial(this) }
                 mesh("instanced-skinned-mesh") { InstancedSkinnedExampleDriver.createMesh(this) }
-                material("instanced-skinned-material") { InstancedSkinnedExampleDriver.createMaterial(this) }
+                material("instanced-skinned-material") {
+                    InstancedSkinnedExampleDriver.createMaterial(
+                        this
+                    )
+                }
                 mesh("particle-quad") { ParticleEmitterExampleDriver.createMesh(this) }
                 material("particle") { ParticleEmitterExampleDriver.createMaterial(this) }
-                material("particle-flicker") { ParticleEmitterExampleDriver.createFlickerMaterial(this) }
-                material("particle-levelup") { ParticleEmitterExampleDriver.createLevelupMaterial(this) }
+                material("particle-flicker") {
+                    ParticleEmitterExampleDriver.createFlickerMaterial(
+                        this
+                    )
+                }
+                material("particle-levelup") {
+                    ParticleEmitterExampleDriver.createLevelupMaterial(
+                        this
+                    )
+                }
             }
             // Direct construction: merges UI and gizmo handle drag ownership to prevent double-orbiting.
             frameSystem("cameraInput") {
                 CameraInputSystem(
                     inputProvider = { requireService(Input::class).currentSnapshot },
-                    uiResultProvider = { uiContext.finishFrame().ownership.gizmoCapturedOwnership(gizmo) },
+                    uiResultProvider = {
+                        uiContext.finishFrame().ownership.gizmoCapturedOwnership(
+                            gizmo
+                        )
+                    },
                 )
             }
             // Advance rotating cube SpinControl only during Play mode.
@@ -118,13 +133,17 @@ internal fun studioModule(
             frameSystem("camera") {
                 CameraSystem(
                     inputProvider = { requireService(Input::class).currentSnapshot },
-                    uiResultProvider = { uiContext.finishFrame().ownership.gizmoCapturedOwnership(gizmo) },
+                    uiResultProvider = {
+                        uiContext.finishFrame().ownership.gizmoCapturedOwnership(
+                            gizmo
+                        )
+                    },
                 )
             }
             // Runs after default infrastructure systems so gizmo lines are not cleared by debug visualization passes.
             infrastructureSystems {
                 defaultInfrastructureSystems() +
-                    StudioGizmoSystem(this, store, gizmo, viewportRect, loader::boundsOf)
+                        StudioGizmoSystem(this, store, gizmo, viewportRect, loader::boundsOf)
             }
             onReady {
                 GltfViewerAssets.preload()
@@ -185,9 +204,9 @@ private fun MeshGeometry.alsoRecordBounds(meshId: String): MeshGeometry = also {
 
 // Spelled out rather than derived from `name`: enum-case text ("WEBGPU") is not how any of these
 // backends is written.
-private fun GameWindowBackend.label(): String = when (this) {
-    GameWindowBackend.DEFAULT -> "Default"
-    GameWindowBackend.VULKAN -> "Vulkan"
-    GameWindowBackend.WEBGPU -> "WebGPU"
-    GameWindowBackend.OPENGL -> "OpenGL"
+private fun AppWindowBackend.label(): String = when (this) {
+    AppWindowBackend.DEFAULT -> "Default"
+    AppWindowBackend.VULKAN -> "Vulkan"
+    AppWindowBackend.WEBGPU -> "WebGPU"
+    AppWindowBackend.OPENGL -> "OpenGL"
 }

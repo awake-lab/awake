@@ -6,7 +6,7 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
-import io.github.ronjunevaldoz.awake.engine.game.requireService
+import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
@@ -15,7 +15,7 @@ import io.github.ronjunevaldoz.awake.render.renderer.Renderer
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.testing.render.NoopRenderer
@@ -31,7 +31,7 @@ import kotlin.test.assertTrue
 
 /**
  * Reproduces the "picking a camera mode does nothing" report end to end: real
- * [studioModule], real [StudioStore]/reducer, a real [SceneGameRuntime] driving the real
+ * [studioModule], real [StudioStore]/reducer, a real [SceneAppLifecycleRuntime] driving the real
  * `rotating-cube` scene document -- only the GPU [Renderer] is faked, same shape as
  * `awake:scene-dsl`'s own `SceneGameDslTest`. Asserts on the eye position the *renderer*
  * was actually handed by [Renderer.draw], since that -- not the store's own state -- is
@@ -51,12 +51,12 @@ class StudioModuleCameraTest {
         val game = game { module(studioModule(store)) }
 
         game.ready(renderer)
-        game.render(1f / 60f, 800f, 600f)
+        game.update(1f / 60f, 800f, 600f)
 
         val input = game.requireService<Input>()
         input.setKeyDown(Key.F5, true)
         input.updateSnapshot()
-        game.render(1f / 60f, 800f, 600f)
+        game.update(1f / 60f, 800f, 600f)
 
         // CameraInputSystem changes the component; Studio's bridge must reflect it back to the
         // store so the visible header does not claim the old mode.
@@ -70,14 +70,14 @@ class StudioModuleCameraTest {
         val game = game { module(studioModule(store)) }
 
         game.ready(renderer)
-        val runtime = game.requireService<SceneGameRuntime>()
-        game.render(1f / 60f, 800f, 600f)
+        val runtime = game.requireService<SceneAppLifecycleRuntime>()
+        game.update(1f / 60f, 800f, 600f)
 
         val orbitEye =
             assertNotNull(renderer.lastEye, "No draw() call captured for the Orbit default.")
 
         store.dispatch(StudioContract.Intent.SetCameraMode(CameraMode.TopDown))
-        game.render(1f / 60f, 800f, 600f)
+        game.update(1f / 60f, 800f, 600f)
         val topEye =
             assertNotNull(renderer.lastEye, "No draw() call captured after SetCameraMode(Top).")
 
@@ -90,7 +90,11 @@ class StudioModuleCameraTest {
         // Studio supplies as CameraComponent's target transform.
         val cubeCameraCenterY = 0.5f
         assertEquals(0f, topEye.x, TOLERANCE)
-        assertEquals(cubeCameraCenterY + TOP_DOWN_DISTANCE * sin(TOP_DOWN_ANGLE), topEye.y, TOLERANCE)
+        assertEquals(
+            cubeCameraCenterY + TOP_DOWN_DISTANCE * sin(TOP_DOWN_ANGLE),
+            topEye.y,
+            TOLERANCE
+        )
         assertEquals(TOP_DOWN_DISTANCE * 0.5f, topEye.z, TOLERANCE)
 
         // The scene's OWN authored "camera" entity stays exactly where it was authored --
@@ -118,8 +122,8 @@ class StudioModuleCameraTest {
         val game = game { module(studioModule(store)) }
 
         game.ready(renderer)
-        val runtime = game.requireService<SceneGameRuntime>()
-        game.render(1f / 60f, 800f, 600f)
+        val runtime = game.requireService<SceneAppLifecycleRuntime>()
+        game.update(1f / 60f, 800f, 600f)
 
         val settings = assertNotNull(
             runtime.world.family<WorldDebugSettings>().components().firstOrNull(),
@@ -127,7 +131,7 @@ class StudioModuleCameraTest {
         )
         settings.showFrustum = true
 
-        game.render(1f / 60f, 800f, 600f)
+        game.update(1f / 60f, 800f, 600f)
 
         assertTrue(
             renderer.debugLines.isNotEmpty(),
@@ -142,13 +146,13 @@ class StudioModuleCameraTest {
         val game = game { module(studioModule(store)) }
 
         game.ready(renderer)
-        val runtime = game.requireService<SceneGameRuntime>()
-        game.render(1f / 60f, 800f, 600f)
+        val runtime = game.requireService<SceneAppLifecycleRuntime>()
+        game.update(1f / 60f, 800f, 600f)
 
         assertEquals(Camera.Projection.Perspective, renderer.lastProjection)
 
         store.dispatch(StudioContract.Intent.SetProjection(StudioContract.Projection.Orthographic))
-        game.render(1f / 60f, 800f, 600f)
+        game.update(1f / 60f, 800f, 600f)
 
         assertEquals(Camera.Projection.Orthographic, renderer.lastProjection)
 

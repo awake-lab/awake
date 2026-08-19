@@ -13,8 +13,8 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.scene.rendering.components.SkinnedPose
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.Scene
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 
 private const val SKINNED_UNIFORM_FLOAT_COUNT = 16 + 64 * 16
 
@@ -33,7 +33,8 @@ internal object SkinnedExampleDriver {
         if (skin != null) return
         val bytes = readResourceBytes("assets/models/CesiumMan.gltf")
         val loaded = GltfParser.parseSkinned(bytes.decodeToString())
-        val asset = requireNotNull(loaded.firstSkinnedAsset()) { "CesiumMan.gltf has no skinned node." }
+        val asset =
+            requireNotNull(loaded.firstSkinnedAsset()) { "CesiumMan.gltf has no skinned node." }
         vertices = asset.mesh.toInterleavedSkinned()
         indices = asset.mesh.indices
         skin = asset.skin
@@ -41,7 +42,7 @@ internal object SkinnedExampleDriver {
         pose = AnimationPose(asset.skeleton)
     }
 
-    fun createMesh(runtime: SceneGameRuntime): Mesh = runtime.renderer.createMesh(
+    fun createMesh(runtime: SceneAppLifecycleRuntime): Mesh = runtime.renderer.createMesh(
         MeshGeometry(
             requireNotNull(vertices),
             requireNotNull(indices),
@@ -49,20 +50,20 @@ internal object SkinnedExampleDriver {
         ),
     )
 
-    fun createMaterial(runtime: SceneGameRuntime): Material =
+    fun createMaterial(runtime: SceneAppLifecycleRuntime): Material =
         runtime.renderer.createMaterial(uniformFloatCount = SKINNED_UNIFORM_FLOAT_COUNT)
 
     /** The joint palette's initial value is sized/valued from the parsed skin, which no static
      * scene document can author -- called once right after instantiate, same shape the
      * original demo used (`world.add(skinnedEntity, SkinnedPose(currentPose.jointPalette(...)))`. */
-    fun attachPose(instance: Scene, runtime: SceneGameRuntime) {
+    fun attachPose(instance: Scene, runtime: SceneAppLifecycleRuntime) {
         val currentPose = requireNotNull(pose)
         val currentSkin = requireNotNull(skin)
         val node = instance.roots.find { it.name == "skinned-mesh" } ?: return
         runtime.world.add(node.entity, SkinnedPose(currentPose.jointPalette(currentSkin)))
     }
 
-    fun advance(runtime: SceneGameRuntime, delta: Float) {
+    fun advance(runtime: SceneAppLifecycleRuntime, delta: Float) {
         val currentPose = pose ?: return
         val currentSkin = skin ?: return
         val currentClip = clip

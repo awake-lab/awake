@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.core.graphics
 import io.github.ronjunevaldoz.awake.core.input.Input
 
 interface WindowApplication {
-    val input: Input
+    val input: Input // TODO: move to AppLifecycle
     fun create(surface: Any? = null)
     fun update(delta: Float)
     fun pause()

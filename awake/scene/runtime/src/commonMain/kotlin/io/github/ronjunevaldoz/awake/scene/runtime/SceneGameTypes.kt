@@ -6,9 +6,9 @@ import io.github.ronjunevaldoz.awake.core.input.InputSnapshot
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 
-typealias SceneRenderableFactory = SceneGameRuntime.(SceneRenderableRequest) -> MeshRenderer
-typealias SceneSystemFactory = SceneGameRuntime.() -> System
-typealias SceneUpdateBlock = SceneGameRuntime.(delta: Float, input: InputSnapshot) -> Unit
-typealias SceneOverlayBlock = SceneGameRuntime.(viewportWidth: Float, viewportHeight: Float) -> Unit
-typealias SceneReadyBlock = suspend SceneGameRuntime.() -> Unit
-typealias SceneDisposeBlock = SceneGameRuntime.() -> Unit
+typealias SceneRenderableFactory = SceneAppLifecycleRuntime.(SceneRenderableRequest) -> MeshRenderer
+typealias SceneSystemFactory = SceneAppLifecycleRuntime.() -> System
+typealias SceneUpdateBlock = SceneAppLifecycleRuntime.(delta: Float, input: InputSnapshot) -> Unit
+typealias SceneOverlayBlock = SceneAppLifecycleRuntime.(viewportWidth: Float, viewportHeight: Float) -> Unit
+typealias SceneReadyBlock = suspend SceneAppLifecycleRuntime.() -> Unit
+typealias SceneDisposeBlock = SceneAppLifecycleRuntime.() -> Unit

@@ -2,22 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.examples
 
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.Scene
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 
 internal data class StudioExample(
     val id: String,
     val title: String,
     val scenePath: String,
     // Only the skinned-mesh example supplies one -- everything else is pure data.
-    val driver: (SceneGameRuntime.(delta: Float) -> Unit)? = null,
+    val driver: (SceneAppLifecycleRuntime.(delta: Float) -> Unit)? = null,
     // Post-instantiate wiring for state a scene document can't author -- skinned-mesh's
     // SkinnedPose needs a joint palette sized/valued from the parsed skin at load time, not a
     // static JSON value; instanced-cubes' InstancedMeshRenderer isn't an authorable
     // SceneComponent at all yet. ExampleLoader stays generic; this is where the small number of
     // real exceptions live. Takes the full [SceneGameRuntime] (not just `World`) since building
     // a mesh/material needs [SceneGameRuntime.requireAssetLibrary]/`.renderer`.
-    val onActivated: ((instance: Scene, runtime: SceneGameRuntime) -> Unit)? = null,
+    val onActivated: ((instance: Scene, runtime: SceneAppLifecycleRuntime) -> Unit)? = null,
 )
 
 internal val StudioExamples: List<StudioExample> = listOf(
@@ -51,20 +51,35 @@ internal val StudioExamples: List<StudioExample> = listOf(
         id = "instanced-cubes",
         title = "Instanced cubes",
         scenePath = "assets/examples/instanced-cubes.scene.json",
-        onActivated = { instance, runtime -> InstancedCubesExampleDriver.attach(instance, runtime) },
+        onActivated = { instance, runtime ->
+            InstancedCubesExampleDriver.attach(
+                instance,
+                runtime
+            )
+        },
     ),
     StudioExample(
         id = "instanced-skinned",
         title = "Instanced skinned",
         scenePath = "assets/examples/instanced-skinned.scene.json",
         driver = { delta -> InstancedSkinnedExampleDriver.advance(this, delta) },
-        onActivated = { instance, runtime -> InstancedSkinnedExampleDriver.attach(instance, runtime) },
+        onActivated = { instance, runtime ->
+            InstancedSkinnedExampleDriver.attach(
+                instance,
+                runtime
+            )
+        },
     ),
     StudioExample(
         id = "particles",
         title = "Particles",
         scenePath = "assets/examples/particles.scene.json",
         driver = { delta -> ParticleEmitterExampleDriver.advance(delta) },
-        onActivated = { instance, runtime -> ParticleEmitterExampleDriver.attach(instance, runtime) },
+        onActivated = { instance, runtime ->
+            ParticleEmitterExampleDriver.attach(
+                instance,
+                runtime
+            )
+        },
     ),
 )

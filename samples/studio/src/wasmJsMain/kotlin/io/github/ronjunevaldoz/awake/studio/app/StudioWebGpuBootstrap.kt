@@ -2,21 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.app
 
-import io.github.ronjunevaldoz.awake.engine.game.gameShaderSet
+import io.github.ronjunevaldoz.awake.engine.app.shaderSet
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
-import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuGameApplication
+import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuEngine
 
-private val StudioShaders = gameShaderSet("triangle")
-private val StudioTexturedShaders = gameShaderSet("textured")
-private val StudioInstancedShaders = gameShaderSet("instanced")
-private val StudioSkinnedInstancedShaders = gameShaderSet("skinned_instanced")
-private val StudioSkyboxShaders = gameShaderSet("skybox")
-private val StudioParticleShaders = gameShaderSet("particle")
+private val StudioShaders = shaderSet("triangle")
+private val StudioTexturedShaders = shaderSet("textured")
+private val StudioInstancedShaders = shaderSet("instanced")
+private val StudioSkinnedInstancedShaders = shaderSet("skinned_instanced")
+private val StudioSkyboxShaders = shaderSet("skybox")
+private val StudioParticleShaders = shaderSet("particle")
 
-fun createStudioWebGpuApplication(): WebGpuGameApplication = WebGpuGameApplication(
+fun createStudioWebGpuApplication(): WebGpuEngine = WebGpuEngine(
     shaderSet = StudioShaders,
     vertexFormat = VertexFormat.PositionNormalColor,
-    game = studioGame(),
+    appLifecycle = studioGame(),
     wireframeSupport = true,
     // Textured only, unlike the Vulkan bootstrap: skinned.wgsl also needs the joint-palette
     // uniform path (DrawCall.extraUniformFloats), which this backend doesn't write yet.

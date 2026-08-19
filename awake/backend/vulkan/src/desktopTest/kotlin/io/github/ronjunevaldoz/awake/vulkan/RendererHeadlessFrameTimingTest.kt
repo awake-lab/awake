@@ -5,7 +5,7 @@ package io.github.ronjunevaldoz.awake.vulkan
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
-import io.github.ronjunevaldoz.awake.engine.game.FrameStats
+import io.github.ronjunevaldoz.awake.engine.app.core.FrameStats
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
@@ -155,15 +155,15 @@ class RendererHeadlessFrameTimingTest {
             val meanMs = totalMs / FRAME_COUNT
             println(
                 "Headless cube render timing over $FRAME_COUNT frames (lavapipe/Mesa software " +
-                    "Vulkan in CI -- diagnostic only, NOT representative of real-GPU timing, " +
-                    "NOT a regression gate):\n" +
-                    "  total=%.3fms mean=%.3fms p50=%.3fms p95=%.3fms p99=%.3fms".format(
-                        totalMs,
-                        meanMs,
-                        stats.p50FrameTimeMs,
-                        stats.p95FrameTimeMs,
-                        stats.p99FrameTimeMs,
-                    ),
+                        "Vulkan in CI -- diagnostic only, NOT representative of real-GPU timing, " +
+                        "NOT a regression gate):\n" +
+                        "  total=%.3fms mean=%.3fms p50=%.3fms p95=%.3fms p99=%.3fms".format(
+                            totalMs,
+                            meanMs,
+                            stats.p50FrameTimeMs,
+                            stats.p95FrameTimeMs,
+                            stats.p99FrameTimeMs,
+                        ),
             )
 
             check(totalNanos > 0) { "headless frame timing measured zero time -- instrumentation broken" }
@@ -183,10 +183,10 @@ class RendererHeadlessFrameTimingTest {
             spans.requireAllSpansClosed()
             println(
                 "Headless $BATCH_DRAW_CALLS-draw-call frame timing over $FRAME_COUNT frames:\n" +
-                    formatTimingBaseline(
-                        spans.meansMs(),
-                        note = "mean ms per frame, prepare+record+submit+fence, no readback",
-                    ),
+                        formatTimingBaseline(
+                            spans.meansMs(),
+                            note = "mean ms per frame, prepare+record+submit+fence, no readback",
+                        ),
             )
         } finally {
             // Same teardown order/reasoning as RendererHeadlessPixelBaselineTest.

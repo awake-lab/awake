@@ -11,7 +11,7 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.studio.examples.ExampleLoader
 import io.github.ronjunevaldoz.awake.studio.examples.StudioExamples
@@ -30,7 +30,7 @@ private const val MIN_AUTHORED_DISTANCE = 1e-4f
 private const val FIRST_PERSON_EYE_HEIGHT = 1.8f
 
 internal class StudioExampleDriverSystem(
-    private val runtime: SceneGameRuntime,
+    private val runtime: SceneAppLifecycleRuntime,
     private val store: StudioStore,
     private val loader: ExampleLoader,
     private val writeScene: (fileName: String, json: String) -> String,
@@ -131,14 +131,16 @@ internal class StudioExampleDriverSystem(
         camera.targetEntity = entity
 
         val authoredEntity = findAuthoredCameraEntity(world, entity)
-        val authoredCameraChanged = authoredEntity != null && authoredEntity != editorCamera.authoredCameraEntity
+        val authoredCameraChanged =
+            authoredEntity != null && authoredEntity != editorCamera.authoredCameraEntity
         if (authoredCameraChanged) {
             alignEditorPose(camera, target, world, authoredEntity)
             editorCamera.authoredCameraEntity = authoredEntity
         }
 
         val stateBeforeSync = store.state.value.camera
-        val modeChangedByInput = camera.mode != syncedComponentMode && stateBeforeSync.mode == syncedStoreMode
+        val modeChangedByInput =
+            camera.mode != syncedComponentMode && stateBeforeSync.mode == syncedStoreMode
         if (modeChangedByInput) store.dispatch(StudioContract.Intent.SetCameraMode(camera.mode))
 
         val state = store.state.value.camera
@@ -179,7 +181,12 @@ internal class StudioExampleDriverSystem(
         alignEditorPose(camera, target, world, authoredEntity)
     }
 
-    private fun alignEditorPose(camera: CameraComponent, target: Transform, world: World, authoredEntity: Entity) {
+    private fun alignEditorPose(
+        camera: CameraComponent,
+        target: Transform,
+        world: World,
+        authoredEntity: Entity
+    ) {
         world.get<Camera>(authoredEntity)?.camera?.let { authored ->
             target.position.set(authored.center)
             seedFromAuthoredPose(camera, authored)
@@ -191,7 +198,8 @@ internal class StudioExampleDriverSystem(
      * unambiguous in practice; multiple authored cameras per example is out of scope. */
     private fun findAuthoredCameraEntity(world: World, editorEntity: Entity): Entity? {
         var found: Entity? = null
-        world.family<Camera>().forEach { entity, _ -> if (found == null && entity != editorEntity) found = entity }
+        world.family<Camera>()
+            .forEach { entity, _ -> if (found == null && entity != editorEntity) found = entity }
         return found
     }
 

@@ -3,10 +3,10 @@
 package io.github.ronjunevaldoz.awake.studio
 
 import io.github.ronjunevaldoz.awake.core.input.Input
-import io.github.ronjunevaldoz.awake.engine.game.requireService
+import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.ui.context.UiCursor
 import kotlinx.coroutines.test.runTest
@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/** Shell chrome contracts that only show up through a real [SceneGameRuntime] frame:
+/** Shell chrome contracts that only show up through a real [SceneAppLifecycleRuntime] frame:
  * the resize cursor actually reaching the runtime's host-facing field, and the bottom dock
  * painting an opaque background instead of exposing the renderer clear color. */
 class StudioShellChromeTest {
@@ -26,10 +26,10 @@ class StudioShellChromeTest {
         val store = StudioStore()
         val game = game { module(studioModule(store)) }
         game.ready(renderer)
-        val runtime = game.requireService<SceneGameRuntime>()
+        val runtime = game.requireService<SceneAppLifecycleRuntime>()
         val input = game.requireService<Input>()
 
-        game.render(1f / 60f, 1440f, 900f)
+        game.update(1f / 60f, 1440f, 900f)
         assertEquals(UiCursor.Default, runtime.cursor, "no hover -> default cursor")
 
         val handle = assertNotNull(
@@ -42,7 +42,7 @@ class StudioShellChromeTest {
             y = handle.bounds.y + handle.bounds.height / 2f,
         )
         input.updateSnapshot()
-        game.render(1f / 60f, 1440f, 900f)
+        game.update(1f / 60f, 1440f, 900f)
 
         assertEquals(
             UiCursor.ResizeHorizontal,
@@ -57,8 +57,8 @@ class StudioShellChromeTest {
         val store = StudioStore()
         val game = game { module(studioModule(store)) }
         game.ready(renderer)
-        val runtime = game.requireService<SceneGameRuntime>()
-        game.render(1f / 60f, 1440f, 900f)
+        val runtime = game.requireService<SceneAppLifecycleRuntime>()
+        game.update(1f / 60f, 1440f, 900f)
 
         val dock = assertNotNull(
             runtime.uiContext.finishFrame().semantics.firstOrNull { it.id == "studio-bottom-dock-surface" },

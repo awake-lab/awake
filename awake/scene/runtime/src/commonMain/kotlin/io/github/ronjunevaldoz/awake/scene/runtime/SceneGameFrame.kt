@@ -12,13 +12,13 @@ import io.github.ronjunevaldoz.awake.ui.headless.internal.text.textLayoutCacheSt
 import io.github.ronjunevaldoz.awake.ui.layouts.BoxScope
 import kotlin.math.roundToInt
 
-/** Root-level full-viewport box for a [SceneGameRuntime] overlay -- same shape as
+/** Root-level full-viewport box for a [SceneAppLifecycleRuntime] overlay -- same shape as
  * [io.github.ronjunevaldoz.awake.engine.application.GameUiRuntime.frame], the port that closes
  * the `GameUiRuntime`/`SceneGameRuntime` composability gap. Takes [viewportWidth]/
  * [viewportHeight] as explicit params (available from [SceneOverlayBlock]'s own signature)
  * instead of reading stored fields -- `SceneGameRuntime` doesn't keep viewport size in a field
  * the way `GameUiRuntime` does. */
-fun SceneGameRuntime.frame(
+fun SceneAppLifecycleRuntime.frame(
     viewportWidth: Float,
     viewportHeight: Float,
     contentAlignment: UiAlignment = UiAlignment.TopStart,
@@ -42,7 +42,7 @@ fun SceneGameRuntime.frame(
  * [frame] remains available for advanced Core layout authors, while ordinary component trees
  * should start here so the callback receives only the public Headless [UiScope].
  */
-fun SceneGameRuntime.headlessFrame(
+fun SceneAppLifecycleRuntime.headlessFrame(
     viewportWidth: Float,
     viewportHeight: Float,
     block: UiScope.() -> Unit,
@@ -63,7 +63,7 @@ data class SceneFrameStats(
     val textCacheHitRatePercent: Int get() = if (textCacheTotal > 0) (textCacheHits * 100 / textCacheTotal) else 0
 }
 
-fun SceneGameRuntime.frameStats(): SceneFrameStats {
+fun SceneAppLifecycleRuntime.frameStats(): SceneFrameStats {
     val (cacheHits, cacheMisses) = textLayoutCacheStats()
     return SceneFrameStats(
         frameTimeMs = averageFrameTimeMs.roundToTenth(),

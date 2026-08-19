@@ -9,11 +9,11 @@ import io.github.ronjunevaldoz.awake.scene.authoring.dsl.EntityModifier
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.Modifier
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.SceneBuilder
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.scene
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppSpec
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneAssetLibrary
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneDisposeBlock
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneDocument
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameSpec
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneOverlayBlock
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneReadyBlock
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRenderableFactory
@@ -31,7 +31,7 @@ fun GameSpecDsl.ecs(block: SceneGameDsl.() -> Unit) {
     install(sceneGame(block))
 }
 
-fun GameSpecDsl.ecs(spec: SceneGameSpec) {
+fun GameSpecDsl.ecs(spec: SceneAppSpec) {
     install(spec)
 }
 
@@ -49,11 +49,11 @@ fun GameSpecDsl.scene(
     )
 }
 
-fun GameSpecDsl.scene(spec: SceneGameSpec) {
+fun GameSpecDsl.scene(spec: SceneAppSpec) {
     install(spec)
 }
 
-fun sceneGame(block: SceneGameDsl.() -> Unit): SceneGameSpec = SceneGameDsl().apply(block).build()
+fun sceneGame(block: SceneGameDsl.() -> Unit): SceneAppSpec = SceneGameDsl().apply(block).build()
 
 /**
  * Marked with [AwakeSceneDsl] so the enclosing `GameSpecDsl` receiver is hidden inside this
@@ -64,7 +64,7 @@ fun sceneGame(block: SceneGameDsl.() -> Unit): SceneGameSpec = SceneGameDsl().ap
 @AwakeSceneDsl
 class SceneGameDsl internal constructor() {
     private var sceneName: String? = null
-    private var scenePopulationBlock: SceneGameRuntime.() -> Unit = {}
+    private var scenePopulationBlock: SceneAppLifecycleRuntime.() -> Unit = {}
     private var renderableFactory: SceneRenderableFactory = {
         error("ecs { assets { ... } } or ecs { renderables { ... } } must resolve scene mesh/material requests.")
     }
@@ -75,8 +75,8 @@ class SceneGameDsl internal constructor() {
     private val onReadyBlocks = mutableListOf<SceneReadyBlock>()
     private val onDisposeBlocks = mutableListOf<SceneDisposeBlock>()
     private val serviceRegistrations = mutableListOf<SceneServiceRegistration<*>>()
-    private var infrastructureSystemsFactory: SceneGameRuntime.() -> List<System> =
-        SceneGameRuntime::defaultInfrastructureSystems
+    private var infrastructureSystemsFactory: SceneAppLifecycleRuntime.() -> List<System> =
+        SceneAppLifecycleRuntime::defaultInfrastructureSystems
 
     fun name(value: String?) {
         this.sceneName = value
@@ -137,17 +137,17 @@ class SceneGameDsl internal constructor() {
     fun <T : System> system(
         name: String,
         phase: SceneSystemPhase,
-        factory: SceneGameRuntime.() -> T,
+        factory: SceneAppLifecycleRuntime.() -> T,
     ): SceneSystemHandle<T> = systemsDsl.system(name, phase, factory)
 
     fun <T : System> fixedSystem(
         name: String,
-        factory: SceneGameRuntime.() -> T,
+        factory: SceneAppLifecycleRuntime.() -> T,
     ): SceneSystemHandle<T> = systemsDsl.fixedSystem(name, factory)
 
     fun <T : System> frameSystem(
         name: String,
-        factory: SceneGameRuntime.() -> T,
+        factory: SceneAppLifecycleRuntime.() -> T,
     ): SceneSystemHandle<T> = systemsDsl.frameSystem(name, factory)
 
     fun systems(block: SceneSystemsDsl.() -> Unit) {
@@ -170,11 +170,11 @@ class SceneGameDsl internal constructor() {
         onDisposeBlocks += block
     }
 
-    fun <T : Any> service(type: KClass<T>, factory: SceneGameRuntime.() -> T) {
+    fun <T : Any> service(type: KClass<T>, factory: SceneAppLifecycleRuntime.() -> T) {
         serviceRegistrations += SceneServiceRegistration(type, factory)
     }
 
-    inline fun <reified T : Any> service(noinline factory: SceneGameRuntime.() -> T) {
+    inline fun <reified T : Any> service(noinline factory: SceneAppLifecycleRuntime.() -> T) {
         service(T::class, factory)
     }
 
@@ -184,11 +184,11 @@ class SceneGameDsl internal constructor() {
      * never imports a concrete render system itself; the override lambda is free to import
      * whatever it needs from the caller's own module.
      */
-    fun infrastructureSystems(factory: SceneGameRuntime.() -> List<System>) {
+    fun infrastructureSystems(factory: SceneAppLifecycleRuntime.() -> List<System>) {
         infrastructureSystemsFactory = factory
     }
 
-    internal fun build(): SceneGameSpec = SceneGameSpec(
+    internal fun build(): SceneAppSpec = SceneAppSpec(
         sceneName = sceneName,
         systems = systemsDsl.build(),
         scenePopulationBlock = scenePopulationBlock,
@@ -209,7 +209,7 @@ class SceneSystemsDsl internal constructor() {
     fun <T : System> system(
         name: String,
         phase: SceneSystemPhase,
-        factory: SceneGameRuntime.() -> T,
+        factory: SceneAppLifecycleRuntime.() -> T,
     ): SceneSystemHandle<T> {
         val handle = SceneSystemHandle<T>(name)
         registrations += SceneSystemRegistration(
@@ -222,12 +222,12 @@ class SceneSystemsDsl internal constructor() {
 
     fun <T : System> fixedSystem(
         name: String,
-        factory: SceneGameRuntime.() -> T,
+        factory: SceneAppLifecycleRuntime.() -> T,
     ): SceneSystemHandle<T> = system(name, SceneSystemPhase.Fixed, factory)
 
     fun <T : System> frameSystem(
         name: String,
-        factory: SceneGameRuntime.() -> T,
+        factory: SceneAppLifecycleRuntime.() -> T,
     ): SceneSystemHandle<T> = system(name, SceneSystemPhase.Frame, factory)
 
     internal fun build(): List<SceneSystemRegistration> = registrations.toList()

@@ -5,8 +5,8 @@ package io.github.ronjunevaldoz.awake.studio.examples
 import io.github.ronjunevaldoz.awake.core.math.Aabb
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneDocument
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.runtime.fromWorld
@@ -14,7 +14,7 @@ import io.github.ronjunevaldoz.awake.scene.runtime.fromWorld
 /**
  * Replaces three demos' hand-rolled onActivate/onDeactivate with one generic routine. Split
  * into a suspend [preload] and a non-suspend [activate]: `System.update` is not suspend and
- * [SceneGameRuntime] exposes no `CoroutineScope` to launch from inside one, so every document
+ * [SceneAppLifecycleRuntime] exposes no `CoroutineScope` to launch from inside one, so every document
  * is resolved once up front, mirroring how every other suspend load in this codebase
  * (`GltfViewerDemo.preload()`, `SkinnedMeshDemo.preload()`) runs once in `onReady`.
  */
@@ -60,10 +60,12 @@ internal class ExampleLoader {
         }
     }
 
-    fun activate(exampleId: String, runtime: SceneGameRuntime) {
+    fun activate(exampleId: String, runtime: SceneAppLifecycleRuntime) {
         teardown(runtime)
-        val example = requireNotNull(StudioExamples.find { it.id == exampleId }) { "Unknown example '$exampleId'." }
-        val document = requireNotNull(documents[exampleId]) { "Example '$exampleId' was not preloaded." }
+        val example =
+            requireNotNull(StudioExamples.find { it.id == exampleId }) { "Unknown example '$exampleId'." }
+        val document =
+            requireNotNull(documents[exampleId]) { "Example '$exampleId' was not preloaded." }
         val instance = runtime.sceneManager.switchTo(document)
         val library = runtime.requireAssetLibrary()
         authoredRenderables.clear()
@@ -71,16 +73,18 @@ internal class ExampleLoader {
         instance.renderableRequests.forEach { request ->
             runtime.world.add(request.entity, library.resolve(runtime, request))
             authoredRenderables[request.entity] = request.meshRenderer
-            StudioMeshBounds[request.meshRenderer.mesh]?.let { boundsByEntity[request.entity.id] = it }
+            StudioMeshBounds[request.meshRenderer.mesh]?.let {
+                boundsByEntity[request.entity.id] = it
+            }
         }
         example.onActivated?.invoke(instance, runtime)
     }
 
-    /** Delegates the actual scene teardown to [SceneGameRuntime.sceneManager] -- the single
-     * owner of "what's currently loaded," shared by every consumer of [SceneGameRuntime], not
+    /** Delegates the actual scene teardown to [SceneAppLifecycleRuntime.sceneManager] -- the single
+     * owner of "what's currently loaded," shared by every consumer of [SceneAppLifecycleRuntime], not
      * just this loader. Recurses into every node's children, not just top-level roots -- see
      * [io.github.ronjunevaldoz.awake.scene.runtime.SceneManager]'s own doc comment. */
-    fun teardown(runtime: SceneGameRuntime) {
+    fun teardown(runtime: SceneAppLifecycleRuntime) {
         runtime.sceneManager.close()
         authoredRenderables.clear()
         boundsByEntity.clear()

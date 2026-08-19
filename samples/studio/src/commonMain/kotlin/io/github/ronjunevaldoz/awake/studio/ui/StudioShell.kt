@@ -9,7 +9,7 @@ import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
 import io.github.ronjunevaldoz.awake.scene.rendering.components.WorldDebugSettings
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.frameStats
 import io.github.ronjunevaldoz.awake.scene.runtime.headlessFrame
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioViewportRect
@@ -57,7 +57,7 @@ internal val StudioTheme = shadcnThemeValues(dark = true)
 @Suppress("MagicNumber") // The literals define the constant; naming each channel adds nothing.
 private val ViewportClearColor = floatArrayOf(0.14f, 0.14f, 0.16f, 1f)
 
-internal fun SceneGameRuntime.drawStudioShell(
+internal fun SceneAppLifecycleRuntime.drawStudioShell(
     store: StudioStore,
     backend: String,
     viewportWidth: Float,
@@ -68,7 +68,13 @@ internal fun SceneGameRuntime.drawStudioShell(
 ) {
     // Run offscreen pass before shell body so the camera preview texture exists when sampled.
     if (cameraPreview.enabled) {
-        nonPrimaryCamera(world)?.let { cameraPreview.render(renderer, it.camera, collectDrawCalls()) }
+        nonPrimaryCamera(world)?.let {
+            cameraPreview.render(
+                renderer,
+                it.camera,
+                collectDrawCalls()
+            )
+        }
     }
     // The VIEWPORT's own camera, not the selected entity's -- the orientation widget always
     // reflects what the viewport itself is looking at.
@@ -98,7 +104,8 @@ internal fun SceneGameRuntime.drawStudioShell(
  * (an `internal` function in a different Gradle module isn't visible here). */
 private fun primaryCamera(world: World): Camera? {
     var found: Camera? = null
-    world.family<Camera>().forEach { _, camera -> if (found == null && camera.isPrimary) found = camera }
+    world.family<Camera>()
+        .forEach { _, camera -> if (found == null && camera.isPrimary) found = camera }
     return found
 }
 
@@ -140,7 +147,7 @@ private val SEPARATOR_THICKNESS = 1f.dp
  * ([io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSeparator]) and the resizable
  * group's own draggable handles.
  *
- * Plain [store]/[world]/[renderer] params instead of a [SceneGameRuntime] receiver -- letting a
+ * Plain [store]/[world]/[renderer] params instead of a [SceneAppLifecycleRuntime] receiver -- letting a
  * bare [io.github.ronjunevaldoz.awake.ui.context.UiContext] drive this directly is what makes it
  * testable without a full game/runtime bootstrap (see `StudioShellLayoutTest`).
  *
@@ -182,9 +189,9 @@ internal fun UiScope.drawStudioShellBody(
         )
         shadcnSeparator(thickness = SEPARATOR_THICKNESS)
         val workspaceHeightPx = (
-            shellSlot.height - TOP_BAR_HEIGHT.toPx() - STATUS_BAR_HEIGHT.toPx() -
-                SEPARATOR_THICKNESS.toPx() * 2f
-            ).coerceAtLeast(0f)
+                shellSlot.height - TOP_BAR_HEIGHT.toPx() - STATUS_BAR_HEIGHT.toPx() -
+                        SEPARATOR_THICKNESS.toPx() * 2f
+                ).coerceAtLeast(0f)
         drawStudioWorkspace(
             store = store,
             world = world,
@@ -219,10 +226,10 @@ internal fun UiScope.drawStudioShellBody(
 private fun Renderer.confineSceneTo(bounds: UiBounds) {
     val current = sceneViewport
     val unchanged = current != null &&
-        current.x == bounds.x &&
-        current.y == bounds.y &&
-        current.width == bounds.width &&
-        current.height == bounds.height
+            current.x == bounds.x &&
+            current.y == bounds.y &&
+            current.width == bounds.width &&
+            current.height == bounds.height
     if (unchanged) return
     sceneViewport = RenderViewport(bounds.x, bounds.y, bounds.width, bounds.height)
 }
@@ -275,8 +282,19 @@ private fun UiScope.drawStudioWorkspace(
                     )
                 }
                 shadcnResizableHandle(id = "studio-panel-handle-left", withHandle = true)
-                shadcnResizablePanel(id = "studio-panel-viewport", defaultSize = VIEWPORT_FRACTION, minSize = 0.3f) {
-                    drawStudioViewportPanel(store, world, renderer, viewportRect, orientationGizmo, cameraPreview)
+                shadcnResizablePanel(
+                    id = "studio-panel-viewport",
+                    defaultSize = VIEWPORT_FRACTION,
+                    minSize = 0.3f
+                ) {
+                    drawStudioViewportPanel(
+                        store,
+                        world,
+                        renderer,
+                        viewportRect,
+                        orientationGizmo,
+                        cameraPreview
+                    )
                 }
                 shadcnResizableHandle(id = "studio-panel-handle-right", withHandle = true)
                 shadcnResizablePanel(
@@ -350,11 +368,12 @@ private fun UiScope.drawStudioViewportPanel(
                         store.dispatch(StudioContract.Intent.SetCameraMode(next))
                     },
                     onToggleProjection = {
-                        val next = if (state.camera.projection == StudioContract.Projection.Perspective) {
-                            StudioContract.Projection.Orthographic
-                        } else {
-                            StudioContract.Projection.Perspective
-                        }
+                        val next =
+                            if (state.camera.projection == StudioContract.Projection.Perspective) {
+                                StudioContract.Projection.Orthographic
+                            } else {
+                                StudioContract.Projection.Perspective
+                            }
                         store.dispatch(StudioContract.Intent.SetProjection(next))
                     },
                     onWireframeChange = { renderer.wireframe = it },
@@ -379,13 +398,19 @@ private fun UiScope.drawStudioViewportPanel(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 orientationGizmo.material?.let { gizmoTexture ->
-                    row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
                         textureQuad(gizmoTexture, Modifier.size(ORIENTATION_GIZMO_SIZE))
                     }
                 }
                 // Camera preview thumbnail HUD.
                 cameraPreview.material?.let { previewTexture ->
-                    row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
                         // Compact card surface reusing shadcnCardStyle with reduced padding for HUD thumbnail.
                         surface(
                             id = "studio-camera-preview-card",

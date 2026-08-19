@@ -16,8 +16,8 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleLifecycl
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleMotion
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleVisual
 import io.github.ronjunevaldoz.awake.scene.rendering.components.spawnParticleBurst
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.Scene
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import kotlin.math.sin
 
 private const val PARTICLE_TEXTURE_SIZE = 16
@@ -34,7 +34,8 @@ private val quadVertices = floatArrayOf(
     -0.5f, 0.5f, 0f, 0f, 0f,
 )
 private val quadIndices = intArrayOf(0, 1, 2, 2, 3, 0)
-private val particleQuadGeometry = MeshGeometry(quadVertices, quadIndices, format = VertexFormat.PositionUv)
+private val particleQuadGeometry =
+    MeshGeometry(quadVertices, quadIndices, format = VertexFormat.PositionUv)
 
 /** The 4 simplest variants -- distinct config, no closures needed -- built from this one data
  * shape in a loop. The 3 capabilities that need a closure (context-driven rate, non-flat
@@ -70,7 +71,11 @@ private val PARTICLE_VARIANTS = listOf(
         nodeName = "particles-aura",
         materialName = "particle",
         origin = Vec3(-4.5f, 1f, 0f),
-        baseVelocity = Vec3(0f, 1.5f, 0f), // magnitude only -- direction is overridden by convergeToOrigin
+        baseVelocity = Vec3(
+            0f,
+            1.5f,
+            0f
+        ), // magnitude only -- direction is overridden by convergeToOrigin
         velocityJitter = 0f,
         coneHalfAngleDegrees = null,
         groundY = null,
@@ -220,7 +225,7 @@ private var simulatedSpeed = 0f
  *   collision, not a flat groundY plane).
  */
 internal object ParticleEmitterExampleDriver {
-    fun attach(instance: Scene, runtime: SceneGameRuntime) {
+    fun attach(instance: Scene, runtime: SceneAppLifecycleRuntime) {
         simulatedSpeedElapsed = 0f
         simulatedSpeed = 0f
         val mesh = runtime.requireMesh("particle-quad")
@@ -271,8 +276,14 @@ internal object ParticleEmitterExampleDriver {
                     lifetime = 1f,
                     startAlpha = 0.6f,
                     scale = 0.15f,
-                    motion = ParticleMotion(baseVelocity = Vec3(0f, 0.3f, 0f), velocityJitter = 0.5f),
-                    visual = ParticleVisual(startColor = Vec3(0.6f, 0.5f, 0.3f), endColor = Vec3(0.6f, 0.5f, 0.3f)),
+                    motion = ParticleMotion(
+                        baseVelocity = Vec3(0f, 0.3f, 0f),
+                        velocityJitter = 0.5f
+                    ),
+                    visual = ParticleVisual(
+                        startColor = Vec3(0.6f, 0.5f, 0.3f),
+                        endColor = Vec3(0.6f, 0.5f, 0.3f)
+                    ),
                     dynamics = ParticleDynamics(dynamicSpawnRate = { 5f + simulatedSpeed * 8f }),
                 ),
             )
@@ -295,7 +306,10 @@ internal object ParticleEmitterExampleDriver {
                         baseVelocity = Vec3(0.3f, -1.5f, 0f),
                         velocityJitter = 0.2f,
                     ),
-                    visual = ParticleVisual(startColor = Vec3(0.9f, 0.85f, 0.6f), endColor = Vec3(0.9f, 0.85f, 0.6f)),
+                    visual = ParticleVisual(
+                        startColor = Vec3(0.9f, 0.85f, 0.6f),
+                        endColor = Vec3(0.9f, 0.85f, 0.6f)
+                    ),
                     ground = ParticleGround(groundHeightProvider = { x, _ -> sin(x * 0.5f) * 1f - 3f }),
                 ),
             )
@@ -313,15 +327,30 @@ internal object ParticleEmitterExampleDriver {
                     lifetime = 0.6f,
                     startAlpha = 0.9f,
                     scale = 0.18f,
-                    motion = ParticleMotion(baseVelocity = Vec3(-3f, 0f, 0f), velocityJitter = 0.05f),
-                    visual = ParticleVisual(startColor = Vec3(1f, 0.2f, 0.1f), endColor = Vec3(1f, 0.2f, 0.1f)),
+                    motion = ParticleMotion(
+                        baseVelocity = Vec3(-3f, 0f, 0f),
+                        velocityJitter = 0.05f
+                    ),
+                    visual = ParticleVisual(
+                        startColor = Vec3(1f, 0.2f, 0.1f),
+                        endColor = Vec3(1f, 0.2f, 0.1f)
+                    ),
                     lifecycle = ParticleLifecycle(
                         onParticleDeath = { world, position ->
                             spawnParticleBurst(
-                                world, mesh, material, position,
-                                count = 6, spawnRate = 1000f, lifetime = 0.2f, startAlpha = 0.8f,
-                                baseVelocity = Vec3(0f, 0.5f, 0f), velocityJitter = 1.5f, scale = 0.1f,
-                                startColor = Vec3(1f, 0.6f, 0.2f), endColor = Vec3(1f, 0.1f, 0f),
+                                world,
+                                mesh,
+                                material,
+                                position,
+                                count = 6,
+                                spawnRate = 1000f,
+                                lifetime = 0.2f,
+                                startAlpha = 0.8f,
+                                baseVelocity = Vec3(0f, 0.5f, 0f),
+                                velocityJitter = 1.5f,
+                                scale = 0.1f,
+                                startColor = Vec3(1f, 0.6f, 0.2f),
+                                endColor = Vec3(1f, 0.1f, 0f),
                             )
                         },
                     ),
@@ -342,7 +371,10 @@ internal object ParticleEmitterExampleDriver {
                 startAlpha = 0.9f,
                 scale = 0.08f,
                 motion = ParticleMotion(baseVelocity = Vec3(0f, 1.5f, 0f), velocityJitter = 1.2f),
-                visual = ParticleVisual(startColor = Vec3(1f, 0.9f, 0.5f), endColor = Vec3(1f, 0.4f, 0.1f)),
+                visual = ParticleVisual(
+                    startColor = Vec3(1f, 0.9f, 0.5f),
+                    endColor = Vec3(1f, 0.4f, 0.1f)
+                ),
             )
             runtime.world.add(
                 node.entity,
@@ -355,8 +387,14 @@ internal object ParticleEmitterExampleDriver {
                     lifetime = 1f,
                     startAlpha = 0.8f,
                     scale = 0.2f,
-                    motion = ParticleMotion(baseVelocity = Vec3(0f, 1.2f, 0f), velocityJitter = 0.15f),
-                    visual = ParticleVisual(startColor = Vec3(1f, 0.5f, 0.1f), endColor = Vec3(0.6f, 0.1f, 0.1f)),
+                    motion = ParticleMotion(
+                        baseVelocity = Vec3(0f, 1.2f, 0f),
+                        velocityJitter = 0.15f
+                    ),
+                    visual = ParticleVisual(
+                        startColor = Vec3(1f, 0.5f, 0.1f),
+                        endColor = Vec3(0.6f, 0.1f, 0.1f)
+                    ),
                     children = listOf(emberChild),
                 ),
             )
@@ -379,8 +417,14 @@ internal object ParticleEmitterExampleDriver {
                     lifetime = 3f,
                     startAlpha = 0.8f,
                     scale = 0.18f,
-                    motion = ParticleMotion(baseVelocity = Vec3(0f, -2f, 0f), velocityJitter = 0.4f),
-                    visual = ParticleVisual(startColor = Vec3(0.3f, 0.7f, 1f), endColor = Vec3(0.3f, 0.7f, 1f)),
+                    motion = ParticleMotion(
+                        baseVelocity = Vec3(0f, -2f, 0f),
+                        velocityJitter = 0.4f
+                    ),
+                    visual = ParticleVisual(
+                        startColor = Vec3(0.3f, 0.7f, 1f),
+                        endColor = Vec3(0.3f, 0.7f, 1f)
+                    ),
                     ground = ParticleGround(colliders = listOf(platformTop)),
                 ),
             )
@@ -394,14 +438,18 @@ internal object ParticleEmitterExampleDriver {
         simulatedSpeed = 3f + 3f * sin(simulatedSpeedElapsed)
     }
 
-    fun createMesh(runtime: SceneGameRuntime) = runtime.renderer.createMesh(particleQuadGeometry)
+    fun createMesh(runtime: SceneAppLifecycleRuntime) =
+        runtime.renderer.createMesh(particleQuadGeometry)
 
     /** A soft white dot, radial alpha falloff from center to edge -- no image asset needed for
      * a first-slice demo; a real particle texture (sprite sheet, glow) is a later swap, same
      * [TextureAsset] shape either way. Tinted per-particle in the shader, not here -- this stays
      * one shared white texture for every non-flickering variant. */
-    fun createMaterial(runtime: SceneGameRuntime) =
-        runtime.renderer.createMaterial(texture = softDotTexture(), uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT)
+    fun createMaterial(runtime: SceneAppLifecycleRuntime) =
+        runtime.renderer.createMaterial(
+            texture = softDotTexture(),
+            uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT
+        )
 
     /** [FLICKER_FRAME_COUNT]-frame horizontal sprite strip, each frame a soft dot at a
      * different size/brightness -- proves `particle.wgsl`'s frame-atlas UV math cycles frames,
@@ -409,21 +457,28 @@ internal object ParticleEmitterExampleDriver {
      * `ParticleVisual.frameCount` is per-emitter but the TEXTURE it slices is shared by
      * whatever material the emitter uses -- a `frameCount = 1` emitter sharing this multi-frame
      * texture would sample the whole strip as one squished frame. */
-    fun createFlickerMaterial(runtime: SceneGameRuntime) =
-        runtime.renderer.createMaterial(texture = flickerStripTexture(), uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT)
+    fun createFlickerMaterial(runtime: SceneAppLifecycleRuntime) =
+        runtime.renderer.createMaterial(
+            texture = flickerStripTexture(),
+            uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT
+        )
 
     /** [SPARKLE_FRAME_COUNT]-frame horizontal strip of 4-point stars (not a dot) -- proves a
      * real per-emitter TEXTURE (not just tint) reads through `particle.wgsl`, and each frame's
      * own size/brightness variance is what [Particle.frameOffset]'s desync makes visible as
      * independent twinkling instead of a uniform strobe. */
-    fun createLevelupMaterial(runtime: SceneGameRuntime) =
-        runtime.renderer.createMaterial(texture = sparkleStripTexture(), uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT)
+    fun createLevelupMaterial(runtime: SceneAppLifecycleRuntime) =
+        runtime.renderer.createMaterial(
+            texture = sparkleStripTexture(),
+            uniformFloatCount = PARTICLE_UNIFORM_FLOAT_COUNT
+        )
 }
 
 /** particle.wgsl's Uniforms: viewProjection(16) + cameraRight(4) + cameraUp(4) + frameInfo(4). */
 private const val PARTICLE_UNIFORM_FLOAT_COUNT = 28
 
-private fun softDotTexture(): TextureAsset = dotTexture(PARTICLE_TEXTURE_SIZE, brightness = 1f, sizeFactor = 1f)
+private fun softDotTexture(): TextureAsset =
+    dotTexture(PARTICLE_TEXTURE_SIZE, brightness = 1f, sizeFactor = 1f)
 
 private fun flickerStripTexture(): TextureAsset {
     val frameSize = PARTICLE_TEXTURE_SIZE
@@ -500,7 +555,8 @@ private fun dotTexture(size: Int, brightness: Float, sizeFactor: Float): Texture
             val dx = x - center
             val dy = y - center
             val distance = kotlin.math.sqrt(dx * dx + dy * dy)
-            val alpha = ((1f - (distance / radius)).coerceIn(0f, 1f) * 255f * brightness).toInt().coerceIn(0, 255)
+            val alpha = ((1f - (distance / radius)).coerceIn(0f, 1f) * 255f * brightness).toInt()
+                .coerceIn(0, 255)
             val index = (y * size + x) * 4
             data[index] = 255.toByte()
             data[index + 1] = 255.toByte()

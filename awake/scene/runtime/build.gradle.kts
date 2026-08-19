@@ -18,7 +18,7 @@ kotlin {
             api(project(":awake:scene:rendering"))
             api(project(":awake:core"))
             api(project(":awake:ecs"))
-            api(project(":awake:engine:game"))
+            api(project(":awake:engine:platform"))
             api(project(":awake:ui:ui-core"))
             // Needed by SceneGameFrame.kt's frameStats() -- textLayoutCacheStats() lives in
             // ui-headless, not ui-core.

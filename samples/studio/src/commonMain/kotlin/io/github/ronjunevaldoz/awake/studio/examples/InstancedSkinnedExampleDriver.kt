@@ -15,8 +15,8 @@ import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.scene.rendering.components.InstancedSkinnedMeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.SkinnedInstance
-import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.Scene
+import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 
 private const val GRID_SIDE = 3
 private const val SPACING = 1.2f
@@ -41,7 +41,8 @@ internal object InstancedSkinnedExampleDriver {
         if (skin != null) return
         val bytes = readResourceBytes("assets/models/CesiumMan.gltf")
         val loaded = GltfParser.parseSkinned(bytes.decodeToString())
-        val asset = requireNotNull(loaded.firstSkinnedAsset()) { "CesiumMan.gltf has no skinned node." }
+        val asset =
+            requireNotNull(loaded.firstSkinnedAsset()) { "CesiumMan.gltf has no skinned node." }
         vertices = asset.mesh.toInterleavedSkinned()
         indices = asset.mesh.indices
         skin = asset.skin
@@ -49,21 +50,28 @@ internal object InstancedSkinnedExampleDriver {
         pose = AnimationPose(asset.skeleton)
     }
 
-    fun createMesh(runtime: SceneGameRuntime): Mesh = runtime.renderer.createMesh(
-        MeshGeometry(requireNotNull(vertices), requireNotNull(indices), format = VertexFormat.PositionNormalColorSkin),
+    fun createMesh(runtime: SceneAppLifecycleRuntime): Mesh = runtime.renderer.createMesh(
+        MeshGeometry(
+            requireNotNull(vertices),
+            requireNotNull(indices),
+            format = VertexFormat.PositionNormalColorSkin
+        ),
     )
 
-    fun createMaterial(runtime: SceneGameRuntime): Material =
+    fun createMaterial(runtime: SceneAppLifecycleRuntime): Material =
         runtime.renderer.createMaterial(uniformFloatCount = INSTANCED_UNIFORM_FLOAT_COUNT)
 
-    fun attach(instance: Scene, runtime: SceneGameRuntime) {
+    fun attach(instance: Scene, runtime: SceneAppLifecycleRuntime) {
         val node = instance.roots.find { it.name == "instanced-skinned" } ?: return
         val mesh = runtime.requireMesh("instanced-skinned-mesh")
         val material = runtime.requireMaterial("instanced-skinned-material")
-        runtime.world.add(node.entity, InstancedSkinnedMeshRenderer(mesh, material, sampleInstances()))
+        runtime.world.add(
+            node.entity,
+            InstancedSkinnedMeshRenderer(mesh, material, sampleInstances())
+        )
     }
 
-    fun advance(runtime: SceneGameRuntime, delta: Float) {
+    fun advance(runtime: SceneAppLifecycleRuntime, delta: Float) {
         elapsedSeconds += delta
         runtime.world.queryEach<InstancedSkinnedMeshRenderer> { entity, existing ->
             runtime.world.add(entity, existing.copy(instances = sampleInstances()))

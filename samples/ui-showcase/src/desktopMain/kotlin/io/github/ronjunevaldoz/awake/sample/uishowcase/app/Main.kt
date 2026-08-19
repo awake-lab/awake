@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.app
 
-import io.github.ronjunevaldoz.awake.engine.game.requireService
+import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
 import io.github.ronjunevaldoz.awake.engine.gameauthoring.GameUiRuntime
 import io.github.ronjunevaldoz.awake.vulkan.application.runVulkanDesktopGame
 
