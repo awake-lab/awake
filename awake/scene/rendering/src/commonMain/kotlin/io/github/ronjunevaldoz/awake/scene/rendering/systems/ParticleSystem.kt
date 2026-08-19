@@ -8,8 +8,10 @@ import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.BOUNCE_STOP_VELOCITY
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Particle
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleGround
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -191,9 +193,20 @@ class ParticleSystem : System {
             val groundHeight = groundHeightAt(emitter, particle.position.x, particle.position.z)
             if (groundHeight != null && particle.position.y <= groundHeight) {
                 particle.position.y = groundHeight
-                particle.velocity.set(0f, 0f, 0f)
-                particle.settled = true
+                resolveGroundHit(emitter.ground, particle)
             }
+        }
+    }
+
+    /** What happens to [particle]'s velocity the instant it clamps at ground height -- see
+     * [ParticleGround.restitution]'s own doc comment for the bounce/settle rule this implements. */
+    private fun resolveGroundHit(ground: ParticleGround, particle: Particle) {
+        val bounceVelocity = -particle.velocity.y * ground.restitution
+        if (ground.restitution > 0f && kotlin.math.abs(bounceVelocity) >= BOUNCE_STOP_VELOCITY) {
+            particle.velocity.set(particle.velocity.x * ground.friction, bounceVelocity, particle.velocity.z * ground.friction)
+        } else {
+            particle.velocity.set(0f, 0f, 0f)
+            particle.settled = true
         }
     }
 

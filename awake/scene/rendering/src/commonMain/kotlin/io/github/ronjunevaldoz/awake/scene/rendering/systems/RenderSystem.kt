@@ -4,11 +4,14 @@ package io.github.ronjunevaldoz.awake.scene.rendering.systems
 
 import io.github.ronjunevaldoz.awake.core.math.Frustum
 import io.github.ronjunevaldoz.awake.core.math.Mat4
+import io.github.ronjunevaldoz.awake.core.math.Plane
 import io.github.ronjunevaldoz.awake.core.math.ScreenBounds
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.Vec4
+import io.github.ronjunevaldoz.awake.core.math.containsSphere
 import io.github.ronjunevaldoz.awake.core.math.intersects
 import io.github.ronjunevaldoz.awake.core.math.isOccludedBy
+import io.github.ronjunevaldoz.awake.core.math.planes
 import io.github.ronjunevaldoz.awake.core.math.screenBounds
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
@@ -143,7 +146,13 @@ class RenderSystem(
             val right = forward.cross(camera.camera.up).normalized()
             val cameraUp = right.cross(forward)
             val cameraBasis = floatArrayOf(right.x, right.y, right.z, 0f, cameraUp.x, cameraUp.y, cameraUp.z, 0f)
-            particleFamily.forEach { _, emitter -> addParticleDrawCalls(emitter, cameraBasis) }
+            // Built once per frame, shared by every emitter's own per-particle test below --
+            // Frustum.planes recomputes 6 planes from the camera each call, so sharing it across
+            // hundreds of particles (instead of recomputing per particle) is the whole point.
+            val frustumPlanes = Frustum.planes(camera.camera, CONSERVATIVE_ASPECT)
+            particleFamily.forEach { _, emitter ->
+                addParticleDrawCalls(emitter, cameraBasis, frustumPlanes, camera.camera.eye)
+            }
         }
         // LodGroup picks ONE level's mesh/material by distance to the camera eye -- see that
         // component's own doc comment for why an entity carries this instead of MeshRenderer,
@@ -188,19 +197,38 @@ class RenderSystem(
      * walked here explicitly, same recursion shape [ParticleSystem.simulate] already uses to
      * advance them. [cameraBasis] is shared across the whole tree (computed once per frame by the
      * caller), not recomputed per emitter. */
-    private fun addParticleDrawCalls(emitter: ParticleEmitter, cameraBasis: FloatArray) {
+    private fun addParticleDrawCalls(
+        emitter: ParticleEmitter,
+        cameraBasis: FloatArray,
+        frustumPlanes: List<Plane>,
+        eye: Vec3,
+    ) {
         // Reused buffers, cleared (not reallocated) every frame -- see
         // ParticleEmitter.instanceModelsBuffer's own doc comment for why this replaced
         // a `particles.filter{}.map{}.map{}` chain (3 list allocations + no-op work on
-        // dead slots, every emitter, every frame).
+        // dead slots, every emitter, every frame). visibleParticlesBuffer holds PARTICLE
+        // references (not floats) so it can be frustum-filtered and depth-sorted before the
+        // instance buffers are built from it, instead of building instance data first and
+        // discovering the order/visibility needs fixing after.
+        val visible = emitter.visibleParticlesBuffer
+        visible.clear()
+        emitter.particles.forEach { particle ->
+            if (!particle.alive) return@forEach
+            if (!frustumPlanes.containsSphere(particle.position, particle.scale)) return@forEach
+            visible += particle
+        }
+        // Back-to-front (farthest first): alpha-blended particles don't write depth, so draw
+        // order IS the only thing deciding which one wins where two overlap -- the standard
+        // painter's-algorithm fix. Distance uses length3() (a sqrt), not a squared comparison --
+        // fine at this pool's scale (maxParticles, not a scene-wide sort).
+        visible.sortByDescending { (it.position - eye).length3() }
         val instanceModels = emitter.instanceModelsBuffer
         val instanceColors = emitter.instanceColorsBuffer
         val instanceFrames = emitter.instanceFramesBuffer
         instanceModels.clear()
         instanceColors.clear()
         instanceFrames.clear()
-        emitter.particles.forEach { particle ->
-            if (!particle.alive) return@forEach
+        visible.forEach { particle ->
             instanceModels += Mat4().translate(particle.position.x, particle.position.y, particle.position.z)
                 .scale(particle.scale, particle.scale, particle.scale)
             // Per-PARTICLE color+alpha (each ages independently, so a burst's
@@ -234,7 +262,7 @@ class RenderSystem(
                 ),
             )
         }
-        emitter.children.forEach { child -> addParticleDrawCalls(child, cameraBasis) }
+        emitter.children.forEach { child -> addParticleDrawCalls(child, cameraBasis, frustumPlanes, eye) }
     }
 
     /** The first [Light] entity in the world, converted to render-api's backend-neutral

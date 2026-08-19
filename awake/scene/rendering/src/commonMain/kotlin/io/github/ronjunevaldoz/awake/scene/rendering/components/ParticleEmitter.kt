@@ -105,19 +105,34 @@ data class ParticleVisual(
 )
 
 /** How (and whether) a particle interacts with the ground. Resolution priority: [groundY]/
- * [groundHeightProvider]/[colliders] all clamp a falling particle's Y the same way ([Particle
- * .settled] set, velocity zeroed) -- [groundHeightProvider] wins when set (a per-position
- * height function `(x, z) -> groundHeight`, for hand-authored non-flat terrain), otherwise
- * [colliders] wins when a particle's XZ falls inside one of these world-space [Aabb] boxes'
- * footprint (real collision against authored scene geometry -- reuses the same [Aabb] type
- * `MeshBounds`/`Occluder` already use, not a physics-engine dependency), otherwise the flat
- * [groundY] plane. All `null`/empty (default) means a particle never clamps and simply fades
- * out mid-air/mid-fall. */
+ * [groundHeightProvider]/[colliders] all clamp a falling particle's Y the same way --
+ * [groundHeightProvider] wins when set (a per-position height function `(x, z) -> groundHeight`,
+ * for hand-authored non-flat terrain), otherwise [colliders] wins when a particle's XZ falls
+ * inside one of these world-space [Aabb] boxes' footprint (real collision against authored scene
+ * geometry -- reuses the same [Aabb] type `MeshBounds`/`Occluder` already use, not a
+ * physics-engine dependency), otherwise the flat [groundY] plane. All `null`/empty (default)
+ * means a particle never clamps and simply fades out mid-air/mid-fall.
+ *
+ * What happens AT the clamp is [restitution]: `0f` (default) is the original behavior -- velocity
+ * zeroed, [Particle.settled] set, the particle stops for good. `> 0f` reflects [Particle.velocity]
+ * .y instead (scaled by [restitution] -- `1f` is a lossless bounce, values above that gain
+ * energy and are the caller's own choice), and [friction] scales the horizontal (x/z) velocity
+ * on every bounce (`1f`, the default, keeps it unchanged; `< 1f` bleeds it off, a bounce that
+ * skids to a stop instead of bouncing forever sideways). A particle only fully settles once a
+ * bounce's resulting vertical speed drops under [BOUNCE_STOP_VELOCITY] -- without that floor, a
+ * `restitution` just under 1 would bounce in ever-smaller hops for the particle's entire
+ * lifetime instead of visibly coming to rest. */
 data class ParticleGround(
     val groundY: Float? = null,
     val groundHeightProvider: ((x: Float, z: Float) -> Float)? = null,
     val colliders: List<Aabb> = emptyList(),
+    val restitution: Float = 0f,
+    val friction: Float = 1f,
 )
+
+/** Below this vertical speed (units/second), a bouncing particle settles instead of bouncing
+ * again -- see [ParticleGround.restitution]'s own doc comment for why a floor is needed at all. */
+const val BOUNCE_STOP_VELOCITY = 0.3f
 
 /** Spawn/death lifecycle hooks. [burstCount] caps the LIFETIME total spawn count instead of the
  * per-frame rate -- `null` (default) spawns forever; a non-null value stops spawning once that
@@ -240,6 +255,13 @@ class ParticleEmitter(
     internal val instanceModelsBuffer: MutableList<Mat4> = ArrayList(maxParticles)
     internal val instanceColorsBuffer: MutableList<Vec4> = ArrayList(maxParticles)
     internal val instanceFramesBuffer: MutableList<Float> = ArrayList(maxParticles)
+
+    /** Reused every frame by [io.github.ronjunevaldoz.awake.scene.rendering.systems
+     * .RenderSystem] to hold this frame's frustum-visible [Particle]s (a subset of [particles]),
+     * sorted back-to-front before [instanceModelsBuffer]/etc are built from it -- see that
+     * system's own `addParticleDrawCalls` doc comment. Holds `Particle` references, not floats,
+     * unlike the buffers above -- it's an intermediate filter/sort step, not GPU-bound data. */
+    internal val visibleParticlesBuffer: MutableList<Particle> = ArrayList(maxParticles)
 
     /** Reused every frame for `DrawCall.extraUniformFloats` (camera basis + frame info) --
      * written in place instead of `cameraBasis + floatArrayOf(...)`, which allocates a new

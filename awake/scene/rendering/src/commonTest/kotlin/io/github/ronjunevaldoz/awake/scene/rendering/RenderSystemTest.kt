@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.LodLevel
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Occluder
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -325,6 +326,66 @@ class RenderSystemTest {
 
         assertEquals(1, renderer.lastDrawCalls.size)
         assertEquals(0, system.lastOccludedCount)
+    }
+
+    @Test
+    fun particlesFarOutsideTheFrustumAreExcludedFromTheDrawCall() {
+        val world = worldWithPrimaryCamera() // eye (0,0,5), looking toward -Z (origin)
+        val emitter = burstEmitterAt(Vec3(0f, 0f, 0f)) // in view
+        world.add(world.create(), emitter)
+        val farEmitter = burstEmitterAt(Vec3(5000f, 5000f, 5000f)) // well outside every plane
+        world.add(world.create(), farEmitter)
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        // Only the in-view emitter's particle produced a DrawCall -- the far one's single
+        // particle was frustum-culled, leaving it with zero live-and-visible instances.
+        assertEquals(1, renderer.lastDrawCalls.size)
+        assertEquals(1, renderer.lastDrawCalls[0].instanceModels?.size)
+    }
+
+    @Test
+    fun visibleParticlesAreOrderedBackToFrontFromTheCameraEye() {
+        val world = worldWithPrimaryCamera() // eye at z=5, looking toward -Z
+        val emitter = ParticleEmitter(
+            mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+            maxParticles = 3, spawnRate = 0f, lifetime = 10f, startAlpha = 1f, scale = 0.1f,
+        )
+        // Manually place 3 already-alive particles at increasing distance from the eye (z=5) --
+        // near (-1), mid (-3), far (-5) along the camera's forward axis.
+        listOf(-1f, -3f, -5f).forEachIndexed { index, z ->
+            emitter.particles[index].alive = true
+            emitter.particles[index].position.set(0f, 0f, z)
+            emitter.particles[index].lifetime = 10f
+        }
+        world.add(world.create(), emitter)
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        val instanceModels = requireNotNull(renderer.lastDrawCalls[0].instanceModels)
+        assertEquals(3, instanceModels.size)
+        // Farthest (z=-5, distance 10 from eye) first, nearest (z=-1, distance 6) last --
+        // painter's algorithm for correct alpha blending.
+        assertEquals(-5f, instanceModels[0].m23)
+        assertEquals(-3f, instanceModels[1].m23)
+        assertEquals(-1f, instanceModels[2].m23)
+    }
+
+    /** One already-spawned, already-alive particle at [position] -- `spawnRate = 0f` so nothing
+     * else spawns; a plain [ParticleEmitter] constructor call doesn't accept pre-alive
+     * particles, so this reaches into the pool directly the same way the visible-ordering test
+     * above does. */
+    private fun burstEmitterAt(position: Vec3): ParticleEmitter {
+        val emitter = ParticleEmitter(
+            mesh = fakeMesh(), material = fakeMaterial(), origin = position,
+            maxParticles = 1, spawnRate = 0f, lifetime = 10f, startAlpha = 1f, scale = 0.1f,
+        )
+        emitter.particles[0].alive = true
+        emitter.particles[0].position.set(position.x, position.y, position.z)
+        emitter.particles[0].lifetime = 10f
+        return emitter
     }
 
     private fun fakeMesh(): Mesh = object : Mesh {

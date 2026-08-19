@@ -534,6 +534,74 @@ class ParticleSystemTest {
         assertTrue(frameOffsets.all { it in 0 until 8 }, "frameOffset must stay within 0 until frameCount")
     }
 
+    @Test
+    fun aBouncingParticleReflectsVelocityScaledByRestitution() {
+        val world = World()
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 5f, 0f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, -10f, 0f)),
+                ground = ParticleGround(groundY = 0f, restitution = 0.5f),
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f) // spawn near y=5
+        system.update(world, 1f) // falls well past groundY -- clamps and bounces this step
+
+        val particle = world.family<ParticleEmitter>().components().first().particles[0]
+        assertFalse(particle.settled, "a bounce above the stop-velocity floor must not settle")
+        assertTrue(particle.velocity.y > 0f, "restitution must reflect downward velocity upward")
+        assertTrue(particle.alive, "a bouncing particle keeps aging, it doesn't die on impact")
+    }
+
+    @Test
+    fun aBounceBelowTheStopVelocityFloorSettlesInsteadOfBouncingForever() {
+        val world = World()
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0.05f, 0f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                // Tiny impact speed -- restitution * speed lands under BOUNCE_STOP_VELOCITY.
+                motion = ParticleMotion(baseVelocity = Vec3(0f, -0.1f, 0f)),
+                ground = ParticleGround(groundY = 0f, restitution = 0.5f),
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f)
+        system.update(world, 1f)
+
+        val particle = world.family<ParticleEmitter>().components().first().particles[0]
+        assertTrue(particle.settled, "a bounce weaker than the stop-velocity floor must settle, not bounce forever")
+        assertEquals(0f, particle.velocity.y)
+    }
+
+    @Test
+    fun zeroRestitutionIsByteForByteTheOriginalStopBehavior() {
+        val world = World()
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 5f, 0f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, -10f, 0f)),
+                ground = ParticleGround(groundY = 0f), // restitution defaults to 0f
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f)
+        system.update(world, 1f)
+
+        val particle = world.family<ParticleEmitter>().components().first().particles[0]
+        assertTrue(particle.settled, "restitution's default (0f) must keep the original settle-on-impact behavior")
+        assertEquals(0f, particle.velocity.y)
+    }
+
     private fun fakeMesh(): Mesh = object : Mesh {
         override val format = VertexFormat.PositionUv
         override fun bind(commandBuffer: Long) = Unit

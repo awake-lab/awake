@@ -167,6 +167,28 @@ class FrustumTest {
         assertTrue(!Frustum.intersects(camera, aspect = 1f, box))
     }
 
+    @Test
+    fun containsSphereIsTrueForAPointOnTheForwardAxis() {
+        val planes = Frustum.planes(identityViewCamera(), aspect = 1f)
+        assertTrue(planes.containsSphere(Vec3(0f, 0f, -5f), radius = 0.1f))
+    }
+
+    @Test
+    fun containsSphereIsFalseForAPointWellOutsideEveryPlane() {
+        val planes = Frustum.planes(identityViewCamera(), aspect = 1f)
+        assertTrue(!planes.containsSphere(Vec3(0f, 500f, -5f), radius = 0.1f))
+    }
+
+    @Test
+    fun containsSphereRadiusRescuesAPointStraddlingAPlane() {
+        val planes = Frustum.planes(identityViewCamera(), aspect = 1f)
+        // Near plane at z = -1; a point just past it (z = -0.9, outside) is rescued by a radius
+        // large enough to still straddle the plane, same "margin, not just the exact center"
+        // billboard case this function exists for.
+        assertTrue(!planes.containsSphere(Vec3(0f, 0f, -0.9f), radius = 0.01f))
+        assertTrue(planes.containsSphere(Vec3(0f, 0f, -0.9f), radius = 0.5f))
+    }
+
     private fun assertVec3Equals(expected: Vec3, actual: Vec3, epsilon: Float = 1e-4f) {
         assertTrue(kotlin.math.abs(expected.x - actual.x) < epsilon, "x: expected ${expected.x}, got ${actual.x}")
         assertTrue(kotlin.math.abs(expected.y - actual.y) < epsilon, "y: expected ${expected.y}, got ${actual.y}")

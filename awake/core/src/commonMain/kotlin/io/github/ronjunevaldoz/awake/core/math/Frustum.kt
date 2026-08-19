@@ -59,6 +59,17 @@ object Frustum {
  * it is what every "cheap AABB vs frustum" test does.
  */
 fun Frustum.intersects(camera: Camera, aspect: Float, box: Aabb): Boolean {
+    val planes = Frustum.planes(camera, aspect)
+    return planes.none { plane -> box.isFullyBehind(plane) }
+}
+
+/** The 6 world-space frustum planes (bottom/top/left/right/near/far, normals pointing INTO the
+ * frustum) for [camera]/[aspect] -- shared by [intersects] (box test) and
+ * [containsSphere] (cheap per-point test, e.g. one per particle), computed ONCE by a caller that
+ * needs to test many things against the same frustum this frame rather than recomputing 6 planes
+ * per test. Degenerate planes (collinear corners) are silently dropped, same conservative "can't
+ * tell, don't cull" bias [intersects] already had. */
+fun Frustum.planes(camera: Camera, aspect: Float): List<Plane> {
     val corners = corners(camera, aspect)
     val near = corners.take(NEAR_CORNER_COUNT)
     val far = corners.drop(NEAR_CORNER_COUNT)
@@ -66,7 +77,7 @@ fun Frustum.intersects(camera: Camera, aspect: Float, box: Aabb): Boolean {
     // verified by hand against Camera's identity-view test setup (eye at origin, forward -Z):
     // every plane below passes through the eye (as a symmetric frustum's side/top/bottom
     // planes must) and gives a positive signedDistanceTo a point on the forward axis.
-    val planes = listOf(
+    return listOfNotNull(
         planeThrough(near[BOTTOM_LEFT], near[BOTTOM_RIGHT], far[BOTTOM_RIGHT]), // bottom
         planeThrough(near[TOP_RIGHT], near[TOP_LEFT], far[TOP_RIGHT]), // top
         planeThrough(near[BOTTOM_LEFT], far[BOTTOM_LEFT], near[TOP_LEFT]), // left
@@ -74,8 +85,15 @@ fun Frustum.intersects(camera: Camera, aspect: Float, box: Aabb): Boolean {
         planeThrough(near[BOTTOM_LEFT], near[TOP_LEFT], near[TOP_RIGHT]), // near
         planeThrough(far[BOTTOM_LEFT], far[TOP_RIGHT], far[TOP_LEFT]), // far
     )
-    return planes.filterNotNull().none { plane -> box.isFullyBehind(plane) }
 }
+
+/** Conservative point-vs-frustum test for a small sphere ([radius] around [point], e.g. one
+ * billboard particle) against pre-built [planes] -- cheaper than a full [Aabb] per test since
+ * there's no box to build, just one [Plane.signedDistanceTo] per plane. Same "outside every
+ * plane individually" rejection rule [intersects] uses, radius-expanded so a particle isn't
+ * culled the instant its CENTER crosses a plane while its visible quad still straddles it. */
+fun List<Plane>.containsSphere(point: Vec3, radius: Float): Boolean =
+    none { plane -> plane.signedDistanceTo(point) < -radius }
 
 /** The box is outside when its most-positive corner along the plane normal still sits behind it. */
 private fun Aabb.isFullyBehind(plane: Plane): Boolean {
