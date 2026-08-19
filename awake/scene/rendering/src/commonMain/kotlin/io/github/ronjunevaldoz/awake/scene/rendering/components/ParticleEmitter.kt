@@ -96,12 +96,23 @@ data class ParticleMotion(
  * [frameRate] frames/second -- `1` (default) is a no-op. Each particle picks a random frame
  * OFFSET at spawn ([Particle.frameOffset]) and advances from there based on its own age, so
  * particles sharing one emitter are visibly desynced, not switching frames in lockstep -- a
- * real per-instance GPU attribute (`particle.wgsl`'s `inFrame`), not an emitter-wide uniform. */
+ * real per-instance GPU attribute (`particle.wgsl`'s `inFrame`), not an emitter-wide uniform.
+ *
+ * [stretchWithVelocity] elongates each particle's quad along its own on-screen motion direction
+ * instead of the plain camera-facing square every particle draws by default -- a projectile
+ * streak/rain-drop/spark-trail read, not a real multi-point historical ribbon (see
+ * [io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem]'s own doc comment on
+ * where the stretch vector is packed for why this needed no new GPU buffer). [stretchFactor] is
+ * world-units of elongation per unit of speed -- `0f` (the effective value whenever a particle
+ * is momentarily stationary) draws the exact same plain quad this flag's `false` default always
+ * has. */
 data class ParticleVisual(
     val startColor: Vec3 = Vec3(1f, 1f, 1f),
     val endColor: Vec3 = startColor,
     val frameCount: Int = 1,
     val frameRate: Float = 8f,
+    val stretchWithVelocity: Boolean = false,
+    val stretchFactor: Float = 0.05f,
 )
 
 /** How (and whether) a particle interacts with the ground. Resolution priority: [groundY]/

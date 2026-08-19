@@ -11,6 +11,12 @@
 // DrawCall.instanceFrames -- one f32/instance) lets particles sharing one emitter cycle frames
 // desynced instead of in lockstep. No per-instance rotation: the quad always faces the camera,
 // built from cameraRight/cameraUp rather than the instance matrix's own basis vectors.
+//
+// Column 1 (model1) is otherwise unused by this shader (only column 0's length and column 3's
+// translation are read) -- ParticleVisual.stretchWithVelocity reuses it to carry an optional
+// world-space stretch vector (direction * length, zero for a plain billboard), read below to
+// elongate the quad toward its own on-screen motion direction instead of adding a whole new
+// per-instance GPU buffer for one optional capability.
 struct Uniforms {
   viewProjection : mat4x4<f32>,
   // World-space camera basis, CPU-computed once per frame from Camera.eye/center/up (cross
@@ -28,6 +34,8 @@ struct Uniforms {
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
 @binding(1) @group(0) var particleTexture : texture_2d<f32>;
 @binding(2) @group(0) var particleSampler : sampler;
+
+const STRETCH_EPSILON : f32 = 1e-5;
 
 struct VertexOutput {
   @builtin(position) position : vec4f,
@@ -51,10 +59,27 @@ fn vertexMain(
   // (see ParticleEmitter's own doc comment), so column 3 is exactly the particle's world
   // center and column 0's own length is exactly its uniform scale.
   let center = model[3].xyz;
-  let scale = length(model[0].xyz);
+  let width = length(model[0].xyz);
+  // Velocity-stretch (see this file's top-of-file comment on column 1): project the world-space
+  // stretch vector onto the camera-right/camera-up screen plane, and if it's non-zero, point the
+  // quad's LONG axis toward that on-screen direction (with CROSS perpendicular to it) instead of
+  // the plain cameraRight/cameraUp pair -- a zero stretch vector (the default) falls through to
+  // exactly the old symmetric-quad formula, byte-for-byte.
+  let stretch = model[1].xyz;
+  let stretchScreen = vec2f(dot(stretch, uniforms.cameraRight.xyz), dot(stretch, uniforms.cameraUp.xyz));
+  let stretchLength = length(stretchScreen);
+  var longAxis = uniforms.cameraUp.xyz;
+  var crossAxis = uniforms.cameraRight.xyz;
+  var lengthScale = width;
+  if (stretchLength > STRETCH_EPSILON) {
+    let dir = stretchScreen / stretchLength;
+    longAxis = uniforms.cameraRight.xyz * dir.x + uniforms.cameraUp.xyz * dir.y;
+    crossAxis = uniforms.cameraRight.xyz * -dir.y + uniforms.cameraUp.xyz * dir.x;
+    lengthScale = width + stretchLength;
+  }
   let worldPos = center
-    + (inPosition.x * scale) * uniforms.cameraRight.xyz
-    + (inPosition.y * scale) * uniforms.cameraUp.xyz;
+    + (inPosition.x * width) * crossAxis
+    + (inPosition.y * lengthScale) * longAxis;
 
   var output : VertexOutput;
   output.position = uniforms.viewProjection * vec4f(worldPos, 1.0);

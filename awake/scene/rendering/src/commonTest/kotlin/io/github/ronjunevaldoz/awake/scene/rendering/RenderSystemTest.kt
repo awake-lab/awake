@@ -29,6 +29,7 @@ import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshBounds
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 import io.github.ronjunevaldoz.awake.scene.rendering.components.Occluder
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
+import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleVisual
 import io.github.ronjunevaldoz.awake.scene.rendering.systems.RenderSystem
 import io.github.ronjunevaldoz.awake.ui.UiDrawPrimitive
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
@@ -377,6 +378,51 @@ class RenderSystemTest {
      * else spawns; a plain [ParticleEmitter] constructor call doesn't accept pre-alive
      * particles, so this reaches into the pool directly the same way the visible-ordering test
      * above does. */
+    @Test
+    fun stretchWithVelocityPacksAWorldSpaceStretchVectorIntoInstanceModelColumn1() {
+        val world = worldWithPrimaryCamera()
+        val emitter = ParticleEmitter(
+            mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+            maxParticles = 1, spawnRate = 0f, lifetime = 10f, startAlpha = 1f, scale = 0.1f,
+            visual = ParticleVisual(stretchWithVelocity = true, stretchFactor = 0.5f),
+        )
+        emitter.particles[0].alive = true
+        emitter.particles[0].position.set(0f, 0f, 0f)
+        emitter.particles[0].velocity.set(2f, 0f, 0f)
+        emitter.particles[0].lifetime = 10f
+        world.add(world.create(), emitter)
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        val model = requireNotNull(renderer.lastDrawCalls[0].instanceModels)[0]
+        // stretchFactor(0.5) * velocity(2,0,0) = (1,0,0) -- packed into column 1 (m01/m11/m21).
+        assertEquals(1f, model.m01, 1e-4f)
+        assertEquals(0f, model.m11, 1e-4f)
+        assertEquals(0f, model.m21, 1e-4f)
+    }
+
+    @Test
+    fun stretchWithVelocityDisabledLeavesColumn1AtItsPlainZeroDefault() {
+        val world = worldWithPrimaryCamera()
+        val emitter = ParticleEmitter(
+            mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+            maxParticles = 1, spawnRate = 0f, lifetime = 10f, startAlpha = 1f, scale = 0.1f,
+            // stretchWithVelocity defaults to false.
+        )
+        emitter.particles[0].alive = true
+        emitter.particles[0].position.set(0f, 0f, 0f)
+        emitter.particles[0].velocity.set(2f, 0f, 0f)
+        emitter.particles[0].lifetime = 10f
+        world.add(world.create(), emitter)
+        val renderer = RecordingRenderer()
+
+        RenderSystem(renderer).update(world, 1f / 60f)
+
+        val model = requireNotNull(renderer.lastDrawCalls[0].instanceModels)[0]
+        assertEquals(0f, model.m01, "no stretch must leave column 1 at its plain off-diagonal zero, byte-for-byte the old formula")
+    }
+
     private fun burstEmitterAt(position: Vec3): ParticleEmitter {
         val emitter = ParticleEmitter(
             mesh = fakeMesh(), material = fakeMaterial(), origin = position,

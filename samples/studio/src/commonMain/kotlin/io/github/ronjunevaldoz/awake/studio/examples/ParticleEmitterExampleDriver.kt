@@ -61,6 +61,8 @@ private data class ParticleVariant(
     val turbulenceFrequency: Float = 1f,
     val spawnRadius: Float = 0f,
     val convergeToOrigin: Boolean = false,
+    val stretchWithVelocity: Boolean = false,
+    val stretchFactor: Float = 0.05f,
 )
 
 private val PARTICLE_VARIANTS = listOf(
@@ -191,6 +193,27 @@ private val PARTICLE_VARIANTS = listOf(
         spawnRadius = 1.5f,
         convergeToOrigin = true,
     ),
+    // Streak: rain/spark-shower read -- fast straight-down fall, ParticleVisual
+    // .stretchWithVelocity elongates each quad along its own on-screen fall direction instead of
+    // the plain camera-facing square every other variant draws, so each particle reads as a
+    // short streak rather than a dot.
+    ParticleVariant(
+        nodeName = "particles-streak",
+        materialName = "particle",
+        origin = Vec3(17.5f, 4f, 0f),
+        baseVelocity = Vec3(0f, -9f, 0f),
+        velocityJitter = 0.5f,
+        coneHalfAngleDegrees = null,
+        groundY = 0f,
+        spawnRate = 30f,
+        lifetime = 1f,
+        startAlpha = 0.8f,
+        scale = 0.08f,
+        startColor = Vec3(0.6f, 0.8f, 1f),
+        endColor = Vec3(0.6f, 0.8f, 1f),
+        stretchWithVelocity = true,
+        stretchFactor = 0.08f,
+    ),
 )
 
 /** Simulated "player speed" for the context-driven emitter below -- oscillates over time since
@@ -223,6 +246,8 @@ private var simulatedSpeed = 0f
  * - `particles-collider`: [ParticleGround.colliders] -- falls onto the authored
  *   `particles-collider-platform` box (a real [io.github.ronjunevaldoz.awake.core.math.Aabb]
  *   collision, not a flat groundY plane).
+ * - `particles-streak`: [ParticleVisual.stretchWithVelocity] -- each quad elongates along its
+ *   own on-screen fall direction instead of staying a plain camera-facing square.
  */
 internal object ParticleEmitterExampleDriver {
     fun attach(instance: Scene, runtime: SceneAppLifecycleRuntime) {
@@ -258,6 +283,8 @@ internal object ParticleEmitterExampleDriver {
                         startColor = variant.startColor,
                         endColor = variant.endColor,
                         frameCount = variant.frameCount,
+                        stretchWithVelocity = variant.stretchWithVelocity,
+                        stretchFactor = variant.stretchFactor,
                     ),
                     ground = ParticleGround(groundY = variant.groundY),
                 ),

@@ -75,6 +75,10 @@
     {
       "name": "particles-collider",
       "components": []
+    },
+    {
+      "name": "particles-streak",
+      "components": []
     }
   ]
 }

@@ -229,8 +229,23 @@ class RenderSystem(
         instanceColors.clear()
         instanceFrames.clear()
         visible.forEach { particle ->
-            instanceModels += Mat4().translate(particle.position.x, particle.position.y, particle.position.z)
+            val model = Mat4().translate(particle.position.x, particle.position.y, particle.position.z)
                 .scale(particle.scale, particle.scale, particle.scale)
+            // ParticleVisual.stretchWithVelocity: column 1 (m01/m11/m21) is otherwise dead --
+            // particle.wgsl only ever reads column 0 (width) and column 3 (center), never
+            // column 1's own diagonal scale value `.scale()` happens to leave there -- so a
+            // world-space stretch vector rides there for free instead of needing a whole new
+            // per-instance GPU buffer/binding just for this one optional capability.
+            if (emitter.visual.stretchWithVelocity) {
+                val speed = particle.velocity.length3()
+                if (speed > 0f) {
+                    val stretch = particle.velocity * emitter.visual.stretchFactor
+                    model.m01 = stretch.x
+                    model.m11 = stretch.y
+                    model.m21 = stretch.z
+                }
+            }
+            instanceModels += model
             // Per-PARTICLE color+alpha (each ages independently, so a burst's
             // later-spawned particles sit at an earlier point in the emitter's
             // startColor->endColor gradient than its first-spawned ones) -- see
