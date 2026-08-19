@@ -56,6 +56,7 @@ internal val StudioExamples: List<StudioExample> = listOf(
         id = "particles",
         title = "Particles",
         scenePath = "assets/examples/particles.scene.json",
+        driver = { delta -> ParticleEmitterExampleDriver.advance(delta) },
         onActivated = { instance, runtime -> ParticleEmitterExampleDriver.attach(instance, runtime) },
     ),
 )

@@ -9,11 +9,14 @@ import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.rendering.components.ParticleEmitter
+import io.github.ronjunevaldoz.awake.scene.rendering.components.spawnParticleBurst
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneGameRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneInstance
+import kotlin.math.sin
 
 private const val PARTICLE_TEXTURE_SIZE = 16
 private const val FLICKER_FRAME_COUNT = 4
+private const val MAX_PARTICLES_PER_EMITTER = 200
 
 /** Unit billboard quad (-0.5..0.5 on x/y, z=0) -- `particle.wgsl`'s vertex shader offsets these
  * local x/y by the camera-right/camera-up basis, so this quad's own orientation never matters. */
@@ -26,16 +29,11 @@ private val quadVertices = floatArrayOf(
 private val quadIndices = intArrayOf(0, 1, 2, 2, 3, 0)
 private val particleQuadGeometry = MeshGeometry(quadVertices, quadIndices, format = VertexFormat.PositionUv)
 
-/** One entity per variant (a `ParticleEmitter` is one-per-entity, like any other ECS
- * component) -- exercises the same generic [ParticleEmitter]/[ParticleSystem] against 4
- * visually distinct MMORPG-style configs:
- * - [Aura]: a coherent slow upward stream, violet->pink gradient, for cast/channel VFX.
- * - [Impact]: a real directional cone burst ([ParticleEmitter.coneHalfAngleDegrees]) with an
- *   orange->red gradient and a flickering 4-frame sprite strip ([ParticleEmitter.frameCount]).
- * - [Environment]: slow downward drift from height that settles at [ParticleEmitter.groundY]
- *   instead of fading mid-air, for falling leaves/dust.
- * - [Projectile]: fast, near-zero-jitter directed motion, for a fireball/arrow trail.
- */
+/** The 4 simplest variants -- distinct config, no closures needed -- built from this one data
+ * shape in a loop. The 3 capabilities that need a closure (context-driven rate, non-flat
+ * terrain, sub-emitter chaining) are constructed by hand in [ParticleEmitterExampleDriver.attach]
+ * instead, since a plain data class can't hold `mesh`/`material`/`world`-capturing lambdas
+ * cleanly. */
 private data class ParticleVariant(
     val nodeName: String,
     val materialName: String,
@@ -51,6 +49,8 @@ private data class ParticleVariant(
     val startColor: Vec3,
     val endColor: Vec3,
     val frameCount: Int = 1,
+    val turbulence: Float = 0f,
+    val turbulenceFrequency: Float = 1f,
 )
 
 private val PARTICLE_VARIANTS = listOf(
@@ -90,8 +90,9 @@ private val PARTICLE_VARIANTS = listOf(
         endColor = Vec3(1f, 0.1f, 0f),
         frameCount = FLICKER_FRAME_COUNT,
     ),
-    // Environment: slow downward drift from height -- falling leaves/dust that settle on the
-    // ground (groundY) instead of fading out mid-air.
+    // Environment: slow downward drift from height -- falling leaves/dust that settle on a
+    // FLAT ground (groundY) instead of fading out mid-air. See particles-terrain below for the
+    // non-flat (groundHeightProvider) version of the same idea.
     ParticleVariant(
         nodeName = "particles-environment",
         materialName = "particle",
@@ -107,42 +108,64 @@ private val PARTICLE_VARIANTS = listOf(
         startColor = Vec3(0.4f, 0.8f, 0.3f),
         endColor = Vec3(0.4f, 0.8f, 0.3f),
     ),
-    // Projectile: fast, nearly-jitter-free directed motion -- a fireball/arrow trail.
+    // Turbulence: a smoke/mist column -- weak upward drift, strong flow-field perturbation
+    // (ParticleEmitter.turbulence), so motion swirls instead of reading as pure random jitter.
     ParticleVariant(
-        nodeName = "particles-projectile",
+        nodeName = "particles-turbulence",
         materialName = "particle",
-        origin = Vec3(4.5f, 1f, 0f),
-        baseVelocity = Vec3(-3f, 0f, 0f),
+        origin = Vec3(-7.5f, 0f, 0f),
+        baseVelocity = Vec3(0f, 0.6f, 0f),
         velocityJitter = 0.05f,
         coneHalfAngleDegrees = null,
         groundY = null,
-        spawnRate = 80f,
-        lifetime = 0.6f,
-        startAlpha = 0.9f,
-        scale = 0.18f,
-        startColor = Vec3(1f, 0.2f, 0.1f),
-        endColor = Vec3(1f, 0.2f, 0.1f),
+        spawnRate = 20f,
+        lifetime = 4f,
+        startAlpha = 0.5f,
+        scale = 0.3f,
+        startColor = Vec3(0.6f, 0.6f, 0.65f),
+        endColor = Vec3(0.3f, 0.3f, 0.35f),
+        turbulence = 3f,
+        turbulenceFrequency = 0.5f,
     ),
 )
 
-private const val MAX_PARTICLES_PER_EMITTER = 200
+/** Simulated "player speed" for the context-driven emitter below -- oscillates over time since
+ * this demo has no real player to read from. [advance] updates it every frame; a real game
+ * would read actual gameplay state here instead. */
+private var simulatedSpeedElapsed = 0f
+private var simulatedSpeed = 0f
 
 /** [ParticleEmitter] isn't an authorable [io.github.ronjunevaldoz.awake.scene.runtime
- * .SceneComponent] yet -- the particles example's scene document authors 4 empty, named
- * placeholder nodes (one per [ParticleVariant]) instead, same "author a named node, attach
- * the state a scene document can't express in `onActivated`" shape [InstancedCubesExampleDriver]
- * already uses. */
+ * .SceneComponent] yet -- the particles example's scene document authors 7 empty, named
+ * placeholder nodes instead, same "author a named node, attach the state a scene document
+ * can't express in `onActivated`" shape [InstancedCubesExampleDriver] already uses. Covers
+ * every [ParticleEmitter] capability:
+ * - `particles-aura`/`particles-impact`/`particles-environment`/`particles-turbulence`: the 4
+ *   [ParticleVariant]s above (gradient color, cone burst, sprite-strip flicker, flat ground-stop,
+ *   turbulence flow field).
+ * - `particles-context`: [ParticleEmitter.dynamicSpawnRate] reads [simulatedSpeed] every frame
+ *   -- dust that kicks up harder as the (simulated) player moves faster.
+ * - `particles-terrain`: [ParticleEmitter.groundHeightProvider] settles on undulating terrain
+ *   instead of one flat plane.
+ * - `particles-projectile`: [ParticleEmitter.onParticleDeath] spawns a small burst
+ *   ([spawnParticleBurst]) wherever each of its own trail particles expires -- real sub-emitter
+ *   chaining, not just a trailing stream.
+ */
 internal object ParticleEmitterExampleDriver {
     fun attach(instance: SceneInstance, runtime: SceneGameRuntime) {
+        simulatedSpeedElapsed = 0f
+        simulatedSpeed = 0f
+        val mesh = runtime.requireMesh("particle-quad")
+        val material = runtime.requireMaterial("particle")
+
         PARTICLE_VARIANTS.forEach { variant ->
             val node = instance.roots.find { it.name == variant.nodeName } ?: return@forEach
-            val mesh = runtime.requireMesh("particle-quad")
-            val material = runtime.requireMaterial(variant.materialName)
+            val variantMaterial = runtime.requireMaterial(variant.materialName)
             runtime.world.add(
                 node.entity,
                 ParticleEmitter(
                     mesh = mesh,
-                    material = material,
+                    material = variantMaterial,
                     origin = variant.origin,
                     maxParticles = MAX_PARTICLES_PER_EMITTER,
                     spawnRate = variant.spawnRate,
@@ -156,9 +179,89 @@ internal object ParticleEmitterExampleDriver {
                     coneHalfAngleDegrees = variant.coneHalfAngleDegrees,
                     groundY = variant.groundY,
                     frameCount = variant.frameCount,
+                    turbulence = variant.turbulence,
+                    turbulenceFrequency = variant.turbulenceFrequency,
                 ),
             )
         }
+
+        instance.roots.find { it.name == "particles-context" }?.let { node ->
+            runtime.world.add(
+                node.entity,
+                ParticleEmitter(
+                    mesh = mesh,
+                    material = material,
+                    origin = Vec3(7.5f, 0f, 0f),
+                    maxParticles = MAX_PARTICLES_PER_EMITTER,
+                    spawnRate = 5f, // only used if dynamicSpawnRate is somehow unset; it isn't
+                    lifetime = 1f,
+                    startAlpha = 0.6f,
+                    baseVelocity = Vec3(0f, 0.3f, 0f),
+                    velocityJitter = 0.5f,
+                    scale = 0.15f,
+                    startColor = Vec3(0.6f, 0.5f, 0.3f),
+                    endColor = Vec3(0.6f, 0.5f, 0.3f),
+                    dynamicSpawnRate = { 5f + simulatedSpeed * 8f },
+                ),
+            )
+        }
+
+        instance.roots.find { it.name == "particles-terrain" }?.let { node ->
+            runtime.world.add(
+                node.entity,
+                ParticleEmitter(
+                    mesh = mesh,
+                    material = material,
+                    origin = Vec3(0f, 5f, -4f),
+                    maxParticles = MAX_PARTICLES_PER_EMITTER,
+                    spawnRate = 8f,
+                    lifetime = 6f,
+                    startAlpha = 0.7f,
+                    baseVelocity = Vec3(0.3f, -1.5f, 0f), // drifts sideways while falling, to
+                    // visibly cross the undulating ground below
+                    velocityJitter = 0.2f,
+                    scale = 0.22f,
+                    startColor = Vec3(0.9f, 0.85f, 0.6f),
+                    endColor = Vec3(0.9f, 0.85f, 0.6f),
+                    groundHeightProvider = { x, _ -> sin(x * 0.5f) * 1f - 3f },
+                ),
+            )
+        }
+
+        instance.roots.find { it.name == "particles-projectile" }?.let { node ->
+            runtime.world.add(
+                node.entity,
+                ParticleEmitter(
+                    mesh = mesh,
+                    material = material,
+                    origin = Vec3(4.5f, 1f, 0f),
+                    maxParticles = MAX_PARTICLES_PER_EMITTER,
+                    spawnRate = 80f,
+                    lifetime = 0.6f,
+                    startAlpha = 0.9f,
+                    baseVelocity = Vec3(-3f, 0f, 0f),
+                    velocityJitter = 0.05f,
+                    scale = 0.18f,
+                    startColor = Vec3(1f, 0.2f, 0.1f),
+                    endColor = Vec3(1f, 0.2f, 0.1f),
+                    onParticleDeath = { world, position ->
+                        spawnParticleBurst(
+                            world, mesh, material, position,
+                            count = 6, spawnRate = 1000f, lifetime = 0.2f, startAlpha = 0.8f,
+                            baseVelocity = Vec3(0f, 0.5f, 0f), velocityJitter = 1.5f, scale = 0.1f,
+                            startColor = Vec3(1f, 0.6f, 0.2f), endColor = Vec3(1f, 0.1f, 0f),
+                        )
+                    },
+                ),
+            )
+        }
+    }
+
+    /** Advances [simulatedSpeed] -- the fake "player speed" `particles-context` reacts to. A
+     * real game would read actual gameplay state instead of oscillating a sine wave. */
+    fun advance(delta: Float) {
+        simulatedSpeedElapsed += delta
+        simulatedSpeed = 3f + 3f * sin(simulatedSpeedElapsed)
     }
 
     fun createMesh(runtime: SceneGameRuntime) = runtime.renderer.createMesh(particleQuadGeometry)
