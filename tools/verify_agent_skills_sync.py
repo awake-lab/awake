@@ -193,8 +193,24 @@ def check_module_readmes() -> list[str]:
     return errors
 
 
+def check_performance_matrix() -> list[str]:
+    errors = []
+    perf_matrix = REPO_ROOT / "docs" / "reference" / "performance-matrix.md"
+    ecs_scorecard = REPO_ROOT / "docs" / "ecs-benchmark-scorecard.md"
+
+    if not perf_matrix.exists():
+        errors.append("docs/reference/performance-matrix.md is missing")
+    elif len(perf_matrix.read_text(encoding="utf-8").strip()) < 100:
+        errors.append("docs/reference/performance-matrix.md is empty or too short")
+
+    if not ecs_scorecard.exists():
+        errors.append("docs/ecs-benchmark-scorecard.md is missing")
+
+    return errors
+
+
 def main():
-    print("Verifying Awake Agents, Skills & Module Docs Synchronization...")
+    print("Verifying Awake Agents, Skills, Module Docs & Performance Matrix Synchronization...")
     all_errors = []
 
     if not AGENTS_DIR.exists():
@@ -225,13 +241,16 @@ def main():
     # 6. Module README coverage check
     all_errors.extend(check_module_readmes())
 
+    # 7. Performance matrix coverage check
+    all_errors.extend(check_performance_matrix())
+
     if all_errors:
         print("\n❌ Verification FAILED with the following errors:", file=sys.stderr)
         for err in all_errors:
             print(f"  - {err}", file=sys.stderr)
         sys.exit(1)
 
-    print("\n✅ All 12 agents, 12 domain skills, 24 module READMEs, and entrypoints are fully synchronized!")
+    print("\n✅ All 12 agents, 12 domain skills, 24 module READMEs, performance matrix, and entrypoints are fully synchronized!")
     sys.exit(0)
 
 
