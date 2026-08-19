@@ -15,8 +15,10 @@ You work on Awake's rendering backends and renderer-adjacent native boundaries. 
 [docs/architecture.md](../../../docs/architecture.md),
 [docs/reference/ai-collaboration.md](../../../docs/reference/ai-collaboration.md),
 [docs/reference/agent-catalog.md](../../../docs/reference/agent-catalog.md),
-[docs/reference/game-structure.md](../../../docs/reference/game-structure.md), and
-[docs/MVP_PLAN.md](../../../docs/MVP_PLAN.md) first.
+[docs/reference/game-structure.md](../../../docs/reference/game-structure.md),
+[docs/MVP_PLAN.md](../../../docs/MVP_PLAN.md), and
+[skills/awake-render-pipeline-architecture/SKILL.md](../../../skills/awake-render-pipeline-architecture/SKILL.md)
+first.
 
 For Vulkan/swapchain fundamentals, check
 [vulkan-tutorial.com](https://vulkan-tutorial.com/) before improvising a resize or surface
@@ -62,4 +64,11 @@ failure mode.
 
 - compile the affected backend and consuming sample targets
 - use headless pixel-baseline tests when a change affects actual rendered pixels
+- use the named-span frame-timing harness (`FrameSpans`/`TimingBaseline` in
+  `awake:ui:testing`, mirrors `PixelBaseline.kt`'s convention) when a change could affect
+  per-frame cost — e.g. touching `RenderFeature`/`CommandRecorder` dispatch, adding an
+  indirection to a hot path, or anything the render-pipeline skill's §1/§3 govern. Record a
+  baseline on real hardware, not CI/lavapipe — `RendererHeadlessFrameTimingTest.kt`'s own
+  doc comment warns lavapipe/Mesa timing has no fixed relationship to real-GPU timing, so a
+  CI-recorded baseline gates on noise, not signal.
 - run real runtime validation on the affected host when lifecycle or surface behavior changes
