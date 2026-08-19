@@ -69,6 +69,10 @@ abstract class GameApplication(
     }
 
     final override fun dispose() {
+        // Before game.dispose(), not just before destroyBackend(): a game frees its own
+        // meshes/materials in dispose(), and the last frame's command buffers can still be
+        // pending on them at that point.
+        if (isReady) renderer.waitIdle()
         game.dispose()
         if (isReady) destroyBackend()
     }

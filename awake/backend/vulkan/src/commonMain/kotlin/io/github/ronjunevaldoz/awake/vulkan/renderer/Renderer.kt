@@ -667,6 +667,10 @@ class Renderer internal constructor(
         }
     }
 
+    override fun waitIdle() {
+        VulkanBuffers.vkDeviceWaitIdle(device)
+    }
+
     override fun destroy() {
         // "Whoever holds the list destroys it": these were constructor-injected, but this class
         // is the only thing that knows the list's full membership.

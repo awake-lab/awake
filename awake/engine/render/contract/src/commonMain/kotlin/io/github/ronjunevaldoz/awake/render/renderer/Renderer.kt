@@ -250,5 +250,14 @@ interface Renderer {
      * draw" pattern [drawUi] already uses -- call before [draw] each frame. */
     fun drawDebugLines(lines: List<LineSegment>)
 
+    /** Blocks until the GPU has finished every command already submitted -- call before
+     * destroying anything a still-in-flight frame may reference. Only teardown needs it: a
+     * game's own `dispose()` frees the meshes/materials it created while the last frame can
+     * still be pending (confirmed live on desktop close: three
+     * `VUID-vkDestroyBuffer-buffer-00922` "in use by VkCommandBuffer" validation errors). No-op
+     * by default -- backends with no explicit submission queue to drain (WebGPU) need nothing
+     * here. */
+    fun waitIdle() {}
+
     fun destroy()
 }

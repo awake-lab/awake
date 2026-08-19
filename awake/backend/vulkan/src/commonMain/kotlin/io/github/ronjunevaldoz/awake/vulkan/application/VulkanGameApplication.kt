@@ -382,6 +382,9 @@ open class VulkanGameApplication(
         // the end of every frame it successfully completes, but a frame that bailed out
         // early (e.g. mid-resize, see Renderer.recreateSwapChain's doc comment) skips that
         // wait, so this can't rely on the last draw() call alone.
+        // Not redundant with GameApplication.dispose()'s own renderer.waitIdle(): that one runs
+        // before game.dispose(), which can itself submit work (a final readback, an offscreen
+        // pass) after it.
         VulkanBuffers.vkDeviceWaitIdle(graphicsDevice.device)
         renderer.destroy()
         swapchainManager.destroy()
