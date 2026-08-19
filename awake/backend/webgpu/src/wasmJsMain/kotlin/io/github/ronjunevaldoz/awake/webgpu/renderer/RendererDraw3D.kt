@@ -182,6 +182,9 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
                         val alphaBuffer = alphaInstanceBufferForRun(instancedIndex)
                         alphaBuffer.update(drawCall.instanceColors.orEmpty())
                         setVertexBuffer(2u, alphaBuffer.bufferRef())
+                        val frameBuffer = frameInstanceBufferForRun(instancedIndex)
+                        frameBuffer.update(drawCall.instanceFrames.orEmpty())
+                        setVertexBuffer(3u, frameBuffer.bufferRef())
                     }
                     setIndexBuffer(WebGpuHandles.resolve(mesh.indexBuffer.handle), meshIndexFormat)
                     // Issued here rather than through Mesh.drawInstanced: drawIndexed is a

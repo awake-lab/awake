@@ -70,6 +70,11 @@ class RenderPipeline(
      * `particle.wgsl` and `DrawCall.instanceColors`. Mirrors Vulkan's
      * `RenderPipeline.instanceAlpha`. */
     instanceAlpha: Boolean = false,
+    /** Only meaningful alongside [instanced]. Adds a FOURTH, `GPUVertexStepMode.Instance` vertex
+     * buffer layout (stride 4) carrying one `f32` sprite-strip frame index per instance -- see
+     * `particle.wgsl`'s `inFrame` and `DrawCall.instanceFrames`. Mirrors Vulkan's
+     * `RenderPipeline.instanceFrame`. */
+    instanceFrame: Boolean = false,
     /** `false` (default) is byte-for-byte the opaque pipeline this class always built. `true`
      * enables standard straight-alpha blending, same factors [io.github.ronjunevaldoz.awake
      * .webgpu.ui.UiTextureRenderPipeline] already uses. */
@@ -122,6 +127,19 @@ class RenderPipeline(
                             shaderLocation = (firstLocation + MATRIX_ROWS).toUInt(),
                             offset = 0uL,
                             format = GPUVertexFormat.Float32x4,
+                        ),
+                    ),
+                )
+            }
+            if (instanceFrame) {
+                vertexBuffers += VertexBufferLayout(
+                    arrayStride = Float.SIZE_BYTES.toULong(),
+                    stepMode = GPUVertexStepMode.Instance,
+                    attributes = listOf(
+                        VertexAttribute(
+                            shaderLocation = (firstLocation + MATRIX_ROWS + 1).toUInt(),
+                            offset = 0uL,
+                            format = GPUVertexFormat.Float32,
                         ),
                     ),
                 )

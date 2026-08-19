@@ -25,6 +25,7 @@ import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkCommandBufferUsageFlag
 import io.github.ronjunevaldoz.awake.vulkan.enums.flags.VkPipelineStageFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.mesh.AlphaInstanceBuffer
+import io.github.ronjunevaldoz.awake.vulkan.mesh.FrameInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.InstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D
@@ -182,6 +183,8 @@ internal fun Renderer.recordDrawCalls(commandBuffer: Long, drawCalls: List<Prepa
             // Binding 2, alongside the mesh's own binding-0 and instance-model binding-1 --
             // only for a particle draw call.
             prepared.alphaInstanceBuffer?.bind(prepared.frameIndex, commandBuffer)
+            // Binding 3, alongside binding 2's color/alpha -- only for a particle draw call.
+            prepared.frameInstanceBuffer?.bind(prepared.frameIndex, commandBuffer)
             prepared.drawCall.mesh.drawInstanced(commandBuffer, prepared.instanceCount)
         } else {
             prepared.drawCall.mesh.draw(commandBuffer)
@@ -323,6 +326,9 @@ internal data class PreparedDrawCall(
     /** Non-null only for a billboard-particle instanced draw ([DrawCall.instanceColors]),
      * bound at binding 2 alongside [instanceBuffer]'s binding 1. */
     val alphaInstanceBuffer: AlphaInstanceBuffer? = null,
+    /** Non-null only for a billboard-particle instanced draw ([DrawCall.instanceFrames]), bound
+     * at binding 3 alongside [alphaInstanceBuffer]'s binding 2. */
+    val frameInstanceBuffer: FrameInstanceBuffer? = null,
 )
 
 /** Resolves each [drawCalls] entry against [Renderer.pipelinesByFormat] by its
@@ -516,6 +522,13 @@ private fun Renderer.prepareInstancedDrawCall(
     } else {
         null
     }
+    val frameInstanceBuffer = if (isParticle) {
+        frameInstanceBufferForRun(instancedIndex).also {
+            it.update(frameIndex, drawCall.instanceFrames.orEmpty())
+        }
+    } else {
+        null
+    }
     material.updateUniformBuffer(frameIndex, uniformSlotIndex, uniformFloats)
     return PreparedDrawCall(
         drawCall = drawCall,
@@ -527,6 +540,7 @@ private fun Renderer.prepareInstancedDrawCall(
         instanceCount = instanceModels.size,
         jointPaletteBuffer = jointPaletteBuffer,
         alphaInstanceBuffer = alphaInstanceBuffer,
+        frameInstanceBuffer = frameInstanceBuffer,
     )
 }
 

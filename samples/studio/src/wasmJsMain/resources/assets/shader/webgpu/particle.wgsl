@@ -7,8 +7,10 @@
 // instance's own model matrix (locations 2-5, same column-major instance buffer instanced.wgsl
 // already documents) supplies world position and uniform scale; a per-instance RGBA color+alpha
 // (location 6, DrawCall.instanceColors -- one vec4f/instance, alpha in .w) supplies independent
-// per-particle fade/tint. No per-instance rotation: the quad always faces the camera, built
-// from cameraRight/cameraUp rather than the instance matrix's own basis vectors.
+// per-particle fade/tint; a per-instance sprite-strip frame index (location 7,
+// DrawCall.instanceFrames -- one f32/instance) lets particles sharing one emitter cycle frames
+// desynced instead of in lockstep. No per-instance rotation: the quad always faces the camera,
+// built from cameraRight/cameraUp rather than the instance matrix's own basis vectors.
 struct Uniforms {
   viewProjection : mat4x4<f32>,
   // World-space camera basis, CPU-computed once per frame from Camera.eye/center/up (cross
@@ -17,11 +19,10 @@ struct Uniforms {
   // recomputed per vertex.
   cameraRight : vec4f,
   cameraUp : vec4f,
-  // (frameCount, currentFrame, unused, unused) -- a horizontal sprite-strip atlas index, one
-  // per EMITTER (every particle in a DrawCall shows the same frame simultaneously; this is a
-  // synced flicker, not a per-particle-desynced animation -- see ParticleEmitter.frameCount's
-  // own doc comment for that limitation). frameCount = 1 (the default) is a no-op: uv is used
-  // unchanged.
+  // (frameCount, unused/reserved, unused, unused) -- frameCount is the horizontal sprite-strip
+  // atlas's fixed width (one per EMITTER/material). Which frame each instance shows is now
+  // per-particle (inFrame, below), not frameInfo.y -- kept as a reserved pad slot rather than
+  // reshuffling the struct. frameCount = 1 (the default) is a no-op: uv is used unchanged.
   frameInfo : vec4f,
 }
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
@@ -43,6 +44,7 @@ fn vertexMain(
   @location(4) model2 : vec4f,
   @location(5) model3 : vec4f,
   @location(6) inColor : vec4f,
+  @location(7) inFrame : f32,
 ) -> VertexOutput {
   let model = mat4x4<f32>(model0, model1, model2, model3);
   // Translation-only read: this system never writes rotation into an instance's model matrix
@@ -56,10 +58,10 @@ fn vertexMain(
 
   var output : VertexOutput;
   output.position = uniforms.viewProjection * vec4f(worldPos, 1.0);
-  // Horizontal sprite-strip atlas: frame index picks a 1/frameCount-wide slice of the texture.
+  // Horizontal sprite-strip atlas: this instance's own frame index (desynced per-particle,
+  // see inFrame's own doc comment above) picks a 1/frameCount-wide slice of the texture.
   let frameCount = uniforms.frameInfo.x;
-  let currentFrame = uniforms.frameInfo.y;
-  output.uv = vec2f((inUv.x + currentFrame) / frameCount, inUv.y);
+  output.uv = vec2f((inUv.x + inFrame) / frameCount, inUv.y);
   output.color = inColor;
   return output;
 }

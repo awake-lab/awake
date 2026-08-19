@@ -32,6 +32,7 @@ import io.github.ronjunevaldoz.awake.vulkan.gen.VulkanImages
 import io.github.ronjunevaldoz.awake.vulkan.material.Material
 import io.github.ronjunevaldoz.awake.vulkan.material.PbrImageViews
 import io.github.ronjunevaldoz.awake.vulkan.mesh.AlphaInstanceBuffer
+import io.github.ronjunevaldoz.awake.vulkan.mesh.FrameInstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.InstanceBuffer
 import io.github.ronjunevaldoz.awake.vulkan.mesh.Mesh
 import io.github.ronjunevaldoz.awake.vulkan.mesh.SkinnedInstanceBuffer
@@ -386,6 +387,21 @@ class Renderer internal constructor(
         return alphaInstanceBufferPool[index]
     }
 
+    // Same pool shape as alphaInstanceBufferPool above, for the per-particle desynced sprite
+    // frames a billboard instanced draw call also needs (binding 3, alongside the color/alpha
+    // at binding 2).
+    private val frameInstanceBufferPool = mutableListOf<FrameInstanceBuffer>()
+
+    internal fun frameInstanceBufferForRun(index: Int): FrameInstanceBuffer {
+        while (frameInstanceBufferPool.size <= index) {
+            frameInstanceBufferPool += FrameInstanceBuffer(
+                graphicsDevice,
+                framesInFlight = maxFramesInFlight + 1,
+            )
+        }
+        return frameInstanceBufferPool[index]
+    }
+
     // Rewritten every frame by drawDebugLines() (staged before draw(), same pattern as
     // uiMesh/uiGlyphMesh) -- world-space, so draw() writes lineRenderPipeline's MVP uniform
     // from the same viewProjection it already computes for the 3D draw calls.
@@ -705,6 +721,7 @@ class Renderer internal constructor(
         instanceBufferPool.forEach { it.destroy() }
         skinnedInstanceBufferPool.forEach { it.destroy() }
         alphaInstanceBufferPool.forEach { it.destroy() }
+        frameInstanceBufferPool.forEach { it.destroy() }
         lineMesh.destroy()
         destroyDepthResources()
     }

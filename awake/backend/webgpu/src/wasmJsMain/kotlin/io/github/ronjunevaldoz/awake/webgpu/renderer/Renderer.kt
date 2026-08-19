@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.webgpu.device.GraphicsDevice
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
 import io.github.ronjunevaldoz.awake.webgpu.mesh.AlphaInstanceBuffer
+import io.github.ronjunevaldoz.awake.webgpu.mesh.FrameInstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.InstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.SkinnedInstanceBuffer
 import io.github.ronjunevaldoz.awake.webgpu.mesh.Mesh
@@ -247,6 +248,17 @@ class Renderer(
             alphaInstanceBufferPool += AlphaInstanceBuffer(graphicsDevice)
         }
         return alphaInstanceBufferPool[index]
+    }
+
+    // Same pool shape, for the per-particle desynced sprite frames a billboard instanced draw
+    // call also needs (slot 3, alongside the color/alpha at slot 2).
+    private val frameInstanceBufferPool = mutableListOf<FrameInstanceBuffer>()
+
+    internal fun frameInstanceBufferForRun(index: Int): FrameInstanceBuffer {
+        while (frameInstanceBufferPool.size <= index) {
+            frameInstanceBufferPool += FrameInstanceBuffer(graphicsDevice)
+        }
+        return frameInstanceBufferPool[index]
     }
 
     // Lazily built on the first drawUi() call of any kind (uiRenderPipeline) and on the
@@ -536,6 +548,8 @@ class Renderer(
         instanceBufferPool.forEach { it.destroy() }
         alphaInstanceBufferPool.forEach { it.destroy() }
         alphaInstanceBufferPool.clear()
+        frameInstanceBufferPool.forEach { it.destroy() }
+        frameInstanceBufferPool.clear()
         uiRenderPipeline?.destroy()
         uiGlyphRenderPipeline?.destroy()
         uiTextureRenderPipeline?.destroy()

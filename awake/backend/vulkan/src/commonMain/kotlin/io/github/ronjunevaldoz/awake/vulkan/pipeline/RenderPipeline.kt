@@ -68,6 +68,11 @@ sealed interface PipelineVariant {
      * `DrawCall.instanceColors`. */
     val instanceAlpha: Boolean
 
+    /** Only meaningful alongside [instanced]. Adds a FOURTH vertex binding (binding 3, stride 4)
+     * carrying one `f32` sprite-strip frame index per instance -- see `particle.wgsl`'s `inFrame`
+     * and `DrawCall.instanceFrames`. */
+    val instanceFrame: Boolean
+
     /** `true` enables standard straight-alpha blending (`SRC_ALPHA`/`ONE_MINUS_SRC_ALPHA`, both
      * color and alpha) -- the same blend state [io.github.ronjunevaldoz.awake.vulkan.ui
      * .UiTextureRenderPipeline] already uses. */
@@ -82,6 +87,7 @@ sealed interface PipelineVariant {
     data object Opaque : PipelineVariant {
         override val instanced = false
         override val instanceAlpha = false
+        override val instanceFrame = false
         override val blendEnabled = false
         override val depthWriteEnabled = true
     }
@@ -91,15 +97,18 @@ sealed interface PipelineVariant {
     data object Instanced : PipelineVariant {
         override val instanced = true
         override val instanceAlpha = false
+        override val instanceFrame = false
         override val blendEnabled = false
         override val depthWriteEnabled = true
     }
 
-    /** Billboard particles -- instanced + per-instance alpha + straight-alpha blend + no depth
-     * write (order-independent draws don't self-occlude). See `particle.wgsl`. */
+    /** Billboard particles -- instanced + per-instance alpha + per-instance sprite frame +
+     * straight-alpha blend + no depth write (order-independent draws don't self-occlude). See
+     * `particle.wgsl`. */
     data object AlphaBlendedParticle : PipelineVariant {
         override val instanced = true
         override val instanceAlpha = true
+        override val instanceFrame = true
         override val blendEnabled = true
         override val depthWriteEnabled = false
     }
@@ -309,6 +318,10 @@ private const val INSTANCE_MATRIX_BYTES = MATRIX_ROWS * VEC4_BYTES
  * binding 1. */
 private const val INSTANCE_ALPHA_BINDING = 2
 
+/** See [PipelineVariant.instanceFrame]. Binding 3 -- one binding past the instance color's own
+ * binding 2. */
+private const val INSTANCE_FRAME_BINDING = 3
+
 /** Fixed structs that never vary per pipeline -- built once instead of reconstructed on every
  * `RenderPipeline`'s own `createGraphicsPipeline` call. */
 private val DYNAMIC_STATE = arrayOf(
@@ -398,6 +411,18 @@ private fun vertexInputState(
             )
             bindings += colorBinding
             attributes += colorAttributes
+            if (variant.instanceFrame) {
+                // One f32 per instance -- this particle's own sprite-strip frame index, see
+                // DrawCall.instanceFrames' own doc comment.
+                val (frameBinding, frameAttributes) = instanceRateBinding(
+                    INSTANCE_FRAME_BINDING,
+                    Float.SIZE_BYTES,
+                    firstLocation + MATRIX_ROWS + 1,
+                    listOf(0 to VkFormat.VK_FORMAT_R32_SFLOAT),
+                )
+                bindings += frameBinding
+                attributes += frameAttributes
+            }
         }
     }
     return arrayOf(

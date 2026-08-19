@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.rendering.components
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
 import io.github.ronjunevaldoz.awake.core.math.Mat4
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.Vec4
@@ -32,6 +33,12 @@ internal class Particle : Poolable {
     /** `true` once this particle has hit its ground height and stopped moving -- still fades
      * out over its remaining lifetime, it just no longer integrates [velocity]. */
     var settled: Boolean = false
+    /** A random `0 until frameCount` offset chosen at spawn -- added to this particle's own
+     * age-derived frame index so particles sharing one emitter show DIFFERENT sprite-strip
+     * frames at the same instant (desynced), instead of every particle in the emitter switching
+     * frames in lockstep. See [io.github.ronjunevaldoz.awake.scene.rendering.systems
+     * .RenderSystem]'s own particle-instancing block for where this is read. */
+    var frameOffset: Int = 0
 
     override fun reset() {
         alive = false
@@ -42,6 +49,7 @@ internal class Particle : Poolable {
         startAlpha = 0f
         scale = 1f
         settled = false
+        frameOffset = 0
     }
 }
 
@@ -85,10 +93,10 @@ data class ParticleMotion(
 /** How a particle looks over its life. [startColor]/[endColor] linearly interpolate per
  * particle over its own age (constant color when equal, the default). [frameCount] treats the
  * material's texture as a horizontal sprite strip of that many equal-width frames, cycling at
- * [frameRate] frames/second -- `1` (default) is a no-op. ponytail: the whole EMITTER shows one
- * shared frame at a time, not a per-particle-desynced animation -- see `ParticleEmitter`'s own
- * former doc comment history for the upgrade path (a per-instance attribute), not repeated here
- * to avoid drift between two copies of the same caveat. */
+ * [frameRate] frames/second -- `1` (default) is a no-op. Each particle picks a random frame
+ * OFFSET at spawn ([Particle.frameOffset]) and advances from there based on its own age, so
+ * particles sharing one emitter are visibly desynced, not switching frames in lockstep -- a
+ * real per-instance GPU attribute (`particle.wgsl`'s `inFrame`), not an emitter-wide uniform. */
 data class ParticleVisual(
     val startColor: Vec3 = Vec3(1f, 1f, 1f),
     val endColor: Vec3 = startColor,
@@ -96,13 +104,19 @@ data class ParticleVisual(
     val frameRate: Float = 8f,
 )
 
-/** How (and whether) a particle interacts with the ground. [groundHeightProvider], when set,
- * OVERRIDES [groundY] with a per-position height function `(x, z) -> groundHeight` -- for
- * settling on real (non-flat) terrain instead of one flat plane. Both `null` (default) means a
- * particle never clamps and simply fades out mid-air/mid-fall. */
+/** How (and whether) a particle interacts with the ground. Resolution priority: [groundY]/
+ * [groundHeightProvider]/[colliders] all clamp a falling particle's Y the same way ([Particle
+ * .settled] set, velocity zeroed) -- [groundHeightProvider] wins when set (a per-position
+ * height function `(x, z) -> groundHeight`, for hand-authored non-flat terrain), otherwise
+ * [colliders] wins when a particle's XZ falls inside one of these world-space [Aabb] boxes'
+ * footprint (real collision against authored scene geometry -- reuses the same [Aabb] type
+ * `MeshBounds`/`Occluder` already use, not a physics-engine dependency), otherwise the flat
+ * [groundY] plane. All `null`/empty (default) means a particle never clamps and simply fades
+ * out mid-air/mid-fall. */
 data class ParticleGround(
     val groundY: Float? = null,
     val groundHeightProvider: ((x: Float, z: Float) -> Float)? = null,
+    val colliders: List<Aabb> = emptyList(),
 )
 
 /** Spawn/death lifecycle hooks. [burstCount] caps the LIFETIME total spawn count instead of the
@@ -161,6 +175,18 @@ data class ParticleDynamics(
  * -- see each type's own doc comment. All default to their own no-op shape, so a caller that
  * only needs the 8 required params above gets exactly the plain-jitter-cloud emitter this class
  * always built.
+ *
+ * [children] is a real parent/child emitter tree -- each child's own [origin] is treated as a
+ * fixed LOCAL offset from this emitter's `origin` (never mutated), recomposed every frame by
+ * [io.github.ronjunevaldoz.awake.scene.rendering.systems.ParticleSystem] the same way
+ * [ParticleDynamics.followEntity] recomposes THIS emitter's own origin from a followed
+ * `Transform`. Unlike [ParticleDynamics.followEntity] (one emitter trailing one moving entity)
+ * or [ParticleLifecycle.onParticleDeath] (a one-shot burst chained on death), a child here is a
+ * CONTINUOUSLY co-simulated emitter riding along for this emitter's whole life -- a torch flame
+ * with a child ember-spark emitter at its tip, both driven by one authored composition instead
+ * of two separately-wired entities. Children have no `Entity`/`World` presence of their own --
+ * they live and die with this emitter's own entity, simplest possible teardown. Empty (default)
+ * is a leaf emitter, unchanged from before this field existed.
  */
 class ParticleEmitter(
     val mesh: Mesh,
@@ -176,8 +202,16 @@ class ParticleEmitter(
     val ground: ParticleGround = ParticleGround(),
     val lifecycle: ParticleLifecycle = ParticleLifecycle(),
     val dynamics: ParticleDynamics = ParticleDynamics(),
+    val children: List<ParticleEmitter> = emptyList(),
 ) {
     internal val particles: Array<Particle> = Array(maxParticles) { Particle() }
+
+    /** [origin]'s value at construction time -- for a [children] entry, this is the fixed LOCAL
+     * offset from the parent's own `origin` (see [children]'s doc comment); `origin` itself gets
+     * overwritten every frame with the recomposed world position, so the original authored
+     * offset has to be captured once, here, before that first overwrite. Unused for a top-level
+     * (non-child) emitter. */
+    internal val localOffset: Vec3 = Vec3(origin.x, origin.y, origin.z)
 
     /** Fractional particles/second carried across frames -- without this, a [spawnRate] that
      * isn't an exact multiple of the frame rate (almost always) either spawns nothing some
@@ -190,20 +224,22 @@ class ParticleEmitter(
      * when `burstCount` is `null`. */
     internal var spawnedTotal: Int = 0
 
-    /** Seconds this emitter has been alive -- drives [ParticleVisual.frameCount]'s sprite-strip
-     * cycling. Unused (stays 0, `frameInfo`'s `currentFrame` stays 0) when `frameCount` is 1. */
+    /** Seconds this emitter has been alive -- unused directly by [ParticleVisual.frameCount]'s
+     * sprite-strip cycling anymore (that's per-particle now, driven by each [Particle]'s own
+     * `age`/[Particle.frameOffset]), kept for anything else that wants an emitter-wide clock. */
     internal var elapsedTime: Float = 0f
 
     /** Reused every frame by [io.github.ronjunevaldoz.awake.scene.rendering.systems
-     * .RenderSystem] to build this emitter's `DrawCall.instanceModels`/`.instanceColors` --
-     * `clear()`+refill instead of a fresh `list.filter{}.map{}` per frame, the same "resize
-     * only when the count actually changes" no-per-frame-allocation rule every other instanced
-     * buffer in this codebase already follows (see `skills/awake-core-math/SKILL.md`). Still
-     * allocates one `Mat4`/`Vec4` per LIVE particle each frame (not per emitter) -- fully
-     * eliminating that needs pooling those per particle slot and mutating them in place, a
-     * larger follow-up, not done here. */
+     * .RenderSystem] to build this emitter's `DrawCall.instanceModels`/`.instanceColors`/
+     * `.instanceFrames` -- `clear()`+refill instead of a fresh `list.filter{}.map{}` per frame,
+     * the same "resize only when the count actually changes" no-per-frame-allocation rule every
+     * other instanced buffer in this codebase already follows (see
+     * `skills/awake-core-math/SKILL.md`). Still allocates one `Mat4`/`Vec4` per LIVE particle
+     * each frame (not per emitter) -- fully eliminating that needs pooling those per particle
+     * slot and mutating them in place, a larger follow-up, not done here. */
     internal val instanceModelsBuffer: MutableList<Mat4> = ArrayList(maxParticles)
     internal val instanceColorsBuffer: MutableList<Vec4> = ArrayList(maxParticles)
+    internal val instanceFramesBuffer: MutableList<Float> = ArrayList(maxParticles)
 
     /** Reused every frame for `DrawCall.extraUniformFloats` (camera basis + frame info) --
      * written in place instead of `cameraBasis + floatArrayOf(...)`, which allocates a new
@@ -212,7 +248,11 @@ class ParticleEmitter(
 }
 
 /** [ParticleEmitter.uniformFloatsBuffer]'s fixed size: cameraRight(4) + cameraUp(4) +
- * frameInfo(4), matching `particle.wgsl`'s own `Uniforms` layout past `viewProjection`. */
+ * frameInfo(4), matching `particle.wgsl`'s own `Uniforms` layout past `viewProjection`.
+ * frameInfo.x still carries `frameCount` (the atlas is fixed-per-material); frameInfo.y
+ * (formerly the emitter-wide `currentFrame`) is unused now that frame cycling is per-particle
+ * via [Particle.frameOffset] -- kept as a reserved pad slot rather than reshuffling the struct
+ * for one dead float. */
 internal const val EXTRA_UNIFORM_FLOAT_COUNT = 12
 
 /**

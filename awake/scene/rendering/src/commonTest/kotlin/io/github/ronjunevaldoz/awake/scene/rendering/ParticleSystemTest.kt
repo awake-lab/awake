@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.rendering
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.render.material.Material
@@ -402,6 +403,135 @@ class ParticleSystemTest {
 
         assertEquals(1, callCount, "onParticleDeath must fire exactly once per death, not per frame")
         assertEquals(Vec3(2f, 0f, 0f), deathPosition, "callback must see the particle's actual death position")
+    }
+
+    @Test
+    fun childEmitterOriginTracksParentOriginPlusItsAuthoredLocalOffset() {
+        val world = World()
+        val child = ParticleEmitter(
+            mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(1f, 2f, 3f),
+            maxParticles = 1, spawnRate = 0f, lifetime = 1f, startAlpha = 1f, scale = 1f,
+        )
+        val parent = ParticleEmitter(
+            mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(10f, 0f, 0f),
+            maxParticles = 1, spawnRate = 0f, lifetime = 1f, startAlpha = 1f, scale = 1f,
+            children = listOf(child),
+        )
+        world.add(world.create(), parent)
+        val system = ParticleSystem()
+
+        system.update(world, 0.016f)
+        assertEquals(Vec3(11f, 2f, 3f), child.origin, "child origin must be parent.origin + its authored local offset")
+
+        parent.origin.set(20f, 0f, 0f)
+        system.update(world, 0.016f)
+        assertEquals(Vec3(21f, 2f, 3f), child.origin, "child origin must be recomposed every frame, not just once")
+    }
+
+    @Test
+    fun childEmitterSpawnsItsOwnParticlesEveryFrame() {
+        val world = World()
+        val child = ParticleEmitter(
+            mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+            maxParticles = 10, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+        )
+        val parent = ParticleEmitter(
+            mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+            maxParticles = 1, spawnRate = 0f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+            children = listOf(child),
+        )
+        world.add(world.create(), parent)
+        val system = ParticleSystem()
+
+        system.update(world, 1f)
+        assertTrue(child.particles.any { it.alive }, "a child emitter must be simulated (spawn) alongside its parent")
+    }
+
+    @Test
+    fun aChildBurstFinishingDoesNotDestroyTheSharedEntityWhileTheParentStillEmits() {
+        val world = World()
+        val entity = world.create()
+        val child = ParticleEmitter(
+            mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+            maxParticles = 1, spawnRate = 1000f, lifetime = 0.1f, startAlpha = 1f, scale = 1f,
+            lifecycle = ParticleLifecycle(burstCount = 1),
+        )
+        val parent = ParticleEmitter(
+            mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+            maxParticles = 1, spawnRate = 0f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+            children = listOf(child),
+        )
+        world.add(entity, parent)
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f) // child spawns its one burst particle
+        system.update(world, 1f) // well past the child's lifetime -- its burst is fully spent
+
+        assertEquals(1, world.family<ParticleEmitter>().size, "a spent child must not destroy the shared entity")
+    }
+
+    @Test
+    fun aFallingParticleSettlesOnTopOfAColliderInsideItsFootprint() {
+        val world = World()
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 5f, 0f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, -10f, 0f)),
+                ground = ParticleGround(colliders = listOf(Aabb(Vec3(-1f, 0f, -1f), Vec3(1f, 2f, 1f)))),
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f) // spawns at (0, 5, 0), inside the collider's XZ footprint
+        system.update(world, 1f) // -10 units/sec for 1s would fall through the collider top
+
+        val particle = world.family<ParticleEmitter>().components().first().particles[0]
+        assertEquals(2f, particle.position.y, 1e-4f, "particle must clamp at the collider's top (max.y), not pass through")
+        assertTrue(particle.settled, "landing on a collider must settle the particle same as groundY")
+    }
+
+    @Test
+    fun aFallingParticleOutsideEveryColliderFootprintFallsThroughUnclamped() {
+        val world = World()
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(10f, 5f, 10f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, -10f, 0f)),
+                ground = ParticleGround(colliders = listOf(Aabb(Vec3(-1f, 0f, -1f), Vec3(1f, 2f, 1f)))),
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f)
+        system.update(world, 1f)
+
+        val particle = world.family<ParticleEmitter>().components().first().particles[0]
+        assertFalse(particle.settled, "a particle whose XZ never enters any collider footprint must not clamp")
+    }
+
+    @Test
+    fun particlesSpawnedInTheSameFrameCycleDesyncedSpriteFrames() {
+        val world = World()
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+                maxParticles = 50, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f, scale = 1f,
+                motion = ParticleMotion(baseVelocity = Vec3(0f, 0f, 0f)),
+                visual = ParticleVisual(frameCount = 8, frameRate = 8f),
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 1f) // spawns into every slot in the same frame, age ~= 0 for all
+        val emitter = world.family<ParticleEmitter>().components().first()
+        val frameOffsets = emitter.particles.filter { it.alive }.map { it.frameOffset }.toSet()
+        assertTrue(frameOffsets.size > 1, "particles spawned in the same frame must not all share one frameOffset")
+        assertTrue(frameOffsets.all { it in 0 until 8 }, "frameOffset must stay within 0 until frameCount")
     }
 
     private fun fakeMesh(): Mesh = object : Mesh {

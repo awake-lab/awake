@@ -50,6 +50,13 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
  * vertex buffer rather than a storage buffer. Alpha lives in the same attribute as color
  * (`.w`), not a separate one -- every particle-instanced draw needs both, so splitting them
  * across two buffers would only add a binding for no benefit.
+ *
+ * [instanceFrames] is the per-particle desynced sprite-strip-frame counterpart to
+ * [instanceColors] -- `null` by default, one frame index per instance, index-for-index, same
+ * "only meaningful alongside a same-size [instanceModels]" contract. A single `f32`/instance
+ * fits its own instance-rate vertex attribute (`particle.wgsl`'s `inFrame`), replacing the old
+ * emitter-wide `frameInfo.y` uniform so particles sharing one emitter cycle sprite frames
+ * desynced instead of in lockstep.
  */
 data class DrawCall(
     val mesh: Mesh,
@@ -59,6 +66,7 @@ data class DrawCall(
     val instanceModels: List<Mat4>? = null,
     val instanceJointPalettes: List<FloatArray>? = null,
     val instanceColors: List<Vec4>? = null,
+    val instanceFrames: List<Float>? = null,
 )
 
 private val EMPTY_UNIFORM_FLOATS = FloatArray(0)

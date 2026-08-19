@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.rendering.systems
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.System
@@ -33,13 +34,32 @@ class ParticleSystem : System {
     override fun update(world: World, delta: Float) {
         spentEntities.clear()
         world.queryEach(ParticleEmitter::class) { entity, emitter ->
-            emitter.elapsedTime += delta
             followOrigin(world, emitter)
-            spawn(emitter, delta)
-            advance(world, emitter, delta)
-            if (isSpent(emitter)) spentEntities += entity
+            simulate(world, entity, emitter, delta)
         }
         spentEntities.forEach { world.destroy(it) }
+    }
+
+    /** Advances [emitter] itself, then every entry in [ParticleEmitter.children] -- each child's
+     * `origin` is recomposed as `emitter.origin + child.localOffset` first (see [ParticleEmitter
+     * .children]'s own doc comment), so a child rides along with its parent's current position
+     * every frame without needing its own [Transform]/[Entity]. [isSpent] is only ever checked
+     * against [isTopLevel] -- a child's own burst still caps ITS spawning, but a child finishing
+     * its burst must never destroy the shared entity out from under a still-emitting parent (or
+     * sibling), so only the top-level emitter's exhaustion queues the entity for destruction. */
+    private fun simulate(world: World, entity: Entity, emitter: ParticleEmitter, delta: Float, isTopLevel: Boolean = true) {
+        emitter.elapsedTime += delta
+        spawn(emitter, delta)
+        advance(world, emitter, delta)
+        emitter.children.forEach { child ->
+            child.origin.set(
+                emitter.origin.x + child.localOffset.x,
+                emitter.origin.y + child.localOffset.y,
+                emitter.origin.z + child.localOffset.z,
+            )
+            simulate(world, entity, child, delta, isTopLevel = false)
+        }
+        if (isTopLevel && isSpent(emitter)) spentEntities += entity
     }
 
     /** Re-anchors [ParticleEmitter.origin] to [ParticleEmitter.dynamics]' `followEntity`'s
@@ -87,6 +107,7 @@ class ParticleSystem : System {
             slot.startAlpha = emitter.startAlpha
             slot.scale = emitter.scale
             slot.settled = false
+            slot.frameOffset = Random.nextInt(emitter.visual.frameCount.coerceAtLeast(1))
         }
     }
 
@@ -167,16 +188,29 @@ class ParticleSystem : System {
             particle.position.x += particle.velocity.x * delta
             particle.position.y += particle.velocity.y * delta
             particle.position.z += particle.velocity.z * delta
-            // groundHeightProvider (real terrain) takes priority over the flat groundY plane --
-            // see ParticleGround's own doc comment.
-            val groundHeight = emitter.ground.groundHeightProvider?.invoke(particle.position.x, particle.position.z)
-                ?: emitter.ground.groundY
+            val groundHeight = groundHeightAt(emitter, particle.position.x, particle.position.z)
             if (groundHeight != null && particle.position.y <= groundHeight) {
                 particle.position.y = groundHeight
                 particle.velocity.set(0f, 0f, 0f)
                 particle.settled = true
             }
         }
+    }
+
+    /** Resolves the ground height a falling particle clamps against at ([x], [z]), in
+     * [ParticleGround]'s documented priority: [ParticleGround.groundHeightProvider] (real
+     * terrain) first, then the first [ParticleGround.colliders] box whose world-space XZ
+     * footprint contains this point (its `max.y` is the landing height -- real collision against
+     * authored scene geometry, reusing [Aabb] the same way `MeshBounds`/`Occluder` already do),
+     * then the flat [ParticleGround.groundY] plane. `null` if none apply. */
+    private fun groundHeightAt(emitter: ParticleEmitter, x: Float, z: Float): Float? {
+        val ground = emitter.ground
+        ground.groundHeightProvider?.invoke(x, z)?.let { return it }
+        val collider = ground.colliders.firstOrNull { box ->
+            x >= box.min.x && x <= box.max.x && z >= box.min.z && z <= box.max.z
+        }
+        if (collider != null) return collider.max.y
+        return ground.groundY
     }
 
     private fun jitter(magnitude: Float): Float = (Random.nextFloat() * 2f - 1f) * magnitude
@@ -187,6 +221,17 @@ class ParticleSystem : System {
  * .instanceColors]; not stored on [Particle] itself since it's fully derived from [Particle
  * .age]/`lifetime`/`startAlpha`, not independent state. */
 internal fun Particle.currentAlpha(): Float = startAlpha * (1f - (age / lifetime).coerceIn(0f, 1f))
+
+/** This particle's current sprite-strip frame index, `0 until` [ParticleVisual.frameCount] --
+ * this particle's own [Particle.age]-derived frame advance offset by its own [Particle
+ * .frameOffset] (chosen once at spawn), so particles sharing one emitter cycle frames desynced
+ * rather than in lockstep. Read by [RenderSystem] to build [io.github.ronjunevaldoz.awake.render
+ * .renderer.DrawCall.instanceFrames]. */
+internal fun Particle.currentFrame(emitter: ParticleEmitter): Float {
+    val frameCount = emitter.visual.frameCount.coerceAtLeast(1)
+    val elapsedFrames = (age * emitter.visual.frameRate).toInt()
+    return ((elapsedFrames + frameOffset) % frameCount).toFloat()
+}
 
 /** This particle's current tint -- linearly interpolated from [ParticleEmitter.visual]'s
  * `startColor` to `endColor` over its life (constant when the two are equal, the common case).

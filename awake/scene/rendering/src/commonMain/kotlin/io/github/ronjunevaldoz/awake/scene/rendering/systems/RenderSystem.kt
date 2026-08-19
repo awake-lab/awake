@@ -143,45 +143,7 @@ class RenderSystem(
             val right = forward.cross(camera.camera.up).normalized()
             val cameraUp = right.cross(forward)
             val cameraBasis = floatArrayOf(right.x, right.y, right.z, 0f, cameraUp.x, cameraUp.y, cameraUp.z, 0f)
-            particleFamily.forEach { _, emitter ->
-                // Reused buffers, cleared (not reallocated) every frame -- see
-                // ParticleEmitter.instanceModelsBuffer's own doc comment for why this replaced
-                // a `particles.filter{}.map{}.map{}` chain (3 list allocations + no-op work on
-                // dead slots, every emitter, every frame).
-                val instanceModels = emitter.instanceModelsBuffer
-                val instanceColors = emitter.instanceColorsBuffer
-                instanceModels.clear()
-                instanceColors.clear()
-                emitter.particles.forEach { particle ->
-                    if (!particle.alive) return@forEach
-                    instanceModels += Mat4().translate(particle.position.x, particle.position.y, particle.position.z)
-                        .scale(particle.scale, particle.scale, particle.scale)
-                    // Per-PARTICLE color+alpha (each ages independently, so a burst's
-                    // later-spawned particles sit at an earlier point in the emitter's
-                    // startColor->endColor gradient than its first-spawned ones) -- see
-                    // Particle.currentColor's own doc comment.
-                    val color = particle.currentColor(emitter)
-                    instanceColors += Vec4(color.x, color.y, color.z, particle.currentAlpha())
-                }
-                if (instanceModels.isEmpty()) return@forEach
-                // Camera basis (shared, every emitter this frame) + this emitter's own
-                // sprite-strip frame index -- see ParticleVisual.frameCount's own doc comment.
-                val uniformFloats = emitter.uniformFloatsBuffer
-                cameraBasis.copyInto(uniformFloats)
-                uniformFloats[8] = emitter.visual.frameCount.toFloat()
-                uniformFloats[9] = currentFrame(emitter)
-                uniformFloats[10] = 0f
-                uniformFloats[11] = 0f
-                drawCalls.add(
-                    DrawCall(
-                        mesh = emitter.mesh,
-                        material = emitter.material,
-                        instanceModels = instanceModels,
-                        instanceColors = instanceColors,
-                        extraUniformFloats = uniformFloats,
-                    ),
-                )
-            }
+            particleFamily.forEach { _, emitter -> addParticleDrawCalls(emitter, cameraBasis) }
         }
         // LodGroup picks ONE level's mesh/material by distance to the camera eye -- see that
         // component's own doc comment for why an entity carries this instead of MeshRenderer,
@@ -220,6 +182,61 @@ class RenderSystem(
         return occluderBounds.any { isOccludedBy(candidateBounds, it) }
     }
 
+    /** Builds and adds [emitter]'s own particle `DrawCall` (skipped if it has no live particles),
+     * then recurses into every [ParticleEmitter.children] entry -- children have no `Entity` of
+     * their own, so they're not reachable via `world.family<ParticleEmitter>()` and must be
+     * walked here explicitly, same recursion shape [ParticleSystem.simulate] already uses to
+     * advance them. [cameraBasis] is shared across the whole tree (computed once per frame by the
+     * caller), not recomputed per emitter. */
+    private fun addParticleDrawCalls(emitter: ParticleEmitter, cameraBasis: FloatArray) {
+        // Reused buffers, cleared (not reallocated) every frame -- see
+        // ParticleEmitter.instanceModelsBuffer's own doc comment for why this replaced
+        // a `particles.filter{}.map{}.map{}` chain (3 list allocations + no-op work on
+        // dead slots, every emitter, every frame).
+        val instanceModels = emitter.instanceModelsBuffer
+        val instanceColors = emitter.instanceColorsBuffer
+        val instanceFrames = emitter.instanceFramesBuffer
+        instanceModels.clear()
+        instanceColors.clear()
+        instanceFrames.clear()
+        emitter.particles.forEach { particle ->
+            if (!particle.alive) return@forEach
+            instanceModels += Mat4().translate(particle.position.x, particle.position.y, particle.position.z)
+                .scale(particle.scale, particle.scale, particle.scale)
+            // Per-PARTICLE color+alpha (each ages independently, so a burst's
+            // later-spawned particles sit at an earlier point in the emitter's
+            // startColor->endColor gradient than its first-spawned ones) -- see
+            // Particle.currentColor's own doc comment.
+            val color = particle.currentColor(emitter)
+            instanceColors += Vec4(color.x, color.y, color.z, particle.currentAlpha())
+            // Per-PARTICLE desynced sprite-strip frame -- see Particle.currentFrame's own doc
+            // comment.
+            instanceFrames += particle.currentFrame(emitter)
+        }
+        if (instanceModels.isNotEmpty()) {
+            // Camera basis (shared, every emitter this frame) + this emitter's frame count --
+            // see ParticleVisual.frameCount's own doc comment. frameInfo.y is unused/reserved
+            // now that frame cycling is per-particle (instanceFrames), not emitter-wide.
+            val uniformFloats = emitter.uniformFloatsBuffer
+            cameraBasis.copyInto(uniformFloats)
+            uniformFloats[8] = emitter.visual.frameCount.toFloat()
+            uniformFloats[9] = 0f
+            uniformFloats[10] = 0f
+            uniformFloats[11] = 0f
+            drawCalls.add(
+                DrawCall(
+                    mesh = emitter.mesh,
+                    material = emitter.material,
+                    instanceModels = instanceModels,
+                    instanceColors = instanceColors,
+                    instanceFrames = instanceFrames,
+                    extraUniformFloats = uniformFloats,
+                ),
+            )
+        }
+        emitter.children.forEach { child -> addParticleDrawCalls(child, cameraBasis) }
+    }
+
     /** The first [Light] entity in the world, converted to render-api's backend-neutral
      * [SceneLight] -- [DEFAULT_SCENE_LIGHT] (the same direction/color every lit shader
      * hardcoded before this existed) when a scene has no `Light` entity at all, so an
@@ -232,9 +249,3 @@ class RenderSystem(
 }
 
 private val EMPTY_EXTRAS = FloatArray(0)
-
-/** Which sprite-strip frame [emitter] is showing right now -- `floor(elapsedTime * frameRate)
- * mod frameCount`. Always `0` when `frameCount == 1` (the no-op default), so `particle.wgsl`'s
- * `uv.x + 0 / 1` reduces to plain `uv.x`. */
-private fun currentFrame(emitter: ParticleEmitter): Float =
-    ((emitter.elapsedTime * emitter.visual.frameRate).toInt() % emitter.visual.frameCount).toFloat()

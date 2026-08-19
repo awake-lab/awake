@@ -61,8 +61,8 @@ open class WebGpuGameApplication(
     /** Opts into billboard-particle instancing -- mirrors
      * `VulkanGameApplication.particleShaderSet` (see its doc comment), built for
      * [VertexFormat.PositionUv] with `instanced = true, instanceAlpha = true,
-     * blendEnabled = true, depthWriteEnabled = false`. `null` (default) means a
-     * `ParticleEmitter` entity simply doesn't draw. */
+     * instanceFrame = true, blendEnabled = true, depthWriteEnabled = false`. `null` (default)
+     * means a `ParticleEmitter` entity simply doesn't draw. */
     private val particleShaderSet: GameShaderSet? = null,
 ) : GameApplication(
     vertexShaderResourcePath,
@@ -191,6 +191,7 @@ open class WebGpuGameApplication(
                 shaderSet.webGpu.fragmentEntryPoint,
                 instanced = true,
                 instanceAlpha = true,
+                instanceFrame = true,
                 blendEnabled = true,
                 depthWriteEnabled = false,
             )
