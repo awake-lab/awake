@@ -36,7 +36,7 @@ class ParticleSystem : System {
             emitter.elapsedTime += delta
             followOrigin(world, emitter)
             spawn(emitter, delta)
-            advance(emitter, delta)
+            advance(world, emitter, delta)
             if (isSpent(emitter)) spentEntities += entity
         }
         spentEntities.forEach { world.destroy(it) }
@@ -61,7 +61,11 @@ class ParticleSystem : System {
     private fun spawn(emitter: ParticleEmitter, delta: Float) {
         val burstCount = emitter.burstCount
         if (burstCount != null && emitter.spawnedTotal >= burstCount) return
-        emitter.spawnAccumulator += emitter.spawnRate * delta
+        // Context-driven emission: a caller-supplied rate read fresh every frame (player speed,
+        // distance to a target, ...) overrides the static spawnRate when set -- see
+        // ParticleEmitter.dynamicSpawnRate's own doc comment.
+        val spawnRate = emitter.dynamicSpawnRate?.invoke() ?: emitter.spawnRate
+        emitter.spawnAccumulator += spawnRate * delta
         // ponytail: clamps the worst case to "refill the whole pool in one frame" rather than
         // true unbounded growth -- a pool that stays completely full for a long stretch would
         // otherwise accumulate an ever-growing backlog that dumps as one mega-burst the moment
@@ -118,21 +122,34 @@ class ParticleSystem : System {
         return (axis * cosTheta) + (right * (sinTheta * cos(phi))) + (up * (sinTheta * sin(phi)))
     }
 
-    private fun advance(emitter: ParticleEmitter, delta: Float) {
-        val groundY = emitter.groundY
+    private fun advance(world: World, emitter: ParticleEmitter, delta: Float) {
         emitter.particles.forEach { particle ->
             if (!particle.alive) return@forEach
             particle.age += delta
             if (particle.age >= particle.lifetime) {
+                // Sub-emitter chaining: fires BEFORE reset() clears position, so the callback
+                // sees exactly where this particle died -- see ParticleEmitter.onParticleDeath's
+                // own doc comment.
+                emitter.onParticleDeath?.invoke(world, particle.position)
                 particle.reset()
                 return@forEach
             }
             if (particle.settled) return@forEach
+            if (emitter.turbulence != 0f) {
+                val flow = turbulenceOffset(particle.position, emitter.elapsedTime, emitter.turbulenceFrequency)
+                particle.velocity.x += flow.x * emitter.turbulence * delta
+                particle.velocity.y += flow.y * emitter.turbulence * delta
+                particle.velocity.z += flow.z * emitter.turbulence * delta
+            }
             particle.position.x += particle.velocity.x * delta
             particle.position.y += particle.velocity.y * delta
             particle.position.z += particle.velocity.z * delta
-            if (groundY != null && particle.position.y <= groundY) {
-                particle.position.y = groundY
+            // groundHeightProvider (real terrain) takes priority over the flat groundY plane --
+            // see ParticleEmitter.groundHeightProvider's own doc comment.
+            val groundHeight = emitter.groundHeightProvider?.invoke(particle.position.x, particle.position.z)
+                ?: emitter.groundY
+            if (groundHeight != null && particle.position.y <= groundHeight) {
+                particle.position.y = groundHeight
                 particle.velocity.set(0f, 0f, 0f)
                 particle.settled = true
             }
@@ -159,5 +176,21 @@ internal fun Particle.currentColor(emitter: ParticleEmitter): Vec3 {
         emitter.startColor.x + (emitter.endColor.x - emitter.startColor.x) * t,
         emitter.startColor.y + (emitter.endColor.y - emitter.startColor.y) * t,
         emitter.startColor.z + (emitter.endColor.z - emitter.startColor.z) * t,
+    )
+}
+
+/** A smooth, deterministic flow-field velocity offset at [position]/[time] -- see
+ * [ParticleEmitter.turbulence]'s own doc comment for why this is a cheap sine-based
+ * approximation, not true Perlin/simplex/curl noise. Each axis samples a different phase-shifted
+ * combination of the other two spatial axes plus time, so the field varies smoothly in space
+ * and animates smoothly over time without an explicit noise table/library. */
+internal fun turbulenceOffset(position: Vec3, time: Float, frequency: Float): Vec3 {
+    val x = position.x * frequency
+    val y = position.y * frequency
+    val z = position.z * frequency
+    return Vec3(
+        sin(y + time) * cos(z * 0.7f + time * 1.3f),
+        sin(z + time * 0.8f) * cos(x * 0.7f + time),
+        sin(x + time * 1.1f) * cos(y * 0.7f + time * 0.9f),
     )
 }

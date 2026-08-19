@@ -268,6 +268,101 @@ class ParticleSystemTest {
         assertEquals(0.5f, halfway.z, 0.02f, "halfway through lifetime, blue should be ~half")
     }
 
+    @Test
+    fun dynamicSpawnRateOverridesTheStaticRateEveryFrame() {
+        val world = World()
+        var liveRate = 0f
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 0f, 0f),
+                maxParticles = 100, spawnRate = 999f, lifetime = 10f, startAlpha = 1f,
+                baseVelocity = Vec3(0f, 0f, 0f), velocityJitter = 0f, scale = 1f,
+                dynamicSpawnRate = { liveRate },
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 1f) // liveRate == 0 -- static spawnRate must be ignored
+        val emitter = world.family<ParticleEmitter>().components().first()
+        assertEquals(0, emitter.particles.count { it.alive }, "dynamicSpawnRate must override spawnRate, not add to it")
+
+        liveRate = 10f
+        system.update(world, 1f)
+        assertEquals(10, emitter.particles.count { it.alive }, "dynamicSpawnRate must be re-read every frame")
+    }
+
+    @Test
+    fun groundHeightProviderTakesPriorityOverTheFlatGroundY() {
+        val world = World()
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(0f, 5f, 0f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f,
+                baseVelocity = Vec3(0f, -10f, 0f), velocityJitter = 0f, scale = 1f,
+                groundY = 0f, // would settle at 0 if the provider below didn't win
+                groundHeightProvider = { _, _ -> 2f },
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f)
+        system.update(world, 1f)
+
+        val particle = world.family<ParticleEmitter>().components().first().particles[0]
+        assertEquals(2f, particle.position.y, 1e-4f, "groundHeightProvider must win over the flat groundY")
+    }
+
+    @Test
+    fun turbulencePerturbsVelocityAwayFromTheUnperturbedPath() {
+        val world = World()
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(1f, 1f, 1f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 10f, startAlpha = 1f,
+                baseVelocity = Vec3(0f, 1f, 0f), velocityJitter = 0f, scale = 1f,
+                turbulence = 5f, turbulenceFrequency = 1f,
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f) // spawn, velocity == baseVelocity exactly
+        val particle = world.family<ParticleEmitter>().components().first().particles[0]
+        val vxBefore = particle.velocity.x
+        val vzBefore = particle.velocity.z
+
+        system.update(world, 0.1f) // turbulence accumulates into velocity every step
+        assertTrue(
+            abs(particle.velocity.x - vxBefore) > 1e-4f || abs(particle.velocity.z - vzBefore) > 1e-4f,
+            "turbulence must perturb velocity off the pure-baseVelocity path",
+        )
+    }
+
+    @Test
+    fun onParticleDeathFiresExactlyOnceWithTheDeathPosition() {
+        val world = World()
+        var callCount = 0
+        var deathPosition: Vec3? = null
+        world.add(
+            world.create(),
+            ParticleEmitter(
+                mesh = fakeMesh(), material = fakeMaterial(), origin = Vec3(2f, 0f, 0f),
+                maxParticles = 1, spawnRate = 1000f, lifetime = 0.2f, startAlpha = 1f,
+                baseVelocity = Vec3(0f, 0f, 0f), velocityJitter = 0f, scale = 1f,
+                onParticleDeath = { _, position -> callCount += 1; deathPosition = Vec3(position.x, position.y, position.z) },
+            ),
+        )
+        val system = ParticleSystem()
+
+        system.update(world, 0.01f) // spawn at (2, 0, 0)
+        system.update(world, 1f) // well past lifetime -- dies this step
+
+        assertEquals(1, callCount, "onParticleDeath must fire exactly once per death, not per frame")
+        assertEquals(Vec3(2f, 0f, 0f), deathPosition, "callback must see the particle's actual death position")
+    }
+
     private fun fakeMesh(): Mesh = object : Mesh {
         override val format = VertexFormat.PositionUv
         override fun bind(commandBuffer: Long) = Unit

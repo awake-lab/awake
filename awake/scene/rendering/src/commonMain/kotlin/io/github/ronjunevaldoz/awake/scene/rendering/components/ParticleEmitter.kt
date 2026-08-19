@@ -95,6 +95,31 @@ internal class Particle : Poolable {
  * is the same frame simultaneously), not a per-particle-desynced animation -- a real per-particle
  * phase offset would need its own per-instance attribute, not just this one emitter-wide uniform;
  * upgrade path if a demo ever needs particles visibly out of sync with each other.
+ *
+ * [turbulence] adds a smooth flow-field offset to each particle's velocity every frame, scaled
+ * by this strength and sampled at [turbulenceFrequency] (higher = faster spatial variation) --
+ * see [io.github.ronjunevaldoz.awake.scene.rendering.systems.turbulenceOffset] for the actual
+ * field. `0f` (default) is a no-op. ponytail: a cheap sine-based flow field, not true Perlin/
+ * simplex/curl noise -- smooth and non-repeating enough for a demo, not a physically accurate
+ * turbulence model; swap `turbulenceOffset`'s implementation for a real noise library if a demo
+ * ever needs one.
+ *
+ * [dynamicSpawnRate], when set, is called once per [io.github.ronjunevaldoz.awake.scene.rendering
+ * .systems.ParticleSystem.update] and OVERRIDES [spawnRate] for that frame -- the context-driven
+ * emission hook: gameplay code can read live state (player speed, distance to a target, terrain
+ * under the emitter) and return a rate that reacts to it, e.g. `{ 20f + playerSpeed() * 5f }` for
+ * dust that kicks up harder the faster a character runs. `null` (default) always uses the static
+ * [spawnRate].
+ *
+ * [groundHeightProvider], when set, OVERRIDES [groundY] with a per-position height function
+ * `(x, z) -> groundHeight` -- for settling on real (non-flat) terrain instead of one flat plane.
+ * `null` (default) falls back to [groundY] (or never clamps, if that's also `null`).
+ *
+ * [onParticleDeath], when set, is called with (world, this particle's death position) every time
+ * a particle dies of old age (not one that's still [Particle.settled] and fading) -- the
+ * chained-effect hook for a real sub-emitter tree without composing emitters directly: e.g. a
+ * projectile emitter's `onParticleDeath` calls [spawnParticleBurst] to spawn an impact burst
+ * wherever each of its own particles expires. `null` (default) does nothing extra on death.
  */
 class ParticleEmitter(
     val mesh: Mesh,
@@ -115,6 +140,11 @@ class ParticleEmitter(
     val groundY: Float? = null,
     val frameCount: Int = 1,
     val frameRate: Float = 8f,
+    val turbulence: Float = 0f,
+    val turbulenceFrequency: Float = 1f,
+    val dynamicSpawnRate: (() -> Float)? = null,
+    val groundHeightProvider: ((x: Float, z: Float) -> Float)? = null,
+    val onParticleDeath: ((world: World, position: Vec3) -> Unit)? = null,
 ) {
     internal val particles: Array<Particle> = Array(maxParticles) { Particle() }
 
