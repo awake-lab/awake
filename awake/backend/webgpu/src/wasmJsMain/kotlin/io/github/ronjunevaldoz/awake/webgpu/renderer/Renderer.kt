@@ -344,21 +344,30 @@ class Renderer(
             val sampler = graphicsDevice.wgpuContext.device.createSampler(SamplerDescriptor())
             material.createResourcesFromRenderTarget(offscreen.colorView, sampler)
         } else if (texture != null) {
-            material.createResources(
-                uploadTexture(texture),
+            // PBR bindings (5-8) only exist in textured.wgsl's pipeline layout -- WebGPU derives
+            // each pipeline's bind-group layout from its own shader (unlike Vulkan's one shared
+            // descriptor layout for every material), so a texture-only material bound against a
+            // pipeline with no PBR bindings (particle.wgsl) must NOT get PBR entries at all, or
+            // CreateBindGroup fails validation ("binding index 5 not present in the bind group
+            // layout"). pbrTextures != null is exactly "the caller wants a textured.wgsl-style
+            // material" -- every particle caller leaves it null.
+            val pbr = if (pbrTextures != null) {
                 listOf(
-                    pbrTextures?.metallicRoughness to NEUTRAL_METALLIC_ROUGHNESS,
-                    pbrTextures?.normal to NEUTRAL_NORMAL,
-                    pbrTextures?.occlusion to NEUTRAL_OCCLUSION,
-                    pbrTextures?.emissive to NEUTRAL_EMISSIVE,
+                    pbrTextures.metallicRoughness to NEUTRAL_METALLIC_ROUGHNESS,
+                    pbrTextures.normal to NEUTRAL_NORMAL,
+                    pbrTextures.occlusion to NEUTRAL_OCCLUSION,
+                    pbrTextures.emissive to NEUTRAL_EMISSIVE,
                 ).map { (asset, neutral) ->
                     // `textured.wgsl` samples bindings 5-8 unconditionally, so a channel this
                     // material doesn't have still needs a real (neutral) view bound. The
                     // neutral 1x1s are uploaded once and shared, still tracked in
                     // createdTextures for teardown.
                     asset?.let(::uploadTexture) ?: neutralPbrTextures.getOrPut(neutral) { uploadTexture(neutral) }
-                },
-            )
+                }
+            } else {
+                emptyList()
+            }
+            material.createResources(uploadTexture(texture), pbr)
         }
         return material
     }
