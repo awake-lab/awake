@@ -236,6 +236,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bridge — closes a real same-id collision risk the old nullable-last default carried.
 - `Modifier.margin()` is deleted. It silently dropped `end`/`bottom` and had zero real callers;
   use `Modifier.padding()`/explicit `width`/`height`/`offset` instead.
+- `shadcnIcon`, `shadcnRadioGroup`'s content-slot overload, and `shadcnSidebarGroup`/
+  `shadcnSidebarMenu`/`shadcnSidebarMenuSub` now return `UiBounds` instead of `Unit`, so they
+  can anchor a popup or be composed into layout math like other recipes. Purely additive —
+  existing callers that ignore the return value are unaffected.
 
 ### Fixed
 
