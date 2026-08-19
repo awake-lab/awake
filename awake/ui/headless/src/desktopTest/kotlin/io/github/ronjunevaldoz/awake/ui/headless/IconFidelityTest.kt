@@ -23,7 +23,7 @@ import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
 
 /**
  * Proves each shipped [io.github.ronjunevaldoz.ui.heroicons.icon.HeroIcons] glyph renders the *same shape* as the official Heroicons SVG
- * it was generated from, automatically -- see `skills/awake-icon-authoring/SKILL.md`. Three icon
+ * it was generated from, automatically -- see `skills/awake-ui-icons/SKILL.md`. Three icon
  * defects shipped in one session before this existed, and every one was only caught by a human
  * looking at a picture.
  *

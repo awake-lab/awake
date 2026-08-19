@@ -10,7 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.uiImageVector
 /** [Heroicons](https://heroicons.com) vector paths, generated from the published SVG sources by
  * `tools/svg_to_ui_image_vector.py` with curves preserved as real cubic Beziers and holes kept
  * as `UiFillRule.EvenOdd` contours. Never hand-edit or hand-transcribe path data here -- re-run
- * the generator instead (see `skills/awake-icon-authoring/SKILL.md`). Grows one glyph at a
+ * the generator instead (see `skills/awake-ui-icons/SKILL.md`). Grows one glyph at a
  * time, on demand.
  *
  * Nested one object per real Heroicons style+size tier, not a flat glyph list -- Heroicons ships

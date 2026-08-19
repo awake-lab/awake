@@ -160,7 +160,7 @@ It must never import `ui-core` directly, and must never author its own `Style { 
 restyle a component.** `ui-headless` layout and state APIs (`column`, `row`, `box`,
 `Modifier`, `Arrangement`, `weight`, `padding`, `remember*`) remain fine to import directly for
 structure — they carry no branded visual policy, so importing them isn't a styling escape
-hatch. See `awake-shadcn-consuming` for the full skill.
+hatch. See `skills/awake-ui-shadcn-consuming/SKILL.md` for the full skill.
 
 This mirrors Jetpack Compose's own layering, checked directly against Compose's real module
 boundaries (not by analogy): `Column`/`Row`/`Box`/`Arrangement` live in

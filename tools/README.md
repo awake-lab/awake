@@ -70,7 +70,7 @@ flattened to line segments, and how the font atlas ended up with mismatched glyp
 
 | Script | Generates | Notes |
 |---|---|---|
-| `svg_to_ui_image_vector.py` | `UiImageVector` glyph data (e.g. `HeroIcons.kt`) | Preserves curves as real cubic Beziers, converts SVG arcs exactly, keeps nested `evenodd` subpaths as holes. Rejects what the engine cannot render (strokes, transforms, crossing subpaths). Run `--self-test` after editing. See `skills/awake-icon-authoring/SKILL.md`. |
+| `svg_to_ui_image_vector.py` | `UiImageVector` glyph data (e.g. `HeroIcons.kt`) | Preserves curves as real cubic Beziers, converts SVG arcs exactly, keeps nested `evenodd` subpaths as holes. Rejects what the engine cannot render (strokes, transforms, crossing subpaths). Run `--self-test` after editing. See `skills/awake-ui-icons/SKILL.md`. |
 | `:awake:ui:font-atlas-generator` (`generateFontAtlas` task, Kotlin/JVM, not a `tools/*.py` script) | `RobotoRegularUiFontData.kt` (packed glyph atlas + metrics) | Reads glyph metrics from the TTF's own outline geometry (`Font.createGlyphVector`) and rasterizes a separate antialiased atlas bitmap via `Graphics2D`. Glyph offsets and advances must stay in the same coordinate space — mixing cell-relative offsets with pen-relative advances produces uneven letter spacing. Replaced the former `generate_ui_font_atlas.py`, which derived metrics from the antialiased raster ink bbox and quantized them to 1/64 em. |
 
 ```bash
@@ -195,7 +195,7 @@ row together before expanding the command's supported combinations.
 ## Icon fidelity
 
 Proves each shipped `HeroIcons` `UiImageVector` renders the same shape as the official
-Heroicons SVG it was generated from, automatically -- see `skills/awake-icon-authoring/SKILL.md`.
+Heroicons SVG it was generated from, automatically -- see `skills/awake-ui-icons/SKILL.md`.
 
 | Script | Purpose |
 |---|---|
