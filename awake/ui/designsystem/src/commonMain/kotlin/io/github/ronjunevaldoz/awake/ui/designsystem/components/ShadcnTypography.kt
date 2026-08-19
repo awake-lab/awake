@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.textStyle
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnTextStyle
@@ -78,8 +79,9 @@ fun UiScope.shadcnText(
         isMutedDefault -> ShadcnTextTone.Muted
         else -> ShadcnTextTone.Default
     }
+    val ambientColor = primitive.textStyle.color
     val foreground = when (effectiveTone) {
-        ShadcnTextTone.Default -> themeValues.colors.foreground
+        ShadcnTextTone.Default -> ambientColor ?: themeValues.colors.foreground
         ShadcnTextTone.Muted -> themeValues.colors.mutedForeground
         ShadcnTextTone.Destructive -> themeValues.colors.destructive
     }

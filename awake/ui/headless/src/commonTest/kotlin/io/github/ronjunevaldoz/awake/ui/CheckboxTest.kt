@@ -99,8 +99,8 @@ class CheckboxTest {
         )
         assertEquals(
             1,
-            frame.primitives.filterIsInstance<UiDrawPrimitive.StrokedPath>().size,
-            "checked state emits one stroked checkmark",
+            frame.primitives.filterIsInstance<UiDrawPrimitive.FilledPath>().size,
+            "checked state emits one antialiased filled checkmark",
         )
     }
 

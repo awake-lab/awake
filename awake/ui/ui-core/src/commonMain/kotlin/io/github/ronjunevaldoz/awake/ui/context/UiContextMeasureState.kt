@@ -209,6 +209,7 @@ internal class UiContextMeasureState {
         // Restore all effective ambient locals (not named theme/font/text values). This keeps a
         // trial consistent with the source tree even when an app provides its own UiLocal.
         measureContext.restoreAmbientSnapshotInternal(sourceContext.ambientSnapshotInternal())
+        measureContext.syncWeightAnswersFromInternal(sourceContext)
         measureContext
     }
 }

@@ -80,6 +80,8 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
             }
             } else {
             row(
+                id = "ui-showcase-main-row",
+                cacheKey = "main",
                 horizontalArrangement = Arrangement.spacedBy(railGap),
                 modifier = Modifier.padding(outerPadding).fillMaxWidth().fillMaxHeight(),
             ) {
@@ -104,7 +106,7 @@ internal fun GameUiRuntime.drawUiShowcaseOverlay(
                     // just this weighted slice instead of the whole body, so the switcher above and
                     // the footer slot below stay pinned instead of the tail of the menu (e.g. the
                     // Combobox entry) painting through the footer.
-                    column(modifier = Modifier.fillMaxWidth().weight(1f).verticalScroll(sidebarScroll)) {
+                    column(modifier = Modifier.fillMaxWidth().fillMaxHeight().verticalScroll(sidebarScroll)) {
                         drawUiShowcaseSidebar(compact = false)
                     }
                 }

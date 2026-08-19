@@ -63,7 +63,7 @@ internal fun UiPrimitiveScope.smartColumn(
 
     val effectiveStyle = style then (modifier.styleable ?: Style.Empty)
     if (hasResolvedVisuals(modifier, effectiveStyle, role, id) && id != null) {
-        return resolveVisualSurface(id, modifier, effectiveStyle, verticalArrangement, clipContent, content)
+        return resolveVisualSurface(id, modifier, effectiveStyle, verticalArrangement, clipContent, cacheKey, content)
     }
 
     return resolveMeasuredColumn(id, modifier, effectiveStyle, verticalArrangement, role, horizontalAlignment, cacheKey, content)
@@ -117,6 +117,7 @@ private fun UiPrimitiveScope.resolveVisualSurface(
     effectiveStyle: Style,
     verticalArrangement: Arrangement,
     clipContent: Boolean,
+    cacheKey: Any?,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds {
     val requestedWidth = modifier.widthDimension ?: Dimension.WrapContent
@@ -129,7 +130,7 @@ private fun UiPrimitiveScope.resolveVisualSurface(
         verticalArrangement = verticalArrangement,
         modifier = modifier.styleable(effectiveStyle).width(requestedWidth).height(requestedHeight),
         clipContent = clipContent,
-        cacheKey = null,
+        cacheKey = cacheKey,
         semanticRole = UiSemanticRole.Panel,
         resolvedSlot = null,
         content = content,

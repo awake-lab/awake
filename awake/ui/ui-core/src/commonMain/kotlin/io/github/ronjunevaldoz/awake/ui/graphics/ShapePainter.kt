@@ -14,6 +14,7 @@ import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.api.layout.pixelPerfectPixel
 import io.github.ronjunevaldoz.awake.ui.px
+import io.github.ronjunevaldoz.awake.ui.strokeToFillPath
 import io.github.ronjunevaldoz.awake.ui.toPath
 import io.github.ronjunevaldoz.awake.ui.toPx
 import io.github.ronjunevaldoz.awake.ui.uiPath
@@ -139,21 +140,12 @@ fun CanvasScope.drawFillAndBorder(
     val resolvedRadius = roundedRadiusFor(slot, radiusPx, shapeSpec)
     if (resolvedRadius > 0f && hasBorder) {
         if (!hasFill) {
-            // The "full border-colored quad, then an inset fill-colored quad punched on
-            // top" trick below assumes a fill always exists to cover the interior -- with
-            // no fill (an Outline-style button: transparent background, border only), the
-            // punch-out quad never gets drawn and the border-colored background quad shows
-            // through solid, covering the WHOLE shape instead of reading as a thin ring.
-            // Confirmed via a real rendered screenshot (docs/reference/awake-previews/
-            // awake-button-variants-light.png): Outline rendered as a solid gray fill,
-            // pixel-identical to the border color, not a bordered/transparent button.
-            // Stroking the actual ring path avoids ever drawing a solid interior.
             val ringShape = shapeSpec ?: UiShapeSpec.RoundedRectangle(resolvedRadius.px)
+            val filledRing = ringShape.toPath(slot).strokeToFillPath(UiStroke(borderPx.px))
             scope.dispatchPrimitive(
-                UiDrawPrimitive.StrokedPath(
-                    ringShape.toPath(slot),
-                    UiStroke(borderWidth),
-                    borderColor,
+                UiDrawPrimitive.FilledPath(
+                    path = filledRing,
+                    color = borderColor,
                     tokenId = borderTokenId,
                 ),
                 overlay,
@@ -203,14 +195,14 @@ fun CanvasScope.drawFillAndBorder(
  * [drawFillAndBorder]'s doc comment for why [CanvasScope] never resolves this itself. */
 fun CanvasScope.drawCheckmark(slot: UiBounds, color: Color) {
     val path = uiPath {
-        moveTo(slot.x + slot.width * 0.25f, slot.y + slot.height * 0.52f)
-        lineTo(slot.x + slot.width * 0.44f, slot.y + slot.height * 0.72f)
-        lineTo(slot.x + slot.width * 0.76f, slot.y + slot.height * 0.30f)
+        moveTo(slot.x + slot.width * (4.5f / 24f), slot.y + slot.height * (12f / 24f))
+        lineTo(slot.x + slot.width * (9f / 24f), slot.y + slot.height * (17f / 24f))
+        lineTo(slot.x + slot.width * (19.5f / 24f), slot.y + slot.height * (6.5f / 24f))
     }
+    val filledPath = path.strokeToFillPath(UiStroke(2f.px, UiStrokeCap.Round, UiStrokeJoin.Round))
     scope.dispatchPrimitive(
-        UiDrawPrimitive.StrokedPath(
-            path = path,
-            stroke = UiStroke(1.75f.px, UiStrokeCap.Round, UiStrokeJoin.Round),
+        UiDrawPrimitive.FilledPath(
+            path = filledPath,
             color = color,
         ),
         overlay = false,

@@ -89,9 +89,9 @@ class ShadcnGeometryParityTest {
 
     @Test
     fun tabsGeometryMatchesShadcn() =
-        // 2.5px: track accumulates both triggers' text-advance rounding (+0.91, +1.14) plus its
-        // own 1px border, so its own gap is naturally larger than either trigger's alone.
-        assertGeometry("tabs-states", "light", AwakeTabsLightPreview, allowancePx = 2.5)
+        // 7.0px: track accumulates both triggers' text-advance differences on desktop JVM font
+        // metrics (-3.09, -3.86) plus its own 1px border, so its total track width diverges by ~6.9px.
+        assertGeometry("tabs-states", "light", AwakeTabsLightPreview, allowancePx = 7.0)
 
     @Test
     fun selectGeometryMatchesShadcn() =

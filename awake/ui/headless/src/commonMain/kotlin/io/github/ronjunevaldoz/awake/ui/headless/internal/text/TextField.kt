@@ -109,9 +109,7 @@ fun UiPrimitiveScope.textField(
     return withGraphicsLayerAlpha(if (enabled) 1f else 0.5f) {
         paintSurface(
             slot = surface.interaction.slot,
-            resolved = surface.resolved.copy(
-                borderWidth = if (focused || isError) 1.5f.dp else surface.resolved.borderWidth,
-            ),
+            resolved = surface.resolved,
             borderColor = borderColor,
         )
 

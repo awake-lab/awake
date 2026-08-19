@@ -86,7 +86,7 @@ internal fun shadcnInputOtpSlotStyle(values: ShadcnThemeValues, enabled: Boolean
 private fun UiThemeValues.shadcnInputStyle(variant: ShadcnTextFieldVariant, padding: UiInsets): Style = Style {
     when (variant) {
         ShadcnTextFieldVariant.Default -> {
-            background(Color.Transparent)
+            background(colors.background)
             foreground(colors.foreground)
             border(1f.dp, colors.input)
         }

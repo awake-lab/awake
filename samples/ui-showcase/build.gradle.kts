@@ -165,6 +165,13 @@ tasks.register<JavaExec>("run") {
     jvmArgs(jvmArgsList)
 }
 
+tasks.withType<Test>().configureEach {
+    val record = System.getenv("AWAKE_RECORD_SNAPSHOTS") ?: System.getProperty("AWAKE_RECORD_SNAPSHOTS")
+    if (record != null) {
+        systemProperty("AWAKE_RECORD_SNAPSHOTS", record)
+    }
+}
+
 tasks.register("validateUiShowcasePlatforms") {
     group = "verification"
     description = "Build and test the UI showcase sample across desktop, iOS simulator, and web."

@@ -602,7 +602,13 @@ class UiContext internal constructor(
     /** Last frame's observed answer for this node, or null on the first frame / after a
      * structural change (both of which fall back to the trial, i.e. today's behavior). */
     internal fun rememberedHasWeightedChildInternal(nodeKey: Long): Boolean? =
-        if (measuring) null else previousWeightAnswers[nodeKey]
+        previousWeightAnswers[nodeKey]
+
+    internal fun syncWeightAnswersFromInternal(source: UiContext) {
+        previousWeightAnswers.clear()
+        previousWeightAnswers.putAll(source.previousWeightAnswers)
+        previousWeightAnswers.putAll(source.weightAnswers)
+    }
 
     internal fun recordHasWeightedChildInternal(nodeKey: Long, hasWeightedChild: Boolean) {
         if (!measuring) weightAnswers[nodeKey] = hasWeightedChild

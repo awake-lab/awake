@@ -25,11 +25,6 @@ internal fun CoreColumnScope.drawUiShowcasePageContent(
     }
 }
 
-internal fun CoreColumnScope.drawUiShowcaseCanvasPreview() {
-    context.createUiScope(context.frameBoundsInternal()).column(modifier = Modifier.fillMaxSize()) {
-        drawUiShowcaseCanvasPreview()
-    }
-}
 
 internal fun CoreColumnScope.renderUiShowcasePagePreview(
     page: ShowcasePage,

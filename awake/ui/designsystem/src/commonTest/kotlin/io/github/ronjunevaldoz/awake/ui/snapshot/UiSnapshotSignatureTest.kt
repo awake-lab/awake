@@ -118,11 +118,11 @@ private val expectedReviewSnapshotSignatures = mapOf(
     "toggle-unchecked" to 0x7ce00b0d014d12a3uL,
     "toggle-checked" to 0x40bd692f48964ffcuL,
     "button-filled" to 0x7fc33cce03403ef9uL,
-    "button-outline" to 0x43c2d3e7b6428919uL,
+    "button-outline" to 0xa212ee307fd3c5b9uL,
     "button-ghost" to 0x7fc33cce03403ef9uL,
     "theme-dark" to 0x7fc33cce03403ef9uL,
     "theme-light" to 0x03d4c72d17b9808fuL,
-    "panel-with-children" to 0xbff05d211a1e91cfuL,
+    "panel-with-children" to 0xaba38ca50a20068buL,
     "shadcn-field-error" to 0x105ac00923155246uL,
 )
 
@@ -168,14 +168,16 @@ private val expectedReviewSnapshotSignatures = mapOf(
 // of Shadcn's card color where it left a field unset. Every scene built from shadcn* recipes
 // (ui-button-variants/ui-panel-controls/ui-alert-dialog/ui-rounded-clip-vector/
 // ui-awake-shadcn-showcase) is unaffected, having always supplied a complete Style.
+// 2026-08-20: re-recorded after checkmarks and outline buttons were converted to antialiased
+// strokeToFillPath, and focused textfields aligned with integer dp borders.
 private val expectedTutorialSnapshotSignatures = mapOf(
     "ui-button-variants" to 0x6a983a490866bb5buL,
     "ui-shaped-panel" to 0xc53d9ba3cc72f320uL,
-    "ui-panel-controls" to 0x1db3974a628bbe07uL,
+    "ui-panel-controls" to 0x02132e240f151ce5uL,
     "ui-alert-dialog" to 0x7e805d3ddbe20949uL,
-    "ui-component-state-matrix" to 0x9d720517432f7dfeuL,
+    "ui-component-state-matrix" to 0x164352d0f79790ceuL,
     "ui-rounded-clip-vector" to 0x0627d9a01bb6098buL,
-    "ui-awake-shadcn-showcase" to 0x9900cb4fb67ecb53uL,
+    "ui-awake-shadcn-showcase" to 0x22912c05ebb3824buL,
 )
 
 private fun ULong.toHexString(): String {

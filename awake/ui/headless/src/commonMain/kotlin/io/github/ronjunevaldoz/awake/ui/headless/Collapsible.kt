@@ -7,6 +7,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.internal.controls.collapsible as primitiveCollapsible
 
 /** Generic disclosure behavior. The trigger owns its visual and click affordance. */
+/** Generic disclosure behavior. The trigger owns its visual and click affordance. */
 fun ColumnScope.collapsible(
     id: String,
     expanded: Boolean,
@@ -14,14 +15,7 @@ fun ColumnScope.collapsible(
     onExpandedChange: (Boolean) -> Unit = {},
     trigger: ColumnScope.(isOpen: Boolean, toggle: () -> Unit) -> Unit,
     content: ColumnScope.() -> Unit,
-): Boolean = primitive.primitiveCollapsible(
-    id = id,
-    expanded = expanded,
-    modifier = modifier,
-    onExpandedChange = onExpandedChange,
-    trigger = { open, toggle -> trigger(asHeadlessScope(), open, toggle) },
-    content = { content(asHeadlessScope()) },
-)
+): Boolean = (this as UiScope).collapsible(id, expanded, modifier, onExpandedChange, trigger, content)
 
 /**
  * [UiScope] overload — wraps into a [column] to obtain a [ColumnScope] for the disclosure
@@ -43,13 +37,13 @@ fun UiScope.collapsible(
     // this subtree's measured size -- distinct every animation frame, constant once settled.
     val animatedHeightKey = primitive.widgetState("$id.content").get("currentHeight", -1f)
     column(id = "$id.shell", cacheKey = expanded to animatedHeightKey, modifier = modifier) {
-        resolved = collapsible(
+        resolved = primitive.primitiveCollapsible(
             id = id,
             expanded = expanded,
             modifier = Modifier,
             onExpandedChange = onExpandedChange,
-            trigger = trigger,
-            content = content,
+            trigger = { open, toggle -> trigger(asHeadlessScope(), open, toggle) },
+            content = { content(asHeadlessScope()) },
         )
     }
     return resolved

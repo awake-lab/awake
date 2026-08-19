@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.Dimension
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.canvas
 import io.github.ronjunevaldoz.awake.ui.childColumn
+import io.github.ronjunevaldoz.awake.ui.context.resolveHasWeightedChild
 import io.github.ronjunevaldoz.awake.ui.context.resolveMeasuredContentCached
 import io.github.ronjunevaldoz.awake.ui.graphics.clip
 import io.github.ronjunevaldoz.awake.ui.graphics.dispatchPrimitive
@@ -380,13 +381,32 @@ internal fun UiPrimitiveScope.surfaceCore(
     // A surface is a column that paints. It has to divide its height the same way a plain
     // column does -- without this it dropped every child weight, so whether a container
     // distributed space came down to whether it happened to have a background.
+    val nodeKey = context.enterLayoutNodeInternal()
+    val remembered = if (id != null && cacheKey != null) {
+        null
+    } else {
+        context.rememberedHasWeightedChildInternal(nodeKey)
+    }
     val contentArrangement = Arrangement.spacedBy(gap.px)
     val contentInsets = resolved.contentPadding
-    val plannedSlots = planWeightedColumnSlots(
-        slot = slot.inset(contentInsets),
-        arrangement = contentArrangement,
-        content = content,
-    )
+    val needsWeightedDistribution = contentArrangement.requiresMeasuredDistribution() ||
+        (remembered != false && (remembered == true || context.resolveHasWeightedChild(id, effectiveCacheKey) {
+            context.measureColumnContentInternal(
+                width = slot.width,
+                gap = gap,
+                height = slot.height,
+                content = content,
+            ).weights.any { it != null }
+        }))
+    val plannedSlots = if (!context.isMeasuringInternal() && needsWeightedDistribution) {
+        planWeightedColumnSlots(
+            slot = slot.inset(contentInsets),
+            arrangement = contentArrangement,
+            content = content,
+        )
+    } else {
+        null
+    }
     val contentScope = childColumn(
         slot,
         verticalArrangement = contentArrangement,
@@ -414,6 +434,7 @@ internal fun UiPrimitiveScope.surfaceCore(
     context.pushLocal(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey, effectiveCacheKey)
     try {
         context.withMeasuredRecordingSuppressed {
+            if (!needsWeightedDistribution && remembered == false) context.tolerateUnplannedWeightInternal()
             if (clipContent || resolved.shape.toPx() > 0f || resolved.shapeSpec != null) {
                 clip(effectiveShape, slot) { contentScope.content(slot) }
             } else {
@@ -423,7 +444,9 @@ internal fun UiPrimitiveScope.surfaceCore(
     } finally {
         context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalCacheKey)
     }
+    context.recordHasWeightedChildInternal(nodeKey, context.lastChildWeightObservation)
     context.popShapeSpec()
     context.popLocal(io.github.ronjunevaldoz.awake.ui.context.LocalTextStyle)
+    context.exitLayoutNodeInternal()
     return slot
 }

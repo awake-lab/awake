@@ -114,7 +114,7 @@ fun UiPrimitiveScope.textarea(
                 slot = interaction.slot,
                 fillColor = fillColor,
                 radiusPx = resolvedWithInteraction.shape.toPx(),
-                borderWidth = if (focused || isError) 1.5f.dp else resolvedWithInteraction.borderWidth,
+                borderWidth = resolvedWithInteraction.borderWidth,
                 borderColor = borderColor,
                 shapeSpec = resolvedWithInteraction.shapeSpec,
             )
