@@ -231,6 +231,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   move behind `canvas { }`, same shape as `ShapePainter.kt`'s widget-chrome helpers above.
   `UiPrimitiveScope.context` is unaffected — still there, real usage outside `ui-core`'s draw
   path is much larger and out of scope for this pass.
+- `canvas()`'s `id` param is now required (its default was dead — zero real callers used it).
+  `separator()`'s `id` is now required on both overloads, including the deprecated `color:`
+  bridge — closes a real same-id collision risk the old nullable-last default carried.
+- `Modifier.margin()` is deleted. It silently dropped `end`/`bottom` and had zero real callers;
+  use `Modifier.padding()`/explicit `width`/`height`/`offset` instead.
 
 ### Fixed
 
