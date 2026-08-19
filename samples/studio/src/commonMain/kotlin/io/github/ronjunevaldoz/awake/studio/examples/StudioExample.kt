@@ -26,6 +26,14 @@ internal val StudioExamples: List<StudioExample> = listOf(
         title = "Rotating cube",
         scenePath = "assets/examples/rotating-cube.scene.json",
     ),
+    // Camera only, no mesh/light -- fps-comparison baseline against a real entity-carrying
+    // scene, not a scene the engine can actually render nothing in (a scene needs a primary
+    // camera to be valid at all).
+    StudioExample(
+        id = "empty",
+        title = "Empty",
+        scenePath = "assets/examples/empty.scene.json",
+    ),
     StudioExample(
         id = "gltf-viewer",
         title = "glTF viewer",
