@@ -138,6 +138,47 @@ private val PARTICLE_VARIANTS = listOf(
         turbulence = 3f,
         turbulenceFrequency = 0.5f,
     ),
+    // Level-up: a vertical light pillar -- ring spawn, straight-up velocity (no convergence,
+    // unlike aura/spawn-in below), gold cooling into near-white as it rises, like light
+    // intensifying toward the top. A real level-up would use ParticleLifecycle.burstCount for
+    // one-shot-then-gone; kept continuous here so it stays visible in this side-by-side gallery.
+    ParticleVariant(
+        nodeName = "particles-levelup",
+        materialName = "particle",
+        origin = Vec3(10.5f, 0f, 0f),
+        baseVelocity = Vec3(0f, 3f, 0f),
+        velocityJitter = 0f,
+        coneHalfAngleDegrees = null,
+        groundY = null,
+        spawnRate = 40f,
+        lifetime = 1.2f,
+        startAlpha = 0.9f,
+        scale = 0.22f,
+        startColor = Vec3(1f, 0.85f, 0.3f),
+        endColor = Vec3(1f, 1f, 0.9f),
+        spawnRadius = 0.8f,
+    ),
+    // Spawn/teleport-in: the inverse of aura's charging circle -- a wider ring, faster
+    // convergence, and a cool blue->cyan-white gradient (energy building toward a flash) instead
+    // of aura's slow violet->pink channel. Same convergeToOrigin mechanism, different tuning and
+    // color reads as a distinct effect entirely.
+    ParticleVariant(
+        nodeName = "particles-spawn",
+        materialName = "particle",
+        origin = Vec3(-10.5f, 1f, 0f),
+        baseVelocity = Vec3(0f, 3f, 0f),
+        velocityJitter = 0f,
+        coneHalfAngleDegrees = null,
+        groundY = null,
+        spawnRate = 35f,
+        lifetime = 0.6f,
+        startAlpha = 0.85f,
+        scale = 0.18f,
+        startColor = Vec3(0.2f, 0.4f, 1f),
+        endColor = Vec3(0.6f, 0.9f, 1f),
+        spawnRadius = 1.5f,
+        convergeToOrigin = true,
+    ),
 )
 
 /** Simulated "player speed" for the context-driven emitter below -- oscillates over time since
@@ -147,12 +188,15 @@ private var simulatedSpeedElapsed = 0f
 private var simulatedSpeed = 0f
 
 /** [ParticleEmitter] isn't an authorable [io.github.ronjunevaldoz.awake.scene.runtime
- * .SceneComponent] yet -- the particles example's scene document authors 7 empty, named
+ * .SceneComponent] yet -- the particles example's scene document authors 9 empty, named
  * placeholder nodes instead, same "author a named node, attach the state a scene document
  * can't express in `onActivated`" shape [InstancedCubesExampleDriver] already uses. Covers
  * every [ParticleEmitter] capability:
  * - `particles-aura`: a charging circle -- ring spawn + inward convergence
  *   ([ParticleMotion.spawnRadius]/`convergeToOrigin`).
+ * - `particles-levelup`/`particles-spawn`: the same ring-spawn shape reused two more ways --
+ *   straight-up (no convergence) for a light-pillar level-up, faster/wider/converging for a
+ *   teleport-in flash -- same mechanism, different tuning/color reads as distinct effects.
  * - `particles-impact`/`particles-environment`/`particles-turbulence`: the other 3
  *   [ParticleVariant]s above (cone burst, sprite-strip flicker, flat ground-stop, turbulence).
  * - `particles-context`: [ParticleDynamics.dynamicSpawnRate] reads [simulatedSpeed] every frame
