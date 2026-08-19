@@ -23,7 +23,7 @@
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-audit/SKILL.md",
-      "computedHash": "30398f56bd7a95848160dcd47e5ad898e64844a9569a262f889c9db1aa2fdfb2"
+      "computedHash": "15742b4a75d91031743a78c0c35eed6a0cf87f4a232710a1de0b9fb343d47a41"
     },
     "kmp-benchmark": {
       "source": "ronjunevaldoz/kmp-agent-skills",
@@ -47,13 +47,13 @@
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-clean-architecture/SKILL.md",
-      "computedHash": "f2c3264ffae9d3959ebbd9ac93ce864ea0aae0f777af954e6b05be45963592da"
+      "computedHash": "82d3a0139f06289adba84a89fca15effbb62f049a421e659ad7769dde67499c5"
     },
     "kmp-code-quality": {
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-code-quality/SKILL.md",
-      "computedHash": "8325b1c0c5f329d3a49a0cf643b6a32a15a24072440669f98d0dfcbb22016b5b"
+      "computedHash": "3ce8e60a45499cb1655f8a2e6d8c47d3f3e15466a649d3b4c8a92f37c933b661"
     },
     "kmp-compose-accessibility": {
       "source": "ronjunevaldoz/kmp-agent-skills",
@@ -167,7 +167,7 @@
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-expert/SKILL.md",
-      "computedHash": "d74c7473ed8e57ec3997b2108a10a0f7bde3da5afa756362f7ce58387c6f68d2"
+      "computedHash": "56c05fd02b4d6fb6f9cdedc634be3f06516038688d218bb6b0ee438cccff943e"
     },
     "kmp-feature-flags": {
       "source": "ronjunevaldoz/kmp-agent-skills",
@@ -233,7 +233,7 @@
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-layout-system/SKILL.md",
-      "computedHash": "51d1ceed83f01451f3f3d4936cef72e0bec504b1bf7c1057926306bb066c58e4"
+      "computedHash": "a61c2ccecd06af2e68fb71afcdf211f1e6e3454e3d9c1d60b68b937703cbc900"
     },
     "kmp-legal-docs": {
       "source": "ronjunevaldoz/kmp-agent-skills",
@@ -329,7 +329,7 @@
       "source": "ronjunevaldoz/kmp-agent-skills",
       "sourceType": "github",
       "skillPath": "skills/kmp-project-docs-maintainer/SKILL.md",
-      "computedHash": "233caca65aab0202964de1b12295132edb56209c66c14ab427a29fe5c444fbce"
+      "computedHash": "829e2fc9bc565e5e845d3b79fe286212b426f5c0253a7347d77489175760e866"
     },
     "kmp-push-notifications": {
       "source": "ronjunevaldoz/kmp-agent-skills",
