@@ -154,8 +154,47 @@ def check_symlinks() -> list[str]:
     return errors
 
 
+def check_module_readmes() -> list[str]:
+    errors = []
+    primary_modules = [
+        REPO_ROOT / "awake" / "core",
+        REPO_ROOT / "awake" / "core" / "geometry",
+        REPO_ROOT / "awake" / "core" / "animation",
+        REPO_ROOT / "awake" / "asset" / "gltf",
+        REPO_ROOT / "awake" / "asset" / "mesh-optimizer",
+        REPO_ROOT / "awake" / "asset" / "shaders",
+        REPO_ROOT / "awake" / "ecs",
+        REPO_ROOT / "awake" / "scene",
+        REPO_ROOT / "awake" / "scene" / "authoring",
+        REPO_ROOT / "awake" / "scene" / "rendering",
+        REPO_ROOT / "awake" / "engine" / "render" / "contract",
+        REPO_ROOT / "awake" / "engine" / "render" / "passes",
+        REPO_ROOT / "awake" / "ui",
+        REPO_ROOT / "awake" / "ui" / "ui-core",
+        REPO_ROOT / "awake" / "ui" / "headless",
+        REPO_ROOT / "awake" / "ui" / "designsystem",
+        REPO_ROOT / "awake" / "ui" / "text",
+        REPO_ROOT / "awake" / "engine" / "game",
+        REPO_ROOT / "awake" / "engine" / "game-authoring",
+        REPO_ROOT / "awake" / "engine" / "app",
+        REPO_ROOT / "awake" / "backend" / "vulkan",
+        REPO_ROOT / "awake" / "backend" / "webgpu",
+        REPO_ROOT / "awake" / "physics" / "api",
+        REPO_ROOT / "awake" / "backend" / "jolt",
+    ]
+
+    for mod_path in primary_modules:
+        readme = mod_path / "README.md"
+        if not readme.exists():
+            errors.append(f"Module missing README.md: {mod_path.relative_to(REPO_ROOT)}")
+        elif len(readme.read_text(encoding="utf-8").strip()) < 50:
+            errors.append(f"Module README.md is empty or too short: {mod_path.relative_to(REPO_ROOT)}")
+
+    return errors
+
+
 def main():
-    print("Verifying Awake Agents & Skills Synchronization...")
+    print("Verifying Awake Agents, Skills & Module Docs Synchronization...")
     all_errors = []
 
     if not AGENTS_DIR.exists():
@@ -183,13 +222,16 @@ def main():
     # 5. Symlinks check
     all_errors.extend(check_symlinks())
 
+    # 6. Module README coverage check
+    all_errors.extend(check_module_readmes())
+
     if all_errors:
-        print("\n❌ Agent & Skill Synchronization FAILED with the following errors:", file=sys.stderr)
+        print("\n❌ Verification FAILED with the following errors:", file=sys.stderr)
         for err in all_errors:
             print(f"  - {err}", file=sys.stderr)
         sys.exit(1)
 
-    print("\n✅ All 12 agents, 12 domain skills, catalog documentation, and entrypoints are fully synchronized!")
+    print("\n✅ All 12 agents, 12 domain skills, 24 module READMEs, and entrypoints are fully synchronized!")
     sys.exit(0)
 
 
