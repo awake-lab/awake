@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButtonGroupSeparator
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCheckbox
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnIcon
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonSize
@@ -98,6 +99,8 @@ internal data class ViewPillState(
     val debugOcclusion: Boolean,
     val debugLights: Boolean,
     val debugShadowFrustum: Boolean,
+    val cameraPreview: Boolean,
+    val gizmo: Boolean,
 )
 
 internal data class ViewPillActions(
@@ -111,6 +114,8 @@ internal data class ViewPillActions(
     val onDebugOcclusionChange: (Boolean) -> Unit,
     val onDebugLightsChange: (Boolean) -> Unit,
     val onDebugShadowFrustumChange: (Boolean) -> Unit,
+    val onCameraPreviewChange: (Boolean) -> Unit,
+    val onGizmoChange: (Boolean) -> Unit,
 )
 
 /**
@@ -197,6 +202,22 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
                 size = ShadcnButtonSize.Xs,
                 onClick = { actions.onDebugShadowFrustumChange(!state.debugShadowFrustum) },
             )
+        }
+
+        row(horizontalArrangement = Arrangement.spacedBy(8f.dp), verticalAlignment = UiAlignment.Vertical.Center) {
+            val cameraPreviewChecked = shadcnCheckbox(
+                id = "studio-view-camera-preview",
+                checked = state.cameraPreview,
+                label = "Preview",
+            )
+            if (cameraPreviewChecked != state.cameraPreview) actions.onCameraPreviewChange(cameraPreviewChecked)
+
+            val gizmoChecked = shadcnCheckbox(
+                id = "studio-view-gizmo",
+                checked = state.gizmo,
+                label = "Gizmo",
+            )
+            if (gizmoChecked != state.gizmo) actions.onGizmoChange(gizmoChecked)
         }
     }
 }

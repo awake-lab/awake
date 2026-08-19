@@ -28,6 +28,10 @@ private const val PREVIEW_HEIGHT = 180
 internal class StudioCameraPreview {
     private var target: RenderTarget? = null
 
+    /** Skips the offscreen pass entirely when off -- not just hiding the panel -- so toggling
+     * this actually recovers the render cost, not just the composited pixels. */
+    var enabled: Boolean = true
+
     /** The texture to composite, or `null` until [render] has run once. */
     var material: Material? = null
         private set

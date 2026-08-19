@@ -48,6 +48,10 @@ internal class StudioOrientationGizmo {
     private var meshes: List<Mesh>? = null
     private var axisMaterial: Material? = null
 
+    /** Skips the offscreen pass entirely when off -- see [StudioCameraPreview.enabled], same
+     * reasoning. */
+    var enabled: Boolean = true
+
     /** The texture to composite, or `null` until [render] has run once. */
     var material: Material? = null
         private set

@@ -73,10 +73,14 @@ internal fun SceneGameRuntime.drawStudioShell(
     // camera (whichever Camera entity ISN'T the viewport's own primary one, i.e. the editor
     // camera in Edit mode) -- no selection required, same "always-on Game view" a Unity/Godot
     // editor already gives you next to its Scene view.
-    nonPrimaryCamera(world)?.let { cameraPreview.render(renderer, it.camera, collectDrawCalls()) }
+    if (cameraPreview.enabled) {
+        nonPrimaryCamera(world)?.let { cameraPreview.render(renderer, it.camera, collectDrawCalls()) }
+    }
     // The VIEWPORT's own camera, not the selected entity's -- the orientation widget always
     // reflects what the viewport itself is looking at.
-    primaryCamera(world)?.let { orientationGizmo.render(renderer, it.camera) }
+    if (orientationGizmo.enabled) {
+        primaryCamera(world)?.let { orientationGizmo.render(renderer, it.camera) }
+    }
     val stats = frameStats()
     headlessFrame(viewportWidth, viewportHeight) {
         shadcnTheme(theme = StudioTheme) {
@@ -348,6 +352,8 @@ private fun UiScope.drawStudioViewportPanel(
                     debugOcclusion = debugSettings?.showOcclusion ?: false,
                     debugLights = debugSettings?.showLights ?: false,
                     debugShadowFrustum = debugSettings?.showShadowFrustum ?: false,
+                    cameraPreview = cameraPreview.enabled,
+                    gizmo = orientationGizmo.enabled,
                 ),
                 actions = ViewPillActions(
                     onCycleMode = {
@@ -371,6 +377,8 @@ private fun UiScope.drawStudioViewportPanel(
                     onDebugOcclusionChange = { debugSettings?.showOcclusion = it },
                     onDebugLightsChange = { debugSettings?.showLights = it },
                     onDebugShadowFrustumChange = { debugSettings?.showShadowFrustum = it },
+                    onCameraPreviewChange = { cameraPreview.enabled = it },
+                    onGizmoChange = { orientationGizmo.enabled = it },
                 ),
             )
         }
