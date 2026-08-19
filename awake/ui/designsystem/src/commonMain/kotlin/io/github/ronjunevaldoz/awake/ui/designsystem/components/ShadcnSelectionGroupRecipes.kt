@@ -8,6 +8,7 @@ package io.github.ronjunevaldoz.awake.ui.designsystem.components
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnRadioGroupStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnRadioLabelStyle
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.shadcnRadioStyle
@@ -94,15 +95,13 @@ fun UiScope.shadcnRadioGroup(
     modifier: UiModifier = Modifier,
     enabled: Boolean = true,
     content: ColumnScope.() -> Unit,
-) {
-    surface(
-        id = id,
-        modifier = modifier,
-        style = shadcnRadioGroupStyle(),
-        verticalArrangement = Arrangement.spacedBy(ShadcnRadioMetrics.groupGap),
-        content = { content() },
-    )
-}
+): UiBounds = surface(
+    id = id,
+    modifier = modifier,
+    style = shadcnRadioGroupStyle(),
+    verticalArrangement = Arrangement.spacedBy(ShadcnRadioMetrics.groupGap),
+    content = { content() },
+)
 
 fun UiScope.shadcnRadioGroup(
     id: String,
@@ -110,7 +109,7 @@ fun UiScope.shadcnRadioGroup(
     selectedIndex: Int,
     modifier: UiModifier = Modifier,
     enabled: Boolean = true,
-    gap: io.github.ronjunevaldoz.awake.ui.api.Dp = ShadcnRadioMetrics.groupGap,
+    gap: Dp = ShadcnRadioMetrics.groupGap,
     onIndexChange: (Int) -> Unit = {},
 ): Int {
     var resolved = selectedIndex

@@ -177,19 +177,17 @@ fun UiScope.shadcnSidebarGroup(
     modifier: UiModifier = Modifier,
     label: String? = null,
     content: ColumnScope.() -> Unit,
+): UiBounds = column(
+    modifier.fillMaxWidth().padding(horizontal = 4f.dp, vertical = 8f.dp),
+    Arrangement.spacedBy(ShadcnSidebarMetrics.groupGap),
 ) {
-    column(
-        modifier.fillMaxWidth().padding(horizontal = 4f.dp, vertical = 8f.dp),
-        Arrangement.spacedBy(ShadcnSidebarMetrics.groupGap),
-    ) {
-        label?.let {
-            text(
-                label = it.uppercase(),
-                style = shadcnSidebarGroupLabelStyle(themeValues),
-            )
-        }
-        content()
+    label?.let {
+        text(
+            label = it.uppercase(),
+            style = shadcnSidebarGroupLabelStyle(themeValues),
+        )
     }
+    content()
 }
 
 fun UiScope.shadcnSidebarMenu(
@@ -199,14 +197,12 @@ fun UiScope.shadcnSidebarMenu(
     id: String? = null,
     cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
-) {
-    column(
-        id = id,
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(ShadcnSidebarMetrics.menuGap),
-        cacheKey = cacheKey,
-    ) { content() }
-}
+): UiBounds = column(
+    id = id,
+    modifier = modifier.fillMaxWidth(),
+    verticalArrangement = Arrangement.spacedBy(ShadcnSidebarMetrics.menuGap),
+    cacheKey = cacheKey,
+) { content() }
 
 fun UiScope.shadcnSidebarMenuItem(
     id: String,
@@ -256,28 +252,26 @@ fun UiScope.shadcnSidebarMenuSub(
     id: String? = null,
     cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
+): UiBounds = row(
+    modifier = modifier.fillMaxWidth().padding(
+        start = ShadcnSidebarMetrics.submenuIndent,
+        top = 0f.dp,
+        end = 0f.dp,
+        bottom = 0f.dp,
+    ),
 ) {
-    row(
-        modifier = modifier.fillMaxWidth().padding(
-            start = ShadcnSidebarMetrics.submenuIndent,
-            top = 0f.dp,
-            end = 0f.dp,
-            bottom = 0f.dp,
-        ),
+    separator(
+        id = "${id ?: "sidebarMenuSub"}.separator",
+        color = themeValues.colors.border,
+        orientation = UiSeparatorOrientation.Vertical,
+    )
+    column(
+        id = id,
+        modifier = Modifier.fillMaxWidth().padding(start = 6f.dp, top = 0f.dp, end = 0f.dp, bottom = 0f.dp),
+        verticalArrangement = Arrangement.spacedBy(ShadcnSidebarMetrics.submenuGap),
+        cacheKey = cacheKey,
     ) {
-        separator(
-            id = "${id ?: "sidebarMenuSub"}.separator",
-            color = themeValues.colors.border,
-            orientation = UiSeparatorOrientation.Vertical,
-        )
-        column(
-            id = id,
-            modifier = Modifier.fillMaxWidth().padding(start = 6f.dp, top = 0f.dp, end = 0f.dp, bottom = 0f.dp),
-            verticalArrangement = Arrangement.spacedBy(ShadcnSidebarMetrics.submenuGap),
-            cacheKey = cacheKey,
-        ) {
-            content()
-        }
+        content()
     }
 }
 

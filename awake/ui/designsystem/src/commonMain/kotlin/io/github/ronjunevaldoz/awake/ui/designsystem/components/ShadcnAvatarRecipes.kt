@@ -5,6 +5,7 @@
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.Sp
 import io.github.ronjunevaldoz.awake.ui.api.dp
@@ -55,7 +56,7 @@ fun UiScope.shadcnAvatar(
 fun UiScope.shadcnAvatarBadge(
     modifier: UiModifier = Modifier,
     size: Dp = 10f.dp,
-    color: io.github.ronjunevaldoz.awake.core.colors.Color? = null,
+    color: Color? = null,
     id: String = "avatar.badge",
 ): UiBounds = surface(
     id = id,
