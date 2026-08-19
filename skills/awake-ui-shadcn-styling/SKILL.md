@@ -1,5 +1,5 @@
 ---
-name: awake-shadcn-styling
+name: awake-ui-shadcn-styling
 description: >
   Maintainer-facing how-to for BUILDING/EXTENDING shadcn-flavored components inside Awake's
   ui-designsystem itself -- not for an app/sample that just calls an existing shadcn* component.

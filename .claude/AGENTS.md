@@ -1,6 +1,6 @@
 # AGENTS.md — Awake
 
-Awake is a Kotlin Multiplatform game engine library. Use this file as a startup index, not
+Awake is a Kotlin Multiplatform game engine library and game studio. Use this file as a startup index, not
 as the long-form home for project policy.
 
 ## Read First
@@ -14,31 +14,30 @@ as the long-form home for project policy.
 - [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md)
 - [docs/tasks.md](/Users/ronvaldoz/StudioProjects/awaken/docs/tasks.md)
 
-## Project Summary
-
-- Group: `io.github.ronjunevaldoz`
-- Published artifacts: `awake-base`, `awake-core`, `awake-opengl`, `awake-ecs`,
-  `awake-scene`, `awake-vulkan`
-- Current direction: backend-neutral runtime, reusable scene/UI DSL, and editor-ready
-  engine modules
-
 ## Critical Guardrails
 
 - The Android Vulkan sample remains the regression gate for backend work.
 - Do not hand-edit generated JNI Accessor/Mutator C++ files; regenerate them.
 - Engine modules do not follow the app-style 6-layer clean-architecture split.
-- Reusable UI boundaries are canonical in
-  [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md).
-- Shared UI verification rules are canonical in
-  [docs/reference/ui-validation.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-validation.md).
-- Shared Headless/design-system tests use `renderUiComponent` (or `uiTestSession` for persistent
-  interaction) from `awake:ui:testing`; direct `UiContext` setup is only for Core/runtime or
-  renderer/backend probes.
-- `awake:engine:ui:ui-designsystem` may use `ui-core` as an internal implementation dependency
-  for `Style` and theme/text local infrastructure, but its public API must not leak Core types and
-  component recipes must use Headless rather than Core layout, drawing, input, or semantic primitives.
+- Reusable UI boundaries are canonical in [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md).
+- Shared UI verification rules are canonical in [docs/reference/ui-validation.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-validation.md).
 
-## Skill Routing
+## Mandatory Repo-Local Domain Skills
+
+- `skills/awake-core-math/SKILL.md` — Vector/Matrix mutating-vs-allocating math & camera basis
+- `skills/awake-ecs-authoring/SKILL.md` — Component/system creation, pooling, and query rules
+- `skills/awake-ecs-scene-runtime/SKILL.md` — Scene runtime and entity hierarchy patterns
+- `skills/awake-render-pipeline/SKILL.md` — Strategy RenderFeature & Pipeline/Material separation
+- `skills/awake-render-vulkan/SKILL.md` — Vulkan swapchain, resource lifecycle & Android gate
+- `skills/awake-render-webgpu/SKILL.md` — WebGPU wgpu4k/Dawn, WASM canvas resize & buffer binding
+- `skills/awake-physics-jolt/SKILL.md` — Jolt C++ native bridge, physics contract & collision loop
+- `skills/awake-ui-authoring/SKILL.md` — UI 3-layer architecture (`ui-core` vs `ui-headless` vs `ui-designsystem`)
+- `skills/awake-ui-shadcn-consuming/SKILL.md` — Consuming Shadcn component recipes
+- `skills/awake-ui-shadcn-styling/SKILL.md` — Building & extending Shadcn component recipes
+- `skills/awake-ui-icons/SKILL.md` — SVG-to-UiImageVector generation pipeline
+- `skills/awake-ui-verification/SKILL.md` — UI visual snapshots and parity test baselines
+
+## Upstream KMP Skill Routing
 
 | Topic | Skill |
 |---|---|
@@ -59,6 +58,6 @@ as the long-form home for project policy.
 
 ## Repo-Local Skill Sources
 
-- Canonical repo-local skill files live under `skills/awake/`.
+- Canonical repo-local skill and agent files live under `skills/awake/`.
 - `.claude/agents` and `.claude/commands/awake` are symlinks into `skills/awake/`.
 - Edit the tracked files under `skills/awake/`, not the symlinked `.claude/` paths.

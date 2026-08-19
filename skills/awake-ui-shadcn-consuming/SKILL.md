@@ -1,5 +1,5 @@
 ---
-name: awake-shadcn-consuming
+name: awake-ui-shadcn-consuming
 description: >
   Consume Awake's in-repository shadcn design system from a sample, game, or application.
   Use whenever a task adds or changes a screen that calls shadcn* components, installs a

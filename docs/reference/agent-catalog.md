@@ -1,18 +1,17 @@
 # Agent Catalog
 
 This document is the canonical source for Awake's repo-local agent roster, naming convention,
-and responsibility map.
+responsibility map, and expansion governance.
 
-For copyable starter structure, see
-[docs/reference/agent-starter-pack.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-starter-pack.md).
 For real routing examples, see
 [docs/reference/agent-routing.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-routing.md).
 
 ## Purpose
 
-Awake is now large enough that "one engine agent" is too broad. The repo uses named
-role-based agents so ECS work, rendering work, UI work, platform work, and documentation work
-can evolve independently without drifting into overlapping responsibilities.
+Awake operates as both a Kotlin Multiplatform game engine library and a full-stack game development studio.
+To maintain high cohesion and prevent context fragmentation, the repository organizes agents into a **Dual-Suite Architecture**:
+1. **Engine Framework Suite**: 6 engineering agents responsible for core engine algorithms, graphics backends, UI subsystems, platform glue, and architecture governance.
+2. **Game Studio Creative Suite**: 6 creative personas responsible for full-stack game production in `samples/` (production, mechanics design, narrative, camera direction, art/VFX, and audio).
 
 ## Naming Standard
 
@@ -21,127 +20,94 @@ All repo-local agent files under `skills/awake/agents/` must follow this pattern
 `awake-<domain>-<role>.md`
 
 Rules:
-
 - use `kebab-case`
 - always start with `awake-`
-- use a concrete domain noun such as `ecs`, `ui`, `scene`, `platform`, `developer-experience`
-- end with a professional role noun such as `engineer` or `auditor`
+- use a concrete domain noun such as `engine-core`, `render-backend`, `ui`, `game-runtime`, `platform-release`, `game`, `narrative`, `camera`, `art-vfx`, `audio`
+- end with a professional role noun such as `engineer`, `auditor`, `director`, `designer`, `producer`
 - avoid informal suffixes such as `-dev`, `-helper`, or `-guy`
 
-Examples:
+## Model Tiers & Tooling Mapping
 
-- `awake-ecs-performance-engineer.md`
-- `awake-render-backend-engineer.md`
-- `awake-game-framework-engineer.md`
-- `awake-ui-systems-engineer.md`
-- `awake-design-system-engineer.md`
-- `awake-ui-quality-engineer.md`
-- `awake-app-state-engineer.md`
+Agent frontmatter's `model:` field must contain an active provider model ID (e.g. `claude-opus-5`, `claude-sonnet-5`), as runner tooling (Claude Code agent dispatch, kmp-audit) reads this field to select an executable model at runtime.
+The capability tiers below serve as a design taxonomy for picking which provider model ID to assign.
 
-## Model Tiers
+| Tier | Use For | Anthropic (Claude Code) |
+|---|---|---|
+| `flagship-coding` | Deep refactors, native backends, ECS performance hot-paths, cross-module architecture audits | `claude-opus-5` |
+| `balanced-coding` | Everyday feature implementation, creative game authoring, UI recipes, snapshot verification | `claude-sonnet-5` |
+| `fast-utility` | Bulk scans, rote edits, inventory checks, low-risk formatting | `claude-haiku-4-5-20251001` |
 
-Agent frontmatter's `model:` field must be a real provider model ID, not a capability tier —
-tooling (Claude Code agent dispatch, kmp-audit) reads this field to actually select a model,
-and a tier name like `flagship-coding` isn't resolvable at runtime. Tiers below are a
-human-facing planning vocabulary only, for picking which real ID to assign.
-
-| Tier | Use For |
-|---|---|
-| `flagship-coding` | hard refactors, architecture changes, renderer backends, ECS performance work |
-| `balanced-coding` | everyday implementation, maintenance, validation, docs-linked changes |
-| `fast-utility` | bulk scans, rote edits, inventory work, low-risk formatting and reporting |
-
-## Mapping Rule
-
-Verified 2026-08-08 against active provider docs. When assigning a tier's real ID in an
-agent's `model:` field, use this table — and update it (not the tier name) when a provider
-ships a new model generation.
-
-| Tier | Anthropic (Claude Code) |
-|---|---|
-| `flagship-coding` | `claude-opus-5` |
-| `balanced-coding` | `claude-sonnet-5` |
-| `fast-utility` | `claude-haiku-4-5-20251001` |
-
-Awake's agent files only run under Claude Code today, so only the Anthropic column is
-tracked. Add OpenAI/Google columns back if/when this repo runs agents under those tools.
+---
 
 ## Active Agents
 
-| Agent | Status | Scope | Preferred Tier |
-|---|---|---|---|
-| `awake-ecs-performance-engineer` | Active | ECS internals, component storage, family/query behavior, benchmarks, churn and transform propagation performance | `flagship-coding` |
-| `awake-render-backend-engineer` | Active | Vulkan/WebGPU backend work, renderer extraction, GPU resource lifetime, native graphics bridges, render correctness validation, physics contract (`awake:physics:api`) and native bridge | `flagship-coding` |
-| `awake-core-foundations-engineer` | Active | `awake:core` math/input/application-loop, `awake:core:geometry` mesh simplification, `awake:core:animation` skeletal runtime — the dependency-free foundation layer | `balanced-coding` |
-| `awake-asset-pipeline-engineer` | Active | `awake:asset:gltf` import, `awake:asset:mesh-optimizer` offline decimation, `awake:asset:shaders` shared uniform-layout contracts | `balanced-coding` |
-| `awake-game-framework-engineer` | Active | game/application runtime shell, frame lifecycle, shared engine bootstrap, sample runtime structure, non-backend engine composition | `balanced-coding` |
-| `awake-ui-systems-engineer` | Active | `ui-core`, `ui-headless`, `ui-dsl`, low-level layout/text/input behavior, immediate-mode UI mechanics | `balanced-coding` |
-| `awake-design-system-engineer` | Active | `ui-designsystem`, theme tokens, component recipes, shadcn-style visual language, showcase and tutorial presentation quality | `balanced-coding` |
-| `awake-ui-quality-engineer` | Active | UI verification strategy, snapshot/pixel baselines, overlap/text-fit/layout inspections, density/theme/platform parity checks | `balanced-coding` |
-| `awake-scene-runtime-engineer` | Active | scene graph runtime, scene DSL composition, scene serialization boundaries, demo scene structure | `balanced-coding` |
-| `awake-platform-integration-engineer` | Active | Android/iOS/Desktop/Web integration, expect/actual edges, device validation, packaging and launcher behavior | `balanced-coding` |
-| `awake-developer-experience-engineer` | Active | build logic, docs pipelines, agent guidance, release plumbing, benchmark/snapshot workflows | `balanced-coding` |
-| `awake-architecture-auditor` | Active | cross-module ownership checks, split recommendations, review/audit passes, policy drift detection | `flagship-coding` |
-| `awake-app-state-engineer` | Active | MVI-style Contract/State/Intent/Effect definitions, Store implementations, wiring store effects into the ECS frame loop | `balanced-coding` |
+### Suite A: Engine Framework Suite (Library & Native Infrastructure)
 
-## Responsibility Boundaries
+| Agent | Status | Primary Scope | Preferred Tier | Assigned Model |
+|---|---|---|---|---|
+| `awake-engine-core-engineer` | Active | `:awake:core` (math/geom/anim), `:awake:ecs` (+ benchmark), `:awake:scene` (graph/runtime/DSL), `:awake:asset` (glTF/shaders/optimizer) | `flagship-coding` | `claude-opus-5` |
+| `awake-render-backend-engineer` | Active | `:awake:backend:vulkan` (+ bindings), `:awake:backend:webgpu`, `:awake:backend:jolt`, `:awake:physics:api`, JNI bridges, pixel baselines | `flagship-coding` | `claude-opus-5` |
+| `awake-ui-engineer` | Active | `:awake:ui:ui-core`, `:awake:ui:headless`, `:awake:ui:designsystem`, `:awake:ui:testing` (geometry parity, visual regression) | `balanced-coding` | `claude-sonnet-5` |
+| `awake-game-runtime-engineer` | Active | `:awake:engine:game`, `:awake:engine:app`, `:samples:studio`, `:samples:ui-showcase`, MVI Store & effect draining | `balanced-coding` | `claude-sonnet-5` |
+| `awake-platform-release-engineer` | Active | `androidMain`, `iosMain`, `desktopMain`, `wasmJs`, `build-logic`, CI workflows, Maven Central publishing | `balanced-coding` | `claude-sonnet-5` |
+| `awake-architecture-auditor` | Active | Cross-module boundaries, KMP clean architecture, Detekt rules, API leakage audits | `flagship-coding` | `claude-opus-5` |
 
-Use the smallest agent that fully owns the task.
+### Suite B: Game Studio Creative Suite (Full-Stack Game Creation)
 
-| Task Shape | Primary Agent |
+| Persona | Status | Primary Scope | Preferred Tier | Assigned Model |
+|---|---|---|---|---|
+| `awake-game-producer` | Active | Game milestone planning, scope control, task prioritization, integration checklists | `balanced-coding` | `claude-sonnet-5` |
+| `awake-game-designer` | Active | Game Design Documents (GDD), core loops, combat balance, player controls, ECS gameplay systems | `balanced-coding` | `claude-sonnet-5` |
+| `awake-narrative-director` | Active | Story lore, character sheets, branching dialogue graphs, quest progression state | `balanced-coding` | `claude-sonnet-5` |
+| `awake-camera-director` | Active | Virtual camera choreography, cinematic cutscenes, easing spline tracks, screen shake | `balanced-coding` | `claude-sonnet-5` |
+| `awake-art-vfx-director` | Active | Art style guides, 3D glTF specs, 2D sprite prompts, particle VFX emitters, custom material shaders | `balanced-coding` | `claude-sonnet-5` |
+| `awake-audio-designer` | Active | Sound effects (SFX), dynamic BGM stem triggers, ambient soundscapes, 3D spatial audio emitters | `balanced-coding` | `claude-sonnet-5` |
+
+---
+
+## Domain Skill Alignment Matrix
+
+Every agent directly references and owns its matching domain skills:
+
+| Agent | Matching Domain Skills |
 |---|---|
-| World storage, pooling, churn benchmarks | `awake-ecs-performance-engineer` |
-| Vulkan/WebGPU backend, renderer extraction, GPU/native bridge, physics contract/native bridge | `awake-render-backend-engineer` |
-| Foundation math/geometry/animation, dependency-free primitives | `awake-core-foundations-engineer` |
-| glTF import, offline mesh baking, shared uniform-layout contracts | `awake-asset-pipeline-engineer` |
-| game shell bootstrap, runtime wiring, sample application structure | `awake-game-framework-engineer` |
-| Text overflow, layout engine behavior, UI input and animation plumbing | `awake-ui-systems-engineer` |
-| Theme tokens, component skins, showcase polish, tutorial presentation styling | `awake-design-system-engineer` |
-| UI regression gates, overlap/text-fit checks, pixel baselines, theme/density/platform parity validation | `awake-ui-quality-engineer` |
-| Scene composition, runtime scene organization, scene-facing DSL | `awake-scene-runtime-engineer` |
-| Android/iOS/Desktop/Web runtime validation and platform glue | `awake-platform-integration-engineer` |
-| Build logic, docs generators, agent/skill upkeep, CI-adjacent structure | `awake-developer-experience-engineer` |
-| Review, split planning, architectural drift, ownership audits | `awake-architecture-auditor` |
-| Sample/game MVI Contract/Store, dispatching intents, draining effects into a frame system | `awake-app-state-engineer` |
+| `awake-engine-core-engineer` | [skills/awake-core-math/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-core-math/SKILL.md), [skills/awake-ecs-authoring/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ecs-authoring/SKILL.md), [skills/awake-ecs-scene-runtime/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ecs-scene-runtime/SKILL.md) |
+| `awake-render-backend-engineer` | [skills/awake-render-pipeline/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-render-pipeline/SKILL.md), [skills/awake-render-vulkan/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-render-vulkan/SKILL.md), [skills/awake-render-webgpu/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-render-webgpu/SKILL.md), [skills/awake-physics-jolt/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-physics-jolt/SKILL.md) |
+| `awake-ui-engineer` | [skills/awake-ui-authoring/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ui-authoring/SKILL.md), [skills/awake-ui-shadcn-consuming/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ui-shadcn-consuming/SKILL.md), [skills/awake-ui-shadcn-styling/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ui-shadcn-styling/SKILL.md), [skills/awake-ui-css-modifier/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ui-css-modifier/SKILL.md), [skills/awake-ui-icons/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ui-icons/SKILL.md), [skills/awake-ui-verification/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ui-verification/SKILL.md) |
+| `awake-game-runtime-engineer` | [skills/awake-ecs-scene-runtime/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ecs-scene-runtime/SKILL.md) |
+| `awake-game-designer` | [skills/awake-ecs-authoring/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-ecs-authoring/SKILL.md) |
+| `awake-camera-director` | [skills/awake-core-math/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-core-math/SKILL.md) |
+| `awake-art-vfx-director` | [skills/awake-render-pipeline/SKILL.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake-render-pipeline/SKILL.md) |
 
-If a task spans multiple domains, start with the agent that owns the deepest risk and link to
-the other agent docs as needed.
+---
 
-## Agent File Contract
+## Expansion Governance (The 3-Point Gatekeeper)
 
-Each repo-local agent file should contain:
+To prevent agent sprawl when new capabilities (e.g. AI bots, level generation, audio DSP) arrive:
 
-1. frontmatter with `name`, `description`, `tools`, and `model`
-2. a one-paragraph mission statement
-3. read-first canonical docs
-4. boundaries: what the agent owns and what it must not absorb
-5. validation expectations for its domain
+### 1. The Skill-First Rule
+**Default to creating a Domain Skill (`skills/awake-<topic>/SKILL.md`) first.**
+An existing agent executes that skill. Only promote a discipline to a standalone Agent when it passes the 3-Point Gatekeeper.
 
-Agent files should not duplicate long-form architecture policy from `docs/*`. Their
-`model:` value should be one of Awake's capability tiers unless a specific tool requires a
-temporary provider override.
+### 2. The 3-Point Gatekeeper Test
+A new agent must pass all three criteria:
+1. **Module Ownership Gate**: Does it own a distinct Gradle module or subsystem?
+2. **Verification Autonomy Gate**: Does it have an independent automated test/benchmark harness?
+3. **Vertical Handoff Gate**: Can a developer complete an end-to-end task in this domain without requiring 3+ agent handoffs for a single PR?
+
+---
 
 ## Current File Map
 
-- [awake-ecs-performance-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-ecs-performance-engineer.md)
+- [awake-engine-core-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-engine-core-engineer.md)
 - [awake-render-backend-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-render-backend-engineer.md)
-- [awake-core-foundations-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-core-foundations-engineer.md)
-- [awake-asset-pipeline-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-asset-pipeline-engineer.md)
-- [awake-game-framework-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-game-framework-engineer.md)
-- [awake-ui-systems-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-ui-systems-engineer.md)
-- [awake-design-system-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-design-system-engineer.md)
-- [awake-ui-quality-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-ui-quality-engineer.md)
-- [awake-scene-runtime-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-scene-runtime-engineer.md)
-- [awake-platform-integration-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-platform-integration-engineer.md)
-- [awake-developer-experience-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-developer-experience-engineer.md)
+- [awake-ui-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-ui-engineer.md)
+- [awake-game-runtime-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-game-runtime-engineer.md)
+- [awake-platform-release-engineer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-platform-release-engineer.md)
 - [awake-architecture-auditor.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-architecture-auditor.md)
-
-## Split Guidance
-
-The catalog comes before module or API splits on purpose:
-
-- formalize ownership first
-- split modules second
-- move code only after the destination agent boundary is clear
-
-That order keeps the split from becoming a naming and ownership rewrite at the same time.
+- [awake-game-producer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-game-producer.md)
+- [awake-game-designer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-game-designer.md)
+- [awake-narrative-director.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-narrative-director.md)
+- [awake-camera-director.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-camera-director.md)
+- [awake-art-vfx-director.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-art-vfx-director.md)
+- [awake-audio-designer.md](/Users/ronvaldoz/StudioProjects/awaken/skills/awake/agents/awake-audio-designer.md)

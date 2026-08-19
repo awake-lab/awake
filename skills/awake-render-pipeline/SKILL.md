@@ -1,5 +1,5 @@
 ---
-name: awake-render-pipeline-architecture
+name: awake-render-pipeline
 description: Rules for structuring render features, pipelines, materials and the application bootstrap in Awake's backend renderers (Vulkan today, WebGPU later). Read before adding a new render feature (shadow/opaque/skybox/UI-style pass), before wiring a new RenderPipeline into Renderer, before touching draw-call sorting/batching in RendererDraw3D, or before changing GameApplication/Game wiring. Trigger keywords - RenderFeature, RenderPipeline, Material, PipelineTable, vkCmdBindPipeline, vkCmdBindDescriptorSets, draw call sorting, state batching, recordCommandBuffer, groupBy pipeline, GameApplication, Game.ready, Game.render, mediator.
 ---
 

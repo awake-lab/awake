@@ -4,6 +4,12 @@ set -euo pipefail
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 
+# 1. Verify Agent & Skills Synchronization
+if [[ "${AWAKE_SKIP_AGENT_SYNC_HOOK:-}" != "1" ]]; then
+  python3 tools/verify_agent_skills_sync.py
+fi
+
+# 2. Check Kotlin & Build Quality Gates (Detekt)
 if [[ "${AWAKE_SKIP_DETEKT_HOOK:-}" == "1" || "${SKIP_DETEKT_HOOK:-}" == "1" ]]; then
   echo "Skipping Detekt pre-push hook because AWAKE_SKIP_DETEKT_HOOK/SKIP_DETEKT_HOOK is set." >&2
   exit 0

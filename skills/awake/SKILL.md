@@ -1,13 +1,11 @@
 ---
 name: awake
 description: >
-  Repo-local skill bundle for the Awake KMP game engine. Contains role-specific
-  execution guidance for working in Awake domains (ECS, scene runtime, UI systems,
-  render backends, platform integration, developer experience, architecture audits)
-  under agents/, repo-local operational commands (audits, review helpers) under
-  commands/, and starter templates for new repo-local agent docs under templates/.
-  Use this skill when working on Awake engine internals to find the right
-  domain-specific agent persona or command instead of improvising one.
+  Repo-local skill bundle for the Awake KMP game engine and game studio. Contains role-specific
+  execution guidance across the Engine Framework Suite (core, render, UI, runtime, platform, auditor) and
+  the Game Studio Creative Suite (producer, game designer, narrative, camera, art/VFX, audio) under agents/,
+  operational commands under commands/, and starter templates under templates/. Use this skill to locate
+  the right domain-specific agent persona or command for Awake tasks.
 ---
 
 # Awake Repo-Local Skills
@@ -15,9 +13,7 @@ description: >
 See [README.md](README.md) for the full breakdown of what lives here, what doesn't,
 agent naming conventions, and the agent model-tier field.
 
-- `agents/*.md` — role-specific execution guidance for Awake domains (ECS, scene
-  runtime, UI systems, render backends, platform integration, developer experience,
-  architecture audits)
+- `agents/*.md` — role-specific execution guidance for Awake's Engine Framework Suite and Game Studio Creative Suite
 - `commands/*.md` — repo-local operational commands (audits, review helpers)
 - `templates/*.md` — starter templates for new repo-local agent docs
 

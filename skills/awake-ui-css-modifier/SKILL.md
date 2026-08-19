@@ -1,5 +1,5 @@
 ---
-name: awake-css-to-uimodifier
+name: awake-ui-css-modifier
 description: Translates CSS/Tailwind utility classes and inline JS styles to Awake's UiModifier/Style calls. Read when porting a web reference (shadcn/ui, a Figma-to-CSS export, a Tailwind class string) into Awake UI code, or when unsure which UiModifier/Style function a given CSS property maps to. Trigger keywords - w-auto, w-min, p-x, px-, py-, m-, margin, Tailwind class, CSS property, flexbox, justify-content, align-items, tailwind to kotlin, css to UiModifier.
 ---
 

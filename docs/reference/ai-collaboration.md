@@ -106,17 +106,13 @@ Rules:
 
 ## Model Selection Rule
 
-Repo-local agent files keep a `model:` frontmatter field because some agent runners still
-expect one, but Awake treats that field as a capability tier label, not a provider lock-in.
+Repo-local agent files keep a `model:` frontmatter field containing the active provider model ID (e.g. `claude-opus-5`, `claude-sonnet-5`) so that runner tooling (Claude Code agent dispatch) can resolve an executable model.
 
 Rules:
 
-- use Awake's capability tiers in repo-local agent files: `flagship-coding`,
-  `balanced-coding`, or `fast-utility`
-- keep the provider-specific mapping in
-  [docs/reference/agent-catalog.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-catalog.md)
-- when Codex, Claude, or Gemini need a concrete model, resolve the tier through the catalog
-  instead of hardcoding a single provider into the agent file
+- use the provider mapping in
+  [docs/reference/agent-catalog.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/agent-catalog.md) to choose the appropriate model ID for the agent's capability tier (`flagship-coding`, `balanced-coding`, or `fast-utility`)
+- update the mapping table in the catalog when a provider ships a new model generation
 
 ## Read Order
 

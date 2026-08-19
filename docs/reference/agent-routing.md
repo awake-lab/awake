@@ -1,99 +1,48 @@
 # Agent Routing
 
-This page shows how Awake routes real work between repo-local agents.
+This page shows how Awake routes real work between repo-local agents across the **Engine Framework Suite** and the **Game Studio Creative Suite**.
 
-Use it when a task seems to span multiple domains and you want the smallest agent that still
-owns the deepest risk.
+Use it when a task seems to span multiple domains and you want the smallest agent that still owns the deepest risk.
 
 ## Quick Rule
 
-Start with the agent that owns the hardest-to-reverse design or correctness risk.
+- For **Engine Library & Infrastructure**: Start with the engineer who owns the deepest architectural or native risk.
+- For **Game Production & Content (`samples/`)**: Start with the creative lead who owns the feature's discipline (Design, Narrative, Camera, Art/VFX, Audio).
 
-Examples:
+## Routing Matrix
 
-- if the risk is storage/query correctness, start with ECS
-- if the risk is GPU/backend correctness, start with render backend
-- if the risk is layout/text/input behavior, start with UI systems
-- if the risk is visual language and component skinning, start with design system
-
-## Awake Routing Matrix
+### Suite A: Engine Framework Suite (Library & Core Systems)
 
 | Task | Primary Agent | Why |
 |---|---|---|
-| sparse-set storage, pooling, query invalidation, churn benchmark | `awake-ecs-performance-engineer` | data layout and hot-path correctness dominate |
-| Vulkan/OpenGL/WebGPU backend extraction, swapchain, GPU lifetime | `awake-render-backend-engineer` | native/backend correctness dominates |
-| game bootstrap, runtime shell, `game {}` / `ecsGame {}` composition | `awake-game-framework-engineer` | assembly and lifecycle ownership dominate |
-| scene graph runtime, scene DSL, scene serialization | `awake-scene-runtime-engineer` | scene-facing contracts dominate |
-| text wrapping, clipping, layout sizing, input dispatch, UI animation plumbing | `awake-ui-systems-engineer` | low-level UI mechanics dominate |
-| theme tokens, shadcn-style recipes, showcase appearance, palette tuning | `awake-design-system-engineer` | visual-language consistency dominates |
-| Android/iOS/Desktop/Web launcher behavior and platform glue | `awake-platform-integration-engineer` | platform runtime behavior dominates |
-| build logic, docs pipelines, tutorial generation, benchmark workflows | `awake-developer-experience-engineer` | contributor tooling dominates |
-| split planning, ownership audit, reusable extraction review | `awake-architecture-auditor` | cross-module boundary judgment dominates |
+| Vector/Matrix math, ECS sparse sets, entity lifecycle, query performance, glTF format decoding, scene graph hierarchy | `awake-engine-core-engineer` | Foundation data layout, allocation-free loops, and core contracts dominate |
+| Vulkan/WebGPU driver pipelines, GPU swapchain, JNI bindings codegen, Jolt physics bridge | `awake-render-backend-engineer` | Native driver correctness, memory symmetry, and GPU resource lifetimes dominate |
+| Immediate-mode UI layout engine, headless behavioral widgets, Shadcn component recipes, visual snapshots & parity gates | `awake-ui-engineer` | End-to-end UI mechanics, token styling, and regression verification dominate |
+| `GameApplication` shell bootstrap, frame lifecycle wiring, sample app composition, MVI state containers & effect draining | `awake-game-runtime-engineer` | Application assembly, mode transitions, and state flow dominate |
+| Multiplatform launchers (Android/iOS/Desktop/Wasm), Gradle convention plugins, CI/CD workflows, Maven Central & SPM release | `awake-platform-release-engineer` | Build toolchain, platform glue, and package distribution dominate |
+| Cross-module boundary reviews, KMP clean architecture audits, API leakage checks, legacy code extraction planning | `awake-architecture-auditor` | Multi-module architectural integrity and policy enforcement dominate |
+
+### Suite B: Game Studio Creative Suite (Full-Stack Game Creation)
+
+| Task | Primary Persona | Why |
+|---|---|---|
+| Milestone delivery, feature scope pruning, vertical slice prioritization, cross-discipline integration | `awake-game-producer` | Production pace and scope discipline dominate |
+| Core gameplay loop, combat balance, player controls, economy, gameplay ECS components & systems (`gameplay/`) | `awake-game-designer` | Game feel, mechanics, and simulation rules dominate |
+| World lore, narrative scripts, branching dialogue trees, quest progression state machines | `awake-narrative-director` | Storytelling, dialogue branching, and quest pacing dominate |
+| Gameplay follow cameras, combat screen shake, cinematic cutscene spline tracks, dynamic framing | `awake-camera-director` | Visual direction, camera smoothing, and cinematic pacing dominate |
+| Art style guides, 3D glTF specs, 2D texture/sprite prompts, particle VFX emitters, custom material shaders | `awake-art-vfx-director` | Visual aesthetics, lighting mood, and particle dynamics dominate |
+| Sound effects (SFX), dynamic BGM stem triggers, ambient soundscapes, 3D spatial audio emitters | `awake-audio-designer` | Audio landscape, dynamic sound ducking, and spatial positioning dominate |
 
 ## Common Mixed Cases
 
-### ECS plus rendering
+### ECS Mechanics vs Core Engine Performance
+If the task is authoring game-specific combat/movement rules in `samples/<game>/gameplay/`, route to `awake-game-designer`.
+If the task is optimizing sparse-set storage, pooling, or query iteration in `awake:ecs`, route to `awake-engine-core-engineer`.
 
-If the task is:
+### Render Pipeline vs Game VFX / Shaders
+If the task is low-level Vulkan/WebGPU pipeline setup, JNI bindings, or render pass architecture, route to `awake-render-backend-engineer`.
+If the task is authoring custom particle emitter descriptors, material colors, or post-process bloom parameters for a game scene, route to `awake-art-vfx-director`.
 
-- `MeshRenderer` storage shape
-- family iteration
-- transform propagation
-
-start with `awake-ecs-performance-engineer`.
-
-If the task is:
-
-- renderer extraction
-- GPU resource lifetime
-- draw submission correctness
-
-start with `awake-render-backend-engineer`.
-
-### UI mechanics plus design-system work
-
-If the bug is:
-
-- overlapping text
-- wrong clipping
-- box sizing
-- pointer/input behavior
-
-start with `awake-ui-systems-engineer`.
-
-If the bug is:
-
-- muted palette
-- wrong border radius
-- inconsistent component recipe
-- showcase visual polish
-
-start with `awake-design-system-engineer`.
-
-### Game shell plus scene DSL
-
-If the problem is:
-
-- how an app starts
-- how runtime state is wired
-- where reusable bootstrap helpers belong
-
-start with `awake-game-framework-engineer`.
-
-If the problem is:
-
-- how authored scene structure is expressed
-- what belongs in `scene {}` vs runtime helpers
-- serialization boundaries
-
-start with `awake-scene-runtime-engineer`.
-
-## Coordination Rule
-
-When a task crosses boundaries:
-
-1. pick one primary agent
-2. link to the secondary agent doc in the implementation notes or task doc
-3. keep the owning module responsible for the final API shape
-
-Do not flatten two domains into one helper just because one change touches both.
+### UI Component Authoring vs Game Dialogue UI
+If the task is implementing a new reusable Shadcn component recipe or layout primitive in `awake:ui:*`, route to `awake-ui-engineer`.
+If the task is authoring dialogue text and branching quest options for a game story, route to `awake-narrative-director`.
