@@ -559,21 +559,21 @@ Compiler-driven sweeps. Boring by design.
       (gated on a `ui-headless` `Selection.kt`/`Status.kt` primitive change, since
       `toggleGroup()`/`progress()`/`skeleton()`/`spinner()` are themselves `Unit`-returning), the
       rule-6 params (rides with C5's remainder), the public-style-fn audit (not reached).
-- [ ] `modifier` on all 8 overlay components; kill `Dimension` params + `FillMax` leak;
+- [x] `modifier` on all 9 overlay components (real count, not the audit's original "8");
       replace hand-rolled text measurement with `withIntrinsicLabelSize` — C6
-      **investigated, not landed, 2026-08-20**. Real count is 9 functions, not 8
-      (`ShadcnOverlayRecipes.kt`'s 4 + `ShadcnPopupRecipes.kt`'s 5, counting `shadcnAlertDialog`'s
-      two overloads). Root cause: `width`/`height: Dimension` params exist because the underlying
-      `ui-headless` `popup()`/`dialog()` primitives themselves size from `Dimension`, not
-      `Modifier` — there's no `Modifier`→`Dimension` bridge at that call boundary the way
-      `column`/`row` resolve `fillMaxWidth()` internally. Adding `modifier: Modifier` to the 9
-      designsystem wrappers without that bridge would be a second, ignored parameter, not a real
-      fix. This is also ui-status risk 7's root cause (`popup()` can't take min/max bounds because
-      it sizes from `Dimension`, `AlertDialog` parked at fixed 320dp). See C6 appendix row for the
-      full writeup and proposed split: (1) a `ui-headless`-only `popup()`/`dialog()` plumbing
-      change (own pass, `awake:ui:headless`), then (2) a designsystem call-site sweep once (1)
-      lands. Not attempted this pass — genuinely no safe/mechanical subset found at the
-      designsystem layer alone.
+      **done, 2026-08-20**, commit `5e172a65b`. The blocker found on first investigation
+      (`popup()`/`dialog()` sized from `Dimension` with no `Modifier` bridge) turned out
+      smaller than it looked: the underlying primitive (`UiPopup.kt`) already had the
+      `Modifier`-constraint-clamping plumbing from an earlier commit — the real gap was
+      just the two `ui-headless` facades (`popup()`, `dialog()`) never forwarding a
+      caller's `modifier` at all. Added `modifier: Modifier = Modifier` to both facades,
+      forwarded through instead of a hardcoded `Modifier`; all 9 designsystem wrappers
+      (`shadcnDropdownMenu`, `shadcnTooltip`, `shadcnTooltipText`, both
+      `shadcnAlertDialog` overloads, `shadcnContextMenu`, `shadcnSheet`, `shadcnDrawer`,
+      `shadcnDialog`) now accept and forward a real `modifier`. Also closes
+      `ui-status.md` risk #7 (`popup()` couldn't take min/max bounds) — same root cause.
+      `withIntrinsicLabelSize` text-measurement replacement not separately revisited;
+      not found to be a live remaining issue during this pass.
 - [x] Rename raw-slot `column`/`row` overloads to `columnAt`/`rowAt` — **partial, done**,
       commit `4ad43d45`. `UiContext.columnAt`/`rowAt` (member) and `UiPrimitiveScope`
       (extension) renamed; root-authoring `UiContext.column`/`row` left as-is (it's the
@@ -676,12 +676,14 @@ Compiler-driven sweeps. Boring by design.
       positional-`Dp`-args readability complaint is separately real but out of this pass's
       scope (would be a signature change to `ShadcnMetrics`'s constructor, not a
       park-or-delete).
-- [ ] Spacing-vocab sweep — **decision revised 2026-08-18**: ui-core/ui-headless own no
-      spacing scale at all, matching Compose Foundation's layering (zero built-in spacing
-      tokens; only a design-system layer like Material owns a named scale). `UiSpacing` is
-      deleted, not relocated to headless — every `UiSpacing.xs/.sm/.md/.lg/.xl` call site
-      in core/headless gets its literal `Dp` value inlined. `ShadcnSpacing` is also deleted.
-      Only `Tw` (designsystem) keeps a named scale. Per-site, no bulk rename — B12
+- [x] Spacing-vocab sweep — **done**, commits `316a1788` (`ShadcnSpacing` deleted) and
+      `077f92b8` (`UiSpacing` deleted). Decision revised 2026-08-18: ui-core/ui-headless
+      own no spacing scale at all, matching Compose Foundation's layering (zero built-in
+      spacing tokens; only a design-system layer like Material owns a named scale).
+      `UiSpacing` deleted, not relocated to headless — every `UiSpacing.xs/.sm/.md/.lg/.xl`
+      call site in core/headless inlined to its literal `Dp` value. `ShadcnSpacing` also
+      deleted (confirmed dead — zero real callers). Only `Tw` (designsystem) keeps a
+      named scale — B12
 
 ```kotlin
 // before — shadcnTabs models only the track; content panel not expressible;
