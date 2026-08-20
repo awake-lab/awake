@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGroup
@@ -77,25 +78,27 @@ class ShadcnCollapsibleScrolledCollapseFrameCaptureTest {
             ui.pushLocal(LocalFont, font)
             ui.pushLocal(LocalTheme, ShadcnTheme.asRuntimeTheme())
             sidebarScroll = ui.rememberScrollState("scrolled-capture-sidebar-scroll")
-            ui.createUiScope(UiBounds(0f, 0f, 480f, 800f)).shadcnSidebar(
-                id = "scrolled-capture-sidebar",
-                modifier = Modifier.verticalScroll(sidebarScroll).width(280f.dp).fillMaxHeight(),
-            ) {
-                categories.forEach { (title, pageCount) ->
-                    shadcnCollapsible(
-                        id = "scrolled-capture-category-$title",
-                        title = title,
-                        expanded = expandedByCategory.getValue(title),
-                        onExpandedChange = { expandedByCategory[title] = it },
-                    ) {
-                        shadcnSidebarGroup {
-                            shadcnSidebarMenu {
-                                repeat(pageCount) { index ->
-                                    shadcnSidebarMenuItem(
-                                        id = "scrolled-capture-page-$title-$index",
-                                        label = "$title Page $index",
-                                        active = false,
-                                    )
+            ui.createUiScope(UiBounds(0f, 0f, 480f, 800f)).shadcnTheme {
+                shadcnSidebar(
+                    id = "scrolled-capture-sidebar",
+                    modifier = Modifier.verticalScroll(sidebarScroll).width(280f.dp).fillMaxHeight(),
+                ) {
+                    categories.forEach { (title, pageCount) ->
+                        shadcnCollapsible(
+                            id = "scrolled-capture-category-$title",
+                            title = title,
+                            expanded = expandedByCategory.getValue(title),
+                            onExpandedChange = { expandedByCategory[title] = it },
+                        ) {
+                            shadcnSidebarGroup {
+                                shadcnSidebarMenu {
+                                    repeat(pageCount) { index ->
+                                        shadcnSidebarMenuItem(
+                                            id = "scrolled-capture-page-$title-$index",
+                                            label = "$title Page $index",
+                                            active = false,
+                                        )
+                                    }
                                 }
                             }
                         }

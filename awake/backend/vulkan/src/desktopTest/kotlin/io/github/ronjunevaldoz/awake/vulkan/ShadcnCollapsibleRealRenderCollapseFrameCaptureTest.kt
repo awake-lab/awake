@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnTheme
+import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCollapsible
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
@@ -55,30 +56,31 @@ class ShadcnCollapsibleRealRenderCollapseFrameCaptureTest {
         fun frame(): List<UiDrawPrimitive> {
             ui.beginFrame(UiFrameInput(viewportWidth = 480f, viewportHeight = 800f, input = input.updateSnapshot().toUiInputState()))
             ui.pushLocal(LocalFont, font)
-            ui.pushLocal(LocalTheme, ShadcnTheme.asRuntimeTheme())
-            ui.createUiScope(UiBounds(0f, 0f, 480f, 800f)).shadcnSidebar(
-                id = "capture-sidebar",
-                modifier = Modifier.width(280f.dp).fillMaxHeight(),
-            ) {
-                shadcnCollapsible(
-                    id = "capture-category-getting-started",
-                    title = "Getting Started",
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it },
+            ui.createUiScope(UiBounds(0f, 0f, 480f, 800f)).shadcnTheme {
+                shadcnSidebar(
+                    id = "capture-sidebar",
+                    modifier = Modifier.width(280f.dp).fillMaxHeight(),
                 ) {
-                    repeat(4) { index ->
-                        shadcnButton(
-                            id = "capture-item-$index",
-                            label = "Item $index",
-                            modifier = Modifier.fillMaxWidth().height(32f.dp),
-                        )
+                    shadcnCollapsible(
+                        id = "capture-category-getting-started",
+                        title = "Getting Started",
+                        expanded = expanded,
+                        onExpandedChange = { expanded = it },
+                    ) {
+                        repeat(4) { index ->
+                            shadcnButton(
+                                id = "capture-item-$index",
+                                label = "Item $index",
+                                modifier = Modifier.fillMaxWidth().height(32f.dp),
+                            )
+                        }
                     }
+                    shadcnButton(
+                        id = "capture-inputs-header",
+                        label = "Inputs",
+                        modifier = Modifier.fillMaxWidth().height(32f.dp),
+                    )
                 }
-                shadcnButton(
-                    id = "capture-inputs-header",
-                    label = "Inputs",
-                    modifier = Modifier.fillMaxWidth().height(32f.dp),
-                )
             }
             return ui.finishFrame().primitives
         }
