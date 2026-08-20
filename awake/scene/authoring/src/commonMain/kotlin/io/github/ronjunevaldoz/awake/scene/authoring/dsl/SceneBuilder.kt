@@ -9,6 +9,9 @@ import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 
 /**
  * Structural orchestrator for building an ECS scene graph.
+ *
+ * Provides the root entry point for declaring entities. To configure components on an entity
+ * or add child entities, use the [EntityScope] trailing lambda passed to [entity].
  */
 @AwakeSceneDsl
 class SceneBuilder internal constructor(
@@ -16,12 +19,15 @@ class SceneBuilder internal constructor(
     val parentEntity: Entity? = null,
 ) {
     /**
-     * Spawns an entity with an optional name, modifier, and child block.
+     * Spawns an entity with an optional name and configures its components and children.
+     *
+     * @param name The optional descriptive name for the entity.
+     * @param block The configuration block executed within an [EntityScope].
+     * @return The newly spawned [Entity] handle.
      */
     fun entity(
         name: String? = null,
-        modifier: EntityModifier = Modifier(),
-        block: SceneBuilder.() -> Unit = {},
+        block: EntityScope.() -> Unit = {},
     ): Entity {
         val currentEntity = world.create()
 
@@ -29,16 +35,14 @@ class SceneBuilder internal constructor(
             world.add(currentEntity, Name(name))
         }
 
-        // Flush modifier actions to world storage
-        modifier.actions.forEach { action -> action(world, currentEntity) }
+        val childBuilder = SceneBuilder(world, parentEntity = currentEntity)
+        val scope = EntityScope(world, currentEntity, childBuilder)
+        scope.block()
 
         if (parentEntity != null) {
-            world.get<Transform>(currentEntity)?.parent = parentEntity
+            val transform = world.get<Transform>(currentEntity) ?: world.add(currentEntity, Transform())
+            transform?.parent = parentEntity
         }
-
-        // Process children
-        val childContext = SceneBuilder(world, parentEntity = currentEntity)
-        childContext.block()
 
         return currentEntity
     }

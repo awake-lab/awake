@@ -1,6 +1,6 @@
 ---
 name: awake-ecs-authoring
-description: Rules for authoring Awake ECS components, systems and scenes - component construction, query/family costs, structural-change churn, entity lifecycle, and the scene DSL. Read before adding a component, writing a System, or building entities with the scene { } DSL. Trigger keywords - ECS, World, entity, component, System.update, queryEach, family, Poolable, scene DSL, EntityModifier, Modifier(), cameraEntity, MeshRenderer, Transform, spawn, destroy.
+description: Rules for authoring Awake ECS components, systems and scenes - component construction, query/family costs, structural-change churn, entity lifecycle, and the scene DSL. Read before adding a component, writing a System, or building entities with the scene { } DSL. Trigger keywords - ECS, World, entity, component, System.update, queryEach, family, Poolable, scene DSL, EntityScope, cameraEntity, MeshRenderer, Transform, spawn, destroy.
 ---
 
 # Authoring ECS components, systems and scenes in Awake
@@ -86,24 +86,28 @@ If a system reads another's output, say so in a comment at the registration site
 
 ```kotlin
 world.scene {
-    val cube = entity("SpinningCube", Modifier().transform(y = 0.5f).with(SpinControl()))
-    entity("MainCamera", Modifier().camera(CameraMode.ThirdPerson, target = cube))
+    val cube = entity("SpinningCube") {
+        transform(y = 0.5f)
+        with(SpinControl())
+    }
+    entity("MainCamera") {
+        camera(CameraMode.ThirdPerson, target = cube)
+    }
 }
 ```
 
-- `Modifier()` is a **function** returning a fresh `EntityModifier` (it mirrors Compose's
-  `Modifier`; the UI one is a `val`, so both can be imported into one file).
-- `EntityModifier.with(component)` **mutates and returns the same builder**. It is not a pure
-  combinator - do not branch off a shared base expecting independent copies.
-- `configure(::Type) { }` takes a factory (see the reflective-construction rule above).
+- `entity("name") { }` provides an `EntityScope` receiver where components are attached directly to the entity.
+- `with(component)` attaches a pre-existing component instance directly to the entity.
+- `configure(::Type) { }` takes an explicit constructor factory (see the reflective-construction rule above).
+- Child entities are spawned via nested `entity("child") { }` blocks and automatically parented to the enclosing entity's `Transform`.
 
 **A camera needs both halves.** `Camera` is the lens `RenderSystem` renders from;
 `CameraComponent` is the control state `CameraSystem` drives. An entity carrying only one is
-silently inert - it will never be rendered from, or never move. `Modifier().camera(...)`
+silently inert - it will never be rendered from, or never move. Calling `camera(...)` inside `entity { }`
 attaches both; prefer it over hand-assembling either.
 
 Attaching a raw `core.math.Camera` does **not** make an entity a camera - it registers under
-its own type and matches no scene query. Wrap it: `Modifier().camera(lens = myCoreCamera)`.
+its own type and matches no scene query. Wrap it: `entity("camera") { camera(lens = myCoreCamera) }`.
 
 **Own what you destroy.** Keep the `Entity` handles you spawned and destroy exactly those.
 A global `queryEach(SpinControl::class) { destroy(it) }` in a teardown will take out every

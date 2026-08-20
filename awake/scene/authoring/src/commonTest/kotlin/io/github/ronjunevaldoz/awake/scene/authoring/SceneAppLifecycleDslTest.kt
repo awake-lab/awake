@@ -24,7 +24,6 @@ import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.render.texture.TextureAsset
 import io.github.ronjunevaldoz.awake.scene.authoring.blueprints.cameraEntity
 import io.github.ronjunevaldoz.awake.scene.authoring.blueprints.meshEntity
-import io.github.ronjunevaldoz.awake.scene.authoring.dsl.Modifier
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.camera
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.transform
 import io.github.ronjunevaldoz.awake.scene.authoring.infrastructure.cameraSystem
@@ -36,6 +35,8 @@ import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
 import io.github.ronjunevaldoz.awake.ui.headless.internal.text.text
 import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.modifier.alpha
+import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize
 import io.github.ronjunevaldoz.awake.ui.modifier.offset
 import io.github.ronjunevaldoz.awake.ui.modifier.size
 import kotlinx.coroutines.test.runTest
@@ -55,8 +56,8 @@ class SceneAppLifecycleDslTest {
             ecs {
                 name("runtime-proof")
                 scene {
-                    entity("camera", Modifier().camera())
-                    entity("cube", Modifier().transform())
+                    entity("camera") { camera() }
+                    entity("cube") { transform() }
                 }
                 assets {
                     mesh("cube") { recordingRenderer.createMesh(EmptyGeometry) }
@@ -98,7 +99,7 @@ class SceneAppLifecycleDslTest {
                 name("before-replace")
                 entity("ignored")
                 scene("after-replace") {
-                    entity("camera", Modifier().camera())
+                    entity("camera") { camera() }
                 }
             }
         }
@@ -116,13 +117,14 @@ class SceneAppLifecycleDslTest {
         val recordingRenderer = RecordingRenderer()
         val game = app {
             scene("facade-proof") {
-                cameraEntity("camera", Modifier().transform(y = 1f, z = 5f))
+                cameraEntity("camera") { transform(y = 1f, z = 5f) }
                 meshEntity(
                     "cube",
                     recordingRenderer.createMesh(EmptyGeometry),
                     recordingRenderer.createMaterial(),
-                    Modifier().transform(sx = 2f, sy = 2f, sz = 2f),
-                )
+                ) {
+                    transform(sx = 2f, sy = 2f, sz = 2f)
+                }
                 assets {
                     mesh("cube") { recordingRenderer.createMesh(EmptyGeometry) }
                     material("default") { recordingRenderer.createMaterial() }

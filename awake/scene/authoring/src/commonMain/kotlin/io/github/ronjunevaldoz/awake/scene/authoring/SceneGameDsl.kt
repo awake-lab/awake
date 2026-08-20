@@ -5,8 +5,7 @@ package io.github.ronjunevaldoz.awake.scene.authoring
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.AppSpecDsl
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.AwakeSceneDsl
-import io.github.ronjunevaldoz.awake.scene.authoring.dsl.EntityModifier
-import io.github.ronjunevaldoz.awake.scene.authoring.dsl.Modifier
+import io.github.ronjunevaldoz.awake.scene.authoring.dsl.EntityScope
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.SceneBuilder
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.scene
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
@@ -108,17 +107,19 @@ class SceneGameDsl internal constructor() {
 
     /**
      * Shortcut to spawn a root-level entity cleanly without nesting.
+     *
+     * @param name The optional descriptive name for the entity.
+     * @param block The configuration block executed within an [EntityScope].
      */
     fun entity(
         name: String? = null,
-        modifier: EntityModifier = Modifier(),
-        block: SceneBuilder.() -> Unit = {},
+        block: EntityScope.() -> Unit = {},
     ) {
         // Since we want to preserve the population block, we append to it.
         val previous = scenePopulationBlock
         scenePopulationBlock = {
             previous()
-            SceneBuilder(world).entity(name, modifier, block)
+            SceneBuilder(world).entity(name, block)
         }
     }
 
