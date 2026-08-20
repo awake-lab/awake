@@ -308,15 +308,62 @@ In Awake, every single UI widget is an atomic composition of exactly 4 primitive
 
 Leaf widgets (`button`, `checkbox`, `switch`, `tabs`, `collapsible`, etc.) must **never** call raw canvas graphics emitters (`emitFillAndBorder`, `emitCheckmark`, `emitRadioDot`) or manually calculate coordinate layouts; they must compose from these 4 primitives.
 
-### Jetpack Compose Naming & Callback Conventions
+### Widget event idiom: return-value, not callbacks (verified against real source 2026-08-20)
 
-Headless and Design System components strictly follow standard Compose callback and state parameter conventions:
-- `button`: `onClick: (() -> Unit)? = null`
-- `toggle`, `checkbox`, `switch`: `checked: Boolean`, `onCheckedChange: (Boolean) -> Unit = {}`
-- `radio`: `selected: Boolean`, `onClick: () -> Unit = {}`
-- `textField`, `textarea`: `value: String`, `onValueChange: (String) -> Unit = {}`
-- `slider`, `rangeSlider`: `value: Float`, `onValueChange: (Float) -> Unit = {}`
-- `tabs`: `selected: Boolean`, `onClick: () -> Unit = {}`
+Most discrete-interaction widgets are pure **return-value**, not callback-based --
+`checkbox`, `switch`, `slider`, `rangeSlider`, `select`, `combobox` take no
+`onXChange`/`onClick` param at all; the caller reads the widget's return (`Boolean`/
+`Float`/`Pair`/`Int?`) and reacts. `button` returns `Boolean` (`if (button(id)) { ... }`).
+This is the immediate-mode-native shape (see `docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md`
+row C9) -- prefer it for any new widget.
+
+Two known exceptions, not yet fixed (tracked in C9, both real, both narrower than this
+doc used to claim -- the previous version of this section listed `toggle`/`checkbox`/
+`switch`/`slider` as uniformly callback-based, which stopped being true once C3/C5
+landed; corrected here):
+- `toggle` carries **both** a `Boolean` return and an `onCheckedChange` callback
+  simultaneously -- pick the return value, the callback is redundant, don't add a third
+  widget that relies on the callback firing.
+- `toggleGroup` (both overloads) is `Unit`-returning with only a callback -- an
+  inconsistency with its sibling `slider`, not yet reconciled.
+
+`shadcn*` wrappers may still offer an `onClick`/`onXChange` convenience param as sugar
+over the return value (`shadcnButton(onClick = {...})` = `if (button(...)) onClick()`),
+documented synchronous-same-frame -- but the underlying `ui-headless` widget itself
+should be return-value shaped, not the other way around.
+
+## Every stateful widget needs a real, unique `id` -- collisions are silent without the check below
+
+`id` is the lookup key into `WidgetState` (hover/active/animation/scroll/caret state).
+Two widgets that end up with the same `id` string silently share one state slot --
+hovering one visually reacts on the other, one's animation glitches, clicking one can
+toggle the other's checked state. This has shipped as a real bug multiple times (see
+`docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md`'s 2026-08-20 re-audit section
+and the fixes in commits `c1a6dab10`/`b6e2759ae`).
+
+The two failure shapes to watch for, both already fixed once each but easy to
+reintroduce:
+1. **A defaulted/optional `id` that feeds a *different* child widget's required-id
+   slot.** `shadcnAvatarGroup(id: String = "avatar")` used to interpolate
+   `"$id.$index"` into each child avatar's id -- two `shadcnAvatarGroup`s on one
+   screen without an explicit `id` collided. Fix: every widget that constructs a
+   child widget's id from its own id must take a **required** `id`, not a defaulted
+   one.
+2. **A loop or sibling-call site that doesn't derive a unique id per iteration.**
+   `shadcnButtonGroupSeparator()` called inside `forEachIndexed` with no `id` fell
+   back to the same orientation-derived string every iteration -- a single button
+   group with 3+ members collided with *itself*. Fix: pass a derived id
+   (`"$id.sep.$index"`) at every call site inside a loop or repeated composition,
+   never rely on a shared default.
+
+**Safety net, not a substitute for getting it right:** `UiContext` throws immediately
+if the same `id` is claimed twice in one real (non-measuring) frame
+(`UiContextFrameState.recordSemantic`, `awake/ui/ui-core/.../context/UiContextFrameState.kt`).
+This turns the silent-bug class above into a loud crash during development/tests
+instead of a shipped visual glitch -- but it only fires once you actually render two
+colliding instances together, so it doesn't replace picking real, unique ids up front.
+If you hit this throw, the message names the colliding literal id; the fix is almost
+always shape #1 or #2 above.
 
 ## Checklist
 
@@ -336,4 +383,7 @@ Headless and Design System components strictly follow standard Compose callback 
       `widget(id) { text("...") }` through the existing slot, not a second resolution path.
       `shadcn*` may still expose `label:` as sugar, but its body must call that same slot.
 - [ ] Built exclusively from the 4 Foundational Primitives (`surface`, `row`/`column`/`box`/`spacer`, `text`/`icon`, `Modifier.*`) -- no raw canvas emitters or `interactiveSurface`.
+- [ ] Every `id` param is required, not defaulted/nullable, unless the widget genuinely
+      never constructs a child widget's id from it. Any loop or repeated call site derives
+      a unique id per iteration (`"$id.sep.$index"`), never relies on a shared default.
 
