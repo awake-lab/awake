@@ -11,6 +11,15 @@ plugins {
     id("awake.spotless-convention")
     id("awake.ui-authored-units-convention")
     id("awake.ui-preview-report-convention")
+    id("awake.ui-ownership-convention")
+}
+
+// verifyUiOwnership reads the whole src/ tree for its .kt source-pattern checks;
+// syncAwakeShaders writes generated shader files under src/ too. Neither task actually depends
+// on the other's output, but Gradle's parallel scheduler still needs an explicit order to avoid
+// a same-directory read/write race.
+tasks.named("verifyUiOwnership") {
+    mustRunAfter("syncAwakeShaders")
 }
 
 kotlin {

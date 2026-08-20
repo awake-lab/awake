@@ -41,6 +41,9 @@ enum class ShadcnBadgeVariant {
 
 enum class ShadcnSurfaceVariant {
     Muted,
+    // Full-bleed chrome strip: muted, square corners, horizontal-only inset -- an app toolbar or
+    // status bar, not a panel/card. See ShadcnSurfaceStyles.shadcnSurfaceStyle for the shape.
+    Band,
 }
 
 enum class ShadcnTextFieldVariant {

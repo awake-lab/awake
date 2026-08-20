@@ -4,6 +4,7 @@
 
 package io.github.ronjunevaldoz.awake.ui.designsystem.components
 
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupPositionProvider
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupProperties
 import io.github.ronjunevaldoz.awake.ui.api.UiPopupResult
@@ -31,12 +32,15 @@ fun UiScope.shadcnSurface(
     id: String,
     modifier: UiModifier = Modifier,
     variant: ShadcnSurfaceVariant? = null,
+    // Overrides the variant's own inset -- e.g. a rail-sized card that keeps the Default look
+    // but needs a tighter inset than the theme's panel padding.
+    contentPadding: Dp? = null,
     cacheKey: Any? = null,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiBounds = surface(
     id = id,
     modifier = modifier,
-    style = shadcnSurfaceStyle(themeValues, shadcnMetrics, variant),
+    style = shadcnSurfaceStyle(themeValues, shadcnMetrics, variant, contentPadding),
     cacheKey = cacheKey,
     content = content,
 )

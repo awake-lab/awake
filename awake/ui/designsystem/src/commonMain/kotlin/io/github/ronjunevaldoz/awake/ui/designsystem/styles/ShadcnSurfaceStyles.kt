@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui.designsystem.styles
 
+import io.github.ronjunevaldoz.awake.ui.api.Dp
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.designsystem.theme.ShadcnMetrics
@@ -31,13 +32,25 @@ internal fun shadcnLegacyAmbientSurfaceStyle(values: ShadcnThemeValues): Style =
     contentPadding(8f.dp)
 }
 
-internal fun shadcnSurfaceStyle(values: ShadcnThemeValues, metrics: ShadcnMetrics, variant: ShadcnSurfaceVariant?): Style =
-    when (variant) {
+internal fun shadcnSurfaceStyle(
+    values: ShadcnThemeValues,
+    metrics: ShadcnMetrics,
+    variant: ShadcnSurfaceVariant?,
+    contentPadding: Dp? = null,
+): Style {
+    val base = when (variant) {
         ShadcnSurfaceVariant.Muted -> Style {
             background(values.colors.muted)
             foreground(values.colors.foreground)
             shape(values.shapes.lg)
             contentPadding(metrics.surfacePadding)
+        }
+
+        ShadcnSurfaceVariant.Band -> Style {
+            background(values.colors.muted)
+            foreground(values.colors.foreground)
+            shape(0f.dp)
+            contentPadding(metrics.bandPaddingX, 0f.dp, metrics.bandPaddingX, 0f.dp)
         }
 
         else -> Style {
@@ -48,6 +61,8 @@ internal fun shadcnSurfaceStyle(values: ShadcnThemeValues, metrics: ShadcnMetric
             contentPadding(metrics.panelPadding)
         }
     }
+    return if (contentPadding == null) base else base.then(Style { contentPadding(contentPadding) })
+}
 
 internal fun shadcnPopoverContentStyle(values: ShadcnThemeValues, metrics: ShadcnMetrics): Style = Style {
     background(values.colors.popover)

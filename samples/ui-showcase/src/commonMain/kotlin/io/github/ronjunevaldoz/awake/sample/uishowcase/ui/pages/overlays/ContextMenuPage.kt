@@ -11,9 +11,9 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnContextMen
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
 

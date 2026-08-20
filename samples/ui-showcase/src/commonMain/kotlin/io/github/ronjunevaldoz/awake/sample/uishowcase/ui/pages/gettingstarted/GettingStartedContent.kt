@@ -3,12 +3,12 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui.pages.gettingstarted
 
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
-import io.github.ronjunevaldoz.awake.ui.theme
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.api.layout.UiAlignment
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnBadge
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnCard
+import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnFieldLabel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnMuted
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSectionTitle
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSelect
@@ -22,17 +22,15 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnButtonVariant
 import io.github.ronjunevaldoz.awake.ui.designsystem.styles.ShadcnSurfaceVariant
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.row
 import io.github.ronjunevaldoz.awake.ui.headless.spacer
-import io.github.ronjunevaldoz.awake.ui.headless.text
 import io.github.ronjunevaldoz.awake.ui.headless.uiScope
-import io.github.ronjunevaldoz.awake.ui.modifier.width
-import io.github.ronjunevaldoz.awake.ui.style.Style
+import io.github.ronjunevaldoz.awake.ui.headless.width
 
 internal fun ColumnScope.drawUiShowcaseOverviewPreview() {
     shadcnBadge(id = "showcase-badge-showcase", label = "SHOWCASE", variant = ShadcnBadgeVariant.Secondary)
@@ -140,14 +138,7 @@ private fun ColumnScope.themeSwitchRow(
 }
 
 private fun RowScope.themeLabel(label: String, width: io.github.ronjunevaldoz.awake.ui.api.Dp) {
-    text(
-        label = label,
-        modifier = Modifier.width(width),
-        style = Style {
-            foreground(primitive.theme.colors.foreground)
-            textSize(primitive.theme.typography.label)
-        },
-    )
+    shadcnFieldLabel(text = label, modifier = Modifier.width(width))
 }
 
 private fun RowScope.columnPreview(state: UiShowcaseRuntimeState) {

@@ -6,9 +6,9 @@ import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcaseCategory
 import io.github.ronjunevaldoz.awake.sample.uishowcase.ui.ShowcasePage
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSpinner
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
+import io.github.ronjunevaldoz.awake.ui.headless.width
 
 internal val SpinnerPage = ShowcasePage(
     id = "spinner",

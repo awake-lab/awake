@@ -9,6 +9,8 @@ val classifiedUiModules = setOf(
     ":awake:ui:designsystem",
     ":awake:ui:tailwind",
     ":awake:ui:heroicons",
+    ":samples:ui-showcase",
+    ":samples:studio",
 )
 check(project.path in classifiedUiModules) {
     "Unclassified module applies awake.ui-ownership-convention: ${project.path}. " +
@@ -84,6 +86,15 @@ val forbiddenUiSourcePatterns = when (project.path) {
         // Runtime context is off-limits; the UiLocal ambient-value contract is licensed
         // "local infrastructure" (docs/reference/ui-ownership.md, theme values section).
         "(?m)^import\\s+io\\.github\\.ronjunevaldoz\\.awake\\.ui\\.context\\.(?!UiLocal\\b|uiLocalOf\\b)",
+    )
+    // docs/reference/ui-ownership.md's "Consuming From A Sample, Game, Or Tool" rule: visible
+    // UI comes only through shadcn* recipes; ui-core's modifier builders and hand-authored
+    // Style{} blocks are a styling escape hatch, not structure -- the licensed door through is
+    // ui-headless's ModifierExports.kt.
+    ":samples:ui-showcase",
+    ":samples:studio" -> listOf(
+        "(?m)^import\\s+io\\.github\\.ronjunevaldoz\\.awake\\.ui\\.modifier\\.",
+        "\\bStyle\\s*\\{",
     )
     else -> emptyList()
 }

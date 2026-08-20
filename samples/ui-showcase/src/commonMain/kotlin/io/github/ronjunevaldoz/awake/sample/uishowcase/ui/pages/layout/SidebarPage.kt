@@ -11,10 +11,10 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarGro
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarHeaderButton
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenu
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebarMenuItem
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
-import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.height
 import io.github.ronjunevaldoz.awake.ui.headless.rememberStateValue
-import io.github.ronjunevaldoz.awake.ui.modifier.width
+import io.github.ronjunevaldoz.awake.ui.headless.width
 
 private val SidebarSampleItems = listOf("Overview", "Analytics", "Projects", "Settings")
 

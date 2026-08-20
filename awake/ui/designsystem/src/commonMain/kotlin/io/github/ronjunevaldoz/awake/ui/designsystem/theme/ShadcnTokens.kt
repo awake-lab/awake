@@ -55,6 +55,11 @@ data class ShadcnMetrics(
     // Real text-Input's vertical inset (real shadcn's Input py-1) -- smaller than
     // [fieldPaddingY]'s SelectTrigger py-2.
     val inputPaddingY: Dp,
+    // Horizontal inset for a full-bleed chrome band (ShadcnSurfaceVariant.Band) -- an app
+    // toolbar/status-bar strip, not part of shadcn/ui's own vocabulary. Defaults to
+    // [fieldPaddingX] (same horizontal-inset scale) so existing per-theme presets don't need
+    // their own tuned value.
+    val bandPaddingX: Dp = fieldPaddingX,
 )
 
 data class ShadcnPalette(

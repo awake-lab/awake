@@ -10,11 +10,11 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizableH
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanel
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnResizablePanelGroup
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnText
-import io.github.ronjunevaldoz.awake.ui.modifier.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.Modifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiResizableDirection
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight
-import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth
-import io.github.ronjunevaldoz.awake.ui.modifier.height
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
+import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
+import io.github.ronjunevaldoz.awake.ui.headless.height
 
 internal val ResizablePage = ShowcasePage(
     id = "resizable",

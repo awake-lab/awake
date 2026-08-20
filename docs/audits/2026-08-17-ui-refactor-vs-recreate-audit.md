@@ -79,6 +79,50 @@ and a set of small, bounded, mechanical-to-medium new findings:
   `Style{}` sites to real recipes, (3) then flip designsystem's dependency scope and
   bring `samples:*` under `verifyUiOwnership`.
 
+  **Landed, 2026-08-20 (same day, follow-up pass).** Real counts verified against
+  source before touching anything: 40 files (35 `ui-showcase` + 5 `studio`), not
+  ~45 — the audit's estimate rounds up; 3 `Style{}` sites confirmed exactly as
+  described. **Step 1**: found one real gap in `ModifierExports.kt` before
+  sweeping — `heightIn` exists in `ui-core`'s `LayoutModifiers.kt` and one file
+  (`ShowcaseShell.kt`) used it, but the door didn't re-export it (only `widthIn`
+  was). Added the re-export first, then repointed all 40 files' imports from
+  `ui.modifier.*` to `ui.headless.*` (mechanical `sed`, zero manual edits,
+  zero duplicate-import collisions). **Step 2**: `StudioToolbar.kt`'s `barBand()`
+  and `IconRail.kt`'s `railCard()` were both a real, reusable shape (full-bleed
+  muted chrome band; a card look with tighter padding) neither existing
+  `ShadcnSurfaceVariant` covered — promoted both into `ui-designsystem`: a new
+  `ShadcnSurfaceVariant.Band` (square corners, muted, horizontal-only inset,
+  backed by a new `ShadcnMetrics.bandPaddingX` field defaulted to
+  `fieldPaddingX` so the 8 existing theme presets need no per-theme tuning), and
+  a `contentPadding: Dp? = null` override param on `shadcnSurface` for the
+  card-with-tighter-padding case. `GettingStartedContent.kt`'s `themeLabel()`
+  turned out to already have a matching recipe in the tree —
+  `shadcnFieldLabel()` (`ShadcnFieldRecipes.kt`) resolves the identical
+  foreground/typography.label pairing through `themeValues.typography.label`
+  (accessible on the `ShadcnThemeValues` wrapper, not just raw `primitive.theme`)
+  — swapped the hand-authored `Style{}` for a direct call, no new recipe needed.
+  **Step 3**: flipped `implementation` (was `api`) and verified with a
+  `--no-build-cache` clean compile (build-cache `FROM-CACHE` hits initially
+  masked whether the flip mattered at all). Confirmed safe by construction, not
+  just by a green build: grepped every real consumer of
+  `:awake:ui:designsystem` (`samples:studio`, `samples:ui-showcase`,
+  `awake:backend:vulkan` — the only 3 in the repo) and all three already declare
+  their own direct `implementation(project(":awake:ui:ui-core"))`, so none were
+  ever relying on designsystem's `api` re-export for their own compile
+  classpath; the 3 real public designsystem signatures that take `Style` as a
+  parameter (`shadcnResizableHandle`, `shadcnAlertDialog` ×2) still resolve
+  fine for every current caller. Added `:samples:ui-showcase`/`:samples:studio`
+  to `classifiedUiModules` and gave both a real (non-empty) rule set — banning
+  `ui.modifier.*` imports and `Style {` authoring via `forbiddenUiSourcePatterns`
+  — rather than the vacuous-empty-ruleset shape package 1's own root-cause
+  finding warns against; both already applied `awake.ui-ownership-convention`
+  and passed clean on the first run (no plugin was wired in for either sample
+  before this pass). All verification green: the 6-module desktopTest command
+  from this doc's own "Validation" line, `verifyUiOwnership` on all 5 UI
+  modules plus both samples, and `awake:backend:vulkan:compileKotlinDesktop`
+  (the third designsystem consumer, not in the mandated command but checked
+  since it's the only other real caller).
+
 None of the above changes the verdict. All are bounded, independently landable,
 same shape as everything else that's already shipped from this doc — not
 architectural surprises, not a case for recreate.

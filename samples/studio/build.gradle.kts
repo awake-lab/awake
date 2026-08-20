@@ -7,6 +7,7 @@ plugins {
     id("awake.dokka-convention")
     id("awake.detekt-convention")
     id("awake.spotless-convention")
+    id("awake.ui-ownership-convention")
 }
 
 // Shared shaders (skinned/instanced/shadow_depth/skinned_instanced/textured) live in
@@ -20,6 +21,14 @@ tasks.named<SyncWgslShaderPipelineTask>("syncAwakeShaders") {
 }
 tasks.named<ValidateWgslShadersTask>("validateAwakeShaders") {
     additionalSourceDirectories.from(sharedShaderDirectory)
+}
+
+// verifyUiOwnership (awake.ui-ownership-convention) reads the whole src/ tree for its .kt
+// source-pattern checks; syncAwakeShaders writes generated shader files under src/ too. Neither
+// task actually depends on the other's output, but Gradle's parallel scheduler still needs an
+// explicit order to avoid a same-directory read/write race.
+tasks.named("verifyUiOwnership") {
+    mustRunAfter("syncAwakeShaders")
 }
 
 kotlin {

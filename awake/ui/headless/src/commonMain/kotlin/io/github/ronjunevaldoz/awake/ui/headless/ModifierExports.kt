@@ -13,6 +13,7 @@ import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxHeight as primitiveFillM
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxSize as primitiveFillMaxSize
 import io.github.ronjunevaldoz.awake.ui.modifier.fillMaxWidth as primitiveFillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.modifier.height as primitiveHeight
+import io.github.ronjunevaldoz.awake.ui.modifier.heightIn as primitiveHeightIn
 import io.github.ronjunevaldoz.awake.ui.modifier.offset as primitiveOffset
 import io.github.ronjunevaldoz.awake.ui.modifier.padding as primitivePadding
 import io.github.ronjunevaldoz.awake.ui.modifier.styleable as primitiveStyleable
@@ -37,6 +38,7 @@ fun UiModifier.fillMaxHeight(): UiModifier = primitiveFillMaxHeight()
 fun UiModifier.fillMaxSize(): UiModifier = primitiveFillMaxSize()
 fun UiModifier.fillMaxWidth(): UiModifier = primitiveFillMaxWidth()
 fun UiModifier.height(dp: Dp): UiModifier = primitiveHeight(dp)
+fun UiModifier.heightIn(min: Dp? = null, max: Dp? = null): UiModifier = primitiveHeightIn(min, max)
 fun UiModifier.width(dp: Dp): UiModifier = primitiveWidth(dp)
 fun UiModifier.widthIn(min: Dp? = null, max: Dp? = null): UiModifier = primitiveWidthIn(min, max)
 
