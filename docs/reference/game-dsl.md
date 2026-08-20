@@ -144,5 +144,5 @@ The cookbook examples above are backed by executable tests and a generated repor
 Regenerate with:
 
 ```bash
-./gradlew :awake:engine:platform-authoring:desktopTest :awake:engine:platform-authoring:gameDslTutorialDocsReport
+./gradlew :awake:engine:bootstrap:desktopTest :awake:engine:bootstrap:gameDslTutorialDocsReport
 ```

@@ -3,8 +3,8 @@
 package io.github.ronjunevaldoz.awake.studio
 
 import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.app
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.module
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneLoader
@@ -23,7 +23,7 @@ class StudioSaveTest {
     fun savingWritesTheEditedTransformNotTheLoadedDocument() = runTest {
         var written: Pair<String, String>? = null
         val store = StudioStore()
-        val game = game {
+        val game = app {
             module(
                 studioModule(store, writeScene = { name, json ->
                     written = name to json

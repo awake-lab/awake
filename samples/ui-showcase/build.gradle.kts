@@ -92,7 +92,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":awake:engine:platform-authoring"))
+            implementation(project(":awake:engine:bootstrap"))
             implementation(project(":awake:scene:authoring"))
             implementation(project(":awake:ui:designsystem"))
             implementation(libs.kotlinx.coroutines.core)

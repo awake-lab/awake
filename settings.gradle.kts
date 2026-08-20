@@ -49,7 +49,7 @@ include(":awake:ui:tailwind-generator")
 include(":awake:ui:font-atlas-generator")
 include(":awake:ui:heroicons")
 include(":awake:engine:platform")
-include(":awake:engine:platform-authoring")
+include(":awake:engine:bootstrap")
 include(":awake:engine:app")
 include(":awake:backend:vulkan")
 include(":awake:backend:vulkan:bindings")
@@ -70,6 +70,9 @@ pluginManagement {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         google()
     }
+}
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 dependencyResolutionManagement {

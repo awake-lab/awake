@@ -5,8 +5,8 @@ package io.github.ronjunevaldoz.awake.studio
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
 import io.github.ronjunevaldoz.awake.engine.app.lifecycle.AppLifecycle
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.app
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.module
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
@@ -30,7 +30,7 @@ class StudioGizmoWiringTest {
     @Test
     fun clickingInsideTheViewportSelectsAndClickingOutsideItDoesNot() = runTest {
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
         game.ready(RecordingCameraRenderer())
         val runtime = game.requireService<SceneAppLifecycleRuntime>()
         val input = game.requireService<Input>()
@@ -95,7 +95,7 @@ class StudioGizmoWiringTest {
     @Test
     fun holdingTheButtonAfterPickingKeepsTheSelection() = runTest {
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
         game.ready(RecordingCameraRenderer())
         val runtime = game.requireService<SceneAppLifecycleRuntime>()
         val input = game.requireService<Input>()
@@ -134,7 +134,7 @@ class StudioGizmoWiringTest {
     fun aSelectedEntityStagesThreeHandleLines() = runTest {
         val store = StudioStore()
         val renderer = RecordingCameraRenderer()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
         game.ready(renderer)
         val runtime = game.requireService<SceneAppLifecycleRuntime>()
         game.update(1f / 60f, FRAME_WIDTH, FRAME_HEIGHT)

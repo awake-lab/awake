@@ -38,6 +38,6 @@ val gameSpec = GameSpec.builder()
 
 - [`:awake:engine:app`](../app/README.md) — platform host applications (Desktop, Android, iOS,
   Wasm).
-- [`:awake:engine:platform-authoring`](../game-authoring/README.md) — high-level authoring DSLs (
+- [`:awake:engine:bootstrap`](../game-authoring/README.md) — high-level authoring DSLs (
   `gameApp { }`, `gameModule { }`).
 - [`:awake:scene:runtime`](../../scene/runtime/README.md) — ECS scene runtime driver.

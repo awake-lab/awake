@@ -22,7 +22,7 @@ kotlin {
             api(project(":awake:scene:rendering"))
             api(project(":awake:scene:controls"))
             api(project(":awake:scene:runtime"))
-            api(project(":awake:engine:platform-authoring"))
+            api(project(":awake:engine:bootstrap"))
             api(project(":awake:ui:ui-core"))
             implementation(libs.kotlinx.serialization.json)
         }

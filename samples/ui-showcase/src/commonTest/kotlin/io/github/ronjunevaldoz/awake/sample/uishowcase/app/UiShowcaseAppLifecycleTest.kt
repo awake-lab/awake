@@ -7,8 +7,8 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.engine.app.dsl.AppWindowBackend
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.createGameSpec
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.select
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.createAppSpec
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.select
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -163,7 +163,7 @@ class UiShowcaseAppLifecycleTest {
         state.showcaseBaseColorIndex = ShadcnBaseColor.Stone.ordinal
         state.showcaseAccentIndex = ShadcnAccent.Red.ordinal
         state.showcaseThemeModeIndex = UiShowcaseThemeMode.Dark.ordinal
-        val spec = uiShowcaseModule(state).createGameSpec {
+        val spec = uiShowcaseModule(state).createAppSpec {
             title = uiShowcaseSpec().windowConfig.title
             size(1600, 900)
             backend.select(platformBackendPreference())

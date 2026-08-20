@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.scene.authoring
 
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.GameSpecDsl
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.AppSpecDsl
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppSpec
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRoute
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneRouterSpec
 
-fun GameSpecDsl.scenes(block: SceneFlowDsl.() -> Unit) {
+fun AppSpecDsl.scenes(block: SceneFlowDsl.() -> Unit) {
     install(sceneFlow(block))
 }
 

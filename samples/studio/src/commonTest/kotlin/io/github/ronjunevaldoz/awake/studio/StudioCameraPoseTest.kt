@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio
 
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.app
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.module
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
@@ -21,7 +21,7 @@ class StudioCameraPoseTest {
     @Test
     fun theFirstFrameKeepsTheDistanceTheSceneAuthored() = runTest {
         val renderer = RecordingCameraRenderer()
-        val game = game { module(studioModule(StudioStore())) }
+        val game = app { module(studioModule(StudioStore())) }
         game.ready(renderer)
         repeat(3) { game.update(1f / 60f, 1440f, 900f) }
 
@@ -45,7 +45,7 @@ class StudioCameraPoseTest {
     fun firstPersonStartsAboveTheAimPointNotInsideIt() = runTest {
         val renderer = RecordingCameraRenderer()
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
         game.ready(renderer)
         game.update(1f / 60f, 1440f, 900f)
 

@@ -4,8 +4,8 @@ package io.github.ronjunevaldoz.awake.studio
 
 import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.app
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.module
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
 import io.github.ronjunevaldoz.awake.studio.state.StudioStore
 import io.github.ronjunevaldoz.awake.ui.context.UiCursor
@@ -24,7 +24,7 @@ class StudioShellChromeTest {
     fun hoveringAWorkspaceHandlePublishesTheResizeCursor() = runTest {
         val renderer = RecordingCameraRenderer()
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
         game.ready(renderer)
         val runtime = game.requireService<SceneAppLifecycleRuntime>()
         val input = game.requireService<Input>()
@@ -55,7 +55,7 @@ class StudioShellChromeTest {
     fun bottomDockPaintsAnOpaqueBackground() = runTest {
         val renderer = RecordingCameraRenderer()
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
         game.ready(renderer)
         val runtime = game.requireService<SceneAppLifecycleRuntime>()
         game.update(1f / 60f, 1440f, 900f)

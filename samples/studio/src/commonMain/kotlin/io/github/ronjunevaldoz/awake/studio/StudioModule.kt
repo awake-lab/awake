@@ -7,7 +7,7 @@ import io.github.ronjunevaldoz.awake.core.input.Input
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.app.core.AppModule
 import io.github.ronjunevaldoz.awake.engine.app.dsl.AppWindowBackend
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.appModule
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.scene.authoring.scene
 import io.github.ronjunevaldoz.awake.scene.controls.components.ActiveCamera
@@ -80,7 +80,7 @@ internal fun studioModule(
     val cameraPreview = StudioCameraPreview()
     val orientationGizmo = StudioOrientationGizmo()
     val editorCamera = StudioEditorCamera()
-    return gameModule {
+    return appModule {
         scene("studio") {
             assets {
                 // Bounds are recorded here because this is the last point where the geometry is

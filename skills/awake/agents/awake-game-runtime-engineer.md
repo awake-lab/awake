@@ -18,7 +18,7 @@ and [docs/MVP_PLAN.md](../../../docs/MVP_PLAN.md) first.
 
 ## Owns
 
-- `:awake:engine:platform` & `:awake:engine:platform-authoring` — `GameApplication`, `GameModule`,
+- `:awake:engine:platform` & `:awake:engine:bootstrap` — `GameApplication`, `GameModule`,
   bootstrap composition DSL
 - `:awake:engine:app` — backend-agnostic application window and render-loop wiring
 - Sample application shells (`samples:studio`, `samples:ui-showcase`, `samples:server`)

@@ -7,10 +7,10 @@ import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.ecs.System
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameModule
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.ui
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.app
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.appModule
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.module
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.ui.ui
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -51,7 +51,7 @@ class SceneAppLifecycleDslTest {
     fun sceneGameProvidesTypedSystemsAndCachedAssets() = runTest {
         val recordingRenderer = RecordingRenderer()
         lateinit var tickSystem: io.github.ronjunevaldoz.awake.scene.runtime.SceneSystemHandle<RecordingSystem>
-        val game = game {
+        val game = app {
             ecs {
                 name("runtime-proof")
                 scene {
@@ -93,7 +93,7 @@ class SceneAppLifecycleDslTest {
 
     @Test
     fun sceneBlockCanStillReplaceDirectlyAuthoredDocument() = runTest {
-        val game = game {
+        val game = app {
             ecs {
                 name("before-replace")
                 entity("ignored")
@@ -114,7 +114,7 @@ class SceneAppLifecycleDslTest {
     @Test
     fun gameSceneFacadeBuildsNamedCameraAndMeshEntities() = runTest {
         val recordingRenderer = RecordingRenderer()
-        val game = game {
+        val game = app {
             scene("facade-proof") {
                 cameraEntity("camera", Modifier().transform(y = 1f, z = 5f))
                 meshEntity(
@@ -145,7 +145,7 @@ class SceneAppLifecycleDslTest {
     @Test
     fun gameModuleCanOwnSceneAndUiComposition() = runTest {
         val renderer = RecordingRenderer()
-        val module = gameModule {
+        val module = appModule {
             scene("module-scene") {
                 cameraEntity("camera")
                 meshEntity("cube", renderer.createMesh(EmptyGeometry), renderer.createMaterial())
@@ -165,7 +165,7 @@ class SceneAppLifecycleDslTest {
             }
         }
 
-        val game = game {
+        val game = app {
             module(module)
         }
 
@@ -179,7 +179,7 @@ class SceneAppLifecycleDslTest {
     @Test
     fun sceneRuntimeStagesUiBeforeInfrastructureUpdate() = runTest {
         val renderer = RecordingRenderer()
-        val game = game {
+        val game = app {
             scene("ordered-scene") {
                 cameraEntity("camera")
                 overlay { width, height ->
@@ -201,7 +201,7 @@ class SceneAppLifecycleDslTest {
     fun explicitSystemPhasesSeparateFixedStepsFromRenderedFrames() = runTest {
         lateinit var fixedHandle: io.github.ronjunevaldoz.awake.scene.runtime.SceneSystemHandle<RecordingSystem>
         lateinit var frameHandle: io.github.ronjunevaldoz.awake.scene.runtime.SceneSystemHandle<RecordingSystem>
-        val game = game {
+        val game = app {
             scene("phase-proof") {
                 cameraEntity("camera")
                 fixedHandle = fixedSystem("fixed") { RecordingSystem() }

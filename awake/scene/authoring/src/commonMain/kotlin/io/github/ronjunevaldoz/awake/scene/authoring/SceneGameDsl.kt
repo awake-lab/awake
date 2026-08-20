@@ -3,7 +3,7 @@
 package io.github.ronjunevaldoz.awake.scene.authoring
 
 import io.github.ronjunevaldoz.awake.ecs.System
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.GameSpecDsl
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.AppSpecDsl
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.AwakeSceneDsl
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.EntityModifier
 import io.github.ronjunevaldoz.awake.scene.authoring.dsl.Modifier
@@ -27,15 +27,15 @@ import io.github.ronjunevaldoz.awake.scene.runtime.defaultInfrastructureSystems
 import io.github.ronjunevaldoz.awake.scene.runtime.instantiate
 import kotlin.reflect.KClass
 
-fun GameSpecDsl.ecs(block: SceneGameDsl.() -> Unit) {
+fun AppSpecDsl.ecs(block: SceneGameDsl.() -> Unit) {
     install(sceneGame(block))
 }
 
-fun GameSpecDsl.ecs(spec: SceneAppSpec) {
+fun AppSpecDsl.ecs(spec: SceneAppSpec) {
     install(spec)
 }
 
-fun GameSpecDsl.scene(
+fun AppSpecDsl.scene(
     name: String? = null,
     block: SceneGameDsl.() -> Unit,
 ) {
@@ -49,7 +49,7 @@ fun GameSpecDsl.scene(
     )
 }
 
-fun GameSpecDsl.scene(spec: SceneAppSpec) {
+fun AppSpecDsl.scene(spec: SceneAppSpec) {
     install(spec)
 }
 

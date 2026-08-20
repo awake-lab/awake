@@ -5,8 +5,8 @@ package io.github.ronjunevaldoz.awake.studio
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
 import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.app
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.module
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
 import io.github.ronjunevaldoz.awake.scene.runtime.SceneAppLifecycleRuntime
@@ -24,7 +24,7 @@ class StudioPlayModeTest {
     @Test
     fun theCubeSpinsOnlyInPlayMode() = runTest {
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
         game.ready(RecordingCameraRenderer())
         val runtime = game.requireService<SceneAppLifecycleRuntime>()
         repeat(3) { game.update(1f / 60f, 1440f, 900f) }
@@ -44,7 +44,7 @@ class StudioPlayModeTest {
     @Test
     fun stoppingDiscardsWhatPlayModeChanged() = runTest {
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
         game.ready(RecordingCameraRenderer())
         val runtime = game.requireService<SceneAppLifecycleRuntime>()
         game.update(1f / 60f, 1440f, 900f)

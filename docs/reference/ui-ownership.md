@@ -394,7 +394,7 @@ Awake also build-enforces authored-unit usage in:
 
 - `:awake:ui:ui-headless`
 - `:awake:ui:ui-designsystem`
-- `:awake:engine:platform-authoring`
+- `:awake:engine:bootstrap`
 - `:samples:ui-showcase`
 
 Those modules run `verifyUiAuthoredUnits`, which currently rejects numeric `.px` literals in

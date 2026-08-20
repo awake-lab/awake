@@ -27,7 +27,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "io.github.ronjunevaldoz.awake.engine.application"
+        namespace = "io.github.ronjunevaldoz.awake.engine.platform"
     }
 
     // GameApplication.kt: the backend-neutral render bootstrap that

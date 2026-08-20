@@ -5,9 +5,9 @@ package io.github.ronjunevaldoz.awake.scene.authoring
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.GameUiRuntime
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.ui
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.app
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.ui.AppUiRuntime
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.ui.ui
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
@@ -37,7 +37,7 @@ class SceneRouterDslTest {
     @Test
     fun routedScenesSwitchThroughCommonRuntime() = runTest {
         val renderer = RouterRecordingRenderer()
-        val game = game {
+        val game = app {
             scenes {
                 initial("overview")
                 route("overview", label = "Overview") {
@@ -74,7 +74,7 @@ class SceneRouterDslTest {
     @Test
     fun routedScenesComposeWithGameUiInstaller() = runTest {
         val renderer = RouterRecordingRenderer()
-        val game = game {
+        val game = app {
             scenes {
                 route("overview") {
                     cameraEntity("camera")
@@ -98,7 +98,7 @@ class SceneRouterDslTest {
         game.update(0.016f, 320f, 240f)
 
         assertEquals("overview", game.requireService<SceneRouterRuntime>().activeSceneLabel)
-        assertEquals(GameUiRuntime::class, game.requireService<GameUiRuntime>()::class)
+        assertEquals(AppUiRuntime::class, game.requireService<AppUiRuntime>()::class)
     }
 }
 

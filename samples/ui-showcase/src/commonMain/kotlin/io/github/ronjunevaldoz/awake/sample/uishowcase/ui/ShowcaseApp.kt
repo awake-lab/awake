@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.sample.uishowcase.ui
 
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.AppUiSpec
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.GameUiRuntime
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameUi
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.headlessFrame
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.ui.AppUiRuntime
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.ui.AppUiSpec
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.ui.appUi
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.ui.headlessFrame
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 import io.github.ronjunevaldoz.awake.ui.api.dp
 import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSidebar
@@ -15,19 +15,19 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.components.shadcnSurface
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnTheme
 import io.github.ronjunevaldoz.awake.ui.designsystem.shadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
-import io.github.ronjunevaldoz.awake.ui.headless.column
-import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
-import io.github.ronjunevaldoz.awake.ui.headless.row
-import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.column
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxHeight
 import io.github.ronjunevaldoz.awake.ui.headless.fillMaxWidth
 import io.github.ronjunevaldoz.awake.ui.headless.padding
+import io.github.ronjunevaldoz.awake.ui.headless.rememberScrollState
+import io.github.ronjunevaldoz.awake.ui.headless.row
+import io.github.ronjunevaldoz.awake.ui.headless.verticalScroll
 import io.github.ronjunevaldoz.awake.ui.headless.width
 
 private val ShowcaseChromeTheme = shadcnThemeValues(dark = false)
 
-internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): AppUiSpec = gameUi {
+internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): AppUiSpec = appUi {
     theme(ShowcaseChromeTheme)
     overlay {
         drawUiShowcaseOverlay(
@@ -36,7 +36,7 @@ internal fun uiShowcaseUiSpec(state: UiShowcaseRuntimeState): AppUiSpec = gameUi
     }
 }
 
-internal fun GameUiRuntime.drawUiShowcaseOverlay(
+internal fun AppUiRuntime.drawUiShowcaseOverlay(
     state: UiShowcaseRuntimeState,
 ) {
     val showcaseTheme = state.showcaseTheme()

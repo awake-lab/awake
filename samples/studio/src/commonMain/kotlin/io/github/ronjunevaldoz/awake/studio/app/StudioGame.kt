@@ -3,21 +3,21 @@
 package io.github.ronjunevaldoz.awake.studio.app
 
 import io.github.ronjunevaldoz.awake.engine.app.core.AppSpec
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.WindowDsl
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameDefinition
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.select
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.WindowDsl
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.appDefinition
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.select
 import io.github.ronjunevaldoz.awake.studio.studioModule
 
-private val studioDefinition = gameDefinition(createState = {}) {
+private val studioDefinition = appDefinition(createState = {}) {
     window {
         configureStudioWindow()
     }
     module(studioModule())
 }
 
-fun studioGame() = studioDefinition.createGame()
+fun studioGame() = studioDefinition.createApp()
 
-fun studioGameSpec(): AppSpec = studioDefinition.createGameSpec()
+fun studioGameSpec(): AppSpec = studioDefinition.createAppSpec()
 
 private fun WindowDsl.configureStudioWindow() {
     title = "Awake Studio"

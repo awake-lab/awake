@@ -3,21 +3,21 @@
 package io.github.ronjunevaldoz.awake.sample.uishowcase.app
 
 import io.github.ronjunevaldoz.awake.engine.app.core.AppSpec
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.WindowDsl
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.gameDefinition
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.select
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.WindowDsl
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.appDefinition
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.select
 import io.github.ronjunevaldoz.awake.sample.uishowcase.state.UiShowcaseRuntimeState
 
-private val uiShowcaseDefinition = gameDefinition(createState = ::UiShowcaseRuntimeState) {
+private val uiShowcaseDefinition = appDefinition(createState = ::UiShowcaseRuntimeState) {
     window {
         configureUiShowcaseWindow()
     }
     module(::uiShowcaseModule)
 }
 
-fun uiShowcase() = uiShowcaseDefinition.createGame()
+fun uiShowcase() = uiShowcaseDefinition.createApp()
 
-fun uiShowcaseSpec(): AppSpec = uiShowcaseDefinition.createGameSpec()
+fun uiShowcaseSpec(): AppSpec = uiShowcaseDefinition.createAppSpec()
 
 private fun WindowDsl.configureUiShowcaseWindow() {
     title = "Awake UI Showcase"

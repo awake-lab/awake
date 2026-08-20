@@ -51,7 +51,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":awake:engine:platform-authoring"))
+            implementation(project(":awake:engine:bootstrap"))
             implementation(project(":awake:engine:render:contract"))
             implementation(project(":awake:core"))
             implementation(project(":awake:core:animation"))

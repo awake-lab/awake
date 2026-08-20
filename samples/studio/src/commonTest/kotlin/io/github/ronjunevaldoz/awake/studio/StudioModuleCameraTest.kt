@@ -7,8 +7,8 @@ import io.github.ronjunevaldoz.awake.core.input.Key
 import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.engine.app.dsl.requireService
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.game
-import io.github.ronjunevaldoz.awake.engine.gameauthoring.module
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.app
+import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.module
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.Renderer
@@ -48,7 +48,7 @@ class StudioModuleCameraTest {
     fun cameraModeHotkeyUpdatesTheStudioHeaderState() = runTest {
         val renderer = RecordingCameraRenderer()
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
 
         game.ready(renderer)
         game.update(1f / 60f, 800f, 600f)
@@ -67,7 +67,7 @@ class StudioModuleCameraTest {
     fun setCameraModeMovesTheCameraTheRendererActuallyDraws() = runTest {
         val renderer = RecordingCameraRenderer()
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
 
         game.ready(renderer)
         val runtime = game.requireService<SceneAppLifecycleRuntime>()
@@ -119,7 +119,7 @@ class StudioModuleCameraTest {
     fun togglingFrustumWithNothingSelectedStillProducesDebugLines() = runTest {
         val renderer = RecordingCameraRenderer()
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
 
         game.ready(renderer)
         val runtime = game.requireService<SceneAppLifecycleRuntime>()
@@ -143,7 +143,7 @@ class StudioModuleCameraTest {
     fun setProjectionSwitchesTheProjectionTheRendererActuallyDraws() = runTest {
         val renderer = RecordingCameraRenderer()
         val store = StudioStore()
-        val game = game { module(studioModule(store)) }
+        val game = app { module(studioModule(store)) }
 
         game.ready(renderer)
         val runtime = game.requireService<SceneAppLifecycleRuntime>()
