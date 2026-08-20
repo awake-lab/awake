@@ -8,7 +8,7 @@ import io.github.ronjunevaldoz.awake.ui.designsystem.ShadcnThemeValues
 import io.github.ronjunevaldoz.awake.ui.style.Style
 
 /** Shared Shadcn visual treatment for toggle-group items. */
-fun shadcnToggleGroupItemStyle(values: UiThemeValues): Style = Style {
+internal fun shadcnToggleGroupItemStyle(values: UiThemeValues): Style = Style {
     background(values.colors.card, "card")
     foreground(values.colors.foreground, "foreground")
     border(1f.dp, values.colors.border, "border")
@@ -16,7 +16,7 @@ fun shadcnToggleGroupItemStyle(values: UiThemeValues): Style = Style {
 }
 
 /** Shared Shadcn visual treatment for radio indicators. */
-fun shadcnRadioStyle(values: UiThemeValues): Style = Style {
+internal fun shadcnRadioStyle(values: UiThemeValues): Style = Style {
     background(values.colors.background, "background")
     foreground(values.colors.primary, "primary")
     border(1f.dp, values.colors.border, "border")
