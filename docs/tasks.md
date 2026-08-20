@@ -100,6 +100,7 @@ just spread unclear ownership across more folders.
 - [2026-07-09-decouple-world](tasks/2026-07-09-decouple-world.md)
 - [2026-08-05-api-layering-plan](tasks/2026-08-05-api-layering-plan.md)
 - [2026-08-12-ui-showcase-parity-tracker](tasks/2026-08-12-ui-showcase-parity-tracker.md)
+- [2026-08-20-vulkan-webgpu-uncommonized-audit](audits/2026-08-20-vulkan-webgpu-uncommonized-audit.md)
 
 ## Archive Index
 
