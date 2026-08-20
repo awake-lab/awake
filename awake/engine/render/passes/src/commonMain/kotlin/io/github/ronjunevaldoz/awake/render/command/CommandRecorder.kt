@@ -31,6 +31,11 @@ interface CommandRecorder {
 
     fun bindIndexBuffer(buffer: BufferHandle)
 
+    /** Sets the hardware dynamic scissor rectangle for subsequent draws in the current pass. */
+    fun setScissor(x: Int, y: Int, width: Int, height: Int) {
+        // Default no-op for mock/recording test recorders that don't need scissor tracking
+    }
+
     fun draw(vertexCount: Int, instanceCount: Int = 1)
 
     fun drawIndexed(indexCount: Int, instanceCount: Int = 1)

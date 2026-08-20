@@ -40,6 +40,8 @@ kotlin {
             api(project(":awake:core"))
             api(project(":awake:engine:render:contract"))
             api(project(":awake:ui:graphics"))
+            api(project(":awake:ui:text"))
+            api(project(":awake:ui:ui-core"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

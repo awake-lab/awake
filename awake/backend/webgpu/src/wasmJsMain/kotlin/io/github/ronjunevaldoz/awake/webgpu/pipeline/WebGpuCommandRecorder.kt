@@ -40,6 +40,10 @@ internal class WebGpuCommandRecorder(private val encoder: GPURenderPassEncoder) 
         encoder.setIndexBuffer((buffer as WebGpuBufferHandle).buffer, meshIndexFormat)
     }
 
+    override fun setScissor(x: Int, y: Int, width: Int, height: Int) {
+        encoder.setScissorRect(x.toUInt(), y.toUInt(), width.toUInt(), height.toUInt())
+    }
+
     override fun draw(vertexCount: Int, instanceCount: Int) {
         encoder.draw(vertexCount.toUInt(), instanceCount.toUInt())
     }

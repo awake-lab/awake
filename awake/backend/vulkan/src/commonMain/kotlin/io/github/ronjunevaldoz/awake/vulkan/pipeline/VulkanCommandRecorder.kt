@@ -68,6 +68,19 @@ internal class VulkanCommandRecorder : CommandRecorder {
         )
     }
 
+    override fun setScissor(x: Int, y: Int, width: Int, height: Int) {
+        Vulkan.vkCmdSetScissor(
+            commandBuffer,
+            0,
+            arrayOf(
+                io.github.ronjunevaldoz.awake.vulkan.models.VkRect2D(
+                    offset = io.github.ronjunevaldoz.awake.vulkan.models.VkOffset2D(x = x, y = y),
+                    extent = io.github.ronjunevaldoz.awake.vulkan.models.VkExtent2D(width = width, height = height),
+                ),
+            ),
+        )
+    }
+
     override fun draw(vertexCount: Int, instanceCount: Int) {
         Vulkan.vkCmdDraw(commandBuffer, vertexCount, instanceCount, 0, 0)
     }
