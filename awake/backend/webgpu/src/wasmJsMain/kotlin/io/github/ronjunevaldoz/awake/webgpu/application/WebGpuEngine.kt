@@ -2,9 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.webgpu.application
 
+import io.github.ronjunevaldoz.awake.asset.shaders.ShaderSet
+import io.github.ronjunevaldoz.awake.asset.shaders.ShaderSource
+import io.github.ronjunevaldoz.awake.asset.shaders.ShaderStage
+import io.github.ronjunevaldoz.awake.asset.shaders.ShaderStages
+import io.github.ronjunevaldoz.awake.asset.shaders.entryPoint
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.engine.app.GraphicsEngine
-import io.github.ronjunevaldoz.awake.engine.app.ShaderSet
 import io.github.ronjunevaldoz.awake.engine.app.lifecycle.AppLifecycle
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
@@ -81,12 +85,12 @@ open class WebGpuEngine(
         skyboxShaderSet: ShaderSet? = null,
         particleShaderSet: ShaderSet? = null,
     ) : this(
-        vertexShaderResourcePath = shaderSet.webGpu.vertexResourcePath,
-        fragmentShaderResourcePath = shaderSet.webGpu.fragmentResourcePath,
+        vertexShaderResourcePath = shaderSet.webGpu.resourcePath(ShaderStage.VERTEX),
+        fragmentShaderResourcePath = shaderSet.webGpu.resourcePath(ShaderStage.FRAGMENT),
         vertexFormat = vertexFormat,
         appLifecycle = appLifecycle,
-        vertexShaderEntryPoint = shaderSet.webGpu.vertexEntryPoint,
-        fragmentShaderEntryPoint = shaderSet.webGpu.fragmentEntryPoint,
+        vertexShaderEntryPoint = shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
+        fragmentShaderEntryPoint = shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
         wireframeSupport = wireframeSupport,
         additionalPipelines = additionalPipelines,
         instancedShaderSet = instancedShaderSet,
@@ -144,11 +148,11 @@ open class WebGpuEngine(
                 graphicsDevice,
                 swapchainManager,
                 DescriptorSetLayoutHandle(0),
-                readResourceBytes(shaderSet.webGpu.vertexResourcePath),
+                readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
                 ByteArray(0),
                 format,
-                shaderSet.webGpu.vertexEntryPoint,
-                shaderSet.webGpu.fragmentEntryPoint,
+                shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
+                shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
             )
         }
         instancedRenderPipeline = instancedShaderSet?.let { shaderSet ->
@@ -156,13 +160,13 @@ open class WebGpuEngine(
                 graphicsDevice,
                 swapchainManager,
                 DescriptorSetLayoutHandle(0),
-                readResourceBytes(shaderSet.webGpu.vertexResourcePath),
+                readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
                 ByteArray(0),
                 // Same vertex layout as the primary pipeline -- it draws the same meshes, just
                 // many copies of them; `instanced` only ADDS a second, instance-rate buffer.
                 vertexFormat,
-                shaderSet.webGpu.vertexEntryPoint,
-                shaderSet.webGpu.fragmentEntryPoint,
+                shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
+                shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
                 instanced = true,
             )
         }
@@ -171,11 +175,11 @@ open class WebGpuEngine(
                 graphicsDevice,
                 swapchainManager,
                 DescriptorSetLayoutHandle(0),
-                readResourceBytes(shaderSet.webGpu.vertexResourcePath),
+                readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
                 ByteArray(0),
                 VertexFormat.PositionNormalColorSkin,
-                shaderSet.webGpu.vertexEntryPoint,
-                shaderSet.webGpu.fragmentEntryPoint,
+                shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
+                shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
                 instanced = true,
             )
         }
@@ -184,11 +188,11 @@ open class WebGpuEngine(
                 graphicsDevice,
                 swapchainManager,
                 DescriptorSetLayoutHandle(0),
-                readResourceBytes(shaderSet.webGpu.vertexResourcePath),
+                readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
                 ByteArray(0),
                 VertexFormat.PositionUv,
-                shaderSet.webGpu.vertexEntryPoint,
-                shaderSet.webGpu.fragmentEntryPoint,
+                shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
+                shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
                 instanced = true,
                 instanceAlpha = true,
                 instanceFrame = true,
@@ -205,7 +209,7 @@ open class WebGpuEngine(
             SkyboxRenderPipeline(
                 graphicsDevice,
                 swapchainManager,
-                readResourceBytes(shaderSet.webGpu.vertexResourcePath),
+                readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
             )
         }
         val renderer = Renderer(
@@ -268,3 +272,13 @@ open class WebGpuEngine(
         const val DEBUG_LINE_SHADER_RESOURCE_PATH = "assets/shader/webgpu/debug_line.wgsl"
     }
 }
+
+/** Every real [ShaderSource] this backend loads is a [ShaderSource.ResourcePath] -- see
+ * `VulkanEngine`'s identical extension pair for the full rationale. */
+private fun ShaderStages.resourcePath(stage: ShaderStage): String =
+    (this[stage] as? ShaderSource.ResourcePath)?.path
+        ?: error("WebGPU shader loading only supports ShaderSource.ResourcePath today (stage=$stage).")
+
+private fun ShaderStages.entryPoint(stage: ShaderStage): String =
+    this[stage]?.entryPoint
+        ?: error("No $stage stage registered in this ShaderStages.")

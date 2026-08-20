@@ -3,6 +3,10 @@
 package io.github.ronjunevaldoz.awake.vulkan.application
 
 import io.github.ronjunevaldoz.awake.asset.shaders.ShaderSet
+import io.github.ronjunevaldoz.awake.asset.shaders.ShaderSource
+import io.github.ronjunevaldoz.awake.asset.shaders.ShaderStage
+import io.github.ronjunevaldoz.awake.asset.shaders.ShaderStages
+import io.github.ronjunevaldoz.awake.asset.shaders.entryPoint
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.engine.app.GraphicsEngine
 import io.github.ronjunevaldoz.awake.engine.app.lifecycle.AppLifecycle
@@ -120,12 +124,12 @@ open class VulkanEngine(
         skyboxShaderSet: ShaderSet? = null,
         particleShaderSet: ShaderSet? = null,
     ) : this(
-        vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
-        fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
+        vertexShaderResourcePath = shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
+        fragmentShaderResourcePath = shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
         vertexFormat = vertexFormat,
         appLifecycle = appLifecycle,
-        vertexShaderEntryPoint = shaderSet.vulkan.vertexEntryPoint,
-        fragmentShaderEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
+        vertexShaderEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.VERTEX),
+        fragmentShaderEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.FRAGMENT),
         additionalPipelines = additionalPipelines,
         wireframeSupport = wireframeSupport,
         shadowShaderSet = shadowShaderSet,
@@ -194,11 +198,11 @@ open class VulkanEngine(
                 add(
                     PipelineRequest(
                         key = PipelineKey.Format(format),
-                        vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
-                        fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
+                        vertexShaderResourcePath = shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
+                        fragmentShaderResourcePath = shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
                         vertexFormat = format,
-                        vertexEntryPoint = shaderSet.vulkan.vertexEntryPoint,
-                        fragmentEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
+                        vertexEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.VERTEX),
+                        fragmentEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.FRAGMENT),
                         buildWireframe = wireframeSupport,
                     ),
                 )
@@ -207,13 +211,13 @@ open class VulkanEngine(
                 add(
                     PipelineRequest(
                         key = PipelineKey.Instanced,
-                        vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
-                        fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
+                        vertexShaderResourcePath = shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
+                        fragmentShaderResourcePath = shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
                         // Same vertex layout as the primary pipeline -- it draws the same
                         // meshes, just many copies of them; `instanced` only ADDS binding 1.
                         vertexFormat = vertexFormat,
-                        vertexEntryPoint = shaderSet.vulkan.vertexEntryPoint,
-                        fragmentEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
+                        vertexEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.VERTEX),
+                        fragmentEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.FRAGMENT),
                         variant = PipelineVariant.Instanced,
                     ),
                 )
@@ -227,11 +231,11 @@ open class VulkanEngine(
                 add(
                     PipelineRequest(
                         key = PipelineKey.SkinnedInstanced,
-                        vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
-                        fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
+                        vertexShaderResourcePath = shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
+                        fragmentShaderResourcePath = shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
                         vertexFormat = VertexFormat.PositionNormalColorSkin,
-                        vertexEntryPoint = shaderSet.vulkan.vertexEntryPoint,
-                        fragmentEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
+                        vertexEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.VERTEX),
+                        fragmentEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.FRAGMENT),
                         variant = PipelineVariant.Instanced,
                         extraDescriptorSetLayouts = listOf(paletteLayout),
                     ),
@@ -241,11 +245,11 @@ open class VulkanEngine(
                 add(
                     PipelineRequest(
                         key = PipelineKey.Particle,
-                        vertexShaderResourcePath = shaderSet.vulkan.vertexResourcePath,
-                        fragmentShaderResourcePath = shaderSet.vulkan.fragmentResourcePath,
+                        vertexShaderResourcePath = shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
+                        fragmentShaderResourcePath = shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
                         vertexFormat = VertexFormat.PositionUv,
-                        vertexEntryPoint = shaderSet.vulkan.vertexEntryPoint,
-                        fragmentEntryPoint = shaderSet.vulkan.fragmentEntryPoint,
+                        vertexEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.VERTEX),
+                        fragmentEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.FRAGMENT),
                         variant = PipelineVariant.AlphaBlendedParticle,
                     ),
                 )
@@ -268,14 +272,14 @@ open class VulkanEngine(
                 map.renderPass,
                 pipelineDescriptorSetLayout,
                 loadShaderPair(
-                    shaderSet.vulkan.vertexResourcePath,
-                    shaderSet.vulkan.fragmentResourcePath,
+                    shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
+                    shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
                 ),
                 // Same vertex layout as the primary pipeline -- it draws the same meshes.
                 vertexFormat,
                 map.size,
-                shaderSet.vulkan.vertexEntryPoint,
-                shaderSet.vulkan.fragmentEntryPoint,
+                shaderSet.vulkan.entryPoint(ShaderStage.VERTEX),
+                shaderSet.vulkan.entryPoint(ShaderStage.FRAGMENT),
             )
             ShadowFeature(map, shadowPipeline)
         }
@@ -296,8 +300,8 @@ open class VulkanEngine(
                 // The EXISTING 3D pass, same reuse lineRenderPipeline above does.
                 sceneRenderPass,
                 loadShaderPair(
-                    shaderSet.vulkan.vertexResourcePath,
-                    shaderSet.vulkan.fragmentResourcePath,
+                    shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
+                    shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
                 ),
                 MAX_FRAMES_IN_FLIGHT,
             )
@@ -440,3 +444,16 @@ open class VulkanEngine(
             "assets/shader/vulkan/debug_line.frag.spv"
     }
 }
+
+/** [PipelineRequest]/[loadShaderPair] still take plain resource-path strings -- every real
+ * [ShaderSource] this backend loads is a [ShaderSource.ResourcePath] (confirmed: nothing in this
+ * engine constructs a [ShaderSource.PrecompiledBinary]/`InlineText` today), so these two
+ * extensions are the one place that assumption is made explicit, instead of every call site
+ * below repeating an `as ShaderSource.ResourcePath` cast. */
+private fun ShaderStages.resourcePath(stage: ShaderStage): String =
+    (this[stage] as? ShaderSource.ResourcePath)?.path
+        ?: error("Vulkan shader loading only supports ShaderSource.ResourcePath today (stage=$stage).")
+
+private fun ShaderStages.entryPoint(stage: ShaderStage): String =
+    this[stage]?.entryPoint
+        ?: error("No $stage stage registered in this ShaderStages.")

@@ -48,6 +48,9 @@ kotlin {
             // implementation: a consumer needs those types visible through this module too
             // (matches awake:backend:vulkan's own api(render:contract) for the same reason).
             api(project(":awake:engine:render:contract"))
+            // readResourceBytes -- ShaderSource.resolveBytes()'s own implementation detail, not
+            // part of this module's public API surface, so implementation (not api) is enough.
+            implementation(project(":awake:core"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

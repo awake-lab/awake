@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.app
 
-import io.github.ronjunevaldoz.awake.engine.app.shaderSet
+import io.github.ronjunevaldoz.awake.asset.shaders.shaderSet
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.webgpu.application.WebGpuEngine
 

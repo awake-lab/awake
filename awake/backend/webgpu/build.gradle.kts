@@ -53,10 +53,10 @@ kotlin {
             // port). `api`, not `implementation`: this module's public pipeline/mesh/material
             // types implement the port's handle interfaces, so consumers see them.
             api(project(":awake:engine:render:passes"))
-            // Reusable-Application gap fix (see docs/MVP_PLAN.md's Decision Log): same
-            // reasoning as awake-backend-vulkan's VulkanGameApplication -- see that
-            // module's build.gradle.kts comment.
-            implementation(project(":awake:core"))
+            // ShaderSet/ShaderStages/ShaderSource -- api, not implementation: WebGpuEngine's own
+            // public constructor takes ShaderSet params, so a consumer needs the type visible
+            // too (matches awake-backend-vulkan's identical api(awake:asset:shaders) dependency).
+            api(project(":awake:asset:shaders"))
             implementation(project(":awake:scene"))
             implementation(libs.kotlinx.coroutines.core)
             // WebGpuGameApplication now extends GameApplication (see
