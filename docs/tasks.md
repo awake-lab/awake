@@ -8,6 +8,10 @@ just spread unclear ownership across more folders.
 
 ## Active Phase
 
+- 2026-08-20: Scene entity authoring refactored to `EntityScope` (replacing `EntityModifier`), eliminating deferred queues and auto-wiring hierarchical parent entities. Procedural geometry generation (`generate { cube() }`, `generate { plane() }`) and `SceneConvenienceSugar` (`defaultOrbitCamera`, `lighting.singleDirectionalLight`) landed in `:awake:scene:authoring`.
+- 2026-08-20: Full-stack `CullMode` (`None`, `Back`, `Front`) landed across render contract, Vulkan backend, WebGPU backend, and scene serialization.
+- 2026-08-20: Unified scene lifecycle management under `SceneManager` (`switchTo`, `close`), with `ExampleLoader` in Studio migrated to it.
+- 2026-08-20: Vulkan and UI performance optimizations landed: zero-allocation transform TRS, redundant Vulkan pipeline/buffer binding elision, draw call clustering by mesh, shape painter early exit, and UI measurement array recycling.
 - 2026-08-12: UI showcase visual-parity work is tracked in
   [docs/tasks/2026-08-12-ui-showcase-parity-tracker.md](tasks/2026-08-12-ui-showcase-parity-tracker.md).
   It is deliberately separate from the now-public-boundary-complete Headless migration: no
