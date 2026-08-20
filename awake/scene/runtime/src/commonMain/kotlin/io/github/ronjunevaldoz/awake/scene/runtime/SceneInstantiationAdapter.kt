@@ -6,6 +6,7 @@ import io.github.ronjunevaldoz.awake.core.math.Camera
 import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.render.renderer.CullMode
 import io.github.ronjunevaldoz.awake.scene.core.components.Name
 import io.github.ronjunevaldoz.awake.scene.core.components.SpinControl
 import io.github.ronjunevaldoz.awake.scene.core.components.Transform
@@ -93,6 +94,12 @@ internal fun SceneLight.toComponent(): Light = Light(
         SceneLight.Type.Point -> Light.Type.Point
     },
 )
+
+internal fun SceneMeshRenderer.CullMode.toCullMode(): CullMode = when (this) {
+    SceneMeshRenderer.CullMode.None -> CullMode.None
+    SceneMeshRenderer.CullMode.Back -> CullMode.Back
+    SceneMeshRenderer.CullMode.Front -> CullMode.Front
+}
 
 internal fun ScenePbrMaterial.toComponent(): PbrMaterial = PbrMaterial(
     metallic = metallic,

@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.scene.runtime
 
 import io.github.ronjunevaldoz.awake.render.material.Material
 import io.github.ronjunevaldoz.awake.render.mesh.Mesh
+import io.github.ronjunevaldoz.awake.render.renderer.CullMode
 import io.github.ronjunevaldoz.awake.scene.rendering.components.MeshRenderer
 
 typealias SceneMeshFactory = SceneAppLifecycleRuntime.() -> Mesh
@@ -53,6 +54,7 @@ class SceneAssetLibrary(
         return MeshRenderer(
             mesh = requireMesh(runtime, key.mesh),
             material = requireMaterial(runtime, key.material),
+            cullMode = request.meshRenderer.cullMode.toCullMode(),
         )
     }
 

@@ -82,6 +82,11 @@ class RenderPipeline(
     /** `true` (default) is byte-for-byte what this class always built. `false` disables depth
      * WRITE only (depth TEST stays on) -- for order-independent content like particles. */
     depthWriteEnabled: Boolean = true,
+    /** `GPUCullMode.None` (default) draws both triangle faces always -- byte-for-byte what this
+     * class always built. `GPUCullMode.Back` builds a back-culled companion pipeline for a
+     * correctly-wound solid mesh -- see `render.renderer.CullMode`'s own doc comment. Mirrors
+     * Vulkan's `RenderPipeline.cullMode`. */
+    cullMode: GPUCullMode = GPUCullMode.None,
 ) {
     var renderPass: Long = 0
     var pipelineLayout: Long = 0
@@ -184,7 +189,7 @@ class RenderPipeline(
                 ),
                 primitive = PrimitiveState(
                     topology = topology,
-                    cullMode = GPUCullMode.None,
+                    cullMode = cullMode,
                     frontFace = GPUFrontFace.CW,
                 ),
                 depthStencil = DepthStencilState(

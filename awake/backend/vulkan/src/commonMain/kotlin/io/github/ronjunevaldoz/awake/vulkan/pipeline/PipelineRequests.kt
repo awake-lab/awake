@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.vulkan.pipeline
 
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.vulkan.device.GraphicsDevice
+import io.github.ronjunevaldoz.awake.vulkan.enums.VkCullModeFlagBits
 import io.github.ronjunevaldoz.awake.vulkan.enums.VkPolygonMode
 import io.github.ronjunevaldoz.awake.vulkan.handles.DescriptorSetLayoutHandle
 import io.github.ronjunevaldoz.awake.vulkan.swapchain.SwapchainManager
@@ -37,15 +38,30 @@ data class PipelineRequest(
      * shaders. Only ever `true` for the primary/[PipelineKey.Format] requests -- instanced/
      * skinned-instanced/particle pipelines have never had a wireframe companion. */
     val buildWireframe: Boolean = false,
+    /** Builds a third, `VK_CULL_MODE_BACK_BIT` companion pipeline reusing this request's own
+     * loaded shaders -- see `render.renderer.CullMode`'s own doc comment. Only ever `true` for
+     * the primary/[PipelineKey.Format] requests, same scope [buildWireframe] already has;
+     * instanced/skinned-instanced/particle meshes don't opt into per-mesh culling yet. */
+    val buildBackCulled: Boolean = false,
     val variant: PipelineVariant = PipelineVariant.Opaque,
     val extraDescriptorSetLayouts: List<DescriptorSetLayoutHandle> = emptyList(),
 )
 
-/** Builds one [RenderPipeline] (plus its optional wireframe companion) per [requests] entry --
- * the single loop that replaces the 3 near-identical `shaderSet?.let { load + build }` blocks
- * `VulkanGameApplication.createBackendResources` used to hand-roll for additionalPipelines/
- * instanced/skinnedInstanced/particle. [loadShaders] is injected rather than called directly so
- * this file doesn't need to know about `readResourceBytes`/`ShaderPair`'s IO.
+/** The up-to-3 [RenderPipeline]s [buildRequestedPipelines] builds per [PipelineRequest] --
+ * [wireframe]/[backCulled] are each only present when that request's own
+ * [PipelineRequest.buildWireframe]/[PipelineRequest.buildBackCulled] was `true`. */
+data class RequestedPipelines(
+    val fill: RenderPipeline,
+    val wireframe: RenderPipeline? = null,
+    val backCulled: RenderPipeline? = null,
+)
+
+/** Builds one [RenderPipeline] (plus its optional wireframe/back-culled companions) per
+ * [requests] entry -- the single loop that replaces the 3 near-identical
+ * `shaderSet?.let { load + build }` blocks `VulkanGameApplication.createBackendResources` used
+ * to hand-roll for additionalPipelines/instanced/skinnedInstanced/particle. [loadShaders] is
+ * injected rather than called directly so this file doesn't need to know about
+ * `readResourceBytes`/`ShaderPair`'s IO.
  *
  * [renderPass] is built ONCE by the caller (via [createSceneRenderPass]) and passed to every
  * [RenderPipeline] this builds -- every request shares the same swapchain/depth attachment
@@ -57,7 +73,7 @@ suspend fun buildRequestedPipelines(
     descriptorSetLayout: DescriptorSetLayoutHandle,
     requests: List<PipelineRequest>,
     loadShaders: suspend (vertexPath: String, fragmentPath: String) -> ShaderPair,
-): Map<PipelineKey, Pair<RenderPipeline, RenderPipeline?>> = buildMap {
+): Map<PipelineKey, RequestedPipelines> = buildMap {
     requests.forEach { request ->
         // Wrapped per-request, not once around the whole loop: a resource-not-found or
         // shader-module-creation failure otherwise surfaces with only a bare file path/native
@@ -94,7 +110,24 @@ suspend fun buildRequestedPipelines(
             } else {
                 null
             }
-            put(request.key, fill to wireframe)
+            val backCulled = if (request.buildBackCulled) {
+                RenderPipeline(
+                    graphicsDevice,
+                    swapchainManager,
+                    renderPass,
+                    descriptorSetLayout,
+                    shaders,
+                    request.vertexFormat,
+                    request.vertexEntryPoint,
+                    request.fragmentEntryPoint,
+                    cullMode = VkCullModeFlagBits.VK_CULL_MODE_BACK_BIT,
+                    variant = request.variant,
+                    extraDescriptorSetLayouts = request.extraDescriptorSetLayouts,
+                )
+            } else {
+                null
+            }
+            put(request.key, RequestedPipelines(fill, wireframe, backCulled))
         } catch (e: Exception) {
             throw IllegalStateException("Failed to build pipeline '${request.key}': ${e.message}", e)
         }

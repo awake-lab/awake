@@ -28,7 +28,7 @@
     {
       "name": "ground",
       "components": [
-        { "component": "meshRenderer", "mesh": "ground", "material": "lit-shadow" }
+        { "component": "meshRenderer", "mesh": "ground", "material": "lit-shadow", "cullMode": "Back" }
       ]
     },
     {

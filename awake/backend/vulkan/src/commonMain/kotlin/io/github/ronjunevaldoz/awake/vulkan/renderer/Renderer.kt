@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.core.math.ClipSpace
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.passes.SharedOpaqueRenderFeature
+import io.github.ronjunevaldoz.awake.render.renderer.CullMode
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_FOG_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_HORIZON_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
@@ -205,22 +206,25 @@ class Renderer internal constructor(
         mapOf(pipelines.primary.vertexFormat to pipelines.primary) + pipelines.byFormat
     internal val wireframePipelinesByFormat: Map<VertexFormat, RenderPipeline> =
         pipelines.wireframeByFormat
+    internal val backCulledPipelinesByFormat: Map<VertexFormat, RenderPipeline> =
+        pipelines.backCulledByFormat
     internal val instancedPipelinesByFormat: Map<VertexFormat, RenderPipeline> =
         pipelines.instancedByFormat
     internal val skinnedInstancedPipelinesByFormat: Map<VertexFormat, RenderPipeline> =
         pipelines.skinnedInstancedByFormat
 
-    /** Resolves [format] to the pipeline that should actually draw it this frame -- the
-     * [wireframePipelinesByFormat] entry when [wireframe] is on and one was built for
-     * [format], otherwise the normal [pipelinesByFormat] entry (which also covers "wireframe
-     * is on but this format has no wireframe variant": falls back to filled rather than being
-     * dropped). */
-    internal fun pipelineFor(format: VertexFormat): RenderPipeline? =
-        if (wireframe) {
-            wireframePipelinesByFormat[format]
-                ?: pipelinesByFormat[format]
-        } else {
-            pipelinesByFormat[format]
+    /** Resolves [format]/[cullMode] to the pipeline that should actually draw it this frame --
+     * the [wireframePipelinesByFormat] entry when [wireframe] is on and one was built for
+     * [format] (wireframe wins outright, same as before this param existed -- a wireframe view
+     * shows both sides regardless of a mesh's own cull mode), otherwise the
+     * [backCulledPipelinesByFormat] entry when [cullMode] asks for it and one was built,
+     * otherwise the normal [pipelinesByFormat] entry -- the same "can't build/find the variant,
+     * fall back to filled rather than dropping the draw" shape [wireframe] already established. */
+    internal fun pipelineFor(format: VertexFormat, cullMode: CullMode = CullMode.None): RenderPipeline? =
+        when {
+            wireframe -> wireframePipelinesByFormat[format] ?: pipelinesByFormat[format]
+            cullMode == CullMode.Back -> backCulledPipelinesByFormat[format] ?: pipelinesByFormat[format]
+            else -> pipelinesByFormat[format]
         }
 
     internal val device get() = graphicsDevice.device

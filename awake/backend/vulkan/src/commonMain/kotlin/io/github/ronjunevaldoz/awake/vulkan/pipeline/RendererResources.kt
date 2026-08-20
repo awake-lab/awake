@@ -15,6 +15,11 @@ class PipelineTable(
     val primary: RenderPipeline,
     val byFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
     val wireframeByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
+    /** Same shape as [wireframeByFormat] -- a `VK_CULL_MODE_BACK_BIT` companion per format, only
+     * present for formats whose [io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineRequest
+     * .buildBackCulled] was `true`. Selected per-draw-call (not a global toggle like wireframe)
+     * via `Renderer.pipelineFor`'s own `cullMode` param. */
+    val backCulledByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
     val instancedByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
     val skinnedInstancedByFormat: Map<VertexFormat, RenderPipeline> = emptyMap(),
 )

@@ -96,7 +96,12 @@ data class SceneLight(
 data class SceneMeshRenderer(
     val mesh: String,
     val material: String,
-) : SceneComponent
+    /** [io.github.ronjunevaldoz.awake.render.renderer.CullMode]'s own doc comment covers the
+     * trade-off -- `None` (default) preserves every existing scene's exact current behavior. */
+    val cullMode: CullMode = CullMode.None,
+) : SceneComponent {
+    enum class CullMode { None, Back, Front }
+}
 
 @Serializable
 @SerialName("spinControl")

@@ -413,9 +413,10 @@ internal fun Renderer.prepareDrawCalls(
         }
         // pipelineFor, not a direct pipelinesByFormat lookup: swaps in this format's
         // VK_POLYGON_MODE_LINE variant when Renderer.wireframe is on and one was built for
-        // it (see that function's doc comment) -- an unregistered format still resolves to
-        // null and is skipped below, same as before this parameter existed.
-        val pipeline = pipelineFor(drawCall.mesh.format)
+        // it, or its VK_CULL_MODE_BACK_BIT variant when drawCall.cullMode asks for it (see
+        // that function's doc comment) -- an unregistered format still resolves to null and is
+        // skipped below, same as before either parameter existed.
+        val pipeline = pipelineFor(drawCall.mesh.format, drawCall.cullMode)
         if (pipeline != null) {
             val material = drawCall.material as Material
             val uniformSlotIndex = materialUsage.nextSlot(drawCall.material)

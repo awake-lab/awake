@@ -57,6 +57,12 @@ import io.github.ronjunevaldoz.awake.render.mesh.Mesh
  * fits its own instance-rate vertex attribute (`particle.wgsl`'s `inFrame`), replacing the old
  * emitter-wide `frameInfo.y` uniform so particles sharing one emitter cycle sprite frames
  * desynced instead of in lockstep.
+ *
+ * [cullMode] mirrors `MeshRenderer.cullMode` -- [CullMode.None] (the default) resolves to
+ * exactly the pipeline every mesh already drew through before per-mesh culling existed. A
+ * backend with no built companion pipeline for a non-default [cullMode] falls back to the
+ * [CullMode.None] pipeline for that format, same "can't build it, don't drop the draw" fallback
+ * wireframe's own toggle already has.
  */
 data class DrawCall(
     val mesh: Mesh,
@@ -67,6 +73,7 @@ data class DrawCall(
     val instanceJointPalettes: List<FloatArray>? = null,
     val instanceColors: List<Vec4>? = null,
     val instanceFrames: List<Float>? = null,
+    val cullMode: CullMode = CullMode.None,
 )
 
 private val EMPTY_UNIFORM_FLOATS = FloatArray(0)

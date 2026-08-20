@@ -3,10 +3,10 @@
 package io.github.ronjunevaldoz.awake.vulkan.application
 
 import io.github.ronjunevaldoz.awake.asset.shaders.ShaderSet
-import io.github.ronjunevaldoz.awake.asset.shaders.ShaderSource
 import io.github.ronjunevaldoz.awake.asset.shaders.ShaderStage
-import io.github.ronjunevaldoz.awake.asset.shaders.ShaderStages
 import io.github.ronjunevaldoz.awake.asset.shaders.entryPoint
+import io.github.ronjunevaldoz.awake.asset.shaders.resourcePath
+import io.github.ronjunevaldoz.awake.asset.shaders.withPipelineLoadContext
 import io.github.ronjunevaldoz.awake.core.utils.readResourceBytes
 import io.github.ronjunevaldoz.awake.engine.app.GraphicsEngine
 import io.github.ronjunevaldoz.awake.engine.app.lifecycle.AppLifecycle
@@ -28,6 +28,7 @@ import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineTable
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.PipelineVariant
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.RenderPipeline
+import io.github.ronjunevaldoz.awake.vulkan.pipeline.RequestedPipelines
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShaderPair
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowFeature
 import io.github.ronjunevaldoz.awake.vulkan.pipeline.ShadowRenderPipeline
@@ -148,7 +149,7 @@ open class VulkanEngine(
      * pipeline. Owned here, not by any individual pipeline; destroyed exactly once in
      * [destroyBackend]. */
     private var sceneRenderPass: Long = 0
-    private lateinit var requestedPipelines: Map<PipelineKey, Pair<RenderPipeline, RenderPipeline?>>
+    private lateinit var requestedPipelines: Map<PipelineKey, RequestedPipelines>
     private lateinit var transferContext: TransferContext
 
     /** Kept as a field only because [Material]'s descriptor set layout is built from it long
@@ -192,6 +193,11 @@ open class VulkanEngine(
                     vertexEntryPoint = vertexShaderEntryPoint,
                     fragmentEntryPoint = fragmentShaderEntryPoint,
                     buildWireframe = wireframeSupport,
+                    // Always built (not gated behind a support flag like wireframe) -- unlike
+                    // wireframe, a back-culled companion costs nothing to have available and a
+                    // MeshRenderer opts into it per-entity via MeshRenderer.cullMode, not a
+                    // whole-app toggle.
+                    buildBackCulled = true,
                 ),
             )
             additionalPipelines.forEach { (format, shaderSet) ->
@@ -204,6 +210,7 @@ open class VulkanEngine(
                         vertexEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.VERTEX),
                         fragmentEntryPoint = shaderSet.vulkan.entryPoint(ShaderStage.FRAGMENT),
                         buildWireframe = wireframeSupport,
+                        buildBackCulled = true,
                     ),
                 )
             }
@@ -263,7 +270,10 @@ open class VulkanEngine(
             requests,
             ::loadShaderPair,
         )
-        val (primaryPipeline, primaryWireframePipeline) = requestedPipelines.getValue(PipelineKey.Primary)
+        val primaryRequested = requestedPipelines.getValue(PipelineKey.Primary)
+        val primaryPipeline = primaryRequested.fill
+        val primaryWireframePipeline = primaryRequested.wireframe
+        val primaryBackCulledPipeline = primaryRequested.backCulled
 
         val shadowFeature = shadowMap?.let { map ->
             withPipelineLoadContext("shadow") {
@@ -327,12 +337,23 @@ open class VulkanEngine(
             pipelines = PipelineTable(
                 primary = primaryPipeline,
                 byFormat = requestedPipelines
-                    .mapNotNull { (key, pair) -> (key as? PipelineKey.Format)?.let { it.vertexFormat to pair.first } }
+                    .mapNotNull { (key, requested) -> (key as? PipelineKey.Format)?.let { it.vertexFormat to requested.fill } }
                     .toMap(),
                 wireframeByFormat = buildMap {
                     primaryWireframePipeline?.let { put(vertexFormat, it) }
-                    requestedPipelines.forEach { (key, pair) ->
-                        if (key is PipelineKey.Format) pair.second?.let {
+                    requestedPipelines.forEach { (key, requested) ->
+                        if (key is PipelineKey.Format) requested.wireframe?.let {
+                            put(
+                                key.vertexFormat,
+                                it
+                            )
+                        }
+                    }
+                },
+                backCulledByFormat = buildMap {
+                    primaryBackCulledPipeline?.let { put(vertexFormat, it) }
+                    requestedPipelines.forEach { (key, requested) ->
+                        if (key is PipelineKey.Format) requested.backCulled?.let {
                             put(
                                 key.vertexFormat,
                                 it
@@ -341,15 +362,15 @@ open class VulkanEngine(
                     }
                 },
                 instancedByFormat = buildMap {
-                    requestedPipelines[PipelineKey.Instanced]?.first?.let { put(vertexFormat, it) }
-                    requestedPipelines[PipelineKey.Particle]?.first?.let {
+                    requestedPipelines[PipelineKey.Instanced]?.fill?.let { put(vertexFormat, it) }
+                    requestedPipelines[PipelineKey.Particle]?.fill?.let {
                         put(
                             VertexFormat.PositionUv,
                             it
                         )
                     }
                 },
-                skinnedInstancedByFormat = requestedPipelines[PipelineKey.SkinnedInstanced]?.first
+                skinnedInstancedByFormat = requestedPipelines[PipelineKey.SkinnedInstanced]?.fill
                     ?.let { mapOf(VertexFormat.PositionNormalColorSkin to it) } ?: emptyMap(),
             ),
             renderFeatures = renderFeatures,
@@ -403,9 +424,10 @@ open class VulkanEngine(
             graphicsDevice.device,
             pipelineDescriptorSetLayout.handle,
         )
-        requestedPipelines.values.forEach { (fill, wireframe) ->
-            fill.destroy()
-            wireframe?.destroy()
+        requestedPipelines.values.forEach { requested ->
+            requested.fill.destroy()
+            requested.wireframe?.destroy()
+            requested.backCulled?.destroy()
         }
         skinnedInstanceDescriptorSetLayout?.let {
             VulkanDescriptors.vkDestroyDescriptorSetLayout(graphicsDevice.device, it.handle)
@@ -448,27 +470,3 @@ open class VulkanEngine(
             "assets/shader/vulkan/debug_line.frag.spv"
     }
 }
-
-/** [PipelineRequest]/[loadShaderPair] still take plain resource-path strings -- every real
- * [ShaderSource] this backend loads is a [ShaderSource.ResourcePath] (confirmed: nothing in this
- * engine constructs a [ShaderSource.PrecompiledBinary]/`InlineText` today), so these two
- * extensions are the one place that assumption is made explicit, instead of every call site
- * below repeating an `as ShaderSource.ResourcePath` cast. */
-private fun ShaderStages.resourcePath(stage: ShaderStage): String =
-    (this[stage] as? ShaderSource.ResourcePath)?.path
-        ?: error("Vulkan shader loading only supports ShaderSource.ResourcePath today (stage=$stage).")
-
-private fun ShaderStages.entryPoint(stage: ShaderStage): String =
-    this[stage]?.entryPoint
-        ?: error("No $stage stage registered in this ShaderStages.")
-
-/** Same reasoning as [buildRequestedPipelines]'s own per-request wrapping: [name]'s pipeline is
- * built outside that shared loop (shadow/skybox aren't [PipelineRequest]s), so it needs its own
- * context wrapper to avoid a bare file-path/native-error-code failure with no hint which of
- * this app's pipelines actually failed. */
-private suspend fun <T> withPipelineLoadContext(name: String, block: suspend () -> T): T =
-    try {
-        block()
-    } catch (e: Exception) {
-        throw IllegalStateException("Failed to build pipeline '$name': ${e.message}", e)
-    }

@@ -103,6 +103,7 @@ class RenderSystem(
                     material = meshRenderer.material,
                     model = transform.worldMatrix,
                     extraUniformFloats = extras,
+                    cullMode = meshRenderer.cullMode,
                 ),
             )
         }

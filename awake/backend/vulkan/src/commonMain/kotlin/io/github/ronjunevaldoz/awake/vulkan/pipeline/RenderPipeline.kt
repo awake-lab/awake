@@ -136,6 +136,12 @@ class RenderPipeline(
      * Requires `fillModeNonSolid` -- already enabled, since `GraphicsDevice.createLogicalDevice`
      * enables every feature the device reports. */
     polygonMode: VkPolygonMode = VkPolygonMode.VK_POLYGON_MODE_FILL,
+    /** `VK_CULL_MODE_NONE` (default) draws both triangle faces always -- correct for anything
+     * genuinely double-sided, and the behavior every mesh had before per-mesh culling existed.
+     * `VK_CULL_MODE_BACK_BIT` builds a back-culled companion pipeline (see `Renderer.pipelineFor`)
+     * for a correctly-wound solid mesh -- see `render.renderer.CullMode`'s own doc comment for
+     * why NONE isn't just a historical default, it's also a real z-fighting/perf trade-off. */
+    cullMode: VkCullModeFlagBits = VkCullModeFlagBits.VK_CULL_MODE_NONE,
     /** See [PipelineVariant]'s own doc comment. Defaults to [PipelineVariant.Opaque] -- the
      * pipeline this class always built before any variant existed. */
     variant: PipelineVariant = PipelineVariant.Opaque,
@@ -150,6 +156,7 @@ class RenderPipeline(
     // exactly the parameter-count pressure this class's own doc comment on createPipelineLayout
     // exists to avoid growing further.
     private val extraDescriptorSetLayouts = extraDescriptorSetLayouts
+    private val cullMode = cullMode
     private val graphicsDevice = graphicsDevice
     private val swapchainManager = swapchainManager
     private val device get() = graphicsDevice.device
@@ -210,7 +217,7 @@ class RenderPipeline(
                 pVertexInputState = vertexInputState(vertexFormat, variant),
                 pInputAssemblyState = INPUT_ASSEMBLY_STATE,
                 pViewportState = viewportState(swapchainManager),
-                pRasterizationState = rasterizationState(polygonMode),
+                pRasterizationState = rasterizationState(polygonMode, cullMode),
                 pMultisampleState = MULTISAMPLE_STATE,
                 pColorBlendState = colorBlendState(variant.blendEnabled),
                 pDepthStencilState = depthStencilState(variant.depthWriteEnabled),
@@ -455,13 +462,12 @@ private fun depthStencilState(depthWriteEnabled: Boolean): Array<VkPipelineDepth
     VkPipelineDepthStencilStateCreateInfo(depthWriteEnable = depthWriteEnabled),
 )
 
-private fun rasterizationState(polygonMode: VkPolygonMode): Array<VkPipelineRasterizationStateCreateInfo> = arrayOf(
+private fun rasterizationState(
+    polygonMode: VkPolygonMode,
+    cullMode: VkCullModeFlagBits,
+): Array<VkPipelineRasterizationStateCreateInfo> = arrayOf(
     VkPipelineRasterizationStateCreateInfo(
-        // NONE, deliberately: the demo cube's index winding isn't guaranteed
-        // outward-consistent per face -- depth testing alone resolves correct
-        // occlusion regardless of triangle winding. Revisit once per-face vertex
-        // duplication makes winding order meaningful.
-        cullMode = VkCullModeFlagBits.VK_CULL_MODE_NONE.value,
+        cullMode = cullMode.value,
         frontFace = VkFrontFace.VK_FRONT_FACE_CLOCKWISE,
         polygonMode = polygonMode,
         lineWidth = 1f,
