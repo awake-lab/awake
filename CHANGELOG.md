@@ -126,6 +126,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- 8 dead-public designsystem style functions narrowed to `internal`: `shadcnAvatarStyle`,
+  `shadcnAvatarBadgeStyle`, `shadcnToggleGroupItemStyle`, `shadcnRadioStyle`,
+  `shadcnProgressStyle`, `shadcnSkeletonStyle`, `shadcnSpinnerStyle`, `shadcnToastStyle`. Zero
+  real callers existed outside their own module.
 - Legacy camera systems and controllers: `OrbitCameraController`, `OrbitCameraSystem`,
   `FollowCameraSystem`, `LookAtCameraSystem`, and `FreeFlyCameraSystem`.
 - `PlayerControlSystem` and legacy control components (`OrbitControl`, `FreeFlyControl`,
