@@ -247,7 +247,102 @@ class Mat4 {
         return rotationMatrix * this
     }
 
+    /**
+     * Sets this matrix directly from translation, Euler angle rotations, and scale components with zero allocations.
+     *
+     * Computes the combined transform equivalent to applying translation, Z-rotation, Y-rotation,
+     * X-rotation, and scale.
+     *
+     * @param tx The X translation component.
+     * @param ty The Y translation component.
+     * @param tz The Z translation component.
+     * @param rx The X rotation angle in radians.
+     * @param ry The Y rotation angle in radians.
+     * @param rz The Z rotation angle in radians.
+     * @param sx The X scale factor.
+     * @param sy The Y scale factor.
+     * @param sz The Z scale factor.
+     * @return This [Mat4] instance for method chaining.
+     */
+    @Suppress("LongParameterList")
+    fun setEulerTRS(
+        tx: Float, ty: Float, tz: Float,
+        rx: Float, ry: Float, rz: Float,
+        sx: Float, sy: Float, sz: Float,
+    ): Mat4 {
+        val cx = cos(rx)
+        val sx_ = sin(rx)
+        val cy = cos(ry)
+        val sy_ = sin(ry)
+        val cz = cos(rz)
+        val sz_ = sin(rz)
+
+        m00 = sx * (cz * cy)
+        m10 = sx * (sz_ * cy)
+        m20 = sx * (-sy_)
+        m30 = 0f
+
+        m01 = sy * (cz * sy_ * sx_ - sz_ * cx)
+        m11 = sy * (sz_ * sy_ * sx_ + cz * cx)
+        m21 = sy * (cy * sx_)
+        m31 = 0f
+
+        m02 = sz * (cz * sy_ * cx + sz_ * sx_)
+        m12 = sz * (sz_ * sy_ * cx - cz * sx_)
+        m22 = sz * (cy * cx)
+        m32 = 0f
+
+        m03 = tx
+        m13 = ty
+        m23 = tz
+        m33 = 1f
+
+        return this
+    }
+
     companion object {
+
+        /**
+         * Multiplies two matrices and writes the result into a target matrix with zero allocations.
+         *
+         * @param a The left matrix operand.
+         * @param b The right matrix operand.
+         * @param target The target matrix to store the multiplication result into.
+         * @return The [target] matrix containing the computed product.
+         */
+        fun multiplyInPlace(a: Mat4, b: Mat4, target: Mat4): Mat4 {
+            val a0 = a.data[0]; val a1 = a.data[1]; val a2 = a.data[2]; val a3 = a.data[3]
+            val a4 = a.data[4]; val a5 = a.data[5]; val a6 = a.data[6]; val a7 = a.data[7]
+            val a8 = a.data[8]; val a9 = a.data[9]; val a10 = a.data[10]; val a11 = a.data[11]
+            val a12 = a.data[12]; val a13 = a.data[13]; val a14 = a.data[14]; val a15 = a.data[15]
+
+            val b0 = b.data[0]; val b1 = b.data[1]; val b2 = b.data[2]; val b3 = b.data[3]
+            val b4 = b.data[4]; val b5 = b.data[5]; val b6 = b.data[6]; val b7 = b.data[7]
+            val b8 = b.data[8]; val b9 = b.data[9]; val b10 = b.data[10]; val b11 = b.data[11]
+            val b12 = b.data[12]; val b13 = b.data[13]; val b14 = b.data[14]; val b15 = b.data[15]
+
+            target.data[0] = a0 * b0 + a1 * b4 + a2 * b8 + a3 * b12
+            target.data[1] = a0 * b1 + a1 * b5 + a2 * b9 + a3 * b13
+            target.data[2] = a0 * b2 + a1 * b6 + a2 * b10 + a3 * b14
+            target.data[3] = a0 * b3 + a1 * b7 + a2 * b11 + a3 * b15
+
+            target.data[4] = a4 * b0 + a5 * b4 + a6 * b8 + a7 * b12
+            target.data[5] = a4 * b1 + a5 * b5 + a6 * b9 + a7 * b13
+            target.data[6] = a4 * b2 + a5 * b6 + a6 * b10 + a7 * b14
+            target.data[7] = a4 * b3 + a5 * b7 + a6 * b11 + a7 * b15
+
+            target.data[8] = a8 * b0 + a9 * b4 + a10 * b8 + a11 * b12
+            target.data[9] = a8 * b1 + a9 * b5 + a10 * b9 + a11 * b13
+            target.data[10] = a8 * b2 + a9 * b6 + a10 * b10 + a11 * b14
+            target.data[11] = a8 * b3 + a9 * b7 + a10 * b11 + a11 * b15
+
+            target.data[12] = a12 * b0 + a13 * b4 + a14 * b8 + a15 * b12
+            target.data[13] = a12 * b1 + a13 * b5 + a14 * b9 + a15 * b13
+            target.data[14] = a12 * b2 + a13 * b6 + a14 * b10 + a15 * b14
+            target.data[15] = a12 * b3 + a13 * b7 + a14 * b11 + a15 * b15
+
+            return target
+        }
 
         /**
          * Creates an orthographic projection matrix.

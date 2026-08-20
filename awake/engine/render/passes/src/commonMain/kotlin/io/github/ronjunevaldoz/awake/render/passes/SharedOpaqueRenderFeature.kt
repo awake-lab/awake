@@ -21,14 +21,16 @@ import io.github.ronjunevaldoz.awake.render.command.PreparedDraw
 class SharedOpaqueRenderFeature {
 
     /**
-     * [grouped] is this frame's draws keyed by resolved pipeline (a stable `groupBy`, so paint
-     * order within a group is the caller's original order). [primaryPipeline]'s group is recorded
-     * first so it lands before debug lines; every other group follows.
+     * Records draw commands for all opaque pipeline groups and optional world-space debug lines.
      *
-     * [lines] is the world-space debug-line draw, or null when the frame staged none. Recorded
-     * between the primary group and the rest, matching where Vulkan already draws them. A line
-     * draw with no vertices skips its pipeline bind too -- binding a pipeline nothing is then
-     * drawn with has no effect on the output either way.
+     * Groups are keyed by resolved pipeline ([grouped]). If the primary pipeline group has non-empty
+     * draws, [primaryPipeline] is bound first, followed by [lines] (if present and non-empty), and
+     * finally all remaining format groups.
+     *
+     * @param recorder The command recorder to record GPU commands into.
+     * @param primaryPipeline The primary pipeline handle for default format geometry.
+     * @param grouped The map of prepared draw lists keyed by pipeline handle.
+     * @param lines The optional world-space debug line draw.
      */
     fun recordCommands(
         recorder: CommandRecorder,
@@ -36,12 +38,15 @@ class SharedOpaqueRenderFeature {
         grouped: Map<out PipelineHandle, List<PreparedDraw>>,
         lines: PreparedDraw? = null,
     ) {
-        recorder.bindPipeline(primaryPipeline)
-        // Two passes over the map rather than one lookup + one filtered loop: `grouped` is
-        // projected `out` on its key (each backend keys it by its own pipeline type), and an
-        // out-projected Map has no usable `get`. The map holds one entry per vertex format.
+        var primaryBound = false
         grouped.forEach { (pipeline, group) ->
-            if (pipeline === primaryPipeline) recordDraws(recorder, group)
+            if (pipeline === primaryPipeline && group.isNotEmpty()) {
+                if (!primaryBound) {
+                    recorder.bindPipeline(primaryPipeline)
+                    primaryBound = true
+                }
+                recordDraws(recorder, group)
+            }
         }
 
         if (lines != null && lines.elementCount > 0) {
@@ -50,23 +55,58 @@ class SharedOpaqueRenderFeature {
         }
 
         grouped.forEach { (pipeline, group) ->
-            if (pipeline === primaryPipeline) return@forEach
+            if (pipeline === primaryPipeline || group.isEmpty()) return@forEach
             recorder.bindPipeline(pipeline)
             recordDraws(recorder, group)
         }
     }
 
-    /** Every draw in [draws] against whatever pipeline is already bound -- the offscreen
-     * `renderToTexture` path calls this directly, having bound each group's pipeline itself. */
+    /**
+     * Records an ordered list of prepared draws against whatever pipeline is currently bound.
+     *
+     * Redundant vertex buffer and index buffer bindings across consecutive draws are elided.
+     *
+     * @param recorder The command recorder to record GPU commands into.
+     * @param draws The list of prepared draw commands to execute.
+     */
     fun recordDraws(recorder: CommandRecorder, draws: List<PreparedDraw>) {
+        var lastVertexBuffer: io.github.ronjunevaldoz.awake.render.command.BufferHandle? = null
+        var lastIndexBuffer: io.github.ronjunevaldoz.awake.render.command.BufferHandle? = null
         var index = 0
         while (index < draws.size) {
-            recordDraws(recorder, draws[index])
+            val draw = draws[index]
+            val vertexBuffer = draw.vertexBuffer
+            if (vertexBuffer != null && vertexBuffer !== lastVertexBuffer) {
+                recorder.bindVertexBuffer(VERTEX_BINDING, vertexBuffer)
+                lastVertexBuffer = vertexBuffer
+            }
+            recorder.bindMaterial(MATERIAL_SET, draw.materialBinding)
+            draw.instanceVertexBuffer?.let { recorder.bindVertexBuffer(INSTANCE_MODEL_BINDING, it) }
+            draw.jointPaletteBinding?.let { recorder.bindMaterial(JOINT_PALETTE_SET, it) }
+            draw.instanceColorBuffer?.let { recorder.bindVertexBuffer(INSTANCE_COLOR_BINDING, it) }
+            draw.instanceFrameBuffer?.let { recorder.bindVertexBuffer(INSTANCE_FRAME_BINDING, it) }
+            val indexBuffer = draw.indexBuffer
+            if (indexBuffer == null) {
+                lastIndexBuffer = null
+                recorder.draw(draw.elementCount, draw.instances)
+            } else {
+                if (indexBuffer !== lastIndexBuffer) {
+                    recorder.bindIndexBuffer(indexBuffer)
+                    lastIndexBuffer = indexBuffer
+                }
+                recorder.drawIndexed(draw.elementCount, draw.instances)
+            }
             index += 1
         }
     }
 
-    private fun recordDraws(recorder: CommandRecorder, draw: PreparedDraw) {
+    /**
+     * Records a single prepared draw against whatever pipeline is currently bound.
+     *
+     * @param recorder The command recorder to record GPU commands into.
+     * @param draw The single prepared draw command to execute.
+     */
+    fun recordDraws(recorder: CommandRecorder, draw: PreparedDraw) {
         draw.vertexBuffer?.let { recorder.bindVertexBuffer(VERTEX_BINDING, it) }
         recorder.bindMaterial(MATERIAL_SET, draw.materialBinding)
         draw.instanceVertexBuffer?.let { recorder.bindVertexBuffer(INSTANCE_MODEL_BINDING, it) }

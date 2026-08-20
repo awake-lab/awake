@@ -96,7 +96,52 @@ class SharedOpaqueRenderFeatureTest {
                 elementCount = 0,
             ),
         )
-        assertEquals(listOf("pipeline(primary)"), recorder.calls)
+        assertEquals(emptyList(), recorder.calls)
+    }
+
+    @Test
+    fun consecutiveDrawsWithSameBuffersElideRedundantBinds() {
+        val primary = Named("primary")
+        val vertexBuffer = Named("sharedV")
+        val indexBuffer = Named("sharedI")
+        val recorder = FakeRecorder()
+        val feature = SharedOpaqueRenderFeature()
+
+        feature.recordCommands(
+            recorder = recorder,
+            primaryPipeline = primary,
+            grouped = mapOf(
+                primary to listOf(
+                    FakeDraw(
+                        pipeline = primary,
+                        materialBinding = Named("m0"),
+                        vertexBuffer = vertexBuffer,
+                        indexBuffer = indexBuffer,
+                        elementCount = 3,
+                    ),
+                    FakeDraw(
+                        pipeline = primary,
+                        materialBinding = Named("m1"),
+                        vertexBuffer = vertexBuffer,
+                        indexBuffer = indexBuffer,
+                        elementCount = 3,
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(
+            listOf(
+                "pipeline(primary)",
+                "vertex(0,sharedV)",
+                "material(0,m0)",
+                "index(sharedI)",
+                "drawIndexed(3,1)",
+                "material(0,m1)",
+                "drawIndexed(3,1)",
+            ),
+            recorder.calls,
+        )
     }
 
     @Test

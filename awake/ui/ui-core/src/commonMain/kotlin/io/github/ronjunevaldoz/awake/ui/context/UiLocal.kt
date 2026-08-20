@@ -98,11 +98,37 @@ internal class UiLocalValues {
         },
     )
 
-    /** Restores a snapshot without coupling this store to any named local. */
+    /**
+     * Restores a snapshot without coupling this store to any named local.
+     *
+     * Reuses existing allocated stack lists in place where available to avoid heap churn during
+     * layout measurement trials.
+     *
+     * @param snapshot The ambient local snapshot to restore from.
+     */
     fun restore(snapshot: UiLocalSnapshot) {
-        stacks = Array(snapshot.stacks.size.coerceAtLeast(INITIAL_SLOTS)) { index ->
+        val requiredSize = snapshot.stacks.size.coerceAtLeast(INITIAL_SLOTS)
+        if (stacks.size < requiredSize) {
+            stacks = stacks.copyOf(requiredSize)
+        }
+        for (i in 0 until snapshot.stacks.size) {
             @Suppress("UNCHECKED_CAST")
-            (snapshot.stacks.getOrNull(index) as? MutableList<Any?>)?.toMutableList()
+            val sourceList = snapshot.stacks[i] as? MutableList<Any?>
+            if (sourceList == null) {
+                stacks[i] = null
+            } else {
+                @Suppress("UNCHECKED_CAST")
+                val targetList = stacks[i] as? MutableList<Any?>
+                if (targetList != null) {
+                    targetList.clear()
+                    targetList.addAll(sourceList)
+                } else {
+                    stacks[i] = sourceList.toMutableList()
+                }
+            }
+        }
+        for (i in snapshot.stacks.size until stacks.size) {
+            stacks[i] = null
         }
     }
 

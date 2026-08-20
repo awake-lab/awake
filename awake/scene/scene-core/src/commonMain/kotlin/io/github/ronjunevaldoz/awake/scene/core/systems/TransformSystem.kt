@@ -28,6 +28,7 @@ class TransformSystem : System {
     private var visitedStamp = IntArray(0)
     private var visitingStamp = IntArray(0)
     private var frameStamp = 0
+    private val localScratch = Mat4()
 
     override fun update(world: World, delta: Float) {
         frameStamp += 1
@@ -45,13 +46,14 @@ class TransformSystem : System {
         check(visitingStamp[id] != frameStamp) { "Transform hierarchy contains a cycle at $entity." }
         visitingStamp[id] = frameStamp
 
-        val local = transform.localMatrix()
         val parent = transform.parent
         val parentTransform = if (parent != null) world.get<Transform>(parent) else null
-        transform.worldMatrix = if (parent != null && parentTransform != null) {
-            local * propagate(world, parent, parentTransform)
+        if (parent != null && parentTransform != null) {
+            val parentWorld = propagate(world, parent, parentTransform)
+            transform.computeLocalMatrix(localScratch)
+            Mat4.multiplyInPlace(localScratch, parentWorld, transform.worldMatrix)
         } else {
-            local
+            transform.computeLocalMatrix(transform.worldMatrix)
         }
 
         visitedStamp[id] = frameStamp

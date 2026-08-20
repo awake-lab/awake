@@ -95,11 +95,19 @@ private fun CanvasScope.drawFillShape(
     scope.dispatchPrimitive(primitive, overlay)
 }
 
-/** Fill + border for one widget slot, sharing the corner radius correctly between the two.
+/**
+ * Paints a combined fill and border for a widget slot while sharing corner radius geometry.
  *
- * [borderColor] has no theme-resolved default -- [CanvasScope] is a pure draw surface with no
- * theme/context access (Option B, docs/tasks/2026-08-18-ui-capability-scopes-plan.md); callers
- * that want a themed border resolve it themselves before calling. */
+ * @param slot The bounding rectangle of the widget.
+ * @param fillColor The fill color of the background.
+ * @param radiusPx The base corner radius in pixels.
+ * @param borderWidth The border stroke width.
+ * @param borderColor The color of the border stroke.
+ * @param shapeSpec The optional custom shape specification.
+ * @param overlay Whether this primitive emits to the overlay layer.
+ * @param fillTokenId The optional theme token identifier for fill inspection.
+ * @param borderTokenId The optional theme token identifier for border inspection.
+ */
 fun CanvasScope.drawFillAndBorder(
     slot: UiBounds,
     fillColor: Color,
@@ -113,12 +121,9 @@ fun CanvasScope.drawFillAndBorder(
 ) {
     val hasFill = !fillColor.isTransparent()
     val borderPx = borderWidth.toPx()
-    // CSS `border: 1px solid transparent` still belongs to the border-box (intrinsic sizing
-    // already accounts for [borderWidth]), but it must not become a draw primitive. Emitting a
-    // transparent stroke makes the software rasterizer blend the stroke's black RGB channels
-    // into otherwise untouched pixels and produces the dark phantom outlines seen on shadcn
-    // tabs and filled badges.
     val hasBorder = borderPx > 0f && !borderColor.isTransparent()
+    if (!hasFill && !hasBorder) return
+
     val pathShape = pathOnlyShape(slot, shapeSpec)
     if (pathShape != null) {
         val path = pathShape.toPath(slot)
