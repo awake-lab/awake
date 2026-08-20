@@ -4,6 +4,7 @@ package io.github.ronjunevaldoz.awake.engine.app
 
 import io.github.ronjunevaldoz.awake.engine.app.lifecycle.AppLifecycle
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.asset.shaders.ShaderSet
 
 /**
  * The one public entry point a consumer builds against: picks `VulkanGameApplication`

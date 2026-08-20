@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.ui
 
+import io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.context.UiContext
 import io.github.ronjunevaldoz.awake.ui.context.UiFrameInput
@@ -19,7 +20,9 @@ import kotlin.test.assertTrue
 class UiAnimatedVisibilityTest {
 
     private fun UiPrimitiveScope.emitMarkerQuad() {
-        emit(UiDrawPrimitive.Quad(x = 0f, y = 0f, w = 10f, h = 10f, color = Color.White))
+        canvas(UiBounds(0f, 0f, 10f, 10f)) {
+            drawRect(0f, 0f, 10f, 10f, Color.White)
+        }
     }
 
     private fun UiContext.frame(visible: Boolean, durationMs: Float = 100f): List<UiDrawPrimitive> {
