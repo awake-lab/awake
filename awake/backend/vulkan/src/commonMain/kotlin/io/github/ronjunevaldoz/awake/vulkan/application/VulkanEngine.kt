@@ -266,22 +266,24 @@ open class VulkanEngine(
         val (primaryPipeline, primaryWireframePipeline) = requestedPipelines.getValue(PipelineKey.Primary)
 
         val shadowFeature = shadowMap?.let { map ->
-            val shaderSet = requireNotNull(shadowShaderSet)
-            val shadowPipeline = ShadowRenderPipeline(
-                graphicsDevice,
-                map.renderPass,
-                pipelineDescriptorSetLayout,
-                loadShaderPair(
-                    shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
-                    shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
-                ),
-                // Same vertex layout as the primary pipeline -- it draws the same meshes.
-                vertexFormat,
-                map.size,
-                shaderSet.vulkan.entryPoint(ShaderStage.VERTEX),
-                shaderSet.vulkan.entryPoint(ShaderStage.FRAGMENT),
-            )
-            ShadowFeature(map, shadowPipeline)
+            withPipelineLoadContext("shadow") {
+                val shaderSet = requireNotNull(shadowShaderSet)
+                val shadowPipeline = ShadowRenderPipeline(
+                    graphicsDevice,
+                    map.renderPass,
+                    pipelineDescriptorSetLayout,
+                    loadShaderPair(
+                        shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
+                        shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
+                    ),
+                    // Same vertex layout as the primary pipeline -- it draws the same meshes.
+                    vertexFormat,
+                    map.size,
+                    shaderSet.vulkan.entryPoint(ShaderStage.VERTEX),
+                    shaderSet.vulkan.entryPoint(ShaderStage.FRAGMENT),
+                )
+                ShadowFeature(map, shadowPipeline)
+            }
         }
         val lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
@@ -294,17 +296,19 @@ open class VulkanEngine(
             MAX_FRAMES_IN_FLIGHT,
         )
         val skyboxRenderPipeline = skyboxShaderSet?.let { shaderSet ->
-            SkyboxRenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                // The EXISTING 3D pass, same reuse lineRenderPipeline above does.
-                sceneRenderPass,
-                loadShaderPair(
-                    shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
-                    shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
-                ),
-                MAX_FRAMES_IN_FLIGHT,
-            )
+            withPipelineLoadContext("skybox") {
+                SkyboxRenderPipeline(
+                    graphicsDevice,
+                    swapchainManager,
+                    // The EXISTING 3D pass, same reuse lineRenderPipeline above does.
+                    sceneRenderPass,
+                    loadShaderPair(
+                        shaderSet.vulkan.resourcePath(ShaderStage.VERTEX),
+                        shaderSet.vulkan.resourcePath(ShaderStage.FRAGMENT),
+                    ),
+                    MAX_FRAMES_IN_FLIGHT,
+                )
+            }
         }
         transferContext = TransferContext(graphicsDevice)
         // Registration order is paint order: the sky draws with depth test/write off, so it
@@ -457,3 +461,14 @@ private fun ShaderStages.resourcePath(stage: ShaderStage): String =
 private fun ShaderStages.entryPoint(stage: ShaderStage): String =
     this[stage]?.entryPoint
         ?: error("No $stage stage registered in this ShaderStages.")
+
+/** Same reasoning as [buildRequestedPipelines]'s own per-request wrapping: [name]'s pipeline is
+ * built outside that shared loop (shadow/skybox aren't [PipelineRequest]s), so it needs its own
+ * context wrapper to avoid a bare file-path/native-error-code failure with no hint which of
+ * this app's pipelines actually failed. */
+private suspend fun <T> withPipelineLoadContext(name: String, block: suspend () -> T): T =
+    try {
+        block()
+    } catch (e: Exception) {
+        throw IllegalStateException("Failed to build pipeline '$name': ${e.message}", e)
+    }

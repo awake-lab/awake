@@ -59,21 +59,13 @@ suspend fun buildRequestedPipelines(
     loadShaders: suspend (vertexPath: String, fragmentPath: String) -> ShaderPair,
 ): Map<PipelineKey, Pair<RenderPipeline, RenderPipeline?>> = buildMap {
     requests.forEach { request ->
-        val shaders = loadShaders(request.vertexShaderResourcePath, request.fragmentShaderResourcePath)
-        val fill = RenderPipeline(
-            graphicsDevice,
-            swapchainManager,
-            renderPass,
-            descriptorSetLayout,
-            shaders,
-            request.vertexFormat,
-            request.vertexEntryPoint,
-            request.fragmentEntryPoint,
-            variant = request.variant,
-            extraDescriptorSetLayouts = request.extraDescriptorSetLayouts,
-        )
-        val wireframe = if (request.buildWireframe) {
-            RenderPipeline(
+        // Wrapped per-request, not once around the whole loop: a resource-not-found or
+        // shader-module-creation failure otherwise surfaces with only a bare file path/native
+        // error code, giving no hint which of the (up to 7) pipelines being built was the one
+        // that actually failed.
+        try {
+            val shaders = loadShaders(request.vertexShaderResourcePath, request.fragmentShaderResourcePath)
+            val fill = RenderPipeline(
                 graphicsDevice,
                 swapchainManager,
                 renderPass,
@@ -82,13 +74,29 @@ suspend fun buildRequestedPipelines(
                 request.vertexFormat,
                 request.vertexEntryPoint,
                 request.fragmentEntryPoint,
-                polygonMode = VkPolygonMode.VK_POLYGON_MODE_LINE,
                 variant = request.variant,
                 extraDescriptorSetLayouts = request.extraDescriptorSetLayouts,
             )
-        } else {
-            null
+            val wireframe = if (request.buildWireframe) {
+                RenderPipeline(
+                    graphicsDevice,
+                    swapchainManager,
+                    renderPass,
+                    descriptorSetLayout,
+                    shaders,
+                    request.vertexFormat,
+                    request.vertexEntryPoint,
+                    request.fragmentEntryPoint,
+                    polygonMode = VkPolygonMode.VK_POLYGON_MODE_LINE,
+                    variant = request.variant,
+                    extraDescriptorSetLayouts = request.extraDescriptorSetLayouts,
+                )
+            } else {
+                null
+            }
+            put(request.key, fill to wireframe)
+        } catch (e: Exception) {
+            throw IllegalStateException("Failed to build pipeline '${request.key}': ${e.message}", e)
         }
-        put(request.key, fill to wireframe)
     }
 }

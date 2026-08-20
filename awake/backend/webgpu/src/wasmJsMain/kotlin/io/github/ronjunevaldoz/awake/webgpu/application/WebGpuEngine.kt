@@ -144,61 +144,70 @@ open class WebGpuEngine(
         // No LineList companion per additional format -- those keep drawing filled while
         // Renderer.wireframe is on (see RendererDraw3D's own comment).
         additionalPipelines.forEach { (format, shaderSet) ->
-            additionalRenderPipelines[format] = RenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                DescriptorSetLayoutHandle(0),
-                readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
-                ByteArray(0),
-                format,
-                shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
-                shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
-            )
+            withPipelineLoadContext("additional:$format") {
+                additionalRenderPipelines[format] = RenderPipeline(
+                    graphicsDevice,
+                    swapchainManager,
+                    DescriptorSetLayoutHandle(0),
+                    readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
+                    ByteArray(0),
+                    format,
+                    shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
+                    shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
+                )
+            }
         }
         instancedRenderPipeline = instancedShaderSet?.let { shaderSet ->
-            RenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                DescriptorSetLayoutHandle(0),
-                readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
-                ByteArray(0),
-                // Same vertex layout as the primary pipeline -- it draws the same meshes, just
-                // many copies of them; `instanced` only ADDS a second, instance-rate buffer.
-                vertexFormat,
-                shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
-                shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
-                instanced = true,
-            )
+            withPipelineLoadContext("instanced") {
+                RenderPipeline(
+                    graphicsDevice,
+                    swapchainManager,
+                    DescriptorSetLayoutHandle(0),
+                    readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
+                    ByteArray(0),
+                    // Same vertex layout as the primary pipeline -- it draws the same meshes,
+                    // just many copies of them; `instanced` only ADDS a second, instance-rate
+                    // buffer.
+                    vertexFormat,
+                    shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
+                    shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
+                    instanced = true,
+                )
+            }
         }
         skinnedInstancedRenderPipeline = skinnedInstancedShaderSet?.let { shaderSet ->
-            RenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                DescriptorSetLayoutHandle(0),
-                readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
-                ByteArray(0),
-                VertexFormat.PositionNormalColorSkin,
-                shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
-                shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
-                instanced = true,
-            )
+            withPipelineLoadContext("skinnedInstanced") {
+                RenderPipeline(
+                    graphicsDevice,
+                    swapchainManager,
+                    DescriptorSetLayoutHandle(0),
+                    readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
+                    ByteArray(0),
+                    VertexFormat.PositionNormalColorSkin,
+                    shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
+                    shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
+                    instanced = true,
+                )
+            }
         }
         particleRenderPipeline = particleShaderSet?.let { shaderSet ->
-            RenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                DescriptorSetLayoutHandle(0),
-                readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
-                ByteArray(0),
-                VertexFormat.PositionUv,
-                shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
-                shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
-                instanced = true,
-                instanceAlpha = true,
-                instanceFrame = true,
-                blendEnabled = true,
-                depthWriteEnabled = false,
-            )
+            withPipelineLoadContext("particle") {
+                RenderPipeline(
+                    graphicsDevice,
+                    swapchainManager,
+                    DescriptorSetLayoutHandle(0),
+                    readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
+                    ByteArray(0),
+                    VertexFormat.PositionUv,
+                    shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
+                    shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
+                    instanced = true,
+                    instanceAlpha = true,
+                    instanceFrame = true,
+                    blendEnabled = true,
+                    depthWriteEnabled = false,
+                )
+            }
         }
         lineRenderPipeline = LineRenderPipeline(
             graphicsDevice,
@@ -206,11 +215,13 @@ open class WebGpuEngine(
             readResourceBytes(DEBUG_LINE_SHADER_RESOURCE_PATH),
         )
         skyboxRenderPipeline = skyboxShaderSet?.let { shaderSet ->
-            SkyboxRenderPipeline(
-                graphicsDevice,
-                swapchainManager,
-                readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
-            )
+            withPipelineLoadContext("skybox") {
+                SkyboxRenderPipeline(
+                    graphicsDevice,
+                    swapchainManager,
+                    readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
+                )
+            }
         }
         val renderer = Renderer(
             graphicsDevice,
@@ -282,3 +293,13 @@ private fun ShaderStages.resourcePath(stage: ShaderStage): String =
 private fun ShaderStages.entryPoint(stage: ShaderStage): String =
     this[stage]?.entryPoint
         ?: error("No $stage stage registered in this ShaderStages.")
+
+/** [name]'s pipeline build wrapped so a resource-not-found/shader-module-creation failure says
+ * which pipeline actually failed instead of just a bare file path -- see `VulkanEngine`'s
+ * identical helper for the full rationale. */
+private suspend fun <T> withPipelineLoadContext(name: String, block: suspend () -> T): T =
+    try {
+        block()
+    } catch (e: Exception) {
+        throw IllegalStateException("Failed to build pipeline '$name': ${e.message}", e)
+    }
