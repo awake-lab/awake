@@ -1,8 +1,6 @@
 # Game and Scene management — clean shape
 
-Status: draft, not implemented (except where noted as already landed). Answers "don't we have
-a dedicated scene management?" — no, and this is the shape to build one. Builds directly on
-today's teardown fix (`Scene.destroy()`, `awake:scene:runtime`) rather than replacing it.
+Status: landed. SceneManager created in awake:scene:runtime, integrated into SceneAppLifecycleRuntime, and consumed by Studio ExampleLoader.
 
 ## Two layers, already mostly correct, one real gap
 

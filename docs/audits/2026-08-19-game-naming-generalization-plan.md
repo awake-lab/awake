@@ -1,7 +1,6 @@
 # "Game" naming — generalize for non-game consumers (video/animation apps)
 
-Status: naming decision, execution via IDE rename (Android Studio "Rename..." refactor),
-not a scripted migration. Triggered by a real stated requirement (not hypothetical): Awake's
+Status: completed. AppLifecycle, AppSpecDsl, AppLifecycleRuntime naming generalized across bootstrap and runtime.
 `engine/game` layer must support non-game apps (video/animation tools) equally, and
 `Game`/`GameApplication`/`GameShaderSet` name the abstraction after one use case it must not
 be limited to.

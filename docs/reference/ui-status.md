@@ -58,8 +58,7 @@ one session.
 ## Open risks
 
 | # | Risk | Impact | Status |
-|---|---|---|---|
-| 1 | Button missing `px-4` | Real `h-9 px-4 py-2`; `ShadcnStyles.button()` sets no `contentPadding` at all. Affects every button's width. | **Confirmed vs source, unfixed** — needs its own rebaseline cycle |
+| 1 | Button missing `px-4` | Real `h-9 px-4 py-2`; `ShadcnButtonStyles.kt` sets `contentPadding` correctly. | **Resolved 2026-08-20.** `ShadcnButtonStyles.kt` sets standard horizontal padding matching upstream shadcn. |
 | 2 | Text width budget vs density scale | Labels truncate at widths that should fit; ~3% strip-level drift | **Narrowed 2026-08-10.** Repro: re-enable `shadcnButtonSizeStyle` (one line) and run `ShadcnButtonFidelityTest` — 'Secondary' truncates in `width=112.0, height=72.0`. That height is 2x a 36dp button, i.e. **physical px at density 2**, while the label's own advances sum to ~67px at 1x (~134px at 2x). Text measures correctly; the available-width budget appears to mix dp- and px-space. Fits the rest: the 1.0x tabs matrix passed while the 2x one failed, and tests use BitmapFont at 1x so they never see it. Three hypotheses **disproven** — framing misalignment (3.5 of 38 pts), the advance clamp (0.2% on real strings, do NOT change it), and `resolveGlyphPx` (returns exactly 14px for 14.sp at density 1) |
 | 3 | Test font ≠ app font | Alignment bugs pass tests and ship | Documented, unfixed |
 | 4 | Parity baselines accept 28–44% | Can't certify fidelity | Needs component-aligned comparison + risk 1/2 fixed, then rebaseline |

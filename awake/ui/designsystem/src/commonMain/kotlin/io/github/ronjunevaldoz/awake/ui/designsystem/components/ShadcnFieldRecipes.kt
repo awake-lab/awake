@@ -114,7 +114,7 @@ fun UiScope.shadcnFieldSeparator(
     modifier: UiModifier = Modifier,
     label: String? = null,
 ): UiBounds = if (label == null) {
-    shadcnSeparator(modifier = modifier)
+    shadcnSeparator(id = id, modifier = modifier)
 } else {
     row(
         modifier = modifier.fillMaxWidth(),

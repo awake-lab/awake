@@ -197,10 +197,13 @@ internal fun Renderer.recordCommandBuffer(
     )
 
     // Grouped by resolved pipeline: primary group first, then debug lines, then every other
-    // format's group. "Primary" is resolved via pipelineFor, not always `renderPipeline` --
-    // when wireframe is on, its variant for renderPipeline's own format must bind first, or the
-    // primary group falls into the "every other format" loop below and draws after debug lines.
-    val groupedDrawCalls = drawCalls.groupBy { it.pipeline }
+    // format's group. Draws within each group are clustered by mesh to maximize vertex and index
+    // buffer binding reuse across consecutive calls in SharedOpaqueRenderFeature.
+    val groupedDrawCalls = drawCalls
+        .groupBy { it.pipeline }
+        .mapValues { (_, draws) ->
+            draws.sortedBy { it.drawCall.mesh.hashCode() }
+        }
     val primaryPipeline = pipelineFor(renderPipeline.vertexFormat) ?: renderPipeline
     val context = RendererFrameContext(
         renderer = this,
