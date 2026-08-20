@@ -83,3 +83,26 @@ internal val StudioExamples: List<StudioExample> = listOf(
         },
     ),
 )
+
+/** Preloads all example driver assets (glTF, skinned meshes, particles, scenes). */
+internal suspend fun preloadStudioExamples(loader: ExampleLoader) {
+    GltfViewerAssets.preload()
+    SkinnedExampleDriver.preload()
+    InstancedSkinnedExampleDriver.preload()
+    ParticleEmitterExampleDriver.preload()
+    loader.preload()
+}
+
+/** Registers example driver meshes and materials in the scene asset library. */
+internal fun io.github.ronjunevaldoz.awake.scene.authoring.SceneAssetsDsl.registerStudioExampleAssets() {
+    mesh("duck") { GltfViewerAssets.createMesh(this) }
+    material("duck-material") { GltfViewerAssets.createMaterial(this) }
+    mesh("skinned-mesh") { SkinnedExampleDriver.createMesh(this) }
+    material("skinned-material") { SkinnedExampleDriver.createMaterial(this) }
+    mesh("instanced-skinned-mesh") { InstancedSkinnedExampleDriver.createMesh(this) }
+    material("instanced-skinned-material") { InstancedSkinnedExampleDriver.createMaterial(this) }
+    mesh("particle-quad") { ParticleEmitterExampleDriver.createMesh(this) }
+    material("particle") { ParticleEmitterExampleDriver.createMaterial(this) }
+    material("particle-flicker") { ParticleEmitterExampleDriver.createFlickerMaterial(this) }
+    material("particle-levelup") { ParticleEmitterExampleDriver.createLevelupMaterial(this) }
+}

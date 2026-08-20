@@ -2,7 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.systems
 
+import io.github.ronjunevaldoz.awake.core.math.Vec3
+import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.ecs.Entity
+import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.scene.controls.components.ActiveCamera
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
+import io.github.ronjunevaldoz.awake.scene.core.components.Transform
+import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
+
+private const val DEFAULT_EDITOR_CAMERA_FOV_RADIANS = 0.7853982f // 45 degrees
+private const val DEFAULT_EDITOR_CAMERA_NEAR = 0.1f
+private const val DEFAULT_EDITOR_CAMERA_FAR = 100f
+private const val EDITOR_CAMERA_MAX_DISTANCE = 100f
 
 /** Holds the one persistent editor (Scene-view) camera entity -- created once in `onReady`,
  * survives every `LoadExample` (unlike a scene's own authored camera, which is recreated on
@@ -17,4 +29,30 @@ internal class StudioEditorCamera {
      * example just loaded (its camera entity is recreated by `ExampleLoader` every
      * `LoadExample`), and the editor camera's orbit should re-seed from its pose. */
     var authoredCameraEntity: Entity? = null
+}
+
+/** Spawns the persistent editor camera entity in [world]. */
+internal fun createStudioEditorCameraEntity(world: World): Entity = world.create().also { entity ->
+    world.add(
+        entity,
+        Camera(
+            CoreCamera(
+                eye = Vec3(6f, 4f, 8f),
+                center = Vec3.ZERO,
+                fovYRadians = DEFAULT_EDITOR_CAMERA_FOV_RADIANS,
+                near = DEFAULT_EDITOR_CAMERA_NEAR,
+                far = DEFAULT_EDITOR_CAMERA_FAR,
+            ),
+            isPrimary = true,
+        ),
+    )
+    world.add(entity, Transform())
+    world.add(
+        entity,
+        CameraComponent().also {
+            it.targetEntity = entity
+            it.maxDistance = EDITOR_CAMERA_MAX_DISTANCE
+        },
+    )
+    world.add(entity, ActiveCamera())
 }
