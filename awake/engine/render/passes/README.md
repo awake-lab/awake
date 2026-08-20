@@ -47,12 +47,39 @@ In GPU architecture, a **Render Pass** is an execution phase targeting a specifi
 
 ---
 
+## Architectural Philosophy: Why Not a 1:1 `expect`/`actual` HAL?
+
+When targeting multiple graphics backends (Vulkan on Desktop/Android/iOS vs. WebGPU on Browser/WasmJs), developers often ask why we do not simply declare:
+```kotlin
+expect class GpuDevice
+expect class GpuCommandBuffer
+expect class GpuPipeline
+```
+
+### The Pitfalls of 1:1 `expect`/`actual` Graphics HALs:
+1. **Divergent API Paradigms**:
+   - **Vulkan** relies on descriptor set pools, dynamic viewports/scissors, subpasses, pipeline layouts, and explicit memory heaps.
+   - **WebGPU** relies on auto-derived bind group layouts, immutable pipeline state objects, and strict command-encoder render passes.
+   - Forcing both into a 1:1 class hierarchy results in lowest-common-denominator compromises and loses the native idiomatic strengths of each driver.
+2. **Boxing & JNI/Wasm Overhead**:
+   - Creating thousands of wrapper objects per frame across the JVM and JS/Wasm interop boundaries degrades frame rates.
+3. **Evolutionary Debt**:
+   - Because both backends were originally developed independently to achieve fast time-to-first-pixel, CPU-side algorithms (uniform packing, vertex serialization, primitive batching, scissor stack math) were duplicated.
+
+### The Awake Approach: Pass-Level Orchestration & Thin Recorders
+Instead of wrapping GPU hardware objects, **Awake commonizes the execution logic**:
+- **CPU Data Preparation & Math (`render:passes`)**: Pure Kotlin math, layout calculations, and batch sorting (`UiVertexLayout`, `MaterialUniformLayouts`, `UiBatchCoalescer`).
+- **Pass Orchestration (`RenderFeature`)**: High-level execution sequencing (`SharedOpaqueRenderFeature`, `SharedSkyboxRenderFeature`, `SharedUiRenderFeature`).
+- **Thin Recorders (`CommandRecorder`)**: Direct, zero-allocation translations into native Vulkan (`VkCommandBuffer`) or WebGPU (`GPURenderPassEncoder`) calls without intermediate wrapper overhead.
+
+---
+
 ## Module Scope & Guidelines
 
 | Shape | Form & Rule |
 |---|---|
-| **Pass Feature** (Owns state across calls) | Class implementing `RenderFeature`, member functions (`SharedOpaqueRenderFeature`). |
-| **Uniform Packing Math** (Pure calculation) | Plain top-level function taking explicit parameters (`fogFloats(color, near, far, density)`), **never** an implicit receiver on `Renderer`. |
+| **Pass Feature** (Owns state across calls) | Class implementing `RenderFeature`, member functions (`SharedOpaqueRenderFeature`, `SharedSkyboxRenderFeature`). |
+| **Uniform Packing Math** (Pure calculation) | Plain top-level function taking explicit parameters (`fogUniformFloats(color, density)`), **never** an implicit receiver on `Renderer`. |
 | **Backend Isolation** | **Never import a Vulkan or WebGPU type.** A capability this module needs belongs on `CommandRecorder` as a new method. |
 
 ---
