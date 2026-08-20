@@ -97,14 +97,13 @@ private fun conventionStages(directory: String, vertexFile: String, fragmentFile
         fragment = ShaderSource.ResourcePath("$directory/$fragmentFile", entryPoint = "fragmentMain"),
     )
 
-/** The common case: a shader named [name] follows this engine's file-naming convention on both
- * backends, so a caller just names it once -- see `docs/reference/...` for the convention
- * (`assets/shader/vulkan/$name.vert.spv`+`.frag.spv`, `assets/shader/webgpu/$name.wgsl`). */
-fun shaderSet(
-    name: String,
-    vulkanDirectory: String = "assets/shader/vulkan",
-    webGpuDirectory: String = "assets/shader/webgpu",
-): ShaderSet = ShaderSet(
-    vulkan = conventionStages(vulkanDirectory, "$name.vert.spv", "$name.frag.spv"),
-    webGpu = conventionStages(webGpuDirectory, "$name.wgsl", "$name.wgsl"),
+/** The common case: a shader named [name] follows this engine's fixed file-naming convention on
+ * both backends (`assets/shader/vulkan/$name.vert.spv`+`.frag.spv`,
+ * `assets/shader/webgpu/$name.wgsl`), so a caller just names it once. No directory override
+ * params -- confirmed via a full-repo audit that zero call sites have ever needed one; a shader
+ * whose stages genuinely don't fit this convention uses the [shaderSet] escape hatch above
+ * instead of bending this one. */
+fun shaderSet(name: String): ShaderSet = ShaderSet(
+    vulkan = conventionStages("assets/shader/vulkan", "$name.vert.spv", "$name.frag.spv"),
+    webGpu = conventionStages("assets/shader/webgpu", "$name.wgsl", "$name.wgsl"),
 )
