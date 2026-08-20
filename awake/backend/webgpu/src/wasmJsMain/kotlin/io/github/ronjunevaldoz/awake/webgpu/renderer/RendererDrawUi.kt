@@ -18,6 +18,9 @@ import io.github.ronjunevaldoz.awake.ui.bounds
 import io.github.ronjunevaldoz.awake.ui.clipToConvexPaths
 import io.github.ronjunevaldoz.awake.ui.convexClipContour
 import io.github.ronjunevaldoz.awake.ui.font.UiFont
+import io.github.ronjunevaldoz.awake.render.passes.ui.writeGlyphVertex
+import io.github.ronjunevaldoz.awake.render.passes.ui.writeRoundedQuadVertex
+import io.github.ronjunevaldoz.awake.render.passes.ui.writeVertex
 import io.github.ronjunevaldoz.awake.ui.px
 import io.github.ronjunevaldoz.awake.ui.splitToCapacity
 import io.github.ronjunevaldoz.awake.ui.tessellateFillAa

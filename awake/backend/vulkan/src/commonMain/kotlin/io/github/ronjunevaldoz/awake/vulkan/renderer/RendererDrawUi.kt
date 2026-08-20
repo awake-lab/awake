@@ -3,6 +3,9 @@
 package io.github.ronjunevaldoz.awake.vulkan.renderer
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
+import io.github.ronjunevaldoz.awake.render.passes.ui.writeGlyphVertex
+import io.github.ronjunevaldoz.awake.render.passes.ui.writeRoundedQuadVertex
+import io.github.ronjunevaldoz.awake.render.passes.ui.writeVertex
 import io.github.ronjunevaldoz.awake.render.texture.RenderTarget
 import io.github.ronjunevaldoz.awake.ui.UiColoredTriangleMesh
 import io.github.ronjunevaldoz.awake.ui.UiColoredVertex

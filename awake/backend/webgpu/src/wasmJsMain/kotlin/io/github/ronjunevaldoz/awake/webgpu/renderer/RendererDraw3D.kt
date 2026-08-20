@@ -7,6 +7,8 @@ import io.github.ronjunevaldoz.awake.render.command.BufferHandle
 import io.github.ronjunevaldoz.awake.render.command.MaterialBinding
 import io.github.ronjunevaldoz.awake.render.command.PipelineHandle
 import io.github.ronjunevaldoz.awake.render.command.PreparedDraw
+import io.github.ronjunevaldoz.awake.render.passes.ui.writeLineVertex
+import io.github.ronjunevaldoz.awake.render.passes.uniforms.fogUniformFloats
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.SceneLight
@@ -274,28 +276,5 @@ internal fun Renderer.performDrawDebugLines(lines: List<LineSegment>) {
     lineMesh.update(vertices)
 }
 
-/** `[metallic, roughness, pad, pad, baseColorFactor.rgba, emissiveFactor.rgb, pad]` -- the
- * textured/glTF pipeline's factor multipliers (see `textured.wgsl`'s Uniforms), same packing
- * and defaults as Vulkan's own `RendererDraw3D.pbrTexturedMaterialFloats`. Defaults to
- * factor = 1 / emissive = 0 (a no-op multiply), matching this pipeline's behavior before these
- * fields existed. */
-internal fun pbrTexturedMaterialFloats(drawCall: DrawCall): FloatArray {
-    val supplied = drawCall.extraUniformFloats
-    if (supplied.size >= PBR_TEXTURED_MATERIAL_FLOATS) return supplied.copyOf(PBR_TEXTURED_MATERIAL_FLOATS)
-    return floatArrayOf(
-        DEFAULT_METALLIC_FACTOR, DEFAULT_ROUGHNESS_FACTOR, 0f, 0f,
-        1f, 1f, 1f, 1f,
-        0f, 0f, 0f, 0f,
-    )
-}
+internal fun Renderer.fogFloats(): FloatArray = fogUniformFloats(fogColor, fogDensity)
 
-/** `[fogColor.rgb, fogDensity]` -- density rides in the 4th component, matching
- * `textured.wgsl`'s `fogColor : vec4f` (see `UniformFields.FogColor`). Same packing as Vulkan's own
- * `RendererDraw3D.fogFloats`. The primary path here is `triangle.wgsl`, which has no worldPos/
- * cameraPosition to fog against, so only the textured path gets this. */
-internal fun Renderer.fogFloats(): FloatArray =
-    floatArrayOf(fogColor[0], fogColor[1], fogColor[2], fogDensity)
-
-private const val PBR_TEXTURED_MATERIAL_FLOATS = 12
-private const val DEFAULT_METALLIC_FACTOR = 1f
-private const val DEFAULT_ROUGHNESS_FACTOR = 1f

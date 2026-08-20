@@ -8,6 +8,10 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.command.PreparedDraw
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.render.passes.ui.writeLineVertex
+import io.github.ronjunevaldoz.awake.render.passes.uniforms.fogUniformFloats
+import io.github.ronjunevaldoz.awake.render.passes.uniforms.pbrMaterialFloats
+import io.github.ronjunevaldoz.awake.render.passes.uniforms.pbrTexturedMaterialFloats
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.render.renderer.LineSegment
 import io.github.ronjunevaldoz.awake.render.renderer.RenderViewport
@@ -567,49 +571,7 @@ private fun Renderer.shadowTexelDepthScale(): Float {
     return (2f * SHADOW_ORTHO_HALF_SIZE / map.size) / (SHADOW_FAR - SHADOW_NEAR)
 }
 
-/** `[metallic, roughness, 0, 0]`, reusing [DrawCall.extraUniformFloats] -- the primary lit
- * format otherwise ignores that field, and a dedicated pair of DrawCall properties would have
- * to be threaded through every backend for two floats. Defaults to a fully dielectric,
- * half-rough surface, which is what the pre-PBR Lambert shading approximated. */
-private fun pbrMaterialFloats(drawCall: DrawCall): FloatArray {
-    val supplied = drawCall.extraUniformFloats
-    if (supplied.size >= PBR_MATERIAL_FLOATS) return supplied.copyOf(PBR_MATERIAL_FLOATS)
-    return floatArrayOf(DEFAULT_METALLIC, DEFAULT_ROUGHNESS, 0f, 0f)
-}
-
-/** `[fogColor.rgb, fogDensity]` -- density rides in the 4th component, matching both lit
- * shaders' `fogColor : vec4f` (see [UniformFields.FogColor]). Scene-wide, so it comes off the
- * [Renderer] rather than off a [DrawCall]. */
-private fun Renderer.fogFloats(): FloatArray =
-    floatArrayOf(fogColor[0], fogColor[1], fogColor[2], fogDensity)
-
-private const val PBR_MATERIAL_FLOATS = 4
-private const val DEFAULT_METALLIC = 0f
-private const val DEFAULT_ROUGHNESS = 0.5f
-
-/** `[metallic, roughness, pad, pad, baseColorFactor.rgba, emissiveFactor.rgb, pad]` -- the
- * textured/glTF pipeline's factor multipliers (see `textured.wgsl`'s Uniforms). Defaults to
- * factor = 1 / emissive = 0 (a no-op multiply), matching this pipeline's behavior before these
- * fields existed: metallic/roughness came from the texture alone, base color/emissive were
- * never scaled. [RenderSystem]'s `PbrMaterial` packing supplies real values at the same offsets
- * [pbrMaterialFloats] reads its first 4 from -- one packing serves both pipelines. */
-private fun pbrTexturedMaterialFloats(drawCall: DrawCall): FloatArray {
-    val supplied = drawCall.extraUniformFloats
-    if (supplied.size >= PBR_TEXTURED_MATERIAL_FLOATS) {
-        return supplied.copyOf(
-            PBR_TEXTURED_MATERIAL_FLOATS,
-        )
-    }
-    return floatArrayOf(
-        DEFAULT_METALLIC_FACTOR, DEFAULT_ROUGHNESS_FACTOR, 0f, 0f,
-        1f, 1f, 1f, 1f,
-        0f, 0f, 0f, 0f,
-    )
-}
-
-private const val PBR_TEXTURED_MATERIAL_FLOATS = 12
-private const val DEFAULT_METALLIC_FACTOR = 1f
-private const val DEFAULT_ROUGHNESS_FACTOR = 1f
+private fun Renderer.fogFloats(): FloatArray = fogUniformFloats(fogColor, fogDensity)
 
 private fun MutableMap<RenderMaterial, Int>.nextSlot(material: RenderMaterial): Int {
     val slot = this[material] ?: 0

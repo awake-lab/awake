@@ -10,6 +10,7 @@ import io.github.ronjunevaldoz.awake.render.command.MaterialBinding
 import io.github.ronjunevaldoz.awake.render.command.PipelineHandle
 import io.github.ronjunevaldoz.awake.render.command.PreparedDraw
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
+import io.github.ronjunevaldoz.awake.render.passes.uniforms.pbrTexturedMaterialFloats
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
 import io.github.ronjunevaldoz.awake.webgpu.fastArrayBufferOf
 import io.github.ronjunevaldoz.awake.webgpu.material.Material

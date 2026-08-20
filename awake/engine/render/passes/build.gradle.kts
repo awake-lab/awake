@@ -37,7 +37,9 @@ kotlin {
             // api, not implementation: the shared render-feature classes this module will hold
             // take contract types (DrawCall, VertexFormat, Material) in their own public
             // signatures, so both backends need them visible transitively.
+            api(project(":awake:core"))
             api(project(":awake:engine:render:contract"))
+            api(project(":awake:ui:graphics"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

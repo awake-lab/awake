@@ -183,13 +183,13 @@ class DynamicMesh(
     companion object {
         /** Default (colored-quad) layout: pos (vec2) + color (vec4) + transform (vec4:
          * scale.xy + pivot.xy, see `UiPrimitiveTransform`) -- see `ui_quad.vert`. */
-        const val FLOATS_PER_VERTEX = 10
-        const val GLYPH_FLOATS_PER_VERTEX = 12
+        const val FLOATS_PER_VERTEX = io.github.ronjunevaldoz.awake.render.passes.ui.UiVertexLayout.FLOATS_PER_VERTEX
+        const val GLYPH_FLOATS_PER_VERTEX = io.github.ronjunevaldoz.awake.render.passes.ui.UiVertexLayout.GLYPH_FLOATS_PER_VERTEX
 
         /** pos(vec2) + localPos(vec2) + halfSize(vec2) + radius(float) + smoothing(float) + color(vec4) +
          * transform(vec4) -- see `ui_rounded_quad.vert`. */
-        const val ROUNDED_QUAD_FLOATS_PER_VERTEX = 16
-        const val VERTICES_PER_QUAD = 4
-        const val INDICES_PER_QUAD = 6
+        const val ROUNDED_QUAD_FLOATS_PER_VERTEX = io.github.ronjunevaldoz.awake.render.passes.ui.UiVertexLayout.ROUNDED_QUAD_FLOATS_PER_VERTEX
+        const val VERTICES_PER_QUAD = io.github.ronjunevaldoz.awake.render.passes.ui.UiVertexLayout.VERTICES_PER_QUAD
+        const val INDICES_PER_QUAD = io.github.ronjunevaldoz.awake.render.passes.ui.UiVertexLayout.INDICES_PER_QUAD
     }
 }

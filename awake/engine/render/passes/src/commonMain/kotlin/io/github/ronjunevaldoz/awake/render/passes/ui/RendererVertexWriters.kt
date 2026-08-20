@@ -1,22 +1,29 @@
 // Copyright (c) Ron June Valdoz
 // SPDX-License-Identifier: Apache-2.0
-package io.github.ronjunevaldoz.awake.vulkan.renderer
+package io.github.ronjunevaldoz.awake.render.passes.ui
 
 import io.github.ronjunevaldoz.awake.core.colors.Color
 import io.github.ronjunevaldoz.awake.ui.UiPrimitiveTransform
 
-/** Pure vertex-buffer writers -- none of these touch any [Renderer] instance state (no
- * `Renderer` receiver), so unlike every other split-out file in this package they're plain
- * top-level `internal` functions, not extension functions on [Renderer]. Each writes one
- * vertex's worth of floats into a caller-supplied [FloatArray] at a caller-supplied offset;
- * the caller (in [RendererDrawUi.kt]/[RendererDraw3D.kt]) owns buffer sizing/layout. */
+/**
+ * Pure vertex-buffer writers shared across Vulkan and WebGPU renderers.
+ *
+ * Each function writes one vertex's worth of floats into a caller-supplied [FloatArray]
+ * at the specified [offset].
+ */
 
-/** Identity transform (scale 1, pivot origin) -- a no-op in the vertex shader's
- * `pivot + (pos - pivot) * scale` math, written for every primitive with no active
- * `graphicsLayer` scale effect ([UiDrawPrimitive.transform] == null). */
-private val IDENTITY_TRANSFORM = UiPrimitiveTransform(scaleX = 1f, scaleY = 1f, pivotX = 0f, pivotY = 0f)
+/** Identity transform (scale 1, pivot origin) -- used when transform is null. */
+val IDENTITY_TRANSFORM = UiPrimitiveTransform(scaleX = 1f, scaleY = 1f, pivotX = 0f, pivotY = 0f)
 
-internal fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color: Color, transform: UiPrimitiveTransform? = null) {
+/** Writes a standard 2D colored quad vertex (10 floats). */
+fun writeVertex(
+    out: FloatArray,
+    offset: Int,
+    x: Float,
+    y: Float,
+    color: Color,
+    transform: UiPrimitiveTransform? = null,
+) {
     out[offset] = x
     out[offset + 1] = y
     out[offset + 2] = color.r
@@ -30,7 +37,8 @@ internal fun writeVertex(out: FloatArray, offset: Int, x: Float, y: Float, color
     out[offset + 9] = t.pivotY
 }
 
-internal fun writeGlyphVertex(
+/** Writes a textured glyph quad vertex (12 floats). */
+fun writeGlyphVertex(
     out: FloatArray,
     offset: Int,
     x: Float,
@@ -55,7 +63,15 @@ internal fun writeGlyphVertex(
     out[offset + 11] = t.pivotY
 }
 
-internal fun writeLineVertex(out: FloatArray, offset: Int, x: Float, y: Float, z: Float, color: FloatArray) {
+/** Writes a 3D debug line vertex (7 floats). */
+fun writeLineVertex(
+    out: FloatArray,
+    offset: Int,
+    x: Float,
+    y: Float,
+    z: Float,
+    color: FloatArray,
+) {
     out[offset] = x
     out[offset + 1] = y
     out[offset + 2] = z
@@ -65,7 +81,8 @@ internal fun writeLineVertex(out: FloatArray, offset: Int, x: Float, y: Float, z
     out[offset + 6] = if (color.size > 3) color[3] else 1f
 }
 
-internal fun writeRoundedQuadVertex(
+/** Writes a rounded-quad vertex with anti-aliased smoothing (16 floats). */
+fun writeRoundedQuadVertex(
     out: FloatArray,
     offset: Int,
     x: Float,
@@ -97,3 +114,31 @@ internal fun writeRoundedQuadVertex(
     out[offset + 14] = t.pivotX
     out[offset + 15] = t.pivotY
 }
+
+/** Overload for rounded quad without explicit smoothing (defaults smoothing to 0f). */
+fun writeRoundedQuadVertex(
+    out: FloatArray,
+    offset: Int,
+    x: Float,
+    y: Float,
+    localX: Float,
+    localY: Float,
+    halfW: Float,
+    halfH: Float,
+    radius: Float,
+    color: Color,
+    transform: UiPrimitiveTransform? = null,
+) = writeRoundedQuadVertex(
+    out = out,
+    offset = offset,
+    x = x,
+    y = y,
+    localX = localX,
+    localY = localY,
+    halfW = halfW,
+    halfH = halfH,
+    radius = radius,
+    smoothing = 0.0f,
+    color = color,
+    transform = transform,
+)
