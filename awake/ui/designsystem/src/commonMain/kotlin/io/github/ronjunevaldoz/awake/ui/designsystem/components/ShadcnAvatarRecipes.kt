@@ -54,10 +54,10 @@ fun UiScope.shadcnAvatar(
 )
 
 fun UiScope.shadcnAvatarBadge(
+    id: String,
     modifier: UiModifier = Modifier,
     size: Dp = 10f.dp,
     color: Color? = null,
-    id: String = "avatar.badge",
 ): UiBounds = surface(
     id = id,
     modifier = modifier.width(size).height(size),
@@ -65,11 +65,11 @@ fun UiScope.shadcnAvatarBadge(
 ) { _ -> }
 
 fun UiScope.shadcnAvatarGroup(
+    id: String,
     initials: List<String>,
     modifier: UiModifier = Modifier,
     size: ShadcnAvatarSize = ShadcnAvatarSize.Default,
     overlap: Dp = 8f.dp,
-    id: String = "avatar",
 ): UiBounds = row(modifier = modifier) {
     initials.forEachIndexed { index, value ->
         shadcnAvatar(

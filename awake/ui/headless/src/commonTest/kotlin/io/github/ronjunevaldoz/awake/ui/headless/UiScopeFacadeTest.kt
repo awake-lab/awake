@@ -70,6 +70,7 @@ class UiScopeFacadeTest {
 
         var receivedColumnScope = false
         val result = scope.popup(
+            id = "facade-popup",
             anchorSlot = UiBounds(20f, 20f, 40f, 20f),
             expanded = true,
             width = Dimension.Fixed(80f.px),

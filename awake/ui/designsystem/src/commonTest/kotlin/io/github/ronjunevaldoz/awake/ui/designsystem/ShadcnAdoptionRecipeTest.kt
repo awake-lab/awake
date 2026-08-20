@@ -39,7 +39,7 @@ class ShadcnAdoptionRecipeTest {
     fun testShadcnFieldSeparatorWithLabel() {
         var sepBounds: UiBounds? = null
         renderShadcnComponent(width = 400f, height = 100f) { _ ->
-            sepBounds = shadcnFieldSeparator(label = "OR")
+            sepBounds = shadcnFieldSeparator(id = "field.sep", label = "OR")
         }
         assertNotNull(sepBounds)
     }

@@ -61,7 +61,7 @@ fun UiScope.popup(
     height: Dimension = Dimension.WrapContent,
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
     properties: UiPopupProperties = UiPopupProperties(),
-    id: String? = null,
+    id: String,
     fadeDurationMs: Float = 150f,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiPopupResult = primitive.primitivePopup(

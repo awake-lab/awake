@@ -86,19 +86,18 @@ fun UiPrimitiveScope.popup(
     modifier: UiModifier = Modifier,
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
     properties: UiPopupProperties = UiPopupProperties(),
-    id: String? = null,
+    id: String,
     fadeDurationMs: Float = 150f,
     content: ColumnScope.(slot: UiBounds) -> Unit,
 ): UiPopupResult {
     // Real AnimatedVisibility-equivalent (see UiAnimatedVisibility.kt) instead of the previous
     // bare `if (!expanded) return` instant-unmount: keep computing position/content -- wrapped in
     // a fading graphics-layer alpha -- until the exit tween settles at zero, so show/hide fades
-    // instead of snapping. stateId falls back through [id]/[modifier.testTag] so callers that
-    // already pass a stable testTag (or the new [id]) get correctly independent fade state per
-    // popup instance instead of colliding on one shared, unlabeled key.
-    val stateId = id ?: modifier.testTag ?: "popup"
+    // instead of snapping. [id] keys the fade state per popup instance -- it used to be optional
+    // with a literal "popup" fallback, which silently collided every un-ided popup onto one
+    // shared fade-animation bucket; id is required now, so every popup gets independent state.
     val alpha = animateFloatTween(
-        id = "__popup_alpha__$stateId",
+        id = "__popup_alpha__$id",
         target = if (expanded) 1f else 0f,
         initial = if (expanded) 1f else 0f,
         durationMs = fadeDurationMs,

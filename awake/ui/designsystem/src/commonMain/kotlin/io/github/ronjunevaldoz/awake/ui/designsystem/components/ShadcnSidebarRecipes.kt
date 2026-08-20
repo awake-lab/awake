@@ -248,8 +248,8 @@ fun UiScope.shadcnSidebarMenuItem(
 }
 
 fun UiScope.shadcnSidebarMenuSub(
+    id: String,
     modifier: UiModifier = Modifier,
-    id: String? = null,
     cacheKey: Any? = null,
     content: ColumnScope.() -> Unit,
 ): UiBounds = row(
@@ -261,7 +261,7 @@ fun UiScope.shadcnSidebarMenuSub(
     ),
 ) {
     separator(
-        id = "${id ?: "sidebarMenuSub"}.separator",
+        id = "$id.separator",
         color = themeValues.colors.border,
         orientation = UiSeparatorOrientation.Vertical,
     )

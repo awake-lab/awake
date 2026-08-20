@@ -44,7 +44,7 @@ internal val FieldPage = ShowcasePage(
                     placeholder = "jane@example.com",
                 )
             }
-            shadcnFieldSeparator(label = "Plan")
+            shadcnFieldSeparator(id = "showcase-field-separator-plan", label = "Plan")
             shadcnFieldGroup(id = "showcase-fieldgroup-plan") {
                 plan = shadcnFieldDropdown(
                     id = "showcase-field-plan",

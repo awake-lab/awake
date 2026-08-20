@@ -110,9 +110,9 @@ fun UiScope.shadcnFieldGroup(
 ): UiBounds = shadcnFieldContainer(id, modifier, cacheKey, 28f.dp, content)
 
 fun UiScope.shadcnFieldSeparator(
+    id: String,
     modifier: UiModifier = Modifier,
     label: String? = null,
-    id: String = "field.sep",
 ): UiBounds = if (label == null) {
     shadcnSeparator(modifier = modifier)
 } else {

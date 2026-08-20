@@ -29,6 +29,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
+            id = "positions-below-anchor-popup",
             anchorSlot = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 30f, 120f, 32f),
             expanded = true,
             width = Dimension.Fixed(120f.px),
@@ -52,6 +53,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
+            id = "modifier-bounds-popup",
             anchorSlot = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, 10f, 10f),
             expanded = true,
             width = Dimension.FillMax,
@@ -71,6 +73,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
+            id = "clamps-below-min-width-popup",
             anchorSlot = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(0f, 0f, 10f, 10f),
             expanded = true,
             width = Dimension.Fixed(40f.px),
@@ -88,6 +91,7 @@ class UiPopupTest {
         val scope = ui.createAbsolute(x = 0f, y = 0f)
 
         val result = scope.popup(
+            id = "dismiss-on-outside-press-popup",
             anchorSlot = io.github.ronjunevaldoz.awake.ui.api.layout.UiBounds(20f, 30f, 120f, 32f),
             expanded = true,
             width = Dimension.Fixed(120f.px),

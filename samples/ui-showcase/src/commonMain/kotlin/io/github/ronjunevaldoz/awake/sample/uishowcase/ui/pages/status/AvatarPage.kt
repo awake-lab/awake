@@ -33,7 +33,7 @@ internal val AvatarPage = ShowcasePage(
         }
         spacer(Modifier.height(12f.dp))
         shadcnMuted("Grouped, overlapping avatars share one recipe.")
-        shadcnAvatarGroup(initials = listOf("RJ", "AK", "MS", "TL"))
+        shadcnAvatarGroup(id = "showcase-avatar-group", initials = listOf("RJ", "AK", "MS", "TL"))
     },
     variants = {
         showcaseMatrix(ShadcnAvatarSize.entries) { size ->

@@ -82,6 +82,7 @@ class ShadcnAvatarTest {
                     shadcnAvatar(id = "avatar", initials = "A", size = size)
                 }
                 shadcnAvatarBadge(
+                    id = "avatar.badge",
                     modifier = Modifier.offset(
                         x = size.boxSize - size.badgeSize,
                         y = size.boxSize - size.badgeSize,
@@ -111,7 +112,7 @@ class ShadcnAvatarTest {
     fun avatarGroupOverlapsAvatarsAfterTheFirst() {
         val frame = renderShadcnComponent(width = 300f, height = 200f) {
             row(modifier = Modifier.fillMaxSize()) {
-                shadcnAvatarGroup(initials = listOf("A", "B", "C"))
+                shadcnAvatarGroup(id = "avatar", initials = listOf("A", "B", "C"))
             }
         }
         val first = frame.bounds("avatar.0")
