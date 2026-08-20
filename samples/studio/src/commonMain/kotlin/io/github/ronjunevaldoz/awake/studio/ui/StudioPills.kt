@@ -43,7 +43,7 @@ internal fun UiScope.drawToolPill(
 ) {
     shadcnButtonGroup(id = "studio-tool-pill", modifier = Modifier.height(PillHeight)) {
         StudioContract.Tool.entries.forEachIndexed { index, tool ->
-            if (index > 0) shadcnButtonGroupSeparator()
+            if (index > 0) shadcnButtonGroupSeparator(id = "studio-tool-pill.sep.$index")
             val glyph = tool.glyph()
             if (glyph == null) {
                 shadcnButton(
@@ -136,7 +136,7 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
                 active = false,
                 onClick = actions.onCycleMode,
             )
-            shadcnButtonGroupSeparator()
+            shadcnButtonGroupSeparator(id = "studio-view-pill.sep")
             shadcnButton(
                 id = "studio-view-projection",
                 label = if (state.projection == StudioContract.Projection.Perspective) "Persp" else "Ortho",
@@ -187,7 +187,7 @@ internal fun UiScope.drawViewPill(state: ViewPillState, actions: ViewPillActions
                 active = state.debugOcclusion,
                 onClick = { actions.onDebugOcclusionChange(!state.debugOcclusion) },
             )
-            shadcnButtonGroupSeparator()
+            shadcnButtonGroupSeparator(id = "studio-debug-pill.sep")
             shadcnButton(
                 id = "studio-view-debug-lights",
                 label = "Light",

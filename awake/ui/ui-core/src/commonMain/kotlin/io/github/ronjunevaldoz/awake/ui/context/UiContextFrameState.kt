@@ -22,6 +22,20 @@ internal class UiContextFrameState {
     private val clipStack = ArrayList<UiBounds>()
     private val overlayClipStack = ArrayList<UiBounds>()
 
+    // Every id-bearing widget in this codebase -- surface()/interactiveSurface() (hence
+    // avatar/separator/every shadcn* recipe built on them), column(), checkbox()/radio(),
+    // textField()/textarea(), lazyColumn()/lazyRow(), resizablePanelGroup's panel()/handle(),
+    // toast/progressBar/skeleton/switch/toggle/slider/rangeSlider/dropdown/canvas/text() -- calls
+    // recordSemantic(id = ...) itself, directly or through exactly one shared internal choke
+    // point, exactly ONCE per real (non-measuring) render of that widget instance. Unlike
+    // widgetState(id), which the same instance can legitimately re-enter from more than one
+    // internal helper in one frame (see TextField.kt's cursorState/caretBlinkElapsedSeconds), no
+    // such multi-call pattern exists for recordSemantic anywhere in ui-core/headless/designsystem
+    // -- so a same-id-twice-in-one-frame hit here really is two sibling instances colliding on
+    // the same literal id, not one instance's own repeat call. See
+    // docs/audits/2026-08-17-ui-refactor-vs-recreate-audit.md's P5 row.
+    private val claimedSemanticIdsThisFrame = HashSet<String>()
+
     var inputState: UiInputState = UiInputState()
         private set
     var fullFrameRect: UiBounds = UiBounds(0f, 0f, 0f, 0f)
@@ -34,6 +48,7 @@ internal class UiContextFrameState {
         semanticCollector.beginFrame()
         clipStack.clear()
         overlayClipStack.clear()
+        claimedSemanticIdsThisFrame.clear()
         fullFrameRect = UiBounds(0f, 0f, screenWidth, screenHeight)
         frameDeltaSeconds = deltaSeconds.coerceAtLeast(0f)
         this.inputState = inputState
@@ -47,8 +62,17 @@ internal class UiContextFrameState {
     fun emitOverlay(primitive: UiDrawPrimitive) =
         renderCollector.emitOverlay(primitive)
 
-    fun recordSemantic(node: UiSemanticNode) =
+    fun recordSemantic(node: UiSemanticNode) {
+        val id = node.id
+        if (id != null && !claimedSemanticIdsThisFrame.add(id)) {
+            error(
+                "Duplicate widget id '$id' claimed by two sibling widgets in the same frame -- " +
+                    "widget ids must be unique per screen. Pass a distinct literal id (or a " +
+                    "derived one, e.g. \"\$id.\${index}\" inside a loop) to each caller.",
+            )
+        }
         semanticCollector.record(node)
+    }
 
     fun semanticNodes(): List<UiSemanticNode> = semanticCollector.snapshot()
 

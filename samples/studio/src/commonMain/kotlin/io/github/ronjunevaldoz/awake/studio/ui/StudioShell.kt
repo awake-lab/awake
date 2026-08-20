@@ -187,7 +187,7 @@ internal fun UiScope.drawStudioShellBody(
                 store.dispatch(StudioContract.Intent.SetMode(next))
             },
         )
-        shadcnSeparator(thickness = SEPARATOR_THICKNESS)
+        shadcnSeparator(id = "studio-shell.sep.top", thickness = SEPARATOR_THICKNESS)
         val workspaceHeightPx = (
                 shellSlot.height - TOP_BAR_HEIGHT.toPx() - STATUS_BAR_HEIGHT.toPx() -
                         SEPARATOR_THICKNESS.toPx() * 2f
@@ -201,7 +201,7 @@ internal fun UiScope.drawStudioShellBody(
             cameraPreview = cameraPreview,
             orientationGizmo = orientationGizmo,
         )
-        shadcnSeparator(thickness = SEPARATOR_THICKNESS)
+        shadcnSeparator(id = "studio-shell.sep.bottom", thickness = SEPARATOR_THICKNESS)
         drawStudioStatusBar(
             mode = if (playing) "Play mode" else "Edit mode",
             backend = backend,
