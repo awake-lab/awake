@@ -68,6 +68,8 @@ open class WebGpuEngine(
      * instanceFrame = true, blendEnabled = true, depthWriteEnabled = false`. `null` (default)
      * means a `ParticleEmitter` entity simply doesn't draw. */
     private val particleShaderSet: ShaderSet? = null,
+    /** Opts into directional shadow mapping -- mirrors `VulkanGameApplication.shadowShaderSet`. */
+    private val shadowShaderSet: ShaderSet? = null,
 ) : GraphicsEngine(
     vertexShaderResourcePath,
     fragmentShaderResourcePath,
@@ -84,6 +86,7 @@ open class WebGpuEngine(
         skinnedInstancedShaderSet: ShaderSet? = null,
         skyboxShaderSet: ShaderSet? = null,
         particleShaderSet: ShaderSet? = null,
+        shadowShaderSet: ShaderSet? = null,
     ) : this(
         vertexShaderResourcePath = shaderSet.webGpu.resourcePath(ShaderStage.VERTEX),
         fragmentShaderResourcePath = shaderSet.webGpu.resourcePath(ShaderStage.FRAGMENT),
@@ -97,6 +100,7 @@ open class WebGpuEngine(
         skinnedInstancedShaderSet = skinnedInstancedShaderSet,
         skyboxShaderSet = skyboxShaderSet,
         particleShaderSet = particleShaderSet,
+        shadowShaderSet = shadowShaderSet,
     )
 
     private lateinit var graphicsDevice: GraphicsDevice
@@ -223,6 +227,19 @@ open class WebGpuEngine(
                 )
             }
         }
+        val shadowFeature = shadowShaderSet?.let { shaderSet ->
+            withPipelineLoadContext("shadow") {
+                val map = io.github.ronjunevaldoz.awake.webgpu.texture.ShadowMap(graphicsDevice)
+                val shadowPipeline = io.github.ronjunevaldoz.awake.webgpu.pipeline.ShadowRenderPipeline(
+                    graphicsDevice,
+                    readResourceBytes(shaderSet.webGpu.resourcePath(ShaderStage.VERTEX)),
+                    vertexFormat,
+                    shaderSet.webGpu.entryPoint(ShaderStage.VERTEX),
+                    shaderSet.webGpu.entryPoint(ShaderStage.FRAGMENT),
+                )
+                io.github.ronjunevaldoz.awake.webgpu.pipeline.ShadowFeature(map, shadowPipeline)
+            }
+        }
         val renderer = Renderer(
             graphicsDevice,
             swapchainManager,
@@ -243,6 +260,7 @@ open class WebGpuEngine(
                 ?: emptyMap(),
             particleRenderPipeline?.let { mapOf(VertexFormat.PositionUv to it) } ?: emptyMap(),
             skyboxRenderPipeline,
+            shadowFeature,
         )
 
         return BackendResources(

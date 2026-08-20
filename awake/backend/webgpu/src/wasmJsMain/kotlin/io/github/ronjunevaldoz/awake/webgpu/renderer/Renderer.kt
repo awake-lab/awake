@@ -45,6 +45,7 @@ import io.github.ronjunevaldoz.awake.webgpu.ui.UiGlyphRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiRoundedQuadRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.ui.UiTextureRenderPipeline
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.ShadowFeature
 import io.ygdrasil.webgpu.BufferDescriptor
 import io.ygdrasil.webgpu.Extent3D
 import io.ygdrasil.webgpu.GPUBindGroup
@@ -147,6 +148,7 @@ class Renderer(
      * [wireframe] with no [wireframeRenderPipeline]. Appended last so existing positional call
      * sites are unaffected. */
     internal val skyboxRenderPipeline: SkyboxRenderPipeline? = null,
+    internal val shadowFeature: ShadowFeature? = null,
 ) : RenderRenderer {
     // WebGPU's NDC has +Y up -- confirmed by this module's own ui_quad.wgsl comment
     // ("pixel-space is Y-down, NDC is Y-up") -- so unlike Vulkan (+Y down NDC) no flip is
@@ -583,6 +585,7 @@ class Renderer(
         uiRoundedQuadMeshPool.forEach { it.destroy() }
         textureQuadMesh.destroy()
         lineMesh.destroy()
+        shadowFeature?.destroy()
     }
 
     companion object {

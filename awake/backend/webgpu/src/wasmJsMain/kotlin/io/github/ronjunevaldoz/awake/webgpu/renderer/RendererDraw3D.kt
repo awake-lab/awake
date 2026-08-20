@@ -103,6 +103,12 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
     val encoder = device.createCommandEncoder()
     val colorView = renderingContext.getCurrentTexture().createView()
 
+    // Shadow depth pre-pass (directional light point of view)
+    if (shadowsEnabled && shadowFeature != null) {
+        val allDraws = opaqueDraws.values.flatten()
+        shadowFeature.recordCommands(encoder, allDraws)
+    }
+
     encoder.beginRenderPass(
         RenderPassDescriptor(
             colorAttachments = listOf(
