@@ -35,6 +35,16 @@ class MeshGeometryGeneratorsTest {
     }
 
     @Test
+    fun generateCubeComputesTightBounds() {
+        val geom = generate {
+            cube(size = 2f, colored = true)
+        }
+        val bounds = geom.bounds
+        assertEquals(-1f, bounds?.min?.x)
+        assertEquals(1f, bounds?.max?.x)
+    }
+
+    @Test
     fun generateThrowsWhenEmpty() {
         assertFailsWith<IllegalArgumentException> {
             generate { }

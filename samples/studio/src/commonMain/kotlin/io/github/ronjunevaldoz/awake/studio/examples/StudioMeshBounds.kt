@@ -3,6 +3,7 @@
 package io.github.ronjunevaldoz.awake.studio.examples
 
 import io.github.ronjunevaldoz.awake.core.math.Aabb
+import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 
 /**
  * Local-space bounds for the meshes studio registers, keyed by the same asset ID a scene
@@ -17,6 +18,10 @@ internal object StudioMeshBounds {
     private val bounds = mutableMapOf<String, Aabb>()
 
     operator fun get(meshId: String): Aabb? = bounds[meshId]
+
+    fun register(meshId: String, geometry: MeshGeometry) {
+        geometry.bounds?.let { bounds[meshId] = it }
+    }
 
     fun register(meshId: String, positions: FloatArray, stride: Int) {
         Aabb.fromPositions(positions, stride)?.let { bounds[meshId] = it }

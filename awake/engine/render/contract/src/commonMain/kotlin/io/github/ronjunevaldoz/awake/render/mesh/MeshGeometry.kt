@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.render.mesh
 
+import io.github.ronjunevaldoz.awake.core.math.Aabb
+
 /**
  * Raw vertex/index data a game supplies to a backend's game-application bootstrap (see
  * `VulkanGameApplication`/`WebGpuGameApplication`) -- backend-neutral input, not a rendering
@@ -14,6 +16,9 @@ data class MeshGeometry(
     val indices: IntArray,
     val format: VertexFormat = VertexFormat.PositionColorUv,
 ) {
+    /** The tight local-space bounding box for picking/culling, or `null` if empty. */
+    val bounds: Aabb? get() = Aabb.fromPositions(vertices, format.strideBytes / Float.SIZE_BYTES)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is MeshGeometry) return false

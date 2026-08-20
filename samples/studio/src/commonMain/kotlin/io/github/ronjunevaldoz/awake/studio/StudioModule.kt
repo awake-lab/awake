@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.engine.app.core.AppModule
 import io.github.ronjunevaldoz.awake.engine.app.dsl.AppWindowBackend
 import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.appModule
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
+import io.github.ronjunevaldoz.awake.render.mesh.generate.generate
 import io.github.ronjunevaldoz.awake.scene.authoring.scene
 import io.github.ronjunevaldoz.awake.scene.controls.components.ActiveCamera
 import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
@@ -28,8 +29,6 @@ import io.github.ronjunevaldoz.awake.studio.examples.InstancedSkinnedExampleDriv
 import io.github.ronjunevaldoz.awake.studio.examples.ParticleEmitterExampleDriver
 import io.github.ronjunevaldoz.awake.studio.examples.SkinnedExampleDriver
 import io.github.ronjunevaldoz.awake.studio.examples.StudioMeshBounds
-import io.github.ronjunevaldoz.awake.studio.examples.studioCubeGeometry
-import io.github.ronjunevaldoz.awake.studio.examples.studioGroundGeometry
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioGizmo
 import io.github.ronjunevaldoz.awake.studio.gizmo.StudioViewportRect
 import io.github.ronjunevaldoz.awake.studio.state.StudioContract
@@ -85,8 +84,8 @@ internal fun studioModule(
             assets {
                 // Bounds are recorded here because this is the last point where the geometry is
                 // still on the CPU -- createMesh uploads it and the vertices are gone.
-                mesh("cube") { renderer.createMesh(studioCubeGeometry.alsoRecordBounds("cube")) }
-                mesh("ground") { renderer.createMesh(studioGroundGeometry.alsoRecordBounds("ground")) }
+                mesh("cube") { renderer.createMesh(generate { cube(size = 1f, colored = true) }.alsoRecordBounds("cube")) }
+                mesh("ground") { renderer.createMesh(generate { plane(size = 10f, colored = false) }.alsoRecordBounds("ground")) }
                 material("lit-shadow") { renderer.createMaterial(uniformFloatCount = LIT_SHADOW_UNIFORM_FLOAT_COUNT) }
                 mesh("duck") { GltfViewerAssets.createMesh(this) }
                 material("duck-material") { GltfViewerAssets.createMaterial(this) }
@@ -200,7 +199,7 @@ internal fun studioModule(
 
 /** Records [meshId]'s local bounds for picking, and returns the geometry unchanged. */
 private fun MeshGeometry.alsoRecordBounds(meshId: String): MeshGeometry = also {
-    StudioMeshBounds.register(meshId, vertices, format.strideBytes / Float.SIZE_BYTES)
+    StudioMeshBounds.register(meshId, it)
 }
 
 // Spelled out rather than derived from `name`: enum-case text ("WEBGPU") is not how any of these
