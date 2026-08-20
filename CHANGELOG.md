@@ -255,6 +255,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `shadcnSidebarMenu`/`shadcnSidebarMenuSub` now return `UiBounds` instead of `Unit`, so they
   can anchor a popup or be composed into layout math like other recipes. Purely additive —
   existing callers that ignore the return value are unaffected.
+- Claiming the same widget `id` twice in one frame now throws immediately instead of the two
+  widgets silently sharing one state slot (hover/active/animation bleeding between them).
+  Turning this on surfaced 3 real pre-existing collisions in `samples:studio` (a pill
+  toolbar's separators, and two toolbar hairlines all defaulting to the same fallback id) —
+  fixed alongside the check.
 
 ### Fixed
 
