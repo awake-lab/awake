@@ -41,6 +41,9 @@ fun UiScope.dialog(
     expanded: Boolean,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
+    // Forwarded straight through to popup()'s modifier -- see Popup.kt's doc comment for the
+    // width/height-vs-modifier precedence rule this relies on.
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     properties: DialogProperties = DialogProperties(),
     content: ColumnScope.(slot: UiBounds) -> Unit,
@@ -57,6 +60,7 @@ fun UiScope.dialog(
         expanded = true,
         width = width,
         height = height,
+        modifier = modifier,
         positionProvider = UiPopupDefaults.centered(),
         properties = properties.popupProperties.copy(
             dismissOnClickOutside = properties.dismissOnClickOutside &&

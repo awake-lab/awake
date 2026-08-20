@@ -21,6 +21,7 @@ import io.github.ronjunevaldoz.awake.ui.headless.Arrangement
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.DialogProperties
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.RowScope
 import io.github.ronjunevaldoz.awake.ui.headless.UiScope
 import io.github.ronjunevaldoz.awake.ui.headless.animateFloatTween
@@ -50,6 +51,7 @@ fun UiScope.shadcnContextMenu(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     items: List<ShadcnMenuEntry>,
+    modifier: UiModifier = Modifier,
     target: UiScope.() -> UiBounds,
 ): UiBounds {
     val bounds = target()
@@ -67,6 +69,7 @@ fun UiScope.shadcnContextMenu(
             anchorSlot = trigger.anchor,
             expanded = true,
             items = entries,
+            modifier = modifier,
         )
         if (result.dismissed || result.selectedIndex != null) onExpandedChange(false)
     }
@@ -82,6 +85,7 @@ fun UiScope.shadcnSheet(
     onDismissRequest: () -> Unit = {},
     side: ShadcnSheetSide = ShadcnSheetSide.Right,
     size: Dp = 320f.dp,
+    modifier: UiModifier = Modifier,
     content: ColumnScope.(UiBounds) -> Unit,
 ): UiPopupResult {
     if (!expanded) return UiPopupResult(null, false)
@@ -91,6 +95,7 @@ fun UiScope.shadcnSheet(
         id = id,
         anchorSlot = UiBounds(0f, 0f, 0f, 0f),
         expanded = true,
+        modifier = modifier,
         positionProvider = sheetPositionProvider(side, size.toPx(), progress),
         properties = UiPopupProperties(dismissOnClickOutside = true, clippingEnabled = false),
     ) { slot ->
@@ -133,12 +138,14 @@ fun UiScope.shadcnDrawer(
     onDismissRequest: () -> Unit,
     position: ShadcnDrawerPosition = ShadcnDrawerPosition.Bottom,
     size: Dp = 320f.dp,
+    modifier: UiModifier = Modifier,
     content: ColumnScope.(UiBounds) -> Unit,
 ): UiPopupResult = dialog(
     id = id,
     expanded = expanded,
     width = if (position == ShadcnDrawerPosition.Left || position == ShadcnDrawerPosition.Right) Dimension.Fixed(size) else Dimension.FillMax,
     height = if (position == ShadcnDrawerPosition.Top || position == ShadcnDrawerPosition.Bottom) Dimension.Fixed(size) else Dimension.FillMax,
+    modifier = modifier,
     style = shadcnDrawerSurfaceStyle(themeValues, shadcnMetrics),
     properties = DialogProperties(
         dismissOnClickOutside = true,
@@ -164,6 +171,7 @@ fun UiScope.shadcnDialog(
     expanded: Boolean,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
+    modifier: UiModifier = Modifier,
     header: (ColumnScope.() -> Unit)? = null,
     actions: (RowScope.() -> Unit)? = null,
     content: ColumnScope.(UiBounds) -> Unit,
@@ -172,6 +180,7 @@ fun UiScope.shadcnDialog(
     expanded = expanded,
     width = width,
     height = height,
+    modifier = modifier,
     style = shadcnDialogSurfaceStyle(themeValues, shadcnMetrics),
     properties = DialogProperties(
         dismissOnClickOutside = true,

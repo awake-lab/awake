@@ -20,6 +20,7 @@ import io.github.ronjunevaldoz.awake.ui.font.measureTextWidth
 import io.github.ronjunevaldoz.awake.ui.headless.ColumnScope
 import io.github.ronjunevaldoz.awake.ui.headless.DialogProperties
 import io.github.ronjunevaldoz.awake.ui.headless.Modifier
+import io.github.ronjunevaldoz.awake.ui.headless.UiModifier
 import io.github.ronjunevaldoz.awake.ui.headless.UiAlertDialogAction
 import io.github.ronjunevaldoz.awake.ui.headless.UiAlertDialogResult
 import io.github.ronjunevaldoz.awake.ui.headless.UiMenuItem
@@ -62,6 +63,7 @@ fun UiScope.shadcnDropdownMenu(
     selectedIndex: Int? = null,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
+    modifier: UiModifier = Modifier,
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
     properties: UiPopupProperties = UiPopupProperties(),
 ): UiMenuResult {
@@ -95,6 +97,7 @@ fun UiScope.shadcnDropdownMenu(
         expanded = expanded,
         width = resolvedWidth,
         height = height,
+        modifier = modifier,
         positionProvider = positionProvider,
         properties = properties,
     ) {
@@ -131,6 +134,7 @@ fun UiScope.shadcnTooltip(
     visible: Boolean,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
+    modifier: UiModifier = Modifier,
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.aligned(
         anchorAlignment = UiAlignment.BottomCenter,
         popupAlignment = UiAlignment.TopCenter,
@@ -144,6 +148,7 @@ fun UiScope.shadcnTooltip(
     expanded = visible,
     width = width,
     height = height,
+    modifier = modifier,
     positionProvider = positionProvider,
     properties = properties,
 ) {
@@ -159,6 +164,7 @@ fun UiScope.shadcnTooltipText(
     anchorSlot: UiBounds,
     visible: Boolean,
     text: String,
+    modifier: UiModifier = Modifier,
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.aligned(
         anchorAlignment = UiAlignment.BottomCenter,
         popupAlignment = UiAlignment.TopCenter,
@@ -169,6 +175,7 @@ fun UiScope.shadcnTooltipText(
     id = id,
     anchorSlot = anchorSlot,
     visible = visible,
+    modifier = modifier,
     positionProvider = positionProvider,
     properties = properties,
 ) {
@@ -180,6 +187,7 @@ fun UiScope.shadcnAlertDialog(
     expanded: Boolean,
     title: String,
     width: Dimension = Dimension.Fixed(320f.dp),
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     properties: DialogProperties = DialogProperties(),
     actions: ColumnScope.() -> UiAlertDialogAction?,
@@ -190,6 +198,7 @@ fun UiScope.shadcnAlertDialog(
         id = id,
         expanded = expanded,
         width = width,
+        modifier = modifier,
         style = shadcnDialogSurfaceStyle(themeValues, shadcnMetrics) then style,
         properties = properties,
     ) {
@@ -208,6 +217,7 @@ fun UiScope.shadcnAlertDialog(
     width: Dimension = Dimension.Fixed(320f.dp),
     confirmLabel: String = "Confirm",
     dismissLabel: String? = "Cancel",
+    modifier: UiModifier = Modifier,
     style: Style = Style.Empty,
     properties: DialogProperties = DialogProperties(),
 ): UiAlertDialogResult = shadcnAlertDialog(
@@ -215,6 +225,7 @@ fun UiScope.shadcnAlertDialog(
     expanded = expanded,
     title = title,
     width = width,
+    modifier = modifier,
     style = style,
     properties = properties,
     actions = {

@@ -59,6 +59,13 @@ fun UiScope.popup(
     expanded: Boolean,
     width: Dimension = Dimension.WrapContent,
     height: Dimension = Dimension.WrapContent,
+    // `width`/`height` still pick the popup's BASE size the same way they always have (Fixed
+    // pins it, FillMax/WrapContent measure it); modifier only adds widthIn/heightIn-style CAPS
+    // on top -- Core's popup() primitive already clamps the resolved size against
+    // modifier.min/maxWidth/Height (see UiPopup.kt's `.constrain(...)` calls). This facade used
+    // to always pass a bare `Modifier`, so those caps could never reach it -- that was the actual
+    // gap, not a missing primitive.
+    modifier: UiModifier = Modifier,
     positionProvider: UiPopupPositionProvider = UiPopupDefaults.dropdown(),
     properties: UiPopupProperties = UiPopupProperties(),
     id: String,
@@ -70,7 +77,7 @@ fun UiScope.popup(
     width = width,
     height = height,
     verticalArrangement = defaultArrangement(),
-    modifier = Modifier,
+    modifier = modifier,
     positionProvider = positionProvider,
     properties = properties,
     id = id,
