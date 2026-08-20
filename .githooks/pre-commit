@@ -2,4 +2,15 @@
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
+
+if command -v gitleaks >/dev/null 2>&1; then
+  if ! gitleaks git --pre-commit --redact --staged --no-banner; then
+    echo "pre-commit hook: gitleaks found a likely secret in staged changes (see above)." >&2
+    echo "Remove it, or add a verified false positive to .gitleaks.toml." >&2
+    exit 1
+  fi
+else
+  echo "pre-commit hook: gitleaks not installed, skipping secrets scan (brew install gitleaks)." >&2
+fi
+
 exec "$repo_root/hooks/pre-commit-audit.sh"
