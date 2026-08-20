@@ -54,3 +54,16 @@ class SceneBuilder internal constructor(
 fun World.scene(block: SceneBuilder.() -> Unit) {
     SceneBuilder(this).block()
 }
+
+/**
+ * Spawns an entity directly in this [World] using the [EntityScope] DSL.
+ *
+ * @param name The optional descriptive name for the entity.
+ * @param block The configuration block executed within an [EntityScope].
+ * @return The newly spawned [Entity] handle.
+ */
+fun World.entity(
+    name: String? = null,
+    block: EntityScope.() -> Unit = {},
+): Entity = SceneBuilder(this).entity(name, block)
+

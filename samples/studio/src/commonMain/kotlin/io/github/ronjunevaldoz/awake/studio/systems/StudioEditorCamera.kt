@@ -6,10 +6,11 @@ import io.github.ronjunevaldoz.awake.core.math.Vec3
 import io.github.ronjunevaldoz.awake.core.math.Camera as CoreCamera
 import io.github.ronjunevaldoz.awake.ecs.Entity
 import io.github.ronjunevaldoz.awake.ecs.World
+import io.github.ronjunevaldoz.awake.scene.authoring.dsl.camera
+import io.github.ronjunevaldoz.awake.scene.authoring.dsl.entity
+import io.github.ronjunevaldoz.awake.scene.authoring.dsl.transform
 import io.github.ronjunevaldoz.awake.scene.controls.components.ActiveCamera
-import io.github.ronjunevaldoz.awake.scene.controls.components.CameraComponent
-import io.github.ronjunevaldoz.awake.scene.core.components.Transform
-import io.github.ronjunevaldoz.awake.scene.rendering.components.Camera
+import io.github.ronjunevaldoz.awake.scene.controls.components.CameraMode
 
 private const val DEFAULT_EDITOR_CAMERA_FOV_RADIANS = 0.7853982f // 45 degrees
 private const val DEFAULT_EDITOR_CAMERA_NEAR = 0.1f
@@ -31,28 +32,22 @@ internal class StudioEditorCamera {
     var authoredCameraEntity: Entity? = null
 }
 
-/** Spawns the persistent editor camera entity in [world]. */
-internal fun createStudioEditorCameraEntity(world: World): Entity = world.create().also { entity ->
-    world.add(
-        entity,
-        Camera(
-            CoreCamera(
-                eye = Vec3(6f, 4f, 8f),
-                center = Vec3.ZERO,
-                fovYRadians = DEFAULT_EDITOR_CAMERA_FOV_RADIANS,
-                near = DEFAULT_EDITOR_CAMERA_NEAR,
-                far = DEFAULT_EDITOR_CAMERA_FAR,
-            ),
-            isPrimary = true,
+/** Spawns the persistent editor camera entity in [world] using the scene authoring DSL. */
+internal fun createStudioEditorCameraEntity(world: World): Entity = world.entity {
+    camera(
+        mode = CameraMode.FirstPerson,
+        target = entity,
+        lens = CoreCamera(
+            eye = Vec3(6f, 4f, 8f),
+            center = Vec3.ZERO,
+            fovYRadians = DEFAULT_EDITOR_CAMERA_FOV_RADIANS,
+            near = DEFAULT_EDITOR_CAMERA_NEAR,
+            far = DEFAULT_EDITOR_CAMERA_FAR,
         ),
-    )
-    world.add(entity, Transform())
-    world.add(
-        entity,
-        CameraComponent().also {
-            it.targetEntity = entity
-            it.maxDistance = EDITOR_CAMERA_MAX_DISTANCE
-        },
-    )
-    world.add(entity, ActiveCamera())
+        primary = true,
+    ) {
+        maxDistance = EDITOR_CAMERA_MAX_DISTANCE
+    }
+    transform()
+    with(ActiveCamera())
 }

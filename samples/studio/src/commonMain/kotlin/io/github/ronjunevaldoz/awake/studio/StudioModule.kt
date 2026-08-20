@@ -9,6 +9,7 @@ import io.github.ronjunevaldoz.awake.engine.app.dsl.AppWindowBackend
 import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.appModule
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.generate.generate
+import io.github.ronjunevaldoz.awake.scene.authoring.dsl.entity
 import io.github.ronjunevaldoz.awake.scene.authoring.scene
 import io.github.ronjunevaldoz.awake.scene.controls.systems.CameraInputSystem
 import io.github.ronjunevaldoz.awake.scene.controls.systems.CameraSystem
@@ -97,7 +98,7 @@ internal fun studioModule(
             onReady {
                 preloadStudioExamples(loader)
                 // Persistent entity surviving scene reloads to preserve debug visualization toggles.
-                world.create().also { world.add(it, WorldDebugSettings()) }
+                world.entity { with(WorldDebugSettings()) }
                 // Persistent scene-view editor camera surviving scene reloads.
                 editorCamera.entity = createStudioEditorCameraEntity(world)
                 // Dispatch intent to trigger initial example loading effect on startup.
