@@ -8,6 +8,10 @@ just spread unclear ownership across more folders.
 
 ## Active Phase
 
+- 2026-08-20: Architecture-governance standardization is drafted in
+  [2026-08-20-architecture-governance-standardization-plan](tasks/2026-08-20-architecture-governance-standardization-plan.md).
+  It first restores truthful module/task verification, then aligns active docs, agent routing,
+  and facade-versus-leaf dependency rules before considering any further core extraction.
 - 2026-08-20: Scene entity authoring refactored to `EntityScope` (replacing `EntityModifier`), eliminating deferred queues and auto-wiring hierarchical parent entities. Procedural geometry generation (`generate { cube() }`, `generate { plane() }`) and `SceneConvenienceSugar` (`defaultOrbitCamera`, `lighting.singleDirectionalLight`) landed in `:awake:scene:authoring`.
 - 2026-08-20: Full-stack `CullMode` (`None`, `Back`, `Front`) landed across render contract, Vulkan backend, WebGPU backend, and scene serialization.
 - 2026-08-20: Unified scene lifecycle management under `SceneManager` (`switchTo`, `close`), with `ExampleLoader` in Studio migrated to it.
