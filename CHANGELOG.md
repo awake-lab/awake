@@ -66,6 +66,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ShadcnSurfaceVariant.Band` — a full-bleed chrome strip (muted, square-cornered,
   horizontal-only inset), for an app toolbar/status-bar row rather than a panel/card.
   `shadcnSurface` also takes an optional `contentPadding: Dp?` override.
+- `popup()`/`dialog()` (`ui-headless`) and all 9 designsystem overlay wrappers built on them
+  (`shadcnDropdownMenu`, `shadcnTooltip`, `shadcnAlertDialog`, `shadcnContextMenu`,
+  `shadcnSheet`, `shadcnDrawer`, `shadcnDialog`, …) take a `modifier: Modifier` param.
+  `widthIn(max=)`/`heightIn(max=)` now actually clamp the popup's resolved size — the
+  underlying primitive already supported it, the facades just never forwarded it.
 - `samples:ui-showcase`/`samples:studio` are now covered by `verifyUiOwnership`, banning
   direct `ui-core` (`ui.modifier.*`) imports and hand-authored `Style { }` blocks in consumer
   code — the same rule that already applied to `ui-designsystem`.
