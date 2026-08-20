@@ -73,4 +73,19 @@ class RendererVertexWritersTest {
         assertEquals(1.5f, out[7])
         assertEquals(1f, out[8]) // Red channel
     }
+
+    @Test
+    fun testUiVertexLayoutStrides() {
+        assertEquals(10, UiVertexLayout.Quad.strideBytes / Float.SIZE_BYTES)
+        assertEquals(UiVertexLayout.FLOATS_PER_VERTEX, UiVertexLayout.Quad.strideBytes / Float.SIZE_BYTES)
+
+        assertEquals(12, UiVertexLayout.Glyph.strideBytes / Float.SIZE_BYTES)
+        assertEquals(UiVertexLayout.GLYPH_FLOATS_PER_VERTEX, UiVertexLayout.Glyph.strideBytes / Float.SIZE_BYTES)
+
+        assertEquals(16, UiVertexLayout.RoundedQuad.strideBytes / Float.SIZE_BYTES)
+        assertEquals(UiVertexLayout.ROUNDED_QUAD_FLOATS_PER_VERTEX, UiVertexLayout.RoundedQuad.strideBytes / Float.SIZE_BYTES)
+
+        assertEquals(7, UiVertexLayout.Line.strideBytes / Float.SIZE_BYTES)
+        assertEquals(UiVertexLayout.LINE_FLOATS_PER_VERTEX, UiVertexLayout.Line.strideBytes / Float.SIZE_BYTES)
+    }
 }

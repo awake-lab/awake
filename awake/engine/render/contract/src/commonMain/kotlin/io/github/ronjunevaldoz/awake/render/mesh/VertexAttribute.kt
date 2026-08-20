@@ -37,7 +37,20 @@ val GpuDataShape.vertexByteSize: Int get() = componentCount * bytesPerComponent
 
 /** What role an attribute's data plays -- distinct from [GpuDataShape], which is just the
  * numeric shape; a mesh importer/builder picks the semantic, [GpuDataShape] follows. */
-enum class VertexSemantic { Position, Normal, Uv, Color, JointIndices, JointWeights, Tangent }
+enum class VertexSemantic {
+    Position,
+    Normal,
+    Uv,
+    Color,
+    JointIndices,
+    JointWeights,
+    Tangent,
+    Transform,
+    LocalPosition,
+    Size,
+    Radius,
+    Custom,
+}
 
 /**
  * One named slot in an interleaved vertex buffer -- a [semantic] role plus the [format]

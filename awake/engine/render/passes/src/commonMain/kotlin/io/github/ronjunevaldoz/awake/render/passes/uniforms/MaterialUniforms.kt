@@ -3,9 +3,39 @@
 package io.github.ronjunevaldoz.awake.render.passes.uniforms
 
 import io.github.ronjunevaldoz.awake.render.renderer.DrawCall
+import io.github.ronjunevaldoz.awake.render.renderer.UniformFields
+import io.github.ronjunevaldoz.awake.render.renderer.UniformLayout
 
-const val PBR_MATERIAL_FLOATS = 4
-const val PBR_TEXTURED_MATERIAL_FLOATS = 12
+/**
+ * Standard uniform layouts for lit and textured PBR rendering.
+ */
+object MaterialUniformLayouts {
+    /** Basic untextured lit layout: MVP (16) + lightDir (4) + lightColor (4) + PBR factors (4) = 28 floats. */
+    val Lit = UniformLayout(
+        UniformFields.Mvp,
+        UniformFields.LightDirection,
+        UniformFields.LightColor,
+        UniformFields.PbrFactors,
+    )
+
+    /** Full textured glTF PBR layout: MVP (16) + lightDir (4) + lightColor (4) + model (16) + cameraPos (4) + PBR factors (4) + baseColorFactor (4) + emissiveFactor (4) + fog (4) = 60 floats. */
+    val PbrTextured = UniformLayout(
+        UniformFields.Mvp,
+        UniformFields.LightDirection,
+        UniformFields.LightColor,
+        UniformFields.Model,
+        UniformFields.CameraPosition,
+        UniformFields.PbrFactors,
+        UniformFields.BaseColorFactor,
+        UniformFields.EmissiveFactor,
+        UniformFields.FogColor,
+    )
+}
+
+val PBR_MATERIAL_FLOATS: Int = UniformFields.PbrFactors.floats
+val PBR_TEXTURED_MATERIAL_FLOATS: Int =
+    UniformFields.PbrFactors.floats + UniformFields.BaseColorFactor.floats + UniformFields.EmissiveFactor.floats
+
 const val DEFAULT_METALLIC = 0f
 const val DEFAULT_ROUGHNESS = 0.5f
 const val DEFAULT_METALLIC_FACTOR = 1f

@@ -40,6 +40,9 @@ object UniformFields {
     val Model = UniformField("model", GpuDataShape.Mat4)
     val CameraPosition = UniformField("cameraPosition", GpuDataShape.Vec4)
     val FogColor = UniformField("fogColor", GpuDataShape.Vec4)
+    val PbrFactors = UniformField("pbrFactors", GpuDataShape.Vec4)
+    val BaseColorFactor = UniformField("baseColorFactor", GpuDataShape.Vec4)
+    val EmissiveFactor = UniformField("emissiveFactor", GpuDataShape.Vec4)
 }
 
 /** [fields], concatenated in order, is exactly the float array each shader's uniform buffer

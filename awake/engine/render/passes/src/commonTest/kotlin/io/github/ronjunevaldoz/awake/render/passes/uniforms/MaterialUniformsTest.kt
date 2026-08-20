@@ -63,4 +63,16 @@ class MaterialUniformsTest {
         assertEquals(0.7f, fog[2])
         assertEquals(0.05f, fog[3])
     }
+
+    @Test
+    fun testMaterialUniformLayouts() {
+        assertEquals(4, PBR_MATERIAL_FLOATS)
+        assertEquals(12, PBR_TEXTURED_MATERIAL_FLOATS)
+
+        // Lit: MVP(16) + lightDir(4) + lightColor(4) + pbr(4) = 28 floats
+        assertEquals(28, MaterialUniformLayouts.Lit.total)
+
+        // PbrTextured: MVP(16) + lightDir(4) + lightColor(4) + model(16) + camPos(4) + pbr(4) + baseColor(4) + emissive(4) + fog(4) = 60 floats
+        assertEquals(60, MaterialUniformLayouts.PbrTextured.total)
+    }
 }
