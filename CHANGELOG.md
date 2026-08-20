@@ -243,6 +243,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `popup()`'s `id` is now required (headless facade + the underlying primitive). It used to
+  default through `id ?: modifier.testTag ?: "popup"` — any popup with neither set silently
+  shared one fade-animation state bucket with every other un-ided popup on screen. Fixed the
+  same collision-by-default pattern in `shadcnAvatarBadge`, `shadcnAvatarGroup`,
+  `shadcnFieldSeparator`, and `shadcnSidebarMenuSub`, whose defaulted `id`s fed a *different*
+  child widget's required-id slot.
 - A `FillMax`-width `interactiveSurface()`/`button()` (any content-lambda form, not just the
   headless label form) with no explicit width could never resolve a hover-conditional
   `Style` — `surfaceCore` built its interactive style from a placeholder `hovered = false`
