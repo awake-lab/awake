@@ -1,45 +1,72 @@
-# Awake Render Passes
+# Awake Render Passes (`:awake:engine:render:passes`)
 
-Status: **phase 1** -- the opaque pass runs from here on both backends.
+Status: **Active** — shared render pass logic and draw command recording across Vulkan and WebGPU.
 
-Backend-neutral render-pass logic, shared by [`awake:backend:vulkan`](../../../backend/vulkan/README.md)
-and [`awake:backend:webgpu`](../../../backend/webgpu/README.md). Sibling to
-[`awake:engine:render:contract`](../contract/README.md), which stays pure interface/vocabulary
-types -- this module is where behavior on top of those types lives.
+This module provides **backend-neutral render pass orchestration** shared by [`awake:backend:vulkan`](../../../backend/vulkan/README.md) and [`awake:backend:webgpu`](../../../backend/webgpu/README.md).
+
+Sibling to [`awake:engine:render:contract`](../contract/README.md), which defines pure vocabulary and public interfaces. **`:awake:engine:render:passes` is where execution behavior and pass sequencing live.**
+
+---
+
+## Architecture & Layer Boundaries
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ 1. :awake:engine:render:contract (Vocabulary & Public Interfaces)      │
+│    • Renderer, Material, Mesh, VertexFormat, CullMode, RenderTarget    │
+│    • Zero execution logic, zero per-frame algorithms                   │
+└────────────────────────────────────┬───────────────────────────────────┘
+                                     │
+┌────────────────────────────────────┴───────────────────────────────────┐
+│ 2. :awake:engine:render:passes (Pass Orchestration & Command Recording)│
+│    • SharedOpaqueRenderFeature  ──> 3D mesh batching & draw recording  │
+│    • SharedSkyboxRenderFeature  ──> background cube pass               │
+│    • SharedUiRenderFeature      ──> 2D UI batching & scissor clipping  │
+│    • CommandRecorder, PreparedDraw                                     │
+│    • Pure uniform packing math (PBR, fog, lights)                      │
+└────────────────────────────────────┬───────────────────────────────────┘
+                                     │
+┌────────────────────────────────────┴───────────────────────────────────┐
+│ 3. :awake:backend:vulkan / :awake:backend:webgpu (Native GPU Drivers)  │
+│    • VkDevice, GPUDevice, Swapchains, Physical GPU Memory Allocation   │
+│    • VulkanCommandRecorder / WebGpuCommandRecorder implementations     │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## What is a "Render Pass"?
+
+In GPU architecture, a **Render Pass** is an execution phase targeting a specific framebuffer / render target with dedicated pipeline state rules (clear color, depth testing, blending):
+
+1. **Shadow Pass**: Draws depth from light space to an offscreen depth texture.
+2. **Opaque 3D Pass**: Draws 3D scene meshes (PBR, skinned, instanced) with depth testing enabled.
+3. **Skybox Pass**: Draws the environment cube with `LEQUAL` depth testing.
+4. **Debug Line Pass**: Draws world-space gizmos, collision hulls, and raycasts.
+5. **UI Overlay Pass**: Draws immediate-mode 2D elements with alpha blending and scissor clipping.
+
+---
+
+## Module Scope & Guidelines
+
+| Shape | Form & Rule |
+|---|---|
+| **Pass Feature** (Owns state across calls) | Class implementing `RenderFeature`, member functions (`SharedOpaqueRenderFeature`). |
+| **Uniform Packing Math** (Pure calculation) | Plain top-level function taking explicit parameters (`fogFloats(color, near, far, density)`), **never** an implicit receiver on `Renderer`. |
+| **Backend Isolation** | **Never import a Vulkan or WebGPU type.** A capability this module needs belongs on `CommandRecorder` as a new method. |
+
+---
+
+## Components
+
+- **`command/CommandRecorder.kt`**: Opaque backend-defined command recording interface (`bindPipeline`, `bindMaterial`, `bindVertexBuffer`, `bindIndexBuffer`, `draw`, `drawIndexed`).
+- **`command/PreparedDraw.kt`**: Resolved draw command containing vertex/index buffer handles and material bindings.
+- **`passes/SharedOpaqueRenderFeature.kt`**: Unifies 3D draw recording for default, skinned, instanced, and debug line meshes with automatic vertex/index buffer binding deduplication.
+
+---
 
 ## Installation
 
 ```kotlin
 implementation(project(":awake:engine:render:passes"))
 ```
-
-## What belongs here
-
-| Shape | Form |
-|---|---|
-| Owns state across calls (a pipeline reference, a mesh) | class implementing an interface, member functions |
-| One calculation from explicit inputs to an output | plain top-level function, explicit params |
-
-Never a receiver extension on a stateful interface (`fun Renderer.fogFloats()`): it hides the
-function's real inputs behind an implicit receiver and makes it untestable standalone. Uniform
-packers take their inputs as parameters -- `fogFloats(fogColor, fogDensity)`, not
-`this.fogColor`.
-
-Nothing here may reference a Vulkan or WebGPU type. A shared class that needs a backend import
-to compile means the missing capability belongs on `CommandRecorder`, not in a backend branch.
-
-## Today
-
-- `command/CommandRecorder.kt` -- `CommandRecorder` plus the three opaque backend-defined
-  handles it passes through (`MaterialBinding`, `PipelineHandle`, `BufferHandle`).
-- `command/PreparedDraw.kt` -- one draw with every handle already resolved. `CommandRecorder`
-  says *how* to issue a bind; this says *what* to bind. A backend implements it on whatever
-  per-draw type it already builds.
-- `passes/SharedOpaqueRenderFeature.kt` -- the one implementation of "record every opaque draw,
-  grouped by pipeline", called by Vulkan's `OpaqueRenderFeature` and by WebGPU's frame function.
-
-Planned, per
-[docs/audits/2026-08-19-vulkan-webgpu-common-backend-plan.md](../../../../docs/audits/2026-08-19-vulkan-webgpu-common-backend-plan.md):
-the remaining `SharedXRenderFeature` classes (UI, skybox, shadow -- phases 2-4), and the uniform
-packers (`SkyboxUniforms.kt` moving over from `render:contract`, plus
-`MaterialUniforms.kt`/`LightUniforms.kt`).
