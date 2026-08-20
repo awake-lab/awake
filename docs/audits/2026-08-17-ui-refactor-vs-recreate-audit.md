@@ -80,8 +80,34 @@ and a set of small, bounded, mechanical-to-medium new findings:
   (`rangeSlider`/`toast`/`toggleGroup`/`select`) still have only internal-level test
   coverage despite having a public facade that differs in signature — package 2's
   "17 new facade tests… all public `headless.*` imports" claim overclaims for these
-  four. `checkbox`/`switch`/`toggle`/`toggleGroup` have no slot/content form (icon
-  next to a label is impossible). C9's real remaining scope is narrower than
+  four.
+
+  **Fixed 2026-08-20 (follow-up pass).** Re-checked current source for all four
+  before writing anything: `rangeSlider()`, `toast()`, and both `toggleGroup()`
+  overloads each still have a public `UiScope` facade (`Input.kt`, `Status.kt`,
+  `Selection.kt`) with a real surface difference from their `UiPrimitiveScope`
+  counterpart (different receiver reached without `primitive.context.createAbsolute`/
+  `createColumn`, callback-based state for `toggleGroup` vs. the internal layer's
+  bare primitive call). `select()` turned out to already be fixed — `SelectFacadeTest.kt`
+  landed in an earlier commit on this branch (`ad76757ac`) and already drives the
+  public `headless.select` facade end-to-end (trigger render → open → click an
+  option); `UiPopupTest.kt`'s `dropdownUsesSharedPopupAndClosesAfterPickingOption()`
+  still imports `headless.internal.controls.select` directly, but that's the
+  internal-level test coexisting with the facade one, not a gap. Added 3 new files,
+  6 new tests, all driving only `io.github.ronjunevaldoz.awake.ui.headless.*`
+  imports: `RangeSliderFacadeTest.kt` (bounds from the requested modifier; dragging
+  near the end knob raises `valueEnd` only), `ToastFacadeTest.kt` (semantic node
+  carries the message while visible; return value flips to `false` once `durationMs`
+  elapses), `ToggleGroupFacadeTest.kt` (single-select overload's `onIndexChange` and
+  multi-select overload's `onSelectedIndicesChange` both fire correctly on a click).
+  `RangeSliderTest.kt`, `ToastTest.kt`, and `ToggleGroupWidgetTest.kt` (the
+  internal-level tests) are untouched — they cover the lower `UiPrimitiveScope` layer
+  and stay alongside the new facade tests, same as `ToggleFacadeTest.kt` sits
+  alongside `ToggleGroupWidgetTest.kt` already. `:awake:ui:headless:desktopTest`
+  (172 tests, 0 failures) and `:awake:ui:headless:verifyUiOwnership` both green.
+
+  `checkbox`/`switch`/`toggle`/`toggleGroup` have no slot/content form (icon
+  next to a label is impossible), unchanged and still open. C9's real remaining scope is narrower than
   documented: 6 of 7 widgets it worries about are already pure return-value with no
   callback; only `toggle` (dual return+callback) and `toggleGroup` (`Unit`+callback
   only) still need work.
