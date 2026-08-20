@@ -17,7 +17,9 @@ import io.github.ronjunevaldoz.awake.webgpu.debug.LineMesh
 import io.github.ronjunevaldoz.awake.webgpu.debug.LineRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.debug.SkyboxRenderPipeline
 import io.github.ronjunevaldoz.awake.webgpu.material.Material
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuBindGroupHandle
 import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuCommandRecorder
+import io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuPipelineHandle
 import io.github.ronjunevaldoz.awake.webgpu.ui.DynamicMesh
 import io.ygdrasil.webgpu.GPULoadOp
 import io.ygdrasil.webgpu.GPUStoreOp
@@ -128,9 +130,11 @@ internal fun Renderer.performDraw(camera: Camera, drawCalls: List<DrawCall>, lig
         // pipeline, so it neither occludes nor is occluded by what follows. No vertex buffer:
         // the vertex shader generates a full-screen triangle from vertex_index.
         if (skybox != null && skyboxUniforms != null) {
-            setPipeline(skybox.pipeline)
-            setBindGroup(0u, skybox.bindGroup)
-            draw(SkyboxRenderPipeline.FULLSCREEN_TRIANGLE_VERTICES)
+            sharedSkyboxFeature.recordCommands(
+                recorder = WebGpuCommandRecorder(this),
+                pipeline = io.github.ronjunevaldoz.awake.webgpu.pipeline.WebGpuPipelineHandle(skybox.pipeline),
+                uniformBinding = WebGpuBindGroupHandle(skybox.bindGroup),
+            )
         }
         // Every opaque draw, grouped by pipeline -- one implementation, shared verbatim with
         // the Vulkan backend, reached through this backend's own CommandRecorder.

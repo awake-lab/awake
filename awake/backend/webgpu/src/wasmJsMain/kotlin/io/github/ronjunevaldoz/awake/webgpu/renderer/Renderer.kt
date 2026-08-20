@@ -8,6 +8,7 @@ import io.github.ronjunevaldoz.awake.core.math.times
 import io.github.ronjunevaldoz.awake.render.mesh.MeshGeometry
 import io.github.ronjunevaldoz.awake.render.mesh.VertexFormat
 import io.github.ronjunevaldoz.awake.render.passes.SharedOpaqueRenderFeature
+import io.github.ronjunevaldoz.awake.render.passes.SharedSkyboxRenderFeature
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_FOG_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_HORIZON_COLOR
 import io.github.ronjunevaldoz.awake.render.renderer.DEFAULT_SCENE_LIGHT
@@ -200,6 +201,9 @@ class Renderer(
     /** Stateless; the one implementation of "record all opaque draws, grouped by pipeline",
      * shared verbatim with the Vulkan backend through [WebGpuCommandRecorder]. */
     internal val sharedOpaqueFeature = SharedOpaqueRenderFeature()
+
+    /** Stateless; the one implementation of procedural skybox drawing, shared verbatim across backends. */
+    internal val sharedSkyboxFeature = SharedSkyboxRenderFeature()
 
     /** Each of the four bind groups below, as the shared render layer's opaque handle. Cached
      * next to the group it wraps (set by the matching `ensure*UniformResources`) rather than
