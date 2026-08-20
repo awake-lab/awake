@@ -63,6 +63,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `shadcnTabs`' `items`/`selected` overload takes a `content: ColumnScope.(String) -> Unit`
   slot, rendering a real content panel below the track instead of modeling the track only.
   Defaults to empty, so existing track-only callers are unaffected.
+- `ShadcnSurfaceVariant.Band` — a full-bleed chrome strip (muted, square-cornered,
+  horizontal-only inset), for an app toolbar/status-bar row rather than a panel/card.
+  `shadcnSurface` also takes an optional `contentPadding: Dp?` override.
+- `samples:ui-showcase`/`samples:studio` are now covered by `verifyUiOwnership`, banning
+  direct `ui-core` (`ui.modifier.*`) imports and hand-authored `Style { }` blocks in consumer
+  code — the same rule that already applied to `ui-designsystem`.
 - GPU-based 3D Camera System: a single `CameraComponent` carrying a `CameraMode` enum
   (`FirstPerson`, `ThirdPerson`, `Cinematic`, `TopDown`) plus an `ActiveCamera` tag
   component. One `CameraSystem` drives every mode and only processes entities tagged with
