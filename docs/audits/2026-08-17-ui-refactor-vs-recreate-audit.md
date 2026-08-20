@@ -16,6 +16,73 @@ the E5 scratch test are already gone. Some audit line numbers for that file fami
 came from stale `build/` mirrors; re-verify file:line before starting any row, and
 exclude `**/build/**` from audit greps.
 
+## Re-audit — 2026-08-20
+
+Four fresh parallel audits (ui-core, headless, designsystem, cross-cutting) against
+real current source, 3 days and ~30 commits after the original. Same method as the
+2026-08-17 audit, same verdict: **refactor in place, don't recreate — holds more
+strongly now than on 2026-08-17.** 603/603 real UI tests green (up from the 524
+baseline cited as non-transferable "recreate" cost), `verifyUiOwnership` confirmed
+still doing real work (hand-verified its exemption ledger matches the tree exactly,
+not a vacuous green). No new architectural or layering problems found; only doc
+drift (fixed above — Package 5 and B6 were fully landed but still shown unchecked)
+and a set of small, bounded, mechanical-to-medium new findings:
+
+- **designsystem** — 8 `public` style-fn functions have zero external callers, should
+  be `internal` (`ShadcnAvatarStyles.kt`, `ShadcnSelectionStyles.kt`,
+  `ShadcnStatusStyles.kt`, `ShadcnToastStyles.kt` — this is the original audit's own
+  "8 unexplained public style fns" claim, never previously investigated, now
+  confirmed real). 4 real id-default collision bugs, same class as the already-fixed
+  F2 tooltip bug: `shadcnAvatarBadge`/`shadcnAvatarGroup`/`shadcnFieldSeparator`/
+  `shadcnSidebarMenuSub` each string-interpolate a defaulted `id` into a *different*
+  child widget's required-id slot — two un-ided sibling instances on one screen
+  silently share a `WidgetState`/measure-cache bucket. `docs/reference/ui-status.md`
+  risk #1 ("Button missing `px-4`") is stale — already fixed (`ShadcnButtonStyles.kt`
+  sets `contentPadding` correctly), doc not updated.
+- **headless** — `popup()` still has a nullable/defaulted `id` (`Popup.kt:64`), the
+  exact bug class F2 fixed for tooltip, one layer lower and still open; `popup()`
+  also takes no `modifier` param at all — literally the root cause C6 already
+  diagnosed for designsystem's 9 overlay wrappers. 4 widgets
+  (`rangeSlider`/`toast`/`toggleGroup`/`select`) still have only internal-level test
+  coverage despite having a public facade that differs in signature — package 2's
+  "17 new facade tests… all public `headless.*` imports" claim overclaims for these
+  four. `checkbox`/`switch`/`toggle`/`toggleGroup` have no slot/content form (icon
+  next to a label is impossible). C9's real remaining scope is narrower than
+  documented: 6 of 7 widgets it worries about are already pure return-value with no
+  callback; only `toggle` (dual return+callback) and `toggleGroup` (`Unit`+callback
+  only) still need work.
+- **ui-core** — two dead `@Deprecated` typealiases (`Dimension`/`LayoutWeight` in
+  `layout/Dimension.kt`) with zero real importers, safe to delete. `CanvasScope`'s
+  new `draw*` helpers (landed 2026-08-19) have no direct `ui-core` unit test, only
+  indirect coverage through consumer-module snapshots.
+- **Cross-cutting — the real headline finding.** `verifyUiOwnership` never runs on
+  `samples:*` (not in `classifiedUiModules`), and this let real drift accumulate
+  silently in exactly the layer nothing was watching: **~45 files** across
+  `samples/studio` and `samples/ui-showcase` bypass `ui-headless`'s licensed
+  `ModifierExports.kt` door and import `io.github.ronjunevaldoz.awake.ui.modifier.*`
+  (`ui-core`) directly — essentially every `ui-showcase` page file, plus 5 studio UI
+  files. More severe: **3 confirmed instances of consumer code hand-authoring
+  `Style { ... }`** against raw `surface()`/`text()` calls instead of using a
+  `shadcn*` recipe — `StudioToolbar.kt:165` (`barBand()`), `IconRail.kt:42`
+  (`railCard()`), `GettingStartedContent.kt:146` (`themeLabel()`, also reaching the
+  raw ambient `primitive.theme` directly). This is a direct violation of the
+  consumer rule codified 2 days ago in `docs/reference/ui-ownership.md`'s
+  "Consuming From A Sample, Game, Or Tool" section — invisible until this audit
+  because samples were never brought under the check that would have caught it.
+  Confirms the original audit's own root-cause finding ("dirt accumulates because
+  guardrails are off, not because the architecture is wrong") in a new place.
+  B9b's designsystem-`api(ui-core)`-instead-of-`implementation` gap is confirmed
+  still real but **should not be fixed before the ~45-file import drift and 3
+  `Style{}` violations above are fixed** — flipping the dependency scope first would
+  just break the build on those violations rather than resolve them. Real fix order:
+  (1) repoint the ~45 imports (mechanical, sed-able), (2) fix or promote the 3
+  `Style{}` sites to real recipes, (3) then flip designsystem's dependency scope and
+  bring `samples:*` under `verifyUiOwnership`.
+
+None of the above changes the verdict. All are bounded, independently landable,
+same shape as everything else that's already shipped from this doc — not
+architectural surprises, not a case for recreate.
+
 ## TL;DR
 
 - **The dirt accumulated because the guardrails were off, not because the architecture
@@ -273,17 +340,25 @@ val shadcnSwitchStyle = Style { selected { background(colors.primary) } }
 
 ## Package 5 — layout unlock (2–3 days) · rows D1 D2 B5
 
-- [ ] Land the intrinsic wrap+fill fix at `ColumnScope.kt:94` / `RowScope.kt:81`
+- [x] Land the intrinsic wrap+fill fix at `ColumnScope.kt:94` / `RowScope.kt:81`
       (failing spec `ShadcnButtonGroupTest` already in tree) — D1
-- [ ] Delete the 4 workaround species: `withIntrinsicLabelWidth` call sites where now
+      **done**, commit `505be7cee` (2026-08-18). Confirmed live 2026-08-20 re-audit:
+      `contributesToWrapWidth`/`contributesToWrapHeight` still correctly exclude
+      `Dimension.FillMax` only outside a wrap-content pass, matching the `after` snippet below.
+- [x] Delete the 4 workaround species: `withIntrinsicLabelWidth` call sites where now
       redundant, `wrapContentWidthOrDefault()`, `minWidth` param, `withSizeFallback(40dp)` — D1
-- [ ] Consume `UiShapeSpec.RoundedCorners` in button group (zero consumers today; stale
+      **done**, same commit. `wrapContentWidthOrDefault()` was found NOT dead (kept
+      deliberately — see package 5's own note elsewhere in this doc for why).
+- [x] Consume `UiShapeSpec.RoundedCorners` in button group (zero consumers today; stale
       "impossible" comment at `ShadcnButtonGroupRecipes.kt:95-103`); second consumer:
-      toggle-group segments — D2
-- [ ] Delete `LocalShadcnButtonGroup` context + triplicated `shape(0.dp)` mutations once
-      the group is a plain row/column — D2
-- [ ] Dedupe `Row.kt`'s 5 measure-block copies into one helper (Column's `smartColumn`
-      pattern); fixes the `LocalCacheKey` drift bug — B5
+      toggle-group segments — D2 **done**, same commit — per-corner radii live.
+- [x] Delete `LocalShadcnButtonGroup` context + triplicated `shape(0.dp)` mutations once
+      the group is a plain row/column — D2 **kept deliberately, not deleted** — found
+      structurally required, documented as a deviation from the plan at the time.
+- [x] Dedupe `Row.kt`'s 5 measure-block copies into one helper (Column's `smartColumn`
+      pattern); fixes the `LocalCacheKey` drift bug — B5 **done**, same commit. Confirmed
+      2026-08-20: `Row.kt` (347 lines) is one `resolveMeasuredRow` helper (`Row.kt:37`)
+      with 5 thin scope wrappers, matching `Column`'s pattern.
 
 ```kotlin
 // before — ui-core/layouts/ColumnScope.kt:94 (mirrored RowScope.kt:81)
@@ -595,7 +670,7 @@ found). Verdict `recreate` = that unit is cheaper rewritten than patched.
 | B3 | `ShadcnComponentStyles` competes with recipe styles on 9 widgets; owns the module's only `focused {}` rule — focus ring existence depends on merge order | `designsystem/ShadcnComponentStyles.kt:18-76` | Rewrite token-only + `shadcnFocusRing()` fragment | **recreate** | 3 |
 | B4 | `pixelPerfectPixel` ×4, 2 tie-rounding rules — border and icon snap .5px opposite ways | `ui-core/scope/UiScopeMetrics.kt:25`, `ui-core/api/layout/LayoutValues.kt:80`, `graphics/UiDensity.kt:31`, `graphics/api/layout/UiBounds.kt:27` | Keep one (`roundToInt` semantics), delete 3 | refactor | 1 |
 | B5 | `Row.kt` 50-line measure block ×5, drifted: only `AbsoluteScope.row` reads `LocalCacheKey` — and passes the wrong key downstream | `ui-core/layouts/Row.kt:25-332` | One helper + 4 thin wrappers (Column's pattern) | refactor | 2 |
-| B6 | `UiContext` 821 lines: 31 `@Deprecated` one-line forwards re-exposed 3–4×; ui-core calls its own deprecated layer from 15 sites | `ui-core/context/UiContext.kt`; callers in `Row.kt`, `Column.kt`, `Surface.kt` | Re-point 15 callers, delete the mirror in one commit | refactor | 3 |
+| B6 | ~~`UiContext` 821 lines: 31 `@Deprecated` one-line forwards re-exposed 3–4×; ui-core calls its own deprecated layer from 15 sites~~ — **done**, commit `451d2254d`. Confirmed 2026-08-20: `UiContext.kt` now 698 lines, zero `@Deprecated` annotations. Never had a checklist entry in any package (appendix-only), noted here so it isn't re-scoped by mistake | `ui-core/context/UiContext.kt`; callers in `Row.kt`, `Column.kt`, `Surface.kt` | Re-point 15 callers, delete the mirror in one commit | refactor | 3 |
 | B7 | Two `@DslMarker AwakeUiDsl` — headless `UiScope{}` does not shadow enclosing `UiPrimitiveScope` | `ui-core/UiDslMarker.kt:9` vs `headless/UiScope.kt:19` | Delete headless copy | refactor | 1 |
 | B8 | Designsystem dupes: 2 shipping `shadcnEmpty`; 14 `foreground+textSize` re-impls; byte-identical dialog surface styles; 45-line sidebar pair; `FieldSet`/`FieldGroup` identical modulo one Dp; 8 style-fn signature shapes | `ShadcnEmptyRecipes.kt:25` vs `ShadcnStatusRecipes.kt:141`; `ShadcnFieldStyles.kt`, `ShadcnPopupStyles.kt:45,52-53`, `ShadcnSidebarRecipes.kt:61-151` | Merge/delete/extract; one style-fn shape | recreate (empty) / refactor | 2 |
 | B9 | Headless facade wall half-built: `HeadlessModifier` mirror + second `UiScope`; `primitive` escape public (used 6× by designsystem); 48 unwrapped imports bypass it | `headless/Layout.kt:34-40`, `headless/UiScope.kt:24-29` | Delete mirror; enforce via check + dependency scope | refactor | 4 |
