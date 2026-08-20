@@ -20,6 +20,7 @@
 - `docs/reference/ui-ownership.md`
 - `docs/reference/ui-validation.md`
 - `docs/reference/game-structure.md`
+- `docs/reference/framework-game-boundary.md`
 - `docs/MVP_PLAN.md`
 
 ### Read before writing engine code
@@ -58,3 +59,4 @@ Mandatory for the domain you are touching — each encodes a bug this repo actua
   `tools/svg_to_ui_image_vector.py`, never hand-transcribed or derived by rotating another
   glyph's coordinates.
 - `skills/awake-ui-verification/SKILL.md` — before claiming UI fidelity or modifying snapshot tests.
+- `skills/awake-framework-boundary/SKILL.md` — before promoting sample/game code or adding server, network, persistence, or MMO-oriented abstractions.

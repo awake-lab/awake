@@ -11,6 +11,7 @@ as the long-form home for project policy.
 - [docs/reference/ui-ownership.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-ownership.md)
 - [docs/reference/ui-validation.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/ui-validation.md)
 - [docs/reference/game-structure.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/game-structure.md)
+- [docs/reference/framework-game-boundary.md](/Users/ronvaldoz/StudioProjects/awaken/docs/reference/framework-game-boundary.md)
 - [docs/MVP_PLAN.md](/Users/ronvaldoz/StudioProjects/awaken/docs/MVP_PLAN.md)
 - [docs/tasks.md](/Users/ronvaldoz/StudioProjects/awaken/docs/tasks.md)
 
@@ -36,6 +37,7 @@ as the long-form home for project policy.
 - `skills/awake-ui-shadcn-styling/SKILL.md` — Building & extending Shadcn component recipes
 - `skills/awake-ui-icons/SKILL.md` — SVG-to-UiImageVector generation pipeline
 - `skills/awake-ui-verification/SKILL.md` — UI visual snapshots and parity test baselines
+- `skills/awake-framework-boundary/SKILL.md` — framework-versus-game ownership before promoting sample code or adding MMO-oriented abstractions
 
 ## Upstream KMP Skill Routing
 

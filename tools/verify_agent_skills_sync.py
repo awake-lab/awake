@@ -94,6 +94,7 @@ def check_domain_skills() -> list[str]:
         "awake-ui-shadcn-styling",
         "awake-ui-icons",
         "awake-ui-verification",
+        "awake-framework-boundary",
     ]
 
     for skill_name in mandatory_skills:
@@ -124,6 +125,7 @@ def check_entrypoint_skills() -> list[str]:
         "skills/awake-ui-shadcn-styling/SKILL.md",
         "skills/awake-ui-icons/SKILL.md",
         "skills/awake-ui-verification/SKILL.md",
+        "skills/awake-framework-boundary/SKILL.md",
     ]
 
     for ep in ENTRYPOINTS:
@@ -250,7 +252,7 @@ def main():
             print(f"  - {err}", file=sys.stderr)
         sys.exit(1)
 
-    print("\n✅ All 12 agents, 12 domain skills, 24 module READMEs, performance matrix, and entrypoints are fully synchronized!")
+    print("\n✅ All 12 agents, 13 domain skills, 24 module READMEs, performance matrix, and entrypoints are fully synchronized!")
     sys.exit(0)
 
 

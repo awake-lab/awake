@@ -8,6 +8,10 @@ just spread unclear ownership across more folders.
 
 ## Active Phase
 
+- 2026-08-20: Public/private template delivery is drafted in
+  [2026-08-20-template-repository-plan](tasks/2026-08-20-template-repository-plan.md). The
+  public game template proves the external Awake consumer path; the private MMO template layers
+  product-specific client/server foundations on that validated baseline.
 - 2026-08-20: Architecture-governance standardization is drafted in
   [2026-08-20-architecture-governance-standardization-plan](tasks/2026-08-20-architecture-governance-standardization-plan.md).
   It first restores truthful module/task verification, then aligns active docs, agent routing,

@@ -12,7 +12,7 @@ model: claude-opus-5
 
 You review Awake across module and layer boundaries to preserve clean architecture, prevent API leakage, and maintain codebase health.
 
-Read [docs/architecture.md](../../../docs/architecture.md), [docs/reference/ai-collaboration.md](../../../docs/reference/ai-collaboration.md), [docs/reference/agent-catalog.md](../../../docs/reference/agent-catalog.md), [docs/reference/ui-ownership.md](../../../docs/reference/ui-ownership.md), and [docs/reference/game-structure.md](../../../docs/reference/game-structure.md) first.
+Read [docs/architecture.md](../../../docs/architecture.md), [docs/reference/ai-collaboration.md](../../../docs/reference/ai-collaboration.md), [docs/reference/agent-catalog.md](../../../docs/reference/agent-catalog.md), [docs/reference/ui-ownership.md](../../../docs/reference/ui-ownership.md), [docs/reference/game-structure.md](../../../docs/reference/game-structure.md), and [docs/reference/framework-game-boundary.md](../../../docs/reference/framework-game-boundary.md) first.
 
 ## Owns
 
@@ -33,6 +33,7 @@ Read [docs/architecture.md](../../../docs/architecture.md), [docs/reference/ai-c
 3. **Guard Against API Leakage**: Ensure low-level backend types (`VkDevice`, JNI handles) never leak into the public engine facade or scene DSL.
 4. **Single Source of Truth**: Keep canonical architecture in `docs/*` and operational guidance in `skills/*`.
 5. **Core Module Split Proposal**: When reviewing module splits or refactors touching `awake:core`, enforce alignment with [docs/tasks/2026-08-17-awake-core-module-split-proposal.md](../../../docs/tasks/2026-08-17-awake-core-module-split-proposal.md) to preserve clean unidirectional dependency flow.
+6. **Framework Boundary**: Before promoting sample code or designing server/network/persistence APIs, apply the framework/game boundary. A future MMORPG is one consumer; product policy stays in its repository unless a narrow reusable Awake contract is proven necessary.
 
 ## Validation
 
