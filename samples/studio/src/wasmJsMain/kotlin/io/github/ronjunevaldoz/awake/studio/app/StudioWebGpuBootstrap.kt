@@ -16,7 +16,7 @@ private val StudioParticleShaders = shaderSet("particle")
 fun createStudioWebGpuApplication(): WebGpuEngine = WebGpuEngine(
     shaderSet = StudioShaders,
     vertexFormat = VertexFormat.PositionNormalColor,
-    appLifecycle = studioGame(),
+    appLifecycle = studioApp(),
     wireframeSupport = true,
     // Textured only, unlike the Vulkan bootstrap: skinned.wgsl also needs the joint-palette
     // uniform path (DrawCall.extraUniformFloats), which this backend doesn't write yet.

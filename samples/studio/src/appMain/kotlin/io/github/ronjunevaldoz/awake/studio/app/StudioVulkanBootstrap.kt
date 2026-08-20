@@ -17,7 +17,7 @@ private val StudioSkyboxShaders = shaderSet("skybox")
 private val StudioParticleShaders = shaderSet("particle")
 
 fun createStudioVulkanApplication(
-    game: AwakeAppLifecycle = studioGame(),
+    game: AwakeAppLifecycle = studioApp(),
 ): VulkanEngine = VulkanEngine(
     shaderSet = StudioShaders,
     vertexFormat = VertexFormat.PositionNormalColor,

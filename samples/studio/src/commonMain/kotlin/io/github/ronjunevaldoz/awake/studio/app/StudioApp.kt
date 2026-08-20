@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package io.github.ronjunevaldoz.awake.studio.app
 
-import io.github.ronjunevaldoz.awake.engine.app.core.AppSpec
+import io.github.ronjunevaldoz.awake.engine.app.lifecycle.AwakeAppLifecycle
 import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.WindowDsl
 import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.appDefinition
 import io.github.ronjunevaldoz.awake.engine.platformauthoring.dsl.select
@@ -15,9 +15,7 @@ private val studioDefinition = appDefinition(createState = {}) {
     module(studioModule())
 }
 
-fun studioGame() = studioDefinition.createApp()
-
-fun studioGameSpec(): AppSpec = studioDefinition.createAppSpec()
+fun studioApp(): AwakeAppLifecycle = studioDefinition.createApp()
 
 private fun WindowDsl.configureStudioWindow() {
     title = "Awake Studio"
